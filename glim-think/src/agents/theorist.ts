@@ -1,0 +1,138 @@
+/**
+ * TheoristAgent: hypothesis generation from statistical claims.
+ *
+ * Upgraded to Think — the model generates competing hypotheses
+ * using its reasoning loop, with access to the D1 ledger and
+ * persistent theory storage.
+ */
+
+import { GlimThinkAgent } from "./base";
+import { selectModel } from "./models";
+import { tool } from "ai";
+import { z } from "zod";
+import type { ToolSet } from "ai";
+
+export class Theorist extends GlimThinkAgent {
+  /**
+   * Theorist uses the deep tier (MiniMax-M2 when available) for hypothesis
+   * generation. Falls back to Workers AI when MINIMAX_API_KEY is unset.
+   * synthesize() routes through the eval-aware multi-provider deep tier.
+   */
+  protected override deepTier = true;
+  getModel() {
+    return selectModel(this.env, "deep");
+  }
+
+  // System prompt resolved via the prompt registry (getPrompt by class name)
+  // inherited from GlimThinkAgent → enables Evolver-driven prompt evolution.
+
+  getTools(): ToolSet {
+    return {
+      query_existing_theories: tool({
+        description: "Check if theories already exist for a given observation claim",
+        inputSchema: z.object({
+          observationClaimId: z.string().describe("The claim ID to check for existing theories"),
+        }),
+        execute: async ({ observationClaimId }) => {
+          const rows = await this.sql`
+            SELECT theory_id, explanation, prediction, discriminative_property
+            FROM theories WHERE observation_claim_id = ${observationClaimId}
+          `;
+          return { existingTheories: rows, count: rows.length };
+        },
+      }),
+
+      save_theory: tool({
+        description: "Persist a new theory/hypothesis to the local store",
+        inputSchema: z.object({
+          observationClaimId: z.string(),
+          explanation: z.string(),
+          prediction: z.string(),
+          testStrategy: z.string(),
+          discriminativeProperty: z.string(),
+        }),
+        execute: async ({ observationClaimId, explanation, prediction, testStrategy, discriminativeProperty }) => {
+          const theoryId = crypto.randomUUID();
+          await this.sql`
+            INSERT INTO theories (theory_id, observation_claim_id, explanation, prediction, test_strategy, discriminative_property, provider, model)
+            VALUES (${theoryId}, ${observationClaimId}, ${explanation}, ${prediction}, ${testStrategy}, ${discriminativeProperty}, 'think', 'llama-4-scout')
+          `;
+          return { saved: true, theoryId };
+        },
+      }),
+
+      query_ledger_context: tool({
+        description: "Query the D1 ledger for contextual information to ground hypothesis generation",
+        inputSchema: z.object({
+          sql: z.string().describe("SELECT query to run against the records table"),
+        }),
+        execute: async ({ sql: query }) => {
+          // Safety: only allow SELECT
+          if (!query.trim().toUpperCase().startsWith("SELECT")) {
+            return { error: "Only SELECT queries allowed" };
+          }
+          try {
+            const result = await this.env.LEDGER.prepare(query).all();
+            return { rows: result.results, count: result.results.length };
+          } catch (e) {
+            return { error: String(e) };
+          }
+        },
+      }),
+
+      list_available_elements: tool({
+        description: "List all elements present in the benchmark ledger",
+        inputSchema: z.object({}),
+        execute: async () => {
+          const rows = await this.queryLedger<{ element: string; count: number }>(
+            `SELECT element, COUNT(*) as count FROM records GROUP BY element ORDER BY count DESC`
+          );
+          return rows;
+        },
+      }),
+
+      list_available_potentials: tool({
+        description: "List all potentials in the benchmark ledger with their coverage",
+        inputSchema: z.object({
+          element: z.string().optional().describe("Filter by element, or omit for all"),
+        }),
+        execute: async ({ element }) => {
+          if (element) {
+            return this.queryLedger(
+              `SELECT potential_label, pair_style, COUNT(*) as records FROM records WHERE element = ?1 GROUP BY potential_label ORDER BY records DESC`,
+              element
+            );
+          }
+          return this.queryLedger(
+            `SELECT potential_label, pair_style, COUNT(*) as records FROM records GROUP BY potential_label ORDER BY records DESC LIMIT 50`
+          );
+        },
+      }),
+    };
+  }
+
+  async getStorageStats(): Promise<Record<string, number>> {
+    try {
+      const rows = await this.sql`SELECT COUNT(*) AS n FROM theories`;
+      return { theories: Number(rows[0]?.n ?? 0) };
+    } catch {
+      return { theories: 0 };
+    }
+  }
+
+  async onStart() {
+    this.sql`
+      CREATE TABLE IF NOT EXISTS theories (
+        theory_id TEXT PRIMARY KEY,
+        observation_claim_id TEXT,
+        explanation TEXT,
+        prediction TEXT,
+        test_strategy TEXT,
+        discriminative_property TEXT,
+        provider TEXT,
+        model TEXT,
+        timestamp TEXT DEFAULT (datetime('now'))
+      )
+    `;
+  }
+}

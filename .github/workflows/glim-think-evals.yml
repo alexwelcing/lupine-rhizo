@@ -1,0 +1,88 @@
+name: Glim Think Phoenix Evals
+
+on:
+  # The hourly cron MIGRATED to a Cloud Run Job + Cloud Scheduler
+  # (.github/workflows/deploy-glim-eval.yml → job `glim-eval`, scheduler
+  # `glim-eval-hourly`). Disabled here so the eval pass does not double-run.
+  # This workflow stays as a manual escape hatch / debugging surface.
+  # schedule:
+  #   - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    # Hourly job must never wedge — fail fast so the next tick runs clean.
+    timeout-minutes: 12
+    permissions:
+      # write needed only when AUTO_REVERT=1 (regression-gate reverts a bad
+      # evolver:auto commit); harmless otherwise.
+      contents: 'write'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install eval dependencies
+        working-directory: glim-think/evals
+        run: |
+          npm install --prefer-offline --no-audit
+
+      # Guarantee every hourly run has a fresh, evaluable LLM span even in a
+      # quiet hour — makes runs repeatable and the signal non-empty. Best
+      # effort: a flaky selftest must not fail the eval job.
+      - name: Seed a deterministic LLM span
+        continue-on-error: true
+        run: |
+          curl -s -m 40 "https://glim-think-v1.aw-ab5.workers.dev/ops/llm-selftest" -o /dev/null -w "llm-selftest: %{http_code}\n"
+          sleep 20  # allow flush → relay → Phoenix ingest before evaluating
+
+      - name: Run Phoenix evals
+        working-directory: glim-think/evals
+        env:
+          PHOENIX_API_KEY: ${{ secrets.PHOENIX_API_KEY }}
+          PHOENIX_COLLECTOR_ENDPOINT: ${{ secrets.PHOENIX_COLLECTOR_ENDPOINT }}
+          PHOENIX_PROJECT_NAME: glim-think
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Lets the runner persist the per-model ModelScorecard claim
+          # through the Access gate (POST /claims/ingest).
+          INTERNAL_TASK_TOKEN: ${{ secrets.INTERNAL_TASK_TOKEN }}
+        run: npx tsx run-evals.ts
+
+      # Health gate: surfaces projection/export/relay breakage as a CI signal.
+      # Informational (continue-on-error) so a genuinely quiet hour with no
+      # LLM spans doesn't red the run — the metric is the trend, not one tick.
+      - name: Verify OpenInference projection (health signal)
+        continue-on-error: true
+        working-directory: glim-think/evals
+        env:
+          PHOENIX_API_KEY: ${{ secrets.PHOENIX_API_KEY }}
+          PHOENIX_COLLECTOR_ENDPOINT: ${{ secrets.PHOENIX_COLLECTOR_ENDPOINT }}
+          PHOENIX_PROJECT_NAME: glim-think
+        run: npx tsx verify-openinference.ts
+
+      # Rollout iteration 1: warn-only (continue-on-error) so the baseline
+      # can be observed before it blocks. Remove continue-on-error to make it
+      # a hard gate once trusted. AUTO_REVERT comes from a repo variable
+      # (default unset/off); when "1" a regression reverts the latest
+      # registry-only evolver:auto commit.
+      - name: Eval regression gate
+        continue-on-error: true
+        working-directory: glim-think/evals
+        env:
+          WORKER_URL: https://glim-think-v1.aw-ab5.workers.dev
+          EVAL_REGRESSION_THRESHOLD: '0.10'
+          AUTO_REVERT: ${{ vars.EVAL_AUTO_REVERT }}
+        run: npx tsx regression-gate.ts
+
+      - name: Report eval status
+        if: always()
+        run: |
+          curl -X POST https://glim-think-v1.aw-ab5.workers.dev/ops/report \
+            -H "Content-Type: application/json" \
+            -d "{\"repo\":\"$GITHUB_REPOSITORY\",\"workflow\":\"$GITHUB_WORKFLOW\",\"run_id\":\"$GITHUB_RUN_ID\",\"status\":\"${{ job.status }}\",\"commit_sha\":\"$GITHUB_SHA\",\"branch\":\"$GITHUB_REF_NAME\",\"service\":\"glim-think-evals\",\"run_url\":\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\",\"started_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"

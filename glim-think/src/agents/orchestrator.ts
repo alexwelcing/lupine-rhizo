@@ -1,0 +1,248 @@
+/**
+ * Orchestrator: the swarm commander.
+ *
+ * Upgraded to Think — uses subAgent() + chat() for parallel sub-agent
+ * dispatch instead of manual fetch RPC. The Orchestrator itself is an
+ * agentic Think that reasons about research strategy, delegates to
+ * specialist sub-agents, and synthesizes cross-agent findings.
+ *
+ * Sub-agent topology:
+ *   Orchestrator
+ *     ├── Manifold (α)  — PCA eigenvalue extraction
+ *     ├── Causal  (δ)   — aggregation-bias detection
+ *     ├── Theorist (γ)  — Hypothesis generation
+ *     └── Experiment (ε) — LAMMPS experiment design & queueing
+ */
+
+import { GlimThinkAgent } from "./base";
+import { selectModel } from "./models";
+import { Manifold } from "./manifold";
+import { Causal } from "./causal";
+import { Theorist } from "./theorist";
+import { Experiment } from "./experiment";
+import { tool } from "ai";
+import { z } from "zod";
+import type { ToolSet } from "ai";
+import { traceAgentCycle } from "../telemetry/rpc";
+import { trace } from "@opentelemetry/api";
+import type { FormalBasis } from "../atlas/theorems";
+
+export class Orchestrator extends GlimThinkAgent {
+  /**
+   * Orchestrator uses the deep tier (MiniMax-M2.7). Tried fast-deep
+   * (-highspeed variant) but the Max plan's sk-cp- proxy key returns
+   * 2061 "current token plan not support model" for any -highspeed
+   * sibling. Reverted to base deep until the plan exposes -highspeed.
+   * synthesize() routes through the eval-aware multi-provider deep tier.
+   */
+  protected override deepTier = true;
+  getModel() {
+    return selectModel(this.env, "deep");
+  }
+
+  // System prompt resolved via the prompt registry (getPrompt by class name)
+  // inherited from GlimThinkAgent → enables Evolver-driven prompt evolution.
+
+  getTools(): ToolSet {
+    return {
+      dispatch_manifold: tool({
+        description: "Delegate a manifold analysis task to the Manifold sub-agent (α). The sub-agent will use its own Think loop to analyze eigenvalue spectra.",
+        inputSchema: z.object({
+          element: z.string().describe("Element to analyze (e.g. 'Cu') or 'all'"),
+          instruction: z.string().optional().describe("Additional instructions for the manifold agent"),
+        }),
+        execute: async ({ element, instruction }) => {
+          const child = await this.subAgent(Manifold, `manifold-${element}`);
+          const prompt = instruction
+            ? `Analyze the error manifold for element: ${element}. ${instruction}`
+            : `Analyze the error manifold for element: ${element}. Query the ledger for all potential families, compute eigenvalue spectra, participation ratios, and check for hyper-ribbon geometry. Report your findings with numbers.`;
+          const response = await this.runChildChat(child, prompt, "manifold");
+          return { agent: "manifold", element, response };
+        },
+      }),
+
+      dispatch_causal: tool({
+        description: "Delegate a causal screening task to the Causal sub-agent (δ). The sub-agent will screen for aggregation bias (strict reversal / ecological fallacy / suppression) across grouping variables.",
+        inputSchema: z.object({
+          instruction: z.string().optional().describe("Additional instructions for the causal agent"),
+        }),
+        execute: async ({ instruction }) => {
+          const child = await this.subAgent(Causal, "causal-main");
+          const prompt = instruction
+            ? `Screen for aggregation bias (classify: strict reversal / ecological fallacy / suppression). ${instruction}`
+            : `Screen all grouping variables (element, pair_style, potential_label) for Simpson's Paradox. For each, compute pooled and within-group correlations and report any reversals.`;
+          const response = await this.runChildChat(child, prompt, "causal");
+          return { agent: "causal", response };
+        },
+      }),
+
+      dispatch_theorist: tool({
+        description: "Delegate hypothesis generation to the Theorist sub-agent (γ). Pass it the statistical claims to generate competing hypotheses.",
+        inputSchema: z.object({
+          claimsDescription: z.string().describe("Description of the statistical claims to theorize about"),
+          instruction: z.string().optional().describe("Additional instructions"),
+        }),
+        execute: async ({ claimsDescription, instruction }) => {
+          const child = await this.subAgent(Theorist, "theorist-main");
+          const prompt = instruction
+            ? `Generate competing hypotheses for: ${claimsDescription}. ${instruction}`
+            : `Generate 2-3 competing, falsifiable physical hypotheses for the following observations: ${claimsDescription}. For each, specify the discriminative property and test strategy.`;
+          const response = await this.runChildChat(child, prompt, "theorist");
+          return { agent: "theorist", response };
+        },
+      }),
+
+      dispatch_experiment: tool({
+        description: "Delegate experiment design to the Experiment sub-agent (ε). Pass it hypotheses to queue discriminative LAMMPS experiments.",
+        inputSchema: z.object({
+          hypothesesDescription: z.string().describe("Description of hypotheses to test"),
+          maxExperiments: z.number().optional().describe("Maximum experiments to queue (default 3)"),
+          instruction: z.string().optional(),
+        }),
+        execute: async ({ hypothesesDescription, maxExperiments, instruction }) => {
+          const child = await this.subAgent(Experiment, "experiment-main");
+          const prompt = instruction
+            ? `Design experiments for: ${hypothesesDescription}. Max ${maxExperiments ?? 3} experiments. ${instruction}`
+            : `Design and queue up to ${maxExperiments ?? 3} discriminative LAMMPS experiments to test these hypotheses: ${hypothesesDescription}. Select element-potential combinations that maximize information gain.`;
+          const response = await this.runChildChat(child, prompt, "experiment");
+          return { agent: "experiment", response };
+        },
+      }),
+
+      parallel_sweep: tool({
+        description: "Run manifold analysis across multiple elements in parallel using sub-agent swarm",
+        inputSchema: z.object({
+          elements: z.array(z.string()).describe("Elements to analyze in parallel"),
+        }),
+        execute: async ({ elements }) => {
+          const results = await Promise.all(
+            elements.map(async (element) => {
+              try {
+                const child = await this.subAgent(Manifold, `manifold-${element}`);
+                const response = await this.runChildChat(child,
+                  `Analyze the error manifold for ${element}. Report eigenvalues, participation ratio, and hyper-ribbon status.`,
+                  "manifold"
+                );
+                return { element, status: "complete", response };
+              } catch (e) {
+                return { element, status: "failed", error: String(e) };
+              }
+            })
+          );
+          return { swept: elements.length, results };
+        },
+      }),
+
+      get_research_state: tool({
+        description: "Query the current state of the research — record counts, pending experiments, etc.",
+        inputSchema: z.object({}),
+        execute: async () => {
+          const [records, pending, elements, families] = await Promise.all([
+            this.queryLedger<{ total: number }>(`SELECT COUNT(*) as total FROM records`),
+            this.queryLedger<{ total: number }>(`SELECT COUNT(*) as total FROM pending_experiments WHERE status = 'pending'`),
+            this.queryLedger<{ element: string; count: number }>(`SELECT element, COUNT(*) as count FROM records GROUP BY element ORDER BY count DESC LIMIT 20`),
+            this.queryLedger<{ family: string; count: number }>(`SELECT pair_style as family, COUNT(*) as count FROM records GROUP BY pair_style ORDER BY count DESC`),
+          ]);
+
+          return {
+            totalRecords: records[0]?.total ?? 0,
+            pendingExperiments: pending[0]?.total ?? 0,
+            elementCoverage: elements,
+            familyCoverage: families,
+          };
+        },
+      }),
+
+      save_state: tool({
+        description: "Save orchestrator state for resume/tracking",
+        inputSchema: z.object({
+          key: z.string(),
+          value: z.string(),
+        }),
+        execute: async ({ key, value }) => {
+          await this.sql`
+            INSERT INTO orchestrator_state (key, value, updated_at)
+            VALUES (${key}, ${value}, datetime('now'))
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+          `;
+          return { saved: true };
+        },
+      }),
+    };
+  }
+
+  async onStart() {
+    this.sql`
+      CREATE TABLE IF NOT EXISTS orchestrator_state (
+        key TEXT PRIMARY KEY,
+        value TEXT,
+        updated_at TEXT DEFAULT (datetime('now'))
+      )
+    `;
+  }
+
+  async getStorageStats(): Promise<Record<string, number>> {
+    try {
+      const rows = await this.sql`SELECT COUNT(*) AS n FROM orchestrator_state`;
+      return { orchestrator_state: Number(rows[0]?.n ?? 0) };
+    } catch {
+      return { orchestrator_state: 0 };
+    }
+  }
+
+  private async runChildChat(
+    child: { chat: (prompt: string, relay: { onEvent(json: string): void; onDone(): void; onError?(error: string): void }) => Promise<void> },
+    prompt: string,
+    agentLabel = "subagent",
+    // §8.4: facet-to-facet RPC payloads may carry a formal_basis[] — the ATLAS
+    // theorem references that ground this dispatch. Optional + additive; existing
+    // call sites pass none and are unaffected.
+    formalBasis?: ReadonlyArray<FormalBasis>,
+  ): Promise<string> {
+    // When a formal basis is attached, prepend a compact grounding preamble so
+    // the receiving facet reasons within the proven theorems, and surface the
+    // basis on the span for Phoenix.
+    const groundedPrompt =
+      formalBasis && formalBasis.length > 0
+        ? `${formalGroundingPreamble(formalBasis)}\n\n${prompt}`
+        : prompt;
+    // Wrap every sub-agent dispatch in an OpenInference AGENT span so the
+    // hypothesis-generation cycle (not just its LLM calls) is visible in Phoenix.
+    return traceAgentCycle(agentLabel, groundedPrompt, async () => {
+      if (formalBasis && formalBasis.length > 0) {
+        const span = trace.getActiveSpan();
+        span?.setAttribute("lupine.formal_basis.count", formalBasis.length);
+        span?.setAttribute(
+          "lupine.formal_basis.theorems",
+          formalBasis.map((b) => b.theorem).join(","),
+        );
+      }
+      const events: string[] = [];
+      await child.chat(groundedPrompt, {
+        onEvent: (json: string) => {
+          events.push(json);
+        },
+        onDone: () => {},
+        onError: (error: string) => {
+          events.push(JSON.stringify({ type: "error", error }));
+        },
+      });
+      return events.slice(-8).join("\n");
+    });
+  }
+}
+
+/**
+ * Render a `formal_basis[]` into a compact natural-language grounding preamble
+ * for a facet-to-facet dispatch. Pure + immutable.
+ */
+function formalGroundingPreamble(basis: ReadonlyArray<FormalBasis>): string {
+  const lines = basis.map((b) => {
+    const helper = b.helper ? ` — ${b.helper}` : "";
+    return `- ${b.theorem} (${b.module} @ ${b.revision}, ${b.status})${helper}`;
+  });
+  return [
+    "Formal basis (ATLAS-Lean theorems underwriting this task; reason within them):",
+    ...lines,
+  ].join("\n");
+}

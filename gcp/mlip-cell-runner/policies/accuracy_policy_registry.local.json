@@ -1,0 +1,7 @@
+{
+  "schema": "lupine.mlip.distill_policy_registry.v1",
+  "description": "Local-first Distill Accuracy policy routing. The current Ni evidence campaign uses a material-family support ribbon; older row/backend-specific ribbons stay as files but are not promoted into the Ni canary until they pass paired evidence.",
+  "policies": {
+    "default_accuracy": "gcp/mlip-cell-runner/policies/hyperribbon-ni-eam-support-v1-accuracy.json"
+  }
+}

@@ -1,0 +1,86 @@
+name: Build Preprint PDF
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_latest:
+        description: 'Commit the rebuilt PDF to paper/immi-paper-latest.pdf. Off = build + artifact only.'
+        type: boolean
+        default: false
+      regenerate_figures:
+        description: 'Regenerate figures before compiling. Off = use committed figures.'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Regenerate figures
+        if: ${{ inputs.regenerate_figures }}
+        run: |
+          python -m pip install --quiet -r paper/figures/requirements.txt
+          cd paper/figures
+          for script in generate_fig1_eigenvalue_spectra.py generate_fig2_dimensionality.py generate_fig3_paradox.py generate_fig4_forest.py; do
+            echo "::group::$script"
+            python "$script" || echo "::warning::$script failed; keeping committed figure"
+            echo "::endgroup::"
+          done
+
+      - name: Compile LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: paper
+          root_file: immi-paper.tex
+          latexmk_use_xelatex: false
+
+      - name: Quality gate
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+          PDF=paper/immi-paper.pdf
+          test -f "$PDF" || { echo "::error::immi-paper.pdf was not produced"; exit 1; }
+          PAGES=$(pdfinfo "$PDF" | awk '/^Pages:/ {print $2}')
+          echo "Pages: $PAGES"
+          [ "${PAGES:-0}" -ge 5 ] || { echo "::error::PDF has only $PAGES pages"; exit 1; }
+          LEAK=$(pdftotext "$PDF" - | grep -c -E '\\textbf|\\noindent|\\texttt\{|\$C_\{' || true)
+          if [ "$LEAK" -ne 0 ]; then
+            echo "::error::PDF text layer leaked $LEAK raw-LaTeX fragments"
+            exit 1
+          fi
+          MOJI=$(pdftotext "$PDF" - | grep -c $'\357\277\275' || true)
+          [ "$MOJI" -eq 0 ] || { echo "::error::PDF text layer has $MOJI replacement characters"; exit 1; }
+          echo "Quality gate passed: $PAGES pages, 0 LaTeX leaks, 0 mojibake."
+
+      - name: Upload built PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: immi-paper-pdf
+          path: paper/immi-paper.pdf
+          retention-days: 30
+
+      - name: Commit latest paper artifact
+        if: ${{ inputs.commit_latest }}
+        run: |
+          cp paper/immi-paper.pdf paper/immi-paper-latest.pdf
+          if git diff --quiet -- paper/immi-paper-latest.pdf; then
+            echo "PDF is byte-identical to paper/immi-paper-latest.pdf."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add paper/immi-paper-latest.pdf
+          git commit -m "build(paper): rebuild preprint PDF from immi-paper.tex" -m "Triggered manually via paper-build.yml; passed the quality gate."
+          git push origin HEAD:main
+
+      - name: Report
+        if: always()
+        run: |
+          curl -X POST https://glim-think-v1.aw-ab5.workers.dev/ops/report \
+            -H "Content-Type: application/json" \
+            -d "{\"repo\":\"$GITHUB_REPOSITORY\",\"workflow\":\"$GITHUB_WORKFLOW\",\"run_id\":\"$GITHUB_RUN_ID\",\"status\":\"${{ job.status }}\",\"commit_sha\":\"$GITHUB_SHA\",\"branch\":\"$GITHUB_REF_NAME\",\"service\":\"paper-build\",\"run_url\":\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\",\"started_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" || true

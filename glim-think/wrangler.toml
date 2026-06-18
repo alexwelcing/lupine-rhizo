@@ -1,0 +1,178 @@
+name = "glim-think-v1"
+main = "src/server.ts"
+compatibility_date = "2026-04-25"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── Scheduled triggers ───
+# Hourly lab broadcast, nightly fleet sweep at 07:00 UTC (~midnight US Pacific),
+# weekly critique drain at 09:00 UTC Monday (~02:00 Pacific), and a 5-minute
+# observability smoketest that pings /health, /broadcasts/trigger, /feed and
+# alerts on regression (Phase A).
+[triggers]
+crons = ["0 * * * *", "0 7 * * *", "0 9 * * MON", "*/5 * * * *", "0 6 * * *"]
+
+# ─── Durable Objects: Think-based research agents ───
+
+[[durable_objects.bindings]]
+name = "ORCHESTRATOR"
+class_name = "Orchestrator"
+
+[[durable_objects.bindings]]
+name = "MANIFOLD_AGENT"
+class_name = "Manifold"
+
+[[durable_objects.bindings]]
+name = "CAUSAL_AGENT"
+class_name = "Causal"
+
+[[durable_objects.bindings]]
+name = "THEORIST_AGENT"
+class_name = "Theorist"
+
+[[durable_objects.bindings]]
+name = "EXPERIMENT_AGENT"
+class_name = "Experiment"
+
+[[durable_objects.bindings]]
+name = "FLEET_ORCHESTRATOR"
+class_name = "FleetOrchestrator"
+
+[[durable_objects.bindings]]
+name = "DASHBOARD"
+class_name = "DashboardAgent"
+
+[[durable_objects.bindings]]
+name = "EXTENSION_MANAGER"
+class_name = "ExtensionManager"
+
+[[durable_objects.bindings]]
+name = "LITERATURIST_AGENT"
+class_name = "Literaturist"
+
+# ─── Migrations ───
+# v1-v2: original Agent-based classes
+# v3: upgraded to Think (re-provisions SQLite for Think's session schema)
+# v4: Literaturist agent (literature search + citation)
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Orchestrator", "Manifold", "Causal", "Theorist", "Experiment"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["FleetOrchestrator", "DashboardAgent", "ExtensionManager"]
+
+# v3: Think upgrade — agents retain their SQLite from v1/v2,
+# Think layer adds session tables via onStart().
+
+[[migrations]]
+tag = "v4"
+new_sqlite_classes = ["Literaturist"]
+
+# ─── AI Gateway ───
+[ai]
+binding = "AI"
+
+# ─── R2: artifact storage (potentials, trajectories, results) ───
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "glim-artifacts"
+
+# ─── KV: lightweight config and cost tracking ───
+[[kv_namespaces]]
+binding = "CONFIG"
+id = "578e17febfa04f0e9d0ef6c34c797314"
+
+# ─── D1: structured research ledger ───
+[[d1_databases]]
+binding = "LEDGER"
+database_name = "glim-ledger"
+database_id = "b88f2156-6d74-41f7-a702-a7667cd6e0e2"
+
+# ─── Queues: async research work (Phase C) ───
+# Producer: server.ts enqueues tasks via env.RESEARCH_QUEUE.send
+# Consumer: this worker drains the queue via the `queue()` handler in server.ts
+# DLQ: messages that exhaust retries land in glim-research-dlq for manual review
+
+[[queues.producers]]
+binding = "RESEARCH_QUEUE"
+queue = "glim-research-queue"
+
+[[queues.consumers]]
+queue = "glim-research-queue"
+# Research tasks are heavy + independent: a single `round` self-fetches
+# /run for up to ~27s (Phoenix: queueHandler batches hit 34.7s). Batching
+# 5 of these into one invocation blew past the redelivery window →
+# duplicate processing + the historical "attempts=4 pending" waste. Run
+# ONE task per invocation and recover throughput via concurrency instead.
+max_batch_size = 1
+max_batch_timeout = 5
+max_retries = 3
+# 5 caused resource contention (Phoenix: rounds 27s→42s under parallel
+# heavy tasks). With `round` now decomposed into short sub-tasks, modest
+# concurrency keeps throughput without the contention.
+max_concurrency = 3
+dead_letter_queue = "glim-research-dlq"
+
+# ─── Workflows: durable experiment orchestration ───
+[[workflows]]
+binding = "MLIP_BASELINE_GRID"
+name = "mlip-baseline-grid"
+class_name = "MlipBaselineGridWorkflow"
+limits = { steps = 300 }
+
+# ─── Secrets (set via `wrangler secret put`) ───
+# OPENAI_API_KEY
+# ANTHROPIC_API_KEY
+# GOOGLE_API_KEY
+# ZAI_API_KEY
+# MINIMAX_API_KEY
+# HF_API_KEY
+#
+# Deep tier is eval-aware (src/agents/models.ts selectDeepRoute): the hourly
+# ModelScorecard balances MiniMax/GLM and reserves OpenAI gpt-5.5 as the
+# last decider. Set ZAI_API_KEY + OPENAI_API_KEY (above) so the scorecard
+# has >1 candidate — otherwise the deep tier is MiniMax-only. The legacy
+# Cloudflare AI Gateway path (AI_GATEWAY_*) was deleted in PR #116.
+
+# ─── Cloudflare Access gating (unit 10) ───
+# /admin/*, /ops/* writes, and the write endpoints (POST /run, /fleet/run,
+# /ingest/batch, /broadcasts/trigger) are protected by middleware/access.ts.
+# Access policies themselves live in the Cloudflare dashboard (Zero Trust →
+# Access → Applications), NOT here — wrangler only needs the team subdomain,
+# audience tag, and admin allow-list so the worker can verify the JWT that
+# Access injects via the `Cf-Access-Jwt-Assertion` header.
+#
+# Set the production values via:
+#   wrangler secret put CF_ACCESS_TEAM_DOMAIN   # e.g. "lupine"
+#   wrangler secret put CF_ACCESS_AUD           # audience claim from the Access policy
+#   wrangler secret put ADMIN_EMAIL             # e.g. "alex@lupine.io"
+#
+# For local dev, put DEV_MODE=true in .dev.vars to bypass the middleware;
+# never set DEV_MODE=true in deployed environments.
+#
+# Example [vars] (uncomment and override locally as needed):
+# [vars]
+# CF_ACCESS_TEAM_DOMAIN = "lupine"           # https://lupine.cloudflareaccess.com
+# CF_ACCESS_AUD = "<policy-aud-claim>"
+# ADMIN_EMAIL = "alex@lupine.io"
+# DEV_MODE = "false"                         # "true" only in .dev.vars
+
+# ─── Research loop (handoff unit 8) ───
+# Worker publishes Cloud Tasks → tasks-consumer Cloud Run Service →
+# atlas-distill Cloud Run Job. Atlas-distill emit-beat then POSTs back to
+# WORKER_URL/feed/beats with an OIDC token whose `aud` must match WORKER_URL.
+[vars]
+WORKER_URL = "https://glim-think-v1.aw-ab5.workers.dev"
+TASKS_CONSUMER_URL = "https://tasks-consumer-edbhtpvina-uc.a.run.app"
+TASKS_CONSUMER_AUDIENCE = "https://tasks-consumer-edbhtpvina-uc.a.run.app"
+TASKS_CONSUMER_INVOKER_SA = "atlas-distill-runner@shed-489901.iam.gserviceaccount.com"
+GCP_PROJECT_ID = "shed-489901"
+GCP_TASKS_LOCATION = "us-central1"
+GCP_TASKS_QUEUE = "atlas-distill-jobs"
+MLIP_BASELINE_MANIFEST_URL = "gs://shed-489901-atlas-inputs/mlip-baseline/canonical-structures-v2/manifest.json"
+MLIP_BASELINE_OUTPUT_PREFIX = "gs://shed-489901-atlas-outputs/mlip-baseline-grid"
+MLIP_DISTILL_SUPPORT_MANIFEST_URL = "gs://shed-489901-atlas-inputs/mlip-baseline/canonical-distill-support-mptrj-train-plus-elastic-v1/manifest.json"
+MLIP_5X5X3_OUTPUT_PREFIX = "gs://shed-489901-atlas-outputs/mlip-5x5x3"
+MLIP_DISTILL_POLICY_ENGINE = "auto"
+MLIP_DISTILL_RIBBON_VERSION = "hyperribbon-v1"

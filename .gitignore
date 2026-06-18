@@ -1,0 +1,103 @@
+node_modules/
+target/
+.env
+dist/
+build/
+.output/
+.nuxt/
+.pytest_cache/
+__pycache__/
+*.egg-info/
+wasm-out/
+*.log
+.DS_Store
+*.data
+*.dump
+.wrangler/
+**/.wrangler/
+
+**/.turbo/
+
+# Archive for old internal research, docs, and plans
+_research_archive/
+
+latest/library/model-data/**
+.claude/settings.local.json
+
+# Lean 4 build artifacts
+lean-spec/.lake/
+lean-spec/build/
+
+# Distiller run artifacts (archived root)
+archive/distiller-kb/runs/*/run_latest.log
+archive/distiller-kb/runs/pipeline_report.json
+
+# NIST IPR local mirror (large binary parameter files)
+atlas/nist_ipr/files/
+atlas/nist_ipr/mirror.log
+
+# OpenKIM API cache
+.atlas-cache/
+
+# atlas-view verify-viewer screenshot artifacts
+.verify-artifacts/
+atlas/atlas-view/.verify-artifacts/
+atlas/atlas-view/tools/lupi-motion-cache/
+
+# Astro / Playwright build + test outputs (lupine-site)
+lupine-site/.astro/
+lupine-site/playwright-report/
+lupine-site/test-results/
+
+# --------------------------
+# Cleanup 2026-05-15
+# --------------------------
+
+# Scratch & test dumps
+
+tmp/
+*.pb
+*.b64
+*.bak
+*.err
+*lighthouse-report.json
+
+# Font archives (retired lupine-start app, now in archive/)
+archive/lupine-start/*.zip
+archive/lupine-start/cs-claire-mono-monospaced-typeface-*/
+archive/lupine-start/rumelaz-gekinsa-serif-family-classic-elegant-*/
+
+# ML virtual envs & working directories
+mlip_immi/.venv-upet/
+mlip_immi/runs/
+mlip_immi/phonon_wd_*/
+mlip_immi/*_results.json
+mlip_immi/phonon_sentinel_pet_mad_1.5.json
+
+# Additional directories and files (2026-05-15)
+lupine-media/
+atlas/atlas-view/archive/
+archive/distiller-kb/agents/profiles/.archive/
+*.glimbin
+atlas-distill/*.json
+.vscode/
+
+# Tools data
+tools/hermes-hive/data/
+
+# Large binary files & media
+*.lammpstrj
+*.mp4
+*.z64
+*.tar.zst
+
+# Authored Lupi environment-pack videos are deployable app assets, not scratch media.
+!atlas/atlas-view/apps/web/public/backgrounds/*.mp4
+!atlas/atlas-view/apps/web/public/backgrounds/*.webm
+
+# AI Agent workspaces
+.claude/
+.kimi/
+.sisyphus/
+lupi-studio-pr/
+archive/kimi-workspace-export/
