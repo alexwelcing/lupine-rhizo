@@ -57,10 +57,20 @@ function gitDirtyIgnoring(relativeOut) {
   const status = gitValue(['status', '--short']);
   if (!status) return false;
   const ignoredPrefix = `${relativeOut.replace(/\/+$/, '')}/`;
+  const ignoredParts = ignoredPrefix.split('/').filter(Boolean);
   return status
     .split('\n')
     .map((line) => line.slice(3).replace(/\\/g, '/').replace(/^"|"$/g, ''))
-    .some((file) => file !== relativeOut && !file.startsWith(ignoredPrefix));
+    .some((file) => {
+      const normalized = file.replace(/\/+$/, '');
+      const normalizedPrefix = `${normalized}/`;
+      const isOutput =
+        normalized === relativeOut ||
+        normalized.startsWith(ignoredPrefix) ||
+        ignoredPrefix.startsWith(normalizedPrefix) ||
+        ignoredParts[0] === normalized;
+      return !isOutput;
+    });
 }
 
 function cloneJson(value) {
