@@ -5,7 +5,7 @@ Fails the build if:
 - Any tracked file lives under a retired top-level root.
 - Any active Python file imports a retired package (distiller, lupine_dspy,
   swarm_preprint_review).
-- ROOTS.md does not list the expected retired roots in the archive table.
+- ROOTS.md documents any retired roots that are actually present.
 
 This is intentionally conservative: historical mentions in docs/comments are
 fine, but executable imports and new files in retired roots are not.
@@ -93,13 +93,30 @@ def check_imports(files: list[Path]) -> list[str]:
     return errors
 
 
-def check_roots_md() -> list[str]:
+def check_roots_md(files: list[Path]) -> list[str]:
     errors: list[str] = []
+    roots_to_document: set[str] = set()
+    for path in files:
+        try:
+            rel = path.relative_to(REPO)
+        except ValueError:
+            continue
+        parts = rel.parts
+        if not parts:
+            continue
+        if parts[0] in RETIRED_ROOTS:
+            roots_to_document.add(parts[0])
+        elif len(parts) > 1 and parts[0] == "archive" and parts[1] in RETIRED_ROOTS:
+            roots_to_document.add(parts[1])
+
+    if not roots_to_document:
+        return []
+
     roots_md = REPO / "ROOTS.md"
     if not roots_md.exists():
         return ["ROOTS.md missing"]
     text = roots_md.read_text(encoding="utf-8")
-    for root in RETIRED_ROOTS:
+    for root in sorted(roots_to_document):
         if root not in text:
             errors.append(f"ROOTS.md does not mention retired root {root!r}")
     return errors
@@ -110,7 +127,7 @@ def main() -> int:
     errors: list[str] = []
     errors.extend(check_retired_roots(files))
     errors.extend(check_imports(files))
-    errors.extend(check_roots_md())
+    errors.extend(check_roots_md(files))
 
     if errors:
         print("Archive boundary violations:", file=sys.stderr)

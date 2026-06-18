@@ -12,12 +12,7 @@ name: Deploy Glim Eval Cloud Run Job
 # workflow stays as a manual (workflow_dispatch) escape hatch.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'glim-think/evals/**'
-      - '.github/workflows/deploy-glim-eval.yml'
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   deploy:

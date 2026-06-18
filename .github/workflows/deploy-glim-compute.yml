@@ -10,13 +10,7 @@ name: Deploy Glim Compute Cloud Run Job
 # source, reproducible). No local Docker — Cloud Build is the authority.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'atlas/compute/**'
-      - 'atlas/scripts/generate_nist_demos.py'
-      - '.github/workflows/deploy-glim-compute.yml'
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   deploy:

@@ -1,4 +1,4 @@
-name: Build and Deploy atlas-distill
+name: atlas-distill CI / Deploy
 
 on:
   push:
@@ -16,6 +16,8 @@ on:
       - 'Cargo.lock'
       - 'atlas-distill/**'
       - 'lupine-ops/**'
+      - '.github/workflows/build-atlas-distill.yml'
+  workflow_dispatch: {}
 
 env:
   PROJECT_ID: shed-489901
@@ -63,13 +65,20 @@ jobs:
   build-and-deploy:
     name: Build and Deploy
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
       id-token: 'write'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        run: |
+          miss=0
+          [ -z "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}" ] && { echo "::error::MISSING SECRET: GCP_WORKLOAD_IDENTITY_PROVIDER"; miss=1; }
+          [ -z "${{ secrets.GCP_SERVICE_ACCOUNT }}" ] && { echo "::error::MISSING SECRET: GCP_SERVICE_ACCOUNT"; miss=1; }
+          exit $miss
 
       - name: Google Auth
         id: auth

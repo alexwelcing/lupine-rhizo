@@ -7,13 +7,7 @@ name: Deploy Phoenix OTLP Relay to Cloud Run
 # restored — not a hand-deployed artifact.
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'glim-think/otlp-relay/**'
-      - '.github/workflows/deploy-otlp-relay.yml'
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   deploy:
