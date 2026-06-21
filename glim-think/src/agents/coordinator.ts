@@ -153,7 +153,7 @@ async function attemptProvider(
       text,
       confidence: confidenceScore(text),
       tokens: res.tokens ?? 0,
-      latencyMs: Date.now() - start,
+      latencyMs: Number.isFinite(res.latencyMs) ? res.latencyMs : Date.now() - start,
       outcome: text.trim() ? "succeeded" : "failed",
     };
   } catch (e) {
