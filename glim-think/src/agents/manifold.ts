@@ -12,6 +12,7 @@ import { z } from "zod";
 import type { ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import type { Claim } from "../types";
+import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
 
 export class Manifold extends GlimThinkAgent {
   getSystemPrompt(): string {
@@ -326,11 +327,11 @@ Be quantitative. Cite specific numbers.`;
     const CLEAN = `predicted IS NOT NULL AND reference IS NOT NULL AND ABS(predicted) <= 1500 ` +
       `AND predicted > 0 AND reference > 0 AND ABS(predicted - reference) <= 5 * ABS(reference)`;
     const sql = family === "all"
-      ? `SELECT potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
-      : `SELECT potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;
+      ? `SELECT record_id, potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
+      : `SELECT record_id, potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;
     const records = family === "all"
-      ? await this.queryLedger<{ potential_label: string; property: string; reference: number; predicted: number; pair_style: string }>(sql, opts.element)
-      : await this.queryLedger<{ potential_label: string; property: string; reference: number; predicted: number; pair_style: string }>(sql, opts.element, family);
+      ? await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string }>(sql, opts.element)
+      : await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string }>(sql, opts.element, family);
 
     const potentials = [...new Set(records.map(r => r.potential_label))];
     const properties = [...new Set(records.map(r => r.property))];
@@ -386,8 +387,14 @@ Be quantitative. Cite specific numbers.`;
       eigenvalues: eigenvalues.map(v => Math.round(v * 1e6) / 1e6),
       potential_count: potentials.length,
       property_count: properties.length,
+      evidence_record_count: records.length,
       hyper_ribbon: hyperRibbon,
     };
+    const evidenceIds = compactEvidenceIds(
+      records.map((record) => recordEvidenceId(record.record_id)),
+      240,
+      `manifold:${opts.element}:${family}`,
+    );
     const description = `Manifold analysis ${opts.element}/${family}: PR=${claimData.pr}, ribbon=${hyperRibbon ? "yes" : "no"}, n=${potentials.length}p×${properties.length}d`;
     const now = new Date().toISOString();
 
@@ -396,10 +403,10 @@ Be quantitative. Cite specific numbers.`;
         .prepare(
           `INSERT INTO claims
             (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-          VALUES (?1, 'agent_alpha_manifold', 'ManifoldAnalysis', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
+          VALUES (?1, 'agent_alpha_manifold', 'ManifoldAnalysis', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
           ON CONFLICT(claim_id) DO NOTHING`,
         )
-        .bind(claimId, JSON.stringify(claimData), hyperRibbon ? 0.85 : 0.6, description, now)
+        .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), hyperRibbon ? 0.85 : 0.6, description, now)
         .run();
     } catch (e) {
       console.error("Manifold.runAnalysis: claim insert failed:", e);

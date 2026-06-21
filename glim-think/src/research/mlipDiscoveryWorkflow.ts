@@ -4,6 +4,12 @@ import {
   benchmarkAbsError,
   benchmarkRelativeError,
 } from "./benchmarkRecords";
+import { insertEval } from "../evals/store";
+import {
+  compactEvidenceIds,
+  recordEvidenceId,
+  stableEvidencePart,
+} from "./evidenceIds";
 import {
   buildMlipDiscoveryProgress,
   buildMlipDiscoverySnapshot,
@@ -133,6 +139,100 @@ function findUnit(records: BenchmarkRecord[], unitId: string): MlipDiscoveryUnit
   return buildMlipDiscoveryUnits(records).find((unit) => unit.unit_id === unitId);
 }
 
+function unitVerdict(unit: MlipDiscoveryUnit): "inspect_before_promotion" | "follow_up" | "summarize" {
+  if (unit.sentinel_kind === "stability_violation") return "inspect_before_promotion";
+  if (unit.sentinel_kind === "summary") return "summarize";
+  return "follow_up";
+}
+
+function unitScore(unit: MlipDiscoveryUnit): number {
+  if (unit.sentinel_kind === "summary") return 1;
+  if (unit.sentinel_kind === "stability_violation") return 0;
+  return Math.max(0, Math.min(1, 1 - unit.severity / 6));
+}
+
+async function persistDiscoveryEvaluation(
+  env: Env,
+  campaignId: string,
+  unit: MlipDiscoveryUnit,
+  related: BenchmarkRecord[],
+) {
+  const now = new Date().toISOString();
+  const verdict = unitVerdict(unit);
+  const evaluatorName = `mlip_discovery.${unit.sentinel_kind}`;
+  const traceId = `mlip-discovery:${stableEvidencePart(campaignId)}:${stableEvidencePart(unit.unit_id)}`;
+  const evidenceIds = compactEvidenceIds(
+    related.map((record) => recordEvidenceId(record.recordId)),
+    240,
+    `${campaignId}:${unit.unit_id}`,
+  );
+  const relatedRecords = related.map((record) => ({
+    record_id: record.recordId,
+    element: record.element,
+    potential_id: record.potentialId,
+    property: record.property,
+    predicted: record.predicted,
+    reference: record.reference,
+    abs_error: benchmarkAbsError(record),
+    relative_error: benchmarkRelativeError(record),
+  }));
+  const explanation = `${unit.reason} Verdict=${verdict}; evidence_records=${relatedRecords.length}.`;
+
+  await insertEval(env, {
+    trace_id: traceId,
+    span_id: unit.unit_id,
+    agent_class: "glim-think",
+    task_kind: "mlip_discovery_sentinel",
+    evaluator_name: evaluatorName,
+    score: unitScore(unit),
+    label: verdict,
+    explanation,
+    action_taken: verdict === "inspect_before_promotion" ? "escalated" : "accepted",
+    retry_count: 0,
+    created_at: now,
+  });
+
+  const claimId = `mlip_discovery_${stableEvidencePart(campaignId)}_${stableEvidencePart(unit.unit_id)}`;
+  const claimData = {
+    workflow_id: MLIP_DISCOVERY_WORKFLOW_ID,
+    campaign_id: campaignId,
+    unit,
+    evaluator_name: evaluatorName,
+    verdict,
+    evidence_record_count: relatedRecords.length,
+    related_records: relatedRecords,
+  };
+  await env.LEDGER.prepare(
+    `INSERT INTO claims
+       (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
+     VALUES (?1, 'glim-think:mlip-discovery', 'MlipDiscoveryEvaluator', ?2, ?3, ?4, ?5, ?6, ?7, ?7)
+     ON CONFLICT(claim_id) DO UPDATE SET
+       claim_data = excluded.claim_data,
+       evidence_ids = excluded.evidence_ids,
+       confidence = excluded.confidence,
+       status = excluded.status,
+       description = excluded.description,
+       timestamp = excluded.timestamp`,
+  ).bind(
+    claimId,
+    JSON.stringify(claimData),
+    JSON.stringify(evidenceIds),
+    unitScore(unit),
+    verdict === "inspect_before_promotion" ? "needs_inspection" : "testing",
+    explanation,
+    now,
+  ).run();
+
+  return {
+    trace_id: traceId,
+    claim_id: claimId,
+    evidence_ids: evidenceIds,
+    evaluator_name: evaluatorName,
+    verdict,
+    related_records: relatedRecords,
+  };
+}
+
 export const mlipDiscoveryWorkflowAdapter: ResearchWorkflowAdapter = {
   workflow_id: MLIP_DISCOVERY_WORKFLOW_ID,
   label: "MLIP elastic benchmark discovery loop",
@@ -204,22 +304,12 @@ export const mlipDiscoveryWorkflowAdapter: ResearchWorkflowAdapter = {
         (unit.potential_id === "multi-mlip" || record.potentialId === unit.potential_id) &&
         (!unit.property || record.property === unit.property);
     });
+    const persisted = await persistDiscoveryEvaluation(env, campaignId, unit, related);
     return workflowJson({
       workflow_id: MLIP_DISCOVERY_WORKFLOW_ID,
       campaign_id: campaignId,
       unit,
-      evaluator_name: `mlip_discovery.${unit.sentinel_kind}`,
-      verdict: unit.sentinel_kind === "stability_violation" ? "inspect_before_promotion" : "follow_up",
-      related_records: related.map((record) => ({
-        record_id: record.recordId,
-        element: record.element,
-        potential_id: record.potentialId,
-        property: record.property,
-        predicted: record.predicted,
-        reference: record.reference,
-        abs_error: benchmarkAbsError(record),
-        relative_error: benchmarkRelativeError(record),
-      })),
+      ...persisted,
     });
   },
 
