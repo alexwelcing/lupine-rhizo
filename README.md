@@ -16,12 +16,13 @@ the place.
 Owns:
 
 - `glim-think`: durable agenda, ledger, routes, feed, evals, and agent loop
+- `cocoindex`: evidence indexing experiments for corpus export/query loops
 - `atlas/compute`: Cloud Run physics compute lane used by `glim-think`
 - `lean-spec`: Lean proof/specification layer
 - `atlas-distill`: Rust scoring, policy, benchmark, and fault-line engine
 - `python`: Python Distill packages and runtime helpers
 - `mlip_immi`: real-data MLIP/IMMI analysis lane
-- `gcp`: burst compute, MLIP cells, and control-plane services
+- `gcp`: burst compute, MLIP cells, evidence indexing, and control-plane services
 - `cloudflare`: edge/control-plane infrastructure helpers
 - `tools`: local science CLIs, telemetry checks, promotion loops
 - `docs`, `paper`, `replication`: source research corpus and reproducibility
