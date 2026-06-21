@@ -121,12 +121,24 @@ export type ProviderCaller = (
 ) => Promise<{ text: string; provider: ProviderId; model: string; tokens: number; latencyMs: number; finishReason?: string }>;
 
 const DEFAULT_PER_PROVIDER_TIMEOUT_MS = 20_000;
+const ZAI_PER_PROVIDER_TIMEOUT_MS = 60_000;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.5;
 
 /** Confidence proxy: the existing 0–1 heuristic score (stack-aligned, free). */
 export function confidenceScore(text: string): number {
   if (!text.trim()) return 0;
   return runHeuristics(text).score;
+}
+
+function timeoutForProvider(req: CoordinationRequest, provider: ProviderId): number {
+  if (
+    typeof req.perProviderTimeoutMs === "number" &&
+    Number.isFinite(req.perProviderTimeoutMs) &&
+    req.perProviderTimeoutMs > 0
+  ) {
+    return Math.trunc(req.perProviderTimeoutMs);
+  }
+  return provider === "zai" ? ZAI_PER_PROVIDER_TIMEOUT_MS : DEFAULT_PER_PROVIDER_TIMEOUT_MS;
 }
 
 /** Attempt a single provider, capturing success/failure into an attempt record. */
@@ -144,7 +156,7 @@ async function attemptProvider(
       agentClass: req.agentClass,
       maxOutputTokens: req.maxOutputTokens,
       temperature: req.temperature,
-      timeoutMs: req.perProviderTimeoutMs ?? DEFAULT_PER_PROVIDER_TIMEOUT_MS,
+      timeoutMs: timeoutForProvider(req, provider),
     });
     const text = res.text ?? "";
     const emptyError = text.trim()
