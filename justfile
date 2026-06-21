@@ -169,6 +169,47 @@ flywheel-telemetry-check:
     python tools/mlip_phoenix_trace.py --smoke-test --dry-run
     python tools/test_mlip_phoenix_trace.py
 
+# --- EVIDENCE INDEX / COCOINDEX ACTIVATION ---
+
+# Export live Worker evidence into CocoIndex-compatible JSONL.
+evidence-live-export worker_url="https://glim-think-v1.aw-ab5.workers.dev" out="cocoindex/data":
+    python scripts/evidence_activation.py collect --worker-url "{{worker_url}}" --out "{{out}}"
+
+# Export live evidence and upsert it into the GCP evidence-index service.
+# Requires EVIDENCE_INGEST_TOKEN in the environment.
+evidence-live-ingest worker_url="https://glim-think-v1.aw-ab5.workers.dev" ingest_url="https://evidence-index-edbhtpvina-uc.a.run.app" out="cocoindex/data":
+    python scripts/evidence_activation.py ingest --worker-url "{{worker_url}}" --ingest-url "{{ingest_url}}" --out "{{out}}"
+
+# Check the GCP evidence-index service; authenticated count is shown when
+# EVIDENCE_INGEST_TOKEN is available.
+evidence-health ingest_url="https://evidence-index-edbhtpvina-uc.a.run.app":
+    python scripts/evidence_activation.py health --ingest-url "{{ingest_url}}"
+
+# Build the local CocoIndex database from ./cocoindex/data.
+evidence-index:
+    cd cocoindex && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py
+
+# Recreate demo seed data, then build the local CocoIndex database.
+evidence-index-seed:
+    cd cocoindex && python seed_data.py && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py
+
+# Refresh local CocoIndex from live D1 through Wrangler, then rebuild.
+evidence-index-refresh:
+    cd cocoindex && python export_evidence.py --from-d1 && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py
+
+# Search the local CocoIndex database.
+evidence-index-search q mode="semantic" kind="":
+    cd cocoindex && python query.py --{{mode}} "{{q}}" {{ if kind != "" { "--kind " + kind } else { "" } }}
+
+# Queue agenda actions for an existing MLIP discovery campaign.
+# Requires GLIM_INTERNAL_TOKEN or INTERNAL_TASK_TOKEN for the gated Worker route.
+mlip-discovery-maintain campaign_id limit="12":
+    python tools/glim_mlip.py maintain-discovery-loop "{{campaign_id}}" --limit "{{limit}}"
+
+# Build/deploy the GCP evidence-index Cloud Run service.
+evidence-deploy:
+    gcloud builds submit --config gcp/evidence-index/cloudbuild.yaml .
+
 # --- LOCAL VERIFICATION & BOOTSTRAP ---
 
 # Fastest gate: no optional deps, no GPU, no cloud. Use for quick pre-commit checks.

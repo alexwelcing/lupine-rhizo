@@ -344,6 +344,36 @@ def test_discovery_loop_opens_and_maintains_campaign(runner: CliRunner, monkeypa
     assert calls[1]["url"].endswith("/campaigns/github:27206839783/maintain")
 
 
+def test_maintain_discovery_loop_queues_existing_campaign(runner: CliRunner,
+                                                          monkeypatch: pytest.MonkeyPatch) -> None:
+    import httpx
+    calls: list[dict[str, Any]] = []
+
+    class _Resp:
+        status_code = 200
+        text = '{"agenda":{"attempted":12}}'
+
+    def fake_post(url: str, json=None, headers=None, timeout=None, **kw: Any):  # noqa: ARG001
+        calls.append({"url": url, "json": json, "headers": headers})
+        return _Resp()
+
+    monkeypatch.setattr(httpx, "post", fake_post)
+    result = runner.invoke(
+        glim_mlip.mlip,
+        ["maintain-discovery-loop", "github:27206839783", "--limit", "12"],
+        env={"INTERNAL_TASK_TOKEN": "secret-token"},
+    )
+    assert result.exit_code == 0, result.output
+    assert calls == [{
+        "url": (
+            "https://glim-think-v1.aw-ab5.workers.dev/research/workflows/"
+            "mlip-discovery-loop/campaigns/github%3A27206839783/maintain"
+        ),
+        "json": {"mode": "agenda", "limit": 12},
+        "headers": {"X-Internal-Token": "secret-token"},
+    }]
+
+
 def test_ingest_empty_jsonl_fails(runner: CliRunner, monkeypatch: pytest.MonkeyPatch,
                                     tmp_path: Path) -> None:
     jsonl = tmp_path / "empty.jsonl"

@@ -11,6 +11,7 @@ Usage:
     python glim_mlip.py batch --elements Al,Cu,Ni --mlips chgnet \\
         --references-from references.json --out records.jsonl
     python glim_mlip.py ingest records.jsonl
+    python glim_mlip.py maintain-discovery-loop github:27206839783
     python glim_mlip.py space-info
 
 Reads HF Space URL from GLIM_HF_SPACE env (default:
@@ -26,6 +27,7 @@ import os
 import uuid
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 import click
 import httpx
@@ -352,6 +354,43 @@ def discovery_loop(
     if m.status_code >= 400:
         raise click.ClickException(f"discovery maintain failed: {m.status_code}: {m.text[:300]}")
     click.echo(f"maintained discovery loop {created_campaign}: {m.text}")
+
+
+@mlip.command("maintain-discovery-loop")
+@click.argument("campaign_id")
+@click.option("--limit", default=8, show_default=True, type=int, help="Number of agenda actions to queue.")
+@click.option(
+    "--internal-token",
+    envvar=["GLIM_INGEST_TOKEN", "GLIM_INTERNAL_TOKEN", "INTERNAL_TASK_TOKEN"],
+    default="",
+    help="Token for the worker X-Internal-Token gate.",
+)
+@click.pass_context
+def maintain_discovery_loop(
+    ctx: click.Context,
+    campaign_id: str,
+    limit: int,
+    internal_token: str,
+) -> None:
+    """Queue agenda tasks for an existing glim-think MLIP discovery campaign."""
+    api = ctx.obj["api_url"].rstrip("/")
+    headers = _auth_headers(internal_token)
+    encoded_campaign = quote(campaign_id, safe="")
+    try:
+        r = httpx.post(
+            f"{api}/research/workflows/mlip-discovery-loop/campaigns/{encoded_campaign}/maintain",
+            json={"mode": "agenda", "limit": max(1, limit)},
+            headers=headers,
+            timeout=120.0,
+        )
+    except httpx.RequestError as e:
+        raise click.ClickException(f"worker unreachable at {api}: {e}") from e
+    if r.status_code >= 400:
+        hint = ""
+        if r.status_code == 403 and not internal_token.strip():
+            hint = " (set GLIM_INTERNAL_TOKEN or INTERNAL_TASK_TOKEN for gated workers)"
+        raise click.ClickException(f"discovery maintain failed: {r.status_code}: {r.text[:300]}{hint}")
+    click.echo(f"maintained discovery loop {campaign_id}: {r.text}")
 
 
 @mlip.command("space-info")
