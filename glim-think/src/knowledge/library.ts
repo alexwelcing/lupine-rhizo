@@ -57,6 +57,28 @@ export interface KnowledgeConcept {
   updated_at: string | null;
 }
 
+interface NormalizedKnowledgeConcept {
+  concept_id: string;
+  type: string;
+  title: string;
+  description: string | null;
+  resource: string | null;
+  tags: string[];
+  timestamp: string | null;
+  body_md: string;
+  source_kind: string | null;
+  source_id: string | null;
+  okf_version: string;
+  now: string;
+}
+
+interface UpsertKnowledgeConceptOptions {
+  ensureSchema?: boolean;
+  recordEvent?: boolean;
+  readBack?: boolean;
+  useBatch?: boolean;
+}
+
 interface KnowledgeEdgeRow {
   from_concept_id: string;
   to_concept_id: string;
@@ -176,25 +198,54 @@ export async function ensureKnowledgeLibrarySchema(env: Env): Promise<void> {
   `).run();
 }
 
-export async function upsertKnowledgeConcept(env: Env, input: KnowledgeConceptInput): Promise<KnowledgeConcept> {
-  await ensureKnowledgeLibrarySchema(env);
-  const conceptId = normalizeConceptId(input.concept_id);
+export async function upsertKnowledgeConcept(
+  env: Env,
+  input: KnowledgeConceptInput,
+  options: UpsertKnowledgeConceptOptions = {},
+): Promise<KnowledgeConcept> {
+  if (options.ensureSchema !== false) await ensureKnowledgeLibrarySchema(env);
+  const concept = normalizeKnowledgeConceptInput(input);
+  await runKnowledgeWriteStatements(
+    env,
+    buildKnowledgeWriteStatements(env, concept, { recordEvent: options.recordEvent !== false }),
+    { useBatch: options.useBatch === true },
+  );
+
+  if (options.readBack === false) return normalizedToConcept(concept);
+  const row = await getKnowledgeConceptRow(env, concept.concept_id, { ensureSchema: options.ensureSchema !== false });
+  if (!row) throw new Error(`knowledge concept '${concept.concept_id}' did not persist`);
+  return rowToConcept(row);
+}
+
+function normalizeKnowledgeConceptInput(input: KnowledgeConceptInput, now = new Date().toISOString()): NormalizedKnowledgeConcept {
+  const concept_id = normalizeConceptId(input.concept_id);
   const type = cleanRequired(input.type);
-  if (!conceptId) throw new Error("concept_id is required");
+  if (!concept_id) throw new Error("concept_id is required");
   if (!type) throw new Error("type is required");
 
-  const title = clean(input.title) || titleFromConceptId(conceptId);
-  const description = clean(input.description);
-  const resource = clean(input.resource);
-  const tags = normalizeTags(input.tags);
-  const timestamp = normalizeTimestamp(input.timestamp);
-  const body = clean(input.body_md) ?? "";
-  const sourceKind = clean(input.source_kind);
-  const sourceId = clean(input.source_id);
-  const okfVersion = clean(input.okf_version) || OKF_VERSION;
-  const now = new Date().toISOString();
+  return {
+    concept_id,
+    type,
+    title: clean(input.title) || titleFromConceptId(concept_id),
+    description: clean(input.description),
+    resource: clean(input.resource),
+    tags: normalizeTags(input.tags),
+    timestamp: normalizeTimestamp(input.timestamp),
+    body_md: clean(input.body_md) ?? "",
+    source_kind: clean(input.source_kind),
+    source_id: clean(input.source_id),
+    okf_version: clean(input.okf_version) || OKF_VERSION,
+    now,
+  };
+}
 
-  await env.LEDGER.prepare(`
+function buildKnowledgeWriteStatements(
+  env: Env,
+  concept: NormalizedKnowledgeConcept,
+  options: { recordEvent: boolean },
+): D1PreparedStatement[] {
+  const statements: D1PreparedStatement[] = [];
+  statements.push(env.LEDGER.prepare(`
     INSERT INTO knowledge_documents
       (concept_id, type, title, description, resource, tags_json, timestamp, body_md, source_kind, source_id, okf_version, created_at, updated_at)
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12)
@@ -211,40 +262,74 @@ export async function upsertKnowledgeConcept(env: Env, input: KnowledgeConceptIn
       okf_version = excluded.okf_version,
       updated_at = excluded.updated_at
   `).bind(
-    conceptId,
-    type,
-    title,
-    description,
-    resource,
-    JSON.stringify(tags),
-    timestamp,
-    body,
-    sourceKind,
-    sourceId,
-    okfVersion,
-    now,
-  ).run();
+    concept.concept_id,
+    concept.type,
+    concept.title,
+    concept.description,
+    concept.resource,
+    JSON.stringify(concept.tags),
+    concept.timestamp,
+    concept.body_md,
+    concept.source_kind,
+    concept.source_id,
+    concept.okf_version,
+    concept.now,
+  ));
 
-  await env.LEDGER.prepare(
+  statements.push(env.LEDGER.prepare(
     `DELETE FROM knowledge_edges WHERE from_concept_id = ?1 AND edge_kind = 'markdown_link'`,
-  ).bind(conceptId).run();
-  for (const target of extractInternalLinks(body, conceptId)) {
-    await env.LEDGER.prepare(`
+  ).bind(concept.concept_id));
+  for (const target of extractInternalLinks(concept.body_md, concept.concept_id)) {
+    statements.push(env.LEDGER.prepare(`
       INSERT OR IGNORE INTO knowledge_edges
         (from_concept_id, to_concept_id, edge_kind, label, created_at)
       VALUES (?1, ?2, 'markdown_link', NULL, ?3)
-    `).bind(conceptId, target, now).run();
+    `).bind(concept.concept_id, target, concept.now));
   }
 
-  await env.LEDGER.prepare(`
-    INSERT OR REPLACE INTO knowledge_events
-      (event_id, event_kind, concept_id, summary, created_at)
-    VALUES (?1, 'upsert', ?2, ?3, ?4)
-  `).bind(`knowledge:${conceptId}:${now}`, conceptId, `Upserted ${title}`, now).run();
+  if (options.recordEvent) {
+    statements.push(env.LEDGER.prepare(`
+      INSERT OR REPLACE INTO knowledge_events
+        (event_id, event_kind, concept_id, summary, created_at)
+      VALUES (?1, 'upsert', ?2, ?3, ?4)
+    `).bind(`knowledge:${concept.concept_id}:${concept.now}`, concept.concept_id, `Upserted ${concept.title}`, concept.now));
+  }
+  return statements;
+}
 
-  const row = await getKnowledgeConceptRow(env, conceptId);
-  if (!row) throw new Error(`knowledge concept '${conceptId}' did not persist`);
-  return rowToConcept(row);
+async function runKnowledgeWriteStatements(
+  env: Env,
+  statements: D1PreparedStatement[],
+  options: { useBatch: boolean },
+): Promise<void> {
+  if (!statements.length) return;
+  if (options.useBatch) {
+    for (let i = 0; i < statements.length; i += 100) {
+      await env.LEDGER.batch(statements.slice(i, i + 100));
+    }
+    return;
+  }
+  for (const statement of statements) {
+    await statement.run();
+  }
+}
+
+function normalizedToConcept(concept: NormalizedKnowledgeConcept): KnowledgeConcept {
+  return {
+    concept_id: concept.concept_id,
+    type: concept.type,
+    title: concept.title,
+    description: concept.description,
+    resource: concept.resource,
+    tags: concept.tags,
+    timestamp: concept.timestamp,
+    body_md: concept.body_md,
+    source_kind: concept.source_kind,
+    source_id: concept.source_id,
+    okf_version: concept.okf_version,
+    created_at: concept.now,
+    updated_at: concept.now,
+  };
 }
 
 export async function syncKnowledgeLibraryFromLedger(env: Env, limit = 100): Promise<{
@@ -400,12 +485,26 @@ export async function syncKnowledgeLibraryFromLedger(env: Env, limit = 100): Pro
     ].join("\n"),
   });
 
+  const generatedAt = new Date().toISOString();
+  const concepts = inputs.map((input) => normalizeKnowledgeConceptInput(input, generatedAt));
   const counts: Record<string, number> = {};
-  for (const input of inputs) {
-    const concept = await upsertKnowledgeConcept(env, input);
+  const statements: D1PreparedStatement[] = [];
+  for (const concept of concepts) {
     counts[concept.type] = (counts[concept.type] ?? 0) + 1;
+    statements.push(...buildKnowledgeWriteStatements(env, concept, { recordEvent: false }));
   }
-  return { ok: true, upserted: inputs.length, by_type: counts, generated_at: new Date().toISOString() };
+  await runKnowledgeWriteStatements(env, statements, { useBatch: true });
+  await env.LEDGER.prepare(`
+    INSERT OR REPLACE INTO knowledge_events
+      (event_id, event_kind, concept_id, summary, created_at)
+    VALUES (?1, 'sync', ?2, ?3, ?4)
+  `).bind(
+    `knowledge:sync:${generatedAt}`,
+    "systems/glim-think-ledger",
+    `Synced ${concepts.length} concepts into the OKF knowledge library`,
+    generatedAt,
+  ).run();
+  return { ok: true, upserted: concepts.length, by_type: counts, generated_at: generatedAt };
 }
 
 export async function listKnowledgeConcepts(env: Env, url: URL): Promise<{
@@ -594,8 +693,12 @@ export async function handleKnowledgeLibraryRoute(
   }
 }
 
-async function getKnowledgeConceptRow(env: Env, conceptId: string): Promise<KnowledgeConceptRow | null> {
-  await ensureKnowledgeLibrarySchema(env);
+async function getKnowledgeConceptRow(
+  env: Env,
+  conceptId: string,
+  options: { ensureSchema?: boolean } = {},
+): Promise<KnowledgeConceptRow | null> {
+  if (options.ensureSchema !== false) await ensureKnowledgeLibrarySchema(env);
   return env.LEDGER.prepare(
     `SELECT * FROM knowledge_documents WHERE concept_id = ?1`,
   ).bind(conceptId).first<KnowledgeConceptRow>();

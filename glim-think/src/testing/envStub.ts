@@ -73,7 +73,13 @@ export function stubLedger(options: StubLedgerOptions = {}): D1Database {
 
   return {
     prepare: (sql: string) => makeStatement(sql),
-    batch: async () => [],
+    batch: async (statements: D1PreparedStatement[]) => {
+      const results = [];
+      for (const statement of statements) {
+        results.push(await statement.run());
+      }
+      return results;
+    },
     exec: async () => ({ count: 0, duration: 0 }),
     dump: async () => new ArrayBuffer(0),
     withSession: () => ({}) as never,
