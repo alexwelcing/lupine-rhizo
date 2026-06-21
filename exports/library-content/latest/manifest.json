@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-18T02:51:16.311Z",
+  "generatedAt": "2026-06-21T15:27:56.854Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "ea49a43ac6fdd72b0b42947d068d67f3e3e5dc71",
+    "commit": "24c8280921bcf3657347f871cdd4931892a67fd4",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -305,6 +305,40 @@
         "originalSource": "docs/mlip-flywheel-readiness.md"
       },
       {
+        "id": "born-screening-re-audit",
+        "source": "articles/docs/born-screening-re-audit.md",
+        "title": "What Survived the Born-Screening Re-Audit?",
+        "subtitle": "A public correction: the old MLIP 14/15 count is frozen; screened directional structure survives as the live claim.",
+        "category": "changelog",
+        "tags": [
+          "mlip",
+          "born-stability",
+          "self-correction",
+          "hyper-ribbon",
+          "featured"
+        ],
+        "featured": true,
+        "status": "self-corrected",
+        "originalSource": "docs/born-screening-re-audit.md"
+      },
+      {
+        "id": "foundation-model-trust-layers",
+        "source": "articles/docs/foundation-model-trust-layers.md",
+        "title": "Foundation Materials Models Need Trust Layers",
+        "subtitle": "A ranked next-round target memo: batteries, MPtrj, Ni defects, Fe magnetism, Au surfaces, and phonons as evidence-carrying canaries.",
+        "category": "changelog",
+        "tags": [
+          "mlip",
+          "materials-discovery",
+          "trust-layer",
+          "batteries",
+          "featured"
+        ],
+        "featured": true,
+        "status": "proposed",
+        "originalSource": "docs/foundation-model-trust-layers.md"
+      },
+      {
         "id": "research-evolution",
         "source": "articles/docs/research_evolution_2026_05_05.md",
         "title": "The Loop That Caught Itself",
@@ -393,8 +427,8 @@
       {
         "id": "hyp-fe-persistent-outlier",
         "source": "articles/docs/conjectures/fe-persistent-outlier.md",
-        "title": "Fe Is a Persistent Outlier",
-        "subtitle": "PR > 2 invariant to LAM addition across the trio. Cause (magnetism?) open.",
+        "title": "Fe Magnetic MLIP Failure Mode",
+        "subtitle": "The old PR > 2 trio claim is frozen after Born screening; Fe remains a spin/mechanical-stability target.",
         "category": "conjectures",
         "tags": [
           "fe",
@@ -690,7 +724,7 @@
         "id": "mlip-mptrj-broad-dft-canary",
         "source": "articles/docs/mlip-mptrj-broad-dft-canary.md",
         "title": "MPtrj Broad-DFT MLIP Canary",
-        "subtitle": "The broadened Cloud Run canary improves MACE, ORB, and SevenNet while CHGNet negative transfer blocks promotion.",
+        "subtitle": "Support-floor v2 improves MACE, ORB, and SevenNet while CHGNet safely holds: six wins, two holds, zero regressions.",
         "category": "validation",
         "tags": [
           "mlip",
@@ -795,7 +829,7 @@
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
-        "subtitle": "47 theorems, 1,499 build targets, and a build-locking epistemic contract.",
+        "subtitle": "Current status: 77 build-locked theorems, ~225 declarations, 2,891-job build green, and a build-locking epistemic contract.",
         "category": "formalization",
         "tags": [
           "lean",
@@ -978,8 +1012,8 @@
     {
       "source": "CHANGELOG.md",
       "bundleSource": "articles/CHANGELOG.md",
-      "bytes": 46211,
-      "sha256": "b00b28cf40174376ae3980808743eea7db03842b8ea59e3f14e910b30e22f0b2"
+      "bytes": 48870,
+      "sha256": "eea06cdb9adc3a1c5235e28403da1d0dcbff9f583c50ed458d01aee72a15ac1e"
     },
     {
       "source": "docs/PUBLIC.md",
@@ -1000,6 +1034,18 @@
       "sha256": "bb0578b95fd07e5e0a580f04e819de6e8b29645fee8069262f15d31444f691c0"
     },
     {
+      "source": "docs/born-screening-re-audit.md",
+      "bundleSource": "articles/docs/born-screening-re-audit.md",
+      "bytes": 5018,
+      "sha256": "0b7e8a2239c11a1586c6c4af2bf1afa2e8115ba285cca5350d8086bc47d1dfa3"
+    },
+    {
+      "source": "docs/foundation-model-trust-layers.md",
+      "bundleSource": "articles/docs/foundation-model-trust-layers.md",
+      "bytes": 7938,
+      "sha256": "a0ea62a60f879799956f3708ef4e7d99a2c504a786a5864251efec786c05e815"
+    },
+    {
       "source": "docs/research_evolution_2026_05_05.md",
       "bundleSource": "articles/docs/research_evolution_2026_05_05.md",
       "bytes": 14435,
@@ -1008,8 +1054,8 @@
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 4189,
-      "sha256": "ef1b6826ba3f5e813dfbcbf994088f7714671f6970ed63da28ce7a4dc73b22ec"
+      "bytes": 4301,
+      "sha256": "e3811261328f79431ea4ebe6c93fe644118b225e72f9c9f192bb2830e5035df4"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
@@ -1020,8 +1066,8 @@
     {
       "source": "docs/conjectures/hyper-ribbon-mlip-transfer.md",
       "bundleSource": "articles/docs/conjectures/hyper-ribbon-mlip-transfer.md",
-      "bytes": 2323,
-      "sha256": "d3803bb578563120fe281782ac3f41f47333fff996d71a445221213017ba29fa"
+      "bytes": 2563,
+      "sha256": "9a0bc2e01d38ad2bf21a6d75e671260a8be96ef743de55cc979f31fe25894968"
     },
     {
       "source": "docs/conjectures/cross-mlip-orthogonal-errors.md",
@@ -1038,8 +1084,8 @@
     {
       "source": "docs/conjectures/fe-persistent-outlier.md",
       "bundleSource": "articles/docs/conjectures/fe-persistent-outlier.md",
-      "bytes": 2017,
-      "sha256": "7d9216cff06b216233a7a8a9e38049f484a7ddee665ca84f8a01068cc98b3069"
+      "bytes": 2165,
+      "sha256": "d69cd3d41e51e2b608f4a5e95ca29d2cd0eb4220a2b46e30b15c1285eb088fad"
     },
     {
       "source": "docs/conjectures/dband-correlation.md",
@@ -1074,8 +1120,8 @@
     {
       "source": "docs/navigation.md",
       "bundleSource": "articles/docs/navigation.md",
-      "bytes": 9835,
-      "sha256": "f5a461b3d66358a86dd855fb848a537e2aa39b1aae203b6991e1c75b8be9ee75"
+      "bytes": 9957,
+      "sha256": "a4326ee36f8cdd0e1af6ad9fb4b0215fe314e40f60a6c0a1a6a9d6e0a4c860ee"
     },
     {
       "source": "docs/internal-science-program.md",
@@ -1104,8 +1150,8 @@
     {
       "source": "README.md",
       "bundleSource": "articles/README.md",
-      "bytes": 3732,
-      "sha256": "c5d8d1f6744d116a1107c24646027a104b0ca7ac055faed1797519b4b40aeb3a"
+      "bytes": 3826,
+      "sha256": "fc7137ad1df70dd47c1352dce46ba0f7417817321e3fd94efaefc99f740f364b"
     },
     {
       "source": "docs/multi_fidelity_uq_glimMER_report.md",
@@ -1218,8 +1264,8 @@
     {
       "source": "docs/formal-vision.md",
       "bundleSource": "articles/docs/formal-vision.md",
-      "bytes": 6386,
-      "sha256": "7b1137ac37081ad2d099e2311499b5b828f2b85e5826675169a9de09ab6136da"
+      "bytes": 6793,
+      "sha256": "3e1aafc467e6ff565e7db54b9809c47c015c5ca20c3768516aab4398a9760007"
     },
     {
       "source": "docs/formal-methodology.md",
