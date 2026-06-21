@@ -42,6 +42,7 @@ export const openApiSpec = {
     { name: "critiques", description: "Peer-review critique queue with R2-backed responses" },
     { name: "research-questions", description: "Lab-notebook Q/A queue (D1)" },
     { name: "claims", description: "Discovery-claim ingestion bridge for Distill verdicts" },
+    { name: "knowledge-library", description: "Ledger-backed OKF knowledge bundle and graph" },
   ],
   paths: {
     "/health": {
@@ -380,6 +381,51 @@ export const openApiSpec = {
           "200": { description: "Claim", content: { "application/json": { schema: { $ref: "#/components/schemas/ClaimRow" } } } },
           "404": { description: "Not found" },
         },
+      },
+    },
+    "/knowledge/library": {
+      get: {
+        tags: ["knowledge-library"],
+        summary: "List ledger-backed OKF concepts with date sorting and filters",
+        parameters: [
+          { name: "sort", in: "query", schema: { type: "string", enum: ["timestamp", "updated_at", "created_at", "title"], default: "timestamp" } },
+          { name: "order", in: "query", schema: { type: "string", enum: ["asc", "desc"], default: "desc" } },
+          { name: "type", in: "query", schema: { type: "string" } },
+          { name: "tag", in: "query", schema: { type: "string" } },
+          { name: "q", in: "query", schema: { type: "string" } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 50, maximum: 500 } },
+        ],
+        responses: { "200": { description: "Knowledge concepts" } },
+      },
+    },
+    "/knowledge/library/graph": {
+      get: {
+        tags: ["knowledge-library"],
+        summary: "Knowledge-library concept graph from OKF cross-links",
+        responses: { "200": { description: "Nodes and edges" } },
+      },
+    },
+    "/knowledge/library/okf": {
+      get: {
+        tags: ["knowledge-library"],
+        summary: "Export the ledger-backed library as an OKF bundle manifest",
+        responses: { "200": { description: "OKF files with markdown content" } },
+      },
+    },
+    "/knowledge/library/sync": {
+      post: {
+        tags: ["knowledge-library"],
+        summary: "Sync hypotheses, claims, questions, and agenda tasks into the OKF library",
+        description: "Gated by Cloudflare Access or X-Internal-Token. Writes knowledge_documents, knowledge_edges, and knowledge_events in D1.",
+        responses: { "200": { description: "Sync summary" } },
+      },
+    },
+    "/knowledge/library/concepts": {
+      post: {
+        tags: ["knowledge-library"],
+        summary: "Upsert a single OKF concept into the ledger-backed library",
+        description: "Gated by Cloudflare Access or X-Internal-Token.",
+        responses: { "201": { description: "Upserted concept" } },
       },
     },
   },

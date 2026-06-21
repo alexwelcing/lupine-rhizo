@@ -23,11 +23,12 @@ const WORKER_ID = "worker:glim-think-v1";
 
 const TABLES = [
   "hypotheses", "claims", "literature_insights", "literature_papers",
-  "research_hits", "daily_vignettes", "critiques", "theories",
+  "research_hits", "research_questions", "daily_vignettes", "critiques", "theories",
   "deployments", "experiment_runs", "pending_experiments", "records",
   "cron_runs", "ops_errors", "smoketest_runs", "lab_broadcasts",
   "research_jobs", "literaturist_searches", "causal_screens", "manifold_runs",
-  "extensions", "orchestrator_state", "fleets",
+  "extensions", "orchestrator_state", "fleets", "intelligence_tasks", "knowledge_documents",
+  "knowledge_edges", "knowledge_events",
 ] as const;
 
 const R2_PREFIXES = [
@@ -77,6 +78,7 @@ const ENDPOINT_GROUPS = [
   { id: "ep:ops", label: "/ops/*" },
   { id: "ep:experiments", label: "/experiments/*" },
   { id: "ep:graph", label: "/graph + /graph.json" },
+  { id: "ep:knowledge", label: "/knowledge/library*" },
   { id: "ep:dashboard", label: "/dashboard*" },
   { id: "ep:agents", label: "/agents/*" },
 ];
@@ -143,6 +145,16 @@ const STATIC_EDGES: Array<{ source: string; target: string; kind: ArchEdgeKind }
   { source: "ep:graph", target: "t:critiques", kind: "reads" },
   { source: "ep:graph", target: "t:theories", kind: "reads" },
   { source: "ep:graph", target: "t:deployments", kind: "reads" },
+  { source: "ep:knowledge", target: "t:knowledge_documents", kind: "reads" },
+  { source: "ep:knowledge", target: "t:knowledge_documents", kind: "writes" },
+  { source: "ep:knowledge", target: "t:knowledge_edges", kind: "reads" },
+  { source: "ep:knowledge", target: "t:knowledge_edges", kind: "writes" },
+  { source: "ep:knowledge", target: "t:knowledge_events", kind: "reads" },
+  { source: "ep:knowledge", target: "t:knowledge_events", kind: "writes" },
+  { source: "ep:knowledge", target: "t:hypotheses", kind: "reads" },
+  { source: "ep:knowledge", target: "t:claims", kind: "reads" },
+  { source: "ep:knowledge", target: "t:intelligence_tasks", kind: "reads" },
+  { source: "ep:knowledge", target: "t:research_questions", kind: "reads" },
   { source: "ep:dashboard", target: "do:DashboardAgent", kind: "delegates" },
   { source: "ep:agents", target: "do:Orchestrator", kind: "delegates" },
   { source: "ep:agents", target: "do:Manifold", kind: "delegates" },

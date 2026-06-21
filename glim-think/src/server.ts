@@ -80,6 +80,7 @@ import { buildGraphSnapshot } from "./graph/snapshot";
 import { buildArchSnapshot } from "./graph/arch";
 import { buildAgentsSnapshot } from "./graph/agents";
 import { GRAPH_HTML } from "./graph/page";
+import { handleKnowledgeLibraryRoute } from "./knowledge/library";
 import {
   agendaStatus,
   bootstrapAgenda,
@@ -1009,6 +1010,12 @@ ${narrative}
         const id = env.DASHBOARD.idFromName("dash-main-v2");
         const stub = env.DASHBOARD.get(id);
         return stub.fetch(request);
+      }
+
+      // Ledger-backed knowledge library + OKF export.
+      if (url.pathname.startsWith("/knowledge/library")) {
+        const knowledgeResponse = await handleKnowledgeLibraryRoute(env, url, request.method, bodyText);
+        if (knowledgeResponse) return knowledgeResponse;
       }
 
       // Knowledge graph: /graph (HTML viewer) + /graph.json (snapshot)

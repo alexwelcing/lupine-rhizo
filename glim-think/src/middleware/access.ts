@@ -249,6 +249,10 @@ export function isGatedRoute(pathname: string, method: string): boolean {
     if (method === "OPTIONS" || method === "GET") return false;
     return true;
   }
+  if (pathname.startsWith("/knowledge/library")) {
+    if (method === "OPTIONS" || method === "GET") return false;
+    return true;
+  }
   if (method !== "POST") return false;
   return (
     pathname === "/run" ||
