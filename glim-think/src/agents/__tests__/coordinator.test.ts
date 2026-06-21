@@ -99,6 +99,53 @@ describe("loadStrategyRegistry / setStrategyRegistry", () => {
 });
 
 describe("raceStrategy", () => {
+  it("gives Z.ai a longer default timeout while keeping the fast-tier budget short", async () => {
+    const env = buildStubEnv();
+    const providers: ProviderId[] = ["workers-ai", "zai"];
+    const seenTimeouts: Partial<Record<ProviderId, number | undefined>> = {};
+    const call: ProviderCaller = async (_env, provider, opts) => {
+      seenTimeouts[provider] = opts.timeoutMs;
+      return {
+        text: STRONG,
+        provider,
+        model: `fake-${provider}`,
+        tokens: 100,
+        latencyMs: 50,
+      };
+    };
+
+    await raceStrategy(env, { ...baseReq, confidenceThreshold: 0.5 }, providers, call);
+
+    expect(seenTimeouts["workers-ai"]).toBe(20_000);
+    expect(seenTimeouts.zai).toBe(600_000);
+  });
+
+  it("honors an explicit per-provider timeout override for every provider", async () => {
+    const env = buildStubEnv();
+    const providers: ProviderId[] = ["workers-ai", "zai"];
+    const seenTimeouts: Partial<Record<ProviderId, number | undefined>> = {};
+    const call: ProviderCaller = async (_env, provider, opts) => {
+      seenTimeouts[provider] = opts.timeoutMs;
+      return {
+        text: STRONG,
+        provider,
+        model: `fake-${provider}`,
+        tokens: 100,
+        latencyMs: 50,
+      };
+    };
+
+    await raceStrategy(
+      env,
+      { ...baseReq, confidenceThreshold: 0.5, perProviderTimeoutMs: 1_234 },
+      providers,
+      call,
+    );
+
+    expect(seenTimeouts["workers-ai"]).toBe(1_234);
+    expect(seenTimeouts.zai).toBe(1_234);
+  });
+
   it("returns the first confident provider as the winner (success)", async () => {
     const env = buildStubEnv();
     const providers: ProviderId[] = ["workers-ai", "minimax", "zai"];

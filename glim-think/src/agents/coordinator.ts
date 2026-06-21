@@ -73,7 +73,7 @@ export interface CoordinationRequest {
   providers?: ProviderId[];
   maxOutputTokens?: number;
   temperature?: number;
-  /** Per-provider wall-clock budget (ms). Default 20s. */
+  /** Per-provider wall-clock budget (ms). Default 20s, except Z.ai/GLM defaults to 10m. */
   perProviderTimeoutMs?: number;
   /** Confidence threshold for Race/Waterfall acceptance (0–1). Default 0.5. */
   confidenceThreshold?: number;
@@ -121,7 +121,7 @@ export type ProviderCaller = (
 ) => Promise<{ text: string; provider: ProviderId; model: string; tokens: number; latencyMs: number; finishReason?: string }>;
 
 const DEFAULT_PER_PROVIDER_TIMEOUT_MS = 20_000;
-const ZAI_PER_PROVIDER_TIMEOUT_MS = 60_000;
+const ZAI_PER_PROVIDER_TIMEOUT_MS = 600_000;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.5;
 
 /** Confidence proxy: the existing 0–1 heuristic score (stack-aligned, free). */

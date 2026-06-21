@@ -610,6 +610,8 @@ const baseHandler = {
             confidenceThreshold:
               typeof body.confidenceThreshold === "number" ? body.confidenceThreshold : undefined,
             maxOutputTokens: typeof body.maxOutputTokens === "number" ? body.maxOutputTokens : undefined,
+            perProviderTimeoutMs:
+              typeof body.perProviderTimeoutMs === "number" ? body.perProviderTimeoutMs : undefined,
           });
           return Response.json(result, { headers: JSON_CORS_HEADERS });
         } catch (e) {
