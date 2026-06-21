@@ -4,6 +4,7 @@ import { stubLedger, type D1Row } from "../../testing/envStub";
 import {
   exportOkfBundle,
   listKnowledgeConcepts,
+  syncKnowledgeLibraryFromLedger,
   upsertKnowledgeConcept,
   type KnowledgeConceptRow,
 } from "../library";
@@ -89,5 +90,41 @@ describe("knowledge library", () => {
     expect(statements).toContain("INSERT OR IGNORE INTO knowledge_edges");
     expect(statements).toContain("INSERT OR REPLACE INTO knowledge_events");
     expect(prepared.some((entry) => entry.bindings.includes("hypotheses/fe-stability"))).toBe(true);
+  });
+
+  it("syncs ledger rows through batched writes with one sync event", async () => {
+    const prepared: Array<{ sql: string; bindings: readonly unknown[] }> = [];
+    const env = {
+      LEDGER: stubLedger({
+        queries: [
+          {
+            match: "FROM hypotheses",
+            all: [{
+              id: "mlip-uplift",
+              title: "MLIP uplift hypothesis",
+              status: "active",
+              confidence: 0.72,
+              evidence_ids: '["w-elastic-sentinel"]',
+              agent_id: "agent-alpha",
+              created_at: "2026-06-21T15:00:00.000Z",
+              updated_at: "2026-06-21T16:00:00.000Z",
+            }],
+          },
+        ],
+        onPrepare: (sql, bindings) => prepared.push({ sql, bindings }),
+      }),
+    } as unknown as Env;
+
+    const result = await syncKnowledgeLibraryFromLedger(env, 25);
+
+    expect(result.upserted).toBe(2);
+    expect(result.by_type["Research Hypothesis"]).toBe(1);
+    expect(result.by_type["Knowledge System"]).toBe(1);
+    const statements = prepared.map((entry) => entry.sql).join("\n");
+    expect(statements).toContain("INSERT INTO knowledge_documents");
+    expect(statements).toContain("INSERT OR REPLACE INTO knowledge_events");
+    expect(prepared.filter((entry) => entry.sql.includes("INSERT OR REPLACE INTO knowledge_events"))).toHaveLength(1);
+    expect(prepared.some((entry) => typeof entry.bindings[0] === "string" && entry.bindings[0].startsWith("knowledge:sync:"))).toBe(true);
+    expect(prepared.some((entry) => entry.bindings.includes("systems/glim-think-ledger"))).toBe(true);
   });
 });
