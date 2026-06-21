@@ -118,7 +118,7 @@ export type ProviderCaller = (
     temperature?: number;
     timeoutMs?: number;
   },
-) => Promise<{ text: string; provider: ProviderId; model: string; tokens: number; latencyMs: number }>;
+) => Promise<{ text: string; provider: ProviderId; model: string; tokens: number; latencyMs: number; finishReason?: string }>;
 
 const DEFAULT_PER_PROVIDER_TIMEOUT_MS = 20_000;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.5;
@@ -147,6 +147,9 @@ async function attemptProvider(
       timeoutMs: req.perProviderTimeoutMs ?? DEFAULT_PER_PROVIDER_TIMEOUT_MS,
     });
     const text = res.text ?? "";
+    const emptyError = text.trim()
+      ? undefined
+      : `empty model text from ${res.provider}/${res.model}; finish=${res.finishReason ?? "unknown"}; tokens=${res.tokens ?? 0}`;
     return {
       provider,
       model: res.model,
@@ -155,6 +158,7 @@ async function attemptProvider(
       tokens: res.tokens ?? 0,
       latencyMs: Number.isFinite(res.latencyMs) ? res.latencyMs : Date.now() - start,
       outcome: text.trim() ? "succeeded" : "failed",
+      error: emptyError,
     };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

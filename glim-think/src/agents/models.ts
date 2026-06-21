@@ -79,7 +79,7 @@ export const MINIMAX_BASELINE_MODEL = "MiniMax-M2.7";
 // usage exceeds it and falls back to Workers AI.
 const MINIMAX_MONTHLY_TOKEN_BUDGET = 500_000_000;
 
-const FAST_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
+export const FAST_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
 
 function miniMaxConfig(env: Env): { baseURL: string; model: string } {
   return {
@@ -131,8 +131,46 @@ export async function recordMiniMaxSpend(
   }
 }
 
-function fastModel(env: Env) {
+export function fastModel(env: Env) {
   return createWorkersAI({ binding: env.AI })(FAST_MODEL);
+}
+
+function usageTotal(usage: unknown): number {
+  if (!usage || typeof usage !== "object") return 0;
+  const u = usage as Record<string, unknown>;
+  const numericOrZero = (v: unknown): number =>
+    typeof v === "number" && Number.isFinite(v) ? v : 0;
+  const direct =
+    numericOrZero(u.inputTokens) +
+    numericOrZero(u.outputTokens) +
+    numericOrZero(u.reasoningTokens);
+  if (direct > 0) return direct;
+  return numericOrZero(u.totalTokens);
+}
+
+function emptyModelOutputError(provider: string, model: string, finishReason: unknown, usage: unknown): Error {
+  const finish = typeof finishReason === "string" ? finishReason : "unknown";
+  return new Error(`empty model output from ${provider}/${model}; finish=${finish}; tokens=${usageTotal(usage)}`);
+}
+
+function coordinationOutputBudget(provider: DeepProvider | "workers-ai", requested?: number): number {
+  const cleanRequested =
+    typeof requested === "number" && Number.isFinite(requested) && requested > 0
+      ? Math.trunc(requested)
+      : undefined;
+  const floors: Record<DeepProvider | "workers-ai", number> = {
+    "workers-ai": 256,
+    minimax: 512,
+    zai: 2048,
+    openai: 512,
+  };
+  const defaults: Record<DeepProvider | "workers-ai", number> = {
+    "workers-ai": 768,
+    minimax: 2048,
+    zai: 2048,
+    openai: 2048,
+  };
+  return Math.max(cleanRequested ?? defaults[provider], floors[provider]);
 }
 
 /**
@@ -744,8 +782,12 @@ export async function generateResearchText(
         : { temperature: opts.temperature }),
       experimental_telemetry: { isEnabled: true, functionId: opts.agentClass },
     });
+    const text = (result.text ?? "").trim();
+    if (!text) {
+      throw emptyModelOutputError(route.provider, route.modelId, result.finishReason, result.usage);
+    }
     return {
-      text: (result.text ?? "").trim(),
+      text,
       provider: route.provider,
       model: route.modelId,
     };
@@ -761,8 +803,12 @@ export async function generateResearchText(
         ...(opts.temperature === undefined ? {} : { temperature: opts.temperature }),
         experimental_telemetry: { isEnabled: true, functionId: opts.agentClass },
       });
+      const text = (fb.text ?? "").trim();
+      if (!text) {
+        throw emptyModelOutputError("minimax", opts.modelOverride?.trim() || miniMaxConfig(env).model, fb.finishReason, fb.usage);
+      }
       return {
-        text: (fb.text ?? "").trim(),
+        text,
         provider: "minimax",
         model: opts.modelOverride?.trim() || miniMaxConfig(env).model,
       };
@@ -799,6 +845,7 @@ export interface ProviderCallResult {
   model: string;
   tokens: number;
   latencyMs: number;
+  finishReason?: string;
 }
 
 /** The credentialed deep providers plus the always-on Workers AI fast tier. */
@@ -830,7 +877,7 @@ export async function generateForProvider(
     model: route.model,
     system: opts.system,
     prompt: opts.prompt,
-    maxOutputTokens: opts.maxOutputTokens ?? 768,
+    maxOutputTokens: coordinationOutputBudget(route.provider, opts.maxOutputTokens),
     ...(route.provider === "openai" || opts.temperature === undefined
       ? {}
       : { temperature: opts.temperature }),
@@ -846,7 +893,7 @@ export async function generateForProvider(
     (usage?.inputTokens ?? 0) + (usage?.outputTokens ?? 0) + (usage?.reasoningTokens ?? 0);
   // Record spend directly (the DO-context middleware write is unreliable;
   // mirror the belt-and-braces approach in base.ts synthesize()).
-  if (tokens > 0) {
+  if (tokens > 0 && route.provider === "minimax") {
     try {
       await recordMiniMaxSpend(env, tokens);
     } catch {
@@ -859,6 +906,7 @@ export async function generateForProvider(
     model: route.modelId,
     tokens,
     latencyMs: Date.now() - start,
+    finishReason: result.finishReason,
   };
 }
 

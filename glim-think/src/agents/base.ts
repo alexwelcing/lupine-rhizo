@@ -14,12 +14,11 @@
  */
 
 import { Think, Session } from "@cloudflare/think";
-import { createWorkersAI } from "workers-ai-provider";
 import { generateText, type LanguageModel, type ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import type { DurableObjectState } from "@cloudflare/workers-types";
 import type { Env } from "../types";
-import { recordMiniMaxSpend, miniMaxModel, hasMiniMaxBudget, selectDeepRoute } from "./models";
+import { recordMiniMaxSpend, miniMaxModel, hasMiniMaxBudget, selectDeepRoute, fastModel } from "./models";
 import { getPrompt } from "../registry/promptRegistry";
 import { PhoenixApi } from "../phoenix/api";
 import { runHeuristics } from "../evals/heuristics";
@@ -42,11 +41,11 @@ export abstract class GlimThinkAgent extends Think<Env> {
     super(ctx, env);
   }
   /**
-   * Default model: Workers AI Kimi K2.5 (fast, free tier, zero egress).
+   * Default model: Workers AI Llama 4 Scout (fast, current, zero egress).
    * Subclasses override for specific model requirements.
    */
   getModel() {
-    return createWorkersAI({ binding: this.env.AI })("@cf/moonshotai/kimi-k2.5");
+    return fastModel(this.env);
   }
 
   /**
@@ -286,12 +285,14 @@ export abstract class GlimThinkAgent extends Think<Env> {
         // If this agent's recent pass rate is poor, escalate to MiniMax
         // (if budget allows) or boost token budget for deeper reasoning.
         let model: LanguageModel = this.getModel();
+        let spendProvider: string | null = null;
         if (this.deepTier) {
           // Eval-aware multi-provider deep tier (replaces MiniMax-only
           // selectModel('deep')). Scorecard-steered; span carries the
           // resolved provider/model so the model×agent scorecard is real.
           const route = await selectDeepRoute(this.env);
           model = route.model;
+          spendProvider = route.provider;
           span.setAttribute("llm.provider", route.provider);
           span.setAttribute("llm.model", route.modelId);
         }
@@ -304,6 +305,7 @@ export abstract class GlimThinkAgent extends Think<Env> {
                 `[agent] ${this.constructor.name} pass rate ${(trend.pass_rate * 100).toFixed(1)}% — escalating to MiniMax`
               );
               model = miniMaxModel(this.env);
+              spendProvider = "minimax";
               span.setAttribute("agent.escalated", true);
               span.setAttribute("agent.escalation_reason", "low_pass_rate");
             } else {
@@ -350,7 +352,7 @@ export abstract class GlimThinkAgent extends Think<Env> {
           (usage?.inputTokens ?? 0) +
           (usage?.outputTokens ?? 0) +
           (usage?.reasoningTokens ?? 0);
-        if (totalTokens > 0) {
+        if (totalTokens > 0 && spendProvider === "minimax") {
           await recordMiniMaxSpend(this.env, totalTokens);
         }
 
