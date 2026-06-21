@@ -33,6 +33,8 @@ sys.path.insert(0, str(HERE))
 # embeddings match index embeddings.
 import main as pipeline  # noqa: E402
 
+_QUERY_MODEL = None
+
 
 def _load_vec(conn: sqlite3.Connection) -> bool:
     """Try to load sqlite-vec. Returns False (→ keyword fallback) if absent."""
@@ -77,10 +79,23 @@ def semantic_search(conn: sqlite3.Connection, query: str, limit: int,
 
 
 def _safe_embed(text: str):
-    """Async-safe embed: run pipeline._embed under a fresh event loop."""
-    import asyncio
+    """Embed a query outside CocoIndex's component context.
+
+    The indexer uses CocoIndex's SentenceTransformerEmbedder inside an active
+    component context. The standalone query CLI has no such context, so load the
+    same sentence-transformers model directly and keep the pipeline fallback for
+    offline use.
+    """
+    global _QUERY_MODEL
     try:
-        return asyncio.run(pipeline._embed(text))
+        from sentence_transformers import SentenceTransformer
+        if _QUERY_MODEL is None:
+            _QUERY_MODEL = SentenceTransformer(pipeline.EMBED_MODEL)
+        vec = _QUERY_MODEL.encode(text, normalize_embeddings=True)
+        vec = np.asarray(vec, dtype=np.float32)
+        if int(vec.shape[-1]) == pipeline.EMBED_DIM:
+            return vec
+        raise ValueError(f"unexpected embedding dim {vec.shape[-1]}")
     except Exception as e:  # noqa: BLE001
         print(f"[query] embed failed ({e}); using fallback", file=sys.stderr)
         return pipeline._fallback_vector(text)

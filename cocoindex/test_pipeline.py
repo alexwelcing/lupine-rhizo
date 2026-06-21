@@ -70,17 +70,47 @@ def test_export_evidence_arg_parser_does_not_require_d1():
 
 
 def test_query_keyword_search_returns_results():
-    """query.py --keyword is pure SQL and works on the seeded evidence.db
-    without the embedder. Validates the query tool end-to-end."""
+    """query.py --keyword is pure SQL and does not depend on local index state."""
     import sqlite3
     import query
-    db = HERE / "evidence.db"
-    if not db.exists():
-        import pytest
-        pytest.skip("evidence.db not built — run `cocoindex update main.py`")
-    conn = sqlite3.connect(str(db))
+    conn = sqlite3.connect(":memory:")
     try:
-        # Seeded coordination_traces.jsonl contains "Fan-out/Merge".
+        conn.execute(
+            """
+            CREATE TABLE evidence_chunks (
+                id TEXT,
+                source_file TEXT,
+                kind TEXT,
+                ref_id TEXT,
+                text TEXT,
+                chunk_start INTEGER,
+                chunk_end INTEGER
+            )
+            """
+        )
+        conn.executemany(
+            "INSERT INTO evidence_chunks VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                (
+                    "trace-1",
+                    "coordination_traces.jsonl",
+                    "coordination_trace",
+                    "trace-1",
+                    "Fan-out/Merge selected a better synthesis route.",
+                    0,
+                    48,
+                ),
+                (
+                    "hyp-1",
+                    "hypotheses.jsonl",
+                    "hypothesis",
+                    "hyp-1",
+                    "The manifold boundary explains the observed error mode.",
+                    0,
+                    57,
+                ),
+            ],
+        )
         res = query.keyword_search(conn, "fan out merge", limit=5, kind_filter=None)
         assert len(res) >= 1
         assert any("fan" in r["text"].lower() for r in res)
