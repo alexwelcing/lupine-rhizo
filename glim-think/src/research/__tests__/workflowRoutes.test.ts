@@ -3,7 +3,11 @@ import { handleResearchWorkflowRoute } from "../workflows";
 import { buildStubEnv, stubLedger } from "../../testing/envStub";
 import type { MlipCampaignCell } from "../mlipCampaign";
 
-function cell(variantId: string, status: MlipCampaignCell["status"] = "queued"): MlipCampaignCell {
+function cell(
+  variantId: string,
+  status: MlipCampaignCell["status"] = "queued",
+  overrides: Partial<MlipCampaignCell> = {},
+): MlipCampaignCell {
   return {
     cell_id: `c:${variantId}:elastic_constants:mace-mp-0`,
     campaign_id: "c",
@@ -20,10 +24,22 @@ function cell(variantId: string, status: MlipCampaignCell["status"] = "queued"):
     metrics_json: null,
     created_at: "now",
     updated_at: "now",
+    ...overrides,
   };
 }
 
-function envWithCampaign(onPrepare?: (sql: string, bindings: readonly unknown[]) => void) {
+function defaultCells(): MlipCampaignCell[] {
+  return [
+    cell("baseline"),
+    cell("distill_accuracy"),
+    cell("distill_accuracy_accelerate"),
+  ];
+}
+
+function envWithCampaign(
+  onPrepare?: (sql: string, bindings: readonly unknown[]) => void,
+  cells: MlipCampaignCell[] = defaultCells(),
+) {
   return buildStubEnv({
     LEDGER: stubLedger({
       onPrepare,
@@ -48,11 +64,7 @@ function envWithCampaign(onPrepare?: (sql: string, bindings: readonly unknown[])
         },
         {
           match: "FROM mlip_campaign_cells",
-          all: [
-            cell("baseline"),
-            cell("distill_accuracy"),
-            cell("distill_accuracy_accelerate"),
-          ] as unknown as Record<string, unknown>[],
+          all: cells as unknown as Record<string, unknown>[],
         },
         {
           match: "FROM mlip_campaign_triplet_evals",
@@ -205,5 +217,45 @@ describe("research workflow routes", () => {
     expect(body.agenda.attempted).toBe(1);
     expect(body.agenda.task_ids[0]).toContain("workflow:mlip-5x5x3:c:enqueue");
     expect(prepared.some((sql) => sql.includes("INSERT OR IGNORE INTO intelligence_tasks"))).toBe(true);
+  });
+
+  it("classifies stale 5x5x3 queued cells before dispatch resumes", async () => {
+    const stale = defaultCells().map((item) => cell(item.variant_id, item.status, {
+      cell_id: item.cell_id,
+      updated_at: "2026-01-01T00:00:00.000Z",
+    }));
+    const opsResponse = await handleResearchWorkflowRoute(
+      envWithCampaign(undefined, stale),
+      new URL("https://worker.test/research/workflows/mlip-5x5x3/campaigns/c/ops"),
+      "GET",
+      "",
+    );
+    const ops = await opsResponse?.json() as {
+      counters: Record<string, number>;
+      next_actions: Array<{ action_id: string; kind: string; route?: { body?: Record<string, unknown> } }>;
+    };
+
+    expect(opsResponse?.status).toBe(200);
+    expect(ops.counters.stale_cells).toBe(3);
+    expect(ops.next_actions[0]).toMatchObject({
+      action_id: "retire-stale-cells",
+      kind: "repair_input",
+    });
+    expect(ops.next_actions.some((action) => action.kind === "enqueue_unit")).toBe(false);
+    expect(ops.next_actions[0].route?.body?.mode).toBe("retire_stale");
+
+    const prepared: Array<{ sql: string; bindings: readonly unknown[] }> = [];
+    const maintainResponse = await handleResearchWorkflowRoute(
+      envWithCampaign((sql, bindings) => prepared.push({ sql, bindings }), stale),
+      new URL("https://worker.test/research/workflows/mlip-5x5x3/campaigns/c/maintain"),
+      "POST",
+      JSON.stringify({ mode: "retire_stale", dry_run: true, older_than_hours: 336 }),
+    );
+    const maintain = await maintainResponse?.json() as { retired: number; dry_run: boolean; cell_ids: string[] };
+
+    expect(maintainResponse?.status).toBe(200);
+    expect(maintain).toMatchObject({ retired: 3, dry_run: true });
+    expect(maintain.cell_ids).toHaveLength(3);
+    expect(prepared.some((entry) => entry.sql.includes("UPDATE mlip_campaign_cells"))).toBe(false);
   });
 });

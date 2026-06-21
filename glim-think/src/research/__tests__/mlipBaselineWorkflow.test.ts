@@ -484,4 +484,38 @@ describe("mlip baseline grid workflow", () => {
     expect(maintainResponse?.status).toBe(200);
     expect(prepared.some((sql) => sql.includes("INSERT OR IGNORE") && sql.includes("intelligence_tasks"))).toBe(true);
   });
+
+  it("surfaces stale baseline residue as a retire action without dispatching it", async () => {
+    const stale = cell({ updated_at: "2026-01-01T00:00:00.000Z" });
+    const opsResponse = await handleResearchWorkflowRoute(
+      envWithBaseline(undefined, { cells: [stale] }),
+      new URL(`https://worker.test/research/workflows/${MLIP_BASELINE_WORKFLOW_ID}/campaigns/baseline-run/ops`),
+      "GET",
+      "",
+    );
+    const ops = await opsResponse?.json() as {
+      counters: Record<string, number>;
+      next_actions: Array<{ action_id: string; kind: string; route?: { body?: Record<string, unknown> } }>;
+    };
+
+    expect(opsResponse?.status).toBe(200);
+    expect(ops.counters.stale_residue_cells).toBe(1);
+    expect(ops.next_actions[0]).toMatchObject({ action_id: "retire-stale-cells", kind: "repair_input" });
+    expect(ops.next_actions.some((action) => action.kind === "enqueue_unit")).toBe(false);
+    expect(ops.next_actions[0].route?.body?.mode).toBe("retire_stale");
+
+    const prepared: Array<{ sql: string; bindings: readonly unknown[] }> = [];
+    const maintainResponse = await handleResearchWorkflowRoute(
+      envWithBaseline((sql, bindings) => prepared.push({ sql, bindings }), { cells: [stale] }),
+      new URL(`https://worker.test/research/workflows/${MLIP_BASELINE_WORKFLOW_ID}/campaigns/baseline-run/maintain`),
+      "POST",
+      JSON.stringify({ mode: "retire_stale", dry_run: true, older_than_hours: 336 }),
+    );
+    const maintain = await maintainResponse?.json() as { retired: number; dry_run: boolean; cell_ids: string[] };
+
+    expect(maintainResponse?.status).toBe(200);
+    expect(maintain).toMatchObject({ retired: 1, dry_run: true });
+    expect(maintain.cell_ids).toEqual([stale.cell_id]);
+    expect(prepared.some((entry) => entry.sql.includes("UPDATE mlip_baseline_cells"))).toBe(false);
+  });
 });

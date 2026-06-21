@@ -26,7 +26,7 @@ export interface MlipCampaignCell {
   mlip_id: string;
   variant_id: string;
   fixture_url: string | null;
-  status: "queued" | "enqueued" | "running" | "completed" | "failed";
+  status: "queued" | "enqueued" | "running" | "completed" | "failed" | "retired";
   job_id: string | null;
   accuracy_score: number | null;
   accuracy_unit: string | null;
@@ -41,7 +41,7 @@ export interface MlipCampaignRecord {
   campaign_id: string;
   hypothesis_id: string;
   title: string;
-  status: "draft" | "queued" | "running" | "completed" | "failed";
+  status: "draft" | "queued" | "running" | "completed" | "failed" | "retired";
   rows_json: string;
   mlips_json: string;
   variants_json: string;
@@ -104,7 +104,7 @@ export interface MlipCampaignTriplet {
   row_id: string;
   mlip_id: string;
   triplet_id: string;
-  status: "queued" | "enqueued" | "running" | "completed" | "failed" | "partial";
+  status: "queued" | "enqueued" | "running" | "completed" | "failed" | "partial" | "retired";
   baseline: MlipCampaignCell | null;
   distill_accuracy: MlipCampaignCell | null;
   distill_accuracy_accelerate: MlipCampaignCell | null;
@@ -345,9 +345,11 @@ function tripletStatus(
   );
   if (requiredVariants.some((variant) => !present.some((cell) => cell.variant_id === variant))) return "partial";
   if (present.some((cell) => cell.status === "failed")) return "failed";
+  if (present.every((cell) => cell.status === "retired")) return "retired";
   if (present.every((cell) => cell.status === "completed")) return "completed";
   if (present.some((cell) => cell.status === "running")) return "running";
   if (present.some((cell) => cell.status === "enqueued")) return "enqueued";
+  if (present.some((cell) => cell.status === "retired")) return "partial";
   return "queued";
 }
 
@@ -705,8 +707,58 @@ export function summarizeMlipCampaign(cells: MlipCampaignCell[]) {
   return {
     cells: cells.length,
     completed: cells.filter((cell) => cell.status === "completed").length,
+    retired: cells.filter((cell) => cell.status === "retired").length,
     by_variant: byVariant,
   };
+}
+
+export async function retireStaleMlipCampaignCells(
+  env: Env,
+  campaignId: string,
+  opts: { olderThanHours?: number; limit?: number; dryRun?: boolean } = {},
+): Promise<{ retired: number; dry_run: boolean; cutoff: string; cell_ids: string[] }> {
+  await ensureMlipCampaignSchema(env);
+  const olderThanHours = Math.max(1, Math.trunc(opts.olderThanHours ?? 24 * 14));
+  const limit = Math.min(Math.max(1, Math.trunc(opts.limit ?? 500)), 1000);
+  const cutoff = new Date(Date.now() - olderThanHours * 3_600_000).toISOString();
+  const rows = await env.LEDGER.prepare(
+    `SELECT cell_id FROM mlip_campaign_cells
+      WHERE campaign_id = ?1
+        AND status IN ('queued', 'enqueued')
+        AND updated_at < ?2
+      ORDER BY updated_at ASC
+      LIMIT ?3`,
+  ).bind(campaignId, cutoff, limit).all<{ cell_id: string }>();
+  const cellIds = (rows.results ?? []).map((row) => row.cell_id);
+  if (!opts.dryRun && cellIds.length > 0) {
+    const stamp = new Date().toISOString();
+    const marker = JSON.stringify({
+      retired_reason: "stale_queued_or_enqueued_cell",
+      retired_at: stamp,
+      cutoff,
+      older_than_hours: olderThanHours,
+    });
+    for (const cellId of cellIds) {
+      await env.LEDGER.prepare(
+        `UPDATE mlip_campaign_cells
+           SET status = 'retired',
+               metrics_json = COALESCE(metrics_json, ?3),
+               updated_at = ?4
+         WHERE campaign_id = ?1 AND cell_id = ?2`,
+      ).bind(campaignId, cellId, marker, stamp).run();
+    }
+    await env.LEDGER.prepare(
+      `UPDATE mlip_campaigns
+         SET status = 'retired', updated_at = ?2
+       WHERE campaign_id = ?1
+         AND NOT EXISTS (
+           SELECT 1 FROM mlip_campaign_cells
+            WHERE campaign_id = ?1
+              AND status IN ('queued', 'enqueued', 'running', 'completed', 'failed')
+         )`,
+    ).bind(campaignId, stamp).run();
+  }
+  return { retired: cellIds.length, dry_run: opts.dryRun === true, cutoff, cell_ids: cellIds };
 }
 
 export async function markMlipCampaignCellEnqueued(

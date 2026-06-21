@@ -3,6 +3,7 @@ import {
   dispatchQueuedMlipBaselineCells,
   getMlipBaselineRun,
   MLIP_BASELINE_WORKFLOW_ID,
+  retireStaleMlipBaselineCells,
   type MlipBaselineCellRecord,
 } from "./mlipBaselineGrid";
 import { classifyMlipFixtureTarget } from "./mlipBaselineReadiness";
@@ -146,6 +147,12 @@ export async function inspectMlipBaselineCampaign(
     const stamp = cell.enqueued_at ?? cell.updated_at;
     return Date.parse(stamp) < staleCutoff;
   });
+  const staleResidueCutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
+  const staleResidue = state.cells.filter(
+    (cell) =>
+      (cell.status === "queued" || cell.status === "enqueued") &&
+      Date.parse(cell.updated_at) < staleResidueCutoff,
+  );
   const missingConfig: string[] = [];
   if (state.run.profile !== "smoke" && !env.TASKS_CONSUMER_URL?.trim()) missingConfig.push("TASKS_CONSUMER_URL");
   if (state.run.profile !== "smoke" && !state.run.manifest_url.trim()) missingConfig.push("manifest_url");
@@ -166,7 +173,24 @@ export async function inspectMlipBaselineCampaign(
     });
   }
 
-  for (const cell of queued.slice(0, 10)) {
+  if (staleResidue.length > 0) {
+    actions.push({
+      action_id: "retire-stale-cells",
+      kind: "repair_input",
+      label: `Retire ${staleResidue.length} stale MLIP baseline cells`,
+      reason: "These queued/enqueued cells are older than 14 days and should be classified as stale residue before dispatch resumes.",
+      priority: 1,
+      route: {
+        method: "POST",
+        path: `/research/workflows/${MLIP_BASELINE_WORKFLOW_ID}/campaigns/${encodeURIComponent(runId)}/maintain`,
+        body: { mode: "retire_stale", older_than_hours: 336, dry_run: false },
+      },
+      can_auto_execute: true,
+      surfaces: ["cloudflare", "ledger", "agenda"],
+    });
+  }
+
+  for (const cell of (staleResidue.length > 0 ? [] : queued).slice(0, 10)) {
     actions.push({
       action_id: `enqueue:${cell.cell_id}`,
       kind: "enqueue_unit",
@@ -257,8 +281,10 @@ export async function inspectMlipBaselineCampaign(
     cells_completed: state.summary.cells_completed,
     cells_failed: state.summary.cells_failed,
     cells_queued: state.summary.cells_queued,
+    cells_retired: state.summary.cells_retired,
     cells_active: active.length,
     stale_cells: stale.length,
+    stale_residue_cells: staleResidue.length,
     missing_config: missingConfig.length,
     ...Object.fromEntries(
       Object.entries(countBy(state.cells.map((cell) => cell.status))).map(([key, value]) => [
@@ -288,8 +314,21 @@ export async function maintainMlipBaselineCampaign(
   runId: string,
   bodyText: string,
 ): Promise<Response> {
-  const body = JSON.parse(bodyText || "{}") as { mode?: "agenda" | "dispatch"; limit?: number; dry_run?: boolean };
+  const body = JSON.parse(bodyText || "{}") as {
+    mode?: "agenda" | "dispatch" | "retire_stale";
+    limit?: number;
+    dry_run?: boolean;
+    older_than_hours?: number;
+  };
   const mode = body.mode ?? "agenda";
+  if (mode === "retire_stale") {
+    const result = await retireStaleMlipBaselineCells(env, runId, {
+      olderThanHours: body.older_than_hours,
+      limit: body.limit,
+      dryRun: body.dry_run,
+    });
+    return workflowJson({ workflow_id: MLIP_BASELINE_WORKFLOW_ID, run_id: runId, mode, ...result });
+  }
   if (mode === "dispatch") {
     try {
       const result = await dispatchQueuedMlipBaselineCells(env, runId, {

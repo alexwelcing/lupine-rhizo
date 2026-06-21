@@ -127,4 +127,65 @@ describe("knowledge library", () => {
     expect(prepared.some((entry) => typeof entry.bindings[0] === "string" && entry.bindings[0].startsWith("knowledge:sync:"))).toBe(true);
     expect(prepared.some((entry) => entry.bindings.includes("systems/glim-think-ledger"))).toBe(true);
   });
+
+  it("syncs claims with inferred record evidence and benchmark record concepts", async () => {
+    const prepared: Array<{ sql: string; bindings: readonly unknown[] }> = [];
+    const env = {
+      LEDGER: stubLedger({
+        queries: [
+          {
+            match: "FROM claims",
+            all: [{
+              claim_id: "mlip_discovery_w_c11",
+              claim_type: "MlipDiscoveryEvaluator",
+              claim_data: JSON.stringify({
+                related_records: [{ record_id: "W_chgnet_C11_run" }],
+                campaign_id: "github:27206839783",
+              }),
+              status: "testing",
+              confidence: 0.55,
+              description: "W/chgnet/C11 has high error.",
+              evidence_ids: "[]",
+              created_at: "2026-06-21T15:00:00.000Z",
+            }],
+          },
+          {
+            match: "FROM records",
+            all: [{
+              record_id: "W_chgnet_C11_run",
+              element: "W",
+              potential_id: "chgnet",
+              potential_label: "chgnet",
+              pair_style: "mlip",
+              property: "C11",
+              reference: 522,
+              predicted: 245.29,
+              unit: "GPa",
+              provenance: JSON.stringify({ github_run_id: "27206839783" }),
+              timestamp: "2026-06-09T12:42:33Z",
+            }],
+          },
+        ],
+        onPrepare: (sql, bindings) => prepared.push({ sql, bindings }),
+      }),
+    } as unknown as Env;
+
+    const result = await syncKnowledgeLibraryFromLedger(env, 25);
+
+    expect(result.by_type["Discovery Claim"]).toBe(1);
+    expect(result.by_type["Benchmark Record"]).toBe(1);
+    expect(result.upserted).toBe(3);
+    const claimWrite = prepared.find(
+      (entry) => entry.sql.includes("INSERT INTO knowledge_documents") && entry.bindings[0] === "claims/mlip_discovery_w_c11",
+    );
+    const recordWrite = prepared.find(
+      (entry) => entry.sql.includes("INSERT INTO knowledge_documents") && entry.bindings[0] === "records/W_chgnet_C11_run",
+    );
+    expect(claimWrite?.bindings[7]).toContain("[record:W_chgnet_C11_run](/records/W_chgnet_C11_run.md)");
+    expect(recordWrite?.bindings[7]).toContain("- Record ID: W_chgnet_C11_run");
+    expect(prepared.some((entry) =>
+      entry.sql.includes("INSERT OR IGNORE INTO knowledge_edges") &&
+      entry.bindings.includes("records/W_chgnet_C11_run")
+    )).toBe(true);
+  });
 });

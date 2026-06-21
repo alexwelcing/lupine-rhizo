@@ -11,6 +11,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
 
 const GROUPINGS = ["element", "pair_style", "potential_label", "structure"] as const;
 
@@ -263,8 +264,8 @@ export class Causal extends GlimThinkAgent {
       };
     }
 
-    const rows = await this.queryLedger<{ key: string; reference: number; predicted: number }>(
-      `SELECT ${groupKeyExpr(opts.grouping)} as key, reference, predicted FROM records`,
+    const rows = await this.queryLedger<{ record_id: string; key: string; reference: number; predicted: number }>(
+      `SELECT record_id, ${groupKeyExpr(opts.grouping)} as key, reference, predicted FROM records`,
     );
     if (rows.length < 4) {
       return { ok: false, error: `insufficient data (n=${rows.length})` };
@@ -313,7 +314,13 @@ export class Causal extends GlimThinkAgent {
       reversal,
       pattern,
       total_records: rows.length,
+      evidence_record_count: rows.length,
     };
+    const evidenceIds = compactEvidenceIds(
+      rows.map((record) => recordEvidenceId(record.record_id)),
+      240,
+      `causal:${opts.grouping}`,
+    );
     const description = `Causal screen on ${opts.grouping}: pooled r=${claimData.pooled_r}, mean within r=${claimData.mean_within_r}${reversal ? " — Simpson's reversal detected" : ""}`;
     const now = new Date().toISOString();
     const confidence = reversal ? 0.85 : Math.abs(pooledR);
@@ -323,10 +330,10 @@ export class Causal extends GlimThinkAgent {
         .prepare(
           `INSERT INTO claims
             (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-          VALUES (?1, 'agent_delta_causal', 'CausalScreen', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
+          VALUES (?1, 'agent_delta_causal', 'CausalScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
           ON CONFLICT(claim_id) DO NOTHING`,
         )
-        .bind(claimId, JSON.stringify(claimData), confidence, description, now)
+        .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), confidence, description, now)
         .run();
     } catch (e) {
       console.error("Causal.runScreen: claim insert failed:", e);
@@ -704,14 +711,16 @@ export class Causal extends GlimThinkAgent {
         const props = ["C11", "C12", "C44"];
         const perProp: Array<Record<string, unknown>> = [];
         const sources: Record<string, number> = {};
+        const evidenceSourceIds = new Set<string>();
 
         for (const p of props) {
           const rows = await this.queryLedger<{
-            struct: string; reference: number; predicted: number; provenance: string; potential_label: string;
+            record_id: string; struct: string; reference: number; predicted: number; provenance: string; potential_label: string;
           }>(
-            `SELECT ${structExpr} as struct, reference, predicted, provenance, potential_label FROM records WHERE property = '${p}'`,
+            `SELECT record_id, ${structExpr} as struct, reference, predicted, provenance, potential_label FROM records WHERE property = '${p}'`,
           );
           const stat = (sel: typeof rows) => {
+            for (const row of sel) evidenceSourceIds.add(row.record_id);
             const clean = sel.filter((x) => Math.abs(x.predicted) <= BOUND);
             const cont = sel.filter((x) => Math.abs(x.predicted) > BOUND);
             for (const c of cont) {
@@ -763,8 +772,14 @@ export class Causal extends GlimThinkAgent {
           fcc_contam_rate: r4(fccContam), bcc_contam_rate: r4(bccContam),
           fcc_clean_r: r4(fccCleanR), bcc_clean_r: r4(bccCleanR),
           top_contamination_sources: topSources,
+          evidence_record_count: evidenceSourceIds.size,
           shield_survives_cleaning: shieldSurvives, verdict,
         };
+        const evidenceIds = compactEvidenceIds(
+          [...evidenceSourceIds].map((id) => recordEvidenceId(id)),
+          240,
+          "causal:data_integrity",
+        );
         const description =
           `Round C4 data-integrity — FCC contamination rate=${r4(fccContam)} (BCC=${r4(bccContam)}); ` +
           `after quarantine |pred|>${BOUND}GPa: FCC clean r=${r4(fccCleanR)}, BCC clean r=${r4(bccCleanR)}. ${verdict}`;
@@ -774,10 +789,10 @@ export class Causal extends GlimThinkAgent {
             .prepare(
               `INSERT INTO claims
                 (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'DataIntegrityScreen', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
+              VALUES (?1, 'agent_delta_causal', 'DataIntegrityScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
               ON CONFLICT(claim_id) DO NOTHING`,
             )
-            .bind(claimId, JSON.stringify(claimData), 0.85, description, now)
+            .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), 0.85, description, now)
             .run();
         } catch (e) {
           console.error("Causal.runDataIntegrityScreen: claim insert failed:", e);
@@ -821,11 +836,13 @@ export class Causal extends GlimThinkAgent {
         const structExpr = groupKeyExpr("structure");
         const props = ["C11", "C12", "C44"];
         const cells: Array<Record<string, unknown>> = [];
+        const evidenceSourceIds = new Set<string>();
 
         for (const p of props) {
-          const rows = await this.queryLedger<{ struct: string; reference: number; predicted: number }>(
-            `SELECT ${structExpr} as struct, reference, predicted FROM records WHERE property = '${p}'`,
+          const rows = await this.queryLedger<{ record_id: string; struct: string; reference: number; predicted: number }>(
+            `SELECT record_id, ${structExpr} as struct, reference, predicted FROM records WHERE property = '${p}'`,
           );
+          for (const row of rows) evidenceSourceIds.add(row.record_id);
           const byS: Record<string, { ref: number[]; pred: number[] }> = {};
           for (const x of rows) {
             (byS[x.struct] ||= { ref: [], pred: [] }).ref.push(x.reference);
@@ -871,7 +888,12 @@ export class Causal extends GlimThinkAgent {
           : "RANGE-RESTRICTION NOT SUPPORTED: FCC shows genuinely large relative error — potentials really do under-predict close-packed elastic constants; aggregation still masks a real differential-accuracy failure.";
 
         const claimId = `causal_scalefree_${Date.now()}`;
-        const claimData = { analysis: "structure_scale_free", cells, fcc_rel_mae: r4(fccRelMae), bcc_rel_mae: r4(bccRelMae), fcc_ref_std: r4(fccStd), bcc_ref_std: r4(bccStd), fcc_pearson_r: r4(fccR), range_restricted: rangeRestricted, verdict };
+        const evidenceIds = compactEvidenceIds(
+          [...evidenceSourceIds].map((id) => recordEvidenceId(id)),
+          240,
+          "causal:scale_free",
+        );
+        const claimData = { analysis: "structure_scale_free", cells, fcc_rel_mae: r4(fccRelMae), bcc_rel_mae: r4(bccRelMae), fcc_ref_std: r4(fccStd), bcc_ref_std: r4(bccStd), fcc_pearson_r: r4(fccR), evidence_record_count: evidenceSourceIds.size, range_restricted: rangeRestricted, verdict };
         const description =
           `Round C3′ scale-free BCC/FCC — FCC rel_MAE=${r4(fccRelMae)} (ref_std=${r4(fccStd)}, r=${r4(fccR)}) vs ` +
           `BCC rel_MAE=${r4(bccRelMae)} (ref_std=${r4(bccStd)}). ${verdict}`;
@@ -881,10 +903,10 @@ export class Causal extends GlimThinkAgent {
             .prepare(
               `INSERT INTO claims
                 (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'ScaleFreeStructureScreen', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
+              VALUES (?1, 'agent_delta_causal', 'ScaleFreeStructureScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
               ON CONFLICT(claim_id) DO NOTHING`,
             )
-            .bind(claimId, JSON.stringify(claimData), rangeRestricted ? 0.8 : 0.6, description, now)
+            .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), rangeRestricted ? 0.8 : 0.6, description, now)
             .run();
         } catch (e) {
           console.error("Causal.runStructureScaleFreeScreen: claim insert failed:", e);
@@ -926,11 +948,13 @@ export class Causal extends GlimThinkAgent {
         const structExpr = groupKeyExpr("structure");
         const props = ["C11", "C12", "C44"];
         const perProperty: Array<Record<string, unknown>> = [];
+        const evidenceSourceIds = new Set<string>();
 
         for (const p of props) {
-          const rows = await this.queryLedger<{ struct: string; reference: number; predicted: number }>(
-            `SELECT ${structExpr} as struct, reference, predicted FROM records WHERE property = '${p}'`,
+          const rows = await this.queryLedger<{ record_id: string; struct: string; reference: number; predicted: number }>(
+            `SELECT record_id, ${structExpr} as struct, reference, predicted FROM records WHERE property = '${p}'`,
           );
+          for (const row of rows) evidenceSourceIds.add(row.record_id);
           if (rows.length < 4) {
             perProperty.push({ property: p, error: "insufficient", n: rows.length });
             continue;
@@ -970,7 +994,12 @@ export class Causal extends GlimThinkAgent {
           : "OPEN/REFUTES C2: within-FCC skill is not specifically localized to C12/C44 — Cauchy-relation mechanism not confirmed by this stratification.";
 
         const claimId = `causal_structprop_${Date.now()}`;
-        const claimData = { analysis: "structure_x_property", per_property: perProperty, cauchy_localized: cauchyLocalized, verdict };
+        const evidenceIds = compactEvidenceIds(
+          [...evidenceSourceIds].map((id) => recordEvidenceId(id)),
+          240,
+          "causal:structure_property",
+        );
+        const claimData = { analysis: "structure_x_property", per_property: perProperty, evidence_record_count: evidenceSourceIds.size, cauchy_localized: cauchyLocalized, verdict };
         const description =
           `Round C2 structure×property screen — FCC r [C11=${byP.C11?.fcc_r}, C12=${byP.C12?.fcc_r}, C44=${byP.C44?.fcc_r}] ` +
           `vs BCC r [C11=${byP.C11?.bcc_r}, C12=${byP.C12?.bcc_r}, C44=${byP.C44?.bcc_r}]. ${verdict}`;
@@ -980,10 +1009,10 @@ export class Causal extends GlimThinkAgent {
             .prepare(
               `INSERT INTO claims
                 (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'StructurePropertyScreen', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
+              VALUES (?1, 'agent_delta_causal', 'StructurePropertyScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
               ON CONFLICT(claim_id) DO NOTHING`,
             )
-            .bind(claimId, JSON.stringify(claimData), cauchyLocalized ? 0.8 : 0.5, description, now)
+            .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), cauchyLocalized ? 0.8 : 0.5, description, now)
             .run();
         } catch (e) {
           console.error("Causal.runStructurePropertyScreen: claim insert failed:", e);

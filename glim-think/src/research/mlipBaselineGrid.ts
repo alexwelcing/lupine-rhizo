@@ -26,8 +26,9 @@ export type MlipBaselineRunStatus =
   | "completed"
   | "partial"
   | "failed"
+  | "retired"
   | "failed_preflight";
-export type MlipBaselineCellStatus = "queued" | "enqueued" | "running" | "completed" | "failed";
+export type MlipBaselineCellStatus = "queued" | "enqueued" | "running" | "completed" | "failed" | "retired";
 
 export interface CreateMlipBaselineGridInput {
   run_id?: string;
@@ -110,6 +111,7 @@ export interface MlipBaselineSummary {
   cells_enqueued: number;
   cells_running: number;
   cells_queued: number;
+  cells_retired: number;
   mean_accuracy: number | null;
   mean_speed: number | null;
   estimated_hourly_cost: number;
@@ -578,6 +580,7 @@ export function summarizeMlipBaselineRun(
     cells_enqueued: cells.filter((cell) => cell.status === "enqueued").length,
     cells_running: cells.filter((cell) => cell.status === "running").length,
     cells_queued: cells.filter((cell) => cell.status === "queued").length,
+    cells_retired: cells.filter((cell) => cell.status === "retired").length,
     mean_accuracy: accuracies.length ? accuracies.reduce((sum, value) => sum + value, 0) / accuracies.length : null,
     mean_speed: speeds.length ? speeds.reduce((sum, value) => sum + value, 0) / speeds.length : null,
     estimated_hourly_cost: cost?.estimated_hourly_usd ?? 0,
@@ -935,6 +938,54 @@ export async function recordMlipBaselineBeat(
     operation_name: typeof metrics.operation_name === "string" ? metrics.operation_name : undefined,
     error: typeof metrics.error === "string" ? metrics.error : undefined,
   });
+}
+
+export async function retireStaleMlipBaselineCells(
+  env: Env,
+  runId: string,
+  opts: { olderThanHours?: number; limit?: number; dryRun?: boolean } = {},
+): Promise<{ retired: number; dry_run: boolean; cutoff: string; cell_ids: string[] }> {
+  await ensureMlipBaselineSchema(env);
+  const olderThanHours = Math.max(1, Math.trunc(opts.olderThanHours ?? 24 * 14));
+  const limit = Math.min(Math.max(1, Math.trunc(opts.limit ?? 500)), 1000);
+  const cutoff = new Date(Date.now() - olderThanHours * 3_600_000).toISOString();
+  const rows = await env.LEDGER.prepare(
+    `SELECT cell_id FROM mlip_baseline_cells
+      WHERE run_id = ?1
+        AND status IN ('queued', 'enqueued')
+        AND updated_at < ?2
+      ORDER BY updated_at ASC
+      LIMIT ?3`,
+  ).bind(runId, cutoff, limit).all<{ cell_id: string }>();
+  const cellIds = (rows.results ?? []).map((row) => row.cell_id);
+  if (!opts.dryRun && cellIds.length > 0) {
+    const stamp = nowIso();
+    const error = `retired stale queued/enqueued cell older than ${olderThanHours}h`;
+    for (const cellId of cellIds) {
+      await env.LEDGER.prepare(
+        `UPDATE mlip_baseline_cells
+           SET status = 'retired',
+               error = ?3,
+               completed_at = COALESCE(completed_at, ?4),
+               updated_at = ?4
+         WHERE run_id = ?1 AND cell_id = ?2`,
+      ).bind(runId, cellId, error, stamp).run();
+    }
+    await env.LEDGER.prepare(
+      `UPDATE mlip_baseline_runs
+         SET status = 'retired',
+             error = ?3,
+             finished_at = COALESCE(finished_at, ?2),
+             updated_at = ?2
+       WHERE run_id = ?1
+         AND NOT EXISTS (
+           SELECT 1 FROM mlip_baseline_cells
+            WHERE run_id = ?1
+              AND status IN ('queued', 'enqueued', 'running', 'completed', 'failed')
+         )`,
+    ).bind(runId, stamp, error).run();
+  }
+  return { retired: cellIds.length, dry_run: opts.dryRun === true, cutoff, cell_ids: cellIds };
 }
 
 export async function finalizeMlipBaselineRun(

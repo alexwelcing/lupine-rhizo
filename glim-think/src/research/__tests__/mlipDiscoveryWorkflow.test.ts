@@ -160,6 +160,34 @@ describe("MLIP discovery workflow", () => {
     expect(prepared.some((sql) => sql.includes("INSERT OR IGNORE INTO intelligence_tasks"))).toBe(true);
   });
 
+  it("persists discovery evaluator verdicts and evidence-backed claims", async () => {
+    const prepared: Array<{ sql: string; bindings: readonly unknown[] }> = [];
+    const unitId = "error:W:chgnet:C11";
+    const response = await handleResearchWorkflowRoute(
+      envWithRecords((sql, bindings) => prepared.push({ sql, bindings })),
+      new URL(
+        `https://worker.test/research/workflows/mlip-discovery-loop/campaigns/github%3A27206839783/units/${encodeURIComponent(unitId)}/evaluate`,
+      ),
+      "POST",
+      "",
+    );
+    const body = await response?.json() as {
+      claim_id: string;
+      evidence_ids: string[];
+      related_records: Array<{ record_id: string }>;
+      verdict: string;
+    };
+
+    expect(response?.status).toBe(200);
+    expect(body.claim_id).toBe("mlip_discovery_github:27206839783_error:W:chgnet:C11");
+    expect(body.verdict).toBe("follow_up");
+    expect(body.evidence_ids).toEqual(["record:W_chgnet_C11_run"]);
+    expect(body.related_records).toEqual([expect.objectContaining({ record_id: "W_chgnet_C11_run" })]);
+    expect(prepared.some((entry) => entry.sql.includes("INSERT INTO evaluations"))).toBe(true);
+    expect(prepared.some((entry) => entry.sql.includes("INSERT INTO claims"))).toBe(true);
+    expect(prepared.some((entry) => entry.bindings.includes(JSON.stringify(["record:W_chgnet_C11_run"])))).toBe(true);
+  });
+
   it("serves a compact public progress packet for the latest benchmark run", async () => {
     const response = await handleResearchWorkflowRoute(
       envWithRecords(),

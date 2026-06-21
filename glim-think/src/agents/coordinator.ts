@@ -37,6 +37,8 @@ import {
   selectDeepProviderId,
 } from "./models";
 import { runHeuristics } from "../evals/heuristics";
+import { insertEval } from "../evals/store";
+import { evaluateParticipationRatioTerminology } from "../evals/prTerminology";
 import { recordCoordinationTrace } from "./coordinatorTraces";
 import { consultMemory, applyMemoryBias, emitTrace } from "./memoryClient";
 
@@ -546,6 +548,7 @@ export async function coordinate(
     cost_tokens: result.totalTokens,
     latency_ms: Date.now() - start,
   });
+  await safeRecordParticipationRatioTerminologyEval(env, req, result);
 
   // ─── Memory flywheel (emit) ────────────────────────────────────────────
   // POST this trace to the GCP evidence index so future consultMemory calls
@@ -623,5 +626,31 @@ async function safeRecordTrace(env: Env, trace: Parameters<typeof recordCoordina
     await recordCoordinationTrace(env, trace);
   } catch (e) {
     console.warn("[omnigents] coordination trace write failed:", e);
+  }
+}
+
+async function safeRecordParticipationRatioTerminologyEval(
+  env: Env,
+  req: CoordinationRequest,
+  result: CoordinationResult,
+): Promise<void> {
+  const evaluation = evaluateParticipationRatioTerminology(req.prompt, result.text);
+  if (!evaluation.relevant) return;
+  try {
+    await insertEval(env, {
+      trace_id: `coordination-pr-terminology:${req.agentClass}:${Date.now()}`,
+      span_id: result.provider,
+      agent_class: req.agentClass,
+      task_kind: "coordination_pr_terminology",
+      evaluator_name: "science.pr_terminology.covariance_sense",
+      score: evaluation.score,
+      label: evaluation.label,
+      explanation: evaluation.explanation,
+      action_taken: evaluation.label === "pass" ? "accepted" : "escalated",
+      retry_count: 0,
+      created_at: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.warn("[omnigents] PR terminology eval write failed:", e);
   }
 }

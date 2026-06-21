@@ -1,4 +1,8 @@
 import type { Env } from "../types";
+import {
+  inferEvidenceIdsFromClaimData,
+  parseEvidenceIds,
+} from "../research/evidenceIds";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -101,11 +105,26 @@ interface SourceHypothesisRow {
 interface SourceClaimRow {
   claim_id: string;
   claim_type: string;
+  claim_data: string | null;
   status: string | null;
   confidence: number | null;
   description: string | null;
   evidence_ids: string | null;
   created_at: string | null;
+}
+
+interface SourceRecordRow {
+  record_id: string;
+  element: string | null;
+  potential_id: string | null;
+  potential_label: string | null;
+  pair_style: string | null;
+  property: string | null;
+  reference: number | null;
+  predicted: number | null;
+  unit: string | null;
+  provenance: string | null;
+  timestamp: string | null;
 }
 
 interface SourceQuestionRow {
@@ -349,7 +368,7 @@ export async function syncKnowledgeLibraryFromLedger(env: Env, limit = 100): Pro
     LIMIT ?1
   `).bind(capped).all<SourceHypothesisRow>().catch(() => ({ results: [] as SourceHypothesisRow[] }));
   for (const row of hypotheses.results ?? []) {
-    const evidence = parseJsonArray(row.evidence_ids);
+    const evidence = parseEvidenceIds(row.evidence_ids);
     inputs.push({
       concept_id: `hypotheses/${row.id}`,
       type: "Research Hypothesis",
@@ -372,12 +391,13 @@ export async function syncKnowledgeLibraryFromLedger(env: Env, limit = 100): Pro
   }
 
   const claims = await env.LEDGER.prepare(`
-    SELECT claim_id, claim_type, status, confidence, description, evidence_ids, created_at
+    SELECT claim_id, claim_type, claim_data, status, confidence, description, evidence_ids, created_at
     FROM claims
     ORDER BY created_at DESC
     LIMIT ?1
   `).bind(capped).all<SourceClaimRow>().catch(() => ({ results: [] as SourceClaimRow[] }));
   for (const row of claims.results ?? []) {
+    const evidence = claimEvidenceIds(row);
     inputs.push({
       concept_id: `claims/${row.claim_id}`,
       type: "Discovery Claim",
@@ -396,7 +416,45 @@ export async function syncKnowledgeLibraryFromLedger(env: Env, limit = 100): Pro
         `- Confidence: ${row.confidence ?? "unknown"}`,
         "",
         "# Evidence IDs",
-        formatJsonishList(row.evidence_ids),
+        formatEvidenceList(evidence),
+      ].join("\n"),
+    });
+  }
+
+  const records = await env.LEDGER.prepare(`
+    SELECT record_id, element, potential_id, potential_label, pair_style, property,
+           reference, predicted, unit, provenance, timestamp
+    FROM records
+    ORDER BY timestamp DESC
+    LIMIT ?1
+  `).bind(capped).all<SourceRecordRow>().catch(() => ({ results: [] as SourceRecordRow[] }));
+  for (const row of records.results ?? []) {
+    inputs.push({
+      concept_id: `records/${row.record_id}`,
+      type: "Benchmark Record",
+      title: `${row.element ?? "unknown"}/${row.potential_id ?? row.potential_label ?? "unknown"}/${row.property ?? "property"}`,
+      description: `Reference ${row.reference ?? "n/a"}; predicted ${row.predicted ?? "n/a"} ${row.unit ?? ""}`.trim(),
+      resource: `/records/${encodeURIComponent(row.record_id)}`,
+      tags: [
+        "record",
+        ...(row.element ? [`element:${row.element}`] : []),
+        ...(row.potential_id ? [`potential:${row.potential_id}`] : []),
+        ...(row.pair_style ? [`pair_style:${row.pair_style}`] : []),
+      ],
+      timestamp: row.timestamp,
+      source_kind: "benchmark_record",
+      source_id: row.record_id,
+      body_md: [
+        `# ${row.element ?? "unknown"} ${row.potential_id ?? row.potential_label ?? "unknown"} ${row.property ?? "property"}`,
+        "",
+        `- Record ID: ${row.record_id}`,
+        `- Element: ${row.element ?? "unknown"}`,
+        `- Potential: ${row.potential_id ?? row.potential_label ?? "unknown"}`,
+        `- Pair style: ${row.pair_style ?? "unknown"}`,
+        `- Property: ${row.property ?? "unknown"}`,
+        `- Reference: ${row.reference ?? "unknown"} ${row.unit ?? ""}`.trim(),
+        `- Predicted: ${row.predicted ?? "unknown"} ${row.unit ?? ""}`.trim(),
+        ...(row.provenance ? ["", "# Provenance", "```json", row.provenance, "```"] : []),
       ].join("\n"),
     });
   }
@@ -832,6 +890,24 @@ function parseJsonArray(value: unknown): string[] {
   } catch {
     return [];
   }
+}
+
+function claimEvidenceIds(row: SourceClaimRow): string[] {
+  const explicit = parseEvidenceIds(row.evidence_ids);
+  if (explicit.length) return explicit;
+  return inferEvidenceIdsFromClaimData(row.claim_data);
+}
+
+function formatEvidenceList(ids: string[]): string {
+  return ids.length ? ids.map((id) => `- [${id}](/${evidenceConceptPath(id)}.md)`).join("\n") : "- None recorded";
+}
+
+function evidenceConceptPath(id: string): string {
+  if (id.startsWith("record:")) return `records/${id.slice("record:".length)}`;
+  if (id.startsWith("claim:")) return `claims/${id.slice("claim:".length)}`;
+  if (id.startsWith("campaign:")) return `campaigns/${id.slice("campaign:".length)}`;
+  if (id.startsWith("github-actions:")) return `evidence/github-actions/${id.slice("github-actions:".length)}`;
+  return `claims/${id}`;
 }
 
 function safeJson(value: unknown): Record<string, unknown> | null {

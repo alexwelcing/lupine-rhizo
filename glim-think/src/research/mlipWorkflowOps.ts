@@ -3,6 +3,7 @@ import {
   campaignVariantIds,
   getMlipCampaign,
   nextMlipCampaignTriplets,
+  retireStaleMlipCampaignCells,
   type MlipCampaignTriplet,
 } from "./mlipCampaign";
 import {
@@ -132,6 +133,12 @@ export async function inspectMlipWorkflowCampaign(
     (triplet) => triplet.status === "completed" && !triplet.evaluation,
   );
   const failedTriplets = campaign.triplets.filter((triplet) => triplet.status === "failed");
+  const staleCutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
+  const staleCells = campaign.cells.filter(
+    (cell) =>
+      (cell.status === "queued" || cell.status === "enqueued") &&
+      Date.parse(cell.updated_at) < staleCutoff,
+  );
   const requiredVariants = campaignVariantIds(campaign.campaign);
   const nextQueued = nextMlipCampaignTriplets(campaign.cells, 5, requiredVariants);
   const stateHypotheses = evaluateMlipStateHypotheses(campaign.cells);
@@ -171,7 +178,24 @@ export async function inspectMlipWorkflowCampaign(
     });
   }
 
-  for (const triplet of nextQueued) {
+  if (staleCells.length > 0) {
+    actions.push({
+      action_id: "retire-stale-cells",
+      kind: "repair_input",
+      label: `Retire ${staleCells.length} stale MLIP campaign cells`,
+      reason: "These queued/enqueued cells are older than 14 days and should be classified as stale residue before dispatch resumes.",
+      priority: 1,
+      route: {
+        method: "POST",
+        path: `/research/workflows/${WORKFLOW_ID}/campaigns/${encodeURIComponent(campaignId)}/maintain`,
+        body: { mode: "retire_stale", older_than_hours: 336, dry_run: false },
+      },
+      can_auto_execute: true,
+      surfaces: ["cloudflare", "ledger", "agenda"],
+    });
+  }
+
+  for (const triplet of staleCells.length > 0 ? [] : nextQueued) {
     const id = unitId(triplet);
     actions.push({
       action_id: `enqueue:${id}`,
@@ -269,21 +293,23 @@ export async function inspectMlipWorkflowCampaign(
       ? "failed"
       : missingFixtureCells.length > 0
         ? "needs_input"
-        : campaign.summary.completed === campaign.summary.cells
-          ? "complete"
-          : nextQueued.length > 0 || readyToEvaluate.length > 0
+          : campaign.summary.completed === campaign.summary.cells
+            ? "complete"
+          : staleCells.length > 0 || nextQueued.length > 0 || readyToEvaluate.length > 0
             ? "active"
             : "ready";
 
   const counters = {
     cells_total: campaign.summary.cells,
     cells_completed: campaign.summary.completed,
+    cells_retired: campaign.summary.retired,
     triplets_total: campaign.triplets.length,
     evaluations_total: campaign.evaluations.length,
     state_hypotheses_total: stateHypotheses.length,
     state_hypotheses_refuted: stateHypotheses.filter((evaluation) => evaluation.verdict === "refuted").length,
     state_hypotheses_testing: stateHypotheses.filter((evaluation) => evaluation.verdict === "testing").length,
     missing_fixture_cells: missingFixtureCells.length,
+    stale_cells: staleCells.length,
     ...Object.fromEntries(
       Object.entries(countBy(campaign.triplets.map((triplet) => triplet.status))).map(([key, value]) => [
         `triplets_${key}`,
@@ -312,11 +338,19 @@ export async function maintainMlipWorkflowCampaign(
   campaignId: string,
   bodyText: string,
 ): Promise<Response> {
+  const body = JSON.parse(bodyText || "{}") as { mode?: "agenda" | "retire_stale"; limit?: number; older_than_hours?: number; dry_run?: boolean };
+  const mode = body.mode ?? "agenda";
+  if (mode === "retire_stale") {
+    const result = await retireStaleMlipCampaignCells(env, campaignId, {
+      olderThanHours: body.older_than_hours,
+      limit: body.limit,
+      dryRun: body.dry_run,
+    });
+    return workflowJson({ workflow_id: WORKFLOW_ID, campaign_id: campaignId, mode, ...result });
+  }
+  if (mode !== "agenda") return workflowError("Only agenda maintenance is implemented for this workflow", 400);
   const snapshot = await inspectMlipWorkflowCampaign(env, campaignId);
   if (snapshot instanceof Response) return snapshot;
-  const body = JSON.parse(bodyText || "{}") as { mode?: "agenda"; limit?: number };
-  const mode = body.mode ?? "agenda";
-  if (mode !== "agenda") return workflowError("Only agenda maintenance is implemented for this workflow", 400);
   const agenda = await insertWorkflowAgendaTasks(env, snapshot, body.limit ?? 10);
   return workflowJson({
     workflow_id: WORKFLOW_ID,
