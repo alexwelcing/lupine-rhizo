@@ -14,10 +14,11 @@ layer, the evidence pipeline, or a public export contract.
 | `atlas/scripts/generate_nist_demos.py` | Helper vendored into the compute deploy job. |
 | `atlas-distill/` | Rust Distill scoring, policy, benchmark, and fault-line runtime. |
 | `cloudflare/` | Edge helpers and control-plane infrastructure around `glim-think`. |
+| `cocoindex/` | Local evidence-indexing experiment pipeline for exporting and querying the research corpus. |
 | `data/` | Small fixtures, manifests, and evidence payloads. Large artifacts belong in object storage with manifests. |
 | `docs/` | Research corpus, runbooks, decisions, split packets, templates, and hypotheses. |
 | `exports/` | Public contracts consumed by Lupine Science, Lupine Ledger, and Lupi. |
-| `gcp/` | Cloud Run jobs/services for burst compute, MLIP cells, evals, and task consumers. |
+| `gcp/` | Cloud Run jobs/services for burst compute, MLIP cells, evals, evidence indexing, and task consumers. |
 | `glim-think/` | Primary research control plane: agenda, ledger, feed, evals, traces, agents, and public routes. |
 | `lean-spec/` | Lean 4 specifications and proof obligations. |
 | `lupine-ops/` | Operational helpers used by active science code. |
