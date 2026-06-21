@@ -33,7 +33,7 @@ import type { Env } from "../../types";
 
 /** Build a fake callProvider: provider → {text, confidence-ish, latency, tokens}. */
 function fakeCallProvider(
-  responses: Record<string, { text: string; tokens?: number; latencyMs?: number; throws?: boolean }>,
+  responses: Record<string, { text: string; tokens?: number; latencyMs?: number; throws?: boolean; finishReason?: string }>,
 ): ProviderCaller {
   return async (_env, provider) => {
     const r = responses[provider];
@@ -44,6 +44,7 @@ function fakeCallProvider(
       model: `fake-${provider}`,
       tokens: r.tokens ?? 100,
       latencyMs: r.latencyMs ?? 50,
+      finishReason: r.finishReason,
     };
   };
 }
@@ -139,6 +140,21 @@ describe("raceStrategy", () => {
     const minimaxAttempt = result.attempts.find((a) => a.provider === "minimax");
     expect(minimaxAttempt?.outcome).toBe("failed");
     expect(result.provider).toBe("workers-ai");
+  });
+
+  it("marks empty provider text as failed with diagnostic context", async () => {
+    const env = buildStubEnv();
+    const providers: ProviderId[] = ["workers-ai", "zai"];
+    const call = fakeCallProvider({
+      "workers-ai": { text: STRONG },
+      zai: { text: "", tokens: 1583, finishReason: "length" },
+    });
+    const result = await raceStrategy(env, { ...baseReq, confidenceThreshold: 0.5 }, providers, call);
+    const zaiAttempt = result.attempts.find((a) => a.provider === "zai");
+    expect(zaiAttempt?.outcome).toBe("failed");
+    expect(zaiAttempt?.error).toContain("empty model text");
+    expect(zaiAttempt?.error).toContain("finish=length");
+    expect(zaiAttempt?.error).toContain("tokens=1583");
   });
 });
 
