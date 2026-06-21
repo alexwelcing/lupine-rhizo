@@ -135,7 +135,8 @@ export async function runDiag(env: Env): Promise<{
             { role: "system", content: "Respond with the single character X." },
             { role: "user", content: "ping" },
           ],
-          max_tokens: 16,
+          max_completion_tokens: 256,
+          reasoning_split: true,
           temperature: 0,
         }),
       });
@@ -170,7 +171,7 @@ export async function runDiag(env: Env): Promise<{
       }).chatModel(config.model);
       const r = await generateText({
         model,
-        maxOutputTokens: 16,
+        maxOutputTokens: 256,
         prompt: "ping",
         experimental_telemetry: { isEnabled: true, functionId: "admin.diag.unwrapped-sdk" },
       });
@@ -201,7 +202,7 @@ export async function runDiag(env: Env): Promise<{
       });
       const r = await generateText({
         model: wrapped,
-        maxOutputTokens: 16,
+        maxOutputTokens: 256,
         prompt: "ping",
         experimental_telemetry: { isEnabled: true, functionId: "admin.diag.wrapped-sdk" },
       });
@@ -235,7 +236,7 @@ export async function runDiag(env: Env): Promise<{
       });
       const r = streamText({
         model: wrapped,
-        maxOutputTokens: 16,
+        maxOutputTokens: 256,
         prompt: "ping",
         experimental_telemetry: { isEnabled: true, functionId: "admin.diag.wrapped-stream" },
       });
@@ -264,7 +265,7 @@ export async function runDiag(env: Env): Promise<{
     }),
   );
 
-  // 6. tool-call (does M2.7 actually drive tools?)
+  // 6. tool-call (does the configured MiniMax model actually drive tools?)
   results.push(
     await timed("6-tool-call", async () => {
       const model = createOpenAICompatible({
@@ -302,7 +303,7 @@ export async function runDiag(env: Env): Promise<{
         },
         error:
           toolCalls.length === 0
-            ? "M2.7 did not emit a tool call — agent tool routing will not work"
+            ? "Configured MiniMax model did not emit a tool call — agent tool routing will not work"
             : undefined,
       };
     }),
