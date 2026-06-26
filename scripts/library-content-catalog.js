@@ -434,6 +434,43 @@ export const CATALOG = {
       featured: true,
       status: 'supported',
     },
+    {
+      id: 'projection-law-round2-preregistration',
+      source: 'docs/projection-law-round2-preregistration.md',
+      title: 'Round 2 Preregistration — MatPES MLIP Elastic Constants',
+      subtitle: 'Pre-registered protocol: 16 cubic elements, four MatPES potentials, two functionals, and the operator-correction kill conditions.',
+      category: 'validation',
+      tags: ['mlip', 'matpes', 'elasticity', 'preregistration', 'projection-law'],
+      status: 'supported',
+    },
+    {
+      id: 'projection-law-round2-results',
+      source: 'docs/projection-law-round2-results.md',
+      title: 'Round 2 Results — MatPES MLIP Elastic Constants across 16 Cubic Elements',
+      subtitle: '1×1×1 vs 3×3×3 supercell convergence, per-model MAE, and the Lupine correction operator on MatPES PBE and r2SCAN.',
+      category: 'validation',
+      tags: ['mlip', 'matpes', 'elasticity', 'round2', 'projection-law', 'live-lab'],
+      featured: true,
+      status: 'live',
+    },
+    {
+      id: 'layer2-supercell-evaluation',
+      source: 'docs/layer2_supercell_evaluation.md',
+      title: 'Layer 2 Supercell Scaling Evaluation',
+      subtitle: 'Technical memo: elastic constants are converged at the 1×1×1 conventional cell; 3×3×3 adds runtime without accuracy gain.',
+      category: 'validation',
+      tags: ['mlip', 'matpes', 'supercell', 'convergence', 'projection-law'],
+      status: 'supported',
+    },
+    {
+      id: 'layer2-research-paper',
+      source: 'docs/layer2_research_paper.md',
+      title: 'MatPES MLIP Elastic Constants: A 16-Element Benchmark',
+      subtitle: 'Draft research paper covering methods, results, and implications for machine-learning interatomic potentials.',
+      category: 'validation',
+      tags: ['mlip', 'matpes', 'elasticity', 'paper', 'projection-law'],
+      status: 'supported',
+    },
 
     // ── Theory ──────────────────────────────────────────────────────
     {

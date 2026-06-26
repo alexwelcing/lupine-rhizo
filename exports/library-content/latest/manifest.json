@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-26T20:56:58.708Z",
+  "generatedAt": "2026-06-26T23:41:42.156Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "0beaf1126f682677129fade1750882e959e69e41",
+    "commit": "9700323fa7d9240b5b41ed6ed0badc11c79470b1",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -739,6 +739,72 @@
         "originalSource": "docs/mlip-mptrj-broad-dft-canary.md"
       },
       {
+        "id": "projection-law-round2-preregistration",
+        "source": "articles/docs/projection-law-round2-preregistration.md",
+        "title": "Round 2 Preregistration — MatPES MLIP Elastic Constants",
+        "subtitle": "Pre-registered protocol: 16 cubic elements, four MatPES potentials, two functionals, and the operator-correction kill conditions.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "matpes",
+          "elasticity",
+          "preregistration",
+          "projection-law"
+        ],
+        "status": "supported",
+        "originalSource": "docs/projection-law-round2-preregistration.md"
+      },
+      {
+        "id": "projection-law-round2-results",
+        "source": "articles/docs/projection-law-round2-results.md",
+        "title": "Round 2 Results — MatPES MLIP Elastic Constants across 16 Cubic Elements",
+        "subtitle": "1×1×1 vs 3×3×3 supercell convergence, per-model MAE, and the Lupine correction operator on MatPES PBE and r2SCAN.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "matpes",
+          "elasticity",
+          "round2",
+          "projection-law",
+          "live-lab"
+        ],
+        "featured": true,
+        "status": "live",
+        "originalSource": "docs/projection-law-round2-results.md"
+      },
+      {
+        "id": "layer2-supercell-evaluation",
+        "source": "articles/docs/layer2_supercell_evaluation.md",
+        "title": "Layer 2 Supercell Scaling Evaluation",
+        "subtitle": "Technical memo: elastic constants are converged at the 1×1×1 conventional cell; 3×3×3 adds runtime without accuracy gain.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "matpes",
+          "supercell",
+          "convergence",
+          "projection-law"
+        ],
+        "status": "supported",
+        "originalSource": "docs/layer2_supercell_evaluation.md"
+      },
+      {
+        "id": "layer2-research-paper",
+        "source": "articles/docs/layer2_research_paper.md",
+        "title": "MatPES MLIP Elastic Constants: A 16-Element Benchmark",
+        "subtitle": "Draft research paper covering methods, results, and implications for machine-learning interatomic potentials.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "matpes",
+          "elasticity",
+          "paper",
+          "projection-law"
+        ],
+        "status": "supported",
+        "originalSource": "docs/layer2_research_paper.md"
+      },
+      {
         "id": "rg-coarsegraining",
         "source": "articles/docs/rg_coarsegraining_report.md",
         "title": "Renormalization Group Coarse-Graining",
@@ -1218,6 +1284,30 @@
       "bundleSource": "articles/docs/mlip-mptrj-broad-dft-canary.md",
       "bytes": 4031,
       "sha256": "27ecd26a785941d63e16551a5e9eabac58a1a015a034459c432c9b1760e8cab6"
+    },
+    {
+      "source": "docs/projection-law-round2-preregistration.md",
+      "bundleSource": "articles/docs/projection-law-round2-preregistration.md",
+      "bytes": 9223,
+      "sha256": "9293bde19481b43a1185a1b36022aee6b81d4f0b466240be8a45f8ec54072e00"
+    },
+    {
+      "source": "docs/projection-law-round2-results.md",
+      "bundleSource": "articles/docs/projection-law-round2-results.md",
+      "bytes": 28632,
+      "sha256": "3db377c133662696e330cefc37509b7a2935f09cd332829cb8370fca8b221840"
+    },
+    {
+      "source": "docs/layer2_supercell_evaluation.md",
+      "bundleSource": "articles/docs/layer2_supercell_evaluation.md",
+      "bytes": 16838,
+      "sha256": "64a7563eb499fc5532700a00bb61c0dea8ebe643f88d6918a6e1be34b3019b3d"
+    },
+    {
+      "source": "docs/layer2_research_paper.md",
+      "bundleSource": "articles/docs/layer2_research_paper.md",
+      "bytes": 19989,
+      "sha256": "3f31b83b45644b185f97c4988648a318f000590785c5946a2cd28b21755f2ba2"
     },
     {
       "source": "docs/rg_coarsegraining_report.md",
