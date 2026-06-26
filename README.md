@@ -31,7 +31,7 @@ Owns:
 Does not own:
 
 - the `lupine.science` landing site
-- the `library.lupine.site` reader app
+- the `library.lupine.science` reader app
 - the `lupi.live` viewer app
 - investor or private access surfaces
 - generated caches, dependency folders, or large binary artifacts
@@ -43,7 +43,7 @@ Does not own:
   - Site: `https://lupine.science`
 - **Lupine Ledger**: `https://github.com/alexwelcing/lupine-ledger`
   - Public evidence record and Library reader.
-  - Site: `https://library.lupine.site`
+  - Site: `https://library.lupine.science`
 - **Lupi**: `https://github.com/alexwelcing/Lupi`
   - Browser-native molecular viewer.
   - Site: `https://lupi.live`

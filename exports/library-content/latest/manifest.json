@@ -1,10 +1,10 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-21T15:27:56.854Z",
+  "generatedAt": "2026-06-26T20:56:58.708Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "24c8280921bcf3657347f871cdd4931892a67fd4",
-    "dirty": false,
+    "commit": "0beaf1126f682677129fade1750882e959e69e41",
+    "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
   "catalog": {
@@ -1012,8 +1012,8 @@
     {
       "source": "CHANGELOG.md",
       "bundleSource": "articles/CHANGELOG.md",
-      "bytes": 48870,
-      "sha256": "eea06cdb9adc3a1c5235e28403da1d0dcbff9f583c50ed458d01aee72a15ac1e"
+      "bytes": 48873,
+      "sha256": "b6700660c28253b599abcc55e0c82e00736d834a52a7eb47e08e40d4e439c057"
     },
     {
       "source": "docs/PUBLIC.md",
@@ -1150,8 +1150,8 @@
     {
       "source": "README.md",
       "bundleSource": "articles/README.md",
-      "bytes": 3826,
-      "sha256": "fc7137ad1df70dd47c1352dce46ba0f7417817321e3fd94efaefc99f740f364b"
+      "bytes": 3832,
+      "sha256": "99de890f8e784acea6367d832c82c65a7d0ce89d32c2daba024c2f8ca00aed33"
     },
     {
       "source": "docs/multi_fidelity_uq_glimMER_report.md",
