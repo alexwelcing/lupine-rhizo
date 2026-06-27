@@ -115,6 +115,7 @@ function buildBundleCatalog(outRoot) {
     catalog: {
       statuses: cloneJson(CATALOG.statuses || {}),
       categories: cloneJson(CATALOG.categories || []),
+      journeys: cloneJson(CATALOG.journeys || []),
       entries,
       languages: cloneJson(CATALOG.languages || {}),
     },
