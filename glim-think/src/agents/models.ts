@@ -28,6 +28,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { generateText, wrapLanguageModel, type LanguageModel, type LanguageModelMiddleware } from "ai";
 import type { Env } from "../types";
 import { getModelQualityTrend } from "../evals/store";
+import { openaiViaGateway, anthropicViaGateway, googleViaGateway } from "./gateway";
 
 export type ReasoningTier = "fast" | "deep";
 
@@ -163,12 +164,16 @@ function coordinationOutputBudget(provider: DeepProvider | "workers-ai", request
     minimax: 512,
     zai: 2048,
     openai: 512,
+    anthropic: 512,
+    google: 512,
   };
   const defaults: Record<DeepProvider | "workers-ai", number> = {
     "workers-ai": 768,
     minimax: 2048,
     zai: 2048,
     openai: 2048,
+    anthropic: 2048,
+    google: 2048,
   };
   return Math.max(cleanRequested ?? defaults[provider], floors[provider]);
 }
@@ -569,7 +574,7 @@ export async function selectModelChecked(
 // before deletion; salvaged here so nothing regresses.
 // ---------------------------------------------------------------------------
 
-export type DeepProvider = "minimax" | "zai" | "openai";
+export type DeepProvider = "minimax" | "zai" | "openai" | "anthropic" | "google";
 
 /** A resolved deep route: the AI-SDK model plus its identity for spans/scorecard. */
 export interface DeepRoute {
@@ -611,9 +616,32 @@ function zaiModel(env: Env) {
 }
 
 function openaiModel(env: Env) {
+  // Prefer AI Gateway when configured
+  const gateway = openaiViaGateway(env);
+  if (gateway) return gateway;
   return createOpenAI({ apiKey: env.OPENAI_API_KEY! })(
     env.OPENAI_MODEL?.trim() || "gpt-5.5",
   );
+}
+
+function anthropicModel(env: Env) {
+  // Prefer AI Gateway when configured
+  const gateway = anthropicViaGateway(env);
+  if (gateway) return gateway;
+  return createAnthropic({ apiKey: env.ANTHROPIC_API_KEY! }).languageModel(
+    env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-20250514",
+  );
+}
+
+function googleModel(env: Env) {
+  // Prefer AI Gateway when configured
+  const gateway = googleViaGateway(env);
+  if (gateway) return gateway;
+  return createOpenAICompatible({
+    name: "google-vertex-ai",
+    apiKey: env.GOOGLE_API_KEY!,
+    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+  }).chatModel(env.GOOGLE_MODEL?.trim() || "gemini-2.5-pro");
 }
 
 /** Deep providers whose credentials are present, in safe-default order. */
@@ -622,6 +650,8 @@ export function availableDeepProviders(env: Env): DeepProvider[] {
   if (env.MINIMAX_API_KEY) out.push("minimax");
   if (env.ZAI_API_KEY) out.push("zai");
   if (env.OPENAI_API_KEY) out.push("openai");
+  if (env.ANTHROPIC_API_KEY) out.push("anthropic");
+  if (env.GOOGLE_API_KEY) out.push("google");
   return out;
 }
 
@@ -631,6 +661,10 @@ function buildDeepRoute(env: Env, p: DeepProvider, modelOverride?: string): Deep
       return { model: zaiModel(env), provider: "zai", modelId: env.ZAI_MODEL?.trim() || "glm-5.1" };
     case "openai":
       return { model: openaiModel(env), provider: "openai", modelId: env.OPENAI_MODEL?.trim() || "gpt-5.5" };
+    case "anthropic":
+      return { model: anthropicModel(env), provider: "anthropic", modelId: env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-20250514" };
+    case "google":
+      return { model: googleModel(env), provider: "google", modelId: env.GOOGLE_MODEL?.trim() || "gemini-2.5-pro" };
     default: {
       // modelOverride pins a specific MiniMax id (e.g. the M2.7→M3 A/B). Model
       // ids are provider-specific, so the override only applies to MiniMax.
@@ -913,10 +947,12 @@ export async function generateForProvider(
 /** Resolve the single "strongest" provider for judge/critic roles. */
 export function pickStrongProvider(env: Env): DeepProvider | "workers-ai" {
   const pool = availableDeepProviders(env);
-  // Prefer the strength-first last decider (OpenAI), then MiniMax, then GLM.
+  // Prefer the strength-first last decider (OpenAI), then Anthropic, then MiniMax, then GLM, then Google.
   if (pool.includes("openai")) return "openai";
+  if (pool.includes("anthropic")) return "anthropic";
   if (pool.includes("minimax")) return "minimax";
   if (pool.includes("zai")) return "zai";
+  if (pool.includes("google")) return "google";
   return "workers-ai";
 }
 

@@ -1,4 +1,4 @@
-# GLIM Resource Fabric
+# Infrastructure Fabric
 
 The best rig is a three-lane system with one durable brain.
 

@@ -26,8 +26,6 @@ const BEATS_CORS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 } as const;
 
-const RUNNER_SA_EMAIL =
-  "atlas-distill-runner@shed-489901.iam.gserviceaccount.com";
 const GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
 /** Cache JWKS for 1h — Google rotates keys roughly weekly. */
 const JWKS_CACHE_TTL_MS = 60 * 60 * 1000;
@@ -49,6 +47,12 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 function isDevMode(env: Env): boolean {
   return env.DEV_MODE === "true";
+}
+
+function expectedRunnerEmail(env: Env): string | Response {
+  const email = env.TASKS_CONSUMER_INVOKER_SA?.trim();
+  if (email) return email;
+  return jsonResponse({ error: "TASKS_CONSUMER_INVOKER_SA is not set" }, 500);
 }
 
 interface JwksKey {
@@ -245,6 +249,8 @@ export async function handleBeatsPost(
 ): Promise<Response> {
   // ─── Auth ───
   if (!isDevMode(env)) {
+    const expectedEmail = expectedRunnerEmail(env);
+    if (expectedEmail instanceof Response) return expectedEmail;
     const auth = request.headers.get("Authorization") ?? "";
     if (!auth.startsWith("Bearer ")) {
       return jsonResponse({ error: "missing bearer token" }, 401);
@@ -253,7 +259,7 @@ export async function handleBeatsPost(
     const audience = expectedAudience(request, env);
     let result: JwtVerifyResult | JwtVerifyError;
     try {
-      result = await verifyGoogleOidcJwt(token, RUNNER_SA_EMAIL, audience);
+      result = await verifyGoogleOidcJwt(token, expectedEmail, audience);
     } catch (e) {
       return jsonResponse({ error: `jwt verify error: ${String(e)}` }, 401);
     }

@@ -164,7 +164,20 @@ export interface Env {
    * default temperature — handled in OpenAIProvider). */
   OPENAI_MODEL?: string;
   ANTHROPIC_API_KEY?: string;
+  /** Anthropic model. Default claude-sonnet-4-20250514. */
+  ANTHROPIC_MODEL?: string;
   GOOGLE_API_KEY?: string;
+  /** Google model. Default gemini-2.5-pro. */
+  GOOGLE_MODEL?: string;
+  /** Workers AI model. Default @cf/meta/llama-4-scout-17b-16e-instruct. */
+  WORKERS_AI_MODEL?: string;
+  /** Cloudflare AI Gateway account id (e.g. from the dashboard URL). */
+  AI_GATEWAY_ACCOUNT_ID?: string;
+  /** Cloudflare AI Gateway id (the gateway name). */
+  AI_GATEWAY_ID?: string;
+  /** Cloudflare AI Gateway token for authenticated gateways (cf-aig-authorization). */
+  AI_GATEWAY_TOKEN?: string;
+  /** Z.ai API key for GLM Coding Plan endpoint. */
   ZAI_API_KEY?: string;
   /** Z.ai base URL. Default https://api.z.ai/api/coding/paas/v4 (GLM Coding
    * Plan — token-plan accounts 429 on the standard paas/v4 endpoints). */

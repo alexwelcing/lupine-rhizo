@@ -28,7 +28,9 @@
 **Worker wrangler secrets (persist across `wrangler deploy`; only lost if the
 Worker is recreated — then re-run `wrangler secret put` for each):**
 `PHOENIX_COLLECTOR_ENDPOINT`, `PHOENIX_API_KEY`, `PHOENIX_RELAY_URL`,
-`PHOENIX_RELAY_TOKEN`, `INTERNAL_TASK_TOKEN`.
+`PHOENIX_RELAY_TOKEN`, `INTERNAL_TASK_TOKEN`, plus the Access, GCP dispatch,
+MLIP, model-provider, and evidence-index entries listed in `docs/secrets.md`.
+Do not put production runtime values in `wrangler.toml` `[vars]`.
 
 **Health checks (manual):**
 - `GET /ops/phoenix-selftest` — secrets resolve? OTLP endpoint reachable?

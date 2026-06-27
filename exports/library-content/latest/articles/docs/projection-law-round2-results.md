@@ -1,5 +1,18 @@
 # Results — Round 2: The Projection Law Correction Operator
 
+<details open>
+<summary><strong>In plain language</strong> — what this means for a materials scientist</summary>
+
+**The headline.** When modern machine-learned interatomic potentials (MLIPs) predict the elastic constants of a metal — how stiff it is along different directions — the answer barely changes whether you simulate a tiny 4-atom unit cell or a 108-atom supercell. For copper and nickel the average error against experiment sits at 13.26 GPa in the small cell and 13.29 GPa in the large one: a 0.03 GPa difference, indistinguishable from noise. This supercell-size independence holds across all 16 cubic metals we tested.
+
+**Why this matters.** Finite-size effects — the artifacts that force classical molecular dynamics into big, expensive simulation cells — are essentially absent for these potentials. If you are screening candidate alloys or compounds for stiffness, the cheapest cell available (the conventional 1×1×1 unit, four atoms for an FCC metal) returns elastic constants just as trustworthy as a simulation 27× larger. You can survey hundreds of compositions for roughly the compute budget that used to buy a single run.
+
+**The caveat.** A residual error of about 13–18 GPa remains no matter how large the cell. This is *model-form error* — a systematic bias baked into each potential's training data — not a size artifact. It varies by element (2.9 GPa for calcium up to 43.5 GPa for chromium) and by model (13.3 GPa for the best model to 27.9 GPa for the worst). A *projection-law correction operator* removes part of this bias by subtracting a learned, family-specific offset, but its success is element-dependent, and on the noble metals (Ag, Au, Cu, Pt) it did not beat a plain model average.
+
+**Where to go next.** The full draft paper (`layer2_research_paper.md`) lays out the methods and the 16-element benchmark; the technical evaluation memo (`layer2_supercell_evaluation.md`) covers cell-size convergence and runtime.
+
+</details>
+
 > **Draft for revised Projection Law paper results section**
 > 
 > **Date:** 2026-06-26

@@ -130,10 +130,24 @@ limits = { steps = 300 }
 # HF_API_KEY
 #
 # Deep tier is eval-aware (src/agents/models.ts selectDeepRoute): the hourly
-# ModelScorecard balances MiniMax/GLM and reserves OpenAI gpt-5.5 as the
-# last decider. Set ZAI_API_KEY + OPENAI_API_KEY (above) so the scorecard
-# has >1 candidate — otherwise the deep tier is MiniMax-only. The legacy
-# Cloudflare AI Gateway path (AI_GATEWAY_*) was deleted in PR #116.
+# ModelScorecard balances MiniMax/GLM/OpenAI/Anthropic/Google and reserves
+# OpenAI gpt-5.5 as the last decider. Set API keys for the providers you want
+# to use. When AI_GATEWAY_ACCOUNT_ID and AI_GATEWAY_ID are set, OpenAI,
+# Anthropic, and Google calls route through Cloudflare AI Gateway for unified
+# caching, retries, and cost tracking.
+#
+# AI Gateway setup:
+#   wrangler secret put AI_GATEWAY_ACCOUNT_ID   # e.g. "1a2b3c4d5e6f7g8h"
+#   wrangler secret put AI_GATEWAY_ID          # e.g. "glim-think-gateway"
+#   wrangler secret put AI_GATEWAY_TOKEN       # optional, for authenticated gateways
+#
+# Provider API keys (required for the corresponding deep-tier provider):
+#   wrangler secret put OPENAI_API_KEY
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put GOOGLE_API_KEY
+#   wrangler secret put ZAI_API_KEY
+#   wrangler secret put MINIMAX_API_KEY
+#   wrangler secret put HF_API_KEY
 
 # ─── Cloudflare Access gating (unit 10) ───
 # /admin/*, /ops/* writes, and the write endpoints (POST /run, /fleet/run,
@@ -143,7 +157,7 @@ limits = { steps = 300 }
 # audience tag, and admin allow-list so the worker can verify the JWT that
 # Access injects via the `Cf-Access-Jwt-Assertion` header.
 #
-# Set the production values via:
+# Set the production values via Cloudflare secrets (or Secrets Store bindings):
 #   wrangler secret put CF_ACCESS_TEAM_DOMAIN   # e.g. "lupine"
 #   wrangler secret put CF_ACCESS_AUD           # audience claim from the Access policy
 #   wrangler secret put ADMIN_EMAIL             # e.g. "alex@lupine.io"
@@ -151,31 +165,18 @@ limits = { steps = 300 }
 # For local dev, put DEV_MODE=true in .dev.vars to bypass the middleware;
 # never set DEV_MODE=true in deployed environments.
 #
-# Example [vars] (uncomment and override locally as needed):
-# [vars]
-# CF_ACCESS_TEAM_DOMAIN = "lupine"           # https://lupine.cloudflareaccess.com
-# CF_ACCESS_AUD = "<policy-aud-claim>"
-# ADMIN_EMAIL = "alex@lupine.io"
-# DEV_MODE = "false"                         # "true" only in .dev.vars
+# Local development only: put DEV_MODE=true and any non-production placeholders
+# in .dev.vars. Do not add production Access values to [vars].
 
 # ─── Research loop (handoff unit 8) ───
 # Worker publishes Cloud Tasks → tasks-consumer Cloud Run Service →
 # atlas-distill Cloud Run Job. Atlas-distill emit-beat then POSTs back to
 # WORKER_URL/feed/beats with an OIDC token whose `aud` must match WORKER_URL.
-[vars]
-WORKER_URL = "https://glim-think-v1.aw-ab5.workers.dev"
-TASKS_CONSUMER_URL = "https://tasks-consumer-edbhtpvina-uc.a.run.app"
-TASKS_CONSUMER_AUDIENCE = "https://tasks-consumer-edbhtpvina-uc.a.run.app"
-TASKS_CONSUMER_INVOKER_SA = "atlas-distill-runner@shed-489901.iam.gserviceaccount.com"
-GCP_PROJECT_ID = "shed-489901"
-GCP_TASKS_LOCATION = "us-central1"
-GCP_TASKS_QUEUE = "atlas-distill-jobs"
-MLIP_BASELINE_MANIFEST_URL = "gs://shed-489901-atlas-inputs/mlip-baseline/canonical-structures-v2/manifest.json"
-MLIP_BASELINE_OUTPUT_PREFIX = "gs://shed-489901-atlas-outputs/mlip-baseline-grid"
-MLIP_DISTILL_SUPPORT_MANIFEST_URL = "gs://shed-489901-atlas-inputs/mlip-baseline/canonical-distill-support-mptrj-train-plus-elastic-v1/manifest.json"
-MLIP_5X5X3_OUTPUT_PREFIX = "gs://shed-489901-atlas-outputs/mlip-5x5x3"
-MLIP_DISTILL_POLICY_ENGINE = "auto"
-MLIP_DISTILL_RIBBON_VERSION = "hyperribbon-v1"
+#
+# Runtime deployment config is intentionally not stored in [vars]. Keep it in
+# Cloudflare secrets / Secrets Store so project ids, service-account emails,
+# Cloud Run URLs, Access JWT config, and API tokens are not committed. See
+# docs/secrets.md for the required names and migration commands.
 # Evidence index (GCP Cloud Run). When set, the Omnigents coordinator
 # consults this service before choosing a strategy (memory flywheel) and
 # POSTs traces to it after each coordination call. Leave empty to disable

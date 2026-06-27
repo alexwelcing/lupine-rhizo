@@ -24,7 +24,7 @@ import type { Env } from "../types";
 const TASKS_API_BASE = "https://cloudtasks.googleapis.com/v2";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const TOKEN_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
-const DEFAULT_PROJECT = "shed-489901";
+const DEV_PROJECT = "local-dev";
 const DEFAULT_LOCATION = "us-central1";
 const DEFAULT_QUEUE = "atlas-distill-jobs";
 
@@ -63,6 +63,13 @@ interface ServiceAccountKey {
 function isDevMode(env: DispatchEnv): boolean {
   const flag = env.DEV_MODE?.toLowerCase();
   return flag === "true" || flag === "1";
+}
+
+function requireProject(env: DispatchEnv): string {
+  const project = env.GCP_PROJECT_ID?.trim();
+  if (project) return project;
+  if (isDevMode(env)) return DEV_PROJECT;
+  throw new Error("GCP_PROJECT_ID is not set");
 }
 
 function parseServiceAccountKey(raw: string): ServiceAccountKey {
@@ -179,7 +186,7 @@ export async function dispatchAtlasJob(
   if (!consumerUrl) {
     throw new Error("TASKS_CONSUMER_URL is not set");
   }
-  const project = env.GCP_PROJECT_ID ?? DEFAULT_PROJECT;
+  const project = requireProject(env);
   const location = env.GCP_TASKS_LOCATION ?? DEFAULT_LOCATION;
   const queue = env.GCP_TASKS_QUEUE ?? DEFAULT_QUEUE;
   const audience = env.TASKS_CONSUMER_AUDIENCE ?? consumerUrl;
@@ -287,7 +294,7 @@ export async function dispatchAtlasJobBatch(
 
   const consumerUrl = env.TASKS_CONSUMER_URL;
   if (!consumerUrl) throw new Error("TASKS_CONSUMER_URL is not set");
-  const project = env.GCP_PROJECT_ID ?? DEFAULT_PROJECT;
+  const project = requireProject(env);
   const location = env.GCP_TASKS_LOCATION ?? DEFAULT_LOCATION;
   const queue = env.GCP_TASKS_QUEUE ?? DEFAULT_QUEUE;
   const url =
@@ -356,6 +363,7 @@ export const __internal = {
   parseServiceAccountKey,
   validatePayload,
   isDevMode,
+  requireProject,
   base64UrlEncode,
   buildTaskBody,
 };

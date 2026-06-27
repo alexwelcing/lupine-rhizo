@@ -1,4 +1,4 @@
-# GLIM Operating System
+# Research Loop Architecture
 
 `glim-think` is the mastermind. Everything else is substrate.
 

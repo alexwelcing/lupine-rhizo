@@ -69,6 +69,7 @@ import { testMiniMaxCall, listMiniMaxModels, sweepMiniMaxEndpoints, exerciseDeep
 import { coordinate, loadStrategyRegistry, setStrategyRegistry } from "./agents/coordinator";
 import { getCoordinationKpis, getRecentCoordinationTraces } from "./agents/coordinatorTraces";
 import { runDiag, probeDOSynthesize, probeDOKV } from "./admin/diag";
+import { probeGateway } from "./agents/gateway";
 import { generateAndStoreImage } from "./agents/image";
 import { generateAndStoreAudio } from "./agents/tts";
 import { submitDailyVignette, pollPendingVignettes, submitCustomVignette } from "./research/vignette";
@@ -2394,6 +2395,11 @@ ${narrative}
 
       if (url.pathname === "/admin/diag-do-kv" && (request.method === "POST" || request.method === "GET")) {
         const result = await probeDOKV(env);
+        return Response.json(result, { headers: JSON_CORS_HEADERS });
+      }
+
+      if (url.pathname === "/admin/probe-gateway" && (request.method === "POST" || request.method === "GET")) {
+        const result = await probeGateway(env);
         return Response.json(result, { headers: JSON_CORS_HEADERS });
       }
 
