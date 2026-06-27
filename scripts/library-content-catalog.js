@@ -273,18 +273,6 @@ export const CATALOG = {
   ],
   "entries": [
     {
-      "id": "interatomic-potentials-primer",
-      "source": "docs/interatomic-potentials-primer.md",
-      "title": "What Is an Interatomic Potential?",
-      "subtitle": "A 5-minute primer before you meet EAM, MLIPs, and error geometry.",
-      "category": "foundations",
-      "tags": [
-        "primer",
-        "onboarding",
-        "reference"
-      ]
-    },
-    {
       "id": "readme",
       "source": "README.md",
       "title": "Lupine — Project README",

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-27T00:35:42.346Z",
+  "generatedAt": "2026-06-27T00:37:11.935Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "633de7064bf403a6d62bf7617a69a4c113009d35",
+    "commit": "ce1c04d3375258e4a0b00ce5d44c9d54cf092295",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -267,19 +267,6 @@
       }
     ],
     "entries": [
-      {
-        "id": "interatomic-potentials-primer",
-        "source": "articles/docs/interatomic-potentials-primer.md",
-        "title": "What Is an Interatomic Potential?",
-        "subtitle": "A 5-minute primer before you meet EAM, MLIPs, and error geometry.",
-        "category": "foundations",
-        "tags": [
-          "primer",
-          "onboarding",
-          "reference"
-        ],
-        "originalSource": "docs/interatomic-potentials-primer.md"
-      },
       {
         "id": "readme",
         "source": "articles/README.md",
@@ -1168,12 +1155,6 @@
     }
   },
   "files": [
-    {
-      "source": "docs/interatomic-potentials-primer.md",
-      "bundleSource": "articles/docs/interatomic-potentials-primer.md",
-      "bytes": 4532,
-      "sha256": "b213b3145fc58e36548044361e2a1eafa46430c17c391e140531f1c17017ed39"
-    },
     {
       "source": "README.md",
       "bundleSource": "articles/README.md",
