@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-27T00:37:11.935Z",
+  "generatedAt": "2026-06-28T17:55:09.881Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "ce1c04d3375258e4a0b00ce5d44c9d54cf092295",
+    "commit": "3d3b60741d7fc2745cac1f6338a240f16441eaa3",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -776,6 +776,56 @@
         "originalSource": "docs/layer2_research_paper.md"
       },
       {
+        "id": "mlip-elastic-benchmark-preprint",
+        "source": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
+        "title": "MLIP Elastic Benchmark Preprint",
+        "subtitle": "1×1×1 conventional-cell accuracy matches 3×3×3 at ~4× lower cost; operator failure diagnosis.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "elasticity",
+          "benchmark",
+          "preprint",
+          "projection-law"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "originalSource": "mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md"
+      },
+      {
+        "id": "mlip-elastic-benchmark-protocol",
+        "source": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
+        "title": "MLIP Elastic Benchmark Protocol",
+        "subtitle": "Reusable protocol for the MatPES cubic-metal 16-element elastic-constant benchmark.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "elasticity",
+          "benchmark",
+          "protocol",
+          "reproducibility"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "originalSource": "mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md"
+      },
+      {
+        "id": "mlip-elastic-operator-failure-diagnosis",
+        "source": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
+        "title": "Operator Failure Diagnosis",
+        "subtitle": "Why the LOO-PCA bias operator degraded MAE and what scalar-bulk operator v0.2 learned instead.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "operator",
+          "bias-correction",
+          "diagnosis"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "originalSource": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md"
+      },
+      {
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
@@ -1370,6 +1420,24 @@
       "bundleSource": "articles/docs/layer2_research_paper.md",
       "bytes": 19989,
       "sha256": "3f31b83b45644b185f97c4988648a318f000590785c5946a2cd28b21755f2ba2"
+    },
+    {
+      "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
+      "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
+      "bytes": 20192,
+      "sha256": "d2452eea61923db9d3cbce26563fa51eda94ae1ed9751466b40fac86e1b93dba"
+    },
+    {
+      "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
+      "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
+      "bytes": 3242,
+      "sha256": "5c6bfc676bf50809cb9b23bb3b8e47e2f4a635d88a2698fe4ea5c406565ab094"
+    },
+    {
+      "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
+      "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
+      "bytes": 18088,
+      "sha256": "d7395d21a613d4f2a03568fc561625f2d3a5391c31367f76d7a490aabc8b612c"
     },
     {
       "source": "docs/formal-vision.md",

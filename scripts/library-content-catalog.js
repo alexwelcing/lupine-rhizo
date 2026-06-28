@@ -1,6 +1,6 @@
 // Curated catalog. Order here = order on the shelf.
 // Restructured 2026-06-26 per docs/plans/library-restructure-2026-06-26.md
-// 8 categories, 64 entries, journeys, featured roles, and group ribbons.
+// 8 categories, 67 entries, journeys, featured roles, and group ribbons.
 
 export const CATALOG = {
   "statuses": {
@@ -741,6 +741,53 @@ export const CATALOG = {
       ],
       "featured": true,
       "featuredRole": "newest",
+      "group": "mlip-flywheel",
+      "status": "supported"
+    },
+    {
+      "id": "mlip-elastic-benchmark-preprint",
+      "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
+      "title": "MLIP Elastic Benchmark Preprint",
+      "subtitle": "1×1×1 conventional-cell accuracy matches 3×3×3 at ~4× lower cost; operator failure diagnosis.",
+      "category": "validation",
+      "tags": [
+        "mlip",
+        "elasticity",
+        "benchmark",
+        "preprint",
+        "projection-law"
+      ],
+      "group": "mlip-flywheel",
+      "status": "supported"
+    },
+    {
+      "id": "mlip-elastic-benchmark-protocol",
+      "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
+      "title": "MLIP Elastic Benchmark Protocol",
+      "subtitle": "Reusable protocol for the MatPES cubic-metal 16-element elastic-constant benchmark.",
+      "category": "validation",
+      "tags": [
+        "mlip",
+        "elasticity",
+        "benchmark",
+        "protocol",
+        "reproducibility"
+      ],
+      "group": "mlip-flywheel",
+      "status": "supported"
+    },
+    {
+      "id": "mlip-elastic-operator-failure-diagnosis",
+      "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
+      "title": "Operator Failure Diagnosis",
+      "subtitle": "Why the LOO-PCA bias operator degraded MAE and what scalar-bulk operator v0.2 learned instead.",
+      "category": "validation",
+      "tags": [
+        "mlip",
+        "operator",
+        "bias-correction",
+        "diagnosis"
+      ],
       "group": "mlip-flywheel",
       "status": "supported"
     },
