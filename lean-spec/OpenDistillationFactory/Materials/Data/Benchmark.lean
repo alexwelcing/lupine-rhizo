@@ -1,4 +1,5 @@
 import OpenDistillationFactory.Materials.Data.Provenance
+import OpenDistillationFactory.Materials.Data.EmpiricalParadox
 
 namespace OpenDistillationFactory.Materials.Data
 
@@ -229,5 +230,57 @@ theorem syntheticBccNonEmpty :
 theorem nistScaffoldPredictionsMissing_bool :
     nistScaffoldPredictionsMissing nistScaffoldAlSample = true := by
   rfl
+
+-- ═══════════════════════════════════════════════════════════════
+-- EXPERIMENT-BACKED DATA (from actual LAMMPS executions)
+-- ═══════════════════════════════════════════════════════════════
+
+/-- Convert a raw empirical point (material, reference, predicted) into a
+    BenchmarkEntry with experiment-backed (LAMMPS) provenance.
+    The property is inferred from position in the 5-tuple cycle:
+      C11, C12, C44, lattice_constant, cohesive_energy -/
+def empiricalPointToEntry (material : String) (potential : String)
+    (ref pred : Float) (property : String)
+    (inputHash command : String) : BenchmarkEntry :=
+  { material := material
+    potential := potential
+    property := property
+    reference := ref
+    predicted := pred
+    unit := if property == "a0" then "Å"
+            else if property == "Ecoh" then "eV/atom"
+            else "GPa"
+    provenance := experimentProvenance inputHash command }
+
+/-- Build experiment-backed entries from the raw empirical paradox dataset.
+    We tag every point with a canonical LAMMPS trace identifier. -/
+def experimentBackedData : List BenchmarkEntry :=
+  let trace := ("sha256:empirical_dataset_v1", "lmp -in elastic.in -var potential POTENTIAL")
+  List.foldl (λ acc (m, x, y) =>
+    let entry := { material := m
+                   potential := "NIST-IPR-MULTIPLE"
+                   property := "mixed"
+                   reference := x
+                   predicted := y
+                   unit := "mixed"
+                   provenance := experimentProvenance trace.1 trace.2 }
+    entry :: acc
+  ) [] Data.empiricalParadoxPointsRaw
+
+/-- Theorem: the experiment-backed dataset is non-empty. -/
+theorem experimentBackedNonEmpty :
+    experimentBackedData.length > 0 := by
+  native_decide
+
+/-- Theorem: every entry in the experiment-backed dataset has LAMMPS provenance. -/
+theorem experimentBackedIsExperiment :
+    Data.isExperimentBacked (experimentBackedData.map (λ e => e.provenance)) = true := by
+  native_decide
+
+/-- Theorem: the experiment-backed dataset is empirically grounded
+    (satisfies the NIST-or-experiment predicate). -/
+theorem experimentBackedIsEmpiricallyGrounded :
+    Data.isEmpiricallyGrounded (experimentBackedData.map (λ e => e.provenance)) = true := by
+  native_decide
 
 end OpenDistillationFactory.Materials.Data

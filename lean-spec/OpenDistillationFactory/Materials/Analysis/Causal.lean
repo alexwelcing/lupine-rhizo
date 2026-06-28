@@ -176,4 +176,38 @@ theorem empiricalReversalMagnitudeAbove01 :
 #guard (empiricalParadox.ecologicalFallacy == false)
 #guard (empiricalParadox.reversalMagnitude < 0.1)
 
+-- ═══════════════════════════════════════════════════════════════
+-- EMPIRICAL CLAIM ENFORCEMENT
+--
+-- Any theorem that makes an empirical claim about the world must
+-- only use data that is either NIST-backed or experiment-backed.
+-- This is the formal epistemic gate.
+-- ═══════════════════════════════════════════════════════════════
+
+/-- Predicate: a dataset is safe for empirical claims. -/
+def empiricallyGrounded (data : List Data.BenchmarkEntry) : Bool :=
+  Data.isEmpiricallyGrounded (data.map (λ e => e.provenance))
+
+/-- Gate: only empirically grounded data may be used for causal claims. -/
+def empiricalClaimGate (data : List Data.BenchmarkEntry) (claim : String) : Bool × String :=
+  if empiricallyGrounded data then
+    (true, "Claim '" ++ claim ++ "' is empirically grounded.")
+  else
+    (false, "REJECTED: Claim '" ++ claim ++ "' uses ungrounded (synthetic) data.")
+
+/-- Theorem: the empirical paradox dataset passes the empirical claim gate. -/
+theorem empiricalParadoxPassesGate :
+    (empiricalClaimGate Data.experimentBackedData "Simpson's paradox detection on LAMMPS-computed elastic constants").1 = true := by
+  native_decide
+
+/-- Theorem: the synthetic FCC dataset FAILS the empirical claim gate. -/
+theorem syntheticFccFailsGate :
+    (empiricalClaimGate Data.syntheticFccData "Hyper-ribbon manifold claim").1 = false := by
+  native_decide
+
+/-- Theorem: the synthetic BCC dataset FAILS the empirical claim gate. -/
+theorem syntheticBccFailsGate :
+    (empiricalClaimGate Data.syntheticBccData "Correlation reversal claim").1 = false := by
+  native_decide
+
 end OpenDistillationFactory.Materials.Analysis.Causal

@@ -1,0 +1,1373 @@
+{
+  "schema_version": "lupine.mlip_elastic_benchmark.v1",
+  "provenance": {
+    "benchmark_name": "mlip-elastic-benchmark-2026-06-27",
+    "git_sha": "f82385de7674367fcb5fc5ad8904eacdc7cf41f2",
+    "lupine_git_sha": "3716feecc90ae0bd982e24d848c1ab33e3cf44c3",
+    "matpes_release": "2025.2",
+    "host": "aledev",
+    "platform": "Linux-7.0.0-22-generic-x86_64-with-glibc2.43",
+    "python": "3.11.15",
+    "run_at": "2026-06-27T02:08:21.742116+00:00",
+    "aggregation_runtime_seconds": 0.0579,
+    "cache_warm": true,
+    "cache_warm_max_1x1_runtime_seconds": 17.64,
+    "n_cores_per_case": 1,
+    "source_paths": {
+      "one_by_one": "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem",
+      "three_by_three_16elem": "lupine/data/layer2_outputs_3x3x3_16elem",
+      "three_by_three_cu_ni": "lupine/data/layer2_outputs_3x3x3",
+      "targets": "lupine/data/targets_0K.json"
+    },
+    "generated_by": "scripts/aggregate_mlip_elastic_benchmark.py"
+  },
+  "arms": {
+    "raw-1x1x1": {
+      "mae_cij_mean": 14.546581,
+      "mae_cij_median": 13.484132,
+      "runtime_seconds": 49.27,
+      "core_hours": 0.01368611,
+      "n_cases": 16,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "supercell": 1
+    },
+    "corrected-1x1x1": {
+      "mae_cij_mean": 54.277049,
+      "mae_cij_median": 55.094402,
+      "runtime_seconds": 49.27,
+      "core_hours": 0.01368611,
+      "n_cases": 16,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "supercell": 1,
+      "bias_method": "LOO-PCA",
+      "n_folds": 16,
+      "conformal_radius_gpa": 109.67779
+    },
+    "ref-3x3x3": {
+      "mae_cij_mean": 14.610122,
+      "mae_cij_median": 13.564132,
+      "runtime_seconds": 186.32,
+      "core_hours": 0.05175556,
+      "n_cases": 16,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "supercell": 3
+    },
+    "ensemble-1x1x1": {
+      "mae_cij_mean": 11.60055,
+      "mae_cij_median": 11.617824,
+      "runtime_seconds": 131.26,
+      "core_hours": 0.03646111,
+      "n_cases": 16,
+      "n_models": 3,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "supercell": 1
+    }
+  },
+  "cost_ratios": {
+    "corrected_vs_ref": 3.781612,
+    "corrected_vs_ensemble": 2.664096,
+    "ref_vs_raw": 3.781612
+  },
+  "claims": {
+    "ten_x_cost_accuracy": false,
+    "five_x_vs_ensemble": false,
+    "operator_beats_ensemble_mae": false,
+    "operator_matches_ref_mae_within_1gpa": false,
+    "operator_improves_raw_mae": false
+  },
+  "per_element": [
+    {
+      "element": "Ag",
+      "arm": "raw-1x1x1",
+      "c11": 108.02,
+      "c12": 77.5,
+      "c44": 50.44,
+      "mae": 3.653333,
+      "runtime_seconds": 2.67,
+      "runtime_s": 2.67,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ag_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Al",
+      "arm": "raw-1x1x1",
+      "c11": 96.05,
+      "c12": 52.75,
+      "c44": 35.61,
+      "mae": 10.611078,
+      "runtime_seconds": 2.56,
+      "runtime_s": 2.56,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Al_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Au",
+      "arm": "raw-1x1x1",
+      "c11": 144.76,
+      "c12": 111.23,
+      "c44": 38.73,
+      "mae": 21.38,
+      "runtime_seconds": 2.17,
+      "runtime_s": 2.17,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Au_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ca",
+      "arm": "raw-1x1x1",
+      "c11": 20.43,
+      "c12": 9.66,
+      "c44": 15.8,
+      "mae": 2.513191,
+      "runtime_seconds": 1.81,
+      "runtime_s": 1.81,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ca_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Cr",
+      "arm": "raw-1x1x1",
+      "c11": 545.99,
+      "c12": 219.71,
+      "c44": 91.83,
+      "mae": 45.847841,
+      "runtime_seconds": 4.51,
+      "runtime_s": 4.51,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cr_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Cu",
+      "arm": "raw-1x1x1",
+      "c11": 161.9,
+      "c12": 117.8,
+      "c44": 71.59,
+      "mae": 9.723033,
+      "runtime_seconds": 2.81,
+      "runtime_s": 2.81,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cu_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Fe",
+      "arm": "raw-1x1x1",
+      "c11": 220.07,
+      "c12": 117.35,
+      "c44": 95.3,
+      "mae": 20.642275,
+      "runtime_seconds": 2.17,
+      "runtime_s": 2.17,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Fe_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Mo",
+      "arm": "raw-1x1x1",
+      "c11": 446.79,
+      "c12": 147.55,
+      "c44": 110.31,
+      "mae": 13.032018,
+      "runtime_seconds": 2.51,
+      "runtime_s": 2.51,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Mo_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Nb",
+      "arm": "raw-1x1x1",
+      "c11": 215.02,
+      "c12": 103.3,
+      "c44": 16.96,
+      "mae": 21.970128,
+      "runtime_seconds": 1.89,
+      "runtime_s": 1.89,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Nb_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ni",
+      "arm": "raw-1x1x1",
+      "c11": 253.89,
+      "c12": 155.05,
+      "c44": 130.27,
+      "mae": 9.164487,
+      "runtime_seconds": 2.31,
+      "runtime_s": 2.31,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ni_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Pd",
+      "arm": "raw-1x1x1",
+      "c11": 186.76,
+      "c12": 134.27,
+      "c44": 76.6,
+      "mae": 6.410802,
+      "runtime_seconds": 3.34,
+      "runtime_s": 3.34,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pd_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Pt",
+      "arm": "raw-1x1x1",
+      "c11": 273.72,
+      "c12": 192.33,
+      "c44": 77.6,
+      "mae": 18.653817,
+      "runtime_seconds": 2.88,
+      "runtime_s": 2.88,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pt_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Sr",
+      "arm": "raw-1x1x1",
+      "c11": 21.29,
+      "c12": 10.36,
+      "c44": 11.93,
+      "mae": 2.26147,
+      "runtime_seconds": 1.77,
+      "runtime_s": 1.77,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Sr_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ta",
+      "arm": "raw-1x1x1",
+      "c11": 236.32,
+      "c12": 152.02,
+      "c44": 47.69,
+      "mae": 18.607662,
+      "runtime_seconds": 11.39,
+      "runtime_s": 11.39,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ta_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "V",
+      "arm": "raw-1x1x1",
+      "c11": 306.32,
+      "c12": 120.33,
+      "c44": 15.2,
+      "mae": 13.936246,
+      "runtime_seconds": 1.92,
+      "runtime_s": 1.92,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/V_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "W",
+      "arm": "raw-1x1x1",
+      "c11": 485.12,
+      "c12": 185.11,
+      "c44": 145.12,
+      "mae": 14.337907,
+      "runtime_seconds": 2.56,
+      "runtime_s": 2.56,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/W_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ag",
+      "arm": "corrected-1x1x1",
+      "c11": 180.7549,
+      "c12": 177.6901,
+      "c44": 36.089,
+      "mae": 59.451997,
+      "runtime_seconds": 2.67,
+      "runtime_s": 2.67,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -72.734936,
+        -100.19008,
+        14.350975
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ag_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Al",
+      "arm": "corrected-1x1x1",
+      "c11": 169.2624,
+      "c12": 152.6706,
+      "c44": 22.1144,
+      "mae": 51.598446,
+      "runtime_seconds": 2.56,
+      "runtime_s": 2.56,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -73.212393,
+        -99.920609,
+        13.495568
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Al_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Au",
+      "arm": "corrected-1x1x1",
+      "c11": 216.1523,
+      "c12": 209.273,
+      "c44": 27.3475,
+      "mae": 39.324263,
+      "runtime_seconds": 2.17,
+      "runtime_s": 2.17,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -71.392314,
+        -98.04301,
+        11.382535
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Au_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ca",
+      "arm": "corrected-1x1x1",
+      "c11": 93.3174,
+      "c12": 110.1028,
+      "c44": 2.0717,
+      "mae": 59.839665,
+      "runtime_seconds": 1.81,
+      "runtime_s": 1.81,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -72.887422,
+        -100.442835,
+        13.72831
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ca_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Cr",
+      "arm": "corrected-1x1x1",
+      "c11": 609.1433,
+      "c12": 247.34,
+      "c44": 92.1201,
+      "mae": 76.012249,
+      "runtime_seconds": 4.51,
+      "runtime_s": 4.51,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -63.153296,
+        -27.630014,
+        -0.290088
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cr_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Cu",
+      "arm": "corrected-1x1x1",
+      "c11": 233.2715,
+      "c12": 219.0796,
+      "c44": 57.8587,
+      "mae": 62.716348,
+      "runtime_seconds": 2.81,
+      "runtime_s": 2.81,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -71.371479,
+        -101.279609,
+        13.731254
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cu_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Fe",
+      "arm": "corrected-1x1x1",
+      "c11": 289.5427,
+      "c12": 215.1951,
+      "c44": 80.0433,
+      "mae": 41.632921,
+      "runtime_seconds": 2.17,
+      "runtime_s": 2.17,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -69.472717,
+        -97.845093,
+        15.256719
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Fe_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Mo",
+      "arm": "corrected-1x1x1",
+      "c11": 517.9902,
+      "c12": 248.692,
+      "c44": 96.7412,
+      "mae": 48.938326,
+      "runtime_seconds": 2.51,
+      "runtime_s": 2.51,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -71.200243,
+        -101.142039,
+        13.568751
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Mo_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Nb",
+      "arm": "corrected-1x1x1",
+      "c11": 287.8891,
+      "c12": 197.9775,
+      "c44": 4.2859,
+      "mae": 38.103444,
+      "runtime_seconds": 1.89,
+      "runtime_s": 1.89,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -72.869106,
+        -94.67749,
+        12.674122
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Nb_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ni",
+      "arm": "corrected-1x1x1",
+      "c11": 326.2617,
+      "c12": 255.949,
+      "c44": 116.4224,
+      "mae": 54.169353,
+      "runtime_seconds": 2.31,
+      "runtime_s": 2.31,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -72.371716,
+        -100.898969,
+        13.847625
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ni_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Pd",
+      "arm": "corrected-1x1x1",
+      "c11": 259.8494,
+      "c12": 234.7915,
+      "c44": 62.9202,
+      "mae": 56.01945,
+      "runtime_seconds": 3.34,
+      "runtime_s": 3.34,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -73.08944,
+        -100.521523,
+        13.679793
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pd_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Pt",
+      "arm": "corrected-1x1x1",
+      "c11": 346.8907,
+      "c12": 290.5242,
+      "c44": 66.0596,
+      "mae": 43.320209,
+      "runtime_seconds": 2.88,
+      "runtime_s": 2.88,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -73.1707,
+        -98.194165,
+        11.540364
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pt_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Sr",
+      "arm": "corrected-1x1x1",
+      "c11": 93.3642,
+      "c12": 110.4798,
+      "c44": -1.6356,
+      "mae": 64.094273,
+      "runtime_seconds": 1.77,
+      "runtime_s": 1.77,
+      "n_atoms": 4,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -72.074181,
+        -100.119778,
+        13.56562
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Sr_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ta",
+      "arm": "corrected-1x1x1",
+      "c11": 307.7008,
+      "c12": 253.1997,
+      "c44": 32.3712,
+      "mae": 57.927593,
+      "runtime_seconds": 11.39,
+      "runtime_s": 11.39,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -71.380797,
+        -101.179715,
+        15.318831
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ta_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "V",
+      "arm": "corrected-1x1x1",
+      "c11": 373.5546,
+      "c12": 222.8693,
+      "c44": 1.3532,
+      "mae": 67.849856,
+      "runtime_seconds": 1.92,
+      "runtime_s": 1.92,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -67.23464,
+        -102.539344,
+        13.84676
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/V_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "W",
+      "arm": "corrected-1x1x1",
+      "c11": 555.9185,
+      "c12": 285.8736,
+      "c44": 131.3652,
+      "mae": 47.434386,
+      "runtime_seconds": 2.56,
+      "runtime_s": 2.56,
+      "n_atoms": 2,
+      "supercell": 1,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "bias_vector": [
+        -70.798483,
+        -100.763645,
+        13.754753
+      ],
+      "shift_vector": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/W_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ag",
+      "arm": "ref-3x3x3",
+      "c11": 107.92,
+      "c12": 77.42,
+      "c44": 50.4,
+      "mae": 3.633333,
+      "runtime_seconds": 10.54,
+      "runtime_s": 10.54,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Ag/Ag_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Al",
+      "arm": "ref-3x3x3",
+      "c11": 96.09,
+      "c12": 52.78,
+      "c44": 35.62,
+      "mae": 10.591078,
+      "runtime_seconds": 15.95,
+      "runtime_s": 15.95,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Al/Al_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Au",
+      "arm": "ref-3x3x3",
+      "c11": 144.69,
+      "c12": 111.18,
+      "c44": 38.7,
+      "mae": 21.41,
+      "runtime_seconds": 10.79,
+      "runtime_s": 10.79,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Au/Au_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Ca",
+      "arm": "ref-3x3x3",
+      "c11": 20.4,
+      "c12": 9.62,
+      "c44": 15.77,
+      "mae": 2.526524,
+      "runtime_seconds": 6.36,
+      "runtime_s": 6.36,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Ca/Ca_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Cr",
+      "arm": "ref-3x3x3",
+      "c11": 546.35,
+      "c12": 220.08,
+      "c44": 91.86,
+      "mae": 46.081175,
+      "runtime_seconds": 10.89,
+      "runtime_s": 10.89,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Cr/Cr_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Cu",
+      "arm": "ref-3x3x3",
+      "c11": 161.93,
+      "c12": 117.82,
+      "c44": 71.6,
+      "mae": 9.7297,
+      "runtime_seconds": 23.38,
+      "runtime_s": 23.38,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3/Cu_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Fe",
+      "arm": "ref-3x3x3",
+      "c11": 220.39,
+      "c12": 117.63,
+      "c44": 95.41,
+      "mae": 20.405608,
+      "runtime_seconds": 11.37,
+      "runtime_s": 11.37,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Fe/Fe_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Mo",
+      "arm": "ref-3x3x3",
+      "c11": 446.48,
+      "c12": 147.35,
+      "c44": 110.18,
+      "mae": 13.158685,
+      "runtime_seconds": 6.59,
+      "runtime_s": 6.59,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Mo/Mo_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Nb",
+      "arm": "ref-3x3x3",
+      "c11": 215.15,
+      "c12": 103.35,
+      "c44": 16.98,
+      "mae": 21.916795,
+      "runtime_seconds": 7.53,
+      "runtime_s": 7.53,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Nb/Nb_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Ni",
+      "arm": "ref-3x3x3",
+      "c11": 253.21,
+      "c12": 154.51,
+      "c44": 129.95,
+      "mae": 9.67782,
+      "runtime_seconds": 21.73,
+      "runtime_s": 21.73,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3/Ni_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Pd",
+      "arm": "ref-3x3x3",
+      "c11": 186.44,
+      "c12": 134.02,
+      "c44": 76.46,
+      "mae": 6.554136,
+      "runtime_seconds": 16.37,
+      "runtime_s": 16.37,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Pd/Pd_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Pt",
+      "arm": "ref-3x3x3",
+      "c11": 273.41,
+      "c12": 192.11,
+      "c44": 77.51,
+      "mae": 18.800484,
+      "runtime_seconds": 15.62,
+      "runtime_s": 15.62,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Pt/Pt_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Sr",
+      "arm": "ref-3x3x3",
+      "c11": 21.29,
+      "c12": 10.36,
+      "c44": 11.92,
+      "mae": 2.264803,
+      "runtime_seconds": 6.3,
+      "runtime_s": 6.3,
+      "n_atoms": 108,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Sr/Sr_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Ta",
+      "arm": "ref-3x3x3",
+      "c11": 236.28,
+      "c12": 152.0,
+      "c44": 47.68,
+      "mae": 18.630995,
+      "runtime_seconds": 7.12,
+      "runtime_s": 7.12,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/Ta/Ta_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "V",
+      "arm": "ref-3x3x3",
+      "c11": 306.66,
+      "c12": 120.54,
+      "c44": 15.23,
+      "mae": 13.969579,
+      "runtime_seconds": 9.47,
+      "runtime_s": 9.47,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/V/V_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "W",
+      "arm": "ref-3x3x3",
+      "c11": 484.93,
+      "c12": 184.98,
+      "c44": 145.02,
+      "mae": 14.411241,
+      "runtime_seconds": 6.31,
+      "runtime_s": 6.31,
+      "n_atoms": 54,
+      "supercell": 3,
+      "model": "TensorNet-PES-MatPES-PBE-2025.2",
+      "source_files": [
+        "lupine/data/layer2_outputs_3x3x3_16elem/W/W_TensorNet_PBE.json"
+      ]
+    },
+    {
+      "element": "Ag",
+      "arm": "ensemble-1x1x1",
+      "c11": 110.9667,
+      "c12": 79.3133,
+      "c44": 48.1633,
+      "mae": 3.481111,
+      "runtime_seconds": 7.66,
+      "runtime_s": 7.66,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ag_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ag_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ag_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Al",
+      "arm": "ensemble-1x1x1",
+      "c11": 93.5867,
+      "c12": 51.1733,
+      "c44": 36.46,
+      "mae": 12.241078,
+      "runtime_seconds": 6.74,
+      "runtime_s": 6.74,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Al_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Al_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Al_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Au",
+      "arm": "ensemble-1x1x1",
+      "c11": 135.2733,
+      "c12": 112.1733,
+      "c44": 34.65,
+      "mae": 22.867778,
+      "runtime_seconds": 8.57,
+      "runtime_s": 8.57,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Au_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Au_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Au_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ca",
+      "arm": "ensemble-1x1x1",
+      "c11": 24.4733,
+      "c12": 12.3033,
+      "c44": 15.1233,
+      "mae": 2.488226,
+      "runtime_seconds": 4.87,
+      "runtime_s": 4.87,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ca_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ca_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ca_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Cr",
+      "arm": "ensemble-1x1x1",
+      "c11": 500.18,
+      "c12": 181.8067,
+      "c44": 94.0033,
+      "mae": 17.218953,
+      "runtime_seconds": 11.48,
+      "runtime_s": 11.48,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cr_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cr_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cr_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Cu",
+      "arm": "ensemble-1x1x1",
+      "c11": 163.0433,
+      "c12": 117.36,
+      "c44": 76.7667,
+      "mae": 11.976367,
+      "runtime_seconds": 8.41,
+      "runtime_s": 8.41,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cu_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cu_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Cu_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Fe",
+      "arm": "ensemble-1x1x1",
+      "c11": 250.7233,
+      "c12": 137.08,
+      "c44": 104.88,
+      "mae": 8.063451,
+      "runtime_seconds": 7.54,
+      "runtime_s": 7.54,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Fe_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Fe_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Fe_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Mo",
+      "arm": "ensemble-1x1x1",
+      "c11": 451.08,
+      "c12": 175.2333,
+      "c44": 106.6467,
+      "mae": 12.870564,
+      "runtime_seconds": 6.29,
+      "runtime_s": 6.29,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Mo_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Mo_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Mo_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Nb",
+      "arm": "ensemble-1x1x1",
+      "c11": 211.0333,
+      "c12": 112.6167,
+      "c44": 30.7933,
+      "mae": 24.804572,
+      "runtime_seconds": 6.42,
+      "runtime_s": 6.42,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Nb_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Nb_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Nb_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ni",
+      "arm": "ensemble-1x1x1",
+      "c11": 255.84,
+      "c12": 155.48,
+      "c44": 129.2633,
+      "mae": 8.706709,
+      "runtime_seconds": 6.7,
+      "runtime_s": 6.7,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ni_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ni_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ni_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Pd",
+      "arm": "ensemble-1x1x1",
+      "c11": 203.5567,
+      "c12": 146.7633,
+      "c44": 78.34,
+      "mae": 8.044975,
+      "runtime_seconds": 8.07,
+      "runtime_s": 8.07,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pd_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pd_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pd_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Pt",
+      "arm": "ensemble-1x1x1",
+      "c11": 274.1933,
+      "c12": 196.2433,
+      "c44": 77.61,
+      "mae": 17.194928,
+      "runtime_seconds": 10.27,
+      "runtime_s": 10.27,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pt_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pt_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Pt_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Sr",
+      "arm": "ensemble-1x1x1",
+      "c11": 19.5333,
+      "c12": 9.1567,
+      "c44": 11.4833,
+      "mae": 2.225914,
+      "runtime_seconds": 6.02,
+      "runtime_s": 6.02,
+      "n_atoms": 4,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Sr_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Sr_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Sr_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "Ta",
+      "arm": "ensemble-1x1x1",
+      "c11": 252.3333,
+      "c12": 158.45,
+      "c44": 64.17,
+      "mae": 6.055883,
+      "runtime_seconds": 17.64,
+      "runtime_s": 17.64,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ta_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ta_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/Ta_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "V",
+      "arm": "ensemble-1x1x1",
+      "c11": 262.9867,
+      "c12": 118.7133,
+      "c44": 23.9567,
+      "mae": 11.259281,
+      "runtime_seconds": 7.37,
+      "runtime_s": 7.37,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/V_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/V_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/V_TensorNet_PBE_1x1x1.json"
+      ]
+    },
+    {
+      "element": "W",
+      "arm": "ensemble-1x1x1",
+      "c11": 474.13,
+      "c12": 194.0767,
+      "c44": 148.41,
+      "mae": 16.109018,
+      "runtime_seconds": 7.21,
+      "runtime_s": 7.21,
+      "n_atoms": 2,
+      "supercell": 1,
+      "models": [
+        "M3GNet-PES-MatPES-PBE-2025.2",
+        "CHGNet-PES-MatPES-PBE-2025.2.10",
+        "TensorNet-PES-MatPES-PBE-2025.2"
+      ],
+      "source_files": [
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/W_M3GNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/W_CHGNet_PBE_1x1x1.json",
+        "lupine/data/mlip_elastic_benchmark_outputs_1x1x1_16elem/W_TensorNet_PBE_1x1x1.json"
+      ]
+    }
+  ],
+  "caveats": [
+    "Headline target is TPBE_0K; r2SCAN targets are approximated by scalar bulk-modulus shift and reserved for sensitivity analyses.",
+    "QET is a TensorNet alias in MatPES 2025.2 and is deduplicated; ensemble uses three architectures.",
+    "All 1x1x1 costs are cache-warm with every per-case runtime below 60 s; cold-cache timings are excluded.",
+    "Au uses PW91-GGA fallback, not a pure PBE target.",
+    "LOO bias fitting is used for corrected-1x1x1; in-sample fitting is intentionally avoided.",
+    "Cu/Ni 1x1x1 cases reuse prior cache-warm outputs; missing non-Cu/Ni PBE cases were completed in this run.",
+    "Cr is a known outlier; arm summaries report both mean and median MAE."
+  ]
+}

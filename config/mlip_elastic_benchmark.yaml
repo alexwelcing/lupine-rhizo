@@ -1,0 +1,233 @@
+schema_version: lupine.mlip_elastic_benchmark.config.v1
+description: >
+  Runnable configuration for the 10x cost-reduction MLIP elastic benchmark.
+  This config is consumed by the execute task (t_90f20a91) and the HPC artifact
+  task (t_4596db0d).  All paths are relative to the lupine repo root.
+
+# ---------------------------------------------------------------------------
+# 1. Benchmark identity
+# ---------------------------------------------------------------------------
+protocol_doc: lupine-rhizo/docs/plans/mlip-elastic-benchmark-protocol-2026-06-27.md
+master_plan_doc: lupine-rhizo/docs/plans/mlip-elastic-benchmark-master-2026-06-27.md
+benchmark_name: mlip-elastic-benchmark-2026-06-27
+schema_output: lupine.mlip_elastic_benchmark.v1
+
+# ---------------------------------------------------------------------------
+# 2. Element roster (16 cubic metals)
+# ---------------------------------------------------------------------------
+elements:
+  - Ag
+  - Al
+  - Au
+  - Ca
+  - Cr
+  - Cu
+  - Fe
+  - Mo
+  - Nb
+  - Ni
+  - Pd
+  - Pt
+  - Sr
+  - Ta
+  - V
+  - W
+
+# Structure map (conventional cubic cell)
+structure_map:
+  fcc: [Ag, Al, Au, Ca, Cu, Ni, Pd, Pt, Sr]
+  bcc: [Cr, Fe, Mo, Nb, Ta, V, W]
+
+# ---------------------------------------------------------------------------
+# 3. Model roster (3 architectures, PBE only for headline)
+# ---------------------------------------------------------------------------
+models:
+  - label: M3GNet
+    model_name: M3GNet-PES-MatPES-PBE-2025.2
+    functional: PBE
+    supercells: [1]
+
+  - label: CHGNet
+    model_name: CHGNet-PES-MatPES-PBE-2025.2.10
+    functional: PBE
+    supercells: [1]
+
+  - label: TensorNet
+    model_name: TensorNet-PES-MatPES-PBE-2025.2
+    functional: PBE
+    supercells: [1, 3]
+
+# QET is excluded — byte-identical alias to TensorNet in MatPES 2025.2
+# r2SCAN functionals are excluded from headline; sensitivity supplement only.
+
+# ---------------------------------------------------------------------------
+# 4. Target specification
+# ---------------------------------------------------------------------------
+targets:
+  path: lupine/data/targets_0K.json
+  schema: lupine.targets_0K.v3
+  headline_field: TPBE_0K          # PBE 0K elastic constants
+  sensitivity_field: Tr2SCAN_0K   # Scalar bulk-modulus shifted
+
+# ---------------------------------------------------------------------------
+# 5. The four arms
+# ---------------------------------------------------------------------------
+arms:
+  - id: A
+    name: raw-1x1x1
+    description: Single TensorNet/PBE, conventional cell, no correction
+    model: TensorNet
+    functional: PBE
+    supercell: 1
+    correction: none
+    n_cases: 16
+    existing_data:
+      path: lupine/data/layer2_outputs
+      coverage: [Cu, Ni]          # 16 cases already exist
+    missing_data:
+      elements: [Ag, Al, Au, Ca, Cr, Fe, Mo, Nb, Pd, Pt, Sr, Ta, V, W]
+      note: Must run TensorNet/PBE 1x1x1 for these 14 elements
+
+  - id: B
+    name: corrected-1x1x1
+    description: Single TensorNet/PBE + Lupine operator (LOO bias-PCA + shift)
+    model: TensorNet
+    functional: PBE
+    supercell: 1
+    correction:
+      method: LOO-PCA
+      bias_source: per-element leave-one-out on TensorNet/PBE 1x1x1 errors
+      shift_source: TPBE_0K -> Tr2SCAN_0K (for sensitivity); 0 for headline
+      operator_module: lupine/python/lupine/operator.py
+      operator_functions: [correct, leave_one_out_calibration]
+    n_cases: 16
+    existing_data: none          # Derived post-hoc from arm A
+    missing_data:
+      note: Run LOO bias-PCA script (mlip_elastic_benchmark_loo_bias.py) after arm A completes
+
+  - id: C
+    name: ref-3x3x3
+    description: Single TensorNet/PBE, 3x3x3 supercell, no correction
+    model: TensorNet
+    functional: PBE
+    supercell: 3
+    correction: none
+    n_cases: 16
+    existing_data:
+      path: lupine/data/layer2_outputs_3x3x3_16elem
+      coverage: all 16 elements x 8 modelxfunctional = 112 cases + Cu/Ni
+    missing_data: none          # All data already exists
+
+  - id: D
+    name: ensemble-1x1x1
+    description: Mean of M3GNet + CHGNet + TensorNet (PBE), conventional cell
+    models: [M3GNet, CHGNet, TensorNet]
+    functional: PBE
+    supercell: 1
+    correction: none
+    n_cases: 16
+    existing_data:
+      path: lupine/data/layer2_outputs
+      coverage: [Cu, Ni]          # TensorNet/PBE 1x1x1 already exists
+    missing_data:
+      elements: [Ag, Al, Au, Ca, Cr, Fe, Mo, Nb, Pd, Pt, Sr, Ta, V, W]
+      models: [M3GNet, CHGNet]
+      note: Must run M3GNet/PBE 1x1x1 and CHGNet/PBE 1x1x1 for all 16 elements
+
+# ---------------------------------------------------------------------------
+# 6. Cost model
+# ---------------------------------------------------------------------------
+cost_model:
+  currency: core-hours
+  formula: "runtime_seconds * n_cores / 3600"
+  n_cores_per_case: 1          # matcalc ElasticityCalc is single-threaded
+  host_core_count: null        # Recorded per-run for node-hours
+  cache_warm_required: true
+  cache_warm_pre_step:
+    description: Pre-download all three models to eliminate download overhead
+    command: |
+      python -c "from matcalc import load_up; [load_up(m) for m in [
+          'M3GNet-PES-MatPES-PBE-2025.2',
+          'CHGNet-PES-MatPES-PBE-2025.2.10',
+          'TensorNet-PES-MatPES-PBE-2025.2'
+      ]]"
+  cache_warm_max_runtime_seconds: 60   # Discard 1x1x1 cases > 60s as cache-cold
+
+# ---------------------------------------------------------------------------
+# 7. Output schema
+# ---------------------------------------------------------------------------
+output:
+  path: lupine-rhizo/data/mlip_elastic_benchmark_results.json
+  schema: lupine.mlip_elastic_benchmark.v1
+  required_fields:
+    - schema_version
+    - provenance
+    - arms
+    - cost_ratios
+    - per_element
+    - caveats
+  validation_rules:
+    - "arms.corrected-1x1x1.bias_method == 'LOO-PCA'"
+    - "arms.ensemble-1x1x1.n_models == 3"
+    - "len(per_element) == 64"    # 16 elements x 4 arms
+    - "cost_ratios.corrected_vs_ref >= 1.0"
+    - "all(runtime < 60 for 1x1x1 cases)"
+
+# ---------------------------------------------------------------------------
+# 8. Scripts to be created by downstream tasks
+# ---------------------------------------------------------------------------
+scripts:
+  loo_bias:
+    path: lupine/python/lupine/mlip_elastic_benchmark_loo_bias.py
+    description: Compute LOO-PCA bias vectors and apply correction operator
+    inputs: [arm A results, targets_0K.json]
+    outputs: arm B corrected predictions
+
+  aggregate:
+    path: lupine/python/lupine/mlip_elastic_benchmark_aggregate.py
+    description: Roll per-case JSONs into mlip_elastic_benchmark_results.json
+    inputs: [arm A, B, C, D results]
+    outputs: [mlip_elastic_benchmark_results.json]
+
+  figures:
+    path: lupine-rhizo/scripts/generate_mlip_elastic_benchmark_figures.py
+    description: Generate 4 figures from mlip_elastic_benchmark_results.json
+    inputs: [mlip_elastic_benchmark_results.json]
+    outputs: [fig1_cost_accuracy_frontier.png, fig2_supercell_independence.png,
+              fig3_operator_vs_ensemble.png, fig4_error_stratification.png]
+
+  verify:
+    path: lupine-rhizo/scripts/verify_mlip_elastic_benchmark.py
+    description: 2-element smoke test (Ca + Cu, one per bonding class)
+    inputs: [config/mlip_elastic_benchmark.yaml]
+    outputs: [smoke_test_results.json]
+    max_runtime_seconds: 300
+
+# ---------------------------------------------------------------------------
+# 9. Reproducibility contract
+# ---------------------------------------------------------------------------
+reproducibility:
+  apptainer_def: lupine-rhizo/Apptainer.def
+  pinned_versions:
+    python: "3.11"
+    matgl: "1.2.0"        # Exact version TBD by artifact task from current env
+    matcalc: "0.2.1"      # Exact version TBD by artifact task from current env
+    pymatgen: "2024.5.1"  # Exact version TBD by artifact task from current env
+    numpy: "1.26.4"       # Exact version TBD by artifact task from current env
+  single_command: |
+    git clone <repo>
+    cd lupine-rhizo
+    apptainer build mlip-elastic-benchmark-2026.sif Apptainer.def
+    apptainer run mlip-elastic-benchmark-2026.sif
+    python scripts/verify_mlip_elastic_benchmark.py
+
+# ---------------------------------------------------------------------------
+# 10. Downstream dependencies
+# ---------------------------------------------------------------------------
+dependencies:
+  protocol_task: t_f26f577b
+  execute_task: t_90f20a91
+  artifact_task: t_4596db0d
+  preprint_task: t_fc2f8d24
+  dashboard_task: t_2f7fc928
+  funder_brief_task: t_715ce4cf

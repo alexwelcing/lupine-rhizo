@@ -1,5 +1,7 @@
 import OpenDistillationFactory.Materials.Elasticity.FCC
 import OpenDistillationFactory.Materials.Distillation.Operator
+import OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator
+import OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme
 import OpenDistillationFactory.Materials.Distillation.Extracted
 import OpenDistillationFactory.Materials.Mechanics.HallPetch
 import OpenDistillationFactory.Materials.Scope.Validity
@@ -32,6 +34,7 @@ import OpenDistillationFactory.Materials.Theory.ProjectionLaw
 import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.ConvexProjection
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration
+import OpenDistillationFactory.Materials.Theory.AlloyResidualTransfer
 
 -- Validation layer: experiment design, integrity checks, and audit
 import OpenDistillationFactory.Materials.Validation.Experiment

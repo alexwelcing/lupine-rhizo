@@ -37,6 +37,13 @@ def nistProvenance (id : String) (doi : String) : ValueProvenance :=
     date   := "unknown"
     notes  := "NIST Interatomic Potentials Repository entry" }
 
+/-- Provenance for a value derived from an actual LAMMPS execution. -/
+def experimentProvenance (inputHash command : String) : ValueProvenance :=
+  { source := DataSource.lammps inputHash command
+    trust  := TrustLevel.reproducible
+    date   := "unknown"
+    notes  := "Computed via LAMMPS with traceable input script and output log" }
+
 /-- Check whether a dataset is NIST-backed (i.e., every point has NIST IPR provenance). -/
 def isNistBacked (provenances : List ValueProvenance) : Bool :=
   provenances.all (λ p => match p.source with
@@ -47,6 +54,20 @@ def isNistBacked (provenances : List ValueProvenance) : Bool :=
 def isSynthetic (provenances : List ValueProvenance) : Bool :=
   provenances.all (λ p => match p.source with
     | DataSource.synthetic _ => true
+    | _ => false)
+
+/-- Check whether a dataset is experiment-backed (i.e., every point has LAMMPS provenance). -/
+def isExperimentBacked (provenances : List ValueProvenance) : Bool :=
+  provenances.all (λ p => match p.source with
+    | DataSource.lammps _ _ => true
+    | _ => false)
+
+/-- Check whether a dataset is empirically grounded (NIST-backed OR experiment-backed).
+    This is the predicate required for empirical claims. -/
+def isEmpiricallyGrounded (provenances : List ValueProvenance) : Bool :=
+  provenances.all (λ p => match p.source with
+    | DataSource.nistIpr _ _ => true
+    | DataSource.lammps _ _  => true
     | _ => false)
 
 end OpenDistillationFactory.Materials.Data

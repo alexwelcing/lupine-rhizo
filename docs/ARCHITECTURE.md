@@ -94,6 +94,21 @@ flowchart TB
 - Duplicate Rust engines — the old `lupine-distill/` crate is archived; `atlas-distill/` is the single active engine.
 - Standalone ODF KB — the old `distiller/` root is archived; active ODF contracts live in `python/lupine_distill/odf/`.
 
+## Feedback loop: from formal scheme to operational component
+
+The class-aware correction scheme is implemented in two places that must stay in sync:
+
+- **Formal layer:** `lean-spec/OpenDistillationFactory/Materials/Distillation/DirectionalCorrectionScheme.lean` defines the universal operator, proves that the class-specific scalar minimizes the directional residual, formalizes outliers and oracle offsets, and shows when a class-aware scheme reduces to a global scheme.
+- **Operational layer:** `python/lupine/feedback.py` (`FeedbackLoop`, `OutlierLog`, `OutlierEntry`) fits per-class directions and alphas from calibration rows, evaluates new samples, logs outliers whose projection residual exceeds a class threshold, and triggers an additional offset (`none`, `median`, `mean`, or `oracle`).
+
+Evidence flow for a new benchmark:
+
+1. Run the benchmark and produce calibration rows (`element`, `raw_prediction`, `functional_shift`, `target_r2scan`).
+2. `FeedbackLoop.fit(...)` chooses a direction policy (e.g., `bulk_modulus`) and an alpha policy (`projection` or `loo_scalar_bulk`), then computes per-class thresholds and pre-computed offsets.
+3. `FeedbackLoop.evaluate(...)` corrects each sample, measures the projection residual, records outliers in `OutlierLog`, and optionally applies an offset.
+4. Outlier statistics feed back into the next calibration round: high outlier rates for a class signal that the class direction needs to be refined or that a new offset mechanism is required.
+5. Any new operator property (e.g., a new offset mechanism or a new direction policy) is added to the Lean layer first as a theorem, then mirrored to the Python layer.
+
 ## See also
 
 - [`ROOTS.md`](../ROOTS.md) — root ownership ledger and cleanup log

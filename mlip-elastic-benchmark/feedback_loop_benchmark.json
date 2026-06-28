@@ -1,0 +1,1034 @@
+{
+  "operator_scorecard": {
+    "scalar-bulk": {
+      "vs_TPBE": {
+        "mean_mae": 19.170668657548326,
+        "median_mae": 19.010252755307093,
+        "rmse": 28.38598811815326,
+        "per_element": {
+          "Ag": 21.14284346007521,
+          "Al": 10.611077938741136,
+          "Au": 18.608243551661204,
+          "Ca": 2.5131908264921403,
+          "Cr": 63.85162765566,
+          "Cu": 31.543617881509515,
+          "Fe": 9.451043712859104,
+          "Mo": 5.03975931990603,
+          "Nb": 22.690509000591618,
+          "Ni": 26.39617594289902,
+          "Pd": 24.258224717959937,
+          "Pt": 17.41726058032242,
+          "Sr": 2.2614696492147357,
+          "Ta": 10.019698543733282,
+          "V": 21.513693780194888,
+          "W": 19.41226195895298
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 14.133922735797167,
+        "median_mae": 11.158440367671114,
+        "rmse": 21.56991406594871,
+        "per_element": {
+          "Ag": 7.319447233660111,
+          "Al": 10.611077938741136,
+          "Au": 20.732960407090914,
+          "Ca": 2.5131908264921403,
+          "Cr": 52.454376023851204,
+          "Cu": 11.705802796601091,
+          "Fe": 16.91484067071335,
+          "Mo": 10.567681724688322,
+          "Nb": 22.1479128837919,
+          "Ni": 5.652047866230457,
+          "Pd": 7.7962918113959745,
+          "Pt": 14.812764857949574,
+          "Sr": 2.2614696492147357,
+          "Ta": 15.574819977289495,
+          "V": 15.141253404558498,
+          "W": 9.93682570048579
+        }
+      }
+    },
+    "feedback-scalar_bulk-offset-none": {
+      "vs_TPBE": {
+        "mean_mae": 16.319451989617697,
+        "median_mae": 15.897998937130236,
+        "rmse": 24.532011924325534,
+        "per_element": {
+          "Ag": 16.92258019886055,
+          "Al": 10.170266570692593,
+          "Au": 18.820439878865557,
+          "Ca": 2.100178070468027,
+          "Cr": 57.77164656334849,
+          "Cu": 24.00300536487617,
+          "Fe": 8.444031911039081,
+          "Mo": 4.220674707874925,
+          "Nb": 22.070171900044855,
+          "Ni": 18.29220687807637,
+          "Pd": 18.253205793261177,
+          "Pt": 14.87341767539992,
+          "Sr": 2.6152239930340238,
+          "Ta": 11.250608380113212,
+          "V": 18.083456811370635,
+          "W": 13.220117136557556
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 14.279354108538792,
+        "median_mae": 13.193756580430577,
+        "rmse": 20.870139453672817,
+        "per_element": {
+          "Ag": 3.5047164536292903,
+          "Al": 10.170266570692593,
+          "Au": 20.94515673429527,
+          "Ca": 2.100178070468027,
+          "Cr": 46.37439493153968,
+          "Cu": 9.572794830176809,
+          "Fe": 20.234701852793922,
+          "Mo": 12.600660301844627,
+          "Nb": 21.527575783245137,
+          "Ni": 8.725757937678281,
+          "Pd": 5.97165723890916,
+          "Pt": 18.246769801247257,
+          "Sr": 2.6152239930340238,
+          "Ta": 18.17475015974557,
+          "V": 13.786852859016525,
+          "W": 13.9182082183045
+        }
+      }
+    },
+    "feedback-scalar_bulk-offset-median": {
+      "vs_TPBE": {
+        "mean_mae": 16.445878029498516,
+        "median_mae": 15.670902185152789,
+        "rmse": 25.882422190488935,
+        "per_element": {
+          "Ag": 16.92258019886055,
+          "Al": 10.170266570692593,
+          "Au": 18.820439878865557,
+          "Ca": 2.100178070468027,
+          "Cr": 65.39624840658081,
+          "Cu": 24.00300536487617,
+          "Fe": 8.444031911039081,
+          "Mo": 4.220674707874925,
+          "Nb": 16.468386694905657,
+          "Ni": 18.29220687807637,
+          "Pd": 18.253205793261177,
+          "Pt": 14.87341767539992,
+          "Sr": 2.6152239930340238,
+          "Ta": 11.250608380113212,
+          "V": 18.083456811370635,
+          "W": 13.220117136557556
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 14.405780148419613,
+        "median_mae": 13.193756580430577,
+        "rmse": 22.10047510649659,
+        "per_element": {
+          "Ag": 3.5047164536292903,
+          "Al": 10.170266570692593,
+          "Au": 20.94515673429527,
+          "Ca": 2.100178070468027,
+          "Cr": 53.998996774772,
+          "Cu": 9.572794830176809,
+          "Fe": 20.234701852793922,
+          "Mo": 12.600660301844627,
+          "Nb": 15.925790578105934,
+          "Ni": 8.725757937678281,
+          "Pd": 5.97165723890916,
+          "Pt": 18.246769801247257,
+          "Sr": 2.6152239930340238,
+          "Ta": 18.17475015974557,
+          "V": 13.786852859016525,
+          "W": 13.9182082183045
+        }
+      }
+    },
+    "feedback-scalar_bulk-offset-oracle": {
+      "vs_TPBE": {
+        "mean_mae": 12.501652564783095,
+        "median_mae": 14.046767405978738,
+        "rmse": 16.957204122108095,
+        "per_element": {
+          "Ag": 16.92258019886055,
+          "Al": 10.170266570692593,
+          "Au": 18.820439878865557,
+          "Ca": 2.100178070468027,
+          "Cr": 15.725703461686228,
+          "Cu": 24.00300536487617,
+          "Fe": 8.444031911039081,
+          "Mo": 4.220674707874925,
+          "Nb": 3.0313242043534943,
+          "Ni": 18.29220687807637,
+          "Pd": 18.253205793261177,
+          "Pt": 14.87341767539992,
+          "Sr": 2.6152239930340238,
+          "Ta": 11.250608380113212,
+          "V": 18.083456811370635,
+          "W": 13.220117136557556
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 10.608861643000981,
+        "median_mae": 9.8715307004347,
+        "rmse": 14.494385239686356,
+        "per_element": {
+          "Ag": 3.5047164536292903,
+          "Al": 10.170266570692593,
+          "Au": 20.94515673429527,
+          "Ca": 2.100178070468027,
+          "Cr": 5.9968198162989195,
+          "Cu": 9.572794830176809,
+          "Fe": 20.234701852793922,
+          "Mo": 12.600660301844627,
+          "Nb": 3.177271449880946,
+          "Ni": 8.725757937678281,
+          "Pd": 5.97165723890916,
+          "Pt": 18.246769801247257,
+          "Sr": 2.6152239930340238,
+          "Ta": 18.17475015974557,
+          "V": 13.786852859016525,
+          "W": 13.9182082183045
+        }
+      }
+    },
+    "feedback-projection-offset-none": {
+      "vs_TPBE": {
+        "mean_mae": 18.436512908073457,
+        "median_mae": 17.098835746363832,
+        "rmse": 27.21615352362171,
+        "per_element": {
+          "Ag": 21.78052438421227,
+          "Al": 5.92462979516289,
+          "Au": 15.032821653439777,
+          "Ca": 3.804239772519153,
+          "Cr": 65.34324725845174,
+          "Cu": 28.734166013203744,
+          "Fe": 6.588252280457344,
+          "Mo": 6.097831912203333,
+          "Nb": 18.53986066077618,
+          "Ni": 22.780717272540027,
+          "Pd": 22.79596285229043,
+          "Pt": 16.82004036667719,
+          "Sr": 7.582349226897492,
+          "Ta": 12.70189930514051,
+          "V": 23.080032649152756,
+          "W": 17.377631126050478
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 13.258103050335638,
+        "median_mae": 9.03313087071513,
+        "rmse": 21.05235641694027,
+        "per_element": {
+          "Ag": 7.957128157797172,
+          "Al": 5.92462979516289,
+          "Au": 17.15753850886949,
+          "Ca": 3.804239772519153,
+          "Cr": 53.94599562664293,
+          "Cu": 7.995741280734284,
+          "Fe": 16.54685642633812,
+          "Mo": 8.30556751261868,
+          "Nb": 17.99726454397646,
+          "Ni": 8.027011976477013,
+          "Pd": 4.369896957141644,
+          "Pt": 14.294151705821122,
+          "Sr": 7.582349226897492,
+          "Ta": 16.339255505806324,
+          "V": 12.121327579755823,
+          "W": 9.760694228811579
+        }
+      }
+    },
+    "feedback-projection-offset-median": {
+      "vs_TPBE": {
+        "mean_mae": 18.310358356964613,
+        "median_mae": 16.64421353079142,
+        "rmse": 27.102609846125045,
+        "per_element": {
+          "Ag": 21.78052438421227,
+          "Al": 5.92462979516289,
+          "Au": 15.032821653439777,
+          "Ca": 3.804239772519153,
+          "Cr": 65.39624840658081,
+          "Cu": 28.734166013203744,
+          "Fe": 6.588252280457344,
+          "Mo": 6.097831912203333,
+          "Nb": 16.46838669490565,
+          "Ni": 22.780717272540027,
+          "Pd": 22.79596285229043,
+          "Pt": 16.82004036667719,
+          "Sr": 7.582349226897492,
+          "Ta": 12.70189930514051,
+          "V": 23.080032649152756,
+          "W": 17.377631126050478
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 13.131948499226795,
+        "median_mae": 9.03313087071513,
+        "rmse": 20.907531711799486,
+        "per_element": {
+          "Ag": 7.957128157797172,
+          "Al": 5.92462979516289,
+          "Au": 17.15753850886949,
+          "Ca": 3.804239772519153,
+          "Cr": 53.998996774772,
+          "Cu": 7.995741280734284,
+          "Fe": 16.54685642633812,
+          "Mo": 8.30556751261868,
+          "Nb": 15.92579057810593,
+          "Ni": 8.027011976477013,
+          "Pd": 4.369896957141644,
+          "Pt": 14.294151705821122,
+          "Sr": 7.582349226897492,
+          "Ta": 16.339255505806324,
+          "V": 12.121327579755823,
+          "W": 9.760694228811579
+        }
+      }
+    },
+    "feedback-projection-offset-oracle": {
+      "vs_TPBE": {
+        "mean_mae": 14.366132892249194,
+        "median_mae": 15.379262557563006,
+        "rmse": 18.766951101961126,
+        "per_element": {
+          "Ag": 21.78052438421227,
+          "Al": 5.92462979516289,
+          "Au": 15.032821653439777,
+          "Ca": 3.804239772519153,
+          "Cr": 15.725703461686237,
+          "Cu": 28.734166013203744,
+          "Fe": 6.588252280457344,
+          "Mo": 6.097831912203333,
+          "Nb": 3.031324204353504,
+          "Ni": 22.780717272540027,
+          "Pd": 22.79596285229043,
+          "Pt": 16.82004036667719,
+          "Sr": 7.582349226897492,
+          "Ta": 12.70189930514051,
+          "V": 23.080032649152756,
+          "W": 17.377631126050478
+        }
+      },
+      "vs_Tr2SCAN": {
+        "mean_mae": 9.335029993808167,
+        "median_mae": 8.011376628605648,
+        "rmse": 12.600836711245153,
+        "per_element": {
+          "Ag": 7.957128157797172,
+          "Al": 5.92462979516289,
+          "Au": 17.15753850886949,
+          "Ca": 3.804239772519153,
+          "Cr": 5.99681981629891,
+          "Cu": 7.995741280734284,
+          "Fe": 16.54685642633812,
+          "Mo": 8.30556751261868,
+          "Nb": 3.1772714498809553,
+          "Ni": 8.027011976477013,
+          "Pd": 4.369896957141644,
+          "Pt": 14.294151705821122,
+          "Sr": 7.582349226897492,
+          "Ta": 16.339255505806324,
+          "V": 12.121327579755823,
+          "W": 9.760694228811579
+        }
+      }
+    }
+  },
+  "outlier_counts": {
+    "feedback-scalar_bulk-offset-none": 2,
+    "feedback-scalar_bulk-offset-median": 2,
+    "feedback-scalar_bulk-offset-oracle": 2,
+    "feedback-projection-offset-none": 2,
+    "feedback-projection-offset-median": 2,
+    "feedback-projection-offset-oracle": 2
+  },
+  "per_element_details": {
+    "feedback-scalar_bulk-offset-none": {
+      "Ag": {
+        "alpha": 1.3375519173363715,
+        "threshold": 31.964650338749,
+        "projection_residual": -0.08308439852020422,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Al": {
+        "alpha": 1.322434104145626,
+        "threshold": 31.973049123854974,
+        "projection_residual": 15.358981408725647,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Au": {
+        "alpha": 1.3045297971141785,
+        "threshold": 31.982995961094662,
+        "projection_residual": 26.968594557158777,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ca": {
+        "alpha": 1.322434104145626,
+        "threshold": 31.973049123854974,
+        "projection_residual": 3.0211875228994125,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Cr": {
+        "alpha": 1.5796603203883501,
+        "threshold": 28.721387651687195,
+        "projection_residual": -70.07657183610377,
+        "is_outlier": true,
+        "offset_applied": 0.0
+      },
+      "Cu": {
+        "alpha": 1.3521465284087881,
+        "threshold": 31.95654222148655,
+        "projection_residual": 2.9567741508840006,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Fe": {
+        "alpha": 1.2227195169768692,
+        "threshold": 30.758017193235656,
+        "projection_residual": 30.190117021517757,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Mo": {
+        "alpha": 1.2940740861967472,
+        "threshold": 31.988804689382125,
+        "projection_residual": 14.374670114754394,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Nb": {
+        "alpha": 1.3276562594965116,
+        "threshold": 28.861389907738214,
+        "projection_residual": 33.19570065657698,
+        "is_outlier": true,
+        "offset_applied": 0.0
+      },
+      "Ni": {
+        "alpha": 1.3161858316729653,
+        "threshold": 31.97652038633978,
+        "projection_residual": 9.342681135133962,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pd": {
+        "alpha": 1.3174354077728438,
+        "threshold": 31.975826177395408,
+        "projection_residual": 7.975407177883881,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pt": {
+        "alpha": 1.2211414524266633,
+        "threshold": 32.02932281925439,
+        "projection_residual": 23.5848275377056,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Sr": {
+        "alpha": 1.3224341041456258,
+        "threshold": 31.973049123854974,
+        "projection_residual": -2.6782300496184237,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ta": {
+        "alpha": 1.2987350914734244,
+        "threshold": 31.9862152420062,
+        "projection_residual": 12.863739310339952,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "V": {
+        "alpha": 1.3445355689399479,
+        "threshold": 31.96077053230257,
+        "projection_residual": -3.61095261242309,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "W": {
+        "alpha": 1.2590973078604122,
+        "threshold": 32.008236232902306,
+        "projection_residual": 18.125044804402854,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      }
+    },
+    "feedback-scalar_bulk-offset-median": {
+      "Ag": {
+        "alpha": 1.3375519173363715,
+        "threshold": 31.964650338749,
+        "projection_residual": -0.08308439852020422,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Al": {
+        "alpha": 1.322434104145626,
+        "threshold": 31.973049123854974,
+        "projection_residual": 15.358981408725647,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Au": {
+        "alpha": 1.3045297971141785,
+        "threshold": 31.982995961094662,
+        "projection_residual": 26.968594557158777,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ca": {
+        "alpha": 1.322434104145626,
+        "threshold": 31.973049123854974,
+        "projection_residual": 3.0211875228994125,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Cr": {
+        "alpha": 1.5796603203883501,
+        "threshold": 28.721387651687195,
+        "projection_residual": -70.07657183610377,
+        "is_outlier": true,
+        "offset_applied": 12.707669738720547
+      },
+      "Cu": {
+        "alpha": 1.3521465284087881,
+        "threshold": 31.95654222148655,
+        "projection_residual": 2.9567741508840006,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Fe": {
+        "alpha": 1.2227195169768692,
+        "threshold": 30.758017193235656,
+        "projection_residual": 30.190117021517757,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Mo": {
+        "alpha": 1.2940740861967472,
+        "threshold": 31.988804689382125,
+        "projection_residual": 14.374670114754394,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Nb": {
+        "alpha": 1.3276562594965116,
+        "threshold": 28.861389907738214,
+        "projection_residual": 33.19570065657698,
+        "is_outlier": true,
+        "offset_applied": 9.336308675231994
+      },
+      "Ni": {
+        "alpha": 1.3161858316729653,
+        "threshold": 31.97652038633978,
+        "projection_residual": 9.342681135133962,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pd": {
+        "alpha": 1.3174354077728438,
+        "threshold": 31.975826177395408,
+        "projection_residual": 7.975407177883881,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pt": {
+        "alpha": 1.2211414524266633,
+        "threshold": 32.02932281925439,
+        "projection_residual": 23.5848275377056,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Sr": {
+        "alpha": 1.3224341041456258,
+        "threshold": 31.973049123854974,
+        "projection_residual": -2.6782300496184237,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ta": {
+        "alpha": 1.2987350914734244,
+        "threshold": 31.9862152420062,
+        "projection_residual": 12.863739310339952,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "V": {
+        "alpha": 1.3445355689399479,
+        "threshold": 31.96077053230257,
+        "projection_residual": -3.61095261242309,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "W": {
+        "alpha": 1.2590973078604122,
+        "threshold": 32.008236232902306,
+        "projection_residual": 18.125044804402854,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      }
+    },
+    "feedback-scalar_bulk-offset-oracle": {
+      "Ag": {
+        "alpha": 1.3375519173363715,
+        "threshold": 31.964650338749,
+        "projection_residual": -0.08308439852020422,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Al": {
+        "alpha": 1.322434104145626,
+        "threshold": 31.973049123854974,
+        "projection_residual": 15.358981408725647,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Au": {
+        "alpha": 1.3045297971141785,
+        "threshold": 31.982995961094662,
+        "projection_residual": 26.968594557158777,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ca": {
+        "alpha": 1.322434104145626,
+        "threshold": 31.973049123854974,
+        "projection_residual": 3.0211875228994125,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Cr": {
+        "alpha": 1.5796603203883501,
+        "threshold": 28.721387651687195,
+        "projection_residual": -70.07657183610377,
+        "is_outlier": true,
+        "offset_applied": -70.07657183610377
+      },
+      "Cu": {
+        "alpha": 1.3521465284087881,
+        "threshold": 31.95654222148655,
+        "projection_residual": 2.9567741508840006,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Fe": {
+        "alpha": 1.2227195169768692,
+        "threshold": 30.758017193235656,
+        "projection_residual": 30.190117021517757,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Mo": {
+        "alpha": 1.2940740861967472,
+        "threshold": 31.988804689382125,
+        "projection_residual": 14.374670114754394,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Nb": {
+        "alpha": 1.3276562594965116,
+        "threshold": 28.861389907738214,
+        "projection_residual": 33.19570065657698,
+        "is_outlier": true,
+        "offset_applied": 33.19570065657698
+      },
+      "Ni": {
+        "alpha": 1.3161858316729653,
+        "threshold": 31.97652038633978,
+        "projection_residual": 9.342681135133962,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pd": {
+        "alpha": 1.3174354077728438,
+        "threshold": 31.975826177395408,
+        "projection_residual": 7.975407177883881,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pt": {
+        "alpha": 1.2211414524266633,
+        "threshold": 32.02932281925439,
+        "projection_residual": 23.5848275377056,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Sr": {
+        "alpha": 1.3224341041456258,
+        "threshold": 31.973049123854974,
+        "projection_residual": -2.6782300496184237,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ta": {
+        "alpha": 1.2987350914734244,
+        "threshold": 31.9862152420062,
+        "projection_residual": 12.863739310339952,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "V": {
+        "alpha": 1.3445355689399479,
+        "threshold": 31.96077053230257,
+        "projection_residual": -3.61095261242309,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "W": {
+        "alpha": 1.2590973078604122,
+        "threshold": 32.008236232902306,
+        "projection_residual": 18.125044804402854,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      }
+    },
+    "feedback-projection-offset-none": {
+      "Ag": {
+        "alpha": 15.911384473391527,
+        "threshold": 23.868076696496143,
+        "projection_residual": -8.179658040773067,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Al": {
+        "alpha": 14.05934443073474,
+        "threshold": 24.896987831305466,
+        "projection_residual": 8.282920116176143,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Au": {
+        "alpha": 12.667384473391529,
+        "threshold": 25.67029891871836,
+        "projection_residual": 20.65589751478248,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ca": {
+        "alpha": 15.53987969703389,
+        "threshold": 24.074468238917053,
+        "projection_residual": -4.877393362038509,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Cr": {
+        "alpha": 24.294462405698088,
+        "threshold": 16.967854036474627,
+        "projection_residual": -82.6959063279425,
+        "is_outlier": true,
+        "offset_applied": 0.0
+      },
+      "Cu": {
+        "alpha": 15.545628473391526,
+        "threshold": 24.071274474273917,
+        "projection_residual": -4.928493596328622,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Fe": {
+        "alpha": 12.286255796344271,
+        "threshold": 24.611608149142643,
+        "projection_residual": 24.04370797742476,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Mo": {
+        "alpha": 14.17935245387455,
+        "threshold": 24.83031670733891,
+        "projection_residual": 7.216182132711158,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Nb": {
+        "alpha": 11.918589977302522,
+        "threshold": 22.977537842290428,
+        "projection_residual": 27.31184859112919,
+        "is_outlier": true,
+        "offset_applied": 0.0
+      },
+      "Ni": {
+        "alpha": 14.78171701506392,
+        "threshold": 24.495669728900367,
+        "projection_residual": 1.8618304776945442,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pd": {
+        "alpha": 14.945706584860606,
+        "threshold": 24.404564412346655,
+        "projection_residual": 0.4041454128351254,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pt": {
+        "alpha": 13.078995738705078,
+        "threshold": 25.44162599354416,
+        "projection_residual": 16.99713071199538,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Sr": {
+        "alpha": 16.22380980573603,
+        "threshold": 23.694507067415863,
+        "projection_residual": -10.956772106057535,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ta": {
+        "alpha": 14.360353416719171,
+        "threshold": 24.729760616869672,
+        "projection_residual": 5.60728468520343,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "V": {
+        "alpha": 16.334263082286302,
+        "threshold": 23.633144135999046,
+        "projection_residual": -11.938579008726624,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "W": {
+        "alpha": 13.731639276339157,
+        "threshold": 25.079046250414123,
+        "projection_residual": 11.19585482191466,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      }
+    },
+    "feedback-projection-offset-median": {
+      "Ag": {
+        "alpha": 15.911384473391527,
+        "threshold": 23.868076696496143,
+        "projection_residual": -8.179658040773067,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Al": {
+        "alpha": 14.05934443073474,
+        "threshold": 24.896987831305466,
+        "projection_residual": 8.282920116176143,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Au": {
+        "alpha": 12.667384473391529,
+        "threshold": 25.67029891871836,
+        "projection_residual": 20.65589751478248,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ca": {
+        "alpha": 15.53987969703389,
+        "threshold": 24.074468238917053,
+        "projection_residual": -4.877393362038509,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Cr": {
+        "alpha": 24.294462405698088,
+        "threshold": 16.967854036474627,
+        "projection_residual": -82.6959063279425,
+        "is_outlier": true,
+        "offset_applied": 0.08833524688181615
+      },
+      "Cu": {
+        "alpha": 15.545628473391526,
+        "threshold": 24.071274474273917,
+        "projection_residual": -4.928493596328622,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Fe": {
+        "alpha": 12.286255796344271,
+        "threshold": 24.611608149142643,
+        "projection_residual": 24.04370797742476,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Mo": {
+        "alpha": 14.17935245387455,
+        "threshold": 24.83031670733891,
+        "projection_residual": 7.216182132711158,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Nb": {
+        "alpha": 11.918589977302522,
+        "threshold": 22.977537842290428,
+        "projection_residual": 27.31184859112919,
+        "is_outlier": true,
+        "offset_applied": 3.452456609784216
+      },
+      "Ni": {
+        "alpha": 14.78171701506392,
+        "threshold": 24.495669728900367,
+        "projection_residual": 1.8618304776945442,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pd": {
+        "alpha": 14.945706584860606,
+        "threshold": 24.404564412346655,
+        "projection_residual": 0.4041454128351254,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pt": {
+        "alpha": 13.078995738705078,
+        "threshold": 25.44162599354416,
+        "projection_residual": 16.99713071199538,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Sr": {
+        "alpha": 16.22380980573603,
+        "threshold": 23.694507067415863,
+        "projection_residual": -10.956772106057535,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ta": {
+        "alpha": 14.360353416719171,
+        "threshold": 24.729760616869672,
+        "projection_residual": 5.60728468520343,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "V": {
+        "alpha": 16.334263082286302,
+        "threshold": 23.633144135999046,
+        "projection_residual": -11.938579008726624,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "W": {
+        "alpha": 13.731639276339157,
+        "threshold": 25.079046250414123,
+        "projection_residual": 11.19585482191466,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      }
+    },
+    "feedback-projection-offset-oracle": {
+      "Ag": {
+        "alpha": 15.911384473391527,
+        "threshold": 23.868076696496143,
+        "projection_residual": -8.179658040773067,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Al": {
+        "alpha": 14.05934443073474,
+        "threshold": 24.896987831305466,
+        "projection_residual": 8.282920116176143,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Au": {
+        "alpha": 12.667384473391529,
+        "threshold": 25.67029891871836,
+        "projection_residual": 20.65589751478248,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ca": {
+        "alpha": 15.53987969703389,
+        "threshold": 24.074468238917053,
+        "projection_residual": -4.877393362038509,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Cr": {
+        "alpha": 24.294462405698088,
+        "threshold": 16.967854036474627,
+        "projection_residual": -82.6959063279425,
+        "is_outlier": true,
+        "offset_applied": -82.6959063279425
+      },
+      "Cu": {
+        "alpha": 15.545628473391526,
+        "threshold": 24.071274474273917,
+        "projection_residual": -4.928493596328622,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Fe": {
+        "alpha": 12.286255796344271,
+        "threshold": 24.611608149142643,
+        "projection_residual": 24.04370797742476,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Mo": {
+        "alpha": 14.17935245387455,
+        "threshold": 24.83031670733891,
+        "projection_residual": 7.216182132711158,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Nb": {
+        "alpha": 11.918589977302522,
+        "threshold": 22.977537842290428,
+        "projection_residual": 27.31184859112919,
+        "is_outlier": true,
+        "offset_applied": 27.31184859112919
+      },
+      "Ni": {
+        "alpha": 14.78171701506392,
+        "threshold": 24.495669728900367,
+        "projection_residual": 1.8618304776945442,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pd": {
+        "alpha": 14.945706584860606,
+        "threshold": 24.404564412346655,
+        "projection_residual": 0.4041454128351254,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Pt": {
+        "alpha": 13.078995738705078,
+        "threshold": 25.44162599354416,
+        "projection_residual": 16.99713071199538,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Sr": {
+        "alpha": 16.22380980573603,
+        "threshold": 23.694507067415863,
+        "projection_residual": -10.956772106057535,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "Ta": {
+        "alpha": 14.360353416719171,
+        "threshold": 24.729760616869672,
+        "projection_residual": 5.60728468520343,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "V": {
+        "alpha": 16.334263082286302,
+        "threshold": 23.633144135999046,
+        "projection_residual": -11.938579008726624,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      },
+      "W": {
+        "alpha": 13.731639276339157,
+        "threshold": 25.079046250414123,
+        "projection_residual": 11.19585482191466,
+        "is_outlier": false,
+        "offset_applied": 0.0
+      }
+    }
+  }
+}
