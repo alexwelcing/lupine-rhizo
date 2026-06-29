@@ -1,8 +1,8 @@
 # Layer-2 3×3×3 Reference Benchmark: MatPES Foundation MLIPs on 16 Cubic Metals
 
-**Lupine Project**  
-*Published: 2026-06-29*  
-*Data: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/` (128 raw JSON files)*  
+**Lupine Project**
+*Published: 2026-06-29*
+*Data: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/` (128 raw JSON files)*
 *Execution: Cloud Run `layer2-3x3x3-grid-zb76j`, GCP project `witching-606c6`*
 
 ---
