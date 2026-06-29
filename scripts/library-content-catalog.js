@@ -792,6 +792,22 @@ export const CATALOG = {
       "status": "supported"
     },
     {
+      "id": "lupine-refinement-sprint-announcement",
+      "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
+      "title": "Lupine Refinement Sprint Announcement",
+      "subtitle": "Five theorems, one benchmark, zero sorry — PR-ready summary of the latest formalization sprint.",
+      "category": "validation",
+      "tags": [
+        "announcement",
+        "formalization",
+        "press",
+        "mlip",
+        "benchmark"
+      ],
+      "group": "mlip-flywheel",
+      "status": "live"
+    },
+    {
       "id": "formal-vision",
       "source": "docs/formal-vision.md",
       "title": "The Open Distillation Factory — Executable Vision",

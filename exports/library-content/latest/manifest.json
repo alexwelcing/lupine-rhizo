@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-28T17:55:09.881Z",
+  "generatedAt": "2026-06-29T13:37:18.000Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "3d3b60741d7fc2745cac1f6338a240f16441eaa3",
+    "commit": "c1cafb5343ce0f4a5db3a6b67e413edee5593037",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -826,6 +826,23 @@
         "originalSource": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md"
       },
       {
+        "id": "lupine-refinement-sprint-announcement",
+        "source": "articles/docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
+        "title": "Lupine Refinement Sprint Announcement",
+        "subtitle": "Five theorems, one benchmark, zero sorry — PR-ready summary of the latest formalization sprint.",
+        "category": "validation",
+        "tags": [
+          "announcement",
+          "formalization",
+          "press",
+          "mlip",
+          "benchmark"
+        ],
+        "group": "mlip-flywheel",
+        "status": "live",
+        "originalSource": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md"
+      },
+      {
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
@@ -1438,6 +1455,12 @@
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bytes": 18088,
       "sha256": "d7395d21a613d4f2a03568fc561625f2d3a5391c31367f76d7a490aabc8b612c"
+    },
+    {
+      "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
+      "bundleSource": "articles/docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
+      "bytes": 7166,
+      "sha256": "fc97056950d040b416c7f5c266cf2210f24989a3bba4e6e2872e8e752b219d56"
     },
     {
       "source": "docs/formal-vision.md",
