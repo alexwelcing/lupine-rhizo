@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-29T13:37:18.000Z",
+  "generatedAt": "2026-06-29T15:12:21.852Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "c1cafb5343ce0f4a5db3a6b67e413edee5593037",
+    "commit": "33ce7e77f1a5ae91bd9429735ea9ff37cb12dd91",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -769,8 +769,6 @@
           "paper",
           "projection-law"
         ],
-        "featured": true,
-        "featuredRole": "newest",
         "group": "mlip-flywheel",
         "status": "supported",
         "originalSource": "docs/layer2_research_paper.md"
@@ -824,6 +822,26 @@
         "group": "mlip-flywheel",
         "status": "supported",
         "originalSource": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md"
+      },
+      {
+        "id": "lupine-layer2-3x3x3-final-paper",
+        "source": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
+        "title": "Layer-2: A Sub-Core-Hour 3×3×3 Elastic-Constant Reference Benchmark for MatPES MLIPs",
+        "subtitle": "16 cubic metals, 4 foundation MLIPs, 2 functionals, 128 cases; QET leads at 13.4 GPa MAE.",
+        "category": "validation",
+        "tags": [
+          "mlip",
+          "matpes",
+          "elasticity",
+          "benchmark",
+          "paper",
+          "projection-law"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "featured": true,
+        "featuredRole": "newest",
+        "originalSource": "paper/lupine-layer2-3x3x3-final-paper.md"
       },
       {
         "id": "lupine-refinement-sprint-announcement",
@@ -1455,6 +1473,12 @@
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bytes": 18088,
       "sha256": "d7395d21a613d4f2a03568fc561625f2d3a5391c31367f76d7a490aabc8b612c"
+    },
+    {
+      "source": "paper/lupine-layer2-3x3x3-final-paper.md",
+      "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
+      "bytes": 16317,
+      "sha256": "bdebc8c2aeaa0da2b8e0987a2c6cc27328a69067b9d0a35af4baca4ed5f33a47"
     },
     {
       "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",

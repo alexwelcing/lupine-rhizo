@@ -739,8 +739,6 @@ export const CATALOG = {
         "paper",
         "projection-law"
       ],
-      "featured": true,
-      "featuredRole": "newest",
       "group": "mlip-flywheel",
       "status": "supported"
     },
@@ -790,6 +788,25 @@ export const CATALOG = {
       ],
       "group": "mlip-flywheel",
       "status": "supported"
+    },
+    {
+      "id": "lupine-layer2-3x3x3-final-paper",
+      "source": "paper/lupine-layer2-3x3x3-final-paper.md",
+      "title": "Layer-2: A Sub-Core-Hour 3×3×3 Elastic-Constant Reference Benchmark for MatPES MLIPs",
+      "subtitle": "16 cubic metals, 4 foundation MLIPs, 2 functionals, 128 cases; QET leads at 13.4 GPa MAE.",
+      "category": "validation",
+      "tags": [
+        "mlip",
+        "matpes",
+        "elasticity",
+        "benchmark",
+        "paper",
+        "projection-law"
+      ],
+      "group": "mlip-flywheel",
+      "status": "supported",
+      "featured": true,
+      "featuredRole": "newest"
     },
     {
       "id": "lupine-refinement-sprint-announcement",
