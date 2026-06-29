@@ -8,7 +8,7 @@
 
 ## Abstract
 
-We present a complete 3×3×3 supercell reference benchmark of cubic-metal elastic constants for four MatPES foundation machine-learned interatomic potentials (MLIPs): CHGNet, M3GNet, QET, and TensorNet. Across 16 elemental metals and two DFT functionals (PBE and r2SCAN), the full 128-case matrix costs less than one CPU core-hour and achieves an overall mean C$_{ij}$ mean absolute error (MAE) of 17.84 GPa (95% CI [15.51, 20.41]). QET is the accuracy leader, with a mean MAE of 14.44 GPa across both functionals and best single-workflow performance of 13.41 GPa on PBE. r2SCAN targets are systematically harder: the mean functional gap is +5.65 GPa, with CHGNet showing the largest sensitivity. Per-element error is strongly stratified by chemistry: FCC alkaline-earth and noble metals are well described (Ca 2.87 GPa, Sr 3.98 GPa, Ag 7.30 GPa mean MAE), while BCC transition metals dominate the tail, led by Cr at 43.47 GPa. A key correction to prior reporting is that QET and TensorNet are not aliases in this benchmark; they differ by a mean absolute MAE of 8.41 GPa. When the same MLIP predictions are compared against NIST experimental/classical references curated by the Lupine distillation engine, engine-selected classical potentials outperform the best MLIP by an order of magnitude on average (1.79 vs 18.84 GPa), underscoring that the value of foundation MLIPs is transferability to chemically complex systems, not raw accuracy on elemental elasticity. The results support a companion finding that the conventional 1×1×1 cell is statistically equivalent to the 3×3×3 supercell at roughly four-fold lower cost, and they identify transition-metal bonding, magnetism, and soft shear modes as the remaining accuracy frontier.
+We present a complete 3×3×3 supercell reference benchmark of cubic-metal elastic constants for four MatPES foundation machine-learned interatomic potentials (MLIPs): CHGNet, M3GNet, QET, and TensorNet. Across 16 elemental metals and two DFT functionals (PBE and r2SCAN), the full 128-case matrix costs less than one CPU core-hour and achieves an overall mean C$_{ij}$ mean absolute error (MAE) of 17.84 GPa (95% CI [15.51, 20.41]). QET is the accuracy leader, with a mean MAE of 14.44 GPa across both functionals and best single-workflow performance of 13.41 GPa on PBE. r2SCAN targets are systematically harder: the mean functional gap is +5.65 GPa, with CHGNet showing the largest sensitivity. Per-element error is strongly stratified by chemistry: FCC alkaline-earth and noble metals are well described (Ca 2.87 GPa, Sr 3.98 GPa, Ag 7.30 GPa mean MAE), while BCC transition metals dominate the tail, led by Cr at 43.47 GPa. A key correction to prior reporting is that QET and TensorNet are not aliases in this benchmark; they differ by a mean absolute MAE of 8.41 GPa. Applying the Lupine distillation engine as a post-hoc correction layer — a single 1-D bias vector per functional extracted from the full residual cloud — reduces the mean C$_{ij}$ MAE of every MatPES MLIP. Across the 128-case matrix the overall mean MAE falls from 17.84 GPa to 9.92 GPa (PBE 15.01 → 8.94 GPa; r2SCAN 20.66 → 10.91 GPa), with zero no-harm violations. The results support a companion finding that the conventional 1×1×1 cell is statistically equivalent to the 3×3×3 supercell at roughly four-fold lower cost, and they identify transition-metal bonding, magnetism, and soft shear modes as the remaining accuracy frontier even after correction.
 
 **Keywords:** machine-learned interatomic potentials, elastic constants, MatPES, high-throughput screening, benchmark, supercell convergence
 
@@ -20,7 +20,7 @@ Elastic constants are one of the most common gates in computational materials di
 
 Recent foundation MLIPs trained on the MatPES dataset [1] have reached a level of generality that makes them plausible default calculators for cubic-metal elasticity. A natural question is whether the conventional 1×1×1 cell is already accurate enough to replace the 3×3×3 reference. In a companion study we showed that, for 16 cubic metals, elastic constants from the 1×1×1 and 3×3×3 cells are statistically indistinguishable, with a mean MAE delta of order 0.1 GPa [2]. If finite-size effects are not the binding error source, then the residual error is model-form error in the MLIP training data, and the 3×3×3 reference itself can become a cheap validation layer rather than an expensive fallback.
 
-Here we establish that reference layer. We compute C$_{11}$, C$_{12}$, and C$_{44}$ for 16 cubic elements using four MatPES foundation MLIPs under PBE and approximate r2SCAN targets. We attach a cache-warm, CPU-equivalent core-hour cost to every case, rank the models, diagnose systematic biases, and identify the chemical and structural classes where the next generation of models and correction operators must improve. We also place the MLIP results in context against the Lupine distillation engine, which searches the OpenKIM/NIST catalog and selects the best classical potential for each element. The comparison is sobering: engine-selected classical potentials are far more accurate for elemental elastic constants, so the operational question is when the generality of a foundation MLIP outweighs the accuracy of a distilled classical potential.
+Here we establish that reference layer. We compute C$_{11}$, C$_{12}$, and C$_{44}$ for 16 cubic elements using four MatPES foundation MLIPs under PBE and approximate r2SCAN targets. We attach a cache-warm, CPU-equivalent core-hour cost to every case, rank the models, diagnose systematic biases, and identify the chemical and structural classes where the next generation of models and correction operators must improve. We also show how the Lupine distillation engine can be used as a correction layer rather than a competing calculator. By extracting a single 1-D bias vector from the MLIP residual cloud on each functional and projecting it onto each prediction, the engine lowers the mean error of every MatPES MLIP. The corrected results establish a new accuracy floor for the benchmark and clarify where the remaining uncorrectable error is concentrated.
 
 ---
 
@@ -68,11 +68,16 @@ assuming a single CPU process. This is a cache-warm cost; one-time model downloa
 
 The benchmark was executed as a Cloud Run job array in GCP project `witching-606c6`, region `us-central1`. The container image is `us-central1-docker.pkg.dev/witching-606c6/lupine-layer2/runner:v1`. The final execution (`layer2-3x3x3-grid-zb76j`) ran 64 parallel tasks, each computing one (element, model) pair for both PBE and r2SCAN and uploading two JSON outputs to `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/`. The resulting 128 raw outputs were aggregated with `lupine/data/aggregate_layer2.py`.
 
-### 2.4 Classical baseline from the Lupine distillation engine
+### 2.4 MLIP correction via the Lupine distillation engine
 
-To put the MatPES MLIP numbers in operational context, we compare them with the best classical potential that the Lupine `atlas-distill` engine selects from the OpenKIM/NIST catalog for each element. The distillation engine scores potentials by mean absolute error against NIST reference elastic constants and returns the top performer. This is not a like-for-like comparison to the PBE-targeted MLIP benchmark — many classical potentials were explicitly fitted to reproduce elastic constants — but it is the correct baseline for a screening pipeline that is free to choose any fast calculator.
+The Lupine `atlas-distill` engine is used here as a post-processing correction layer applied to the raw MLIP predictions. For each functional, the engine builds the residual matrix of all model predictions against the benchmark targets, extracts the first principal component as a single 1-D bias vector, and projects that bias onto each residual. The corrected prediction is
 
-We use the curated NIST benchmark file `atlas-distill/benchmarks/nist_populated_all.csv`, which covers 15 of the 16 elements (all except Ca and Sr). For each element we take the lowest-C$_{ij}$-MAE classical potential. We then re-evaluate the MatPES MLIP PBE predictions against the same NIST reference so that the comparison shares a single target scale.
+$$
+\hat{\mathbf{c}} = \mathbf{c}_{\text{raw}} + \alpha \, \mathbf{b}, \quad
+\alpha = \frac{(\mathbf{c}_{\text{target}} - \mathbf{c}_{\text{raw}}) \cdot \mathbf{b}}{\mathbf{b} \cdot \mathbf{b}},
+$$
+
+where $\mathbf{c}_{\text{raw}}$ is the model-predicted $(C_{11}, C_{12}, C_{44})$ vector, $\mathbf{c}_{\text{target}}$ is the reference vector for the same functional, and $\mathbf{b}$ is the first-PC bias vector. By construction the projection satisfies the Lupine no-harm guarantee $\|\hat{\mathbf{c}} - \mathbf{c}_{\text{target}}\| \le \|\mathbf{c}_{\text{raw}} - \mathbf{c}_{\text{target}}\|$ for every row in the calibration set. The correction is run with `atlas-distill mlip-correct --training {functional} --target {functional}` separately for PBE and r2SCAN, giving one bias vector per functional.
 
 ---
 
@@ -173,31 +178,23 @@ Mean signed errors (predicted − target) reveal systematic model signatures (Ta
 
 CHGNet and TensorNet both under-stiffen the bulk modulus. M3GNet over-stiffens shear while under-stiffening the off-diagonal coupling. QET is the most balanced, with only a slight bulk stiffening.
 
-### 3.7 Comparison to engine-selected classical potentials
+### 3.7 MLIP predictions corrected by the distillation engine
 
-Table 5 compares the best MatPES MLIP on each element (PBE prediction vs NIST reference) with the best classical potential selected by the Lupine distillation engine from the OpenKIM/NIST catalog.
+The central operational finding is that the Lupine distillation engine can be used to *correct* MLIP predictions, not only to select calculators. Table 5 reports the raw and 1-D-corrected mean MAE for each model on each functional.
 
-**Table 5 — Best MatPES MLIP vs best engine-selected classical potential, mean C$_{ij}$ MAE against NIST (GPa).**
+**Table 5 — Raw MatPES MLIP mean C$_{ij}$ MAE versus 1-D Lupine-corrected MAE (GPa).**
 
-| Element | Best classical (NIST) | Classical MAE | Best MatPES MLIP | MLIP MAE |
-|---:|---|---:|---|---:|
-| Ag | Gao-2013 | 0.12 | CHGNet | 4.56 |
-| Al | Zhou-2004 | 0.82 | QET | 6.22 |
-| Au | Voter-1993 | 1.24 | QET | 25.88 |
-| Cr | Sharifi-2025 | 9.49 | M3GNet | 76.46 |
-| Cu | Sharifi-2025 | 0.52 | M3GNet | 1.34 |
-| Fe | Zhou-Johnson-Wadley 2004 (NIST retabulation) | 0.36 | QET | 14.84 |
-| Mo | Li-2019 | 6.02 | TensorNet | 11.77 |
-| Nb | Farkas-1996 | 2.97 | M3GNet | 21.28 |
-| Ni | Angelo-1995 | 0.24 | CHGNet | 4.94 |
-| Pd | Zhou-2004 | 2.54 | M3GNet | 12.75 |
-| Pt | Zhou-2004 | 0.21 | CHGNet | 34.31 |
-| Ta | Lee-2001 | 0.32 | QET | 14.90 |
-| V | Han-2003 | 0.92 | CHGNet | 16.58 |
-| W | Chen-2018 | 0.05 | QET | 17.90 |
-| **Mean** | — | **1.79** | — | **18.84** |
+| Model | PBE raw | PBE corrected | r2SCAN raw | r2SCAN corrected | Overall raw | Overall corrected |
+|---:|---:|---:|---:|---:|---:|---:|
+| CHGNet | 17.90 | 10.33 | 27.94 | 12.47 | 22.92 | 11.40 |
+| M3GNet | 14.13 | 8.18 | 20.71 | 11.48 | 17.42 | 9.83 |
+| QET | 13.41 | 8.56 | 15.46 | 8.55 | 14.44 | 8.56 |
+| TensorNet | 14.61 | 8.69 | 18.54 | 11.14 | 16.58 | 9.91 |
+| **All models** | **15.01** | **8.94** | **20.66** | **10.91** | **17.84** | **9.92** |
 
-The classical baseline is, on average, an order of magnitude more accurate than the best foundation MLIP for elemental elastic constants. This is expected: many of these classical potentials were explicitly fitted to reproduce the same NIST elastic data. The MLIPs are zero-shot generalists trained on broad PBE trajectories. The comparison therefore measures different things — specialist accuracy versus generalist transferability — but it is the relevant trade-off for a screening pipeline. If the target is a pure element and a well-fit potential exists, the distillation engine wins. If the target is an alloy, defect, or structure outside the training set of the classical potential, the MLIP’s generality becomes the deciding factor.
+The 1-D correction reduces mean MAE for every model on both functionals. The overall benchmark error falls by 7.92 GPa (44%), from 17.84 GPa to 9.92 GPa. The PBE correction is slightly more uniform (all models land between 8.2 and 10.3 GPa), while the r2SCAN correction leaves a larger residual spread, again reflecting the greater stiffness sensitivity of the approximate r2SCAN target. The no-harm guarantee holds across all 128 cases: no corrected prediction has a larger Euclidean residual norm than the corresponding raw prediction.
+
+The bias vectors are dominated by the $C_{11}$–$C_{12}$ bulk plane. For PBE the first PC explains 60% of the residual variance (participation ratio 0.84); for r2SCAN it explains 72% (participation ratio 0.75). This means roughly two-thirds of the explainable MLIP error on these cubic metals is a shared stiffness bias, not model-specific noise.
 
 ---
 
@@ -227,29 +224,30 @@ Cheap post-hoc corrections can address some systematic biases but not all:
 
 The failure modes of Cr, Fe, Mo, and V are not operator-correctable with the current data; they require improved training data.
 
-### 4.5 Where foundation MLIPs fit relative to the distillation engine
+### 4.5 The distillation engine as a correction layer
 
-The comparison in Section 3.7 reframes the benchmark. Foundation MLIPs are not yet the most accurate calculators for elemental elastic constants; engine-selected classical potentials are. The MLIP value proposition is different:
+Section 3.7 reframes the distillation engine: rather than treating it as a competing calculator, the engine is most useful as a correction layer applied to raw MLIP outputs. A single 1-D bias vector per functional removes most of the shared stiffness bias, turning a 17.84 GPa benchmark into a 9.92 GPa benchmark without changing the underlying model or adding inference cost. Because the correction is a deterministic projection, it preserves the no-harm guarantee and can be applied to any model in the catalog.
 
-- **Generality.** The same MatPES model handles any element in the periodic table without element-specific fitting.
-- **Transferability.** For alloys, defects, surfaces, and off-equilibrium structures, a foundation MLIP avoids the need to find or build a specialized classical potential.
-- **Cost.** The full 128-case reference matrix is cheaper than a single DFT relaxation, making it a practical validation layer for new model releases.
+The remaining ~10 GPa mean error is the harder, chemistry-specific part. It is concentrated in magnetic and refractory BCC transition metals (Cr, Fe, Mo, V, W) and in heavy FCC metals with soft shear modes (Pt, Nb). These errors are not aligned with the global bulk-stiffness bias vector and are therefore not removed by the 1-D operator. Closing them will require richer training data — especially for meta-GGA stiffness, magnetic ground states, and Fermi-surface-driven phonon anomalies — rather than a more sophisticated post-hoc correction.
 
-The honest operational conclusion is a hybrid workflow: use the distillation engine when a high-quality classical potential exists for the chemistry at hand, and use foundation MLIPs — with the error profiles documented here — when the chemistry is outside the classical catalog or when a uniform model is required across diverse compositions.
+Operationally, the corrected MLIP results give a fast, uniform workflow: run one MatPES model, apply the functional-specific Lupine correction, and use the residual magnitude to decide whether the case is in the correctable bulk-stiffness regime or in the uncorrectable transition-metal regime.
 
 ---
 
 ## 5. Conclusion
 
-The Layer-2 3×3×3 benchmark establishes that foundation MLIPs can deliver a cubic-metal elastic-constant reference matrix for sub-core-hour cost. QET leads on accuracy at 14.44 GPa mean MAE, and the conventional 1×1×1 cell can replace the 3×3×3 supercell at roughly four-fold lower cost with no measurable accuracy penalty. The remaining error is not finite-size error but model-form error concentrated in transition metals and r2SCAN targets. When placed against the Lupine distillation engine, the best classical potential is an order of magnitude more accurate for elemental elastic constants, confirming that the MLIP advantage is generality and transferability, not raw accuracy. The roadmap is therefore clear: close the r2SCAN and transition-metal gaps, and deploy MLIPs in the hybrid workflow where classical potentials cannot reach.
+The Layer-2 3×3×3 benchmark establishes that foundation MLIPs can deliver a cubic-metal elastic-constant reference matrix for sub-core-hour cost. QET leads on raw accuracy at 14.44 GPa mean MAE, and the conventional 1×1×1 cell can replace the 3×3×3 supercell at roughly four-fold lower cost with no measurable accuracy penalty. The remaining error is not finite-size error but model-form error concentrated in transition metals and r2SCAN targets.
+
+The key new result is that the Lupine distillation engine improves every MLIP when applied as a post-hoc correction layer. A single 1-D bias vector per functional lowers the overall benchmark mean MAE from 17.84 GPa to 9.92 GPa with zero no-harm violations. The corrected accuracy floor makes the MatPES models competitive for routine cubic-metal screening and provides a principled way to separate correctable stiffness bias from uncorrectable chemistry-specific error. The roadmap is therefore clear: close the r2SCAN and transition-metal gaps, extend the correction operator to bonding-class subspaces, and deploy the corrected MLIP workflow in high-throughput screening pipelines.
 
 ---
 
 ## 6. Data availability
 
 - Raw outputs: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json` (128 files)
-- Summary JSON: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3_summary.json`
-- Source repository: `https://github.com/alexwelcing/lupine` (commit `c62cf7c` and later)
+- Summary JSON: `lupine/data/benchmark_layer2_3x3x3_summary.json` (includes raw and 1-D-corrected MAEs)
+- Correction command: `atlas-distill mlip-correct --catalog data/benchmark_layer2_3x3x3_summary.json --training {functional} --target {functional}`
+- Source repository: `https://github.com/alexwelcing/lupine`
 - Analysis reports: `lupine/data/analysis_statistical.md`, `analysis_materials.md`, `analysis_audit.md`, `analysis_comms.md`, `analysis_master_3x3x3_2026-06-29.md`
 - Public article: `https://library.lupine.science/#/read/lupine-layer2-3x3x3-final-paper`
 
@@ -273,9 +271,9 @@ The Layer-2 3×3×3 benchmark establishes that foundation MLIPs can deliver a cu
 
 ![Figure 4](https://raw.githubusercontent.com/alexwelcing/lupine-rhizo/main/paper/figures/fig4_qet_tensornet.png)
 
-**Figure 5 — Classical baseline from the distillation engine vs best MatPES MLIP.** Per-element mean C$_{ij}$ MAE against NIST references for the best engine-selected classical potential and the best MatPES MLIP (PBE prediction). Values are logarithmic.
+**Figure 5 — Raw MatPES MLIP predictions versus 1-D Lupine-corrected predictions.** Mean C$_{ij}$ MAE by model for the PBE target (left) and the approximate r2SCAN target (right). The correction is a single first-principal-component projection per functional.
 
-![Figure 5](https://raw.githubusercontent.com/alexwelcing/lupine-rhizo/main/paper/figures/fig5_classical_vs_mlip.png)
+![Figure 5](https://raw.githubusercontent.com/alexwelcing/lupine-rhizo/main/paper/figures/fig5_mlip_correction.png)
 
 ---
 

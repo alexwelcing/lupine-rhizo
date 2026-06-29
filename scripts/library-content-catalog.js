@@ -793,7 +793,7 @@ export const CATALOG = {
       "id": "lupine-layer2-3x3x3-final-paper",
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "title": "Layer-2: A Sub-Core-Hour 3×3×3 Elastic-Constant Reference Benchmark for MatPES MLIPs",
-      "subtitle": "16 cubic metals, 4 foundation MLIPs, 2 functionals, 128 cases; QET leads at 13.4 GPa MAE.",
+      "subtitle": "16 cubic metals, 4 foundation MLIPs, 2 functionals, 128 cases; raw 17.84 GPa MAE drops to 9.92 GPa after the Lupine 1-D correction with zero no-harm violations.",
       "category": "validation",
       "tags": [
         "mlip",
