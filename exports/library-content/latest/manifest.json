@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-06-29T15:12:21.852Z",
+  "generatedAt": "2026-06-29T15:30:29.990Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "33ce7e77f1a5ae91bd9429735ea9ff37cb12dd91",
+    "commit": "4df5fca0fbeb0c707aa26783a456f1be7ad3a890",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1477,8 +1477,8 @@
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
-      "bytes": 16317,
-      "sha256": "bdebc8c2aeaa0da2b8e0987a2c6cc27328a69067b9d0a35af4baca4ed5f33a47"
+      "bytes": 21679,
+      "sha256": "5b4b10e9b67d45c8cf2887ff8269e757f7d4176590a4331652d5c6b85efca4f3"
     },
     {
       "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
