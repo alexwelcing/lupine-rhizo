@@ -622,15 +622,17 @@ def dataset_summary(dataset: ResidualDataset) -> dict[str, Any]:
 def build_output(
     dataset: ResidualDataset,
     pair_results: dict[str, dict[str, Any]],
+    coupling_results: dict[str, dict[str, Any]] | None,
     args: argparse.Namespace,
 ) -> dict[str, Any]:
     force_pairs = {pair: {k: v for k, v in stats.items() if not k.startswith("energy_")} for pair, stats in pair_results.items()}
     energy_pairs = {pair: {k: v for k, v in stats.items() if k.startswith("energy_")} for pair, stats in pair_results.items()}
-    return {
+    payload: dict[str, Any] = {
         "schema": "lupine.a6_bridge.results.v1",
         "timestamp": utc_now(),
         "permutations": args.permutations,
         "bootstrap": args.bootstrap,
+        "coupling_null": args.coupling_null,
         "seed": args.seed,
         "dataset": dataset_summary(dataset),
         "force_field": {
@@ -649,6 +651,9 @@ def build_output(
             },
         },
     }
+    if coupling_results:
+        payload["coupling_aware_null"] = coupling_results
+    return payload
 
 
 def render_report(payload: dict[str, Any]) -> str:
@@ -693,6 +698,11 @@ def render_report(payload: dict[str, Any]) -> str:
     lines += ["", "### Force-field aggregate (Fisher's method)", ""]
     for stat, agg in payload["force_field"]["aggregate_fisher"].items():
         lines.append(f"- **{stat}**: χ² = {agg['fisher_chi2']:.2f}, df = {agg['df']}, pair ps = {agg['pair_ps']}")
+
+    if payload.get("coupling_aware_null"):
+        lines += ["", "## Coupling-aware (geometry-preserving) null", ""]
+        lines += pair_table("coupling_aware_null", ["mag_corr", "atom_cos", "field_cos", "delta_rel"])
+        lines += ["", "If observed alignment survives this null, the shared force-field pattern is not an artifact of mechanical/elastic constraints.", ""]
 
     lines += ["", "## Energy-field alignment", ""]
     lines += pair_table("energy_field", ["energy_corr", "energy_cos", "energy_mae_ratio"])
@@ -793,7 +803,14 @@ def main(argv: list[str] | None = None) -> int:
     boots = blocked_bootstrap(dataset, args.bootstrap, rng)
 
     pair_results = combine_pair_results(observed, nulls, boots)
-    payload = build_output(dataset, pair_results, args)
+
+    coupling_results: dict[str, dict[str, Any]] | None = None
+    if args.coupling_null > 0:
+        print(f"Running geometry-preserving (coupling-aware) null (n={args.coupling_null})...")
+        cnulls = coupling_aware_null(dataset, args.coupling_null, rng)
+        coupling_results = combine_pair_results(observed, cnulls, {})
+
+    payload = build_output(dataset, pair_results, coupling_results, args)
     payload["result_hash"] = json_sha256(payload)
 
     if args.output:
