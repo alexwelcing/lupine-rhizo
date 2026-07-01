@@ -564,9 +564,13 @@ def summarize_bootstrap(boot_values: list[float], observed: float) -> dict[str, 
 def combine_pair_results(
     observed: dict[str, dict[str, float]],
     nulls: dict[str, list[dict[str, list[float]]]],
-    boots: dict[str, list[dict[str, list[float]]]],
+    boots: dict[str, list[dict[str, list[float]]]] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """Attach null and bootstrap summaries to observed pair statistics."""
+    """Attach null and bootstrap summaries to observed pair statistics.
+
+    When ``boots`` is None (e.g. for the coupling-aware null), the bootstrap
+    summary is omitted and only the observed value + null summary are stored.
+    """
     out: dict[str, dict[str, Any]] = {}
     pair_order = list(observed.keys())
     for pair, values in observed.items():
@@ -574,7 +578,10 @@ def combine_pair_results(
         pair_idx = pair_order.index(pair)
         for stat_name, val in values.items():
             null_summary = summarize_null(nulls[stat_name][pair_idx][pair], val)
-            boot_summary = summarize_bootstrap(boots[stat_name][pair_idx][pair], val)
+            if boots is not None:
+                boot_summary = summarize_bootstrap(boots[stat_name][pair_idx][pair], val)
+            else:
+                boot_summary = {"observed": val}
             out[pair][stat_name] = {
                 "observed": val,
                 "null": null_summary,
@@ -652,7 +659,7 @@ def build_output(
         },
     }
     if coupling_results:
-        payload["coupling_aware_null"] = coupling_results
+        payload["coupling_aware_null"] = {"pairs": coupling_results}
     return payload
 
 
@@ -808,7 +815,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.coupling_null > 0:
         print(f"Running geometry-preserving (coupling-aware) null (n={args.coupling_null})...")
         cnulls = coupling_aware_null(dataset, args.coupling_null, rng)
-        coupling_results = combine_pair_results(observed, cnulls, {})
+        coupling_results = combine_pair_results(observed, cnulls, boots=None)
 
     payload = build_output(dataset, pair_results, coupling_results, args)
     payload["result_hash"] = json_sha256(payload)
