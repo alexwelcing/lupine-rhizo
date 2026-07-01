@@ -179,7 +179,16 @@ def load_manifest(path: pathlib.Path) -> ResidualDataset:
         for file_path in file_list:
             fp = pathlib.Path(file_path)
             if not fp.is_absolute():
-                fp = path.parent / fp
+                # Allow relative paths from the repo root as well as from the manifest directory.
+                candidate_manifest = path.parent / fp
+                candidate_root = ROOT / fp
+                if candidate_manifest.exists():
+                    fp = candidate_manifest
+                elif candidate_root.exists():
+                    fp = candidate_root
+                else:
+                    # Fall back to manifest-relative for a clear error message.
+                    fp = candidate_manifest
             extracted = extract_residuals_from_cell_result(fp, model_id)
             for block_id, configs in extracted.items():
                 raw[model_id].setdefault(block_id, []).extend(configs)
@@ -349,6 +358,69 @@ def permute_energies_in_block(block: ResidualBlock, rng: np.random.Generator) ->
     for model_id, energies in block.energy_residuals.items():
         out[model_id] = energies[idx]
     return out
+
+
+def random_orthogonal_matrix(dim: int, rng: np.random.Generator) -> np.ndarray:
+    """Haar-random orthogonal matrix via QR decomposition."""
+    a = rng.normal(size=(dim, dim))
+    q, r = np.linalg.qr(a)
+    # Correct signs so determinant is +1 if desired (Haar measure is independent of sign).
+    d = np.diag(r)
+    ph = d / np.abs(d)
+    q = q * ph
+    return q
+
+
+def rotate_forces_in_block(block: ResidualBlock, rng: np.random.Generator) -> dict[str, np.ndarray]:
+    """Apply a random orthogonal rotation to each config's force residual field.
+
+    Rotates the 3D force vectors within each configuration independently. This
+    preserves the per-configuration magnitude distribution and total
+    configuration-space energy, but destroys the shared spatial error mode. It is
+    the geometry-preserving null described in the protocol.
+    """
+    out: dict[str, np.ndarray] = {}
+    for model_id, forces in block.force_residuals.items():
+        rotated = forces.copy()
+        for i in range(len(block.config_ids)):
+            start, end = block.atom_offsets[i], block.atom_offsets[i + 1]
+            n_atoms = end - start
+            if n_atoms > 0:
+                q = random_orthogonal_matrix(3, rng)
+                rotated[start:end] = rotated[start:end] @ q.T
+        out[model_id] = rotated
+    return out
+
+
+def coupling_aware_null(
+    dataset: ResidualDataset,
+    n_replicates: int,
+    rng: np.random.Generator,
+) -> dict[str, list[dict[str, list[float]]]]:
+    """Run geometry-preserving (coupling-aware) null via block-wise rotations."""
+    replicates: list[dict[str, dict[str, float]]] = []
+    for _ in range(n_replicates):
+        rotated_blocks: list[ResidualBlock] = []
+        for block in dataset.blocks:
+            rotated_blocks.append(
+                ResidualBlock(
+                    block_id=block.block_id,
+                    config_ids=block.config_ids,
+                    force_residuals=rotate_forces_in_block(block, rng),
+                    energy_residuals=block.energy_residuals.copy(),
+                    atom_offsets=block.atom_offsets,
+                )
+            )
+        ds = ResidualDataset(blocks=rotated_blocks, models=dataset.models)
+        replicates.append(observed_statistics(ds))
+
+    nulls: dict[str, list[dict[str, list[float]]]] = {}
+    example = replicates[0]
+    for stat_name in example[next(iter(example))]:
+        nulls[stat_name] = []
+        for pair in example:
+            nulls[stat_name].append({pair: [rep[pair][stat_name] for rep in replicates]})
+    return nulls
 
 
 def concatenate_force_field(blocks: list[ResidualBlock], model_id: str) -> np.ndarray:
@@ -677,6 +749,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--models", type=str, help="comma-separated model subset (default: all in manifest)")
     parser.add_argument("--permutations", type=int, default=5000, help="stratified permutation replicates (default: 5000)")
     parser.add_argument("--bootstrap", type=int, default=2000, help="blocked bootstrap replicates (default: 2000)")
+    parser.add_argument("--coupling-null", type=int, default=0, help="geometry-preserving (coupling-aware) null replicates (default: 0, skip)")
     parser.add_argument("--seed", type=int, default=42, help="random seed (default: 42)")
     parser.add_argument("--output", type=pathlib.Path, help="write JSON results to this path")
     parser.add_argument("--report", type=pathlib.Path, help="write markdown report to this path")

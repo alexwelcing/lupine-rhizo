@@ -1,0 +1,17 @@
+{
+  "schema": "lupine.a6_bridge.manifest.v1",
+  "field": "forces",
+  "description": "Existing 5-structure MPtrj test pilot set (canonical-structures-v2 forces row). Smallest usable A6 bridge subset: 5 materials, 107 atoms, 3 MLIP baseline predictions.",
+  "source": "docs/glim-m3-upgrade/runs/live/forces",
+  "models": {
+    "chgnet": [
+      "docs/glim-m3-upgrade/runs/live/forces/chgnet__baseline.json"
+    ],
+    "mace-mp-0": [
+      "docs/glim-m3-upgrade/runs/live/forces/mace-mp-0__baseline.json"
+    ],
+    "sevennet": [
+      "docs/glim-m3-upgrade/runs/live/forces/sevennet__baseline.json"
+    ]
+  }
+}
