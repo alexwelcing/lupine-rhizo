@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import build_ni_publication_fixture as builder
 import evaluate_ni_fixture_reference as evaluator
+from local_artifacts import MISHIN_POTENTIAL, requires_local_artifact
 
 
 def test_reference_evaluator_scores_fixture_rows() -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     manifest = builder.build_fixture(builder.load_source_packet())
     report = evaluator.evaluate_fixture(manifest)
 

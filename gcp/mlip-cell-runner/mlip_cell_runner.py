@@ -115,6 +115,16 @@ class DependencyNotCompleted(RuntimeError):
     """Raised when a batch cell depends on evidence that was not produced."""
 
 
+def normalize_file_url(url: str) -> str:
+    """Return the local filesystem path for a file:// URL; pass other values through."""
+    if url.startswith("file://"):
+        parsed = urllib.parse.urlparse(url)
+        if parsed.netloc not in ("", "localhost"):
+            raise ValueError(f"unsupported file:// host in URL: {url}")
+        return urllib.parse.unquote(parsed.path)
+    return url
+
+
 def stable_json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
 
@@ -132,7 +142,7 @@ def case_cache_key(row_id: str, case_index: int, case: dict[str, Any]) -> str:
 def checkpoint_url_from_prefix(prefix: str) -> str:
     if prefix.startswith("gs://"):
         return prefix.rstrip("/") + "/cell_checkpoint.json"
-    return str(pathlib.Path(prefix) / "cell_checkpoint.json")
+    return str(pathlib.Path(normalize_file_url(prefix)) / "cell_checkpoint.json")
 
 
 def raw_prediction_checkpoint_context(row_id: str, mlip_id: str, manifest_hash: str) -> dict[str, str]:
@@ -294,6 +304,7 @@ def request_with_retry(method: str, url: str, **kwargs: Any) -> requests.Respons
 
 
 def read_url(url: str) -> bytes:
+    url = normalize_file_url(url)
     if url.startswith("gs://"):
         bucket, key = parse_gs_url(url)
         token = metadata_access_token()
@@ -309,6 +320,7 @@ def read_url(url: str) -> bytes:
 
 
 def write_url(url: str, data: bytes, content_type: str = "application/octet-stream") -> str:
+    url = normalize_file_url(url)
     if url.startswith("gs://"):
         bucket, key = parse_gs_url(url)
         token = metadata_access_token()
@@ -484,6 +496,7 @@ class CellCheckpoint:
 def materialize_distill_policy_url(policy_url: str | None) -> tuple[str | None, str | None, tempfile.TemporaryDirectory[str] | None]:
     if not policy_url:
         return None, None, None
+    policy_url = normalize_file_url(policy_url)
     data = read_url(policy_url)
     policy_hash = "sha256:" + hashlib.sha256(data).hexdigest()
     if not policy_url.startswith(("gs://", "http://", "https://")):
@@ -495,6 +508,7 @@ def materialize_distill_policy_url(policy_url: str | None) -> tuple[str | None, 
 
 
 def write_artifact_bytes(prefix: str, name: str, data: bytes, content_type: str = "application/octet-stream") -> str:
+    prefix = normalize_file_url(prefix)
     if prefix.startswith("gs://"):
         bucket, key_prefix = parse_gs_url(prefix.rstrip("/") + "/" + name.lstrip("/"))
         token = metadata_access_token()
@@ -1087,7 +1101,9 @@ def emit_beat(
             handle.write(json.dumps(body, sort_keys=True) + "\n")
         return
     if not beat_emit_url:
-        raise ValueError("--beat-emit-url is required unless --local-jsonl is set")
+        # Offline / air-gapped lane: no beat endpoint and no local sink means
+        # beats are intentionally skipped; the printed metrics stay the record.
+        return
     endpoint = beat_emit_url.rstrip("/")
     if not endpoint.endswith("/feed/beats"):
         endpoint = endpoint + "/feed/beats"

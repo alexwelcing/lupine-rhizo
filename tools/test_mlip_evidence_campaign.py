@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import mlip_evidence_campaign as evidence
+from local_artifacts import manifest_local_paths, requires_local_artifact
 
 
 def load_default_campaign() -> dict:
@@ -11,6 +12,7 @@ def load_default_campaign() -> dict:
 
 
 def test_default_evidence_campaign_validates() -> None:
+    requires_local_artifact(*manifest_local_paths())
     campaign = load_default_campaign()
 
     assert evidence.validate_campaign(campaign) == []
@@ -69,6 +71,7 @@ def test_evidence_batches_group_one_cloud_run_execution_per_mlip() -> None:
 
 
 def test_non_ni_campaign_preserves_fixture_id_in_batches() -> None:
+    requires_local_artifact(*manifest_local_paths())
     campaign = evidence.load_campaign(
         evidence.ROOT
         / "data"
@@ -91,6 +94,7 @@ def test_non_ni_campaign_preserves_fixture_id_in_batches() -> None:
 
 
 def test_kart_race_campaign_expands_to_three_lanes() -> None:
+    requires_local_artifact(*manifest_local_paths())
     campaign = evidence.load_campaign(
         evidence.ROOT
         / "data"
@@ -125,6 +129,7 @@ def test_kart_race_campaign_expands_to_three_lanes() -> None:
 
 
 def test_write_batches_materializes_runner_compatible_specs(tmp_path: Path) -> None:
+    requires_local_artifact(*manifest_local_paths())
     campaign = load_default_campaign()
 
     written = evidence.write_batches(campaign, tmp_path)

@@ -20,6 +20,7 @@ layer, the evidence pipeline, or a public export contract.
 | `exports/` | Public contracts consumed by Lupine Science, Lupine Ledger, and Lupi. |
 | `gcp/` | Cloud Run jobs/services for burst compute, MLIP cells, evals, evidence indexing, and task consumers. |
 | `glim-think/` | Primary research control plane: agenda, ledger, feed, evals, traces, agents, and public routes. |
+| `hpc/` | Vendor-neutral Apptainer + SLURM execution lane for running benchmark cells offline on external clusters (see `docs/decisions/0005-hpc-execution-lane.md`). |
 | `lean-spec/` | Lean 4 specifications and proof obligations. |
 | `lupine-ops/` | Operational helpers used by active science code. |
 | `mlip_immi/` | Local real-data MLIP/IMMI analysis scripts and evidence payloads. |
