@@ -10,6 +10,8 @@ __pycache__/
 *.egg-info/
 wasm-out/
 *.log
+# committed test fixtures are exempt from the log rule
+!hpc/examples/sample_logs/*.log
 .DS_Store
 *.data
 *.dump
@@ -106,3 +108,4 @@ tools/hermes-hive/data/
 .sisyphus/
 lupi-studio-pr/
 archive/kimi-workspace-export/
+.venv-mlip312/

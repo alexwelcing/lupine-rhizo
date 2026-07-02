@@ -1,0 +1,57 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "NiAl",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 2.8862586064597804,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 4.537261284232857,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 164.4881808099638,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 4.119588639398132,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "formation_enthalpy",
+      "value": -0.7051219390598273,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "3a88a43b682e16b2bb51222c21a907c10bc954821e764b8941cf13198d824af4",
+    "run_label": null,
+    "computed_at": "2026-07-02T05:46:14.651542Z"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Ta",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 3.323654151993004,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 8.229060842721843,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 193.54457638362027,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 4.657561019717278,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 1.6703977231626368,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "gamma_100",
+      "value": 2.316467551918544,
+      "unit": "J/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "gamma_110",
+      "value": 1.9194158180574963,
+      "unit": "J/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "b351c7ea58e9a9da4e5a717a6358ff299b0016a1142bf57e16b8e1e5c11fdbf7",
+    "run_label": null,
+    "computed_at": "2026-07-02T06:13:50.981766Z"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Ca",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 5.5262855044407,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 1.9333487854736608,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 16.990467082066512,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 0.6392768684461727,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 0.7508121066623232,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "gamma_100",
+      "value": 0.36082394209260027,
+      "unit": "J/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "gamma_110",
+      "value": 0.40180188908876824,
+      "unit": "J/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "gamma_111",
+      "value": 0.29591977197449487,
+      "unit": "J/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "stacking_fault_energy",
+      "value": 0.0,
+      "unit": "mJ/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "0d664e452b36c52f5cea10f36070db18ccfa71b189f27632b79467b13c377f2b",
+    "run_label": null,
+    "computed_at": "2026-07-02T06:10:45.264770Z"
+  }
+}

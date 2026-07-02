@@ -1,0 +1,115 @@
+{
+  "schema": "lupine.statics_run.v1",
+  "material": "NaCl",
+  "structure_type": "rocksalt",
+  "model_id": "chgnet",
+  "device": "cuda",
+  "calculator_version": "chgnet 0.4.2",
+  "requested_properties": [
+    "lattice",
+    "eos"
+  ],
+  "results": {
+    "lattice": {
+      "value": 5.695485289343004,
+      "unit": "Angstrom",
+      "property": "lattice",
+      "values": {
+        "a0_angstrom": 5.695485289343004,
+        "e0_ev_per_atom": -3.667963782859396,
+        "v0_a3_per_atom": 23.09416245036396,
+        "b0_gpa": 25.028020701023415,
+        "b0_prime": -0.96982342746633,
+        "cohesive_energy_ev_per_atom": 2.9955926934009303,
+        "isolated_atom_energies_ev": [
+          [
+            "Cl",
+            -0.987295389175415
+          ],
+          [
+            "Na",
+            -0.3574467897415161
+          ]
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "a0_angstrom": "Angstrom",
+        "e0_ev_per_atom": "eV/atom",
+        "v0_a3_per_atom": "A^3/atom",
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "cohesive_energy_ev_per_atom": "eV/atom",
+        "isolated_atom_energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "lattice",
+        "formula": "NaCl",
+        "structure_type": "rocksalt",
+        "initial_a_angstrom": 5.359999999999999,
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 3.979531400000269
+    },
+    "eos": {
+      "value": 25.0266556082337,
+      "unit": "GPa",
+      "property": "eos",
+      "values": {
+        "b0_gpa": 25.0266556082337,
+        "b0_prime": -0.9673768624698549,
+        "v0_a3_per_atom": 23.094155115724714,
+        "e0_ev": -29.343709567149766,
+        "rms_residual_ev": 0.00020860846279944183,
+        "volumes_a3": [
+          173.66810162673693,
+          175.8851412219719,
+          178.10218081720691,
+          180.31922041244178,
+          182.53626000767673,
+          184.75329960291154,
+          186.97033919814658,
+          189.18737879338147,
+          191.40441838861653,
+          193.62145798385131,
+          195.8384975790863
+        ],
+        "energies_ev": [
+          -29.292333602905273,
+          -29.310489654541016,
+          -29.324674606323242,
+          -29.335420608520508,
+          -29.342023849487305,
+          -29.343852996826172,
+          -29.341665267944336,
+          -29.335155487060547,
+          -29.325042724609375,
+          -29.310468673706055,
+          -29.29227638244629
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "v0_a3_per_atom": "A^3/atom",
+        "e0_ev": "eV",
+        "rms_residual_ev": "eV",
+        "volumes_a3": "A^3",
+        "energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "eos",
+        "formula": "NaCl",
+        "structure_type": "rocksalt",
+        "a0_angstrom": 5.695485289343004,
+        "volume_span": 0.06,
+        "n_points": 11
+      },
+      "wall_time_seconds": 0.6815102000000479
+    }
+  },
+  "total_wall_time_seconds": 4.66147810000075
+}

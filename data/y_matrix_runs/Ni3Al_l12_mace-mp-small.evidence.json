@@ -1,0 +1,57 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Ni3Al",
+  "source": {
+    "model_id": "mace-mp-small",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 3.5566311587106125,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 4.446392705438607,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 192.13222034243145,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 4.921417989807908,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "formation_enthalpy",
+      "value": -0.4880323455929645,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "103e0ecfc49f82d721b70034831ab39beef698fd6f95bab8a24014e82c907006",
+    "run_label": null,
+    "computed_at": "2026-07-02T05:40:05.384917Z"
+  }
+}

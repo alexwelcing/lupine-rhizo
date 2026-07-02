@@ -1,0 +1,89 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Sr",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 6.035362484885531,
+      "unit": "Angstrom",
+      "reference_value": 6.02,
+      "reference_source": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 1.6779806956961827,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 11.374949804750871,
+      "unit": "GPa",
+      "reference_value": 12.4,
+      "reference_source": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: M. S. Anderson, C. A. Swenson, D. T. Peterson, Phys. Rev. B 41, 3329 (1990)",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 7.914374341340569,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 0.5630374484591982,
+      "unit": "eV",
+      "reference_value": 0.95,
+      "reference_source": "T. Angsten, T. Mayeshiba, H. Wu, D. Morgan, New J. Phys. 16, 015018 (2014), Table A.1 (VASP 5.2.2, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_100",
+      "value": 0.22508404874436017,
+      "unit": "J/m^2",
+      "reference_value": 0.347,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_110",
+      "value": 0.24952012640536245,
+      "unit": "J/m^2",
+      "reference_value": 0.407,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_111",
+      "value": 0.17479827732248218,
+      "unit": "J/m^2",
+      "reference_value": 0.342,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "stacking_fault_energy",
+      "value": -0.0019374616820778282,
+      "unit": "mJ/m^2",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "427f5eb6a1e87594716718aaa73a55d9f0d5433842cce6898c765a4abcfbcab3",
+    "run_label": null,
+    "computed_at": "2026-07-02T06:12:20.065870Z"
+  }
+}

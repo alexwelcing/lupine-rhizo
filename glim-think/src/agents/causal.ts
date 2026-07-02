@@ -12,6 +12,7 @@ import { z } from "zod";
 import type { ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
+import { corruptRecordSqlPredicate, isContaminatedRecord, RANGE_GATE_CRITERION } from "../research/recordValidation";
 
 const GROUPINGS = ["element", "pair_style", "potential_label", "structure"] as const;
 
@@ -406,8 +407,8 @@ export class Causal extends GlimThinkAgent {
           const pred = Number(r.a0pred);
           // Same property-aware contamination gate as the rest of the corpus.
           if (
-            !ref || !Number.isFinite(pred) || pred <= 0 || ref <= 0 ||
-            Math.abs(pred - ref) > 5 * Math.abs(ref)
+            !ref ||
+            isContaminatedRecord({ property: "a0", unit: "angstrom", predicted: pred, reference: ref })
           ) { skipped++; continue; }
           const recordId = `a0::${r.potential_label}::${r.element}`;
           try {
@@ -567,10 +568,11 @@ export class Causal extends GlimThinkAgent {
 
   /**
    * Data purge — durable corpus cleanup. Permanently removes physically
-   * impossible records (|predicted| > 1500 GPa, ≤ 0, or non-finite) that
-   * corrupt every pooled/correlation/PR metric (Round B/C false-discovery
-   * root cause). Reports counts + sources, verifies zero corrupt remain.
-   * Idempotent: re-running deletes nothing and re-confirms clean.
+   * impossible records (property-aware range gate, see
+   * research/recordValidation.ts) that corrupt every pooled/correlation/
+   * PR metric (Round B/C false-discovery root cause). Reports counts +
+   * sources, verifies zero corrupt remain. Idempotent: re-running
+   * deletes nothing and re-confirms clean.
    */
   async runDataPurge(): Promise<{
     ok: boolean;
@@ -593,15 +595,17 @@ export class Causal extends GlimThinkAgent {
         ]) {
           try { await this.env.LEDGER.prepare(ddl).run(); } catch (e) { console.error("record index ddl:", e); }
         }
-        // Property-aware: absolute backstop (elastic-constant scale) + a
-        // SCALE-FREE relative rule (|pred-ref| > 5·|ref| ⇒ >500% error,
-        // corrupt at any property/scale — catches subtle unit errors the
-        // 1500 bound missed) + ref/pred ≤ 0 (a0=0 placeholders; corpus has
-        // no negative-convention properties — audit confirmed sign_risk=[]).
-        const CORRUPT =
-          `predicted IS NULL OR reference IS NULL OR ABS(predicted) > 1500 ` +
-          `OR predicted <= 0 OR reference <= 0 ` +
-          `OR ABS(predicted - reference) > 5 * ABS(reference)`;
+        // Property-aware gate (research/recordValidation.ts, shared with
+        // the /ingest/batch door and Manifold's CLEAN filter): per-unit
+        // magnitude ceilings (GPa 1500, K 4000, …), positivity + the
+        // scale-free >500% relative rule scoped to sign-fixed properties.
+        // Negative-convention properties (formation enthalpy ΔH_f,
+        // stacking-fault energy, B0′) are exempt from the sign/relative
+        // terms — the audit's blanket predicted<=0 term deleted
+        // legitimate negatives once the Y-matrix families landed. On the
+        // legacy C11/C12/C44 GPa corpus this reduces exactly to the old
+        // predicate (idempotent re-runs still delete nothing).
+        const CORRUPT = corruptRecordSqlPredicate();
 
         const before = await this.queryLedger<{ n: number }>(`SELECT COUNT(*) as n FROM records`);
         const totalBefore = Number(before[0]?.n ?? 0);
@@ -645,7 +649,7 @@ export class Causal extends GlimThinkAgent {
         const claimId = `data_purge_${Date.now()}`;
         const claimData = {
           analysis: "data_purge",
-          criterion: "predicted/reference NULL OR |predicted| > 1500 GPa OR predicted ≤ 0 OR reference ≤ 0 OR |predicted-reference| > 5·|reference| (>500% scale-free)",
+          criterion: RANGE_GATE_CRITERION,
           total_before: totalBefore, total_after: totalAfter,
           corrupt_found: corruptCount, deleted,
           corrupt_remaining: corruptRemaining, verified_clean: verifiedClean,

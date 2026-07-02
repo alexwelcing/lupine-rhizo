@@ -1,0 +1,146 @@
+{
+  "schema": "lupine.statics_run.v1",
+  "material": "Si",
+  "structure_type": "diamond",
+  "model_id": "mace-mp-small",
+  "device": "cuda",
+  "calculator_version": "mace-torch 0.3.16",
+  "requested_properties": [
+    "lattice",
+    "eos",
+    "vacancy"
+  ],
+  "results": {
+    "lattice": {
+      "value": 5.464591368091647,
+      "unit": "Angstrom",
+      "property": "lattice",
+      "values": {
+        "a0_angstrom": 5.464591368091647,
+        "e0_ev_per_atom": -5.370921608940724,
+        "v0_a3_per_atom": 20.3977886856273,
+        "b0_gpa": 71.49495180645343,
+        "b0_prime": 4.393581724902082,
+        "cohesive_energy_ev_per_atom": 4.3561412794469305,
+        "isolated_atom_energies_ev": [
+          [
+            "Si",
+            -1.0147803294937932
+          ]
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "a0_angstrom": "Angstrom",
+        "e0_ev_per_atom": "eV/atom",
+        "v0_a3_per_atom": "A^3/atom",
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "cohesive_energy_ev_per_atom": "eV/atom",
+        "isolated_atom_energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "lattice",
+        "formula": "Si",
+        "structure_type": "diamond",
+        "initial_a_angstrom": 5.43,
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 3.489589099997829
+    },
+    "eos": {
+      "value": 71.49600629866391,
+      "unit": "GPa",
+      "property": "eos",
+      "values": {
+        "b0_gpa": 71.49600629866391,
+        "b0_prime": 4.385302617607697,
+        "v0_a3_per_atom": 20.397839059489918,
+        "e0_ev": -42.96737327434686,
+        "rms_residual_ev": 0.00017769296171419902,
+        "volumes_a3": [
+          153.3913709159173,
+          155.34955862973743,
+          157.3077463435577,
+          159.26593405737788,
+          161.22412177119807,
+          163.18230948501835,
+          165.14049719883863,
+          167.09868491265865,
+          169.056872626479,
+          171.01506034029924,
+          172.97324805411947
+        ],
+        "energies_ev": [
+          -42.82069431349166,
+          -42.87596459269014,
+          -42.91716745599875,
+          -42.945463209041506,
+          -42.96184696760263,
+          -42.967165413410825,
+          -42.96213339288965,
+          -42.9473499764727,
+          -42.92331465683044,
+          -42.89044925655898,
+          -42.84911626102391
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "v0_a3_per_atom": "A^3/atom",
+        "e0_ev": "eV",
+        "rms_residual_ev": "eV",
+        "volumes_a3": "A^3",
+        "energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "eos",
+        "formula": "Si",
+        "structure_type": "diamond",
+        "a0_angstrom": 5.464591368091647,
+        "volume_span": 0.06,
+        "n_points": 11
+      },
+      "wall_time_seconds": 0.395059600003151
+    },
+    "vacancy": {
+      "value": 2.0407996845915477,
+      "unit": "eV",
+      "property": "vacancy_formation",
+      "values": {
+        "vacancy_formation_ev": 2.0407996845915477,
+        "vacancy_species": "Si",
+        "n_atoms_perfect": 216,
+        "e_bulk_ev": -1160.1134661620897,
+        "e_defect_ev": -1152.7017708008218,
+        "n_relax_steps": 22
+      },
+      "units": {
+        "vacancy_formation_ev": "eV",
+        "e_bulk_ev": "eV",
+        "e_defect_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "vacancy_formation",
+        "formula": "Si",
+        "structure_type": "diamond",
+        "a0_angstrom": 5.464591368091647,
+        "supercell": [
+          3,
+          3,
+          3
+        ],
+        "vacancy_index": 0,
+        "fmax": 0.01,
+        "optimizer": "FIRE",
+        "max_steps": 500
+      },
+      "wall_time_seconds": 4.266417499999079
+    }
+  },
+  "total_wall_time_seconds": 8.151727699998446
+}

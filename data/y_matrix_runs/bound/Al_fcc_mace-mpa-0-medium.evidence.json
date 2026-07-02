@@ -1,0 +1,89 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Al",
+  "source": {
+    "model_id": "mace-mpa-0-medium",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 4.038601533994641,
+      "unit": "Angstrom",
+      "reference_value": 4.041,
+      "reference_source": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 3.5237114028820433,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 81.82886108798307,
+      "unit": "GPa",
+      "reference_value": 79.4,
+      "reference_source": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: G. N. Kamm and G. A. Alers, J. Appl. Phys. 35, 327 (1964) - ultrasonic single-crystal elastic constants",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 3.9026062442667326,
+      "unit": "dimensionless",
+      "reference_value": 4.16,
+      "reference_source": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele, Loubeyre, Mezouar, Phys. Rev. B 70, 094112 (2004) data, 0-155 GPa, He medium",
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 0.6781090141653863,
+      "unit": "eV",
+      "reference_value": 0.61,
+      "reference_source": "T. Angsten, T. Mayeshiba, H. Wu, D. Morgan, New J. Phys. 16, 015018 (2014), Table A.1 (VASP 5.2.2, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_100",
+      "value": 0.9968172059872956,
+      "unit": "J/m^2",
+      "reference_value": 0.915,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_110",
+      "value": 0.9429386179084659,
+      "unit": "J/m^2",
+      "reference_value": 0.977,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_111",
+      "value": 0.7839961593760026,
+      "unit": "J/m^2",
+      "reference_value": 0.795,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "stacking_fault_energy",
+      "value": 87.40735963648868,
+      "unit": "mJ/m^2",
+      "reference_value": 117.54,
+      "reference_source": "R. Li et al., arXiv:1511.08634 (2015), Table 3 - EMTO, PBE-GGA, gamma(9) supercell value",
+      "tolerance": 10.0
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "5e532312c775e9b6a55c44f5d695919bc1c48ff42ec095922fe8e21cf333be48",
+    "run_label": null,
+    "computed_at": "2026-07-02T13:12:47.817808Z"
+  }
+}

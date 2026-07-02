@@ -1,0 +1,431 @@
+{
+ "schema": "lupine.y_matrix_targets.v1",
+ "compiled_at": "2026-07-01",
+ "family": "lattice_constants",
+ "entries": [
+  {
+   "material": "Ag",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 4.069,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: V. N. Staroverov et al., Phys. Rev. B 69, 075102 (2004); erratum PRB 78, 239907 (2008)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Ag, 'Exp.' column = 4.069 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Ag",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 4.149,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Ag, PBE Uncorr. = 4.149 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Al",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 4.032,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: Landolt-Bornstein, New Series, Group III (K. H. Hellwege, ed., Springer, Berlin, 1966)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Al, 'Exp.' column = 4.032 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Al",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 4.041,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Al, PBE Uncorr. = 4.041 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Au",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 4.065,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: Y. S. Touloukian et al., Thermophysical Properties of Matter, Vol. 12 (IFI/Plenum, 1975) - value at 5 K",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Au, 'Exp.' column = 4.065 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Au",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 4.157,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Au, PBE Uncorr. = 4.157 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Ca",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 5.565,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: M. S. Anderson, C. A. Swenson, D. T. Peterson, Phys. Rev. B 41, 3329 (1990)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Ca, 'Exp.' column = 5.565 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Ca",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 5.527,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Ca, PBE Uncorr. = 5.527 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Cu",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.603,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: V. N. Staroverov et al., Phys. Rev. B 69, 075102 (2004); erratum PRB 78, 239907 (2008)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Cu, 'Exp.' column = 3.603 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Cu",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.631,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Cu, PBE Uncorr. = 3.631 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Fe",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 2.861,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Fe, 'Exp.' column = 2.861 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Fe",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 2.831,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Fe, PBE Uncorr. = 2.831 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Mo",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.144,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Mo, 'Exp.' column = 3.144 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Mo",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.161,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Mo, PBE Uncorr. = 3.161 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Nb",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.296,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Nb, 'Exp.' column = 3.296 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Nb",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.31,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Nb, PBE Uncorr. = 3.31 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Ni",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.513,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: R. Gaudoin and W. M. C. Foulkes, Phys. Rev. B 66, 052104 (2002); M. Kresch et al., Phys. Rev. B 75, 104301 (2007) - value at 10 K",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Ni, 'Exp.' column = 3.513 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Ni",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.518,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Ni, PBE Uncorr. = 3.518 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Pd",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.881,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: V. N. Staroverov et al., Phys. Rev. B 69, 075102 (2004); erratum PRB 78, 239907 (2008)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Pd, 'Exp.' column = 3.881 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Pd",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.942,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Pd, PBE Uncorr. = 3.942 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Pt",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.916,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Pt, 'Exp.' column = 3.916 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Pt",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 3.97,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Pt, PBE Uncorr. = 3.97 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Sr",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 6.048,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: M. S. Anderson, C. A. Swenson, D. T. Peterson, Phys. Rev. B 41, 3329 (1990)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Sr, 'Exp.' column = 6.048 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Sr",
+   "structure": "fcc",
+   "property": "lattice_constant_a",
+   "value": 6.02,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Sr, PBE Uncorr. = 6.02 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Ta",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.301,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row Ta, 'Exp.' column = 3.301 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "Ta",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.318,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row Ta, PBE Uncorr. = 3.318 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "V",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.028,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row V, 'Exp.' column = 3.028 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "V",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 2.996,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row V, PBE Uncorr. = 2.996 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "W",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.162,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental lattice constant as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II 'Exp.' column; primary: P. Haas, F. Tran, P. Blaha, Phys. Rev. B 79, 085104 (2009); erratum PRB 79, 209902 (2009)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf): Table II row W, 'Exp.' column = 3.162 A. TEMPERATURE STATUS: per the table caption these are experimental values at 0 K unless noted otherwise (zero-point effects retained, i.e. no ZPAE removal); room-temperature lattice constants are slightly larger. Primary reference resolved from the SI footnote and reference list."
+   }
+  },
+  {
+   "material": "W",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 3.183,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF: Table II row W, PBE Uncorr. = 3.183 A. The ZPE-corrected PBE column is slightly larger; the uncorrected static-lattice value is recorded as the standard PBE comparison quantity."
+   }
+  },
+  {
+   "material": "Cr",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 2.88,
+   "unit": "Angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "C. Kittel, Introduction to Solid State Physics, 7th ed. (Wiley, 1996), as tabulated in P.-W. Ma and S. L. Dudarev, Phys. Rev. Materials 3, 013605 (2019), Table I (experimental row, footnote b)",
+    "doi_or_url": "https://doi.org/10.1103/PhysRevMaterials.3.013605",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the EUROfusion submitted manuscript (WPMAT-PR(18) 21177): Table I Cr experimental row: Omega0 = 11.94 A^3, a0 = 2.88 A (footnote b = Kittel 7th ed.; Kittel tabulates room-temperature values). COARSER than the other entries (2 decimals; Cr is absent from the Zhang et al. benchmark set). Consistency check: Young et al. (JPCRD 45, 043101 (2016)) fit their Cr DAC data with V0 = 7.230 cm^3/mol, which converts to a0 = (2 x 7.230/6.02214e23 cm^3)^(1/3) = 2.885 A at 300 K."
+   }
+  },
+  {
+   "material": "Cr",
+   "structure": "bcc",
+   "property": "lattice_constant_a",
+   "value": 2.862,
+   "unit": "Angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "P.-W. Ma and S. L. Dudarev, Phys. Rev. Materials 3, 013605 (2019), Table I (GGA-PBE, magnetic Cr, 2-atom cell)",
+    "doi_or_url": "https://doi.org/10.1103/PhysRevMaterials.3.013605",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the EUROfusion submitted manuscript: Table I Cr computed row: C11 = 448.12, C12 = 62.03, C44 = 102.13 GPa, Omega0 = 11.72 A^3, a0 = 2.862 A. The paper's main functional is GGA-PBE; AM05 rows appear only for the nonmagnetic metals (V, Nb, Mo, Ta, W), so the single Cr computed row is attributed to PBE. Known PBE underestimate vs experiment (2.88 A) for antiferromagnetic Cr."
+   }
+  }
+ ],
+ "unresolved": [
+  {
+   "material": "Cr",
+   "property": "lattice_constant_a",
+   "method": "experiment",
+   "note": "Only a 2-decimal Kittel-attributed value (2.88 A) was verifiable (Cr is absent from the Zhang et al. set whose 0 K three-decimal values cover the other 15 metals). The Young et al. DAC-fit conversion gives 2.885 A at 300 K; a precise 0 K-extrapolated diffraction value for Cr remains unresolved."
+  }
+ ]
+}
