@@ -18,35 +18,33 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 
 ## Active Initiatives
 
-- **Creative direction / brand exploration** — Five MiniMax matrices generated; winners emerging.
-  - Status: 🟢 winners emerging
-  - v1–v5 matrices: 60 images total in `media/projects/brand-exploration/assets/images/`.
-  - Combined gallery: `media/projects/brand-exploration/renders/gallery_all.html`
-  - Synthesis: `media/projects/brand-exploration/renders/synthesis.md`
-  - Winners:
-    - Cover/hero: `v3/shape-of-wrongness_wide.jpg`
-    - Bits→atoms: `v4/bits-to-atoms_wide.jpg` (soft) or `v5/bits-to-atoms_wide.jpg` (bold)
-    - Upstream cascade: unresolved after five attempts
-  - Next step: Replace upstream-cascade with a new motif, or move to deliverables (OG card, one-pager hero, deck slides).
+- **Brand / pitch deliverables** — Production assets and pitch deck from the winning still are shipped.
+  - Status: 🟢 shipped
+  - Deliverables: `media/projects/brand-exploration/renders/deliverables/` (OG card, site hero, one-pager cover, deck backgrounds), `renders/deliverables/slides/` (9-slide narrative in 16:9 and 4:3).
+  - Deployed: `public/og-lupine-science.jpg`, `public/ribbon-still.jpg`, `public/one-pager-assets/cover-shape-of-wrongness.jpg`.
+  - Next step: Generate social cards / X thread for the proof-pack and pitch deck.
   - Owner: media director
+
+- **Public proof-pack: environment-error-field paper** — Web-native proof-pack published on `lupine.science`.
+  - Status: 🟢 published
+  - Article: `/articles/a-smooth-environment-resolved-error-field/`
+  - Source: `articles/a-smooth-environment-resolved-error-field.md`
+  - Hero: `v7/error-vector-alignment_wide_v7.jpg`
+  - Figures: Fig 1 (error landscape), Fig 4 (field + blind test), Fig 5 (run-time correction).
+  - Next step: Drive traffic; consider a companion social thread.
+  - Owner: researcher + media director
+
+- **A6 bridge protocol** — Full 5,000-permutation / 2,000-bootstrap pilot completed with a 1,000-replicate geometry-preserving (coupling-aware) null. Results committed.
+  - Status: 🟢 pilot complete
+  - Report: `lupine-rhizo/data/a6_bridge/report_pilot_mptrj_v2_5000.md`
+  - Key finding: Force-field magnitude correlation (`mag_corr`) survives the stratified null (Fisher χ² = 51.10, df = 6) but is not significant against the geometry-preserving null, suggesting the shared pattern may be partly mechanical/elastic on this tiny 5-structure pilot. `atom_cos` and `field_cos` survive in some pairs even under rotation.
+  - Next step: Scale to multi-config trajectories (MatPES/MPtrj/OMat24) using the newly merged y-matrix / envfield corpus.
+  - Owner: researcher
 
 - **Content design system / brand book** — Templates and components for every long-form surface shipped.
   - Status: 🟢 shipped
   - Deliverables: `lupine-science/docs/content-design-system.md`, `articles/_templates/*.md`, extended `public/articles/styles.css`, `public/articles/components.html`, builder support for format classes.
-  - Next step: Stress-test by converting the A6 pilot report or a proof pack to the new format.
-  - Owner: researcher
-
-- **Brand & pitch vibe** — Pitch-ready brand system locked and shipped.
-  - Status: 🟢 package shipped
-  - Deliverables: `lupine-science/docs/brand-guidelines.md`, `public/one-pager.html`, site hero alignment, canonical brand config update.
-  - Next step: Apply the winning brand-exploration stills to the 1200×630 OG/social card and deck backgrounds.
-  - Owner: media director
-
-- **A6 bridge pilot** — Full 5,000-permutation / 2,000-bootstrap pilot completed with a 1,000-replicate geometry-preserving (coupling-aware) null. Results committed.
-  - Status: 🟢 pilot complete
-  - Report: `lupine-rhizo/data/a6_bridge/report_pilot_mptrj_v2_5000.md`
-  - Key finding: Force-field magnitude correlation (`mag_corr`) survives the stratified null (Fisher χ² = 51.10, df = 6) but is not significant against the geometry-preserving null, suggesting the shared pattern may be partly mechanical/elastic on this tiny 5-structure pilot. `atom_cos` and `field_cos` survive in some pairs even under rotation.
-  - Next step: Scale to multi-config trajectories (MatPES/MPtrj/OMat24) so the energy null is non-degenerate and the force-field test has statistical room to separate shared core from coupling.
+  - Next step: Continuously apply to new articles and proof packs.
   - Owner: researcher
 
 - **Day-in-the-life social content** — 5-image carousel + X thread committed.
@@ -56,7 +54,7 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 
 - **Lupine Science public front door** — Live at [lupine.science](https://lupine.science).
   - Status: 🟢 live
-  - Next step: Deploy updated hero copy, one-pager, content system, and refreshed OG card once creative winners are chosen.
+  - Next step: Deploy latest commits (already committed; ensure published).
   - Owner: media director
 
 - **LUPI launch** — 30-second film + "Why LUPI?" article shipped.
@@ -74,14 +72,14 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 
 ## Done Recently
 
-- Fixed the A6 pilot `build_output()` signature mismatch and committed the fix.
-- Fixed the coupling-aware null so it combines results without requiring a bootstrap replicate set.
-- Ran and committed the full 5,000-permutation / 2,000-bootstrap / 1,000-coupling-null A6 pilot.
-- Locked pitch-ready brand guidelines, built a print-ready one-pager, and aligned the public site hero with the pitch narrative.
-- Updated the canonical `brand.config.json` and brand narrative to the trust-layer one-liner.
-- Built a content design system with templates, shared components, and builder support for articles, white papers, research guides, tutorials, proof packs, and reports.
-- Built a brand-exploration make/evaluate/mutate loop: gallery, procedural playground, prompt mutator, and MiniMax generation matrix.
-- Renewed MiniMax plan and generated v1–v5 12-image matrices (60 images), tightening the style suffix each round to land on-brand winners.
+- Merged latest remote `lupine-science` work (new article "The Order Is Right, the Size Is Wrong") and resolved the articles index conflict.
+- Merged latest remote `lupine-rhizo` work: y-matrix / environment-error-field manuscript, figures, evidence corpus, LAMMPS-to-Lean bridge, offline HPC lane, library catalog updates, Lean evidence module, and CI fixes.
+- Published the environment-error-field paper as a public proof-pack on `lupine.science`.
+- Built a 9-slide pitch deck in 16:9 and 4:3 from the winning brand still, informed by the envfield results.
+- Produced production brand deliverables: OG card, site hero, one-pager cover, deck backgrounds.
+- Ran v6/v7 brand-exploration matrices, selected `v7/error-vector-alignment_wide_v7.jpg` as the upstream-cascade replacement.
+- Updated `build-articles.py` to use per-article hero images for OG/Twitter cards.
+- Updated the public site OG/Twitter meta tags and refreshed the public-ledger fallback entries.
 
 ## Blockers
 
@@ -91,10 +89,7 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 
 ## Upcoming Bets
 
-- Decide: iterate on upstream-cascade replacement or move to deliverables.
-- Generate the new OG/social card and deck slides from the winning stills.
-- Stress-test the content design system with a real report or proof pack.
-- Post the day-in-the-life thread to X.
+- Scale A6 bridge to the merged y-matrix / envfield multi-config corpus.
+- Post social thread for the new proof-pack and pitch deck.
 - Materialize the MatPES/MPtrj/OMat24 manifest and re-run A6 at scale.
-- Publish "From fantasy frameworks to makeable materials" article.
 - Add LUPI landing page.
