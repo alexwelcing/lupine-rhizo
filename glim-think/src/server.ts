@@ -60,6 +60,7 @@ import {
 import { handleResearchWorkflowRoute } from "./research/workflows";
 import { MLIP_PHOENIX_DATASET_NAME } from "./research/mlipPhoenix";
 import { normalizeBenchmarkRecord } from "./research/benchmarkRecords";
+import { isContaminatedRecord } from "./research/recordValidation";
 import { MlipBaselineGridWorkflow as MlipBaselineGridWorkflowBase } from "./research/mlipBaselineCloudflareWorkflow";
 import { runOrchestratorTick } from "./research/orchestrator";
 import { handleFeedRoute } from "./feed/split";
@@ -1159,20 +1160,16 @@ ${narrative}
             rejected++;
             continue;
           }
-          // Contamination guard: physically impossible elastic-constant
-          // predictions (unit errors / non-converged sentinels) corrupt every
-          // downstream pooled/correlation metric. Metallic Cij are < ~1500
-          // GPa and positive (Born stability). Reject at the door so CSV
-          // re-seeds can't reintroduce the Round B/C contamination.
-          const pred = Number(r.predicted);
-          const ref = Number(r.reference);
-          // Property-aware contamination guard: absolute backstop + scale-free
-          // relative rule (>500% error) + positivity. Mirrors Causal.runDataPurge.
-          if (
-            !Number.isFinite(pred) || !Number.isFinite(ref) ||
-            Math.abs(pred) > 1500 || pred <= 0 || ref <= 0 ||
-            Math.abs(pred - ref) > 5 * Math.abs(ref)
-          ) {
+          // Property-aware contamination guard (research/recordValidation.ts,
+          // shared with Causal.runDataPurge + Manifold's CLEAN filter):
+          // per-unit-class magnitude ceilings (GPa 1500, K 4000, …), with
+          // positivity + the scale-free >500% rule scoped to sign-fixed
+          // properties. Rejects unit errors / non-converged sentinels at
+          // the door (Round B/C contamination) while admitting legitimate
+          // negative values (formation enthalpies, stacking-fault
+          // energies, B0′) and >1500 K melting points the old
+          // elastic-only bound hard-rejected.
+          if (isContaminatedRecord(r)) {
             rejected++;
             continue;
           }
