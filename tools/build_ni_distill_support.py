@@ -200,7 +200,7 @@ def relaxation_support_cases(refs: dict[str, float], calc: EAM) -> list[dict[str
 def build_support_manifest(source_packet: dict[str, Any]) -> dict[str, Any]:
     refs = ni_fixture.source_refs(source_packet)
     mishin = ni_fixture.primary_mishin_baseline(source_packet)
-    potential_path = ni_fixture.ROOT / str(mishin["potential_file"]).replace("/", "\\")
+    potential_path = ni_fixture.ROOT / pathlib.PurePosixPath(str(mishin["potential_file"]))
     calc = EAM(potential=str(potential_path))
 
     row_fixtures = {

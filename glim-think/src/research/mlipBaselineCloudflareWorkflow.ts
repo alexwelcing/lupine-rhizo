@@ -1,4 +1,9 @@
-import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from "cloudflare:workers";
+import {
+  WorkflowEntrypoint,
+  type WorkflowEvent,
+  type WorkflowStep,
+  type WorkflowStepConfig,
+} from "cloudflare:workers";
 import type { Env } from "../types";
 import {
   completeSmokeMlipBaselineRun,
@@ -31,22 +36,22 @@ interface WorkflowDurableState {
   error: string | null;
 }
 
-const DEFAULT_RETRY = {
+const DEFAULT_RETRY: WorkflowStepConfig["retries"] = {
   limit: 3,
   delay: "10 seconds",
-  backoff: "exponential" as const,
+  backoff: "exponential",
 };
 
-const LIGHT_RETRY = {
+const LIGHT_RETRY: WorkflowStepConfig["retries"] = {
   limit: 2,
   delay: "5 seconds",
-  backoff: "exponential" as const,
+  backoff: "exponential",
 };
 
-const DISPATCH_RETRY = {
+const DISPATCH_RETRY: WorkflowStepConfig["retries"] = {
   limit: 5,
   delay: "15 seconds",
-  backoff: "exponential" as const,
+  backoff: "exponential",
 };
 
 export class MlipBaselineGridWorkflow extends WorkflowEntrypoint<Env, MlipBaselineGridWorkflowParams> {

@@ -1,0 +1,68 @@
+LAMMPS (2 Aug 2023 - Update 3)
+  using 1 OpenMP thread(s) per MPI task
+# LAMMPS ELASTIC driver (examples/ELASTIC) on fcc Ni, EAM Ni_u3.eam
+units		metal
+boundary	p p p
+Lattice spacing in x,y,z = 3.52 3.52 3.52
+Created orthogonal box = (0 0 0) to (17.6 17.6 17.6)
+  1 by 1 by 1 MPI processor grid
+Created 500 atoms
+Reading eam potential file Ni_u3.eam with DATE: 2007-06-11
+Lattice constant (Angstroms) = 3.5199
+Cohesive energy (eV/atom) = -4.4499
+Setting up cg style minimization ...
+  Unit style    : metal
+Per MPI rank memory allocation (min/avg/max) = 4.323 | 4.323 | 4.323 Mbytes
+   Step         PotEng           Lx           Press
+         0  -2224.9345      17.599500     -25.184298
+        10  -2224.9502      17.599500      -0.318145
+        25  -2224.9503      17.599500       0.000871
+Loop time of 0.0184213 on 1 procs for 25 steps with 500 atoms
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final =
+     -2224.93449735646  -2224.95024118611  -2224.95027301276
+Deformation with strain -0.0001 and 0.0001 in each direction complete.
+
+=========================================
+Components of the Elastic Constant Tensor
+=========================================
+Elastic Constant C11all = 246.79 GPa
+Elastic Constant C22all = 246.81 GPa
+Elastic Constant C33all = 246.76 GPa
+
+Elastic Constant C12all = 147.32 GPa
+Elastic Constant C13all = 147.29 GPa
+Elastic Constant C23all = 147.35 GPa
+
+Elastic Constant C44all = 124.85 GPa
+Elastic Constant C55all = 124.83 GPa
+Elastic Constant C66all = 124.87 GPa
+
+Elastic Constant C14all = -0.01 GPa
+Elastic Constant C15all = 0.0 GPa
+Elastic Constant C16all = 0.01 GPa
+
+Elastic Constant C24all = 0.0 GPa
+Elastic Constant C25all = -0.01 GPa
+Elastic Constant C26all = 0.0 GPa
+
+Elastic Constant C34all = 0.01 GPa
+Elastic Constant C35all = 0.0 GPa
+Elastic Constant C36all = -0.01 GPa
+
+Elastic Constant C45all = 0.0 GPa
+Elastic Constant C46all = 0.01 GPa
+Elastic Constant C56all = 0.0 GPa
+
+=========================================
+Average properties for a cubic crystal
+=========================================
+
+Bulk Modulus = 180.48 GPa
+Shear Modulus 1 = 124.85 GPa
+Shear Modulus 2 = 49.74 GPa
+Poisson Ratio = 0.373804
+
+Total wall time: 0:00:02

@@ -13,6 +13,7 @@ import type { ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import type { Claim } from "../types";
 import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
+import { cleanRecordSqlPredicate } from "../research/recordValidation";
 
 export class Manifold extends GlimThinkAgent {
   getSystemPrompt(): string {
@@ -321,11 +322,12 @@ Be quantitative. Cite specific numbers.`;
     }
 
     // Load records (matching the get_families/load_records tool flow).
-    // Defense-in-depth contamination gate: exclude physically-impossible
-    // predicted Cij (|pred|>1500 GPa or ≤0) — PR/eigenvalues are extremely
-    // sensitive to such outliers (Round B/C false-discovery cause).
-    const CLEAN = `predicted IS NOT NULL AND reference IS NOT NULL AND ABS(predicted) <= 1500 ` +
-      `AND predicted > 0 AND reference > 0 AND ABS(predicted - reference) <= 5 * ABS(reference)`;
+    // Defense-in-depth contamination gate (research/recordValidation.ts,
+    // shared with the ingest door + Causal purge): property-aware ranges —
+    // PR/eigenvalues are extremely sensitive to unit-error outliers
+    // (Round B/C false-discovery cause), but legitimate negatives
+    // (ΔH_f, stacking-fault energy, B0′) must stay in the matrix.
+    const CLEAN = cleanRecordSqlPredicate();
     const sql = family === "all"
       ? `SELECT record_id, potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
       : `SELECT record_id, potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;

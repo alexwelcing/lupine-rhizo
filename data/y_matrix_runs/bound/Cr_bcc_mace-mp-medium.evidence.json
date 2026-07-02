@@ -1,0 +1,73 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Cr",
+  "source": {
+    "model_id": "mace-mp-medium",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 2.866379758191815,
+      "unit": "Angstrom",
+      "reference_value": 2.862,
+      "reference_source": "P.-W. Ma and S. L. Dudarev, Phys. Rev. Materials 3, 013605 (2019), Table I (GGA-PBE, magnetic Cr, 2-atom cell)",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 3.1598542631015505,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 230.3783195025568,
+      "unit": "GPa",
+      "reference_value": 160.0,
+      "reference_source": "CRC Handbook of Chemistry and Physics (bulk modulus of the elements), as tabulated on the Wikipedia 'Elastic properties of the elements (data page)' (CRC and WebElements columns agree)",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 5.574550504636163,
+      "unit": "dimensionless",
+      "reference_value": 4.934,
+      "reference_source": "D. A. Young, H. Cynn, P. Soderlind, A. Landa, J. Phys. Chem. Ref. Data 45, 043101 (2016) (LLNL-JRNL-686936) - Birch-Murnaghan fit of new Cr DAC data to 56 GPa",
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 1.4476034763962957,
+      "unit": "eV",
+      "reference_value": 3.0093,
+      "reference_source": "P.-W. Ma and S. L. Dudarev, Phys. Rev. Materials 3, 013605 (2019), Table IV (GGA-PBE, stress-free relaxed supercells)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_100",
+      "value": 3.1767431002621023,
+      "unit": "J/m^2",
+      "reference_value": 3.632,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_110",
+      "value": 3.458098784794357,
+      "unit": "J/m^2",
+      "reference_value": 3.201,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "1eba31e484ba1a740622a72cbc625669a4a76bbbf8e279101c30687241e2fed7",
+    "run_label": null,
+    "computed_at": "2026-07-02T06:07:39.346913Z"
+  }
+}

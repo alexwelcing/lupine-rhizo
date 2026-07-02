@@ -7,6 +7,7 @@ only imports the heavy dependency lazily inside its methods.
 from __future__ import annotations
 
 from .base import BenchmarkBackend, System
+from .lammps import LammpsEvidenceBackend
 from .mock import MockBenchmarkBackend
 from .torchsim import (
     TorchSimBenchmarkBackend,
@@ -17,6 +18,7 @@ from .torchsim import (
 
 __all__ = [
     "BenchmarkBackend",
+    "LammpsEvidenceBackend",
     "MockBenchmarkBackend",
     "System",
     "TorchSimBenchmarkBackend",

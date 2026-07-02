@@ -41,7 +41,7 @@ def _has_text(value: Any) -> bool:
 def _repo_path(root: pathlib.Path, value: Any) -> pathlib.Path | None:
     if not _has_text(value):
         return None
-    return root / str(value).replace("/", "\\")
+    return root / pathlib.PurePosixPath(str(value))
 
 
 def validate_source_packet(manifest: dict[str, Any], *, root: pathlib.Path = ROOT, check_local: bool = True) -> list[str]:

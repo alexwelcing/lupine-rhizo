@@ -1,0 +1,146 @@
+{
+  "schema": "lupine.statics_run.v1",
+  "material": "Si",
+  "structure_type": "diamond",
+  "model_id": "chgnet",
+  "device": "cuda",
+  "calculator_version": "chgnet 0.4.2",
+  "requested_properties": [
+    "lattice",
+    "eos",
+    "vacancy"
+  ],
+  "results": {
+    "lattice": {
+      "value": 5.46706176748268,
+      "unit": "Angstrom",
+      "property": "lattice",
+      "values": {
+        "a0_angstrom": 5.46706176748268,
+        "e0_ev_per_atom": -5.313980202471825,
+        "v0_a3_per_atom": 20.42546512020409,
+        "b0_gpa": 78.3874152421986,
+        "b0_prime": 11.375837950756834,
+        "cohesive_energy_ev_per_atom": 4.2447768257018055,
+        "isolated_atom_energies_ev": [
+          [
+            "Si",
+            -1.0692033767700195
+          ]
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "a0_angstrom": "Angstrom",
+        "e0_ev_per_atom": "eV/atom",
+        "v0_a3_per_atom": "A^3/atom",
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "cohesive_energy_ev_per_atom": "eV/atom",
+        "isolated_atom_energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "lattice",
+        "formula": "Si",
+        "structure_type": "diamond",
+        "initial_a_angstrom": 5.43,
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 1.9431192999982159
+    },
+    "eos": {
+      "value": 78.21383203263062,
+      "unit": "GPa",
+      "property": "eos",
+      "values": {
+        "b0_gpa": 78.21383203263062,
+        "b0_prime": 10.693788469999843,
+        "v0_a3_per_atom": 20.429489784610535,
+        "e0_ev": -42.511838593538094,
+        "rms_residual_ev": 0.0018187873978229006,
+        "volumes_a3": [
+          153.5994977039347,
+          155.56034235547435,
+          157.52118700701385,
+          159.48203165855352,
+          161.4428763100931,
+          163.40372096163262,
+          165.3645656131723,
+          167.32541026471182,
+          169.28625491625138,
+          171.247099567791,
+          173.20794421933076
+        ],
+        "energies_ev": [
+          -42.33063507080078,
+          -42.397125244140625,
+          -42.44994354248047,
+          -42.48969268798828,
+          -42.50732421875,
+          -42.51023483276367,
+          -42.50489807128906,
+          -42.4919548034668,
+          -42.46803665161133,
+          -42.435333251953125,
+          -42.39927291870117
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "v0_a3_per_atom": "A^3/atom",
+        "e0_ev": "eV",
+        "rms_residual_ev": "eV",
+        "volumes_a3": "A^3",
+        "energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "eos",
+        "formula": "Si",
+        "structure_type": "diamond",
+        "a0_angstrom": 5.46706176748268,
+        "volume_span": 0.06,
+        "n_points": 11
+      },
+      "wall_time_seconds": 0.6713412999997672
+    },
+    "vacancy": {
+      "value": 0.86761474609375,
+      "unit": "eV",
+      "property": "vacancy_formation",
+      "values": {
+        "vacancy_formation_ev": 0.86761474609375,
+        "vacancy_species": "Si",
+        "n_atoms_perfect": 216,
+        "e_bulk_ev": -1147.77685546875,
+        "e_defect_ev": -1141.595458984375,
+        "n_relax_steps": 15
+      },
+      "units": {
+        "vacancy_formation_ev": "eV",
+        "e_bulk_ev": "eV",
+        "e_defect_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "vacancy_formation",
+        "formula": "Si",
+        "structure_type": "diamond",
+        "a0_angstrom": 5.46706176748268,
+        "supercell": [
+          3,
+          3,
+          3
+        ],
+        "vacancy_index": 0,
+        "fmax": 0.01,
+        "optimizer": "FIRE",
+        "max_steps": 500
+      },
+      "wall_time_seconds": 2.030818299997918
+    }
+  },
+  "total_wall_time_seconds": 4.64596309999979
+}

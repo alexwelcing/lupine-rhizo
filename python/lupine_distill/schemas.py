@@ -18,7 +18,14 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 Backend = Literal["torchsim", "ase", "lammps"]
+Device = Literal["cuda", "cpu"]
 PromotionRecommendation = Literal["promote", "review", "reject"]
+
+# Versioned schema string carried by every LAMMPS evidence payload.
+LAMMPS_EVIDENCE_SCHEMA = "lupine.mlip.lammps_evidence.v1"
+
+# Versioned schema string carried by every ASE-calculator/GPU evidence payload.
+CALC_EVIDENCE_SCHEMA = "lupine.mlip.calc_evidence.v1"
 
 
 class BenchmarkMetrics(BaseModel):
@@ -71,9 +78,168 @@ class BenchmarkResult(BaseModel):
     promotion_recommendation: PromotionRecommendation | None = None
 
 
+class LammpsSource(BaseModel):
+    """Origin of a LAMMPS evidence payload: potential + driver script identity."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    potential_id: str = Field(..., min_length=1, description="Potential id, e.g. 'Ni_u3.eam'")
+    lammps_version: str | None = Field(
+        default=None, description="LAMMPS banner line, e.g. 'LAMMPS (2 Aug 2023 - Update 3)'"
+    )
+    input_script: str | None = Field(
+        default=None, description="Driver input script name, e.g. 'in.elastic'"
+    )
+
+
+class LammpsPropertyValue(BaseModel):
+    """One physical property extracted from a LAMMPS log, with optional reference."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    name: str = Field(..., min_length=1, description="Property name, e.g. 'C11'")
+    value: float
+    unit: str = Field(..., min_length=1, description="Unit, e.g. 'GPa', 'eV', 'Angstrom'")
+    reference_value: float | None = Field(
+        default=None, description="Caller-supplied reference (experiment / DFT), same unit"
+    )
+    reference_source: str | None = Field(
+        default=None, description="Citation for the reference value"
+    )
+    tolerance: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Optional explicit absolute tolerance in the same unit as ``value``. "
+        "When set, Lean emission uses it instead of the percentage-of-reference default "
+        "(which is degenerate for near-zero references, e.g. SFE ~10 mJ/m^2). "
+        "Optional-with-None keeps v1 payloads without the key fully valid.",
+    )
+
+
+class LammpsProvenance(BaseModel):
+    """Provenance of the parsed log: content hash suffices, timestamp is optional."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    log_sha256: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    log_name: str | None = Field(default=None, description="Basename of the parsed log file")
+    parsed_at: datetime | None = Field(
+        default=None, description="Caller-supplied parse timestamp (never read from the clock)"
+    )
+
+
+class LammpsTrajectorySummary(BaseModel):
+    """Modest summary of one LAMMPS thermo section (not a full log parse)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    n_rows: int = Field(..., ge=1, description="Thermo rows in the section")
+    first_step: int
+    last_step: int
+    columns: list[str] = Field(..., min_length=1)
+    energy_column: str | None = Field(
+        default=None, description="Column used for drift: 'PotEng' preferred, else 'TotEng'"
+    )
+    initial_energy: float | None = None
+    final_energy: float | None = None
+    energy_drift_per_step: float | None = Field(
+        default=None,
+        description="(final - initial) energy / step span, raw log units (no /atom or /ps "
+        "normalization; thermo alone does not carry timestep or atom count)",
+    )
+    final_values: dict[str, float] = Field(
+        default_factory=dict, description="Last-row value per column (Step excluded)"
+    )
+
+
+class LammpsEvidence(BaseModel):
+    """A ``lupine.mlip.lammps_evidence.v1`` payload: one LAMMPS log turned into
+    versioned, reference-annotated property evidence.
+
+    Serialize with ``by_alias=True`` so the JSON carries the conventional
+    ``"schema"`` key (``schema`` itself shadows a ``BaseModel`` attribute).
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid", populate_by_name=True)
+
+    schema_version: Literal["lupine.mlip.lammps_evidence.v1"] = Field(
+        default=LAMMPS_EVIDENCE_SCHEMA, alias="schema"
+    )
+    material: str = Field(..., min_length=1, description="Element / material, e.g. 'Ni'")
+    source: LammpsSource
+    properties: list[LammpsPropertyValue] = Field(default_factory=list)
+    trajectory: LammpsTrajectorySummary | None = None
+    provenance: LammpsProvenance
+
+
+# One property model serves both evidence lanes (LAMMPS logs and ASE-calculator
+# runs); ``PropertyValue`` is the lane-neutral name for new code.
+PropertyValue = LammpsPropertyValue
+
+
+class CalcSource(BaseModel):
+    """Origin of a calculator evidence payload: model + backend + device identity."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    model_id: str = Field(..., min_length=1, description="Model id, e.g. 'MACE-MP-0-small'")
+    backend: Backend = Field(default="ase", description="Compute backend, e.g. 'ase'")
+    device: Device = Field(..., description="Execution device: 'cuda' or 'cpu'")
+    calculator_version: str | None = Field(
+        default=None, description="Calculator package version, e.g. 'mace 0.3.6'"
+    )
+
+
+class CalcProvenance(BaseModel):
+    """Provenance of a calculator run: canonical-input hash suffices, timestamp optional."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    inputs_sha256: str = Field(
+        ...,
+        pattern=r"^[0-9a-f]{64}$",
+        description="sha256 of the canonical JSON of the run inputs (structure + settings)",
+    )
+    run_label: str | None = Field(default=None, description="Caller-chosen run label")
+    computed_at: datetime | None = Field(
+        default=None, description="Caller-supplied run timestamp (never read from the clock)"
+    )
+
+
+class CalcEvidence(BaseModel):
+    """A ``lupine.mlip.calc_evidence.v1`` payload: one ASE-calculator/GPU run
+    turned into versioned, reference-annotated property evidence.
+
+    Serialize with ``by_alias=True`` so the JSON carries the conventional
+    ``"schema"`` key (``schema`` itself shadows a ``BaseModel`` attribute).
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid", populate_by_name=True)
+
+    schema_version: Literal["lupine.mlip.calc_evidence.v1"] = Field(
+        default=CALC_EVIDENCE_SCHEMA, alias="schema"
+    )
+    material: str = Field(..., min_length=1, description="Element / material, e.g. 'Ni'")
+    source: CalcSource
+    properties: list[LammpsPropertyValue] = Field(default_factory=list)
+    provenance: CalcProvenance
+
+
 __all__ = [
+    "CALC_EVIDENCE_SCHEMA",
+    "LAMMPS_EVIDENCE_SCHEMA",
     "Backend",
     "BenchmarkMetrics",
     "BenchmarkResult",
+    "CalcEvidence",
+    "CalcProvenance",
+    "CalcSource",
+    "Device",
+    "LammpsEvidence",
+    "LammpsPropertyValue",
+    "LammpsProvenance",
+    "LammpsSource",
+    "LammpsTrajectorySummary",
     "PromotionRecommendation",
+    "PropertyValue",
 ]

@@ -6,6 +6,21 @@ Welcome. This repo is organized around a single closed scientific loop: **benchm
 
 You probably want to answer a concrete question: *Does this potential fail in a structured way?* *Does a distillation correction transfer?* *Can I reproduce a published claim?*
 
+### 0. Linux / HPC quickstart
+
+On any Linux box (laptop or cluster login node):
+
+```bash
+pip install -e ./python          # deps come from python/pyproject.toml
+cd python && python -m pytest -q # full package suite, seconds, no GPU
+cd .. && python tools/fetch_potentials.py        # pinned NIST/OpenKIM potentials
+python -m pytest tools -q        # evidence/fixture suite against real data
+```
+
+Running our benchmark cells on your own cluster (Apptainer + SLURM, fully
+offline), or feeding your LAMMPS output into the evidence→Lean pipeline:
+start at [`hpc/README.md`](../hpc/README.md).
+
 ### 1. Read the map
 
 - [`docs/navigation.md`](./navigation.md) — the 60-second path to the science.

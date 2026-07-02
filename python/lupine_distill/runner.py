@@ -9,10 +9,12 @@ crashes on a missing GPU dependency.
 from __future__ import annotations
 
 import logging
+import pathlib
+from collections.abc import Mapping
 from datetime import datetime, timezone
-from typing import Mapping
 
 from .backends.base import BenchmarkBackend, System
+from .backends.lammps import LammpsEvidenceBackend
 from .backends.mock import MockBenchmarkBackend
 from .backends.torchsim import TorchSimUnavailable, try_build_torchsim_backend
 from .constants import BENCHMARK_SUITE_VERSION, TORCHSIM_VERSION_UNAVAILABLE
@@ -64,6 +66,7 @@ def build_backend(
     distill_version: int = 0,
     device: str | None = None,
     allow_mock_fallback: bool = True,
+    evidence_dir: pathlib.Path | str | None = None,
 ) -> BenchmarkBackend:
     """Construct a backend by name with graceful TorchSim->mock fallback.
 
@@ -71,8 +74,12 @@ def build_backend(
       ``allow_mock_fallback`` is set, log clearly and return a mock that reports
       under the ``torchsim`` backend id (CI degrades gracefully). If fallback is
       disabled, re-raise :class:`TorchSimUnavailable`.
-    - ``"ase"`` / ``"lammps"``: not wired in this CPU-importable module; fall
-      back to the mock when permitted, else raise ``NotImplementedError``.
+    - ``"lammps"``: with ``evidence_dir`` set, score precomputed
+      ``lammps_evidence.v1`` payloads via :class:`LammpsEvidenceBackend` (no
+      simulation is driven). Without an evidence dir, fall back to the mock
+      when permitted, else raise ``ValueError`` naming the missing input.
+    - ``"ase"``: not wired in this CPU-importable module; fall back to the mock
+      when permitted, else raise ``NotImplementedError``.
     """
 
     if requested == "torchsim":
@@ -89,12 +96,25 @@ def build_backend(
         )
         return MockBenchmarkBackend(model_id=model_id, distill_version=distill_version)
 
-    if requested in ("ase", "lammps"):
+    if requested == "lammps":
+        if evidence_dir is not None:
+            backend = LammpsEvidenceBackend(evidence_dir=evidence_dir)
+            logger.info("using LAMMPS file-evidence backend (engine=%s)", backend.engine_version)
+            return backend
         if not allow_mock_fallback:
-            raise NotImplementedError(f"backend '{requested}' is not wired in this environment")
+            raise ValueError(
+                "backend 'lammps' requires evidence_dir "
+                "(a directory of lammps_evidence.v1 JSON payloads)"
+            )
         logger.warning(
-            "backend '%s' not wired here; using deterministic MockBenchmarkBackend", requested
+            "backend 'lammps' given no evidence_dir; using deterministic MockBenchmarkBackend"
         )
+        return MockBenchmarkBackend(model_id=model_id, distill_version=distill_version)
+
+    if requested == "ase":
+        if not allow_mock_fallback:
+            raise NotImplementedError("backend 'ase' is not wired in this environment")
+        logger.warning("backend 'ase' not wired here; using deterministic MockBenchmarkBackend")
         return MockBenchmarkBackend(model_id=model_id, distill_version=distill_version)
 
     raise ValueError(f"unsupported backend '{requested}'")

@@ -1,0 +1,49 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "MgO",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 4.253567800227412,
+      "unit": "Angstrom",
+      "reference_value": 4.255,
+      "reference_source": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table I, PBE column",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 5.0896802697139405,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 133.51736189185675,
+      "unit": "GPa",
+      "reference_value": 149.0,
+      "reference_source": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table V, PBE column",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 5.589540561743386,
+      "unit": "dimensionless",
+      "reference_value": 4.0,
+      "reference_source": "S. V. Sinogeikin and J. D. Bass (2000) - (dKS/dP) at 300 K = 4.0(1); as tabulated in D. Fan et al., Am. Mineral. 104, 262 (2019), Table 2",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "7b25f25a165b083e09690cb97423fd4a356cae20ab345fb1f2d3534e8215122a",
+    "run_label": null,
+    "computed_at": "2026-07-02T12:49:08.058537Z"
+  }
+}

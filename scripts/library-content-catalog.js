@@ -711,6 +711,58 @@ export const CATALOG = {
       "status": "live"
     },
     {
+      "id": "environment-error-field-paper",
+      "source": "paper/environment-error-field-2026-07-02.md",
+      "title": "The Environment Error Field — Manuscript",
+      "subtitle": "uMLIP property errors as projections of a smooth coordination field: blind r=0.906, run-time correction, machine-verified claims incl. the nulls.",
+      "category": "validation",
+      "tags": ["mlip", "y-matrix", "environment-field", "isotonic", "lean", "live-lab"],
+      "featured": true,
+      "featuredRole": "anchor",
+      "group": "mlip-flywheel",
+      "status": "live"
+    },
+    {
+      "id": "y-matrix-preregistration",
+      "source": "docs/plans/y-matrix-cross-property-preregistration-2026-07-01.md",
+      "title": "Y-Matrix Cross-Property Pre-Registration",
+      "subtitle": "Registered hypotheses, coupling-aware nulls, kill conditions — with preserved amendments including a same-day falsified Fe hypothesis.",
+      "category": "methods",
+      "tags": ["preregistration", "y-matrix", "nulls", "mlip"],
+      "group": "mlip-flywheel",
+      "status": "live"
+    },
+    {
+      "id": "y-matrix-confirmatory-results",
+      "source": "docs/plans/y-matrix-confirmatory-results-2026-07-01.md",
+      "title": "Y-Matrix Confirmatory Results — Rounds 1–2",
+      "subtitle": "Linear cross-property structure absent under honest nulls; defect/bulk split 15–60×; OMat retraining removes bias, not variance.",
+      "category": "validation",
+      "tags": ["mlip", "y-matrix", "confirmatory", "softening"],
+      "group": "mlip-flywheel",
+      "status": "live"
+    },
+    {
+      "id": "mrh-monotone-reparameterization",
+      "source": "docs/mrh-monotone-reparameterization.md",
+      "title": "The Monotone Reparameterization Hypothesis",
+      "subtitle": "Order right, size wrong: the family-owned warp of foundation-model error, its confirmed predictions, and its registered kill conditions.",
+      "category": "conjectures",
+      "tags": ["mrh", "error-geometry", "mlip", "ordinal"],
+      "group": "mlip-flywheel",
+      "status": "live"
+    },
+    {
+      "id": "formalization-ladder",
+      "source": "docs/formalization-ladder.md",
+      "title": "The Formalization Ladder",
+      "subtitle": "L0 receipts to L3 verified routing: making the proof kernel part of the research loop, with typed claim-shapes replacing threshold theater.",
+      "category": "formalization",
+      "tags": ["lean", "verification", "methodology"],
+      "group": "mlip-flywheel",
+      "status": "live"
+    },
+    {
       "id": "layer2-supercell-evaluation",
       "source": "docs/layer2_supercell_evaluation.md",
       "title": "Layer 2 Supercell Scaling Evaluation",

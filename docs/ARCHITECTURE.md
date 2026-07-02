@@ -63,6 +63,7 @@ flowchart TB
 | `lean-spec/` | Lean 4 formal specifications and proofs for materials-science claims. | Formal-methods contributors |
 | `data/` | Shared benchmark fixtures and evidence manifests (kept small; large artifacts live in GCS/R2). | Everyone |
 | `mlip_immi/` | Local real-data MLIP/IMMI analysis lane. | Research scientists |
+| `hpc/` | Vendor-neutral offline execution lane (Apptainer + SLURM) and the LAMMPS→Lean evidence bridge for external labs. | External HPC teams, research scientists |
 | `library-site/` | Public Lupine Library site generator. | Frontend/communications |
 | `atlas/` | LUPI molecular viewer and atomistic evidence surfaces. | Frontend engineers, scientists |
 | `archive/` | Retired roots kept for provenance. | Historians, maintainers |
@@ -84,6 +85,7 @@ flowchart TB
 | Add a new MLIP benchmark | `python/lupine_distill/benchmark.py` + `python/scripts/run_ni_gpu_loop.py` |
 | Add a new Distill policy rule | `atlas-distill/src/commands/distill_policy.rs` |
 | Add a formal proof obligation | `lean-spec/OpenDistillationFactory/Materials/` |
+| Run cells on my own cluster / ingest LAMMPS output | `hpc/README.md` |
 | Add a claim to the ledger | `docs/templates/publication.md` → `glim-think` feed |
 | Build the public Library | `library-site/README.md` |
 | Inspect a molecule | `atlas/atlas-view/apps/web/` → `lupi.live` |

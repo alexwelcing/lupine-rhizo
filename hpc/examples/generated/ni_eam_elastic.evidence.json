@@ -1,0 +1,206 @@
+{
+  "schema": "lupine.mlip.lammps_evidence.v1",
+  "material": "Ni",
+  "source": {
+    "potential_id": "Ni_u3.eam",
+    "lammps_version": "LAMMPS (2 Aug 2023 - Update 3)",
+    "input_script": "in.elastic"
+  },
+  "properties": [
+    {
+      "name": "C11",
+      "value": 246.79,
+      "unit": "GPa",
+      "reference_value": 246.5,
+      "reference_source": "Simmons & Wang 1971 (300 K single-crystal experiment)"
+    },
+    {
+      "name": "C22",
+      "value": 246.81,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C33",
+      "value": 246.76,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C12",
+      "value": 147.32,
+      "unit": "GPa",
+      "reference_value": 147.3,
+      "reference_source": "Simmons & Wang 1971 (300 K single-crystal experiment)"
+    },
+    {
+      "name": "C13",
+      "value": 147.29,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C23",
+      "value": 147.35,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C44",
+      "value": 124.85,
+      "unit": "GPa",
+      "reference_value": 124.7,
+      "reference_source": "Simmons & Wang 1971 (300 K single-crystal experiment)"
+    },
+    {
+      "name": "C55",
+      "value": 124.83,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C66",
+      "value": 124.87,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C14",
+      "value": -0.01,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C15",
+      "value": 0.0,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C16",
+      "value": 0.01,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C24",
+      "value": 0.0,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C25",
+      "value": -0.01,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C26",
+      "value": 0.0,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C34",
+      "value": 0.01,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C35",
+      "value": 0.0,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C36",
+      "value": -0.01,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C45",
+      "value": 0.0,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C46",
+      "value": 0.01,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "C56",
+      "value": 0.0,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "bulk_modulus",
+      "value": 180.48,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "shear_modulus_1",
+      "value": 124.85,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "shear_modulus_2",
+      "value": 49.74,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "poisson_ratio",
+      "value": 0.373804,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "lattice_constant",
+      "value": 3.5199,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": -4.4499,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null
+    }
+  ],
+  "trajectory": null,
+  "provenance": {
+    "log_sha256": "e806686e8220785fcfd6007f7a3f257d5e020f62d62c8f886f8a64cb53614708",
+    "log_name": "ni_eam_elastic.log",
+    "parsed_at": null
+  }
+}

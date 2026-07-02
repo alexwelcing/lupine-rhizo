@@ -1,0 +1,94 @@
+# Y-matrix micro-demonstration profiles.
+#
+# Consumed by python/scripts/run_y_matrix_pipeline.py:
+#
+#   python python/scripts/run_y_matrix_pipeline.py \
+#       --config config/y_matrix_demo.yaml --profile demo-small
+#
+# Both profiles live in this one file on purpose: a visiting lab gets a single
+# artifact, and the profile name is the only switch between the minutes-scale
+# acceptance demo and the full matrix. Relative paths resolve against the
+# repo root, so the command works from any directory.
+#
+# Schema: lupine.y_matrix_demo_config.v1 (validated on load by the pipeline;
+# unknown keys, unknown models/structures/properties, and physically
+# incompatible property requests — e.g. sfe on a bcc metal — fail fast).
+schema: lupine.y_matrix_demo_config.v1
+
+profiles:
+  # --------------------------------------------------------------------
+  # demo-small: Ni + Cu x mace-mp-small. Minutes on any GPU; CPU fallback
+  # is allowed so the demo also runs (more slowly) on a login node.
+  # This is the profile a visiting lab should run first.
+  # --------------------------------------------------------------------
+  demo-small:
+    description: >-
+      Two fcc metals x one small MACE model — the minutes-scale acceptance
+      demo. Produces the same evidence -> binding -> Lean -> packet chain as
+      the full matrix.
+    device: cuda
+    allow_cpu_fallback: true
+    models: [mace-mp-small]
+    materials:
+      - formula: Ni
+        structure: fcc
+        properties: &fcc_props [lattice, eos, vacancy, surfaces, sfe]
+      - formula: Cu
+        structure: fcc
+        properties: *fcc_props
+    output_dir: data/y_matrix_demo/demo-small
+    targets_dir: data/y_matrix_targets
+    lean_spec_dir: lean-spec
+    packet:
+      name: y-matrix-demo-small
+      tolerance_pct: 5.0
+
+  # --------------------------------------------------------------------
+  # demo-full: the 21-material x 4-model matrix (84 cells) exactly as run
+  # for the committed worked example in data/y_matrix_runs/. Property sets
+  # follow the material class: fcc elements get the full Tier-1 statics
+  # including surfaces + SFE; bcc elements drop SFE (fcc-only construction);
+  # diamond drops surfaces; rocksalt runs lattice + EOS; intermetallics add
+  # formation enthalpy. No CPU fallback — 84 cells on CPU is a deliberate
+  # choice, so ask for it explicitly with --device cpu.
+  # --------------------------------------------------------------------
+  demo-full:
+    description: >-
+      The full Y-matrix: 21 materials x 4 models (84 cells), matching the
+      committed worked example in data/y_matrix_runs/.
+    device: cuda
+    allow_cpu_fallback: false
+    models: [mace-mp-small, mace-mp-medium, mace-mpa-0-medium, chgnet]
+    materials:
+      # fcc elements — lattice, EOS, vacancy, surfaces, SFE
+      - {formula: Ag, structure: fcc, properties: *fcc_props}
+      - {formula: Al, structure: fcc, properties: *fcc_props}
+      - {formula: Au, structure: fcc, properties: *fcc_props}
+      - {formula: Ca, structure: fcc, properties: *fcc_props}
+      - {formula: Cu, structure: fcc, properties: *fcc_props}
+      - {formula: Ni, structure: fcc, properties: *fcc_props}
+      - {formula: Pd, structure: fcc, properties: *fcc_props}
+      - {formula: Pt, structure: fcc, properties: *fcc_props}
+      - {formula: Sr, structure: fcc, properties: *fcc_props}
+      # bcc elements — no SFE (the gamma-surface construction is fcc-only)
+      - {formula: Cr, structure: bcc, properties: &bcc_props [lattice, eos, vacancy, surfaces]}
+      - {formula: Fe, structure: bcc, properties: *bcc_props}
+      - {formula: Mo, structure: bcc, properties: *bcc_props}
+      - {formula: Nb, structure: bcc, properties: *bcc_props}
+      - {formula: Ta, structure: bcc, properties: *bcc_props}
+      - {formula: V, structure: bcc, properties: *bcc_props}
+      - {formula: W, structure: bcc, properties: *bcc_props}
+      # diamond — lattice, EOS, vacancy
+      - {formula: Si, structure: diamond, properties: [lattice, eos, vacancy]}
+      # rocksalt — lattice + EOS
+      - {formula: MgO, structure: rocksalt, properties: [lattice, eos]}
+      - {formula: NaCl, structure: rocksalt, properties: [lattice, eos]}
+      # intermetallics — lattice, EOS, formation enthalpy
+      - {formula: NiAl, structure: b2, properties: [lattice, eos, formation]}
+      - {formula: Ni3Al, structure: l12, properties: [lattice, eos, formation]}
+    output_dir: data/y_matrix_demo/demo-full
+    targets_dir: data/y_matrix_targets
+    lean_spec_dir: lean-spec
+    packet:
+      name: y-matrix-demo-full
+      tolerance_pct: 5.0

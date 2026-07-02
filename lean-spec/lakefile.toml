@@ -1,5 +1,7 @@
 name = "OpenDistillationFactory"
-defaultTargets = ["OpenDistillationFactory"]
+# LupineEvidence is a default target so a plain `lake build` (and the full CI
+# gate) re-verifies the generated evidence corpus on every commit.
+defaultTargets = ["OpenDistillationFactory", "LupineEvidence"]
 
 # ATLAS-Lean integration (Phase 1).
 #
@@ -26,3 +28,22 @@ rev = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
 
 [[lean_lib]]
 name = "OpenDistillationFactory"
+
+# LupineEvidence — generated evidence corpus (formalization ladder L1).
+#
+# Layout decision: a second lean_lib in THIS package (not a separate lake
+# package). The generated modules are dependency-free (no Mathlib/Atlas
+# imports), so `lake build LupineEvidence` compiles only the ~60 evidence
+# modules against the toolchain's prebuilt Init — seconds, never Mathlib.
+# Keeping one package avoids a second lakefile/manifest/toolchain to drift,
+# and lets the Theory layer import evidence modules directly at rungs L2/L3.
+#
+# `LupineEvidence.lean` is the reviewed manifest (import list); the
+# `LupineEvidence.+` glob additionally builds every .lean file in the tree so
+# an unlisted (orphan) module still compiles instead of silently rotting.
+# `scripts/check_evidence_manifest.sh` enforces manifest <-> tree bijection.
+# Generators write here directly: see
+# python/scripts/bind_y_matrix_references.py (--lean-dir default).
+[[lean_lib]]
+name = "LupineEvidence"
+globs = ["LupineEvidence", "LupineEvidence.+"]

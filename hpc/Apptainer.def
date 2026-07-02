@@ -1,0 +1,130 @@
+# ---------------------------------------------------------------------------
+# Unified MLIP cell-runner image -- Apptainer translation of
+# gcp/mlip-cell-runner/Dockerfile.unified for the vendor-neutral HPC lane
+# (see docs/decisions/0005-hpc-execution-lane.md).
+#
+# ONE definition for every universal-MLIP backend. The backend is chosen at
+# build time via the BACKEND build-arg, which selects the matching
+# optional-deps group from python/pyproject.toml
+# ([project.optional-dependencies].<backend>), exactly like the Docker image.
+#
+# Build (from the repo root, Apptainer >= 1.2 for --build-arg templating):
+#   apptainer build --build-arg BACKEND=mace mlip-runner-mace.sif hpc/Apptainer.def
+# Backends: mace | chgnet | sevennet | orb | matgl | uma
+#
+# Older Apptainer (< 1.2, no --build-arg): the {{ BACKEND }} placeholders are
+# plain text. Either render the file first, e.g.
+#   sed 's/{{ BACKEND }}/mace/g; s/{{ CUDA_IMAGE }}/nvidia\/cuda:12.1.1-devel-ubuntu22.04/g' \
+#       hpc/Apptainer.def > /tmp/mace.def && apptainer build mlip-runner-mace.sif /tmp/mace.def
+# or keep one rendered def per backend. Do not hand-edit backend lists here;
+# python/pyproject.toml stays the single source of truth for dependencies.
+#
+# Differences from the Docker image (documented, intentional):
+# * Apptainer has no USER directive; the container runs as the invoking
+#   cluster user instead of the dedicated `mlip` (uid 1000) user.
+# * ENTRYPOINT/CMD become %runscript; `apptainer run <sif> --help` matches
+#   `docker run <image> --help`.
+# * The build host needs network access to pull base images, apt packages,
+#   crates, and CUDA wheels. Build the .sif on a connected host, then copy it
+#   to the air-gapped cluster; running the .sif needs no network.
+# ---------------------------------------------------------------------------
+
+# --- Stage 1: build the atlas-distill policy engine (Rust). -----------------
+Bootstrap: docker
+From: rust:1-bullseye
+Stage: atlas_distill_builder
+
+%files
+    atlas-distill/Cargo.toml /build/atlas-distill/Cargo.toml
+    atlas-distill/Cargo.lock /build/atlas-distill/Cargo.lock
+    atlas-distill/src /build/atlas-distill/src
+
+%post
+    cargo build --release --manifest-path /build/atlas-distill/Cargo.toml --bin atlas-distill
+
+# --- Stage 2: the CUDA runtime image. ----------------------------------------
+Bootstrap: docker
+From: {{ CUDA_IMAGE }}
+Stage: runtime
+
+%arguments
+    BACKEND=mace
+    CUDA_IMAGE=nvidia/cuda:12.1.1-devel-ubuntu22.04
+
+# Copy the dependency manifest and the Python packages, plus the runner
+# entrypoint and telemetry/loop seam modules (mirrors the Dockerfile COPYs).
+%files
+    python/pyproject.toml /app/pyproject.toml
+    python/README.md /app/README.md
+    python/lupine_distill /app/lupine_distill
+    python/lupine_distill_runtime /app/lupine_distill_runtime
+    gcp/mlip-cell-runner/mlip_cell_runner.py /app/mlip_cell_runner.py
+    gcp/mlip-cell-runner/src /app/src
+
+%files from atlas_distill_builder
+    /build/atlas-distill/target/release/atlas-distill /usr/local/bin/atlas-distill
+
+%post
+    set -eu
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        g++ \
+        python3 \
+        python3-dev \
+        python3-pip \
+        python3-venv
+    rm -rf /var/lib/apt/lists/*
+
+    # CUDA wheel indexes. torch + dgl ship CUDA-specific wheels from custom
+    # indexes that PEP 621 forbids inside pyproject; pass them at install time.
+    export PIP_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu121
+    DGL_FIND_LINKS=https://data.dgl.ai/wheels/torch-2.4/cu121/repo.html
+
+    # Install core + the selected backend's extra in one resolver pass. The
+    # matgl backend additionally needs the DGL find-links index.
+    cd /app
+    python3 -m pip install --no-cache-dir --upgrade pip
+    if [ "{{ BACKEND }}" = "matgl" ]; then
+        python3 -m pip install --no-cache-dir --find-links "${DGL_FIND_LINKS}" ".[matgl]"
+    else
+        python3 -m pip install --no-cache-dir ".[{{ BACKEND }}]"
+    fi
+
+    # Fail closed at build time: the policy engine and runner must both answer
+    # --help, otherwise the image is broken and we want to know now, not at run.
+    /usr/local/bin/atlas-distill distill-policy --help >/dev/null
+    python3 /app/mlip_cell_runner.py --help >/dev/null
+
+%environment
+    export BACKEND={{ BACKEND }}
+    export MLIP_BACKEND={{ BACKEND }}
+    export PYTHONUNBUFFERED=1
+    export MATGL_BACKEND=DGL
+    export ATLAS_DISTILL_BIN=/usr/local/bin/atlas-distill
+    export MLIP_DISTILL_POLICY_ENGINE=auto
+    export MLIP_DISTILL_RIBBON_VERSION=hyperribbon-v1
+    # Telemetry is opt-in. Left unset, the patcher/connector run as logged no-ops.
+    export LUPINE_OTEL_ENABLED=0
+
+%runscript
+    exec python3 /app/mlip_cell_runner.py "$@"
+
+%test
+    python3 /app/mlip_cell_runner.py --help >/dev/null
+    /usr/local/bin/atlas-distill distill-policy --help >/dev/null
+
+%labels
+    org.lupine.image mlip-cell-runner
+    org.lupine.backend {{ BACKEND }}
+    org.lupine.source gcp/mlip-cell-runner/Dockerfile.unified
+
+%help
+    Managed universal-MLIP benchmark cell runner (offline HPC lane).
+    Run one cell:
+      apptainer run --nv mlip-runner-<backend>.sif run-cell \
+        --run-id r1 --cell-id c1 --row-id energy_volume --mlip-id mace-mp-0 \
+        --manifest-url file:///path/to/manifest.json \
+        --artifact-prefix /path/to/artifacts
+    Batch / SLURM array usage: see hpc/slurm/README.md.

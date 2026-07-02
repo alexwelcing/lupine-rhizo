@@ -10,6 +10,8 @@ __pycache__/
 *.egg-info/
 wasm-out/
 *.log
+# committed test fixtures are exempt from the log rule
+!hpc/examples/sample_logs/*.log
 .DS_Store
 *.data
 *.dump
@@ -35,6 +37,11 @@ archive/distiller-kb/runs/pipeline_report.json
 # NIST IPR local mirror (large binary parameter files)
 atlas/nist_ipr/files/
 atlas/nist_ipr/mirror.log
+
+# Machine-local LAMMPS potential/result payloads (fetch via tools/fetch_potentials.py).
+# Already-tracked files stay tracked; a top-level README may still be committed.
+atlas-distill/lammps_runs/*
+!atlas-distill/lammps_runs/README.md
 
 # OpenKIM API cache
 .atlas-cache/
@@ -101,3 +108,4 @@ tools/hermes-hive/data/
 .sisyphus/
 lupi-studio-pr/
 archive/kimi-workspace-export/
+.venv-mlip312/

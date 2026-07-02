@@ -1,0 +1,57 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Ni3Al",
+  "source": {
+    "model_id": "mace-mp-small",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 3.5566311587106125,
+      "unit": "Angstrom",
+      "reference_value": 3.565,
+      "reference_source": "E. Chen, A. Tamm, T. Wang, M. E. Epler, M. Asta, T. Frolov, 'Modeling antiphase boundary energies of Ni3Al-based alloys using automated density functional theory and machine learning', npj Comput. Mater. 8 (2022); LLNL-JRNL-825551 - VASP, PAW, GGA-PBE",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 4.446392705438607,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 192.13222034243145,
+      "unit": "GPa",
+      "reference_value": 175.0,
+      "reference_source": "M. H. Yoo, Acta Metall. 35, 1559-1569 (1987); as tabulated in Ward et al., arXiv:1209.0619, Table 1",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 4.921417989807908,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "formation_enthalpy",
+      "value": -0.4880323455929645,
+      "unit": "eV/atom",
+      "reference_value": -0.4325,
+      "reference_source": "Materials Project entry mp-2593 (PBE, GGA), formation energy as recorded in the Kim et al. Sci. Data 4, 170162 (2017) dataset",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "103e0ecfc49f82d721b70034831ab39beef698fd6f95bab8a24014e82c907006",
+    "run_label": null,
+    "computed_at": "2026-07-02T05:40:05.384917Z"
+  }
+}

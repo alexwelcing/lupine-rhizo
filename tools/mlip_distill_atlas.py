@@ -83,6 +83,27 @@ def _safe(s: str) -> str:
     return "".join(c if c.isalnum() else "_" for c in s).strip("_")
 
 
+def _verify_lean_module(lean_file: Path) -> bool:
+    """Compile one generated module with `lean`; True iff it machine-checks.
+
+    Any failure — nonzero exit, `sorry` in diagnostics, missing lean binary,
+    timeout — counts as NOT verified. The atlas_theorems seed must never claim
+    'verified' for a theorem whose module did not actually compile (downstream
+    glim-think projects that status into agents' FormalBasis).
+    """
+    try:
+        rc = subprocess.run(
+            ["lean", str(lean_file)], cwd=str(LEAN_SPEC), capture_output=True, text=True, timeout=120
+        )
+    except FileNotFoundError:
+        print("[!!] lean executable not found on PATH — module NOT verified")
+        return False
+    except Exception as exc:  # pragma: no cover - environment dependent
+        print(f"[!!] lean verify raised: {exc} — module NOT verified")
+        return False
+    return rc.returncode == 0 and "sorry" not in (rc.stdout + rc.stderr).lower()
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         print("usage: mlip_distill_atlas.py LABEL=dir [LABEL=dir ...]")
@@ -166,6 +187,7 @@ def main(argv: list[str]) -> int:
             theorem_names.append((f"Lupine.DistillAtlas.{_safe(r['material'])}.{aname}", f"Lupine.DistillAtlas.{_safe(r['material'])}"))
 
     verified = 0
+    module_ok: dict[str, bool] = {}  # lean module namespace -> actually compiled?
     for mat, thms in by_mat.items():
         ns = f"Lupine.DistillAtlas.{_safe(mat)}"
         src = (
@@ -175,20 +197,21 @@ def main(argv: list[str]) -> int:
         )
         lf = LEAN_OUT / f"{_safe(mat)}.lean"
         lf.write_text(src, encoding="utf-8")
-        try:
-            rc = subprocess.run(["lean", str(lf)], cwd=str(LEAN_SPEC), capture_output=True, text=True, timeout=120)
-            ok = rc.returncode == 0 and "sorry" not in (rc.stdout + rc.stderr).lower()
-        except Exception:
-            ok = False
+        ok = _verify_lean_module(lf)
+        module_ok[ns] = ok
         verified += 1 if ok else 0
         print(f"[{'OK' if ok else '!!'}] lean {lf.relative_to(_REPO)} ({len(thms)} theorems)")
 
     # ---- seed ----
+    # Per-theorem status mirrors the ACTUAL lean result of its module:
+    # 'verified' iff that module compiled, 'failed' otherwise (both in the D1
+    # CHECK vocabulary of glim-think/migrations/0010_atlas_theorems.sql).
     SEED.parent.mkdir(parents=True, exist_ok=True)
     SEED.write_text(
         "\n".join(
             f"INSERT OR IGNORE INTO atlas_theorems (facet, theorem_name, module, revision, status, used_in_hypotheses) "
-            f"VALUES ('experiment', '{n}', '{m}', '{ATLAS_REV}', 'verified', 1);"
+            f"VALUES ('experiment', '{n}', '{m}', '{ATLAS_REV}', "
+            f"'{'verified' if module_ok.get(m, False) else 'failed'}', 1);"
             for n, m in theorem_names
         ) + "\n",
         encoding="utf-8",
@@ -227,6 +250,13 @@ def main(argv: list[str]) -> int:
     REPORT.write_text("\n".join(lines), encoding="utf-8")
     print(f"\natlas: {len(rows_out)} pairings | {improves} improve / {regress} regress / {accel_wins} accel-wins")
     print(f"report -> {REPORT.relative_to(_REPO)} | lean -> {LEAN_OUT.relative_to(_REPO)} | seed -> {SEED.relative_to(_REPO)}")
+    failed_modules = sorted(m for m, ok in module_ok.items() if not ok)
+    if failed_modules:
+        print(
+            f"error: {len(failed_modules)}/{len(module_ok)} lean module(s) failed verification "
+            f"({', '.join(failed_modules)}); their seed rows are marked 'failed'"
+        )
+        return 1
     return 0
 
 

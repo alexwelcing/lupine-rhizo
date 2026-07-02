@@ -1,0 +1,110 @@
+{
+  "cells": [
+    {
+      "artifact_path": "/home/user/lupine-rhizo/tmp/local_validation_cloud-cpu-baseline-2026-07-02/cells/energy_volume/chgnet/cpu/cell_result.json",
+      "cell_id": "cloud-cpu-baseline-2026-07-02:baseline:energy_volume:chgnet:cpu",
+      "cuda_available": false,
+      "cuda_device": null,
+      "device": "cpu",
+      "exit_code": 0,
+      "metrics": {
+        "accuracy_score": 0.0,
+        "error": 1.2940121370734792,
+        "error_unit": "ev_per_atom_mae_vs_mishin_eam",
+        "model_load_seconds": 2.3035634889999983,
+        "n_structures": 8,
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score_tolerance": 0.08,
+        "speed_structures_per_second": 23.74963028134278,
+        "warm_inference_seconds": 0.3368473489999815
+      },
+      "mlip_id": "chgnet",
+      "ok": true,
+      "row_id": "energy_volume",
+      "wall_seconds": 3.407
+    },
+    {
+      "artifact_path": "/home/user/lupine-rhizo/tmp/local_validation_cloud-cpu-baseline-2026-07-02/cells/forces/chgnet/cpu/cell_result.json",
+      "cell_id": "cloud-cpu-baseline-2026-07-02:baseline:forces:chgnet:cpu",
+      "cuda_available": false,
+      "cuda_device": null,
+      "device": "cpu",
+      "exit_code": 0,
+      "metrics": {
+        "accuracy_score": 0.37806828110498114,
+        "error": 0.12438634377900379,
+        "error_unit": "ev_per_angstrom_rmse_vs_mishin_eam",
+        "model_load_seconds": 2.2060580309999978,
+        "n_structures": 5,
+        "primary_metric": "force_rmse_ev_per_angstrom",
+        "score_tolerance": 0.2,
+        "speed_structures_per_second": 4.779619707684269,
+        "warm_inference_seconds": 1.046108332000017
+      },
+      "mlip_id": "chgnet",
+      "ok": true,
+      "row_id": "forces",
+      "wall_seconds": 4.123
+    },
+    {
+      "artifact_path": "/home/user/lupine-rhizo/tmp/local_validation_cloud-cpu-baseline-2026-07-02/cells/elastic_constants/chgnet/cpu/cell_result.json",
+      "cell_id": "cloud-cpu-baseline-2026-07-02:baseline:elastic_constants:chgnet:cpu",
+      "cuda_available": false,
+      "cuda_device": null,
+      "device": "cpu",
+      "exit_code": 0,
+      "metrics": {
+        "accuracy_score": 0.2677662463500473,
+        "error": 25.628181377748344,
+        "error_unit": "gpa_mae_vs_literature_cij",
+        "model_load_seconds": 2.2387398170000097,
+        "n_structures": 24,
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score_tolerance": 35.0,
+        "speed_structures_per_second": 24.87802614755149,
+        "warm_inference_seconds": 0.9647067600000128
+      },
+      "mlip_id": "chgnet",
+      "ok": true,
+      "row_id": "elastic_constants",
+      "wall_seconds": 3.945
+    }
+  ],
+  "created_at": "2026-07-02T02:07:17+00:00",
+  "devices": [
+    "cpu"
+  ],
+  "host": {
+    "hostname": "vm",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.5-x86_64-with-glibc2.39",
+    "python": "3.11.15",
+    "runner_versions": {
+      "ase": "3.29.0",
+      "chgnet": "0.4.2",
+      "cuda_available": false,
+      "cuda_device": null,
+      "mace-torch": "0.3.16",
+      "numpy": "2.4.6",
+      "python": "3.11.15",
+      "torch": "2.12.1+cpu"
+    }
+  },
+  "manifest": "/home/user/lupine-rhizo/gcp/mlip-cell-runner/fixtures/ni_fcc_eam_distill_support_v1.json",
+  "mlips": [
+    "chgnet"
+  ],
+  "rows": [
+    "energy_volume",
+    "forces",
+    "elastic_constants"
+  ],
+  "run_id": "cloud-cpu-baseline-2026-07-02",
+  "schema": "lupine.mlip.local_validation_report.v1",
+  "speedups": [],
+  "summary": {
+    "cells_failed": 0,
+    "cells_ok": 3,
+    "cells_total": 3
+  }
+}

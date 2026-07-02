@@ -64,7 +64,9 @@ models:
 # 4. Target specification
 # ---------------------------------------------------------------------------
 targets:
-  path: lupine/data/targets_0K.json
+  # Sibling `lupine` checkout next to lupine-rhizo; resolved as
+  # ../lupine/data/targets_0K.json by scripts/aggregate_mlip_elastic_benchmark.py.
+  path: ../lupine/data/targets_0K.json
   schema: lupine.targets_0K.v3
   headline_field: TPBE_0K          # PBE 0K elastic constants
   sensitivity_field: Tr2SCAN_0K   # Scalar bulk-modulus shifted
@@ -98,7 +100,9 @@ arms:
       method: LOO-PCA
       bias_source: per-element leave-one-out on TensorNet/PBE 1x1x1 errors
       shift_source: TPBE_0K -> Tr2SCAN_0K (for sensitivity); 0 for headline
-      operator_module: lupine/python/lupine/operator.py
+      # Sibling `lupine` checkout; imported as lupine.operator by
+      # scripts/aggregate_mlip_elastic_benchmark.py.
+      operator_module: ../lupine/python/lupine/operator.py
       operator_functions: [correct, leave_one_out_calibration]
     n_cases: 16
     existing_data: none          # Derived post-hoc from arm A
@@ -184,7 +188,7 @@ scripts:
     outputs: arm B corrected predictions
 
   aggregate:
-    path: lupine/python/lupine/mlip_elastic_benchmark_aggregate.py
+    path: lupine-rhizo/scripts/aggregate_mlip_elastic_benchmark.py
     description: Roll per-case JSONs into mlip_elastic_benchmark_results.json
     inputs: [arm A, B, C, D results]
     outputs: [mlip_elastic_benchmark_results.json]
@@ -197,17 +201,17 @@ scripts:
               fig3_operator_vs_ensemble.png, fig4_error_stratification.png]
 
   verify:
-    path: lupine-rhizo/scripts/verify_mlip_elastic_benchmark.py
-    description: 2-element smoke test (Ca + Cu, one per bonding class)
-    inputs: [config/mlip_elastic_benchmark.yaml]
-    outputs: [smoke_test_results.json]
+    path: lupine-rhizo/scripts/validate_mlip_elastic_benchmark.py
+    description: Validate aggregate results against lupine.mlip_elastic_benchmark.v1
+    inputs: [mlip_elastic_benchmark_results.json]
+    outputs: []          # exit 0 on pass; schema errors on stderr otherwise
     max_runtime_seconds: 300
 
 # ---------------------------------------------------------------------------
 # 9. Reproducibility contract
 # ---------------------------------------------------------------------------
 reproducibility:
-  apptainer_def: lupine-rhizo/Apptainer.def
+  apptainer_def: lupine-rhizo/hpc/Apptainer.def
   pinned_versions:
     python: "3.11"
     matgl: "1.2.0"        # Exact version TBD by artifact task from current env
@@ -217,9 +221,10 @@ reproducibility:
   single_command: |
     git clone <repo>
     cd lupine-rhizo
-    apptainer build mlip-elastic-benchmark-2026.sif Apptainer.def
-    apptainer run mlip-elastic-benchmark-2026.sif
-    python scripts/verify_mlip_elastic_benchmark.py
+    apptainer build --build-arg BACKEND=matgl mlip-elastic-benchmark-2026.sif hpc/Apptainer.def
+    # Run the benchmark cells on SLURM (see hpc/slurm/README.md), then:
+    python scripts/aggregate_mlip_elastic_benchmark.py
+    python scripts/validate_mlip_elastic_benchmark.py
 
 # ---------------------------------------------------------------------------
 # 10. Downstream dependencies

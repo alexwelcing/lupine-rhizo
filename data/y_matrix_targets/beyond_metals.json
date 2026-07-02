@@ -1,0 +1,338 @@
+{
+ "schema": "lupine.y_matrix_targets.v1",
+ "compiled_at": "2026-07-01",
+ "family": "beyond_metals",
+ "entries": [
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "lattice_constant_a",
+   "value": 5.431,
+   "unit": "angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Ioffe Institute NSM Archive, Silicon, Basic Parameters page (300 K)",
+    "doi_or_url": "https://www.ioffe.ru/SVA/NSM/Semicond/Si/basic.html",
+    "notes": "Verified 2026-07-01 via WebFetch: 'Lattice constant 5.431 A' at 300 K, diamond structure. Zhang et al. (NJP 20, 063020) SI lattice-constant table lists Exp. = 5.430 A for Si."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "lattice_constant_a",
+   "value": 5.466,
+   "unit": "angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table I, PBE column (BAND/LCAO)",
+    "doi_or_url": "https://arxiv.org/abs/0903.4037",
+    "notes": "Verified 2026-07-01 by pypdf extraction of arXiv:0903.4037: Table I Si row, PBE = 5.466 A. Cross-check: Zhang et al. (FHI-aims PBE, uncorrected) give 5.470 A."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 99.2,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary tables Table V 'Exp.' column (thermally corrected to low temperature, no ZPPE removal)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP SI: Table V Si Exp. = 99.2 GPa; Csonka et al. Table V independently list 99.2. Room-temperature adiabatic value on the Ioffe NSM mechanic page is Bs = 9.8e11 dyn/cm^2 = 98 GPa."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "bulk_modulus",
+   "value": 89.2,
+   "unit": "GPa",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table V, PBE column (SJ EOS, BAND/LCAO)",
+    "doi_or_url": "https://arxiv.org/abs/0903.4037",
+    "notes": "Verified 2026-07-01 by pypdf extraction: Table V Si PBE = 89.2 GPa. Cross-check: Zhang et al. SI Table V PBE (uncorrected) = 88.6 GPa."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "elastic_constant_C11",
+   "value": 166.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Ioffe Institute NSM Archive, Silicon, Mechanical properties page (300 K)",
+    "doi_or_url": "https://www.ioffe.ru/SVA/NSM/Semicond/Si/mechanic.html",
+    "notes": "Verified 2026-07-01 via WebFetch: C11 = 16.60, C12 = 6.40, C44 = 7.96 (units 1e11 dyn/cm^2 = 10 GPa each), i.e. 166.0 / 64.0 / 79.6 GPa at 300 K."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "elastic_constant_C12",
+   "value": 64.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Ioffe Institute NSM Archive, Silicon, Mechanical properties page (300 K)",
+    "doi_or_url": "https://www.ioffe.ru/SVA/NSM/Semicond/Si/mechanic.html",
+    "notes": "Verified 2026-07-01 via WebFetch: C11 = 16.60, C12 = 6.40, C44 = 7.96 (units 1e11 dyn/cm^2 = 10 GPa each), i.e. 166.0 / 64.0 / 79.6 GPa at 300 K."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "elastic_constant_C44",
+   "value": 79.6,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Ioffe Institute NSM Archive, Silicon, Mechanical properties page (300 K)",
+    "doi_or_url": "https://www.ioffe.ru/SVA/NSM/Semicond/Si/mechanic.html",
+    "notes": "Verified 2026-07-01 via WebFetch: C11 = 16.60, C12 = 6.40, C44 = 7.96 (units 1e11 dyn/cm^2 = 10 GPa each), i.e. 166.0 / 64.0 / 79.6 GPa at 300 K."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "vacancy_formation_energy",
+   "value": 3.63,
+   "unit": "eV",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "N. L. Matsko, arXiv:2304.07873 (2023), Table 2 - neutral relaxed vacancy (D2d), 214/217-atom supercell, VASP PBE",
+    "doi_or_url": "https://arxiv.org/abs/2304.07873",
+    "notes": "Verified 2026-07-01 by pypdf extraction: Table 2, 214-217 atom supercell, PBE vacancy Ef = 3.63 eV (64-atom cell: 3.6 eV). WELL-KNOWN DFT SPREAD: Salihbegovic, Gallo, Gruneis (arXiv:2306.11669) state LDA/GGA/hybrid predictions span 2-4.5 eV; their converged CCSD(T)-FS-FPC vacancy value (16-atom cell) is 3.993 eV; Matsko's GPP G0W0 gives 4.44-6.05 eV depending on mixing; Corsetti & Mostofi (arXiv:1010.3921, LDA) obtain ~3.45-3.55 eV for relaxed v0 in 256/1000-atom cells."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "vacancy_formation_energy",
+   "value": 3.6,
+   "unit": "eV",
+   "method": "experiment",
+   "source": {
+    "citation": "S. Dannefaer, P. Mascher, D. Kerr, Phys. Rev. Lett. 56, 2195 (1986) - positron lifetime spectroscopy, 3.6 +/- 0.2 eV",
+    "doi_or_url": "https://doi.org/10.1103/PhysRevLett.56.2195",
+    "notes": "Verification 2026-07-01 is WEAKER than other entries: the APS page could not be fetched directly (403); the value 3.6 +/- 0.2 eV for the neutral monovacancy formation enthalpy was verified from the abstract text surfaced in web-search results for PRL 56, 2195. Flagged in unresolved list."
+   }
+  },
+  {
+   "material": "Si",
+   "structure": "diamond",
+   "property": "gamma_optical_phonon_frequency",
+   "value": 15.5,
+   "unit": "THz",
+   "method": "experiment",
+   "source": {
+    "citation": "Ioffe Institute NSM Archive, Silicon, Mechanical/phonon properties page: nu_LTO(Gamma_25') at 300 K; primary phonon dispersion data: Dolling (1963), Tubino et al. (1972)",
+    "doi_or_url": "https://www.ioffe.ru/SVA/NSM/Semicond/Si/mechanic.html",
+    "notes": "Verified 2026-07-01 via WebFetch: 'nu_LTO(Gamma_25') = 15.5 x 10^12 Hz' at T = 300 K. The Raman shift commonly quoted (~520 cm^-1 = 15.59 THz) is consistent within the page's 3-digit precision."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "lattice_constant_a",
+   "value": 4.2116,
+   "unit": "angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "Y. Tange et al. (2009) MgO reference volume V0 = 74.698 A^3 (conventional cell), as fixed in S. M. Dorfman, V. B. Prakapenka, Y. Meng, T. S. Duffy, J. Geophys. Res. 117, B08210 (2012), Table 2",
+    "doi_or_url": "https://doi.org/10.1029/2012JB009292",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the Dorfman PDF (duffy.princeton.edu mirror): Table 2 MgO V0 = 74.698 A^3 (fixed). a0 DERIVED here as cube root: 74.698^(1/3) = 4.2116 A (rocksalt conventional cubic cell, 4 formula units). Zhang et al. SI lattice table lists Exp. = 4.207 A (low-temperature-corrected)."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "lattice_constant_a",
+   "value": 4.255,
+   "unit": "angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table I, PBE column",
+    "doi_or_url": "https://arxiv.org/abs/0903.4037",
+    "notes": "Verified 2026-07-01 by pypdf extraction: Table I MgO PBE = 4.255 A. Cross-check: Zhang et al. SI (FHI-aims PBE, uncorrected) = 4.254 A."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "bulk_modulus_adiabatic_300K",
+   "value": 163,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "S. V. Sinogeikin and J. D. Bass, Phys. Earth Planet. Inter. (2000) - Brillouin scattering, KS0 = 163(1) GPa; as tabulated in D. Fan et al., Am. Mineral. 104, 262 (2019), Table 2",
+    "doi_or_url": "https://www.jsg.utexas.edu/lin/files/FanPericlaseHighPTElasticityAM2019.pdf",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the Fan et al. PDF: Table 2 'Sinogeikin and Bass (2000) BLS 163(1)'. Ultrasonic value (Jackson & Niesler 1982): 162.5(2). Fan et al. own BLS: 162.8(2). Zhang et al. 0K-extrapolated tabulation: 168.8 GPa; Tange 2009 isothermal reference: 160.6 GPa - differences reflect adiabatic/isothermal and temperature conventions."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "bulk_modulus",
+   "value": 149,
+   "unit": "GPa",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table V, PBE column",
+    "doi_or_url": "https://arxiv.org/abs/0903.4037",
+    "notes": "Verified 2026-07-01 by pypdf extraction: Table V MgO PBE = 149 GPa. Cross-check: Zhang et al. SI Table V PBE (uncorrected) = 149.4 GPa."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "elastic_constant_C11",
+   "value": 298,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "S. V. Sinogeikin and J. D. Bass (2000) - Brillouin scattering at ambient conditions; as tabulated in D. Fan et al., Am. Mineral. 104, 262 (2019), Table 1",
+    "doi_or_url": "https://www.jsg.utexas.edu/lin/files/FanPericlaseHighPTElasticityAM2019.pdf",
+    "notes": "Verified 2026-07-01 by pypdf extraction of Fan et al. Table 1: Sinogeikin & Bass (2000) row: C11 = 298(2), C12 = 96(1), C44 = 154(2) GPa. This entry: 298(2) GPa. Fan et al. own BLS values: C11 = 297.9(6), C12 = 95.1(5), C44 = 152.8(4) GPa."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "elastic_constant_C12",
+   "value": 96,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "S. V. Sinogeikin and J. D. Bass (2000) - Brillouin scattering at ambient conditions; as tabulated in D. Fan et al., Am. Mineral. 104, 262 (2019), Table 1",
+    "doi_or_url": "https://www.jsg.utexas.edu/lin/files/FanPericlaseHighPTElasticityAM2019.pdf",
+    "notes": "Verified 2026-07-01 by pypdf extraction of Fan et al. Table 1: Sinogeikin & Bass (2000) row: C11 = 298(2), C12 = 96(1), C44 = 154(2) GPa. This entry: 96(1) GPa. Fan et al. own BLS values: C11 = 297.9(6), C12 = 95.1(5), C44 = 152.8(4) GPa."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "elastic_constant_C44",
+   "value": 154,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "S. V. Sinogeikin and J. D. Bass (2000) - Brillouin scattering at ambient conditions; as tabulated in D. Fan et al., Am. Mineral. 104, 262 (2019), Table 1",
+    "doi_or_url": "https://www.jsg.utexas.edu/lin/files/FanPericlaseHighPTElasticityAM2019.pdf",
+    "notes": "Verified 2026-07-01 by pypdf extraction of Fan et al. Table 1: Sinogeikin & Bass (2000) row: C11 = 298(2), C12 = 96(1), C44 = 154(2) GPa. This entry: 154(2) GPa. Fan et al. own BLS values: C11 = 297.9(6), C12 = 95.1(5), C44 = 152.8(4) GPa."
+   }
+  },
+  {
+   "material": "MgO",
+   "structure": "rocksalt",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 4.0,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "S. V. Sinogeikin and J. D. Bass (2000) - (dKS/dP) at 300 K = 4.0(1); as tabulated in D. Fan et al., Am. Mineral. 104, 262 (2019), Table 2",
+    "doi_or_url": "https://www.jsg.utexas.edu/lin/files/FanPericlaseHighPTElasticityAM2019.pdf",
+    "notes": "Verified 2026-07-01 by pypdf extraction of Fan et al. Table 2. Fan et al. own value: 3.94(5). DAC-scale Vinet value fixed by Tange 2009 (via Dorfman Table 2): K0' = 4.37."
+   }
+  },
+  {
+   "material": "NaCl",
+   "structure": "rocksalt",
+   "property": "lattice_constant_a",
+   "value": 5.642,
+   "unit": "angstrom",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1: NaCl-B1 V0 = 44.90(12) A^3 per formula unit (300 K)",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 NaCl-B1 V0 = 44.90(12) A^3/formula unit. a0 DERIVED here: (4 x 44.90)^(1/3) = 5.642 A (rocksalt cell, 4 formula units); consistent with the standard room-temperature value ~5.640 A."
+   }
+  },
+  {
+   "material": "NaCl",
+   "structure": "rocksalt",
+   "property": "lattice_constant_a",
+   "value": 5.7,
+   "unit": "angstrom",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table I, PBE column",
+    "doi_or_url": "https://arxiv.org/abs/0903.4037",
+    "notes": "Verified 2026-07-01 by pypdf extraction: Table I NaCl PBE = 5.700 A. Cross-check: Zhang et al. SI (FHI-aims PBE, uncorrected) = 5.698 A."
+   }
+  },
+  {
+   "material": "NaCl",
+   "structure": "rocksalt",
+   "property": "bulk_modulus_isothermal_300K",
+   "value": 24.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit of NaCl-B1 DAC data 0-35 GPa at 300 K (Mao ruby calibration column): K0 = 24.0(8) GPa",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction: NaCl-B1 row: V0 = 44.90(12), K0 = 24.0(8), K0' = 5.09(6) [Mao scale]; Dorogokupets-calibration column: 23.4, 5.29. Low-temperature-corrected tabulations run higher: Csonka et al. Table V Exp. = 26.6 GPa; Zhang et al. SI = 28.5 GPa (0 K extrapolations)."
+   }
+  },
+  {
+   "material": "NaCl",
+   "structure": "rocksalt",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 5.09,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit of NaCl-B1 DAC data 0-35 GPa at 300 K (Mao ruby calibration column)",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction: NaCl-B1 K0' = 5.09(6) [Mao scale]; 5.29 with the Dorogokupets calibration. Applies to the B1 (rocksalt) phase below the ~30 GPa B1->B2 transition."
+   }
+  },
+  {
+   "material": "NaCl",
+   "structure": "rocksalt",
+   "property": "bulk_modulus",
+   "value": 23.6,
+   "unit": "GPa",
+   "method": "DFT-PBE",
+   "source": {
+    "citation": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table V, PBE column",
+    "doi_or_url": "https://arxiv.org/abs/0903.4037",
+    "notes": "Verified 2026-07-01 by pypdf extraction: Table V NaCl PBE = 23.6 GPa. Cross-check: Zhang et al. SI Table V PBE (uncorrected) = 23.7 GPa."
+   }
+  }
+ ],
+ "unresolved": [
+  {
+   "material": "Si",
+   "property": "vacancy_formation_energy",
+   "method": "experiment",
+   "note": "The Dannefaer et al. (1986) positron value 3.6 +/- 0.2 eV could only be verified from the abstract text surfaced in search results (APS page returned 403 to direct fetch). Entry included but flagged as weaker provenance."
+  },
+  {
+   "material": "Si",
+   "property": "elastic_constants_C11_C12_C44",
+   "method": "DFT-PBE",
+   "note": "No fetchable PBE elastic-constant table for diamond Si was verified this session (de Jong et al. 2015 database values not independently confirmed). Unresolved."
+  },
+  {
+   "material": "MgO",
+   "property": "elastic_constants_C11_C12_C44",
+   "method": "DFT-PBE",
+   "note": "Same as Si: PBE elastic constants not verified this session. Unresolved."
+  },
+  {
+   "material": "Si",
+   "property": "gamma_optical_phonon_frequency",
+   "method": "DFT-PBE",
+   "note": "No verifiable PBE value for the Gamma LTO phonon of Si was fetched this session. Unresolved."
+  },
+  {
+   "material": "NaCl",
+   "property": "elastic_constants",
+   "method": "experiment",
+   "note": "Not sought (outside the family specification: NaCl targets are a0 and B0 only)."
+  }
+ ]
+}

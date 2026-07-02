@@ -18,9 +18,15 @@ from .constants import (
     REGRESSION_THRESHOLD,
 )
 from .schemas import (
+    LAMMPS_EVIDENCE_SCHEMA,
     Backend,
     BenchmarkMetrics,
     BenchmarkResult,
+    LammpsEvidence,
+    LammpsPropertyValue,
+    LammpsProvenance,
+    LammpsSource,
+    LammpsTrajectorySummary,
     PromotionRecommendation,
 )
 from .suite import BENCHMARK_SUITE, BENCHMARK_WEIGHTS, resolve_suite
@@ -31,9 +37,15 @@ __all__ = [
     "BENCHMARK_SUITE",
     "BENCHMARK_SUITE_VERSION",
     "BENCHMARK_WEIGHTS",
+    "LAMMPS_EVIDENCE_SCHEMA",
     "Backend",
     "BenchmarkMetrics",
     "BenchmarkResult",
+    "LammpsEvidence",
+    "LammpsPropertyValue",
+    "LammpsProvenance",
+    "LammpsSource",
+    "LammpsTrajectorySummary",
     "MIN_UPLIFT_THRESHOLD",
     "PromotionRecommendation",
     "REGRESSION_THRESHOLD",
