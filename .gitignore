@@ -10,6 +10,8 @@ __pycache__/
 *.egg-info/
 wasm-out/
 *.log
+# committed test fixtures are exempt from the log rule
+!hpc/examples/sample_logs/*.log
 .DS_Store
 *.data
 *.dump

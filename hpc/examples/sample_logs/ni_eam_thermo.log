@@ -1,0 +1,28 @@
+LAMMPS (2 Aug 2023 - Update 3)
+  using 1 OpenMP thread(s) per MPI task
+# NVT MD of fcc Ni at 300 K, EAM Ni_u3.eam
+units		metal
+boundary	p p p
+Lattice spacing in x,y,z = 3.52 3.52 3.52
+Created orthogonal box = (0 0 0) to (17.6 17.6 17.6)
+  1 by 1 by 1 MPI processor grid
+Created 320 atoms
+Reading eam potential file Ni_u3.eam with DATE: 2007-06-11
+Setting up Verlet run ...
+  Unit style    : metal
+  Current step  : 0
+  Time step     : 0.001
+Per MPI rank memory allocation (min/avg/max) = 3.808 | 3.808 | 3.808 Mbytes
+   Step          Temp          PotEng         KinEng         TotEng         Press
+         0   300.00       -1423.9917      12.3726       -1411.6191      1621.5
+       100   301.42       -1423.9873      12.4312       -1411.5561      1598.7
+       200   299.18       -1423.9788      12.3388       -1411.6400      1544.2
+       300   300.87       -1423.9634      12.4085       -1411.5549      1530.6
+       400   299.55       -1423.9521      12.3540       -1411.5981      1521.8
+       500   298.90       -1423.9459      12.3272       -1411.6187      1512.3
+Loop time of 0.912874 on 1 procs for 500 steps with 320 atoms
+
+Performance: 47.323 ns/day, 0.507 hours/ns, 547.724 timesteps/s
+99.1% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Total wall time: 0:00:01
