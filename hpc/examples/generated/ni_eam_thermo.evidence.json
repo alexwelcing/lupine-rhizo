@@ -1,0 +1,39 @@
+{
+  "schema": "lupine.mlip.lammps_evidence.v1",
+  "material": "Ni",
+  "source": {
+    "potential_id": "Ni_u3.eam",
+    "lammps_version": "LAMMPS (2 Aug 2023 - Update 3)",
+    "input_script": null
+  },
+  "properties": [],
+  "trajectory": {
+    "n_rows": 6,
+    "first_step": 0,
+    "last_step": 500,
+    "columns": [
+      "Step",
+      "Temp",
+      "PotEng",
+      "KinEng",
+      "TotEng",
+      "Press"
+    ],
+    "energy_column": "PotEng",
+    "initial_energy": -1423.9917,
+    "final_energy": -1423.9459,
+    "energy_drift_per_step": 9.160000000019863e-05,
+    "final_values": {
+      "Temp": 298.9,
+      "PotEng": -1423.9459,
+      "KinEng": 12.3272,
+      "TotEng": -1411.6187,
+      "Press": 1512.3
+    }
+  },
+  "provenance": {
+    "log_sha256": "1f4da1ebb7073f44685dadfa65d459dbf38c39d76461daf8fdce1299ded2867f",
+    "log_name": "ni_eam_thermo.log",
+    "parsed_at": null
+  }
+}
