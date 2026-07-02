@@ -1,0 +1,936 @@
+{
+ "schema": "lupine.paper.figures_manifest.v1",
+ "paper": "paper/environment-error-field-2026-07-02.md",
+ "style": {
+  "widths_in": {
+   "single_column": 3.5,
+   "double_column": 7.0
+  },
+  "palette": "Okabe-Ito (colorblind-safe)",
+  "model_colors": {
+   "chgnet": "#E69F00",
+   "mace-mp-small": "#56B4E9",
+   "mace-mp-medium": "#009E73",
+   "mace-mpa-0-medium": "#CC79A7"
+  },
+  "font": "DejaVu Sans 8 pt, TrueType embedded (pdf.fonttype 42)",
+  "formats": [
+   "PDF (vector)",
+   "PNG (300 dpi)"
+  ],
+  "titles": "none in-figure; captions live in the manuscript"
+ },
+ "environment": {
+  "python": "3.12.0",
+  "matplotlib": "3.11.0",
+  "numpy": "2.5.0",
+  "scipy": "1.18.0"
+ },
+ "error_convention": "signed relative error = (pred - ref) / |ref|",
+ "data_notes": [
+  "Fig 1b uses the registered H3 medians from analysis/r2_mpa0_confirmatory.json. Recomputing the same statistic directly from bound evidence gives identical defect medians but slightly larger bulk medians (ratios 52.2/20.1/12.4/4.2 vs 57.0/21.4/15.3/7.9): the evidence binder carries a Cr B0 reference (42 bulk cells) that the y_matrix_targets compilation excludes as too coarse (41 bulk cells), and some evidence B0 references are experimental where the registered analysis preferred DFT-PBE targets.",
+  "Ca and Sr have predicted stacking-fault energies but no bound references (explicit compilation gaps); the SFE panels use the 7 fcc metals with references.",
+  "V's vacancy reference is DFT-PBE (Ma & Dudarev, PRM 3, 013605 (2019)); the manuscript's note about vanadium's absent vacancy energy refers to the experimental value.",
+  "Blind-prediction strict wins: 27/36 at float64 precision, 26/36 at the manuscript's kernel-checked x10^4 integer precision (one margin is exactly zero at that scaling)."
+ ],
+ "inputs_sha256": {
+  "data/y_matrix_runs/Ag_fcc_chgnet.json": "ff0caf03640cc1c46dfa34194225541213dae0689d767a776d858c501a83babb",
+  "data/y_matrix_runs/Ag_fcc_mace-mp-medium.json": "5a88363c28b0d6437061a85c267de41ee9922343b4ec3cce6cd5835390a0c91c",
+  "data/y_matrix_runs/Ag_fcc_mace-mp-small.json": "6e4fea4e1ac991ba57f725430ea1f04f5cb7b723f31e58f385c55bdf607df2a6",
+  "data/y_matrix_runs/Ag_fcc_mace-mpa-0-medium.json": "7189b836658bbb2e4d67018facf6c7ef774943636b147b04feba5ecfebd63dad",
+  "data/y_matrix_runs/Al_fcc_chgnet.json": "9ea54c02b04cbde6a29b285df603fd2235d59fb37cd674d42c9b5ea78aef6220",
+  "data/y_matrix_runs/Al_fcc_mace-mp-medium.json": "665039ef8fefb7c4ecc4a92d3db3914188a34d93a01dbc0dbb651b1b9cdadbfc",
+  "data/y_matrix_runs/Al_fcc_mace-mp-small.json": "a96ce4d71c450f9ad9b352093db3e446550c1da85dcf8414d5d5628f729cfe97",
+  "data/y_matrix_runs/Al_fcc_mace-mpa-0-medium.json": "f761f6b876328c363d9f155d666330952607bab8d4d1770b52709b0ea35d387d",
+  "data/y_matrix_runs/Au_fcc_chgnet.json": "e282ef97a6d92769da40a75319e2100cf304d2f2c3147e58b6bd9c91f25f2086",
+  "data/y_matrix_runs/Au_fcc_mace-mp-medium.json": "9aa5f47c95e5a5bd55c07d2dbf3566703fa8dc2762316e383a8f36af52a540e5",
+  "data/y_matrix_runs/Au_fcc_mace-mp-small.json": "a5ba151ce9149165aab3a94a9135a781db350a4194e1c190a49fb81f3308e65c",
+  "data/y_matrix_runs/Au_fcc_mace-mpa-0-medium.json": "bd1fb8f8f179ff4dee5cd9d82d12d2f63e43dcb0d3476e68f2f9ec0af1689799",
+  "data/y_matrix_runs/Ca_fcc_chgnet.json": "bfd3ede2fae8862e041a7b3194506ff94c8a99c47067eacb9183ac96bb96b4a4",
+  "data/y_matrix_runs/Ca_fcc_mace-mp-medium.json": "dde5710d2e545d96fdc8d93bdadd36f41e5c49a5b38322e0833536e722223801",
+  "data/y_matrix_runs/Ca_fcc_mace-mp-small.json": "2b920b9f5b417b43f56cb169f978b03b40bd11f34228c38c7190b3e2d477e106",
+  "data/y_matrix_runs/Ca_fcc_mace-mpa-0-medium.json": "d7da7d72275f4cc91e853e3901f817226d5ba721d2176a6c1958e2883dad591a",
+  "data/y_matrix_runs/Cr_bcc_chgnet.json": "47104e695598db1cf5a0fe2ed8d4d6ba1dce0c5d538579668db9f5c613d6039c",
+  "data/y_matrix_runs/Cr_bcc_mace-mp-medium.json": "7dfec89bca68348bd7cff5c49802a263f0f9717e38e3ab74bdf58c7f1aaf99c3",
+  "data/y_matrix_runs/Cr_bcc_mace-mp-small.json": "95eff5b975a95d78496c04be6756546da210ed23b6b25708c6e6b1190a629b3b",
+  "data/y_matrix_runs/Cr_bcc_mace-mpa-0-medium.json": "0c6a3e9e4441d86e7ef61d0d3756743abe91319779fbe1177a4ae5ae74d89b2b",
+  "data/y_matrix_runs/Cu_fcc_chgnet.json": "c92eb9c4a02f6fd7db7ab2c00180f9adde9f48843c30ef38529e186732ae0391",
+  "data/y_matrix_runs/Cu_fcc_mace-mp-medium.json": "f7b05582c7585b430fb3eda3d4eb1977286031f083adfb532f4225f50daaaf06",
+  "data/y_matrix_runs/Cu_fcc_mace-mp-small.json": "e356e1a23b4a77597d57018f74945110545d362e47736458f91e3487c4b2d22a",
+  "data/y_matrix_runs/Cu_fcc_mace-mpa-0-medium.json": "c52e7991728379fad550c8f34dea42f3b2aae05485c7378d6332b77322748fad",
+  "data/y_matrix_runs/Fe_bcc_chgnet.json": "cdf60e54d15a690c3ac3d8a0ad6dc7fae6b506ff809a1740b3a310de831d2dba",
+  "data/y_matrix_runs/Fe_bcc_mace-mp-medium.json": "3dff6e16dfbd2020977fe094a9a292a38e95fccde41b9e14ef14efb0637d1921",
+  "data/y_matrix_runs/Fe_bcc_mace-mp-small.json": "63bb1473ec3b7b409c4cee9c2fc66fc972943a0263b077ad46f317aa03751ccd",
+  "data/y_matrix_runs/Fe_bcc_mace-mpa-0-medium.json": "f4c80cbf0214ab697604865ee4af547964ee046602555828ad03836a29c3e284",
+  "data/y_matrix_runs/MgO_rocksalt_chgnet.json": "5f32ade641ba50d3847bc424fe4ba94ba8111590b4e4b3f7ab125372c0ecbdb7",
+  "data/y_matrix_runs/MgO_rocksalt_mace-mp-medium.json": "b8fea820ff95a93707b77bbb9f1192a0db570f5c74539c6a32db288fc7f558d5",
+  "data/y_matrix_runs/MgO_rocksalt_mace-mp-small.json": "606d7b53eb3c1ffcd35730d4c91bafbab22c51e5dcfd3e282411372f43349456",
+  "data/y_matrix_runs/MgO_rocksalt_mace-mpa-0-medium.json": "e10e7aa2bbdfd53a79ea5584cf9687c623512d400027b3fbf83a47fc88bd1e9b",
+  "data/y_matrix_runs/Mo_bcc_chgnet.json": "79c117a1abe31167bd512f805df0e331b088eb24628006204a7fb8e7e3998103",
+  "data/y_matrix_runs/Mo_bcc_mace-mp-medium.json": "7a5e8ea266546c5f5719006e9d2ca1d090cc6d9021059515b152aafdc31a50df",
+  "data/y_matrix_runs/Mo_bcc_mace-mp-small.json": "6819a6733b4d4c43ddc2c4574ddd6b609795b136a206f20a660125c795abad00",
+  "data/y_matrix_runs/Mo_bcc_mace-mpa-0-medium.json": "6f6aab3a8910723bb879b1a75ba417def1ce4ea87c66f05d45a0cb936823d704",
+  "data/y_matrix_runs/NaCl_rocksalt_chgnet.json": "cde40b28b96f1e2a981006a8730241431214aac04e62e526d0243e22a3d4d3f8",
+  "data/y_matrix_runs/NaCl_rocksalt_mace-mp-medium.json": "85af6770aac54d0a4c136a165761070c01e66130b64c108f0573559c4fb4d3bf",
+  "data/y_matrix_runs/NaCl_rocksalt_mace-mp-small.json": "b2c5a0b6f19e2432a684a9f349d6a13962b19ba8343630c1b68aabf7fab0cd94",
+  "data/y_matrix_runs/NaCl_rocksalt_mace-mpa-0-medium.json": "75cd6bc3bce9f7f900418acf7d56aa1351c140fa80dc5c6fb28ab1552e6fe949",
+  "data/y_matrix_runs/Nb_bcc_chgnet.json": "2b2e7bafc0324d8ee8701408e9131514c774e783875979fbdcab0d941b8066d7",
+  "data/y_matrix_runs/Nb_bcc_mace-mp-medium.json": "0a7e95bdccdc5d4fb3b5ffddd2a52d824c8ca5f0dd1ed3e1761cf098d446a499",
+  "data/y_matrix_runs/Nb_bcc_mace-mp-small.json": "24ce0f314e7704440345c592a5fcec6fef78d14220204d4fb9cd3724598c0b7e",
+  "data/y_matrix_runs/Nb_bcc_mace-mpa-0-medium.json": "082ce45555d9f82e554d78b1b9204e1d6b813c7f048e9465e32ff6505d400ed9",
+  "data/y_matrix_runs/Ni3Al_l12_chgnet.json": "6e1e5b8e340755facfdd82a47693314f8278d29173077353d2fe1e45c0e893b7",
+  "data/y_matrix_runs/Ni3Al_l12_mace-mp-medium.json": "2a5a43bb5c8770f15aad6ffde495b6a61f55afacf5d02866740c3fa72cf7963d",
+  "data/y_matrix_runs/Ni3Al_l12_mace-mp-small.json": "25aeceb6a358ca71a2e922d113d2729c829bfeff3b95bbe1a8b8c36f367c03af",
+  "data/y_matrix_runs/Ni3Al_l12_mace-mpa-0-medium.json": "bff8ed822076192f7ed15ce25cd897a75594f24095f8a684f1a84edad33300d7",
+  "data/y_matrix_runs/NiAl_b2_chgnet.json": "c6b70770b7c33372c3332a3d2529ec1eba6a481262572f4d962d543ea49b237c",
+  "data/y_matrix_runs/NiAl_b2_mace-mp-medium.json": "86fd0fd1b32644268fbdc85152c7c2c9bec078f1720cb7d54c82b576a0bdd951",
+  "data/y_matrix_runs/NiAl_b2_mace-mp-small.json": "e971efd1a1ddabb06ab88abbe92147730961facc38971a0d67898223740e6e8d",
+  "data/y_matrix_runs/NiAl_b2_mace-mpa-0-medium.json": "2e3467a7d5beb38ce88900c9712107ed95526ab7230eab2bc215c9b970b442a4",
+  "data/y_matrix_runs/Ni_fcc_chgnet.json": "69553087856648dad313fa50c7108e7cfba43211372c9bf8014d737a58ca9551",
+  "data/y_matrix_runs/Ni_fcc_mace-mp-medium.json": "7dd34d42842d836865a1972ccd21a0b625d79cf836af1dc066976718c24ef4df",
+  "data/y_matrix_runs/Ni_fcc_mace-mp-small.json": "49ca2063a4cd8bf92553df953d831f6b4974cd8f769d8a9849d0a503e864c8be",
+  "data/y_matrix_runs/Ni_fcc_mace-mpa-0-medium.json": "f73acc820db7dca07d843ac39c4472cc2ba2ba9c6561d83c96e58f4849ebd7eb",
+  "data/y_matrix_runs/Pd_fcc_chgnet.json": "05852f0f280492e13931520b277dfeab262e83eb509494f5fbd0d733f0c541f8",
+  "data/y_matrix_runs/Pd_fcc_mace-mp-medium.json": "5f2fbd29ffb42991591dfedce3ba1981f61887205f750efd2bb705e36f6c51dc",
+  "data/y_matrix_runs/Pd_fcc_mace-mp-small.json": "9db58c95baebdc7493fbf2ade3671b03a0c7a9e10e6640bc3ddf386b983fdd07",
+  "data/y_matrix_runs/Pd_fcc_mace-mpa-0-medium.json": "85dae1a2166410575ab47c88b334f1f26c99bff1dcaad92c23f89ead541c0f97",
+  "data/y_matrix_runs/Pt_fcc_chgnet.json": "b7a96ea058387aeb2131be8cacf4906c1d155dd598bba6c90ed0a09adffd334d",
+  "data/y_matrix_runs/Pt_fcc_mace-mp-medium.json": "df8a1c13dfec52ec387046f2ce34cddea06bf3c4197a69d1cd5cdb60a80fe323",
+  "data/y_matrix_runs/Pt_fcc_mace-mp-small.json": "8e4dd329cb5f49ffa0760c9b6307480b1cecccfddc3b2c3878efcf698f60449a",
+  "data/y_matrix_runs/Pt_fcc_mace-mpa-0-medium.json": "3742443dc6f0d29f4b87cf753ff5c69cbee22bcc0eeceaee71b1ff2d8328b7dd",
+  "data/y_matrix_runs/Si_diamond_chgnet.json": "bcf5597f30ee2d58aa49ec2277a9de044663801b5b47ca08dd6c2c9822e6bcaf",
+  "data/y_matrix_runs/Si_diamond_mace-mp-medium.json": "97ebfc45c3dbceab9b44ac5901a5ef8d098ddba19f05028d1738cdd79a94d960",
+  "data/y_matrix_runs/Si_diamond_mace-mp-small.json": "bba11285031c6124c96ff3eee45e750920012ba4520a243512d3b5d78a854cd4",
+  "data/y_matrix_runs/Si_diamond_mace-mpa-0-medium.json": "665aca059ebcc3a8e846ca5e160a1c3922e05f6aa0363bf077afac1fe42ddf0a",
+  "data/y_matrix_runs/Sr_fcc_chgnet.json": "12efa1cb29f35396881183ff24d1d81976f2a7b62f76307524eeee162acf272b",
+  "data/y_matrix_runs/Sr_fcc_mace-mp-medium.json": "f1418567d0b208e9f05edec3cecb01632cfef3b07d20ba40dc6658d20b83a6c8",
+  "data/y_matrix_runs/Sr_fcc_mace-mp-small.json": "77a63a6bd83a7693ab0a5c91d58667fde2a92d3bde3de99632c5ec7fa84facd9",
+  "data/y_matrix_runs/Sr_fcc_mace-mpa-0-medium.json": "016f0880d91bcf573ff1b06f1faceb8f245e3d1fde277daf2a641f2f60e60669",
+  "data/y_matrix_runs/Ta_bcc_chgnet.json": "13a0a5c2df09e1421d20b0fd19e8327ef43fb1dcb04278acf41ab95dac14094e",
+  "data/y_matrix_runs/Ta_bcc_mace-mp-medium.json": "b4612854044f3740ddd1138da6ca46eaa95be820c27e6c6d78f70144090f4c51",
+  "data/y_matrix_runs/Ta_bcc_mace-mp-small.json": "7865a5b7d1fd68338770f9708aa93536a143e2b486c517b970885a471843799d",
+  "data/y_matrix_runs/Ta_bcc_mace-mpa-0-medium.json": "4c82593869ea5e9e29e352bfafc3787a0a1772a8bfebedaec8fa820cd54570d1",
+  "data/y_matrix_runs/V_bcc_chgnet.json": "712cd9101a6b812bf47e1764157722f2ecc75d807b41f98e67a1326063dc178b",
+  "data/y_matrix_runs/V_bcc_mace-mp-medium.json": "f65edbaa6fc030e4ff3ea09aa5b8060616fe3c4ad7321a9a3a302007e700a00f",
+  "data/y_matrix_runs/V_bcc_mace-mp-small.json": "85927617f9cc27e7b364c24d0ffcc00b3cdf356701493931fd34d7a14df904b6",
+  "data/y_matrix_runs/V_bcc_mace-mpa-0-medium.json": "2baae24134261c2276b35cace47e5c4fd146aca517721a6c80e0cf01f293447f",
+  "data/y_matrix_runs/W_bcc_chgnet.json": "6418120d22a567de13e3638f5991b1e0555a878476747738e6678a03fcb9c7ba",
+  "data/y_matrix_runs/W_bcc_mace-mp-medium.json": "15e6b41268073ceb9925941cd121e94d5467db1b073f767333ce0b0548137de3",
+  "data/y_matrix_runs/W_bcc_mace-mp-small.json": "f30ef7848319a2bd4a1a085088140606f8deed8c9972b943df9a6d0e79934954",
+  "data/y_matrix_runs/W_bcc_mace-mpa-0-medium.json": "7a3187cd6414cfab0e1ba2d26b5d5889ac9643f0ff638d7768a2006f89ff5f72",
+  "data/y_matrix_runs/analysis/r2_mpa0_confirmatory.json": "874a88956c1c4c3806d18bd411b9d1851fbf9197fbc770e5aa79367f00fad01d",
+  "data/y_matrix_runs/bound/Ag_fcc_chgnet.evidence.json": "dc4ae08707f033831505e550eb4571a410a7bb73c1654c0065e779fa4a34916c",
+  "data/y_matrix_runs/bound/Ag_fcc_mace-mp-medium.evidence.json": "4b0aaef7887024b35b27e1d1bc00c31caf7418a6676fca05cf33a65df39baaf9",
+  "data/y_matrix_runs/bound/Ag_fcc_mace-mp-small.evidence.json": "08905515d5cd504fb552d5a1bdeab170c0978a014524a35aa0d0138b3918603b",
+  "data/y_matrix_runs/bound/Ag_fcc_mace-mpa-0-medium.evidence.json": "54c2b69597ab3c4f2a52d9ebd12df82a9cc79f385ad775ee549028f1b3488c68",
+  "data/y_matrix_runs/bound/Al_fcc_chgnet.evidence.json": "0a657fa8d6c87745c21c746ed3bb4455947adbfa6e4f9099cd9a64954a6e19eb",
+  "data/y_matrix_runs/bound/Al_fcc_mace-mp-medium.evidence.json": "d688b9165efec3e87a4181e71fa8737bf2b43d5edca790bb6f12617e36ddc601",
+  "data/y_matrix_runs/bound/Al_fcc_mace-mp-small.evidence.json": "b5ed710c6b6c7d71ab0807f49cb4edd5cbb54cfa0850578d9efd2852c4706314",
+  "data/y_matrix_runs/bound/Al_fcc_mace-mpa-0-medium.evidence.json": "f97386097917979d10060f1a08d8c024c681c7b1c17a4b5a8035c4c509d2afe2",
+  "data/y_matrix_runs/bound/Au_fcc_chgnet.evidence.json": "30d31886245e22a40303ff760a8f3d4acf4febc10a631d11963d1f7983bd9fdd",
+  "data/y_matrix_runs/bound/Au_fcc_mace-mp-medium.evidence.json": "cf243276ebfa93e355b84f859399b7b65de1e0af4fee1dcbaf32b59df73502bd",
+  "data/y_matrix_runs/bound/Au_fcc_mace-mp-small.evidence.json": "04227057173f9a90f7b8bc95b7270fc9991a952927cf70d7640dfcb4cb5e9fd8",
+  "data/y_matrix_runs/bound/Au_fcc_mace-mpa-0-medium.evidence.json": "c8a7bf08daa65e31d571b35ae2529e0636e8a7fa2ed27d387355ec2819b03908",
+  "data/y_matrix_runs/bound/Ca_fcc_chgnet.evidence.json": "418763b9d2a09a7a5a9d3eae607d2aa8d23bc30576261d1c08adc66d18057abc",
+  "data/y_matrix_runs/bound/Ca_fcc_mace-mp-medium.evidence.json": "1e24a5aa1a951db3de84c5a98d1337d1e9d5e0f0cc9da6c1d9ad9fe07b75819a",
+  "data/y_matrix_runs/bound/Ca_fcc_mace-mp-small.evidence.json": "47ba81f6e1d4d193feb7f84b4153ca36ece004f8703cca74a4221faba7eb742d",
+  "data/y_matrix_runs/bound/Ca_fcc_mace-mpa-0-medium.evidence.json": "5b51819a882e9bfbf679df2db71ed489382a6cab5e0fe34552d803f6661952e7",
+  "data/y_matrix_runs/bound/Cr_bcc_chgnet.evidence.json": "cef7a923443de1b597045e77b4cc0b3e4a7d252e2d36fdb3ab871b83e83ce84c",
+  "data/y_matrix_runs/bound/Cr_bcc_mace-mp-medium.evidence.json": "5875f7eb2e68653ec9996341610e5a365b7afcb8ae4ec7030362f1d1492a044c",
+  "data/y_matrix_runs/bound/Cr_bcc_mace-mp-small.evidence.json": "15aea180032a23c34ae7c6d1998a08df1210f6cd89c287f9ab36919a71218218",
+  "data/y_matrix_runs/bound/Cr_bcc_mace-mpa-0-medium.evidence.json": "99780418ed70611135546dc7f3c9b399069ba0e9013b95a0cb9ef02be057c0ed",
+  "data/y_matrix_runs/bound/Cu_fcc_chgnet.evidence.json": "9887c59ceffde4b274b4f44c8035ab6abb2b906ea79ce889892987c524ae5c92",
+  "data/y_matrix_runs/bound/Cu_fcc_mace-mp-medium.evidence.json": "6773c4c2d1d2196d686bd5e21a6525bbddd600de497c6f23639e131892a383d0",
+  "data/y_matrix_runs/bound/Cu_fcc_mace-mp-small.evidence.json": "4391ecf3c7139f7aa96118e3802a639eef64a4d1d17fb0f73a62e9d7aa9a618a",
+  "data/y_matrix_runs/bound/Cu_fcc_mace-mpa-0-medium.evidence.json": "018b767019faac965f002cf90f0e6ca462b44d9b1ba1c9dfc30e3a00eade879a",
+  "data/y_matrix_runs/bound/Fe_bcc_chgnet.evidence.json": "7e557b30eb5c8a60512b5ee6194d782bfe46ceb52bd90715f9614d41094d0d7d",
+  "data/y_matrix_runs/bound/Fe_bcc_mace-mp-medium.evidence.json": "faf239cc116a2b10eb575d136f9975a45b706ca62813b3804ce5ab9a9ebc2eea",
+  "data/y_matrix_runs/bound/Fe_bcc_mace-mp-small.evidence.json": "7ac3a2df9797dc22624a8b3316c4fe7535b0e40ed8b73b14a67d3fff00777efb",
+  "data/y_matrix_runs/bound/Fe_bcc_mace-mpa-0-medium.evidence.json": "7c43c81572649ddf8e76bc40b38add7c120d9f5092f3a33ed841ced2187b2b28",
+  "data/y_matrix_runs/bound/MgO_rocksalt_chgnet.evidence.json": "e5ac4db7561c112d2dd5eed28d095ec8cdf696de8e3737934282db8e87613591",
+  "data/y_matrix_runs/bound/MgO_rocksalt_mace-mp-medium.evidence.json": "0205da9ed60c605cc759cf11f056951d32b6aa8add5e6d91c38985e3f99ee22d",
+  "data/y_matrix_runs/bound/MgO_rocksalt_mace-mp-small.evidence.json": "e6c3555c73ebeb9c4c754541c31e4dcfd50c3236ec95dbe14c7c0176ce46f483",
+  "data/y_matrix_runs/bound/MgO_rocksalt_mace-mpa-0-medium.evidence.json": "2db599e7b9a477ed0ee508a7140c40af0942a2784cb34abbeee4188937be7a18",
+  "data/y_matrix_runs/bound/Mo_bcc_chgnet.evidence.json": "61a80731ecc4e833954853ad2d9442b933222da5adc128f905447671d43c9c20",
+  "data/y_matrix_runs/bound/Mo_bcc_mace-mp-medium.evidence.json": "fccdc28c8c88d9f93d9ba1c6830e28eeff9dfb525b2e53cba901e4f39533df0e",
+  "data/y_matrix_runs/bound/Mo_bcc_mace-mp-small.evidence.json": "d88ada2e722bca1ffa5c0205d53fa9e93158046ea1fa56193d52b2fc2a8905d9",
+  "data/y_matrix_runs/bound/Mo_bcc_mace-mpa-0-medium.evidence.json": "bdff28a359f203e808360539b8c405e2298ffba8c8bf8c420ea61f7524732cd8",
+  "data/y_matrix_runs/bound/NaCl_rocksalt_chgnet.evidence.json": "a11a6c1ffc0778854fa5b3108e0c0f1ceb831142f3cd92eef2880f9230f3b51a",
+  "data/y_matrix_runs/bound/NaCl_rocksalt_mace-mp-medium.evidence.json": "f1ec11566dd15ddc4fe675516d370ddb7493fe0d8d0790cc469ab65cd67cc9dc",
+  "data/y_matrix_runs/bound/NaCl_rocksalt_mace-mp-small.evidence.json": "26ccfae2d04f88b3033022e973a4b61633c1d49be60ef78422a7880f693c066f",
+  "data/y_matrix_runs/bound/NaCl_rocksalt_mace-mpa-0-medium.evidence.json": "36681cbd310856b839d153ca73a6d88e083eece542938493c49e1fbb7cb47a9f",
+  "data/y_matrix_runs/bound/Nb_bcc_chgnet.evidence.json": "1682d92bb83be2b345e1e28e69486798bad8e2266e654b4eb3c7996f97d22b51",
+  "data/y_matrix_runs/bound/Nb_bcc_mace-mp-medium.evidence.json": "a1e7fe134718c00184a33900dcfb366894119ecd0172509440da8218bddd732b",
+  "data/y_matrix_runs/bound/Nb_bcc_mace-mp-small.evidence.json": "f5bcab8ae9ad291c412bf54f48140619eee82d53a14a0ecf3eeac1b014aa7deb",
+  "data/y_matrix_runs/bound/Nb_bcc_mace-mpa-0-medium.evidence.json": "45b1c0d427224e9d821d2304dfc99fed41751f8858d98c84eb77fb25da99b5f7",
+  "data/y_matrix_runs/bound/Ni3Al_l12_chgnet.evidence.json": "9167d2585411c5310a5f008c4c1e394d656f9c9d6762880b589f51910e96c1df",
+  "data/y_matrix_runs/bound/Ni3Al_l12_mace-mp-medium.evidence.json": "c7710b798120a73f3a454d8b1c3935ac558f6b29c6ccd135038b0e282a3f117a",
+  "data/y_matrix_runs/bound/Ni3Al_l12_mace-mp-small.evidence.json": "8fb83cf172ba0c4788858d1f1fe6bc7ebbc4af20409824954de87b83c4808f7f",
+  "data/y_matrix_runs/bound/Ni3Al_l12_mace-mpa-0-medium.evidence.json": "79f9019bbcc3b3c91ea300d0d50a22a9217b83d36f96cceb08d822eb0a855a20",
+  "data/y_matrix_runs/bound/NiAl_b2_chgnet.evidence.json": "95cccf1258b63a662d27ca9cdfd3aa4b79cff61cac1aeea5207be3238e9d70b0",
+  "data/y_matrix_runs/bound/NiAl_b2_mace-mp-medium.evidence.json": "7e70ba6bbcc348fe850e81dd48256a27e92e99ddb4262cd38455c3138479b6e8",
+  "data/y_matrix_runs/bound/NiAl_b2_mace-mp-small.evidence.json": "1f669eb9d2cf203478e270ddf4b9746c487d21455e7f9af0ce6d547381d1e971",
+  "data/y_matrix_runs/bound/NiAl_b2_mace-mpa-0-medium.evidence.json": "a530a2cbbb19178776716b150cd295339e7cfeda82210dc0e0e16c89190f8b22",
+  "data/y_matrix_runs/bound/Ni_fcc_chgnet.evidence.json": "6a87519b832eb3e4034570a08f22352ac0609b37bd1ad0bb95ec0d5decdf7a43",
+  "data/y_matrix_runs/bound/Ni_fcc_mace-mp-medium.evidence.json": "ebbc4a3cd8c887dd721b1ca3b6462a9bb9180a054cc74fb726e102c26653f928",
+  "data/y_matrix_runs/bound/Ni_fcc_mace-mp-small.evidence.json": "489deedb1f051335e4139f32fb9df177a5e9d3fea9d5e3494dd8ca306299f7bc",
+  "data/y_matrix_runs/bound/Ni_fcc_mace-mpa-0-medium.evidence.json": "aad61a40bd17d42f0f3ec5d3aa00dc1fa915a8456bc839e2201cf79cc2254ca9",
+  "data/y_matrix_runs/bound/Pd_fcc_chgnet.evidence.json": "e4da8dcd64b676bccaa0cffe4b2f6f58d84b036ebb9eec23601d4ea8a1dfd73e",
+  "data/y_matrix_runs/bound/Pd_fcc_mace-mp-medium.evidence.json": "0c3bc4a7d91ce533f41fa1595ebf1f1a16258543d463be6cc25c068f64a47135",
+  "data/y_matrix_runs/bound/Pd_fcc_mace-mp-small.evidence.json": "113189a66ad40d576dda2454d4b99d0e0ec6c3073e7a45c52054032f772d7e4e",
+  "data/y_matrix_runs/bound/Pd_fcc_mace-mpa-0-medium.evidence.json": "6e6934fbcd35084cd64a8fdba8affd1a099f2923d852978c709fd30bab3f079d",
+  "data/y_matrix_runs/bound/Pt_fcc_chgnet.evidence.json": "1241d73b119656ac3cacc8dadbaf6813ea64531869617f6a6e3c92460b048160",
+  "data/y_matrix_runs/bound/Pt_fcc_mace-mp-medium.evidence.json": "dda71b945d0883a02d6d9e9480c9395b65824b6b90a356b6f2d2f415bdff30cd",
+  "data/y_matrix_runs/bound/Pt_fcc_mace-mp-small.evidence.json": "99783f421826b5808f67f6a883a5634be26cf42029596f5a16add693d927edc1",
+  "data/y_matrix_runs/bound/Pt_fcc_mace-mpa-0-medium.evidence.json": "a01abd06be0d0d30176c87c264f1ffbc147d2ad05139a71aa42f6b0b5b48f4b1",
+  "data/y_matrix_runs/bound/Si_diamond_chgnet.evidence.json": "99e3cbf5f94b12d9e01fb6d670d3ccdb6b3cc97e01accd5884b4a7a21eaeeb7d",
+  "data/y_matrix_runs/bound/Si_diamond_mace-mp-medium.evidence.json": "5cbdfa3611346d2694acc2e8b62184a26a377813d685b5ea8af05403458512c6",
+  "data/y_matrix_runs/bound/Si_diamond_mace-mp-small.evidence.json": "1768a69883605f06d05278c7034bc76cda62d293a2fbb9032ebd2ad7e0a4069a",
+  "data/y_matrix_runs/bound/Si_diamond_mace-mpa-0-medium.evidence.json": "41b77fd843bd44d15fdef26256bfdeca43e7c5bb4a409ac842575e15eb0161a2",
+  "data/y_matrix_runs/bound/Sr_fcc_chgnet.evidence.json": "e47a24f6e774c67e7342f576a0c95ff23f913baff4152df71bae61de23aef094",
+  "data/y_matrix_runs/bound/Sr_fcc_mace-mp-medium.evidence.json": "6c69e630e6660aef7a0155be37774e32bde4614018b15ce5fa0c42f4c854229c",
+  "data/y_matrix_runs/bound/Sr_fcc_mace-mp-small.evidence.json": "8fae99a46fc0c577dd0ca16b4467e7faca82d6490fcf7621061677f9f72b3c1a",
+  "data/y_matrix_runs/bound/Sr_fcc_mace-mpa-0-medium.evidence.json": "49703199520e54593ff1284bf301860f12b2995ee51ac6bbbd097b2c20a482fc",
+  "data/y_matrix_runs/bound/Ta_bcc_chgnet.evidence.json": "842f59fa53659c110cce711d1b59488fea4122e62be42e13042d499780ed17b4",
+  "data/y_matrix_runs/bound/Ta_bcc_mace-mp-medium.evidence.json": "da86f0dfcbf3681e513759593867dcc64024841ed77b7983f7e0e9c799893674",
+  "data/y_matrix_runs/bound/Ta_bcc_mace-mp-small.evidence.json": "4c70fe26460257b6a490dd63bce033ec9b405135fba0aa708f5aef3bb3b7d27c",
+  "data/y_matrix_runs/bound/Ta_bcc_mace-mpa-0-medium.evidence.json": "099083a0c75399d6bd267ffccd1ff169e25cabdc529e454282abf03627f0b0b9",
+  "data/y_matrix_runs/bound/V_bcc_chgnet.evidence.json": "b93ae61573d4ccabe803d8018e6f6ec163aed2db54e270f5e4c8ba1b4cca2a3a",
+  "data/y_matrix_runs/bound/V_bcc_mace-mp-medium.evidence.json": "0cff743cfbbeb1ea8809470e5b1bee805bd7b6a8d5f19df57ad833ada15c451a",
+  "data/y_matrix_runs/bound/V_bcc_mace-mp-small.evidence.json": "5986da47c0090bf8797191dd5ef223df0dcc2c389ea23e1c5cf07bc594960dd9",
+  "data/y_matrix_runs/bound/V_bcc_mace-mpa-0-medium.evidence.json": "0e78a681d2f29c5a62cbf95ef3dc400b8458ecd5b8f8d6150ce51aa28ab7808e",
+  "data/y_matrix_runs/bound/W_bcc_chgnet.evidence.json": "a41b63967b3a09918d2c342a2df6a5d157448506e6e33ef44d58814e4a6a2eb5",
+  "data/y_matrix_runs/bound/W_bcc_mace-mp-medium.evidence.json": "88336b9595998db46414d740f7b4c0b6698276532cb7cd7caf76f591281a4e99",
+  "data/y_matrix_runs/bound/W_bcc_mace-mp-small.evidence.json": "b8586812ff4d0fff2f1864f8c755b8139d89ce069a100920969dac46fb60c2b0",
+  "data/y_matrix_runs/bound/W_bcc_mace-mpa-0-medium.evidence.json": "d0cc3d21013ba381a77085cd4d85fd4d6f0ec2ad73c5e122bc635f3729984002"
+ },
+ "artifacts": [
+  {
+   "figure": "fig1_error_overview",
+   "outputs": {
+    "pdf": {
+     "path": "paper/figures/envfield/fig1_error_overview.pdf",
+     "sha256": "128ef1a9dc23666667dd17a2d68fd9d1459416d98672065bb39f262908b02262"
+    },
+    "png": {
+     "path": "paper/figures/envfield/fig1_error_overview.png",
+     "sha256": "04d82456ce991d7c275dee5e42a4bd43617532e851d5ebf6d5e3b0655d25be96"
+    }
+   },
+   "computation": {
+    "panel_a": "signed relative error (pred-ref)/|ref| in % per (material, property, model) from bound evidence; color scale clipped at +/-50%; gray = no bound reference",
+    "panel_b": "median |rel err| for bulk {a0, B0} vs defect {E_vac, gamma_100, gamma_110} cells, all materials with references, (Ni, mace-mp-small) quarantined; values read from the registered artifact analysis/r2_mpa0_confirmatory.json (h3.per_model)"
+   },
+   "stats": {
+    "panel_a_n_cells_clipped": 39,
+    "panel_a_most_extreme_cell": {
+     "model": "chgnet",
+     "material": "Al",
+     "property": "B0_prime",
+     "value_pct": 385.23278795799746
+    },
+    "panel_b_h3": {
+     "chgnet": {
+      "median_abs_rel_err_bulk_pct": 0.4995249702804535,
+      "median_abs_rel_err_defect_pct": 28.456156374445662,
+      "ratio": 56.96643424745959,
+      "ratio_ci95": [
+       3.7659730983210613,
+       122.00706654984663
+      ],
+      "n_bulk_cells": 41,
+      "n_defect_cells": 49
+     },
+     "mace-mp-small": {
+      "median_abs_rel_err_bulk_pct": 0.5022856723602311,
+      "median_abs_rel_err_defect_pct": 10.759565001801946,
+      "ratio": 21.421206285345445,
+      "ratio_ci95": [
+       1.5100865224206363,
+       43.90636564041998
+      ],
+      "n_bulk_cells": 39,
+      "n_defect_cells": 46
+     },
+     "mace-mp-medium": {
+      "median_abs_rel_err_bulk_pct": 0.791463879323436,
+      "median_abs_rel_err_defect_pct": 12.129087586384305,
+      "ratio": 15.324878245552489,
+      "ratio_ci95": [
+       2.1043652582100565,
+       40.083968003727946
+      ],
+      "n_bulk_cells": 41,
+      "n_defect_cells": 49
+     },
+     "mace-mpa-0-medium": {
+      "median_abs_rel_err_bulk_pct": 0.5910691172701663,
+      "median_abs_rel_err_defect_pct": 4.647414126123692,
+      "ratio": 7.862725340122023,
+      "ratio_ci95": [
+       0.5771285693555652,
+       19.608370721740172
+      ],
+      "n_bulk_cells": 41,
+      "n_defect_cells": 49
+     }
+    }
+   },
+   "deterministic": true,
+   "script": "fig1_error_overview.py"
+  },
+  {
+   "figure": "fig2_ordinal_faithfulness",
+   "outputs": {
+    "pdf": {
+     "path": "paper/figures/envfield/fig2_ordinal_faithfulness.pdf",
+     "sha256": "1fa85bde1eda3fdf333a34f16df4bed1ba6e6a7f398f80fd8eae1cec1c326bbb"
+    },
+    "png": {
+     "path": "paper/figures/envfield/fig2_ordinal_faithfulness.png",
+     "sha256": "75657d77ed691b666f892cb15bed96e58c7f54d95678a3af442edc5f671d6b1b"
+    }
+   },
+   "computation": {
+    "panel_a": "predicted vs reference gamma_111, 9 fcc metals x 4 models, log-log; Spearman rho per model over materials",
+    "panel_b": "predicted vs reference stacking-fault energy over fcc metals with bound references ['Ag', 'Al', 'Au', 'Cu', 'Ni', 'Pd', 'Pt']; linear axes (negative predictions occur); Spearman rho per model"
+   },
+   "stats": {
+    "gamma_111_spearman": {
+     "chgnet": {
+      "spearman_rho": 0.9833333333333333,
+      "n": 9
+     },
+     "mace-mp-small": {
+      "spearman_rho": 0.9333333333333332,
+      "n": 9
+     },
+     "mace-mp-medium": {
+      "spearman_rho": 0.8833333333333333,
+      "n": 9
+     },
+     "mace-mpa-0-medium": {
+      "spearman_rho": 1.0,
+      "n": 9
+     }
+    },
+    "sfe_spearman": {
+     "chgnet": {
+      "spearman_rho": 0.3571428571428572,
+      "n": 7
+     },
+     "mace-mp-small": {
+      "spearman_rho": 0.10714285714285716,
+      "n": 7
+     },
+     "mace-mp-medium": {
+      "spearman_rho": 0.4642857142857144,
+      "n": 7
+     },
+     "mace-mpa-0-medium": {
+      "spearman_rho": 0.9285714285714288,
+      "n": 7
+     }
+    },
+    "sfe_materials": [
+     "Ag",
+     "Al",
+     "Au",
+     "Cu",
+     "Ni",
+     "Pd",
+     "Pt"
+    ]
+   },
+   "deterministic": true,
+   "script": "fig2_ordinal_faithfulness.py"
+  },
+  {
+   "figure": "fig3_family_exponent",
+   "outputs": {
+    "pdf": {
+     "path": "paper/figures/envfield/fig3_family_exponent.pdf",
+     "sha256": "d98e5a1b8a588ba87da2f90b20d14772234bf358ecddb54695521e96dd3b17dd"
+    },
+    "png": {
+     "path": "paper/figures/envfield/fig3_family_exponent.png",
+     "sha256": "e4b8485f9493caa264cceb01c63c09c41e82d9a67ae2d98b835eef782e4fd820"
+    }
+   },
+   "computation": {
+    "fit": "OLS of log(pred) on log(ref) per (model, family): pred ~= c * ref^alpha; surfaces pool gamma_100/110/111 over all materials with bound references; CIs are seeded percentile bootstrap over points (seed 20260702, n=1000)"
+   },
+   "stats": {
+    "family_exponents": {
+     "surfaces": {
+      "chgnet": {
+       "alpha": 1.1375370894783186,
+       "prefactor": 0.6593970724452878,
+       "r2": 0.9546337257882936,
+       "n": 41,
+       "alpha_ci95": [
+        1.0671322954454876,
+        1.2211849340198533
+       ]
+      },
+      "mace-mp-small": {
+       "alpha": 1.1287199538550843,
+       "prefactor": 1.002820493874102,
+       "r2": 0.9740227600407356,
+       "n": 41,
+       "alpha_ci95": [
+        1.0564636294473424,
+        1.1883523669390752
+       ]
+      },
+      "mace-mp-medium": {
+       "alpha": 1.06482486511747,
+       "prefactor": 0.9060976781191008,
+       "r2": 0.9771384192128882,
+       "n": 41,
+       "alpha_ci95": [
+        0.9956134596897975,
+        1.1259186087152842
+       ]
+      },
+      "mace-mpa-0-medium": {
+       "alpha": 1.0985417611256976,
+       "prefactor": 0.9757556903213995,
+       "r2": 0.9761891204508754,
+       "n": 41,
+       "alpha_ci95": [
+        1.0467855931598202,
+        1.1506214789378757
+       ]
+      }
+     },
+     "B0": {
+      "chgnet": {
+       "alpha": 1.0024543152224688,
+       "prefactor": 0.9047498874387843,
+       "r2": 0.9373330979348348,
+       "n": 21,
+       "alpha_ci95": [
+        0.94264931270074,
+        1.107622642765758
+       ]
+      },
+      "mace-mp-small": {
+       "alpha": 0.9073139846544216,
+       "prefactor": 1.4936329065047453,
+       "r2": 0.9292073808568041,
+       "n": 21,
+       "alpha_ci95": [
+        0.8568693980125296,
+        0.9784834226378148
+       ]
+      },
+      "mace-mp-medium": {
+       "alpha": 0.9010729709823728,
+       "prefactor": 1.5149319997421735,
+       "r2": 0.9136872210071658,
+       "n": 21,
+       "alpha_ci95": [
+        0.8379021454253691,
+        1.033205110817523
+       ]
+      },
+      "mace-mpa-0-medium": {
+       "alpha": 1.0185883879378386,
+       "prefactor": 0.899267215964223,
+       "r2": 0.9677677735882979,
+       "n": 21,
+       "alpha_ci95": [
+        0.956087868997626,
+        1.108125547516953
+       ]
+      }
+     },
+     "vacancy": {
+      "chgnet": {
+       "alpha": 0.8076508047667853,
+       "prefactor": 0.6341045853913504,
+       "r2": 0.643356086619074,
+       "n": 17,
+       "alpha_ci95": [
+        0.454640601169667,
+        1.2019131851011429
+       ]
+      },
+      "mace-mp-small": {
+       "alpha": 0.9171367816794217,
+       "prefactor": 0.9914727319226925,
+       "r2": 0.8947726381588545,
+       "n": 17,
+       "alpha_ci95": [
+        0.7526585336148901,
+        1.0821374401291841
+       ]
+      },
+      "mace-mp-medium": {
+       "alpha": 0.856786685274573,
+       "prefactor": 0.861248646927641,
+       "r2": 0.8643075337339698,
+       "n": 17,
+       "alpha_ci95": [
+        0.6839314010013157,
+        1.0459277743498228
+       ]
+      },
+      "mace-mpa-0-medium": {
+       "alpha": 0.8943817144479314,
+       "prefactor": 1.0892844003064734,
+       "r2": 0.9568556674416765,
+       "n": 17,
+       "alpha_ci95": [
+        0.7980248644561229,
+        0.9935517373925334
+       ]
+      }
+     }
+    }
+   },
+   "deterministic": true,
+   "script": "fig3_family_exponent.py"
+  },
+  {
+   "figure": "fig4_environment_field",
+   "outputs": {
+    "pdf": {
+     "path": "paper/figures/envfield/fig4_environment_field.pdf",
+     "sha256": "d993652b13d828e7faa6d3de5d207dad51f41b4e91c055a6a9ce00509f0ae1f8"
+    },
+    "png": {
+     "path": "paper/figures/envfield/fig4_environment_field.png",
+     "sha256": "0fe0d72a740bf81cea19c3b3a2979310fd4ea32c26096cd9de08f42e37d89333"
+    }
+   },
+   "computation": {
+    "anchors": "delta_eps(c): c=8 <- gamma_100 err * (a0^2/2) / 16.0218; c=9 <- gamma_111 err * (sqrt(3)/4 a0^2) / 16.0218; c=11 <- E_vac err / 12; areas at the model's relaxed a0 (slabs were built at model a0)",
+    "blind_prediction": "gamma_110 err ~= (2*de8 - de9 + de11) * 16.0218 / (a0^2/sqrt(2)); compared against the measured gamma_110 error over 9 fcc metals x 4 models"
+   },
+   "stats": {
+    "blind_gamma110_pearson_r": 0.9064101487476577,
+    "blind_gamma110_spearman_rho": 0.9163449163449164,
+    "n_cells": 36,
+    "median_abs_residual_j_m2": 0.06618907796299464,
+    "median_abs_error_predict_zero_j_m2": 0.10401369417409187,
+    "strict_wins_vs_predict_zero_float64": 27,
+    "strict_wins_vs_predict_zero_int_1e4": 26,
+    "strict_wins_note": "the kernel-checked manuscript count uses x10^4 integer scaling; one float-precision win vanishes there (equal scaled residuals)",
+    "per_cell": [
+     {
+      "model": "chgnet",
+      "material": "Ag",
+      "a0_model_angstrom": 4.155999945173798,
+      "de8_ev": -0.13593921137744847,
+      "de9_ev": -0.13547916853023292,
+      "de11_ev": -0.015576207667222666,
+      "predicted_gamma110_error_j_m2": -0.19936490478730545,
+      "actual_gamma110_error_j_m2": -0.2406642761018033
+     },
+     {
+      "model": "chgnet",
+      "material": "Al",
+      "a0_model_angstrom": 4.041377246255443,
+      "de8_ev": -0.22301664350123918,
+      "de9_ev": -0.1861922139999998,
+      "de11_ev": -0.03940367616253468,
+      "predicted_gamma110_error_j_m2": -0.41513950067796274,
+      "actual_gamma110_error_j_m2": -0.46012353033723696
+     },
+     {
+      "model": "chgnet",
+      "material": "Au",
+      "a0_model_angstrom": 4.169836308335619,
+      "de8_ev": -0.23722349371777518,
+      "de9_ev": -0.18185366852919008,
+      "de11_ev": -0.008331595526804375,
+      "predicted_gamma110_error_j_m2": -0.3921447783736003,
+      "actual_gamma110_error_j_m2": -0.3810440692886802
+     },
+     {
+      "model": "chgnet",
+      "material": "Ca",
+      "a0_model_angstrom": 5.5262855044407,
+      "de8_ev": -0.0926156996108888,
+      "de9_ev": -0.13625455390982621,
+      "de11_ev": -0.03159899111147305,
+      "predicted_gamma110_error_j_m2": -0.05978118096424321,
+      "actual_gamma110_error_j_m2": -0.1401981109112318
+     },
+     {
+      "model": "chgnet",
+      "material": "Cu",
+      "a0_model_angstrom": 3.6159135639002162,
+      "de8_ev": -0.1836750784982258,
+      "de9_ev": -0.16897702594668,
+      "de11_ev": -0.02981252034505209,
+      "predicted_gamma110_error_j_m2": -0.3954381403990754,
+      "actual_gamma110_error_j_m2": -0.436450452508496
+     },
+     {
+      "model": "chgnet",
+      "material": "Ni",
+      "a0_model_angstrom": 3.503533152925787,
+      "de8_ev": -0.09796374737443887,
+      "de9_ev": -0.06732712124611524,
+      "de11_ev": -0.01355178644628191,
+      "predicted_gamma110_error_j_m2": -0.26240209861998653,
+      "actual_gamma110_error_j_m2": -0.22127530227248737
+     },
+     {
+      "model": "chgnet",
+      "material": "Pd",
+      "a0_model_angstrom": 3.951312676173653,
+      "de8_ev": -0.206249680270331,
+      "de9_ev": -0.16115348304914662,
+      "de11_ev": -0.024504603633178395,
+      "predicted_gamma110_error_j_m2": -0.40032918671875034,
+      "actual_gamma110_error_j_m2": -0.3688249532643737
+     },
+     {
+      "model": "chgnet",
+      "material": "Pt",
+      "a0_model_angstrom": 3.97441352266014,
+      "de8_ev": -0.276641089688703,
+      "de9_ev": -0.16827624115965614,
+      "de11_ev": 0.01563216221184992,
+      "predicted_gamma110_error_j_m2": -0.5298418512343926,
+      "actual_gamma110_error_j_m2": -0.33398408352261466
+     },
+     {
+      "model": "chgnet",
+      "material": "Sr",
+      "a0_model_angstrom": 6.035362484885531,
+      "de8_ev": -0.13858810225922713,
+      "de9_ev": -0.16460263968299133,
+      "de11_ev": -0.03224687929506681,
+      "predicted_gamma110_error_j_m2": -0.09008437317100348,
+      "actual_gamma110_error_j_m2": -0.15747987359463753
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Ag",
+      "a0_model_angstrom": 4.167868834875111,
+      "de8_ev": 0.04509836607438622,
+      "de9_ev": -0.03892455701312258,
+      "de11_ev": -0.004411977588460449,
+      "predicted_gamma110_error_j_m2": 0.16266611699732514,
+      "actual_gamma110_error_j_m2": 0.08133567613246473
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Al",
+      "a0_model_angstrom": 4.053137903072795,
+      "de8_ev": -0.04958883479806357,
+      "de9_ev": -0.06672611629578898,
+      "de11_ev": -0.0020729424029788854,
+      "predicted_gamma110_error_j_m2": -0.04761797107731405,
+      "actual_gamma110_error_j_m2": -0.10696197499554894
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Au",
+      "a0_model_angstrom": 4.168127014651271,
+      "de8_ev": 0.05691707365782223,
+      "de9_ev": 0.005388839814718189,
+      "de11_ev": 0.0029661158795098175,
+      "predicted_gamma110_error_j_m2": 0.14530285155874428,
+      "actual_gamma110_error_j_m2": 0.1799273061852511
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Ca",
+      "a0_model_angstrom": 5.5162696545373775,
+      "de8_ev": 0.019586551473083445,
+      "de9_ev": -0.05548526418879914,
+      "de11_ev": -0.009622325865206838,
+      "predicted_gamma110_error_j_m2": 0.06331962910196991,
+      "actual_gamma110_error_j_m2": -0.022198361099496355
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Cu",
+      "a0_model_angstrom": 3.6127620072366,
+      "de8_ev": 0.033514140119383626,
+      "de9_ev": 0.0008694053390436785,
+      "de11_ev": -0.003461433179012948,
+      "predicted_gamma110_error_j_m2": 0.10884222673910565,
+      "actual_gamma110_error_j_m2": 0.08847322539067726
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Ni",
+      "a0_model_angstrom": 3.5114878753180383,
+      "de8_ev": 0.1472720139228903,
+      "de9_ev": 0.09338802275024571,
+      "de11_ev": -0.031039741478244492,
+      "predicted_gamma110_error_j_m2": 0.31260058974388805,
+      "actual_gamma110_error_j_m2": 0.5566709893866961
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Pd",
+      "a0_model_angstrom": 3.9644073339684405,
+      "de8_ev": 0.06714854899611791,
+      "de9_ev": 0.03223714821045251,
+      "de11_ev": 0.006757417195394744,
+      "predicted_gamma110_error_j_m2": 0.15688014258757416,
+      "actual_gamma110_error_j_m2": 0.2369823424504438
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Pt",
+      "a0_model_angstrom": 3.9820294614443914,
+      "de8_ev": 0.10984040268858664,
+      "de9_ev": 0.09009060963365967,
+      "de11_ev": 0.023558971290385672,
+      "predicted_gamma110_error_j_m2": 0.21884267025760312,
+      "actual_gamma110_error_j_m2": 0.6157456393640977
+     },
+     {
+      "model": "mace-mp-small",
+      "material": "Sr",
+      "a0_model_angstrom": 5.992478609521238,
+      "de8_ev": -0.062023177956582125,
+      "de9_ev": -0.10305184552490634,
+      "de11_ev": -0.013937535300474238,
+      "predicted_gamma110_error_j_m2": -0.022041306741885064,
+      "actual_gamma110_error_j_m2": -0.0870239622442403
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Ag",
+      "a0_model_angstrom": 4.167744299482798,
+      "de8_ev": -0.0021969196905168684,
+      "de9_ev": -0.0356469921836603,
+      "de11_ev": 1.9207436679944772e-05,
+      "predicted_gamma110_error_j_m2": 0.040792923591316546,
+      "actual_gamma110_error_j_m2": -0.02185479918763411
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Al",
+      "a0_model_angstrom": 4.060446563630187,
+      "de8_ev": -0.04228209074041669,
+      "de9_ev": -0.06446723030341268,
+      "de11_ev": -0.010733720718310072,
+      "predicted_gamma110_error_j_m2": -0.04237031517194151,
+      "actual_gamma110_error_j_m2": -0.12675874802530196
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Au",
+      "a0_model_angstrom": 4.17646238968032,
+      "de8_ev": 0.002149903388170475,
+      "de9_ev": -0.026522859400639753,
+      "de11_ev": 0.0032836170021662745,
+      "predicted_gamma110_error_j_m2": 0.04430406218521142,
+      "actual_gamma110_error_j_m2": 0.04988857439584782
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Ca",
+      "a0_model_angstrom": 5.4971863161033045,
+      "de8_ev": -0.021776657593977528,
+      "de9_ev": -0.08252872627144954,
+      "de11_ev": -0.014995202613939199,
+      "predicted_gamma110_error_j_m2": 0.01798035842155005,
+      "actual_gamma110_error_j_m2": -0.07109424228160505
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Cu",
+      "a0_model_angstrom": 3.6256506587464745,
+      "de8_ev": 0.0131280686070125,
+      "de9_ev": -0.00365835054003875,
+      "de11_ev": -0.0021411480330571497,
+      "predicted_gamma110_error_j_m2": 0.04787210206267813,
+      "actual_gamma110_error_j_m2": 0.006024016195862236
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Ni",
+      "a0_model_angstrom": 3.5103719876364687,
+      "de8_ev": -0.105169659984794,
+      "de9_ev": -0.030976578904773344,
+      "de11_ev": -0.02288073548136177,
+      "predicted_gamma110_error_j_m2": -0.3718729128122141,
+      "actual_gamma110_error_j_m2": -0.1448217056195582
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Pd",
+      "a0_model_angstrom": 3.9579243152588366,
+      "de8_ev": -0.06122000238916495,
+      "de9_ev": -0.014752016249485404,
+      "de11_ev": 0.001845864341217603,
+      "predicted_gamma110_error_j_m2": -0.15309107787327222,
+      "actual_gamma110_error_j_m2": 0.012070641717989883
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Pt",
+      "a0_model_angstrom": 3.9762250867585562,
+      "de8_ev": -0.1075204258167147,
+      "de9_ev": -0.08762829292691075,
+      "de11_ev": -0.014230334309349548,
+      "predicted_gamma110_error_j_m2": -0.20299211587384822,
+      "actual_gamma110_error_j_m2": -0.033329108127089224
+     },
+     {
+      "model": "mace-mp-medium",
+      "material": "Sr",
+      "a0_model_angstrom": 6.01619368990594,
+      "de8_ev": -0.0690137149897634,
+      "de9_ev": -0.11507612666484324,
+      "de11_ev": -0.023757275899295865,
+      "predicted_gamma110_error_j_m2": -0.029240132846654058,
+      "actual_gamma110_error_j_m2": -0.1010654133526348
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Ag",
+      "a0_model_angstrom": 4.161568877334434,
+      "de8_ev": 0.002321009356951996,
+      "de9_ev": -0.03291684554058491,
+      "de11_ev": 0.008033646961299795,
+      "predicted_gamma110_error_j_m2": 0.05964934013287456,
+      "actual_gamma110_error_j_m2": -0.02032242139058238
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Al",
+      "a0_model_angstrom": 4.038601533994641,
+      "de8_ev": 0.041645238584816585,
+      "de9_ev": -0.004850601908155985,
+      "de11_ev": 0.005675751180448857,
+      "predicted_gamma110_error_j_m2": 0.13033019580818264,
+      "actual_gamma110_error_j_m2": -0.03406138209153409
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Au",
+      "a0_model_angstrom": 4.166513154758236,
+      "de8_ev": 0.00991854362875618,
+      "de9_ev": -0.02604176263988258,
+      "de11_ev": 0.005874314510424482,
+      "predicted_gamma110_error_j_m2": 0.06754880942816904,
+      "actual_gamma110_error_j_m2": 0.0830111354080375
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Ca",
+      "a0_model_angstrom": 5.544860142586164,
+      "de8_ev": -0.027844686687713182,
+      "de9_ev": -0.05437193830556925,
+      "de11_ev": -0.009121498910090878,
+      "predicted_gamma110_error_j_m2": -0.007693097949959491,
+      "actual_gamma110_error_j_m2": -0.070927859330222
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Cu",
+      "a0_model_angstrom": 3.6398351113816694,
+      "de8_ev": -0.020856877190226206,
+      "de9_ev": -0.03064353784730403,
+      "de11_ev": -0.0002116550584272218,
+      "predicted_gamma110_error_j_m2": -0.019294966824427245,
+      "actual_gamma110_error_j_m2": -0.047136850336048974
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Ni",
+      "a0_model_angstrom": 3.52134161419149,
+      "de8_ev": 0.4189699491411855,
+      "de9_ev": 0.2296359656188664,
+      "de11_ev": 0.012479253073061433,
+      "predicted_gamma110_error_j_m2": 1.134357458837602,
+      "actual_gamma110_error_j_m2": 0.9807986908004778
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Pd",
+      "a0_model_angstrom": 3.959590523286473,
+      "de8_ev": 0.034566013187041,
+      "de9_ev": 0.003950169195498057,
+      "de11_ev": 0.004169719703220387,
+      "predicted_gamma110_error_j_m2": 0.10022639090569167,
+      "actual_gamma110_error_j_m2": 0.05360533885234253
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Pt",
+      "a0_model_angstrom": 3.976551334109287,
+      "de8_ev": 0.09622012334119921,
+      "de9_ev": 0.0813932420808289,
+      "de11_ev": 0.018110445309599,
+      "predicted_gamma110_error_j_m2": 0.18506853164544737,
+      "actual_gamma110_error_j_m2": 0.3905650882789753
+     },
+     {
+      "model": "mace-mpa-0-medium",
+      "material": "Sr",
+      "a0_model_angstrom": 6.029815111625041,
+      "de8_ev": -0.0750223370338815,
+      "de9_ev": -0.07804526186614162,
+      "de11_ev": -0.00041091867922062503,
+      "predicted_gamma110_error_j_m2": -0.04512516929796441,
+      "actual_gamma110_error_j_m2": -0.07810802206758338
+     }
+    ]
+   },
+   "deterministic": true,
+   "script": "fig4_environment_field.py"
+  },
+  {
+   "figure": "table1_static_results",
+   "outputs": {
+    "csv": {
+     "path": "paper/figures/envfield/table1_static_results.csv",
+     "sha256": "0632795ecf008881dbfe885fd5255533c20a16dc095a43c0b46b9fb0b2ac8245"
+    },
+    "md": {
+     "path": "paper/figures/envfield/table1_static_results.md",
+     "sha256": "5e415761ef54170bb4207be707356b534d474d26e5875a52bc5ab5646c0252ee"
+    }
+   },
+   "computation": {
+    "table": "long-format dump of every bound property per (model, material): predicted, reference, signed rel err; cohesive_energy included for completeness (no bound reference exists)"
+   },
+   "stats": {
+    "n_rows": 612,
+    "n_rows_with_reference": 484
+   },
+   "deterministic": true,
+   "script": "table1_static_results.py"
+  },
+  {
+   "figure": "fig5_correction",
+   "status": "placeholder spec (envfield_experiment/ absent at build)",
+   "outputs": {
+    "spec": {
+     "path": "paper/figures/envfield/fig5_SPEC.md",
+     "sha256": "c68fb3536998b7f0248f5201a3c19e23232bc9a06d53bd67837918736be3115d"
+    }
+   }
+  }
+ ],
+ "fig5_correction_experiment": {
+  "inputs": {
+   "C:\\Users\\alexw\\Downloads\\lupine-rhizo\\data\\y_matrix_runs\\envfield_experiment\\report.json": "3777ea037d296cf6dc79d59e3390b687efbd746fd3291da80d9223a84ca95f70"
+  },
+  "outputs": {
+   "pdf": {
+    "path": "paper/figures/envfield/fig5_correction_experiment.pdf",
+    "sha256": "bd0ecd419f81d4b6a0d421ae73f4a3e734a964a3b9678c293fb679d094953649"
+   },
+   "png": {
+    "path": "paper/figures/envfield/fig5_correction_experiment.png",
+    "sha256": "7de29d1280e37111781d96959192eacc6e3da7d5a0e76ba783622411a56eacc3"
+   }
+  },
+  "description": "Run-time correction: statics incl. blind facet; force null; MD sanity"
+ }
+}

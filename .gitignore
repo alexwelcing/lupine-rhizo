@@ -106,3 +106,4 @@ tools/hermes-hive/data/
 .sisyphus/
 lupi-studio-pr/
 archive/kimi-workspace-export/
+.venv-mlip312/
