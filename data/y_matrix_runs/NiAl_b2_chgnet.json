@@ -1,0 +1,172 @@
+{
+  "schema": "lupine.statics_run.v1",
+  "material": "NiAl",
+  "structure_type": "b2",
+  "model_id": "chgnet",
+  "device": "cuda",
+  "calculator_version": "chgnet 0.4.2",
+  "requested_properties": [
+    "lattice",
+    "eos",
+    "formation"
+  ],
+  "results": {
+    "lattice": {
+      "value": 2.8862586064597804,
+      "unit": "Angstrom",
+      "property": "lattice",
+      "values": {
+        "a0_angstrom": 2.8862586064597804,
+        "e0_ev_per_atom": -5.410596049667122,
+        "v0_a3_per_atom": 12.021972415774112,
+        "b0_gpa": 164.46866028220737,
+        "b0_prime": 4.127943492727728,
+        "cohesive_energy_ev_per_atom": 4.537261284232857,
+        "isolated_atom_energies_ev": [
+          [
+            "Al",
+            -0.4313938617706299
+          ],
+          [
+            "Ni",
+            -1.3152756690979004
+          ]
+        ],
+        "n_atoms_cell": 2
+      },
+      "units": {
+        "a0_angstrom": "Angstrom",
+        "e0_ev_per_atom": "eV/atom",
+        "v0_a3_per_atom": "A^3/atom",
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "cohesive_energy_ev_per_atom": "eV/atom",
+        "isolated_atom_energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "lattice",
+        "formula": "NiAl",
+        "structure_type": "b2",
+        "initial_a_angstrom": 2.829016319029167,
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 2.321499000001495
+    },
+    "eos": {
+      "value": 164.4881808099638,
+      "unit": "GPa",
+      "property": "eos",
+      "values": {
+        "b0_gpa": 164.4881808099638,
+        "b0_prime": 4.119588639398132,
+        "v0_a3_per_atom": 12.021948167264322,
+        "e0_ev": -10.821191501849981,
+        "rms_residual_ev": 0.00018961405598898778,
+        "volumes_a3": [
+          22.601308141655334,
+          22.8898354796339,
+          23.178362817612488,
+          23.466890155591077,
+          23.755417493569635,
+          24.043944831548217,
+          24.3324721695268,
+          24.62099950750538,
+          24.909526845483963,
+          25.198054183462535,
+          25.486581521441117
+        ],
+        "energies_ev": [
+          -10.77161693572998,
+          -10.790472030639648,
+          -10.804437637329102,
+          -10.813769340515137,
+          -10.819186210632324,
+          -10.820904731750488,
+          -10.81937026977539,
+          -10.814533233642578,
+          -10.806344032287598,
+          -10.795034408569336,
+          -10.780790328979492
+        ],
+        "n_atoms_cell": 2
+      },
+      "units": {
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "v0_a3_per_atom": "A^3/atom",
+        "e0_ev": "eV",
+        "rms_residual_ev": "eV",
+        "volumes_a3": "A^3",
+        "energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "eos",
+        "formula": "NiAl",
+        "structure_type": "b2",
+        "a0_angstrom": 2.8862586064597804,
+        "volume_span": 0.06,
+        "n_points": 11
+      },
+      "wall_time_seconds": 0.6530112000000372
+    },
+    "formation": {
+      "value": -0.7051219390598273,
+      "unit": "eV/atom",
+      "property": "formation_enthalpy",
+      "values": {
+        "formation_enthalpy_ev_per_atom": -0.7051219390598273,
+        "compound_a0_angstrom": 2.8862594700213577,
+        "compound_e0_ev_per_atom": -5.410596418876258,
+        "elemental_energies_ev_per_atom": [
+          [
+            "Al",
+            -3.6644561274240215
+          ],
+          [
+            "Ni",
+            -5.74649283220884
+          ]
+        ],
+        "references": [
+          [
+            "Al",
+            "fcc"
+          ],
+          [
+            "Ni",
+            "fcc"
+          ]
+        ],
+        "n_atoms_cell": 2
+      },
+      "units": {
+        "formation_enthalpy_ev_per_atom": "eV/atom",
+        "compound_a0_angstrom": "Angstrom",
+        "compound_e0_ev_per_atom": "eV/atom",
+        "elemental_energies_ev_per_atom": "eV/atom"
+      },
+      "canonical_inputs": {
+        "property": "formation_enthalpy",
+        "formula": "NiAl",
+        "structure_type": "b2",
+        "references": [
+          [
+            "Al",
+            "fcc"
+          ],
+          [
+            "Ni",
+            "fcc"
+          ]
+        ],
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 4.697565099999338
+    }
+  },
+  "total_wall_time_seconds": 7.6727089999985765
+}

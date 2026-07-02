@@ -1,0 +1,627 @@
+{
+ "schema": "lupine.y_matrix.confirmatory_report.v1",
+ "prereg": "docs/plans/y-matrix-cross-property-preregistration-2026-07-01.md",
+ "mode": "confirmatory",
+ "seed": 20260701,
+ "n_null_draws": 1000,
+ "n_bootstrap": 1000,
+ "near_zero_epsilon": 1e-06,
+ "method_preference": [
+  "DFT-PBE",
+  "experiment"
+ ],
+ "models": [
+  "mace-mp-small",
+  "mace-mp-medium",
+  "chgnet"
+ ],
+ "properties": [
+  "a0",
+  "b0",
+  "e_vac",
+  "gamma_100",
+  "gamma_110",
+  "gamma_111",
+  "gamma_sfe"
+ ],
+ "family_map": {
+  "lattice_cohesion": [
+   "a0"
+  ],
+  "eos": [
+   "b0",
+   "b0_prime"
+  ],
+  "point_defect": [
+   "e_vac"
+  ],
+  "surfaces": [
+   "gamma_100",
+   "gamma_110",
+   "gamma_111"
+  ],
+  "planar_fault": [
+   "gamma_sfe"
+  ],
+  "compound_stability": [
+   "dh_f"
+  ]
+ },
+ "excluded_materials": [],
+ "matched_materials": [
+  "Ag",
+  "Al",
+  "Au",
+  "Cu",
+  "Ni",
+  "Pd",
+  "Pt"
+ ],
+ "n_materials": 7,
+ "n_properties": 7,
+ "material_exclusions": {
+  "mace-mp-small": [
+   [
+    "Ca",
+    "outside cross-model matched set"
+   ],
+   [
+    "Cr",
+    "outside cross-model matched set"
+   ],
+   [
+    "Fe",
+    "outside cross-model matched set"
+   ],
+   [
+    "Mo",
+    "outside cross-model matched set"
+   ],
+   [
+    "Nb",
+    "outside cross-model matched set"
+   ],
+   [
+    "Ni3Al",
+    "outside cross-model matched set"
+   ],
+   [
+    "NiAl",
+    "outside cross-model matched set"
+   ],
+   [
+    "Si",
+    "outside cross-model matched set"
+   ],
+   [
+    "Sr",
+    "outside cross-model matched set"
+   ],
+   [
+    "Ta",
+    "outside cross-model matched set"
+   ],
+   [
+    "V",
+    "outside cross-model matched set"
+   ],
+   [
+    "W",
+    "outside cross-model matched set"
+   ]
+  ],
+  "mace-mp-medium": [
+   [
+    "Ca",
+    "outside cross-model matched set"
+   ],
+   [
+    "Cr",
+    "outside cross-model matched set"
+   ],
+   [
+    "Fe",
+    "outside cross-model matched set"
+   ],
+   [
+    "Mo",
+    "outside cross-model matched set"
+   ],
+   [
+    "Nb",
+    "outside cross-model matched set"
+   ],
+   [
+    "Ni3Al",
+    "outside cross-model matched set"
+   ],
+   [
+    "NiAl",
+    "outside cross-model matched set"
+   ],
+   [
+    "Si",
+    "outside cross-model matched set"
+   ],
+   [
+    "Sr",
+    "outside cross-model matched set"
+   ],
+   [
+    "Ta",
+    "outside cross-model matched set"
+   ],
+   [
+    "V",
+    "outside cross-model matched set"
+   ],
+   [
+    "W",
+    "outside cross-model matched set"
+   ]
+  ],
+  "chgnet": [
+   [
+    "Ca",
+    "outside cross-model matched set"
+   ],
+   [
+    "Cr",
+    "outside cross-model matched set"
+   ],
+   [
+    "Fe",
+    "outside cross-model matched set"
+   ],
+   [
+    "Mo",
+    "outside cross-model matched set"
+   ],
+   [
+    "Nb",
+    "outside cross-model matched set"
+   ],
+   [
+    "Ni3Al",
+    "outside cross-model matched set"
+   ],
+   [
+    "NiAl",
+    "outside cross-model matched set"
+   ],
+   [
+    "Si",
+    "outside cross-model matched set"
+   ],
+   [
+    "Sr",
+    "outside cross-model matched set"
+   ],
+   [
+    "Ta",
+    "outside cross-model matched set"
+   ],
+   [
+    "V",
+    "outside cross-model matched set"
+   ],
+   [
+    "W",
+    "outside cross-model matched set"
+   ]
+  ]
+ },
+ "references_used": [
+  {
+   "material": "Ag",
+   "property": "a0",
+   "value": 4.149,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ag",
+   "property": "b0",
+   "value": 110.9,
+   "method": "experiment"
+  },
+  {
+   "material": "Ag",
+   "property": "e_vac",
+   "value": 0.68,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ag",
+   "property": "gamma_100",
+   "value": 0.81,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ag",
+   "property": "gamma_110",
+   "value": 0.866,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ag",
+   "property": "gamma_111",
+   "value": 0.773,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ag",
+   "property": "gamma_sfe",
+   "value": 17.26,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Al",
+   "property": "a0",
+   "value": 4.041,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Al",
+   "property": "b0",
+   "value": 79.4,
+   "method": "experiment"
+  },
+  {
+   "material": "Al",
+   "property": "e_vac",
+   "value": 0.61,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Al",
+   "property": "gamma_100",
+   "value": 0.915,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Al",
+   "property": "gamma_110",
+   "value": 0.977,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Al",
+   "property": "gamma_111",
+   "value": 0.795,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Al",
+   "property": "gamma_sfe",
+   "value": 117.54,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Au",
+   "property": "a0",
+   "value": 4.157,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Au",
+   "property": "b0",
+   "value": 180.9,
+   "method": "experiment"
+  },
+  {
+   "material": "Au",
+   "property": "e_vac",
+   "value": 0.4,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Au",
+   "property": "gamma_100",
+   "value": 0.861,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Au",
+   "property": "gamma_110",
+   "value": 0.827,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Au",
+   "property": "gamma_111",
+   "value": 0.742,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Au",
+   "property": "gamma_sfe",
+   "value": 32.69,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Cu",
+   "property": "a0",
+   "value": 3.631,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Cu",
+   "property": "b0",
+   "value": 142.3,
+   "method": "experiment"
+  },
+  {
+   "material": "Cu",
+   "property": "e_vac",
+   "value": 1.07,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Cu",
+   "property": "gamma_100",
+   "value": 1.468,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Cu",
+   "property": "gamma_110",
+   "value": 1.561,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Cu",
+   "property": "gamma_111",
+   "value": 1.314,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Cu",
+   "property": "gamma_sfe",
+   "value": 47.45,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ni",
+   "property": "a0",
+   "value": 3.518,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ni",
+   "property": "b0",
+   "value": 187.6,
+   "method": "experiment"
+  },
+  {
+   "material": "Ni",
+   "property": "e_vac",
+   "value": 1.39,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ni",
+   "property": "gamma_100",
+   "value": 2.208,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ni",
+   "property": "gamma_110",
+   "value": 2.286,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ni",
+   "property": "gamma_111",
+   "value": 1.924,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Ni",
+   "property": "gamma_sfe",
+   "value": 153.56,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pd",
+   "property": "a0",
+   "value": 3.942,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pd",
+   "property": "b0",
+   "value": 195.0,
+   "method": "experiment"
+  },
+  {
+   "material": "Pd",
+   "property": "e_vac",
+   "value": 1.16,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pd",
+   "property": "gamma_100",
+   "value": 1.526,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pd",
+   "property": "gamma_110",
+   "value": 1.574,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pd",
+   "property": "gamma_111",
+   "value": 1.338,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pd",
+   "property": "gamma_sfe",
+   "value": 139.5,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pt",
+   "property": "a0",
+   "value": 3.97,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pt",
+   "property": "b0",
+   "value": 277.0,
+   "method": "experiment"
+  },
+  {
+   "material": "Pt",
+   "property": "e_vac",
+   "value": 0.61,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pt",
+   "property": "gamma_100",
+   "value": 1.842,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pt",
+   "property": "gamma_110",
+   "value": 1.681,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pt",
+   "property": "gamma_111",
+   "value": 1.479,
+   "method": "DFT-PBE"
+  },
+  {
+   "material": "Pt",
+   "property": "gamma_sfe",
+   "value": 307.97,
+   "method": "DFT-PBE"
+  }
+ ],
+ "guard_engaged_cells": [],
+ "h1": {
+  "mace-mp-small": {
+   "pr": 1.5229352960056914,
+   "null_p05": 1.2959228672512408,
+   "null_p50": 1.4956513970293615,
+   "null_p95": 1.5682655556924965,
+   "n_null_draws": 1000,
+   "criterion": "pr < null_p05 (below the coupling-aware null band; prereg kill condition: PR within or above the null band)",
+   "pass": false
+  },
+  "mace-mp-medium": {
+   "pr": 1.4646464189284079,
+   "null_p05": 1.5025821087052753,
+   "null_p50": 1.7656759333035925,
+   "null_p95": 1.924100839843317,
+   "n_null_draws": 1000,
+   "criterion": "pr < null_p05 (below the coupling-aware null band; prereg kill condition: PR within or above the null band)",
+   "pass": true
+  },
+  "chgnet": {
+   "pr": 2.108015685111834,
+   "null_p05": 1.5651706823656342,
+   "null_p50": 2.0417443349761166,
+   "null_p95": 2.3175481411230123,
+   "n_null_draws": 1000,
+   "criterion": "pr < null_p05 (below the coupling-aware null band; prereg kill condition: PR within or above the null band)",
+   "pass": false
+  }
+ },
+ "h2": {
+  "threshold": 0.7,
+  "pairs": {
+   "mace-mp-small|mace-mp-medium": {
+    "cosine": 0.9622658279647314,
+    "null_p95": 0.9882000860889808,
+    "null_p50": 0.9412680646662791,
+    "pass": false
+   },
+   "mace-mp-small|chgnet": {
+    "cosine": 0.9587525080822219,
+    "null_p95": 0.9847327437885531,
+    "null_p50": 0.9134468728002729,
+    "pass": false
+   },
+   "mace-mp-medium|chgnet": {
+    "cosine": 0.9008236610530378,
+    "null_p95": 0.9797095187908331,
+    "null_p50": 0.8985860629807476,
+    "pass": false
+   }
+  },
+  "pass": false
+ },
+ "h3": {
+  "pass_ratio": 2.0,
+  "kill_ratio": 1.5,
+  "defect_properties": [
+   "e_vac",
+   "gamma_sfe",
+   "gamma_100",
+   "gamma_110",
+   "gamma_111"
+  ],
+  "bulk_properties": [
+   "a0",
+   "b0",
+   "dh_f"
+  ],
+  "excluded_cells": [
+   [
+    "Ni",
+    "mace-mp-small",
+    "*"
+   ]
+  ],
+  "per_model": {
+   "mace-mp-small": {
+    "ratio": 21.32483800539343,
+    "ci95": [
+     1.5161512339459484,
+     45.75394000024484
+    ],
+    "median_abs_error_defect": 0.12121582115924376,
+    "median_abs_error_bulk": 0.005684255192399873,
+    "n_defect_cells": 60,
+    "n_bulk_cells": 35,
+    "verdict": "pass"
+   },
+   "mace-mp-medium": {
+    "ratio": 15.8372436162614,
+    "ci95": [
+     1.2052872969484092,
+     44.48789380632024
+    ],
+    "median_abs_error_defect": 0.1253460627031657,
+    "median_abs_error_bulk": 0.00791463879323436,
+    "n_defect_cells": 65,
+    "n_bulk_cells": 37,
+    "verdict": "pass"
+   },
+   "chgnet": {
+    "ratio": 61.9374110869369,
+    "ci95": [
+     4.111946142755358,
+     131.49554577078726
+    ],
+    "median_abs_error_defect": 0.3093928343245039,
+    "median_abs_error_bulk": 0.004995249702804535,
+    "n_defect_cells": 65,
+    "n_bulk_cells": 37,
+    "verdict": "pass"
+   }
+  },
+  "pass": true,
+  "kill": false
+ }
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "Si",
+  "source": {
+    "model_id": "mace-mp-medium",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 5.4555668459990025,
+      "unit": "Angstrom",
+      "reference_value": 5.466,
+      "reference_source": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table I, PBE column (BAND/LCAO)",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 4.05440552870411,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 74.56238036872632,
+      "unit": "GPa",
+      "reference_value": 89.2,
+      "reference_source": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table V, PBE column (SJ EOS, BAND/LCAO)",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 5.33164486592813,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 1.8494479183909789,
+      "unit": "eV",
+      "reference_value": 3.63,
+      "reference_source": "N. L. Matsko, arXiv:2304.07873 (2023), Table 2 - neutral relaxed vacancy (D2d), 214/217-atom supercell, VASP PBE",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "010ece34ef16557a3085cd951031b40e4bf7cff6682124bc1a8b8d741a730291",
+    "run_label": null,
+    "computed_at": "2026-07-02T05:42:47.323133Z"
+  }
+}

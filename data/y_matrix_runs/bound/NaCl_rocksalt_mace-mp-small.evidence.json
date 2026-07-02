@@ -1,0 +1,49 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "NaCl",
+  "source": {
+    "model_id": "mace-mp-small",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 5.690029522088563,
+      "unit": "Angstrom",
+      "reference_value": 5.7,
+      "reference_source": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table I, PBE column",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 2.6482965923209747,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 27.186044285827215,
+      "unit": "GPa",
+      "reference_value": 23.6,
+      "reference_source": "G. I. Csonka et al., Phys. Rev. B 79, 155107 (2009), Table V, PBE column",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 4.675495350102942,
+      "unit": "dimensionless",
+      "reference_value": 5.09,
+      "reference_source": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit of NaCl-B1 DAC data 0-35 GPa at 300 K (Mao ruby calibration column)",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "98674ed5aa1db0706131505dc2aaa59f794646d4d23e8d4bd2cf890e0a60ec48",
+    "run_label": null,
+    "computed_at": "2026-07-02T12:48:12.820345Z"
+  }
+}

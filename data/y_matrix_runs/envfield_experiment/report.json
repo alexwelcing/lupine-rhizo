@@ -1,0 +1,108 @@
+{
+ "seed": 20260702,
+ "device": "cuda",
+ "materials": {
+  "Ni": {
+   "knots": {
+    "8.0": -0.09796374737443887,
+    "9.0": -0.06732712124611524,
+    "11.0": -0.01355178644628191,
+    "12.0": 0.0
+   },
+   "a0_model": 3.503533152925787,
+   "properties": {
+    "gamma_100": {
+     "raw": 1.9522626099755291,
+     "corrected": 2.208022339959091,
+     "reference": 2.208,
+     "blind": false
+    },
+    "gamma_110": {
+     "raw": 2.0647246977275127,
+     "corrected": 2.319954519448413,
+     "reference": 2.286,
+     "blind": true
+    },
+    "gamma_111": {
+     "raw": 1.7210503752613058,
+     "corrected": 1.9240228946236329,
+     "reference": 1.924,
+     "blind": false
+    },
+    "E_vac": {
+     "raw": 1.227378562644617,
+     "corrected": 1.389976218894617,
+     "reference": 1.39,
+     "blind": false
+    }
+   },
+   "bulk_sanity": {
+    "a0_raw": 3.503533152925787,
+    "a0_corrected": 3.5035338965303406,
+    "a0_shift_A": 7.436045534880975e-07
+   },
+   "statics_wall_s": 11.9
+  },
+  "Cu": {
+   "knots": {
+    "8.0": -0.1836750784982258,
+    "9.0": -0.16897702594668,
+    "11.0": -0.02981252034505209,
+    "12.0": 0.0
+   },
+   "a0_model": 3.6159135639002162,
+   "properties": {
+    "gamma_100": {
+     "raw": 1.017851865032793,
+     "corrected": 1.4679947797275918,
+     "reference": 1.468,
+     "blind": false
+    },
+    "gamma_110": {
+     "raw": 1.124549547491504,
+     "corrected": 1.3472218608848159,
+     "reference": 1.561,
+     "blind": true
+    },
+    "gamma_111": {
+     "raw": 0.8358080603432484,
+     "corrected": 1.3139905486462324,
+     "reference": 1.314,
+     "blind": false
+    },
+    "E_vac": {
+     "raw": 0.712249755859375,
+     "corrected": 1.07000732421875,
+     "reference": 1.07,
+     "blind": false
+    }
+   },
+   "bulk_sanity": {
+    "a0_raw": 3.6159135639002162,
+    "a0_corrected": 3.615909389414731,
+    "a0_shift_A": -4.174485485286539e-06
+   },
+   "statics_wall_s": 12.6
+  }
+ },
+ "forces_vs_proxy": {
+  "proxy": "mace-mpa-0-medium",
+  "configs": 20,
+  "rattle_A": 0.08,
+  "rmse_all_raw": 0.25940970449570133,
+  "rmse_all_corrected": 0.2594698287158033,
+  "rmse_surface_raw": 0.1926442923851132,
+  "rmse_surface_corrected": 0.1931926813125677
+ },
+ "md": {
+  "steps": 1000,
+  "timestep_fs": 2.0,
+  "temperature_K": 300.0,
+  "wall_s_corrected_1000": 139.5,
+  "wall_s_raw_200": 24.1,
+  "overhead_pct": 15.6,
+  "total_energy_first_eV": -390.6515197753906,
+  "total_energy_last_eV": -385.65244109726314,
+  "stable": true
+ }
+}

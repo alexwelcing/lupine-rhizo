@@ -1,0 +1,280 @@
+{
+  "schema": "lupine.statics_run.v1",
+  "material": "Ag",
+  "structure_type": "fcc",
+  "model_id": "mace-mp-medium",
+  "device": "cuda",
+  "calculator_version": "mace-torch 0.3.16",
+  "requested_properties": [
+    "lattice",
+    "eos",
+    "vacancy",
+    "surfaces",
+    "sfe"
+  ],
+  "results": {
+    "lattice": {
+      "value": 4.167744299482798,
+      "unit": "Angstrom",
+      "property": "lattice",
+      "values": {
+        "a0_angstrom": 4.167744299482798,
+        "e0_ev_per_atom": -2.8366459012220555,
+        "v0_a3_per_atom": 18.098526047385995,
+        "b0_gpa": 88.63343242880323,
+        "b0_prime": 5.7882993623988686,
+        "cohesive_energy_ev_per_atom": 2.2553736713470944,
+        "isolated_atom_energies_ev": [
+          [
+            "Ag",
+            -0.5812722298749611
+          ]
+        ],
+        "n_atoms_cell": 4
+      },
+      "units": {
+        "a0_angstrom": "Angstrom",
+        "e0_ev_per_atom": "eV/atom",
+        "v0_a3_per_atom": "A^3/atom",
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "cohesive_energy_ev_per_atom": "eV/atom",
+        "isolated_atom_energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "lattice",
+        "formula": "Ag",
+        "structure_type": "fcc",
+        "initial_a_angstrom": 4.09,
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 5.931908399998065
+    },
+    "eos": {
+      "value": 88.63343276664469,
+      "unit": "GPa",
+      "property": "eos",
+      "values": {
+        "b0_gpa": 88.63343276664469,
+        "b0_prime": 5.78832219751159,
+        "v0_a3_per_atom": 18.098525922824678,
+        "e0_ev": -11.346583604831354,
+        "rms_residual_ev": 1.3952519251640737e-05,
+        "volumes_a3": [
+          68.0504579381713,
+          68.91918718844586,
+          69.78791643872042,
+          70.65664568899491,
+          71.52537493926944,
+          72.39410418954398,
+          73.2628334398185,
+          74.13156269009299,
+          75.00029194036757,
+          75.8690211906421,
+          76.73775044091657
+        ],
+        "energies_ev": [
+          -11.263653024918202,
+          -11.295039401632831,
+          -11.318403330073693,
+          -11.334395882123106,
+          -11.343605853175148,
+          -11.346568048628273,
+          -11.343770251698471,
+          -11.335659053350096,
+          -11.322644733717794,
+          -11.305105374626265,
+          -11.283390359093502
+        ],
+        "n_atoms_cell": 4
+      },
+      "units": {
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "v0_a3_per_atom": "A^3/atom",
+        "e0_ev": "eV",
+        "rms_residual_ev": "eV",
+        "volumes_a3": "A^3",
+        "energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "eos",
+        "formula": "Ag",
+        "structure_type": "fcc",
+        "a0_angstrom": 4.167744299482798,
+        "volume_span": 0.06,
+        "n_points": 11
+      },
+      "wall_time_seconds": 0.6930537000007462
+    },
+    "vacancy": {
+      "value": 0.6802304892401594,
+      "unit": "eV",
+      "property": "vacancy_formation",
+      "values": {
+        "vacancy_formation_ev": 0.6802304892401594,
+        "vacancy_species": "Ag",
+        "n_atoms_perfect": 108,
+        "e_bulk_ev": -306.3573373129636,
+        "e_defect_ev": -302.84046481156633,
+        "n_relax_steps": 17
+      },
+      "units": {
+        "vacancy_formation_ev": "eV",
+        "e_bulk_ev": "eV",
+        "e_defect_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "vacancy_formation",
+        "formula": "Ag",
+        "structure_type": "fcc",
+        "a0_angstrom": 4.167744299482798,
+        "supercell": [
+          3,
+          3,
+          3
+        ],
+        "vacancy_index": 0,
+        "fmax": 0.01,
+        "optimizer": "FIRE",
+        "max_steps": 500
+      },
+      "wall_time_seconds": 6.644554299997253
+    },
+    "surfaces": [
+      {
+        "value": 0.8059472169990379,
+        "unit": "J/m^2",
+        "property": "surface_energy",
+        "values": {
+          "gamma_j_per_m2": 0.8059472169990379,
+          "miller": "100",
+          "n_atoms_slab": 8,
+          "area_a2": 8.68504627293568,
+          "e_slab_ev": -21.8193636648494,
+          "e_bulk_ev_per_atom": -2.8366420121570686,
+          "n_relax_steps": 17
+        },
+        "units": {
+          "gamma_j_per_m2": "J/m^2",
+          "area_a2": "A^2",
+          "e_slab_ev": "eV",
+          "e_bulk_ev_per_atom": "eV/atom"
+        },
+        "canonical_inputs": {
+          "property": "surface_energy",
+          "formula": "Ag",
+          "structure_type": "fcc",
+          "miller": "100",
+          "a0_angstrom": 4.167744299482798,
+          "layers": 8,
+          "vacuum_angstrom": 12.0,
+          "fmax": 0.01,
+          "optimizer": "FIRE",
+          "max_steps": 500
+        },
+        "wall_time_seconds": 1.1604440000010072
+      },
+      {
+        "value": 0.8441452008123659,
+        "unit": "J/m^2",
+        "property": "surface_energy",
+        "values": {
+          "gamma_j_per_m2": 0.8441452008123659,
+          "miller": "110",
+          "n_atoms_slab": 8,
+          "area_a2": 12.282510229023536,
+          "e_slab_ev": -21.39886905531702,
+          "e_bulk_ev_per_atom": -2.836642012157068,
+          "n_relax_steps": 30
+        },
+        "units": {
+          "gamma_j_per_m2": "J/m^2",
+          "area_a2": "A^2",
+          "e_slab_ev": "eV",
+          "e_bulk_ev_per_atom": "eV/atom"
+        },
+        "canonical_inputs": {
+          "property": "surface_energy",
+          "formula": "Ag",
+          "structure_type": "fcc",
+          "miller": "110",
+          "a0_angstrom": 4.167744299482798,
+          "layers": 8,
+          "vacuum_angstrom": 12.0,
+          "fmax": 0.01,
+          "optimizer": "FIRE",
+          "max_steps": 500
+        },
+        "wall_time_seconds": 2.028605500003323
+      },
+      {
+        "value": 0.6970668478629186,
+        "unit": "J/m^2",
+        "property": "surface_energy",
+        "values": {
+          "gamma_j_per_m2": 0.6970668478629186,
+          "miller": "111",
+          "n_atoms_slab": 8,
+          "area_a2": 7.521470705405654,
+          "e_slab_ev": -22.038655465764524,
+          "e_bulk_ev_per_atom": -2.836642012157068,
+          "n_relax_steps": 3
+        },
+        "units": {
+          "gamma_j_per_m2": "J/m^2",
+          "area_a2": "A^2",
+          "e_slab_ev": "eV",
+          "e_bulk_ev_per_atom": "eV/atom"
+        },
+        "canonical_inputs": {
+          "property": "surface_energy",
+          "formula": "Ag",
+          "structure_type": "fcc",
+          "miller": "111",
+          "a0_angstrom": 4.167744299482798,
+          "layers": 8,
+          "vacuum_angstrom": 12.0,
+          "fmax": 0.01,
+          "optimizer": "FIRE",
+          "max_steps": 500
+        },
+        "wall_time_seconds": 0.2923962999993819
+      }
+    ],
+    "sfe": {
+      "value": 8.813812156756198,
+      "unit": "mJ/m^2",
+      "property": "stacking_fault_energy",
+      "values": {
+        "sfe_mj_per_m2": 8.813812156756198,
+        "hcp_proxy_mj_per_m2": 8.787433661810583,
+        "method": "displaced_slab_fixed_inplane",
+        "displacement_sign": 1,
+        "area_a2": 7.521470705405654,
+        "n_relax_steps": 54
+      },
+      "units": {
+        "sfe_mj_per_m2": "mJ/m^2",
+        "hcp_proxy_mj_per_m2": "mJ/m^2",
+        "area_a2": "A^2"
+      },
+      "canonical_inputs": {
+        "property": "stacking_fault_energy",
+        "formula": "Ag",
+        "structure_type": "fcc",
+        "method": "displaced_slab_fixed_inplane",
+        "a0_angstrom": 4.167744299482798,
+        "layers": 12,
+        "vacuum_angstrom": 12.0,
+        "fmax": 0.01,
+        "optimizer": "FIRE",
+        "max_steps": 1000
+      },
+      "wall_time_seconds": 3.8008828999991238
+    }
+  },
+  "total_wall_time_seconds": 20.553200899998046
+}

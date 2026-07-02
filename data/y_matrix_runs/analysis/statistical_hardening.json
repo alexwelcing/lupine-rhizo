@@ -1,0 +1,686 @@
+{
+  "schema": "lupine.stats_hardening.v1",
+  "generated_by": "python/scripts/harden_stats.py",
+  "seed": 20260702,
+  "n_bootstrap": 10000,
+  "n_permutations": 10000,
+  "error_convention": "error = model value - reference value",
+  "inputs": {
+    "bound_evidence_files": 84,
+    "fcc_a0_cells": 36
+  },
+  "part1_blind_gamma110": {
+    "cells": [
+      {
+        "material": "Ag",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.19936490478730542,
+        "actual_gamma110_err_j_m2": -0.2406642761018033
+      },
+      {
+        "material": "Al",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.41513950067796274,
+        "actual_gamma110_err_j_m2": -0.46012353033723696
+      },
+      {
+        "material": "Au",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.3921447783736003,
+        "actual_gamma110_err_j_m2": -0.3810440692886802
+      },
+      {
+        "material": "Ca",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.05978118096424321,
+        "actual_gamma110_err_j_m2": -0.1401981109112318
+      },
+      {
+        "material": "Cu",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.3954381403990754,
+        "actual_gamma110_err_j_m2": -0.436450452508496
+      },
+      {
+        "material": "Ni",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.26240209861998653,
+        "actual_gamma110_err_j_m2": -0.22127530227248737
+      },
+      {
+        "material": "Pd",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.40032918671875034,
+        "actual_gamma110_err_j_m2": -0.3688249532643737
+      },
+      {
+        "material": "Pt",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.5298418512343925,
+        "actual_gamma110_err_j_m2": -0.33398408352261466
+      },
+      {
+        "material": "Sr",
+        "model": "chgnet",
+        "pred_gamma110_err_j_m2": -0.09008437317100348,
+        "actual_gamma110_err_j_m2": -0.15747987359463753
+      },
+      {
+        "material": "Ag",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.16266611699732514,
+        "actual_gamma110_err_j_m2": 0.08133567613246473
+      },
+      {
+        "material": "Al",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": -0.04761797107731405,
+        "actual_gamma110_err_j_m2": -0.10696197499554894
+      },
+      {
+        "material": "Au",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.14530285155874428,
+        "actual_gamma110_err_j_m2": 0.1799273061852511
+      },
+      {
+        "material": "Ca",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.06331962910196991,
+        "actual_gamma110_err_j_m2": -0.022198361099496355
+      },
+      {
+        "material": "Cu",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.10884222673910565,
+        "actual_gamma110_err_j_m2": 0.08847322539067726
+      },
+      {
+        "material": "Ni",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.31260058974388805,
+        "actual_gamma110_err_j_m2": 0.5566709893866961
+      },
+      {
+        "material": "Pd",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.15688014258757416,
+        "actual_gamma110_err_j_m2": 0.2369823424504438
+      },
+      {
+        "material": "Pt",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": 0.21884267025760312,
+        "actual_gamma110_err_j_m2": 0.6157456393640977
+      },
+      {
+        "material": "Sr",
+        "model": "mace-mp-small",
+        "pred_gamma110_err_j_m2": -0.022041306741885064,
+        "actual_gamma110_err_j_m2": -0.0870239622442403
+      },
+      {
+        "material": "Ag",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": 0.040792923591316546,
+        "actual_gamma110_err_j_m2": -0.02185479918763411
+      },
+      {
+        "material": "Al",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": -0.04237031517194151,
+        "actual_gamma110_err_j_m2": -0.12675874802530196
+      },
+      {
+        "material": "Au",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": 0.04430406218521142,
+        "actual_gamma110_err_j_m2": 0.04988857439584782
+      },
+      {
+        "material": "Ca",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": 0.01798035842155005,
+        "actual_gamma110_err_j_m2": -0.07109424228160505
+      },
+      {
+        "material": "Cu",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": 0.04787210206267813,
+        "actual_gamma110_err_j_m2": 0.006024016195862236
+      },
+      {
+        "material": "Ni",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": -0.3718729128122141,
+        "actual_gamma110_err_j_m2": -0.1448217056195582
+      },
+      {
+        "material": "Pd",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": -0.15309107787327222,
+        "actual_gamma110_err_j_m2": 0.012070641717989883
+      },
+      {
+        "material": "Pt",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": -0.20299211587384822,
+        "actual_gamma110_err_j_m2": -0.033329108127089224
+      },
+      {
+        "material": "Sr",
+        "model": "mace-mp-medium",
+        "pred_gamma110_err_j_m2": -0.029240132846654058,
+        "actual_gamma110_err_j_m2": -0.1010654133526348
+      },
+      {
+        "material": "Ag",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": 0.05964934013287456,
+        "actual_gamma110_err_j_m2": -0.02032242139058238
+      },
+      {
+        "material": "Al",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": 0.13033019580818264,
+        "actual_gamma110_err_j_m2": -0.03406138209153409
+      },
+      {
+        "material": "Au",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": 0.06754880942816904,
+        "actual_gamma110_err_j_m2": 0.0830111354080375
+      },
+      {
+        "material": "Ca",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": -0.007693097949959496,
+        "actual_gamma110_err_j_m2": -0.070927859330222
+      },
+      {
+        "material": "Cu",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": -0.01929496682442725,
+        "actual_gamma110_err_j_m2": -0.047136850336048974
+      },
+      {
+        "material": "Ni",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": 1.134357458837602,
+        "actual_gamma110_err_j_m2": 0.9807986908004778
+      },
+      {
+        "material": "Pd",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": 0.10022639090569167,
+        "actual_gamma110_err_j_m2": 0.05360533885234253
+      },
+      {
+        "material": "Pt",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": 0.18506853164544743,
+        "actual_gamma110_err_j_m2": 0.3905650882789753
+      },
+      {
+        "material": "Sr",
+        "model": "mace-mpa-0-medium",
+        "pred_gamma110_err_j_m2": -0.04512516929796441,
+        "actual_gamma110_err_j_m2": -0.07810802206758338
+      }
+    ],
+    "overall_r_36_cells": 0.9064101487476575,
+    "per_model_r_n9": {
+      "chgnet": 0.8581792137014493,
+      "mace-mp-small": 0.8971610840980473,
+      "mace-mp-medium": 0.47222126407239223,
+      "mace-mpa-0-medium": 0.9551587123908387
+    },
+    "leave_one_material_out_r": {
+      "Ag": 0.9088533922427814,
+      "Al": 0.9083817671561599,
+      "Au": 0.9002549328809637,
+      "Ca": 0.9119523522597441,
+      "Cu": 0.9016076387954819,
+      "Ni": 0.8570199479294685,
+      "Pd": 0.9058230105249406,
+      "Pt": 0.9443575687436279,
+      "Sr": 0.909286578011018
+    },
+    "per_model_permutation_p_one_sided": {
+      "chgnet": 0.0033996600339966003,
+      "mace-mp-small": 0.00019998000199980003,
+      "mace-mp-medium": 0.10028997100289971,
+      "mace-mpa-0-medium": 0.0013998600139986002
+    },
+    "clustered_bootstrap_r": {
+      "n_draws": 10000,
+      "seed": 20260702,
+      "resample_unit": "material (9 clusters of 4 cells)",
+      "ci95": [
+        0.8177785910827068,
+        0.9613144433457457
+      ],
+      "median": 0.9136139030617805
+    },
+    "median_residual": {
+      "field_prediction_j_m2": 0.06618907796299464,
+      "predict_zero_j_m2": 0.10401369417409187,
+      "difference": -0.03782461621109723,
+      "clustered_bootstrap_ci95_of_difference": [
+        -0.11169957092299815,
+        -0.0013639146090077825
+      ],
+      "bootstrap_two_sided_p": 0.036
+    },
+    "strict_wins_x1e4": {
+      "wins": 26,
+      "ties": 1,
+      "losses": 9,
+      "naive_sign_test_two_sided_p": 0.011330984183587134,
+      "caveat": "sign test treats 36 cells as independent; they are not"
+    },
+    "permutation_null": {
+      "n_perms": 10000,
+      "seed": 20260703,
+      "scheme": "permute material labels of predictions within each model",
+      "observed_r": 0.9064101487476575,
+      "p_one_sided": 9.999000099990002e-05,
+      "null_mean": 0.43941357382948043,
+      "null_sd": 0.12846132302749996,
+      "null_p95": 0.7554607629851167,
+      "null_p99": 0.8007362124393531,
+      "null_max": 0.8677417843801203
+    }
+  },
+  "part2_family_exponents": {
+    "per_model": {
+      "chgnet": {
+        "n_points": {
+          "surfaces": 41,
+          "vacancy": 17,
+          "b0": 21
+        },
+        "alpha": {
+          "surfaces": 1.1375370894783183,
+          "surfaces_excl_gamma110": 1.1612799649555317,
+          "vacancy": 0.8076508047667852,
+          "b0": 1.0024543152224685
+        },
+        "alpha_surfaces_bootstrap_ci95": [
+          1.0355218220507079,
+          1.3027880798927012
+        ],
+        "surf_minus_vac": {
+          "point": 0.32988628471153314,
+          "ci95": [
+            -0.03083188544692994,
+            0.6663476300680482
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.0736,
+          "skipped_draws": 0
+        },
+        "surf_minus_b0": {
+          "point": 0.1350827742558498,
+          "ci95": [
+            0.01723778356431156,
+            0.3042427782764823
+          ],
+          "excludes_zero": true,
+          "bootstrap_two_sided_p": 0.0282,
+          "skipped_draws": 0
+        }
+      },
+      "mace-mp-small": {
+        "n_points": {
+          "surfaces": 41,
+          "vacancy": 17,
+          "b0": 21
+        },
+        "alpha": {
+          "surfaces": 1.1287199538550845,
+          "surfaces_excl_gamma110": 1.1338770752888272,
+          "vacancy": 0.9171367816794216,
+          "b0": 0.9073139846544215
+        },
+        "alpha_surfaces_bootstrap_ci95": [
+          1.0071621183019577,
+          1.209832713401949
+        ],
+        "surf_minus_vac": {
+          "point": 0.21158317217566291,
+          "ci95": [
+            0.022245611599246644,
+            0.4045109841853313
+          ],
+          "excludes_zero": true,
+          "bootstrap_two_sided_p": 0.0238,
+          "skipped_draws": 0
+        },
+        "surf_minus_b0": {
+          "point": 0.22140596920066302,
+          "ci95": [
+            0.06700922845699009,
+            0.32295071499377576
+          ],
+          "excludes_zero": true,
+          "bootstrap_two_sided_p": 0.0136,
+          "skipped_draws": 0
+        }
+      },
+      "mace-mp-medium": {
+        "n_points": {
+          "surfaces": 41,
+          "vacancy": 17,
+          "b0": 21
+        },
+        "alpha": {
+          "surfaces": 1.0648248651174705,
+          "surfaces_excl_gamma110": 1.051536571117126,
+          "vacancy": 0.8567866852745731,
+          "b0": 0.9010729709823728
+        },
+        "alpha_surfaces_bootstrap_ci95": [
+          0.9574041993475498,
+          1.132417492195116
+        ],
+        "surf_minus_vac": {
+          "point": 0.2080381798428974,
+          "ci95": [
+            0.02640201741063307,
+            0.3629844680570765
+          ],
+          "excludes_zero": true,
+          "bootstrap_two_sided_p": 0.0242,
+          "skipped_draws": 0
+        },
+        "surf_minus_b0": {
+          "point": 0.16375189413509772,
+          "ci95": [
+            -0.031418080441663596,
+            0.26305597434409744
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.0812,
+          "skipped_draws": 0
+        }
+      },
+      "mace-mpa-0-medium": {
+        "n_points": {
+          "surfaces": 41,
+          "vacancy": 17,
+          "b0": 21
+        },
+        "alpha": {
+          "surfaces": 1.0985417611256976,
+          "surfaces_excl_gamma110": 1.1102053998685615,
+          "vacancy": 0.8943817144479311,
+          "b0": 1.0185883879378386
+        },
+        "alpha_surfaces_bootstrap_ci95": [
+          0.9988642604367864,
+          1.1769088252095543
+        ],
+        "surf_minus_vac": {
+          "point": 0.20416004667776644,
+          "ci95": [
+            0.07707873312747418,
+            0.3423166473523564
+          ],
+          "excludes_zero": true,
+          "bootstrap_two_sided_p": 0.0012,
+          "skipped_draws": 0
+        },
+        "surf_minus_b0": {
+          "point": 0.079953373187859,
+          "ci95": [
+            -0.08586574747796215,
+            0.19441408608449545
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.3852,
+          "skipped_draws": 0
+        }
+      }
+    },
+    "notes": {
+      "bootstrap": "paired bootstrap over materials, 10000 draws, seed 20260704; both family slopes refit on each draw with the same material resample"
+    },
+    "cross_model_surface_alpha": {
+      "values": {
+        "chgnet": 1.1375370894783183,
+        "mace-mp-small": 1.1287199538550845,
+        "mace-mp-medium": 1.0648248651174705,
+        "mace-mpa-0-medium": 1.0985417611256976
+      },
+      "between_model_variance": 0.001084631653588221,
+      "mean_within_model_bootstrap_variance": 0.0027914392018042787,
+      "ratio_between_over_within": 0.3885564309934305,
+      "between_model_sd": 0.03293374642503068,
+      "mean_within_model_bootstrap_sd": 0.052834072356806636
+    }
+  },
+  "part3_loo_comparisons": {
+    "per_model": {
+      "chgnet": {
+        "n_cells": 41,
+        "median_loo_relative_error": {
+          "raw": 0.27959670243977963,
+          "log_affine": 0.1003561166737441,
+          "isotonic8": 0.14157346854475672
+        },
+        "isotonic_minus_log_affine": {
+          "median": 0.024349714295813424,
+          "ci95_clustered": [
+            -0.043010562526166765,
+            0.04758918742084454
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.447
+        },
+        "raw_minus_log_affine": {
+          "median": 0.21790287274707648,
+          "ci95_clustered": [
+            0.17202614578069558,
+            0.26868911464683765
+          ],
+          "excludes_zero": true,
+          "bootstrap_two_sided_p": 0.0004
+        }
+      },
+      "mace-mp-small": {
+        "n_cells": 41,
+        "median_loo_relative_error": {
+          "raw": 0.12050494105035127,
+          "log_affine": 0.07452631519504119,
+          "isotonic8": 0.08855580317375505
+        },
+        "isotonic_minus_log_affine": {
+          "median": 0.003790001145425881,
+          "ci95_clustered": [
+            -0.016212594822132328,
+            0.027113430175169193
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.6894
+        },
+        "raw_minus_log_affine": {
+          "median": 0.04832933198735358,
+          "ci95_clustered": [
+            -0.004115618391836551,
+            0.09422688512129064
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.061
+        }
+      },
+      "mace-mp-medium": {
+        "n_cells": 41,
+        "median_loo_relative_error": {
+          "raw": 0.0898109029449403,
+          "log_affine": 0.08220950729852844,
+          "isotonic8": 0.07505750486777207
+        },
+        "isotonic_minus_log_affine": {
+          "median": -0.0020081904582162913,
+          "ci95_clustered": [
+            -0.012584017952427456,
+            0.012206386047310003
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.5406
+        },
+        "raw_minus_log_affine": {
+          "median": 0.020335542459972433,
+          "ci95_clustered": [
+            -0.04273800823896035,
+            0.04457105987681104
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.5318
+        }
+      },
+      "mace-mpa-0-medium": {
+        "n_cells": 41,
+        "median_loo_relative_error": {
+          "raw": 0.04889678655868811,
+          "log_affine": 0.06802410142443266,
+          "isotonic8": 0.05989834776916298
+        },
+        "isotonic_minus_log_affine": {
+          "median": 0.002733156149909162,
+          "ci95_clustered": [
+            -0.009620568112254271,
+            0.009450659604610199
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.4386
+        },
+        "raw_minus_log_affine": {
+          "median": 0.0036942793430865054,
+          "ci95_clustered": [
+            -0.04376153661816928,
+            0.043011838260458235
+          ],
+          "excludes_zero": false,
+          "bootstrap_two_sided_p": 0.7836
+        }
+      }
+    },
+    "notes": {
+      "loo_unit": "one (material, facet) cell held out per fold",
+      "log_affine": "fit log(pred)=log c + alpha log(ref) on train; correct held-out via (P/c)^(1/alpha)",
+      "isotonic8": "8 quantile bins of train P; bin means; weighted PAVA; piecewise-linear interpolation, clamped at ends",
+      "bootstrap": "median of paired per-cell differences, materials resampled as clusters, 10000 draws, seed 20260705"
+    }
+  },
+  "part4_multiple_testing": {
+    "policy": "Holm step-down within each pre-specified claim family; kernel-checked point facts (orderings, strict inequalities on the measured dataset) are deterministic dataset properties and carry no sampling claim, hence no correction; sampling-based inferences are corrected within family",
+    "paper_test_inventory": {
+      "s3_1": {
+        "participation_ratio_tests": 6,
+        "leading_mode_cosine_tests": 3,
+        "defect_vs_bulk_ratio_cis": 3
+      },
+      "s3_2": {
+        "rank_correlation_estimates": 16,
+        "facet_orderings_deterministic": 22,
+        "gamma111_exact_permutation_deterministic": 1
+      },
+      "s3_3": {
+        "loglog_fits": 12,
+        "strict_exponent_inequalities_deterministic": 8,
+        "prefactor_and_warp_orderings_deterministic": 2,
+        "loo_comparisons": 2,
+        "one_anchor_transfer": 1
+      },
+      "s3_4": {
+        "blind_r": 1,
+        "median_residual": 1,
+        "win_count": 1
+      },
+      "s3_6": {
+        "eam_loo_degradation": 1,
+        "zhou_vs_chgnet_cells_deterministic": 1
+      },
+      "approx_sampling_based_inferences": 47,
+      "approx_deterministic_point_facts": 34
+    },
+    "family_blind_gamma110": {
+      "m_tests": 3,
+      "alpha": 0.05,
+      "raw_p": {
+        "permutation_r": 9.999000099990002e-05,
+        "win_count_sign_test_naive": 0.011330984183587134,
+        "median_residual_vs_zero": 0.036
+      },
+      "holm_adjusted_p": {
+        "permutation_r": 0.00029997000299970003,
+        "win_count_sign_test_naive": 0.022661968367174268,
+        "median_residual_vs_zero": 0.036
+      },
+      "reject_at_alpha": {
+        "permutation_r": true,
+        "win_count_sign_test_naive": true,
+        "median_residual_vs_zero": true
+      }
+    },
+    "family_exponent_separation": {
+      "m_tests": 8,
+      "alpha": 0.05,
+      "raw_p": {
+        "mace-mpa-0-medium:surf_minus_vac": 0.0012,
+        "mace-mp-small:surf_minus_b0": 0.0136,
+        "mace-mp-small:surf_minus_vac": 0.0238,
+        "mace-mp-medium:surf_minus_vac": 0.0242,
+        "chgnet:surf_minus_b0": 0.0282,
+        "chgnet:surf_minus_vac": 0.0736,
+        "mace-mp-medium:surf_minus_b0": 0.0812,
+        "mace-mpa-0-medium:surf_minus_b0": 0.3852
+      },
+      "holm_adjusted_p": {
+        "mace-mpa-0-medium:surf_minus_vac": 0.0096,
+        "mace-mp-small:surf_minus_b0": 0.09519999999999999,
+        "mace-mp-small:surf_minus_vac": 0.1428,
+        "mace-mp-medium:surf_minus_vac": 0.1428,
+        "chgnet:surf_minus_b0": 0.1428,
+        "chgnet:surf_minus_vac": 0.2208,
+        "mace-mp-medium:surf_minus_b0": 0.2208,
+        "mace-mpa-0-medium:surf_minus_b0": 0.3852
+      },
+      "reject_at_alpha": {
+        "mace-mpa-0-medium:surf_minus_vac": true,
+        "mace-mp-small:surf_minus_b0": false,
+        "mace-mp-small:surf_minus_vac": false,
+        "mace-mp-medium:surf_minus_vac": false,
+        "chgnet:surf_minus_b0": false,
+        "chgnet:surf_minus_vac": false,
+        "mace-mp-medium:surf_minus_b0": false,
+        "mace-mpa-0-medium:surf_minus_b0": false
+      }
+    },
+    "family_loo_corrections": {
+      "m_tests": 4,
+      "alpha": 0.05,
+      "raw_p": {
+        "chgnet:raw_minus_log_affine": 0.0004,
+        "mace-mp-small:raw_minus_log_affine": 0.061,
+        "chgnet:isotonic_minus_log_affine": 0.447,
+        "mace-mp-small:isotonic_minus_log_affine": 0.6894
+      },
+      "holm_adjusted_p": {
+        "chgnet:raw_minus_log_affine": 0.0016,
+        "mace-mp-small:raw_minus_log_affine": 0.183,
+        "chgnet:isotonic_minus_log_affine": 0.894,
+        "mace-mp-small:isotonic_minus_log_affine": 0.894
+      },
+      "reject_at_alpha": {
+        "chgnet:raw_minus_log_affine": true,
+        "mace-mp-small:raw_minus_log_affine": false,
+        "chgnet:isotonic_minus_log_affine": false,
+        "mace-mp-small:isotonic_minus_log_affine": false
+      }
+    },
+    "paper_wide_bonferroni_note": "headline blind-prediction permutation p survives even a paper-wide Bonferroni over ~47 sampling-based tests (threshold ~0.00106)"
+  }
+}

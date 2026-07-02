@@ -1,0 +1,73 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "V",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 2.9944586726374003,
+      "unit": "Angstrom",
+      "reference_value": 2.996,
+      "reference_source": "G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table II, PBE 'Uncorr.' column (FHI-aims, all-electron, no zero-point correction)",
+      "tolerance": null
+    },
+    {
+      "name": "cohesive_energy",
+      "value": 4.888380967881487,
+      "unit": "eV/atom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 184.94509249534528,
+      "unit": "GPa",
+      "reference_value": 157.0,
+      "reference_source": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: G. A. Alers, Phys. Rev. 119, 1532 (1960) - ultrasonic elastic constants",
+      "tolerance": null
+    },
+    {
+      "name": "B0_prime",
+      "value": 1.9601529523672943,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "vacancy_formation_energy",
+      "value": 1.7260533085575958,
+      "unit": "eV",
+      "reference_value": 2.0422,
+      "reference_source": "P.-W. Ma and S. L. Dudarev, Phys. Rev. Materials 3, 013605 (2019), Table IV (GGA-PBE, stress-free relaxed supercells)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_100",
+      "value": 2.3134479765925686,
+      "unit": "J/m^2",
+      "reference_value": 2.381,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    },
+    {
+      "name": "gamma_110",
+      "value": 2.0004592468601627,
+      "unit": "J/m^2",
+      "reference_value": 2.421,
+      "reference_source": "R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson, S. P. Ong, Surface energies of elemental crystals, Sci. Data 3, 160080 (2016); dataset: Dryad doi:10.5061/dryad.f2n6f, file surfaces.json (VASP, PBE-GGA)",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "bf40bd187d61910ec321aee17c0133356a4c66dc7c15a9bcd9c8067b3e18bfe3",
+    "run_label": null,
+    "computed_at": "2026-07-02T06:14:11.706012Z"
+  }
+}

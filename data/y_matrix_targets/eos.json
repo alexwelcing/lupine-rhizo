@@ -1,0 +1,377 @@
+{
+ "schema": "lupine.y_matrix_targets.v1",
+ "compiled_at": "2026-07-01",
+ "family": "eos",
+ "entries": [
+  {
+   "material": "Ag",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 110.9,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: W. B. Holzapfel, M. Hartwig, W. Sievers, J. Phys. Chem. Ref. Data 30, 515 (2001)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Ag, 'Exp.' column = 110.9 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Al",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 79.4,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: G. N. Kamm and G. A. Alers, J. Appl. Phys. 35, 327 (1964) - ultrasonic single-crystal elastic constants",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Al, 'Exp.' column = 79.4 GPa; per-element primary reference resolved from the SI footnote and reference list. Csonka et al. PRB 79, 155107 (2009) Table V independently list 79.4 GPa. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Au",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 180.9,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: W. B. Holzapfel, M. Hartwig, W. Sievers, J. Phys. Chem. Ref. Data 30, 515 (2001)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Au, 'Exp.' column = 180.9 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Ca",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 18.4,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: M. S. Anderson, C. A. Swenson, D. T. Peterson, Phys. Rev. B 41, 3329 (1990)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Ca, 'Exp.' column = 18.4 GPa; per-element primary reference resolved from the SI footnote and reference list. Csonka et al. PRB 79, 155107 (2009) Table V independently list 18.4 GPa. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Cu",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 142.3,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: W. C. Overton and J. Gaffney, Phys. Rev. 98, 969 (1955); W. B. Holzapfel et al., J. Phys. Chem. Ref. Data 30, 515 (2001)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Cu, 'Exp.' column = 142.3 GPa; per-element primary reference resolved from the SI footnote and reference list. Csonka et al. Table V list 142 GPa. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Fe",
+   "structure": "bcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 173.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: O. L. Anderson, in Physical Acoustics, Vol. III-B (Academic, 1965); V. L. Moruzzi and P. M. Marcus, Phys. Rev. B 48, 7665 (1993)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Fe, 'Exp.' column = 173.0 GPa; per-element primary reference resolved from the SI footnote and reference list. bcc alpha-Fe. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Mo",
+   "structure": "bcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 265.3,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: F. H. Featherston and J. R. Neighbours, Phys. Rev. 130, 1324 (1963) - ultrasonic elastic constants",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Mo, 'Exp.' column = 265.3 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Nb",
+   "structure": "bcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 174.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: G. A. Alers and D. L. Waldorf, Phys. Rev. Lett. 6, 677 (1961); K. A. Jones et al., Acta Metall. 17, 365 (1969); W. C. Hubbell and F. R. Brotzen, J. Appl. Phys. 43, 3306 (1972)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Nb, 'Exp.' column = 174.0 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Ni",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 187.6,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: O. L. Anderson, in Physical Acoustics, Vol. III-B (Academic, 1965); V. L. Moruzzi and P. M. Marcus, Phys. Rev. B 48, 7665 (1993)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Ni, 'Exp.' column = 187.6 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Pd",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 195.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: D. K. Hsu and R. G. Leisure, Phys. Rev. B 20, 1339 (1979) - ultrasonic elastic constants",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Pd, 'Exp.' column = 195.0 GPa; per-element primary reference resolved from the SI footnote and reference list. Csonka et al. Table V list 195 GPa. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Pt",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 277.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: R. E. MacFarlane, J. A. Rayne, C. K. Jones, Phys. Lett. 20, 234 (1966); G. Simmons and H. Wang, Single Crystal Elastic Constants and Calculated Aggregate Properties, 2nd ed. (MIT Press, 1971)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Pt, 'Exp.' column = 277.0 GPa; per-element primary reference resolved from the SI footnote and reference list. Simmons & Wang 1971 is one of the two cited primaries. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Sr",
+   "structure": "fcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 12.4,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: M. S. Anderson, C. A. Swenson, D. T. Peterson, Phys. Rev. B 41, 3329 (1990)",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Sr, 'Exp.' column = 12.4 GPa; per-element primary reference resolved from the SI footnote and reference list. Csonka et al. Table V independently list 12.4 GPa. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Ta",
+   "structure": "bcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 194.2,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: F. H. Featherston and J. R. Neighbours, Phys. Rev. 130, 1324 (1963) - ultrasonic elastic constants",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row Ta, 'Exp.' column = 194.2 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "V",
+   "structure": "bcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 157.0,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: G. A. Alers, Phys. Rev. 119, 1532 (1960) - ultrasonic elastic constants",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row V, 'Exp.' column = 157.0 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "W",
+   "structure": "bcc",
+   "property": "bulk_modulus_0K_extrapolated",
+   "value": 314.2,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "Experimental bulk modulus as tabulated in G.-X. Zhang, A. M. Reilly, A. Tkatchenko, M. Scheffler, New J. Phys. 20, 063020 (2018), supplementary Table IV 'Exp.' column; primary: F. H. Featherston and J. R. Neighbours, Phys. Rev. 130, 1324 (1963) - ultrasonic elastic constants",
+    "doi_or_url": "https://doi.org/10.1088/1367-2630/aac7f0",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the NJP supplementary PDF (njpaac7f0suppdata.pdf, fetched via stacks.iop.org/NJP/20/063020/mmedia): Table IV row W, 'Exp.' column = 314.2 GPa; per-element primary reference resolved from the SI footnote and reference list. TEMPERATURE STATUS: the Zhang et al. 'Exp.' column is thermally corrected toward the low-temperature limit (no ZPPE removal), i.e. a ~0 K elastic value, not a 300 K value; property renamed accordingly."
+   }
+  },
+  {
+   "material": "Cr",
+   "structure": "bcc",
+   "property": "bulk_modulus_300K",
+   "value": 160,
+   "unit": "GPa",
+   "method": "experiment",
+   "source": {
+    "citation": "CRC Handbook of Chemistry and Physics (bulk modulus of the elements), as tabulated on the Wikipedia 'Elastic properties of the elements (data page)' (CRC and WebElements columns agree)",
+    "doi_or_url": "https://en.wikipedia.org/wiki/Elastic_properties_of_the_elements_(data_page)",
+    "notes": "Verified 2026-07-01 via WebFetch of the Wikipedia data page: Cr bulk modulus 160 GPa in both WEL and CRC columns. COARSE (2 significant figures): Cr is absent from the precise Zhang et al. benchmark set. Note: Young et al. (LLNL-JRNL-686936, JPCRD 45, 043101 (2016)) fit their new Cr DAC data (to 56 GPa) with Birch-Murnaghan B0 = 193.5 GPa, B0-prime = 4.934 - a DAC-fit B0 substantially above the handbook elastic value; the discrepancy is flagged, not resolved."
+   }
+  },
+  {
+   "material": "Ag",
+   "structure": "fcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 5.7,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele et al. (2008) data, 0-124 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Ag: K0 = 100.2 GPa, K0-prime = 5.7(0.09) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 6.22. 95% confidence fit errors in parentheses."
+   }
+  },
+  {
+   "material": "Al",
+   "structure": "fcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 4.16,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele, Loubeyre, Mezouar, Phys. Rev. B 70, 094112 (2004) data, 0-155 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Al: K0 = 76.32 GPa, K0-prime = 4.16(0.06) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 4.52. 95% confidence fit errors in parentheses."
+   }
+  },
+  {
+   "material": "Au",
+   "structure": "fcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 5.47,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Takemura and Dewaele (2008) data, 0-131 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Au: K0 = 166.4 GPa, K0-prime = 5.47(0.06) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 6.04. 95% confidence fit errors in parentheses. Independent Vinet fit on the Tange-2009 MgO scale (Dorfman, Prakapenka, Meng, Duffy, J. Geophys. Res. 117, B08210 (2012), Table 2, K0 fixed to ultrasonic value) gives K0-prime = 5.88; the difference illustrates genuine pressure-scale dependence of B0-prime."
+   }
+  },
+  {
+   "material": "Cu",
+   "structure": "fcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 4.91,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele, Loubeyre, Mezouar, Phys. Rev. B 70, 094112 (2004) data, 0-155 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Cu: K0 = 135.3 GPa, K0-prime = 4.91(0.06) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 5.38. 95% confidence fit errors in parentheses."
+   }
+  },
+  {
+   "material": "Mo",
+   "structure": "bcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 3.34,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele et al. (2008) data, 0-124 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Mo: K0 = 270.3 GPa, K0-prime = 3.34(0.12) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 3.87. 95% confidence fit errors in parentheses. Independent Vinet fit on the Tange-2009 MgO scale (Dorfman, Prakapenka, Meng, Duffy, J. Geophys. Res. 117, B08210 (2012), Table 2, K0 fixed to ultrasonic value) gives K0-prime = 4.19; the difference illustrates genuine pressure-scale dependence of B0-prime."
+   }
+  },
+  {
+   "material": "Ni",
+   "structure": "fcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 4.83,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele et al. (2008) data, 0-157 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Ni: K0 = 177.5 GPa, K0-prime = 4.83(0.09) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 5.322. 95% confidence fit errors in parentheses."
+   }
+  },
+  {
+   "material": "Pt",
+   "structure": "fcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 4.83,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele, Loubeyre, Mezouar, Phys. Rev. B 70, 094112 (2004) data, 0-95 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Pt: K0 = 273.4 GPa, K0-prime = 4.83(0.08) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 5.5. 95% confidence fit errors in parentheses. Independent Vinet fit on the Tange-2009 MgO scale (Dorfman, Prakapenka, Meng, Duffy, J. Geophys. Res. 117, B08210 (2012), Table 2, K0 fixed to ultrasonic value) gives K0-prime = 5.43; the difference illustrates genuine pressure-scale dependence of B0-prime."
+   }
+  },
+  {
+   "material": "Ta",
+   "structure": "bcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 3.17,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele, Loubeyre, Mezouar, Phys. Rev. B 70, 094112 (2004) data, 0-90 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row Ta: K0 = 197.9 GPa, K0-prime = 3.17(0.10) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 3.64. 95% confidence fit errors in parentheses."
+   }
+  },
+  {
+   "material": "W",
+   "structure": "bcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 3.82,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "A. Dewaele, Minerals 9, 684 (2019), Table 1 - Rydberg-Vinet fit at 300 K (Mao ruby calibration column) of Dewaele, Loubeyre, Mezouar, Phys. Rev. B 70, 094112 (2004) data, 0-155 GPa, He medium",
+    "doi_or_url": "https://doi.org/10.3390/min9110684",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the open-access Minerals PDF: Table 1 row W: K0 = 298.3 GPa, K0-prime = 3.82(0.11) [Mao ruby scale]; with the Dorogokupets-calibration column K0-prime = 4.37. 95% confidence fit errors in parentheses."
+   }
+  },
+  {
+   "material": "Cr",
+   "structure": "bcc",
+   "property": "bulk_modulus_pressure_derivative",
+   "value": 4.934,
+   "unit": "dimensionless",
+   "method": "experiment",
+   "source": {
+    "citation": "D. A. Young, H. Cynn, P. Soderlind, A. Landa, J. Phys. Chem. Ref. Data 45, 043101 (2016) (LLNL-JRNL-686936) - Birch-Murnaghan fit of new Cr DAC data to 56 GPa",
+    "doi_or_url": "https://www.osti.gov/pages/servlets/purl/1342023",
+    "notes": "Verified 2026-07-01 by pypdf extraction of the OSTI PDF, Sec. 3.24: 'Our fitted Birch-Murnaghan parameters are V0 = 7.230 cm3/mol, B0 = 193.5 GPa, and B0-prime = 4.934.' Caution: the co-fitted B0 (193.5 GPa) exceeds the handbook elastic value (~160 GPa); B0/B0-prime trade-off in DAC fits makes this B0-prime correlated with that high B0."
+   }
+  }
+ ],
+ "unresolved": [
+  {
+   "material": "Cr",
+   "property": "bulk_modulus_300K",
+   "note": "Only a coarse 2-significant-figure CRC value (160 GPa) was verifiable; Cr is absent from the precise ultrasonic benchmark tabulations fetched this session, and the LLNL DAC fit gives a conflicting 193.5 GPa. Precise ultrasonic-grade B0 for Cr: unresolved."
+  },
+  {
+   "material": "Ca",
+   "property": "bulk_modulus_pressure_derivative",
+   "note": "No verifiable DAC B0-prime for fcc Ca (complex phase diagram above ~20 GPa; Young et al. cite Anderson/Gu data but quote no fit parameters)."
+  },
+  {
+   "material": "Sr",
+   "property": "bulk_modulus_pressure_derivative",
+   "note": "Same as Ca: at least five phases below 100 GPa; no verifiable fit parameters."
+  },
+  {
+   "material": "V",
+   "property": "bulk_modulus_pressure_derivative",
+   "note": "Young et al. use Ding et al. compression data for V but quote no fit parameters; V also has a rhombohedral transition near 60 GPa. Unresolved."
+  },
+  {
+   "material": "Nb",
+   "property": "bulk_modulus_pressure_derivative",
+   "note": "Not in the Dewaele (2019) refit set; no verifiable DAC B0-prime found this session."
+  },
+  {
+   "material": "Fe",
+   "property": "bulk_modulus_pressure_derivative",
+   "note": "bcc alpha-Fe transforms to hcp at ~13 GPa; Dewaele (2019) tabulate epsilon-Fe (hcp) parameters only (K0 = 164.5, K0-prime = 4.96, 17-204 GPa), which do not apply to the bcc phase. Unresolved for bcc Fe."
+  }
+ ]
+}

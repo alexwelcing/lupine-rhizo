@@ -1,0 +1,115 @@
+{
+  "schema": "lupine.statics_run.v1",
+  "material": "MgO",
+  "structure_type": "rocksalt",
+  "model_id": "mace-mpa-0-medium",
+  "device": "cuda",
+  "calculator_version": "mace-torch 0.3.16",
+  "requested_properties": [
+    "lattice",
+    "eos"
+  ],
+  "results": {
+    "lattice": {
+      "value": 4.256476761580448,
+      "unit": "Angstrom",
+      "property": "lattice",
+      "values": {
+        "a0_angstrom": 4.256476761580448,
+        "e0_ev_per_atom": -5.980121650248951,
+        "v0_a3_per_atom": 9.639639954055978,
+        "b0_gpa": 148.11921435707296,
+        "b0_prime": 4.241668499244813,
+        "cohesive_energy_ev_per_atom": 5.201172655248951,
+        "isolated_atom_energies_ev": [
+          [
+            "Mg",
+            -0.00951015
+          ],
+          [
+            "O",
+            -1.54838784
+          ]
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "a0_angstrom": "Angstrom",
+        "e0_ev_per_atom": "eV/atom",
+        "v0_a3_per_atom": "A^3/atom",
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "cohesive_energy_ev_per_atom": "eV/atom",
+        "isolated_atom_energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "lattice",
+        "formula": "MgO",
+        "structure_type": "rocksalt",
+        "initial_a_angstrom": 4.14,
+        "volume_span": 0.06,
+        "n_points": 11,
+        "max_recenter": 8
+      },
+      "wall_time_seconds": 5.676981900000101
+    },
+    "eos": {
+      "value": 148.11930701526745,
+      "unit": "GPa",
+      "property": "eos",
+      "values": {
+        "b0_gpa": 148.11930701526745,
+        "b0_prime": 4.2413282479297605,
+        "v0_a3_per_atom": 9.639640934620227,
+        "e0_ev": -47.84097321846968,
+        "rms_residual_ev": 3.8320156182840335e-05,
+        "volumes_a3": [
+          72.49009245450098,
+          73.41549789009031,
+          74.3409033256797,
+          75.26630876126906,
+          76.1917141968585,
+          77.11711963244781,
+          78.04252506803724,
+          78.96793050362658,
+          79.89333593921602,
+          80.81874137480533,
+          81.74414681039471
+        ],
+        "energies_ev": [
+          -47.69796312507309,
+          -47.7515239701372,
+          -47.7917638555143,
+          -47.81955268289104,
+          -47.835693306082405,
+          -47.840926648601,
+          -47.835922743697,
+          -47.82129099005118,
+          -47.797591990670625,
+          -47.76534396194354,
+          -47.72502912829956
+        ],
+        "n_atoms_cell": 8
+      },
+      "units": {
+        "b0_gpa": "GPa",
+        "b0_prime": "dimensionless",
+        "v0_a3_per_atom": "A^3/atom",
+        "e0_ev": "eV",
+        "rms_residual_ev": "eV",
+        "volumes_a3": "A^3",
+        "energies_ev": "eV"
+      },
+      "canonical_inputs": {
+        "property": "eos",
+        "formula": "MgO",
+        "structure_type": "rocksalt",
+        "a0_angstrom": 4.256476761580448,
+        "volume_span": 0.06,
+        "n_points": 11
+      },
+      "wall_time_seconds": 0.6036628000001656
+    }
+  },
+  "total_wall_time_seconds": 6.281072300000233
+}
