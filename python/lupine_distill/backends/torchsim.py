@@ -35,6 +35,44 @@ from .base import BenchmarkBackend, System
 # eV/Angstrom^3 -> GPa (torch_sim/MACE report stress in eV/A^3).
 _EV_PER_A3_TO_GPA = 160.21766208
 
+# Explicit model-id -> MACE-MP foundation checkpoint mapping (single source of
+# truth). ``runner.run_suite`` stamps the REQUESTED model_id into the emitted
+# BenchmarkResult, so the backend must load exactly the checkpoint that id
+# names. An unmapped id is an error — NEVER a silent default, which would
+# attribute benchmark numbers to a model that never ran.
+MACE_CHECKPOINT_BY_MODEL_ID: dict[str, str] = {
+    # Canonical MACE-MP-0 foundation release == the medium checkpoint
+    # (used by scripts/run_cross_material_transfer.py and CI drivers).
+    "mace-mp-0": "medium",
+    "mace-mp-0-small": "small",
+    "mace-mp-0-medium": "medium",
+    "mace-mp-0-large": "large",
+    # Short size aliases.
+    "mace-small": "small",
+    "mace-medium": "medium",
+    "mace-large": "large",
+}
+
+
+def resolve_mace_checkpoint(model_id: str) -> str:
+    """Return the MACE foundation checkpoint size for ``model_id``.
+
+    Lookup is case-insensitive (ids like ``'MACE-MP-0-small'`` appear in
+    schema docs). Raises :class:`ValueError` listing the accepted ids when the
+    id is unmapped — the benchmark evidence chain must fail fast rather than
+    silently run a different model than the one the result will be
+    attributed to.
+    """
+
+    size = MACE_CHECKPOINT_BY_MODEL_ID.get(model_id.strip().lower())
+    if size is None:
+        accepted = ", ".join(sorted(MACE_CHECKPOINT_BY_MODEL_ID))
+        raise ValueError(
+            f"unknown model_id {model_id!r} for the TorchSim backend; "
+            f"accepted ids: {accepted}"
+        )
+    return size
+
 
 class TorchSimUnavailable(RuntimeError):
     """Raised when torch_sim is required but cannot be imported."""
@@ -70,6 +108,10 @@ class TorchSimBenchmarkBackend(BenchmarkBackend):
         self._device = device
         self._dtype_name = dtype
         self._torch_sim = _import_torch_sim()
+        # Fail fast at the call site on an unmapped id (results are attributed
+        # to model_id). Kept after the torch_sim import so environments without
+        # the engine still raise TorchSimUnavailable first.
+        resolve_mace_checkpoint(model_id)
         self._model: Any = None  # lazily built MaceModel
 
     @property
@@ -99,8 +141,10 @@ class TorchSimBenchmarkBackend(BenchmarkBackend):
 
         dev_name = self._device or ("cuda" if torch.cuda.is_available() else "cpu")
         dtype = getattr(torch, self._dtype_name)
-        # Map a friendly model id to a MACE foundation checkpoint (default medium).
-        mace_size = "medium"
+        # Resolve the requested model id to its MACE foundation checkpoint via
+        # the explicit module-level mapping — raises on unmapped ids, never
+        # defaults (the result is attributed to self._model_id downstream).
+        mace_size = resolve_mace_checkpoint(self._model_id)
         raw = mace_mp(model=mace_size, device=dev_name, default_dtype=self._dtype_name, return_raw_model=True)
         self._model = MaceModel(
             model=raw,
@@ -213,8 +257,10 @@ def try_build_torchsim_backend(*, model_id: str, device: str | None = None) -> T
 
 
 __all__ = [
+    "MACE_CHECKPOINT_BY_MODEL_ID",
     "TorchSimBenchmarkBackend",
     "TorchSimUnavailable",
+    "resolve_mace_checkpoint",
     "torchsim_available",
     "try_build_torchsim_backend",
 ]

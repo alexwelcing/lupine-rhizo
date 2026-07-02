@@ -16,6 +16,20 @@ Three layers, usable independently:
      vs reference) written wherever the caller says. Demos write under
      ``hpc/examples/generated/`` — never into ``lean-spec/`` directly.
 
+``emit_lean_module`` also accepts ``lupine.mlip.calc_evidence.v1`` payloads
+(:class:`~lupine_distill.schemas.CalcEvidence`, assembled by
+:mod:`lupine_distill.calc_evidence`): ASE-calculator/GPU results route through
+the same theorem-emission core, with ``calc_``-prefixed theorem names and
+``inputs sha256`` provenance instead of ``log sha256``.
+
+Tolerance semantics: by default a property is "within" when its absolute error
+is at most ``tolerance_pct`` percent of ``|reference_value|``. A property may
+carry an explicit absolute ``tolerance`` (same unit as the value), which then
+replaces the percentage rule for that property — necessary for near-zero
+references (5% of a ~10 mJ/m^2 stacking-fault energy, or of a 0.0 formation
+enthalpy, is degenerate). The field is optional-with-None, so existing v1
+payloads and the default percentage behavior are unchanged.
+
 CLI (``python3 -m lupine_distill.lammps_ingest --help``):
 
     python3 -m lupine_distill.lammps_ingest parse log.lammps \\
@@ -38,6 +52,8 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .schemas import (
+    CALC_EVIDENCE_SCHEMA,
+    CalcEvidence,
     LammpsEvidence,
     LammpsPropertyValue,
     LammpsProvenance,
@@ -242,8 +258,115 @@ def _safe(s: str) -> str:
     return "".join(c if c.isalnum() else "_" for c in s).strip("_")
 
 
+@dataclass(frozen=True)
+class _EvidenceView:
+    """Lane-neutral projection of an evidence payload for Lean emission."""
+
+    material: str
+    source_label: str
+    properties: tuple[LammpsPropertyValue, ...]
+    provenance_line: str
+    theorem_prefix: str  # "lammps" | "calc"
+    evidence_note: str  # human wording used in header and theorem docs
+    namespace_root: str
+
+
+def _view(payload: LammpsEvidence | CalcEvidence) -> _EvidenceView:
+    if isinstance(payload, LammpsEvidence):
+        return _EvidenceView(
+            material=payload.material,
+            source_label=payload.source.potential_id,
+            properties=tuple(payload.properties),
+            provenance_line=(
+                f"{payload.material}/{payload.source.potential_id} "
+                f"log sha256 {payload.provenance.log_sha256[:12]}"
+            ),
+            theorem_prefix="lammps",
+            evidence_note="LAMMPS log evidence",
+            namespace_root="Lupine.LammpsEvidence",
+        )
+    if isinstance(payload, CalcEvidence):
+        return _EvidenceView(
+            material=payload.material,
+            source_label=payload.source.model_id,
+            properties=tuple(payload.properties),
+            provenance_line=(
+                f"{payload.material}/{payload.source.model_id} "
+                f"inputs sha256 {payload.provenance.inputs_sha256[:12]}"
+            ),
+            theorem_prefix="calc",
+            evidence_note="calculator evidence",
+            namespace_root="Lupine.CalcEvidence",
+        )
+    raise TypeError(f"unsupported evidence payload type: {type(payload).__name__}")
+
+
+def _emit_theorems(
+    *,
+    material: str,
+    source_label: str,
+    properties: Sequence[LammpsPropertyValue],
+    theorem_prefix: str,
+    evidence_note: str,
+    tolerance_pct: float,
+) -> list[str]:
+    """Shared theorem-emission core for both evidence lanes.
+
+    One decidable Nat-inequality theorem per reference-annotated property (abs
+    error and tolerance both x1000-scaled). A property's explicit ``tolerance``
+    (absolute, same unit) replaces the ``tolerance_pct``-of-``|reference|``
+    default when set — see the module docstring for why.
+    """
+
+    theorems: list[str] = []
+    for prop in properties:
+        ref = prop.reference_value
+        if ref is None:
+            continue
+        err = abs(prop.value - ref)
+        if prop.tolerance is not None:
+            tol, tol_label = prop.tolerance, "(explicit)"
+        else:
+            tol, tol_label = tolerance_pct / 100.0 * abs(ref), f"({tolerance_pct:g}%)"
+        err_k, tol_k = int(round(err * 1000)), int(round(tol * 1000))
+        safe = _safe(f"{material}_{source_label}_{prop.name}")
+        cite = f" ({prop.reference_source})" if prop.reference_source else ""
+        if err_k <= tol_k:
+            name = f"{theorem_prefix}_within_tol_{safe}"
+            prop_str = f"{err_k} ≤ {tol_k}"
+            verdict = f"|err| {err:.4f} ≤ tol {tol:.4f} {prop.unit} {tol_label}"
+        else:
+            name = f"{theorem_prefix}_exceeds_tol_{safe}"
+            prop_str = f"{tol_k} < {err_k}"
+            verdict = f"|err| {err:.4f} EXCEEDS tol {tol:.4f} {prop.unit} {tol_label}"
+        doc = (
+            f"{material}/{source_label} {prop.name} = {prop.value:.4f} {prop.unit} "
+            f"vs reference {ref:.4f}{cite}: {verdict}"
+        )
+        theorems.append(
+            f"/-- {doc}. Machine-checked from {evidence_note} (abs error x1000). -/\n"
+            f"theorem {name} : {prop_str} := by decide\n"
+        )
+    return theorems
+
+
+def _module_origin(views: Sequence[_EvidenceView]) -> str:
+    kinds = {v.theorem_prefix for v in views}
+    if kinds == {"lammps"}:
+        return "LAMMPS log evidence"
+    if kinds == {"calc"}:
+        return "calculator evidence"
+    return "LAMMPS log and calculator evidence"
+
+
+def _default_namespace(views: Sequence[_EvidenceView]) -> str:
+    roots = {v.namespace_root for v in views}
+    root = next(iter(roots)) if len(roots) == 1 else "Lupine.Evidence"
+    return root + "." + _safe("_".join(sorted({v.material for v in views})))
+
+
 def emit_lean_module(
-    payloads: Sequence[LammpsEvidence],
+    payloads: Sequence[LammpsEvidence | CalcEvidence],
     out_path: pathlib.Path | str,
     *,
     namespace: str | None = None,
@@ -254,9 +377,15 @@ def emit_lean_module(
     Style mirrors ``tools/mlip_distill_atlas.py``: a machine-generated header
     naming the source tool and input hashes, one namespace, and one decidable
     Nat-inequality theorem per reference-annotated property (abs error and
-    tolerance both x1000-scaled). A property inside ``tolerance_pct`` of its
-    reference yields ``within_tol``; outside it yields ``exceeds_tol`` — the
+    tolerance both x1000-scaled). A property inside its tolerance — explicit
+    per-property ``tolerance`` when set, else ``tolerance_pct`` of the
+    reference — yields ``within_tol``; outside it yields ``exceeds_tol`` — the
     verdict is encoded either way, never hidden.
+
+    ``payloads`` may mix :class:`LammpsEvidence` and :class:`CalcEvidence`;
+    theorem names are prefixed ``lammps_`` / ``calc_`` per payload lane, and
+    the LAMMPS-only output is byte-identical to what this function emitted
+    before calculator support existed.
 
     The module is written to ``out_path`` verbatim. Demos must target
     ``hpc/examples/generated/``; admission into ``lean-spec/`` is a reviewed
@@ -265,46 +394,26 @@ def emit_lean_module(
 
     if tolerance_pct < 0.0:
         raise ValueError("tolerance_pct must be >= 0")
+    views = [_view(p) for p in payloads]
     theorems: list[str] = []
-    for payload in payloads:
-        pot = payload.source.potential_id
-        for prop in payload.properties:
-            ref = prop.reference_value
-            if ref is None:
-                continue
-            err = abs(prop.value - ref)
-            tol = tolerance_pct / 100.0 * abs(ref)
-            err_k, tol_k = int(round(err * 1000)), int(round(tol * 1000))
-            safe = _safe(f"{payload.material}_{pot}_{prop.name}")
-            cite = f" ({prop.reference_source})" if prop.reference_source else ""
-            if err_k <= tol_k:
-                name = f"lammps_within_tol_{safe}"
-                prop_str = f"{err_k} ≤ {tol_k}"
-                verdict = f"|err| {err:.4f} ≤ tol {tol:.4f} {prop.unit} ({tolerance_pct:g}%)"
-            else:
-                name = f"lammps_exceeds_tol_{safe}"
-                prop_str = f"{tol_k} < {err_k}"
-                verdict = f"|err| {err:.4f} EXCEEDS tol {tol:.4f} {prop.unit} ({tolerance_pct:g}%)"
-            doc = (
-                f"{payload.material}/{pot} {prop.name} = {prop.value:.4f} {prop.unit} "
-                f"vs reference {ref:.4f}{cite}: {verdict}"
+    for view in views:
+        theorems.extend(
+            _emit_theorems(
+                material=view.material,
+                source_label=view.source_label,
+                properties=view.properties,
+                theorem_prefix=view.theorem_prefix,
+                evidence_note=view.evidence_note,
+                tolerance_pct=tolerance_pct,
             )
-            theorems.append(
-                f"/-- {doc}. Machine-checked from LAMMPS log evidence (abs error x1000). -/\n"
-                f"theorem {name} : {prop_str} := by decide\n"
-            )
+        )
     if not theorems:
         raise ValueError("no reference-annotated properties in the payload(s); nothing to prove")
 
-    ns = namespace or (
-        "Lupine.LammpsEvidence." + _safe("_".join(sorted({p.material for p in payloads})))
-    )
-    inputs = "; ".join(
-        f"{p.material}/{p.source.potential_id} log sha256 {p.provenance.log_sha256[:12]}"
-        for p in payloads
-    )
+    ns = namespace or _default_namespace(views)
+    inputs = "; ".join(v.provenance_line for v in views)
     src = (
-        f"/- AUTHORED by lupine_distill.lammps_ingest from LAMMPS log evidence.\n"
+        f"/- AUTHORED by lupine_distill.lammps_ingest from {_module_origin(views)}.\n"
         f"   Inputs: {inputs}.\n"
         f"   Decidable Nat facts (abs error vs reference, x1000) — 0 sorry. -/\n\n"
         f"namespace {ns}\n\n" + "\n".join(theorems) + f"\nend {ns}\n"
@@ -398,8 +507,9 @@ def _build_parser() -> argparse.ArgumentParser:
         help="emit a Lean 4 module from evidence JSON payload(s)",
         description=(
             "Emit decidable theorems (abs error x1000 vs reference) from one or more "
-            "lammps_evidence.v1 JSON payloads. Write under hpc/examples/generated/ or a "
-            "scratch dir; admission into lean-spec/ is a reviewed step."
+            "lammps_evidence.v1 / calc_evidence.v1 JSON payloads. Write under "
+            "hpc/examples/generated/ or a scratch dir; admission into lean-spec/ is a "
+            "reviewed step."
         ),
     )
     lean_cmd.add_argument("evidence", nargs="+", type=pathlib.Path, help="evidence JSON payload(s)")
@@ -448,8 +558,20 @@ def _cmd_parse(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_evidence(path: pathlib.Path) -> LammpsEvidence | CalcEvidence:
+    """Validate an evidence JSON file, dispatching on its ``"schema"`` key."""
+
+    try:
+        payload = json.loads(_read_text(path))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{path}: not valid JSON: {exc}") from exc
+    if isinstance(payload, dict) and payload.get("schema") == CALC_EVIDENCE_SCHEMA:
+        return CalcEvidence.model_validate(payload)
+    return LammpsEvidence.model_validate(payload)
+
+
 def _cmd_lean(args: argparse.Namespace) -> int:
-    payloads = [LammpsEvidence.model_validate_json(_read_text(p)) for p in args.evidence]
+    payloads = [_load_evidence(p) for p in args.evidence]
     out = emit_lean_module(
         payloads, args.output, namespace=args.namespace, tolerance_pct=args.tolerance_pct
     )
