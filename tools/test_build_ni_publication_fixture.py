@@ -4,9 +4,11 @@ import json
 from pathlib import Path
 
 import build_ni_publication_fixture as builder
+from local_artifacts import MISHIN_POTENTIAL, requires_local_artifact
 
 
 def test_build_ni_fixture_is_release_ready() -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     source_packet = builder.load_source_packet()
     manifest = builder.build_fixture(source_packet)
     validation = builder.validate_manifest(manifest)
@@ -24,6 +26,7 @@ def test_build_ni_fixture_is_release_ready() -> None:
 
 
 def test_force_cases_have_nonzero_eam_reference_forces() -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     manifest = builder.build_fixture(builder.load_source_packet())
     force_cases = manifest["row_fixtures"]["forces"]["structures"]
 
@@ -38,6 +41,7 @@ def test_force_cases_have_nonzero_eam_reference_forces() -> None:
 
 
 def test_cli_writes_fixture(tmp_path: Path) -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     output = tmp_path / "ni_fixture.json"
     rc = builder.main(["--output", str(output)])
     payload = json.loads(output.read_text(encoding="utf-8"))

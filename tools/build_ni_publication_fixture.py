@@ -302,7 +302,7 @@ def relaxation_cases(refs: dict[str, float], calc: EAM) -> list[dict[str, Any]]:
 def build_fixture(source_packet: dict[str, Any]) -> dict[str, Any]:
     refs = source_refs(source_packet)
     mishin = primary_mishin_baseline(source_packet)
-    potential_path = ROOT / str(mishin["potential_file"]).replace("/", "\\")
+    potential_path = ROOT / pathlib.PurePosixPath(str(mishin["potential_file"]))
     calc = EAM(potential=str(potential_path))
 
     manifest: dict[str, Any] = {

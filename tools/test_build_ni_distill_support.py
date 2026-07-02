@@ -5,9 +5,11 @@ from pathlib import Path
 
 import build_ni_distill_support as support_builder
 import build_ni_publication_fixture as eval_builder
+from local_artifacts import MISHIN_POTENTIAL, requires_local_artifact
 
 
 def test_build_ni_support_manifest_is_release_ready_and_non_overlapping() -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     source_packet = eval_builder.load_source_packet()
     support = support_builder.build_support_manifest(source_packet)
     eval_manifest = eval_builder.build_fixture(source_packet)
@@ -28,6 +30,7 @@ def test_build_ni_support_manifest_is_release_ready_and_non_overlapping() -> Non
 
 
 def test_support_material_roots_overlap_eval_without_reusing_structure_ids() -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     source_packet = eval_builder.load_source_packet()
     support = support_builder.build_support_manifest(source_packet)
     eval_manifest = eval_builder.build_fixture(source_packet)
@@ -53,6 +56,7 @@ def test_support_material_roots_overlap_eval_without_reusing_structure_ids() -> 
 
 
 def test_cli_writes_support_manifest(tmp_path: Path) -> None:
+    requires_local_artifact(MISHIN_POTENTIAL)
     output = tmp_path / "ni_support.json"
     rc = support_builder.main(["--output", str(output)])
     payload = json.loads(output.read_text(encoding="utf-8"))

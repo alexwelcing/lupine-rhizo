@@ -4,9 +4,11 @@ import json
 from pathlib import Path
 
 import mlip_benchmark_sources
+from local_artifacts import manifest_local_paths, requires_local_artifact
 
 
 def test_real_material_source_packet_validates() -> None:
+    requires_local_artifact(*manifest_local_paths())
     manifest = mlip_benchmark_sources.load_manifest()
     issues = mlip_benchmark_sources.validate_source_packet(manifest)
 
@@ -23,6 +25,7 @@ def test_ni_inventory_tracks_ready_eam_and_meam_candidate() -> None:
 
 
 def test_ni_bulk_results_extract_real_local_evidence() -> None:
+    requires_local_artifact(*manifest_local_paths(fields=("result_json",)))
     manifest = mlip_benchmark_sources.load_manifest()
     rows = mlip_benchmark_sources.ni_bulk_results(manifest)
 

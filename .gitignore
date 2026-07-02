@@ -36,6 +36,11 @@ archive/distiller-kb/runs/pipeline_report.json
 atlas/nist_ipr/files/
 atlas/nist_ipr/mirror.log
 
+# Machine-local LAMMPS potential/result payloads (fetch via tools/fetch_potentials.py).
+# Already-tracked files stay tracked; a top-level README may still be committed.
+atlas-distill/lammps_runs/*
+!atlas-distill/lammps_runs/README.md
+
 # OpenKIM API cache
 .atlas-cache/
 

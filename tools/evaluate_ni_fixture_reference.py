@@ -31,7 +31,7 @@ def load_fixture(path: pathlib.Path) -> dict[str, Any]:
 
 def reference_calculator(manifest: dict[str, Any]) -> EAM:
     ref = manifest["reference_provenance"]["eam_reference"]
-    potential_path = ROOT / str(ref["potential_file"]).replace("/", "\\")
+    potential_path = ROOT / pathlib.PurePosixPath(str(ref["potential_file"]))
     return EAM(potential=str(potential_path))
 
 
