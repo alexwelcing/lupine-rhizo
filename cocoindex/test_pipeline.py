@@ -126,3 +126,66 @@ def test_query_missing_db_returns_clean_error():
     import query
     rc = query.main(["--keyword", "x", "--db", str(HERE / "nonexistent_test.db")])
     assert rc == 2
+
+
+def _make_synthetic_db(path: pathlib.Path, n: int = 8) -> None:
+    """A minimal evidence.db: n rows with deterministic fallback embeddings."""
+    import sqlite3
+    conn = sqlite3.connect(str(path))
+    try:
+        conn.execute(
+            "CREATE TABLE evidence_chunks (id TEXT PRIMARY KEY, source_file TEXT, "
+            "kind TEXT, ref_id TEXT, text TEXT, embedding BLOB, "
+            "chunk_start INTEGER, chunk_end INTEGER)"
+        )
+        for i in range(n):
+            text = f"synthetic evidence record number {i} about topic {i % 3}"
+            vec = pipeline._fallback_vector(text).tobytes()
+            conn.execute(
+                "INSERT INTO evidence_chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (f"row-{i}", "synthetic.jsonl", "claim", f"ref-{i}", text, vec, 0, len(text)),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def test_build_vec_index_creates_knn_sidecar(tmp_path):
+    """build_vec_index materializes the vec0 table query.py's fast path uses,
+    is idempotent, and the KNN returns the exact-match row first."""
+    import sqlite3
+    import build_vec_index
+    import query
+
+    db = tmp_path / "evidence.db"
+    _make_synthetic_db(db)
+    assert build_vec_index.build(db) == 0
+    assert build_vec_index.build(db) == 0  # second run: up-to-date no-op
+
+    conn = sqlite3.connect(str(db))
+    try:
+        assert query._load_vec(conn), "sqlite-vec must load for the fast path"
+        n_vec = conn.execute(
+            f"SELECT COUNT(*) FROM {build_vec_index.VEC_TABLE}").fetchone()[0]
+        assert n_vec == 8
+        # Query with row 3's own embedding: KNN must rank row 3 first.
+        target = "synthetic evidence record number 3 about topic 0"
+        blob = pipeline._fallback_vector(target).tobytes()
+        rows = query._try_vec0_query(conn, blob, 3, None)
+        assert rows is not None, "vec0 fast path should be available"
+        assert rows[0]["id"] == "row-3"
+    finally:
+        conn.close()
+
+
+def test_eval_distinct_source_rank():
+    """Chunks of one document collapse to that document's best rank."""
+    import eval_retrieval as ev
+    results = [
+        {"ref_id": "docs/a.md"}, {"ref_id": "docs/a.md"},
+        {"ref_id": "docs/b.md"}, {"ref_id": "hyp-1"},
+    ]
+    assert ev._distinct_source_rank(results, "docs/a.md") == 1
+    assert ev._distinct_source_rank(results, "docs/b.md") == 2
+    assert ev._distinct_source_rank(results, "hyp-1") == 3
+    assert ev._distinct_source_rank(results, "missing") is None

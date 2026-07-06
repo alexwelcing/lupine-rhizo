@@ -1,0 +1,48 @@
+name: Evidence Index
+
+# Unit tests for the CocoIndex evidence pipeline (cocoindex/). Path-filtered:
+# only runs when the pipeline itself changes. Fast by design — no embedding
+# model download, no engine run; the tests cover the record contract, the
+# deterministic fallback embedder, the query layer, and the vec0 sidecar.
+
+on:
+  push:
+    branches: [main]
+    paths: ['cocoindex/**', '.github/workflows/evidence-index.yml']
+  pull_request:
+    branches: [main]
+    paths: ['cocoindex/**', '.github/workflows/evidence-index.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: evidence-index-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cocoindex-tests:
+    name: cocoindex pipeline unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cocoindex
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install pipeline and pytest
+        run: pip install -e . pytest
+
+      - name: Seed sample data
+        run: python seed_data.py
+
+      - name: Unit tests
+        run: python -m pytest test_pipeline.py -q

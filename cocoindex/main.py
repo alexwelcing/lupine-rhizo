@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import pathlib
 from dataclasses import dataclass
 from typing import Annotated, AsyncIterator
@@ -51,6 +52,13 @@ EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 EMBED_DIM = 384
 DB_PATH = pathlib.Path("./evidence.db")
 SOURCE_DIR = pathlib.Path("./data")
+# Research-corpus source: the repo's living markdown (docs/ + root-level *.md).
+# Indexed alongside the ledger evidence under kind="document" so one semantic
+# query spans coordination traces AND the written research corpus. Set
+# EVIDENCE_INDEX_CORPUS=0 to build the evidence-only index (v1 behavior).
+REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+CORPUS_ENABLED = os.environ.get("EVIDENCE_INDEX_CORPUS", "1") != "0"
+MAX_DOC_BYTES = 512 * 1024  # skip pathological/generated files, logged
 # Set to True after the first real-embed failure so we stop retrying the
 # (possibly unreachable) HF Hub download on every chunk.
 _FALLBACK_ACTIVE: bool = False
@@ -174,6 +182,33 @@ async def process_file(file: FileLike, table: sqlite.TableTarget[EvidenceChunk])
         await coco.map(process_chunk, chunks, source_file, kind, ref_id, id_gen, table)
 
 
+@coco.fn(memo=True)
+async def process_doc_file(file: FileLike, table: sqlite.TableTarget[EvidenceChunk]) -> None:
+    """One markdown document → many evidence rows (kind="document").
+    Memoized by content fingerprint, same as process_file, so an unchanged
+    corpus re-run does zero embedding work."""
+    try:
+        raw = await file.read_text()
+    except (UnicodeDecodeError, OSError) as e:
+        print(f"[evidence] skipping unreadable doc {file.file_path.path}: {e}")
+        return
+    if len(raw.encode("utf-8", errors="ignore")) > MAX_DOC_BYTES:
+        print(f"[evidence] skipping oversized doc {file.file_path.path} (> {MAX_DOC_BYTES} bytes)")
+        return
+    text = raw.strip()
+    if not text:
+        return
+    # Repo-relative path as the stable reference (e.g. "docs/rfc-….md").
+    try:
+        rel = pathlib.Path(str(file.file_path.path)).resolve().relative_to(REPO_ROOT)
+        ref_id = rel.as_posix()
+    except ValueError:
+        ref_id = str(file.file_path.path)
+    id_gen = IdGenerator()
+    chunks = _splitter.split(text, chunk_size=1000, chunk_overlap=200, language="markdown")
+    await coco.map(process_chunk, chunks, ref_id, "document", ref_id, id_gen, table)
+
+
 @coco.fn
 async def app_main(sourcedir: pathlib.Path) -> None:
     schema = await sqlite.TableSchema.from_class(EvidenceChunk, primary_key=["id"])
@@ -187,6 +222,22 @@ async def app_main(sourcedir: pathlib.Path) -> None:
         path_matcher=PatternFilePathMatcher(included_patterns=["**/*.jsonl"]),
     )
     await coco.mount_each(process_file, files.items(), table)
+
+    if CORPUS_ENABLED:
+        md_matcher = PatternFilePathMatcher(included_patterns=["**/*.md"])
+        corpus_docs = localfs.walk_dir(REPO_ROOT / "docs", recursive=True, path_matcher=md_matcher)
+        await coco.mount_each(
+            coco.ComponentSubpath(coco.Symbol("corpus_docs")),
+            process_doc_file, corpus_docs.items(), table,
+        )
+        root_docs = localfs.walk_dir(
+            REPO_ROOT, recursive=False,
+            path_matcher=PatternFilePathMatcher(included_patterns=["*.md"]),
+        )
+        await coco.mount_each(
+            coco.ComponentSubpath(coco.Symbol("corpus_root")),
+            process_doc_file, root_docs.items(), table,
+        )
 
 
 app = coco.App(

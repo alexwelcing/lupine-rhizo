@@ -8,8 +8,8 @@ Two modes:
   --keyword "<q>"    plain SQL LIKE over text (always works)
 
 Both rank by relevance and join back the source kind/ref_id so results are
-actionable. Designed to be called from the command line AND from the Hermes
-`cocoindex` skill (`python query.py --semantic "..."`).
+actionable. Designed to be called from the command line AND programmatically
+(`python query.py --semantic "..." --json`).
 
 Examples:
     python query.py --semantic "which coordination strategies beat the baseline"
@@ -110,6 +110,9 @@ def _try_vec0_query(conn, blob: bytes, limit: int, kind_filter: str | None):
     if not has_vec0:
         return None
     try:
+        # The kind filter applies AFTER the KNN, so over-fetch when filtering
+        # to avoid returning fewer than `limit` matching rows.
+        k = limit * 10 if kind_filter else limit
         sql = (
             "SELECT e.id, e.source_file, e.kind, e.ref_id, e.text, "
             "e.chunk_start, e.chunk_end, v.distance "
@@ -119,9 +122,9 @@ def _try_vec0_query(conn, blob: bytes, limit: int, kind_filter: str | None):
             + ("AND e.kind = ? " if kind_filter else "")
             + "ORDER BY v.distance"
         )
-        params: list = [blob, limit] + ([kind_filter] if kind_filter else [])
+        params: list = [blob, k] + ([kind_filter] if kind_filter else [])
         cur = conn.execute(sql, params)
-        return [_row(r, score=-float(r[7])) for r in cur.fetchall()]
+        return [_row(r, score=-float(r[7])) for r in cur.fetchall()[:limit]]
     except sqlite3.OperationalError:
         return None
 

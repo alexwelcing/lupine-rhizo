@@ -185,21 +185,32 @@ evidence-live-ingest worker_url="https://glim-think-v1.aw-ab5.workers.dev" inges
 evidence-health ingest_url="https://evidence-index-edbhtpvina-uc.a.run.app":
     python scripts/evidence_activation.py health --ingest-url "{{ingest_url}}"
 
-# Build the local CocoIndex database from ./cocoindex/data.
+# Build the local CocoIndex database from ./cocoindex/data plus the repo's
+# markdown corpus (docs/ + root *.md; set EVIDENCE_INDEX_CORPUS=0 to skip),
+# then materialize the sqlite-vec ANN sidecar for fast semantic search.
 evidence-index:
-    cd cocoindex && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py
+    cd cocoindex && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
 
 # Recreate demo seed data, then build the local CocoIndex database.
 evidence-index-seed:
-    cd cocoindex && python seed_data.py && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py
+    cd cocoindex && python seed_data.py && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
 
 # Refresh local CocoIndex from live D1 through Wrangler, then rebuild.
 evidence-index-refresh:
-    cd cocoindex && python export_evidence.py --from-d1 && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py
+    cd cocoindex && python export_evidence.py --from-d1 && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
 
 # Search the local CocoIndex database.
 evidence-index-search q mode="semantic" kind="":
     cd cocoindex && python query.py --{{mode}} "{{q}}" {{ if kind != "" { "--kind " + kind } else { "" } }}
+
+# Retrieval-quality evaluation over the local index (hit@k, MRR, latency).
+# Needs the real embedding model; see cocoindex/eval_retrieval.py.
+evidence-eval:
+    cd cocoindex && python eval_retrieval.py
+
+# Unit tests for the cocoindex pipeline (no engine / no model needed).
+evidence-test:
+    cd cocoindex && python -m pytest test_pipeline.py -q
 
 # Queue agenda actions for an existing MLIP discovery campaign.
 # Requires GLIM_INTERNAL_TOKEN or INTERNAL_TASK_TOKEN for the gated Worker route.
