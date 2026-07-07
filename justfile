@@ -203,6 +203,12 @@ evidence-index-refresh:
 evidence-index-search q mode="semantic" kind="":
     cd cocoindex && python query.py --{{mode}} "{{q}}" {{ if kind != "" { "--kind " + kind } else { "" } }}
 
+# Fetch the live public-site guide files (llms.txt) from library.lupine.science
+# into cocoindex/data as kind=site_guide records, then re-index incrementally.
+# Published article bodies index directly from exports/library-content/latest.
+evidence-library-fetch:
+    cd cocoindex && python fetch_site_content.py && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
+
 # Retrieval-quality evaluation over the local index (hit@k, MRR, latency).
 # Needs the real embedding model; see cocoindex/eval_retrieval.py.
 evidence-eval:

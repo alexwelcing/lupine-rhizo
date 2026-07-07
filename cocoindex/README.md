@@ -14,18 +14,28 @@ artifact, and research document becomes queryable by meaning, not just by id.
 ## What it does
 
 ```
-./data/*.jsonl   ──▶ process_file     ─┐
-(ledger evidence)    (memo=True)       ├─▶ RecursiveSplitter ──▶ per-chunk embed ──▶ ./evidence.db ──▶ build_vec_index.py
-../docs/**/*.md  ──▶ process_doc_file ─┘   (1000/200 tokens,     (all-MiniLM-L6)     (float[384])      (vec0 KNN sidecar)
-../*.md              (memo=True)            markdown-aware)
+./data/*.jsonl        ──▶ process_file        ─┐
+(ledger + site guides)    (memo=True)          │
+../docs/**/*.md, ../*.md  process_doc_file    ─┼─▶ RecursiveSplitter ──▶ per-chunk embed ──▶ ./evidence.db ──▶ build_vec_index.py
+                          (memo=True)          │   (1000/200 tokens,     (all-MiniLM-L6)     (float[384])      (vec0 KNN sidecar)
+../exports/library-content/latest/articles/** │    markdown-aware)
+                      ──▶ process_article_file ┘
 ```
 
 - **Sources**:
   - JSONL files under `./data/`, one record per line:
     `{"id","kind","ref_id","text","metadata"}`. The `text` field is embedded.
+    Produced by `export_evidence.py`/`evidence_activation.py` (ledger
+    evidence) and `fetch_site_content.py` (`kind="site_guide"`: the live
+    `llms.txt` / `llms-full.txt` guides from https://library.lupine.science).
   - The repo's markdown corpus: `docs/**/*.md` plus root-level `*.md`,
     indexed as `kind="document"` with the repo-relative path as `ref_id`.
     Set `EVIDENCE_INDEX_CORPUS=0` for the evidence-only (v1) index.
+  - The **published Library**: `exports/library-content/latest/articles/**`,
+    the `library-content.v1` bundle rendered at https://library.lupine.science,
+    indexed as `kind="published_article"` with `ref_id="library:<bundle path>"`.
+    `query.py --dedupe` collapses a published article onto its repo source doc
+    (twin-aware, via the bundle manifest).
 - **Transform**: read → parse → recursive-split into ~1000-token chunks
   (markdown-aware for documents) → embed each.
 - **Target**: `./evidence.db`, table `evidence_chunks(id, source_file, kind, ref_id, text, embedding, chunk_start, chunk_end)`.
@@ -33,10 +43,11 @@ artifact, and research document becomes queryable by meaning, not just by id.
   materializes the `vec0` KNN sidecar (`evidence_chunks_vec_row`) that
   `query.py`'s fast path uses — measured ~11× faster than brute-force cosine
   at 1.7k chunks (1.0ms vs 11.3ms search-only).
-- **Incremental**: CocoIndex memoizes both processors by content fingerprint.
-  Measured on the full corpus (151 sources → 1,672 chunks): cold build 45s,
-  no-change rerun 0.1s, single-doc edit re-embeds only that file (~7s wall,
-  dominated by model load).
+- **Incremental**: CocoIndex memoizes all processors by content fingerprint.
+  Measured on the full corpus (226 sources → 2,665 chunks, 15.8 MB): no-change
+  rerun 0.2s, single-doc edit re-embeds only that file (~7s wall, dominated by
+  model load). `fetch_site_content.py` rewrites its JSONL only when the live
+  content actually changed, so an unchanged fetch keeps the re-index a no-op.
 
 ## Setup
 
@@ -128,24 +139,31 @@ just evidence-index                                    # build index + vec0 side
 just evidence-index-search q="which strategies worked" # semantic
 just evidence-index-search q="aluminium" mode=keyword kind=hypothesis
 just evidence-index-refresh                            # D1 → JSONL → re-index
+just evidence-library-fetch                            # live site guides → re-index
 just evidence-eval                                     # retrieval-quality eval
 just evidence-test                                     # unit tests
 ```
 
 ## Measured retrieval quality
 
-`eval_retrieval.py` scores a fixed gold set of 10 paraphrased questions
-(each with a known-correct document or ledger record) against the full
-1,672-chunk index, real model, warm:
+`eval_retrieval.py` scores a fixed gold set of 13 paraphrased questions
+(each with a known-correct document, published article, site guide, or
+ledger record) against the full 2,665-chunk index, real model, warm.
+Ranking is twin-aware: retrieving either identity of the same content
+(internal doc or its published article) counts.
 
 | mode | hit@1 | hit@3 | hit@5 | MRR | median s/query |
 | --- | --- | --- | --- | --- | --- |
-| semantic | 0.50 | 0.60 | 0.70 | 0.59 | 0.009 |
-| semantic + `--kind` filter | 0.80 | 0.90 | 0.90 | 0.85 | 0.009 |
-| keyword (LIKE) | 0.10 | 0.10 | 0.30 | 0.16 | 0.012 |
+| semantic | 0.46 | 0.54 | 0.62 | 0.52 | 0.010 |
+| semantic + `--kind` filter | 0.62 | 0.77 | 0.77 | 0.70 | 0.009 |
+| keyword (LIKE) | 0.08 | 0.08 | 0.23 | 0.12 | 0.018 |
+
+(The earlier 10-query gold set on the pre-Library 1,672-chunk index scored
+semantic 0.59 / +kind 0.85 / keyword 0.16 MRR — the added published corpus
+grew the index 60% and added harder, near-duplicate-heavy targets.)
 
 Model load is a one-time ~11s per process; after that queries are ~9ms.
-Search-only latency at 1,672 chunks: vec0 KNN 1.0ms vs brute-force 11.3ms.
+Search-only latency at 2,665 chunks: vec0 KNN 1.4ms vs brute-force 19.2ms.
 
 ## Architecture: worker vs cocoindex (the honest split)
 
@@ -181,6 +199,7 @@ CLI, so it isn't part of the pytest suite.
 | `pyproject.toml` | Deps: cocoindex≥1.0, sentence-transformers, sqlite-vec. |
 | `seed_data.py` | Populate `./data/` with sample evidence (local dev / CI). |
 | `export_evidence.py` | D1 → JSONL exporter (the live-ledger wire). |
+| `fetch_site_content.py` | Live-site guide fetcher (llms.txt from library.lupine.science) → `data/site_guides.jsonl`; rewrites only on change. |
 | `build_vec_index.py` | Materialize the `vec0` KNN sidecar after each index build. |
 | `eval_retrieval.py` | Gold-set retrieval eval: hit@k, MRR, latency (semantic vs keyword). |
 | `test_pipeline.py` | pytest: record format, fallback embedder, query layer, vec0 sidecar. Runs in CI (`.github/workflows/evidence-index.yml`). |

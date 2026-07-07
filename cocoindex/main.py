@@ -59,6 +59,13 @@ SOURCE_DIR = pathlib.Path("./data")
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 CORPUS_ENABLED = os.environ.get("EVIDENCE_INDEX_CORPUS", "1") != "0"
 MAX_DOC_BYTES = 512 * 1024  # skip pathological/generated files, logged
+# The published Library: exports/library-content/latest is the
+# library-content.v1 bundle that lupine-ledger verifies and renders at
+# https://library.lupine.science — indexing it indexes the public corpus
+# as published (the bundle manifest records the generating commit).
+# Live-site guide files (llms.txt) land in ./data via fetch_site_content.py.
+ARTICLES_DIR = REPO_ROOT / "exports" / "library-content" / "latest" / "articles"
+LIBRARY_REF_PREFIX = "library:"  # ref_id namespace for published articles
 # Set to True after the first real-embed failure so we stop retrying the
 # (possibly unreachable) HF Hub download on every chunk.
 _FALLBACK_ACTIVE: bool = False
@@ -182,31 +189,56 @@ async def process_file(file: FileLike, table: sqlite.TableTarget[EvidenceChunk])
         await coco.map(process_chunk, chunks, source_file, kind, ref_id, id_gen, table)
 
 
+async def _read_markdown(file: FileLike) -> str | None:
+    """Shared read/skip policy for markdown sources: None means skip."""
+    try:
+        raw = await file.read_text()
+    except (UnicodeDecodeError, OSError) as e:
+        print(f"[evidence] skipping unreadable doc {file.file_path.path}: {e}")
+        return None
+    if len(raw.encode("utf-8", errors="ignore")) > MAX_DOC_BYTES:
+        print(f"[evidence] skipping oversized doc {file.file_path.path} (> {MAX_DOC_BYTES} bytes)")
+        return None
+    text = raw.strip()
+    return text or None
+
+
+def _rel_ref(file: FileLike, base: pathlib.Path) -> str:
+    """Path relative to `base` as a stable POSIX reference; absolute fallback."""
+    try:
+        return pathlib.Path(str(file.file_path.path)).resolve().relative_to(base).as_posix()
+    except ValueError:
+        return str(file.file_path.path)
+
+
 @coco.fn(memo=True)
 async def process_doc_file(file: FileLike, table: sqlite.TableTarget[EvidenceChunk]) -> None:
     """One markdown document → many evidence rows (kind="document").
     Memoized by content fingerprint, same as process_file, so an unchanged
     corpus re-run does zero embedding work."""
-    try:
-        raw = await file.read_text()
-    except (UnicodeDecodeError, OSError) as e:
-        print(f"[evidence] skipping unreadable doc {file.file_path.path}: {e}")
-        return
-    if len(raw.encode("utf-8", errors="ignore")) > MAX_DOC_BYTES:
-        print(f"[evidence] skipping oversized doc {file.file_path.path} (> {MAX_DOC_BYTES} bytes)")
-        return
-    text = raw.strip()
-    if not text:
+    text = await _read_markdown(file)
+    if text is None:
         return
     # Repo-relative path as the stable reference (e.g. "docs/rfc-….md").
-    try:
-        rel = pathlib.Path(str(file.file_path.path)).resolve().relative_to(REPO_ROOT)
-        ref_id = rel.as_posix()
-    except ValueError:
-        ref_id = str(file.file_path.path)
+    ref_id = _rel_ref(file, REPO_ROOT)
     id_gen = IdGenerator()
     chunks = _splitter.split(text, chunk_size=1000, chunk_overlap=200, language="markdown")
     await coco.map(process_chunk, chunks, ref_id, "document", ref_id, id_gen, table)
+
+
+@coco.fn(memo=True)
+async def process_article_file(file: FileLike, table: sqlite.TableTarget[EvidenceChunk]) -> None:
+    """One published Library article → evidence rows (kind="published_article").
+    ref_id is the article's bundle path under the `library:` namespace
+    (e.g. "library:paper/environment-error-field-2026-07-02.md"), matching
+    what lupine-ledger renders at https://library.lupine.science."""
+    text = await _read_markdown(file)
+    if text is None:
+        return
+    ref_id = LIBRARY_REF_PREFIX + _rel_ref(file, ARTICLES_DIR.resolve())
+    id_gen = IdGenerator()
+    chunks = _splitter.split(text, chunk_size=1000, chunk_overlap=200, language="markdown")
+    await coco.map(process_chunk, chunks, ref_id, "published_article", ref_id, id_gen, table)
 
 
 @coco.fn
@@ -238,6 +270,12 @@ async def app_main(sourcedir: pathlib.Path) -> None:
             coco.ComponentSubpath(coco.Symbol("corpus_root")),
             process_doc_file, root_docs.items(), table,
         )
+        if ARTICLES_DIR.is_dir():
+            articles = localfs.walk_dir(ARTICLES_DIR, recursive=True, path_matcher=md_matcher)
+            await coco.mount_each(
+                coco.ComponentSubpath(coco.Symbol("library_articles")),
+                process_article_file, articles.items(), table,
+            )
 
 
 app = coco.App(

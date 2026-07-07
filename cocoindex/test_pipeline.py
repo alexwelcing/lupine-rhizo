@@ -178,6 +178,56 @@ def test_build_vec_index_creates_knn_sidecar(tmp_path):
         conn.close()
 
 
+def test_fetch_site_content_record_shape_and_write_if_changed(tmp_path):
+    """Site-guide records follow the pipeline contract, and an unchanged
+    fetch must NOT rewrite the file (that would dirty the content
+    fingerprint and force a pointless re-embed)."""
+    import fetch_site_content as fsc
+
+    rec = fsc._record("https://library.lupine.science/llms.txt", "  # Lupine Science\ncontent  ")
+    assert rec["kind"] == "site_guide"
+    assert rec["ref_id"] == "https://library.lupine.science/llms.txt"
+    assert rec["text"] == "# Lupine Science\ncontent"  # stripped
+    assert "text" in rec and rec["text"].strip()       # process_file contract
+    json.dumps(rec)                                    # JSONL-serializable
+
+    out = tmp_path / "site_guides.jsonl"
+    assert fsc.write_if_changed([rec], out) is True    # first write
+    assert fsc.write_if_changed([rec], out) is False   # identical -> no rewrite
+    rec2 = fsc._record(rec["ref_id"], "different content now")
+    assert fsc.write_if_changed([rec2], out) is True   # changed -> rewrite
+
+
+def test_article_ref_ids_use_library_namespace():
+    """Published-article refs live under the `library:` prefix so query
+    results distinguish the public corpus from internal docs."""
+    assert pipeline.LIBRARY_REF_PREFIX == "library:"
+    assert pipeline.ARTICLES_DIR.name == "articles"
+    assert "library-content" in str(pipeline.ARTICLES_DIR)
+
+
+def test_twin_map_and_dedupe_collapse_published_articles():
+    """A published Library article and its repo source doc are the same
+    content: canonical_ref maps library:X onto the manifest's source path,
+    and dedupe_results keeps only the best-ranked of the pair."""
+    import query
+    tm = query.twin_map()
+    if not tm:  # bundle not checked out in this environment
+        import pytest
+        pytest.skip("exports/library-content bundle not present")
+    assert tm.get("library:GLOSSARY.md") == "GLOSSARY.md"
+    assert query.canonical_ref("library:GLOSSARY.md") == "GLOSSARY.md"
+    assert query.canonical_ref("docs/unrelated.md") == "docs/unrelated.md"
+
+    results = [
+        {"ref_id": "library:GLOSSARY.md", "score": 0.9},
+        {"ref_id": "GLOSSARY.md", "score": 0.8},          # twin -> dropped
+        {"ref_id": "docs/other.md", "score": 0.7},
+    ]
+    deduped = query.dedupe_results(results, limit=5)
+    assert [r["ref_id"] for r in deduped] == ["library:GLOSSARY.md", "docs/other.md"]
+
+
 def test_eval_distinct_source_rank():
     """Chunks of one document collapse to that document's best rank."""
     import eval_retrieval as ev

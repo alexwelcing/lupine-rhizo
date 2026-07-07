@@ -35,6 +35,47 @@ import main as pipeline  # noqa: E402
 
 _QUERY_MODEL = None
 
+MANIFEST = HERE.parent / "exports" / "library-content" / "latest" / "manifest.json"
+_TWIN_MAP: dict[str, str] | None = None
+
+
+def twin_map() -> dict[str, str]:
+    """Published-article ref → repo source path, from the library-content.v1
+    manifest (e.g. "library:GLOSSARY.md" → "GLOSSARY.md"). A published article
+    is another view of its source doc; for dedup they are the same content."""
+    global _TWIN_MAP
+    if _TWIN_MAP is None:
+        mapping: dict[str, str] = {}
+        try:
+            for f in json.loads(MANIFEST.read_text(encoding="utf-8")).get("files", []):
+                src, bundle = f.get("source"), f.get("bundleSource") or ""
+                if src and bundle.startswith("articles/"):
+                    mapping[f"library:{bundle[len('articles/'):]}"] = src
+        except (OSError, json.JSONDecodeError):
+            pass  # no bundle checked out → nothing to collapse
+        _TWIN_MAP = mapping
+    return _TWIN_MAP
+
+
+def canonical_ref(ref_id: str) -> str:
+    """Collapse a published article onto its repo source doc."""
+    return twin_map().get(ref_id, ref_id)
+
+
+def dedupe_results(results: list[dict], limit: int) -> list[dict]:
+    """Keep only the best-ranked chunk per canonical source, preserving order."""
+    seen: set[str] = set()
+    out = []
+    for r in results:
+        key = canonical_ref(r["ref_id"])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(r)
+        if len(out) >= limit:
+            break
+    return out
+
 
 def _load_vec(conn: sqlite3.Connection) -> bool:
     """Try to load sqlite-vec. Returns False (→ keyword fallback) if absent."""
@@ -182,9 +223,13 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--semantic", metavar="Q", help="semantic nearest-neighbor search")
     g.add_argument("--keyword", metavar="Q", help="plain keyword (LIKE) search")
     ap.add_argument("--kind", default=None,
-                    help="filter by kind: coordination_trace|hypothesis|claim|research_question")
+                    help="filter by kind: coordination_trace|hypothesis|claim|"
+                         "research_question|document|published_article|site_guide")
     ap.add_argument("--limit", type=int, default=5)
-    ap.add_argument("--json", action="store_true", help="emit JSON (for the Hermes skill)")
+    ap.add_argument("--dedupe", action="store_true",
+                    help="one result per source; collapses a published Library "
+                         "article onto its repo source doc (twin-aware)")
+    ap.add_argument("--json", action="store_true", help="emit JSON output")
     ap.add_argument("--db", default=str(HERE / "evidence.db"))
     args = ap.parse_args(argv)
 
@@ -197,10 +242,14 @@ def main(argv: list[str] | None = None) -> int:
 
     conn = sqlite3.connect(str(db))
     try:
+        # With dedup, over-fetch so collapsing twins/extra chunks still fills `limit`.
+        fetch = args.limit * 5 if args.dedupe else args.limit
         if args.semantic:
-            results = semantic_search(conn, args.semantic, args.limit, args.kind)
+            results = semantic_search(conn, args.semantic, fetch, args.kind)
         else:
-            results = keyword_search(conn, args.keyword, args.limit, args.kind)
+            results = keyword_search(conn, args.keyword, fetch, args.kind)
+        if args.dedupe:
+            results = dedupe_results(results, args.limit)
     finally:
         conn.close()
 

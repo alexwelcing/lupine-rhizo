@@ -1,6 +1,6 @@
 # CocoIndex in the Lupine Research Stack: Evaluation, Measurement, and Improvement
 
-**Status:** demonstration write-up, 2026-07-06
+**Status:** demonstration write-up, 2026-07-06; §9 addendum (published Library indexing), 2026-07-07
 **Source of truth:** `lupine-rhizo/cocoindex/` (pipeline), `lupine-rhizo/docs/rfc-omnigents-cocoindex.md` (design RFC)
 **Audience:** Lupine Science readers; anyone deciding whether an incremental indexing framework earns its place in a research workflow
 
@@ -243,11 +243,85 @@ Or from the repo root: `just evidence-index-seed`, `just evidence-eval`,
 2. **Schedule the refresh loop** (cron: `evidence_activation.py collect` →
    `cocoindex update` → `build_vec_index.py`) so the index is never more
    than a day stale without human action.
-3. **Index the export bundle contract** — the `exports/library-content`
-   articles ship to the public Library (lupine-ledger); indexing the *source*
-   docs already covers their content, but indexing manifests would let agents
-   answer "what is public?" semantically.
+3. ~~**Index the export bundle contract**~~ — done; see §9.
 4. **Feed retrieval back into coordination**: the GCP memory flywheel
    already biases strategy choice on past traces; the corpus index enables
    the same for *written* evidence — an agent deciding what to measure next
    can first ask what the corpus already knows.
+
+## 9. Addendum (2026-07-07): indexing the published Library
+
+The Library at <https://library.lupine.science> is the program's public
+corpus, so "what have we published, and what does it say?" should be a
+one-query question. This addendum extends the index to cover it.
+
+### 9.1 Design decision: index the contract, not the rendered site
+
+The live Library is a single-page app — every URL returns the app shell, and
+article bodies are not individually fetchable. Scraping rendered HTML would
+be brittle and would duplicate content the repo already holds in exact form:
+`exports/library-content/latest/` is the `library-content.v1` bundle that
+lupine-ledger verifies and renders, and its manifest records the generating
+commit and a sha256 per article. Indexing the bundle therefore *is* indexing
+the published Library, with provenance the site itself doesn't expose. Two
+new sources:
+
+- **`published_article`** (73 articles, 958 chunks): the bundle's
+  `articles/**`, with `ref_id = "library:<bundle path>"` so results visibly
+  distinguish the public corpus from internal docs.
+- **`site_guide`** (2 records): the one thing the live site *does* serve as
+  plain text — its `llms.txt` / `llms-full.txt` agent-guide files — fetched
+  by `fetch_site_content.py`. The fetcher rewrites its JSONL only when the
+  live content actually changed, so an unchanged fetch keeps the re-index a
+  no-op; and it sends an honest identifying user-agent, since the site's
+  edge rejects the default Python one.
+
+The index now spans 226 sources → **2,665 chunks** (15.8 MB), still with a
+0.2 s no-change rerun.
+
+### 9.2 What the published corpus did to retrieval — and the twin problem
+
+Re-running the eval (now 13 gold queries) surfaced a real phenomenon:
+~50 published articles are exports of internal docs, so the same content
+exists under two identities. Queries returned both copies at identical
+scores — burning result slots and, in the eval, pushing gold targets down:
+
+```
+[1] document/docs/layer2_supercell_evaluation.md            (score -0.795)
+[2] published_article/library:docs/layer2_supercell_evaluation.md  (-0.795)
+```
+
+The bundle manifest maps every published article to its repo source, which
+gives a principled fix: **twin-aware dedup**. `query.py --dedupe` collapses
+a published article onto its source doc (keeping the best-ranked of the
+pair), and the eval treats retrieving either identity as retrieving the
+content. With that in place, on the grown index:
+
+| mode | hit@1 | hit@3 | hit@5 | MRR |
+| --- | --- | --- | --- | --- |
+| keyword (LIKE) | 0.08 | 0.08 | 0.23 | 0.12 |
+| semantic | 0.46 | 0.54 | 0.62 | 0.52 |
+| semantic + `--kind` filter | 0.62 | 0.77 | 0.77 | 0.70 |
+
+These are not directly comparable to §5.2 (the gold set gained three harder,
+near-duplicate-heavy targets and the index grew 60%), but the ordering and
+the gaps hold. Search-only latency at 2,665 chunks: vec0 1.4 ms vs
+brute-force 19.2 ms — the gap widens with scale, as expected.
+
+### 9.3 What this buys in practice
+
+The public corpus is now a typed slice of one index:
+
+```bash
+# "What has the program published about error geometry?"
+python query.py --semantic "what has lupine published about error geometry" \
+    --kind published_article
+# Cross-everything, one hit per source:
+python query.py --semantic "supercell size and elastic constants" --dedupe
+# Refresh the live-site guides, incremental:
+just evidence-library-fetch
+```
+
+An agent can now answer "is this claim public, and where?" by filtering to
+`published_article`, or "what does the live site tell agents about us?" via
+`site_guide` — all against the same 384-dim space as the internal evidence.

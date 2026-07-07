@@ -61,17 +61,27 @@ GOLD: list[tuple[str, str, str]] = [
      "claim-C11-001", "claim"),
     ("a critic caught a units mistake before the final answer was integrated",
      "coord-0003", "coordination_trace"),
+    # Published Library corpus (exports/library-content bundle → library.lupine.science)
+    ("published paper on a smooth environment-resolved error field beneath universal potential errors",
+     "library:paper/environment-error-field-2026-07-02.md", "published_article"),
+    ("diagnosis of the global projection operator failing on the elastic benchmark metals",
+     "library:mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md", "published_article"),
+    ("guide for crawlers and AI agents to the public lupine websites and viewers",
+     "https://library.lupine.science/llms-full.txt", "site_guide"),
 ]
 
 SEARCH_LIMIT = 10  # distinct-source ranks are computed within this window
 
 
 def _distinct_source_rank(results: list[dict], expected: str) -> int | None:
-    """Rank of `expected` among DISTINCT sources (ref_ids), 1-based.
-    Multiple chunks of one document collapse into that document's best rank."""
+    """Rank of `expected` among DISTINCT sources, 1-based. Multiple chunks of
+    one document collapse into that document's best rank, and a published
+    Library article collapses onto its repo source doc (twin-aware, via the
+    bundle manifest) — retrieving either identity of the same content counts."""
+    expected = query.canonical_ref(expected)
     seen: list[str] = []
     for r in results:
-        rid = r["ref_id"]
+        rid = query.canonical_ref(r["ref_id"])
         if rid not in seen:
             seen.append(rid)
         if rid == expected:
