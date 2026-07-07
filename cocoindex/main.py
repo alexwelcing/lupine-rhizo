@@ -48,9 +48,13 @@ from cocoindex.resources.id import IdGenerator
 # correctly (all-MiniLM-L6-v2 → 384). Provided via @coco.lifespan so every
 # component reuses one loaded model. The offline fallback is applied at the
 # embed call site (see _embed), not here, so the column type stays native.
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-EMBED_DIM = 384
-DB_PATH = pathlib.Path("./evidence.db")
+# Embedding model — env-overridable for A/B runs through eval_retrieval.py.
+# BAAI/bge-small-en-v1.5 is the unification candidate: identical weights are
+# served by Cloudflare Workers AI (@cf/baai/bge-small-en-v1.5), so local,
+# GCP, and edge tiers can share one 384-dim embedding space.
+EMBED_MODEL = os.environ.get("EVIDENCE_EMBED_MODEL", "BAAI/bge-small-en-v1.5")
+EMBED_DIM = int(os.environ.get("EVIDENCE_EMBED_DIM", "384"))
+DB_PATH = pathlib.Path(os.environ.get("EVIDENCE_DB_PATH", "./evidence.db"))
 SOURCE_DIR = pathlib.Path("./data")
 # Research-corpus source: the repo's living markdown (docs/ + root-level *.md).
 # Indexed alongside the ledger evidence under kind="document" so one semantic

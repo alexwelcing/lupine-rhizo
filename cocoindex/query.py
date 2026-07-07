@@ -126,6 +126,11 @@ def semantic_search(conn: sqlite3.Connection, query: str, limit: int,
     return rows
 
 
+# BGE retrieval models are trained with an instruction prefix on the QUERY
+# side only (documents embed bare). Harmless no-op for other model families.
+_BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
+
+
 def _safe_embed(text: str):
     """Embed a query outside CocoIndex's component context.
 
@@ -139,6 +144,8 @@ def _safe_embed(text: str):
         from sentence_transformers import SentenceTransformer
         if _QUERY_MODEL is None:
             _QUERY_MODEL = SentenceTransformer(pipeline.EMBED_MODEL)
+        if "bge" in pipeline.EMBED_MODEL.lower():
+            text = _BGE_QUERY_PREFIX + text
         vec = _QUERY_MODEL.encode(text, normalize_embeddings=True)
         vec = np.asarray(vec, dtype=np.float32)
         if int(vec.shape[-1]) == pipeline.EMBED_DIM:
@@ -193,14 +200,52 @@ def _manual_cosine(conn, qblob: bytes, limit: int, kind_filter: str | None) -> l
 
 def keyword_search(conn: sqlite3.Connection, query: str, limit: int,
                    kind_filter: str | None) -> list[dict]:
+    """Lexical search: FTS5/BM25 when the sidecar exists (build_vec_index.py),
+    else the original LIKE scan."""
     if not _table_exists(conn, "evidence_chunks"):
         return []
+    if _table_exists(conn, "evidence_chunks_fts"):
+        rows = _bm25_search(conn, query, limit, kind_filter)
+        if rows is not None:
+            return rows
+    return _like_search(conn, query, limit, kind_filter)
+
+
+def _bm25_search(conn, query: str, limit: int, kind_filter: str | None):
+    """BM25 over the FTS5 sidecar. Tokens are quoted so user text can't break
+    the MATCH syntax. Returns None on FTS error (caller falls back to LIKE)."""
+    # Keep single-char tokens: element symbols (C, N, O, H) are meaningful
+    # here, and FTS5/BM25 handles short terms via IDF (unlike the LIKE path).
+    terms = [t for t in query.split() if t.strip()]
+    if not terms:
+        return []
+    match = " OR ".join('"' + t.replace('"', "") + '"' for t in terms)
+    # The kind filter applies after MATCH ranking, so over-fetch to keep
+    # rare kinds reachable (same reasoning as the semantic path).
+    k = limit * 20 if kind_filter else limit
+    sql = (
+        "SELECT e.id, e.source_file, e.kind, e.ref_id, e.text, "
+        "e.chunk_start, e.chunk_end, bm25(evidence_chunks_fts) AS score "
+        "FROM evidence_chunks_fts f JOIN evidence_chunks e ON e.rowid = f.rowid "
+        "WHERE evidence_chunks_fts MATCH ? "
+        + ("AND e.kind = ? " if kind_filter else "")
+        + "ORDER BY score LIMIT ?"
+    )
+    params = [match] + ([kind_filter] if kind_filter else []) + [k]
+    try:
+        rows = conn.execute(sql, params).fetchall()
+    except sqlite3.OperationalError:
+        return None
+    # bm25() returns lower-is-better; expose as negative score like distance.
+    return [_row(r[:7], score=-float(r[7])) for r in rows[:limit]]
+
+
+def _like_search(conn, query: str, limit: int, kind_filter: str | None) -> list[dict]:
     # Simple subsequence-ish match: each whitespace token as LIKE OR.
     terms = [t for t in query.lower().split() if len(t) >= 3]
     if not terms:
         return []
     clauses = " OR ".join(["LOWER(text) LIKE ?" for _ in terms])
-    params = [f"%{t}%" for t in terms] + ([kind_filter] if kind_filter else [])
     sql = (
         "SELECT id, source_file, kind, ref_id, text, chunk_start, chunk_end FROM evidence_chunks "
         "WHERE (" + clauses + ") " + ("AND kind = ? " if kind_filter else "")
@@ -208,6 +253,31 @@ def keyword_search(conn: sqlite3.Connection, query: str, limit: int,
     )
     params = [f"%{t}%" for t in terms] + ([kind_filter] if kind_filter else []) + [limit]
     return [_row(r) for r in conn.execute(sql, params).fetchall()]
+
+
+RRF_K = 60  # standard reciprocal-rank-fusion constant
+
+
+def hybrid_search(conn: sqlite3.Connection, query: str, limit: int,
+                  kind_filter: str | None) -> list[dict]:
+    """Reciprocal-rank fusion of the semantic and BM25 legs. Robust where
+    either leg alone is weak: lexical anchors exact terms (element names,
+    property symbols), semantic covers paraphrase."""
+    depth = max(limit * 3, 15)
+    sem = semantic_search(conn, query, depth, kind_filter)
+    lex = keyword_search(conn, query, depth, kind_filter)
+    fused: dict[str, dict] = {}
+    for results in (sem, lex):
+        for rank, r in enumerate(results, 1):
+            entry = fused.setdefault(r["id"], {"row": r, "rrf": 0.0})
+            entry["rrf"] += 1.0 / (RRF_K + rank)
+    ranked = sorted(fused.values(), key=lambda e: e["rrf"], reverse=True)[:limit]
+    out = []
+    for e in ranked:
+        row = dict(e["row"])
+        row["score"] = round(e["rrf"], 4)
+        out.append(row)
+    return out
 
 
 def _row(r, score: float | None = None) -> dict:
@@ -224,10 +294,13 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--semantic", metavar="Q", help="semantic nearest-neighbor search")
-    g.add_argument("--keyword", metavar="Q", help="plain keyword (LIKE) search")
+    g.add_argument("--keyword", metavar="Q", help="keyword search (BM25 via FTS5, LIKE fallback)")
+    g.add_argument("--hybrid", metavar="Q",
+                   help="semantic + BM25 fused by reciprocal rank (best default)")
     ap.add_argument("--kind", default=None,
                     help="filter by kind: coordination_trace|hypothesis|claim|"
-                         "research_question|document|published_article|site_guide")
+                         "research_question|document|published_article|site_guide|"
+                         "publication_drift|agent_trace")
     ap.add_argument("--limit", type=int, default=5)
     ap.add_argument("--dedupe", action="store_true",
                     help="one result per source; collapses a published Library "
@@ -248,17 +321,19 @@ def main(argv: list[str] | None = None) -> int:
         # With dedup, over-fetch so collapsing twins/extra chunks still fills `limit`.
         fetch = args.limit * 5 if args.dedupe else args.limit
         if args.semantic:
-            results = semantic_search(conn, args.semantic, fetch, args.kind)
+            mode, results = "semantic", semantic_search(conn, args.semantic, fetch, args.kind)
+        elif args.hybrid:
+            mode, results = "hybrid", hybrid_search(conn, args.hybrid, fetch, args.kind)
         else:
-            results = keyword_search(conn, args.keyword, fetch, args.kind)
+            mode, results = "keyword", keyword_search(conn, args.keyword, fetch, args.kind)
         if args.dedupe:
             results = dedupe_results(results, args.limit)
     finally:
         conn.close()
 
     if args.json:
-        print(json.dumps({"query": args.semantic or args.keyword,
-                          "mode": "semantic" if args.semantic else "keyword",
+        print(json.dumps({"query": args.semantic or args.hybrid or args.keyword,
+                          "mode": mode,
                           "kind": args.kind, "count": len(results),
                           "results": results}, ensure_ascii=False, indent=2))
     else:

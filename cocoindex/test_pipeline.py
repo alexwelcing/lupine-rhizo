@@ -251,6 +251,77 @@ def test_twin_map_and_dedupe_collapse_published_articles():
     assert [r["ref_id"] for r in deduped] == ["library:GLOSSARY.md", "docs/other.md"]
 
 
+def test_fts_bm25_and_hybrid_search(tmp_path):
+    """build_vec_index also materializes the FTS5 sidecar; keyword_search
+    then ranks by BM25, and hybrid_search fuses both legs by RRF."""
+    import sqlite3
+    import build_vec_index
+    import query
+
+    db = tmp_path / "evidence.db"
+    _make_synthetic_db(db)
+    assert build_vec_index.build(db) == 0
+    conn = sqlite3.connect(str(db))
+    try:
+        assert conn.execute(
+            "SELECT COUNT(*) FROM evidence_chunks_fts").fetchone()[0] == 8
+        # "number 7" — the digit 7 appears only in row 7's text, so BM25's
+        # IDF weighting must rank row 7 first over the shared common terms.
+        res = query.keyword_search(conn, "record number 7", limit=3, kind_filter=None)
+        assert res and res[0]["id"] == "row-7"           # BM25 puts rare-term match first
+        assert res[0].get("score") is not None           # scored (LIKE path isn't)
+        # Hybrid runs both legs and fuses by RRF. On synthetic hash-vector
+        # embeddings the semantic leg is noise, so we assert structure (fused,
+        # scored, RRF descending) not ordering — real ranking is the eval's job.
+        assert query._load_vec(conn)
+        fused = query.hybrid_search(conn, "record number 7", limit=3, kind_filter=None)
+        assert fused and all(r.get("score") is not None for r in fused)
+        scores = [r["score"] for r in fused]
+        assert scores == sorted(scores, reverse=True)
+    finally:
+        conn.close()
+
+
+def test_phoenix_span_record_shapes():
+    """Root-span summarization: tolerant to flat/nested attributes, skips
+    spans with no trace id, and only roots become records."""
+    import fetch_phoenix_traces as fpt
+
+    span = {
+        "context": {"trace_id": "t-1", "span_id": "s-1"},
+        "name": "coordinate",
+        "parent_id": None,
+        "span_kind": "AGENT",
+        "status_code": "ERROR",
+        "status_message": "provider timeout",
+        "start_time": "2026-07-07T01:00:00Z",
+        "end_time": "2026-07-07T01:00:04.200Z",
+        "attributes": {"llm": {"model_name": "gpt-5.5", "token_count": {"total": 670}},
+                       "input": {"value": "test prompt"}},
+    }
+    rec = fpt.span_record(span, "glim-think")
+    assert rec["kind"] == "agent_trace" and rec["ref_id"] == "t-1"
+    assert "ERROR" in rec["text"] and "provider timeout" in rec["text"]
+    assert "gpt-5.5" in rec["text"] and "670" in rec["text"]
+    assert "4200 ms" in rec["text"]
+    assert rec == fpt.span_record(span, "glim-think")  # deterministic
+    json.dumps(rec)
+
+    flat = dict(span, attributes={"llm.model_name": "m", "input.value": "x"})
+    assert "Model: m." in fpt.span_record(flat, "p")["text"]
+    assert fpt.span_record({"name": "no-trace-id"}, "p") is None
+    assert fpt.is_root(span) and not fpt.is_root(dict(span, parent_id="s-0"))
+
+
+def test_phoenix_skips_cleanly_without_credentials(monkeypatch):
+    """No Phoenix config → exit 0 (offline-tolerant), exit 1 with --strict."""
+    import fetch_phoenix_traces as fpt
+    monkeypatch.delenv("PHOENIX_COLLECTOR_ENDPOINT", raising=False)
+    monkeypatch.delenv("PHOENIX_API_KEY", raising=False)
+    assert fpt.main([]) == 0
+    assert fpt.main(["--strict"]) == 1
+
+
 def test_eval_distinct_source_rank():
     """Chunks of one document collapse to that document's best rank."""
     import eval_retrieval as ev

@@ -96,19 +96,21 @@ def _distinct_source_rank(results: list[dict], expected: str) -> int | None:
 
 
 def run_eval(conn: sqlite3.Connection) -> dict:
+    searchers = {
+        "keyword": lambda q, kind: query.keyword_search(conn, q, SEARCH_LIMIT, None),
+        "semantic": lambda q, kind: query.semantic_search(conn, q, SEARCH_LIMIT, None),
+        "hybrid": lambda q, kind: query.hybrid_search(conn, q, SEARCH_LIMIT, None),
+        # What an agent that knows the evidence kind gets (--kind flag).
+        "semantic+kind": lambda q, kind: query.semantic_search(conn, q, SEARCH_LIMIT, kind),
+        "hybrid+kind": lambda q, kind: query.hybrid_search(conn, q, SEARCH_LIMIT, kind),
+    }
     modes: dict[str, dict] = {}
-    for mode in ("semantic", "semantic+kind", "keyword"):
+    for mode, search in searchers.items():
         ranks: list[int | None] = []
         latencies: list[float] = []
         for q, expected, kind in GOLD:
             t0 = time.perf_counter()
-            if mode == "semantic":
-                res = query.semantic_search(conn, q, SEARCH_LIMIT, None)
-            elif mode == "semantic+kind":
-                # What an agent that knows the evidence kind gets (--kind flag).
-                res = query.semantic_search(conn, q, SEARCH_LIMIT, kind)
-            else:
-                res = query.keyword_search(conn, q, SEARCH_LIMIT, None)
+            res = search(q, kind)
             latencies.append(time.perf_counter() - t0)
             ranks.append(_distinct_source_rank(res, expected))
         n = len(GOLD)

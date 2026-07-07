@@ -199,9 +199,14 @@ evidence-index-seed:
 evidence-index-refresh:
     cd cocoindex && python export_evidence.py --from-d1 && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
 
-# Search the local CocoIndex database.
-evidence-index-search q mode="semantic" kind="":
+# Search the local CocoIndex database. mode = semantic | keyword | hybrid.
+evidence-index-search q mode="hybrid" kind="":
     cd cocoindex && python query.py --{{mode}} "{{q}}" {{ if kind != "" { "--kind " + kind } else { "" } }}
+
+# Export recent agent traces from Phoenix into the index (kind=agent_trace).
+# Needs PHOENIX_COLLECTOR_ENDPOINT + PHOENIX_API_KEY; skips cleanly without.
+evidence-phoenix-fetch:
+    cd cocoindex && python fetch_phoenix_traces.py && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
 
 # Fetch the live public-site guide files (llms.txt) from library.lupine.science
 # into cocoindex/data as kind=site_guide records, then re-index incrementally.

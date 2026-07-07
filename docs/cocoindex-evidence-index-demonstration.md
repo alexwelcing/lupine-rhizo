@@ -1,6 +1,6 @@
 # CocoIndex in the Lupine Research Stack: Evaluation, Measurement, and Improvement
 
-**Status:** demonstration write-up, 2026-07-06; §9 addendum (published Library indexing, ledger-sourced deploy truth, publication drift), 2026-07-07
+**Status:** demonstration write-up, 2026-07-06; §9 (published Library, ledger deploy-truth, drift) + §10 (retrieval upgrades: bge-small, hybrid BM25+vector, Phoenix traces, automation, tier architecture), 2026-07-07
 **Source of truth:** `lupine-rhizo/cocoindex/` (pipeline), `lupine-rhizo/docs/rfc-omnigents-cocoindex.md` (design RFC)
 **Audience:** Lupine Science readers; anyone deciding whether an incremental indexing framework earns its place in a research workflow
 
@@ -374,3 +374,123 @@ path. On the 15-query gold set against the ledger-sourced 2,875-chunk
 index: keyword 0.11 / semantic 0.45 / **semantic + kind 0.75** MRR.
 This is the eval harness doing its job: a retrieval defect surfaced as a
 failing gold query before any agent hit it in production.
+
+## 10. Addendum (2026-07-07): retrieval quality, agent telemetry, and the tier architecture
+
+Sections 1-9 made the corpus *searchable*. This phase makes the retrieval
+*good*, adds the agents' own telemetry as a source, automates freshness, and
+settles the question the multi-tier design had left implicit: which vector
+store is responsible for what. Every quality claim below is a measured
+before/after on the same 15-query gold set — the eval harness is the
+instrument that made these decisions rather than guesses.
+
+### 10.1 A better embedding space that also unifies the stack
+
+The v1 pipeline used `all-MiniLM-L6-v2` (a 2020-era 384-dim model). I A/B'd it
+against `BAAI/bge-small-en-v1.5` by building a full parallel index
+(`EVIDENCE_EMBED_MODEL` + `EVIDENCE_DB_PATH` make this a two-env-var run) and
+scoring both:
+
+| mode | MiniLM MRR | bge-small MRR |
+| --- | --- | --- |
+| semantic | 0.45 | **0.51** |
+| hybrid | 0.53 | **0.67** |
+| semantic + kind | 0.75 | **0.80** |
+| hybrid + kind | 0.75 | **0.82** |
+
+bge-small wins every semantic-involving mode. The decisive property beyond the
+numbers: **Cloudflare Workers AI serves the identical weights**
+(`@cf/baai/bge-small-en-v1.5`), and both are 384-dim — the current column
+width. So adopting it means one embedding space across all three tiers
+(local sqlite-vec, GCP pgvector, edge Vectorize) with no schema change. bge is
+now the default; the swap was a one-line change plus a ~5-min reprocess, and
+the harness verified the win before anything shipped. (bge uses a query-side
+instruction prefix; the query path applies it automatically.)
+
+### 10.2 Hybrid retrieval — and BM25 alone was the quiet win
+
+The v1 keyword mode was SQL `LIKE` (MRR 0.11-0.16 — nearly useless). Replacing
+it with an FTS5/BM25 sidecar was the single largest quality jump in the whole
+exercise: **keyword MRR 0.11 → 0.64.** Real IDF ranking connects "C11 Cu
+elastic" to the exact claim that plain semantic search buried. A subtlety the
+domain forced: I keep single-character tokens in the BM25 query (the v1 code
+dropped tokens shorter than 3 chars), because element symbols — `C`, `N`, `O`,
+`H` — are meaningful search terms in a materials corpus.
+
+`--hybrid` then fuses the semantic and BM25 legs by reciprocal-rank fusion.
+It's the best mode because the legs fail differently: BM25 anchors exact terms
+(symbols, property names, IDs), semantic covers paraphrase. Fused, they beat
+either alone, and hybrid+kind tops the table at **0.82 MRR, 0.93 hit@5**.
+Recommended default is now hybrid.
+
+| mode (bge-small) | hit@1 | hit@3 | hit@5 | MRR |
+| --- | --- | --- | --- | --- |
+| keyword (BM25) | 0.53 | 0.80 | 0.80 | 0.64 |
+| semantic | 0.40 | 0.60 | 0.67 | 0.51 |
+| hybrid | 0.53 | 0.80 | 0.93 | 0.67 |
+| semantic + kind | 0.73 | 0.80 | 0.93 | 0.80 |
+| **hybrid + kind** | **0.73** | **0.93** | **0.93** | **0.82** |
+
+### 10.3 The agents' own telemetry becomes an evidence source
+
+The stack already *emits* OpenInference spans to Phoenix (Arize) from the
+glim-think worker and the GCP runners — but nothing read them back. Phoenix is
+where "what did the Theorist actually conclude?" and "which agent runs failed
+last night, and why?" already live as structured traces; they just weren't
+queryable alongside the research corpus. `fetch_phoenix_traces.py` pulls recent
+**root** spans via Phoenix's REST API, summarizes each into a prose record
+(`kind="agent_trace"`: name, status, model, tokens, latency, input/output
+snippet), and writes JSONL for the pipeline. Same-index retrieval means one
+query can now span a hypothesis, the published paper that tests it, *and* the
+agent run that produced it. The exporter is offline-tolerant (skips cleanly
+without credentials) and the record-shaping is unit-tested; the live pull
+against a credentialed Phoenix is the one path I could not exercise from the
+build sandbox, so it is wired and tested but not yet run end-to-end here.
+
+### 10.4 Automation: freshness and quality as monitored signals
+
+Everything above was still manual. `evidence-nightly.yml` runs the full loop on
+a schedule: collect live worker evidence, sync the deployed Library + compute
+drift, fetch site guides and Phoenix traces (each best-effort — a missing
+secret or an unreachable service warns, never fails), rebuild the index and
+sidecars, and run the eval. It publishes two things as artifacts and a job
+summary: the **retrieval-eval metrics** (so a model, chunking, or corpus change
+that degrades MRR shows up as a trend, not a surprise) and the **publication
+drift** (so "N articles awaiting publication, M changed since deploy" is a
+standing report). The index itself isn't committed — it's gitignored and
+rebuildable; the *signal* is the deliverable.
+
+### 10.5 The tier architecture, made explicit
+
+Indexing the same schema into more than one vector store is only coherent if
+each store has a stated job. Three exist or are planned; here is the division I
+recommend, now that they share one embedding space:
+
+| Tier | Store | Role | Freshness |
+| --- | --- | --- | --- |
+| **local** | sqlite-vec + FTS5 | offline analysis, the eval ground truth, agent tooling via `query.py` | on-demand / nightly |
+| **service** | GCP Cloud Run + pgvector | request-time coordinator memory *today*; natural home for public Library search | warm, always-on |
+| **edge** (planned) | Cloudflare Vectorize | in-process agent memory at request time — no cross-cloud hop for `consultMemory`'s 800ms budget | live on `emitTrace` |
+
+The shared bge-small space is what makes the edge tier newly feasible: Workers
+AI can embed *and* Vectorize can store 384-dim vectors in-process, so the
+coordinator's memory flywheel — which today pays a cross-cloud hop to Cloud Run
+with cold-start risk — could become an edge-local lookup. That is a
+Cloudflare-side change I've specced but deliberately not deployed blind from
+here; it belongs in the RFC as the next unit, with the open decision being
+whether the GCP service then retires or pivots to backing public Library
+search (not both by accident). The Literaturist agent is already a
+retrieval-augmented Durable Object, so the pattern for giving Theorist/Causal
+an evidence-lookup tool is proven in-tree.
+
+### 10.6 Where the ceiling is now
+
+With retrieval solid and telemetry flowing, the highest-value remaining move is
+the one the whole index was built to enable: **agents consulting it before they
+act** — retrieval-augmented hypothesis generation, so an agent proposing a test
+first asks whether the corpus (or a past agent trace, or a refuted claim)
+already answers it. That plus a `claim`-lifecycle exporter (real
+proposed/supported/refuted status, which needs the one schema change this
+pipeline still wants: a metadata column so `--kind claim --status refuted`
+becomes a query) is what turns the evidence index from a search tool into part
+of the research loop itself.
