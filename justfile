@@ -205,9 +205,14 @@ evidence-index-search q mode="semantic" kind="":
 
 # Fetch the live public-site guide files (llms.txt) from library.lupine.science
 # into cocoindex/data as kind=site_guide records, then re-index incrementally.
-# Published article bodies index directly from exports/library-content/latest.
 evidence-library-fetch:
     cd cocoindex && python fetch_site_content.py && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
+
+# Sync the DEPLOYED Library content from the public lupine-ledger repo, write
+# the publication-drift record, and re-index. After this, published_article
+# rows reflect what library.lupine.science actually serves.
+evidence-ledger-sync:
+    cd cocoindex && python sync_ledger.py --drift && mkdir -p .cocoindex && COCOINDEX_DB=.cocoindex/db python -m cocoindex.cli update main.py && python build_vec_index.py
 
 # Retrieval-quality evaluation over the local index (hit@k, MRR, latency).
 # Needs the real embedding model; see cocoindex/eval_retrieval.py.

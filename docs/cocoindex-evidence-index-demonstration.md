@@ -1,6 +1,6 @@
 # CocoIndex in the Lupine Research Stack: Evaluation, Measurement, and Improvement
 
-**Status:** demonstration write-up, 2026-07-06; §9 addendum (published Library indexing), 2026-07-07
+**Status:** demonstration write-up, 2026-07-06; §9 addendum (published Library indexing, ledger-sourced deploy truth, publication drift), 2026-07-07
 **Source of truth:** `lupine-rhizo/cocoindex/` (pipeline), `lupine-rhizo/docs/rfc-omnigents-cocoindex.md` (design RFC)
 **Audience:** Lupine Science readers; anyone deciding whether an incremental indexing framework earns its place in a research workflow
 
@@ -325,3 +325,52 @@ just evidence-library-fetch
 An agent can now answer "is this claim public, and where?" by filtering to
 `published_article`, or "what does the live site tell agents about us?" via
 `site_guide` — all against the same 384-dim space as the internal evidence.
+
+### 9.4 Follow-up: "published" should mean *deployed* (sourcing from lupine-ledger)
+
+§9.1 indexed this repo's export bundle as the published corpus. That was
+subtly wrong, and making it right produced the best finding of the exercise.
+
+The bundle in rhizo is what the program *intends* to publish; the public
+[lupine-ledger](https://github.com/alexwelcing/lupine-ledger) repo is what
+library.lupine.science *actually serves*. Diffing the two manifests
+(per-article sha256) showed real drift at the moment of measurement:
+
+| drift class | count | example |
+| --- | --- | --- |
+| pending publication (local only) | 5 | the environment-error-field paper |
+| deployed but dropped from the regenerated bundle | 1 | `projection-law-round2-final.md` |
+| content changed since deploy | 23 | `layer2_research_paper.md` |
+| in sync | 45 | — |
+
+So the index had been claiming five unpublished articles were public.
+`sync_ledger.py` now shallow-clones the ledger and `main.py` prefers its
+`content/latest` as the `published_article` source (local bundle as offline
+fallback) — "published" carries the ledger's deploy commit as provenance.
+CocoIndex's reconciliation made the switch legible in one engine report:
+`1 added, 68 reprocessed, 5 deleted` — the five pending articles stopped
+claiming to be published, and the one deployed-only article appeared.
+
+Two companion changes keep the pending content findable and the drift
+itself queryable:
+
+- The internal-doc corpus now also mounts the dirs that feed the bundle
+  (`paper/`, `mlip-elastic-benchmark/`), so a pending paper is retrievable
+  as `kind="document"` — correctly labeled as internal, not public.
+- `sync_ledger.py --drift` writes the manifest diff as a
+  `kind="publication_drift"` evidence record (deterministic, rewritten only
+  on change), so *"which articles are awaiting publication?"* is now a
+  semantic query answered by the index itself.
+
+### 9.5 The eval catches a real bug: rare kinds and post-KNN filtering
+
+Adding the drift record (2 chunks among 2,875) to the gold set exposed a
+genuine retrieval bug: kind-filtered semantic search ran the global vec0
+KNN and filtered afterwards, so any kind too small to reach the global
+top-k was silently unfindable. The fix inverts the strategy — a kind filter
+now triggers an exact cosine scan restricted to that kind (correct at any
+cardinality, still ~17ms), while unfiltered queries keep the vec0 fast
+path. On the 15-query gold set against the ledger-sourced 2,875-chunk
+index: keyword 0.11 / semantic 0.45 / **semantic + kind 0.75** MRR.
+This is the eval harness doing its job: a retrieval defect surfaced as a
+failing gold query before any agent hit it in production.

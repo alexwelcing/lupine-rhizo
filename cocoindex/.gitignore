@@ -6,6 +6,9 @@ evidence.db-*
 # Local source data (produced by seed_data.py / export_evidence.py)
 data/
 
+# Synced clone of the public lupine-ledger repo (sync_ledger.py)
+.cache/
+
 # Python
 .venv/
 __pycache__/

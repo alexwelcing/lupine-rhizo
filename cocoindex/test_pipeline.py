@@ -171,7 +171,7 @@ def test_build_vec_index_creates_knn_sidecar(tmp_path):
         # Query with row 3's own embedding: KNN must rank row 3 first.
         target = "synthetic evidence record number 3 about topic 0"
         blob = pipeline._fallback_vector(target).tobytes()
-        rows = query._try_vec0_query(conn, blob, 3, None)
+        rows = query._try_vec0_query(conn, blob, 3)
         assert rows is not None, "vec0 fast path should be available"
         assert rows[0]["id"] == "row-3"
     finally:
@@ -199,11 +199,34 @@ def test_fetch_site_content_record_shape_and_write_if_changed(tmp_path):
 
 
 def test_article_ref_ids_use_library_namespace():
-    """Published-article refs live under the `library:` prefix so query
-    results distinguish the public corpus from internal docs."""
+    """Published-article refs live under the `library:` prefix, and the
+    article source is whichever library-content bundle LIBRARY_ROOT resolved
+    to (deployed ledger cache when synced, else the local export bundle)."""
     assert pipeline.LIBRARY_REF_PREFIX == "library:"
     assert pipeline.ARTICLES_DIR.name == "articles"
-    assert "library-content" in str(pipeline.ARTICLES_DIR)
+    assert pipeline.ARTICLES_DIR.parent == pipeline.LIBRARY_ROOT
+    assert pipeline.LIBRARY_ROOT.name == "latest"
+
+
+def test_manifest_diff_and_drift_record():
+    """manifest_diff classifies pending/deployed-only/changed/in-sync, and
+    the drift record is a valid, deterministic evidence record."""
+    import sync_ledger as sl
+    local = {"articles/a.md": "s1", "articles/b.md": "s2", "articles/new.md": "s9"}
+    deployed = {"articles/a.md": "s1", "articles/b.md": "sX", "articles/gone.md": "s3"}
+    diff = sl.manifest_diff(local, deployed)
+    assert diff["pending_publication"] == ["articles/new.md"]
+    assert diff["deployed_only"] == ["articles/gone.md"]
+    assert diff["changed"] == ["articles/b.md"]
+    assert diff["in_sync"] == ["articles/a.md"]
+
+    info = {"generatedAt": "2026-07-02T00:00:00Z", "source": {"commit": "abcdef1234"}}
+    rec = sl.drift_record(info, info, diff)
+    assert rec["kind"] == "publication_drift"
+    assert "new.md" in rec["text"] and "gone.md" in rec["text"]
+    assert rec["metadata"]["pending_publication"] == 1
+    assert rec == sl.drift_record(info, info, diff)  # deterministic
+    json.dumps(rec)
 
 
 def test_twin_map_and_dedupe_collapse_published_articles():

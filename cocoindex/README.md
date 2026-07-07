@@ -31,11 +31,20 @@ artifact, and research document becomes queryable by meaning, not just by id.
   - The repo's markdown corpus: `docs/**/*.md` plus root-level `*.md`,
     indexed as `kind="document"` with the repo-relative path as `ref_id`.
     Set `EVIDENCE_INDEX_CORPUS=0` for the evidence-only (v1) index.
-  - The **published Library**: `exports/library-content/latest/articles/**`,
-    the `library-content.v1` bundle rendered at https://library.lupine.science,
-    indexed as `kind="published_article"` with `ref_id="library:<bundle path>"`.
-    `query.py --dedupe` collapses a published article onto its repo source doc
-    (twin-aware, via the bundle manifest).
+  - The **published Library** (`kind="published_article"`,
+    `ref_id="library:<bundle path>"`): the DEPLOYED `library-content.v1`
+    content from the public [lupine-ledger](https://github.com/alexwelcing/lupine-ledger)
+    repo — what https://library.lupine.science actually serves — synced into
+    `./.cache/lupine-ledger` by `sync_ledger.py` (ledger commit = provenance).
+    Falls back to this repo's export bundle (`exports/library-content/latest`,
+    i.e. what rhizo intends to publish next) when no cache exists; override
+    with `EVIDENCE_LIBRARY_ROOT`. `sync_ledger.py --drift` also diffs the two
+    manifests and indexes the result (`kind="publication_drift"`), so "what is
+    awaiting publication?" is a semantic query. `query.py --dedupe` collapses
+    a published article onto its repo source doc (twin-aware, via the active
+    manifest). Internal-doc coverage includes the dirs that feed the bundle
+    (`paper/`, `mlip-elastic-benchmark/`), so pending content stays findable
+    as `kind="document"`.
 - **Transform**: read → parse → recursive-split into ~1000-token chunks
   (markdown-aware for documents) → embed each.
 - **Target**: `./evidence.db`, table `evidence_chunks(id, source_file, kind, ref_id, text, embedding, chunk_start, chunk_end)`.
@@ -44,10 +53,11 @@ artifact, and research document becomes queryable by meaning, not just by id.
   `query.py`'s fast path uses — measured ~11× faster than brute-force cosine
   at 1.7k chunks (1.0ms vs 11.3ms search-only).
 - **Incremental**: CocoIndex memoizes all processors by content fingerprint.
-  Measured on the full corpus (226 sources → 2,665 chunks, 15.8 MB): no-change
-  rerun 0.2s, single-doc edit re-embeds only that file (~7s wall, dominated by
-  model load). `fetch_site_content.py` rewrites its JSONL only when the live
-  content actually changed, so an unchanged fetch keeps the re-index a no-op.
+  Measured on the full corpus (245 sources → 2,875 chunks): no-change rerun
+  0.2s, single-doc edit re-embeds only that file (~7s wall, dominated by
+  model load). `fetch_site_content.py` and `sync_ledger.py --drift` rewrite
+  their JSONL only when content actually changed, so a no-op fetch keeps the
+  re-index a no-op too.
 
 ## Setup
 
@@ -140,30 +150,35 @@ just evidence-index-search q="which strategies worked" # semantic
 just evidence-index-search q="aluminium" mode=keyword kind=hypothesis
 just evidence-index-refresh                            # D1 → JSONL → re-index
 just evidence-library-fetch                            # live site guides → re-index
+just evidence-ledger-sync                              # deployed ledger + drift → re-index
 just evidence-eval                                     # retrieval-quality eval
 just evidence-test                                     # unit tests
 ```
 
 ## Measured retrieval quality
 
-`eval_retrieval.py` scores a fixed gold set of 13 paraphrased questions
-(each with a known-correct document, published article, site guide, or
-ledger record) against the full 2,665-chunk index, real model, warm.
-Ranking is twin-aware: retrieving either identity of the same content
+`eval_retrieval.py` scores a fixed gold set of 15 paraphrased questions
+(documents, published articles, site guides, ledger records, and the
+publication-drift record) against the full 2,875-chunk index, real model,
+warm. Ranking is twin-aware: retrieving either identity of the same content
 (internal doc or its published article) counts.
 
 | mode | hit@1 | hit@3 | hit@5 | MRR | median s/query |
 | --- | --- | --- | --- | --- | --- |
-| semantic | 0.46 | 0.54 | 0.62 | 0.52 | 0.010 |
-| semantic + `--kind` filter | 0.62 | 0.77 | 0.77 | 0.70 | 0.009 |
-| keyword (LIKE) | 0.08 | 0.08 | 0.23 | 0.12 | 0.018 |
+| semantic | 0.40 | 0.47 | 0.53 | 0.45 | 0.009 |
+| semantic + `--kind` filter | 0.67 | 0.80 | 0.80 | 0.75 | 0.017 |
+| keyword (LIKE) | 0.07 | 0.07 | 0.20 | 0.11 | 0.020 |
 
-(The earlier 10-query gold set on the pre-Library 1,672-chunk index scored
-semantic 0.59 / +kind 0.85 / keyword 0.16 MRR — the added published corpus
-grew the index 60% and added harder, near-duplicate-heavy targets.)
+(Earlier generations: 10-query gold on the 1,672-chunk pre-Library index —
+semantic 0.59 / +kind 0.85 / keyword 0.16 MRR; each corpus growth added
+harder, near-duplicate-heavy targets.)
 
-Model load is a one-time ~11s per process; after that queries are ~9ms.
-Search-only latency at 2,665 chunks: vec0 KNN 1.4ms vs brute-force 19.2ms.
+Kind-filtered semantic search runs an exact cosine scan restricted to the
+kind rather than the global vec0 KNN — a global top-k that's post-filtered
+silently drops rare kinds (a 2-chunk kind never surfaces). Unfiltered
+queries use the vec0 sidecar. Model load is a one-time ~11s per process;
+after that queries are ~9-17ms. Search-only latency at 2,875 chunks: vec0
+KNN 1.4ms vs brute-force 20.9ms.
 
 ## Architecture: worker vs cocoindex (the honest split)
 
@@ -200,6 +215,7 @@ CLI, so it isn't part of the pytest suite.
 | `seed_data.py` | Populate `./data/` with sample evidence (local dev / CI). |
 | `export_evidence.py` | D1 → JSONL exporter (the live-ledger wire). |
 | `fetch_site_content.py` | Live-site guide fetcher (llms.txt from library.lupine.science) → `data/site_guides.jsonl`; rewrites only on change. |
+| `sync_ledger.py` | Sync the deployed Library content from the public lupine-ledger repo into `.cache/`; `--drift` diffs pending vs deployed manifests → `data/publication_drift.jsonl`. |
 | `build_vec_index.py` | Materialize the `vec0` KNN sidecar after each index build. |
 | `eval_retrieval.py` | Gold-set retrieval eval: hit@k, MRR, latency (semantic vs keyword). |
 | `test_pipeline.py` | pytest: record format, fallback embedder, query layer, vec0 sidecar. Runs in CI (`.github/workflows/evidence-index.yml`). |

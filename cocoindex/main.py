@@ -59,13 +59,28 @@ SOURCE_DIR = pathlib.Path("./data")
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 CORPUS_ENABLED = os.environ.get("EVIDENCE_INDEX_CORPUS", "1") != "0"
 MAX_DOC_BYTES = 512 * 1024  # skip pathological/generated files, logged
-# The published Library: exports/library-content/latest is the
-# library-content.v1 bundle that lupine-ledger verifies and renders at
-# https://library.lupine.science — indexing it indexes the public corpus
-# as published (the bundle manifest records the generating commit).
-# Live-site guide files (llms.txt) land in ./data via fetch_site_content.py.
-ARTICLES_DIR = REPO_ROOT / "exports" / "library-content" / "latest" / "articles"
+# The published Library (kind="published_article"): prefer the DEPLOYED
+# content — the public lupine-ledger repo's content/latest, synced into
+# ./.cache/lupine-ledger by sync_ledger.py — so "published" means what
+# https://library.lupine.science actually serves, with the ledger commit as
+# provenance. Fall back to this repo's export bundle (what rhizo intends to
+# publish next) when no ledger cache exists; override with
+# EVIDENCE_LIBRARY_ROOT. Live-site guide files (llms.txt) land in ./data via
+# fetch_site_content.py; publication drift lands there via sync_ledger.py.
+_LEDGER_LIBRARY_ROOT = pathlib.Path(__file__).resolve().parent / ".cache" / "lupine-ledger" / "content" / "latest"
+_BUNDLE_LIBRARY_ROOT = REPO_ROOT / "exports" / "library-content" / "latest"
+_env_root = os.environ.get("EVIDENCE_LIBRARY_ROOT")
+if _env_root:
+    LIBRARY_ROOT = pathlib.Path(_env_root)
+elif (_LEDGER_LIBRARY_ROOT / "manifest.json").exists():
+    LIBRARY_ROOT = _LEDGER_LIBRARY_ROOT
+else:
+    LIBRARY_ROOT = _BUNDLE_LIBRARY_ROOT
+ARTICLES_DIR = LIBRARY_ROOT / "articles"
 LIBRARY_REF_PREFIX = "library:"  # ref_id namespace for published articles
+# Internal-doc corpus also covers the dirs that FEED the publication bundle,
+# so pending-publication content stays findable as kind="document".
+EXTRA_DOC_DIRS = ("paper", "mlip-elastic-benchmark")
 # Set to True after the first real-embed failure so we stop retrying the
 # (possibly unreachable) HF Hub download on every chunk.
 _FALLBACK_ACTIVE: bool = False
@@ -262,6 +277,14 @@ async def app_main(sourcedir: pathlib.Path) -> None:
             coco.ComponentSubpath(coco.Symbol("corpus_docs")),
             process_doc_file, corpus_docs.items(), table,
         )
+        for extra in EXTRA_DOC_DIRS:
+            extra_dir = REPO_ROOT / extra
+            if extra_dir.is_dir():
+                extra_docs = localfs.walk_dir(extra_dir, recursive=True, path_matcher=md_matcher)
+                await coco.mount_each(
+                    coco.ComponentSubpath(coco.Symbol(f"corpus_{extra.replace('-', '_')}")),
+                    process_doc_file, extra_docs.items(), table,
+                )
         root_docs = localfs.walk_dir(
             REPO_ROOT, recursive=False,
             path_matcher=PatternFilePathMatcher(included_patterns=["*.md"]),

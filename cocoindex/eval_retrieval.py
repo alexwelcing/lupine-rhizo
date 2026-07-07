@@ -61,13 +61,19 @@ GOLD: list[tuple[str, str, str]] = [
      "claim-C11-001", "claim"),
     ("a critic caught a units mistake before the final answer was integrated",
      "coord-0003", "coordination_trace"),
-    # Published Library corpus (exports/library-content bundle → library.lupine.science)
-    ("published paper on a smooth environment-resolved error field beneath universal potential errors",
-     "library:paper/environment-error-field-2026-07-02.md", "published_article"),
+    # Published Library corpus (deployed lupine-ledger content, per sync_ledger.py)
+    # The environment-error-field paper is PENDING publication — findable as
+    # the internal source doc (paper/ is part of the document corpus).
+    ("paper on a smooth environment-resolved error field beneath universal potential errors",
+     "paper/environment-error-field-2026-07-02.md", "document"),
     ("diagnosis of the global projection operator failing on the elastic benchmark metals",
      "library:mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md", "published_article"),
+    ("final round-two verdict on the projection law",
+     "library:docs/projection-law-round2-final.md", "published_article"),
     ("guide for crawlers and AI agents to the public lupine websites and viewers",
      "https://library.lupine.science/llms-full.txt", "site_guide"),
+    ("which articles are awaiting publication to the public library",
+     "publication-drift", "publication_drift"),
 ]
 
 SEARCH_LIMIT = 10  # distinct-source ranks are computed within this window
@@ -125,7 +131,7 @@ def time_search_backends(conn: sqlite3.Connection, reps: int = 25) -> dict:
                       dtype=np.float32).tobytes()
     out: dict = {"rows": conn.execute("SELECT COUNT(*) FROM evidence_chunks").fetchone()[0]}
 
-    for name, fn in (("vec0_knn", query._try_vec0_query),
+    for name, fn in (("vec0_knn", lambda c, b, n, _k: query._try_vec0_query(c, b, n)),
                      ("brute_force_cosine", query._manual_cosine)):
         times = []
         for _ in range(reps):

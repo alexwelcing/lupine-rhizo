@@ -35,7 +35,10 @@ import main as pipeline  # noqa: E402
 
 _QUERY_MODEL = None
 
-MANIFEST = HERE.parent / "exports" / "library-content" / "latest" / "manifest.json"
+# The manifest of whichever bundle main.py is actually indexing (deployed
+# ledger cache when synced, else the local export bundle) — twin mapping must
+# match the article source or the refs won't line up.
+MANIFEST = pipeline.LIBRARY_ROOT / "manifest.json"
 _TWIN_MAP: dict[str, str] | None = None
 
 
@@ -110,10 +113,14 @@ def semantic_search(conn: sqlite3.Connection, query: str, limit: int,
     qvec = pipeline._fallback_vector(query) if pipeline._FALLBACK_ACTIVE \
         else np.asarray(_safe_embed(query), dtype=np.float32)
     blob = np.asarray(qvec, dtype=np.float32).tobytes()
-    # vec0 virtual table created by cocoindex exposes a `distance` ordering
-    # via MATCH. Fall back to a manual cosine if the virtual table is absent
-    # (e.g. user built evidence.db before sqlite-vec target wiring).
-    rows = _try_vec0_query(conn, blob, limit, kind_filter)
+    # Unfiltered queries use the vec0 KNN sidecar (built by build_vec_index.py).
+    # Kind-filtered queries deliberately do NOT: vec0 ranks globally and a
+    # post-KNN kind filter silently drops rare kinds (a 2-chunk kind is never
+    # in the global top-k). The exact cosine scan restricted to the kind is
+    # both correct and fast (it only touches that kind's rows).
+    rows = None
+    if not kind_filter:
+        rows = _try_vec0_query(conn, blob, limit)
     if rows is None:
         rows = _manual_cosine(conn, blob, limit, kind_filter)
     return rows
@@ -142,30 +149,26 @@ def _safe_embed(text: str):
         return pipeline._fallback_vector(text)
 
 
-def _try_vec0_query(conn, blob: bytes, limit: int, kind_filter: str | None):
-    """Use the vec0 virtual table if cocoindex created one. Returns None if
-    the virtual table isn't present (caller falls back to manual cosine)."""
+def _try_vec0_query(conn, blob: bytes, limit: int):
+    """Unfiltered KNN via the vec0 virtual table (built by build_vec_index.py).
+    Returns None if the virtual table isn't present (caller falls back to
+    manual cosine)."""
     has_vec0 = conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'evidence_chunks_vec%'"
     ).fetchone()
     if not has_vec0:
         return None
     try:
-        # The kind filter applies AFTER the KNN, so over-fetch when filtering
-        # to avoid returning fewer than `limit` matching rows.
-        k = limit * 10 if kind_filter else limit
         sql = (
             "SELECT e.id, e.source_file, e.kind, e.ref_id, e.text, "
             "e.chunk_start, e.chunk_end, v.distance "
             "FROM evidence_chunks_vec_row v "
             "JOIN evidence_chunks e ON e.rowid = v.rowid "
             "WHERE v.embedding MATCH ? AND k = ? "
-            + ("AND e.kind = ? " if kind_filter else "")
-            + "ORDER BY v.distance"
+            "ORDER BY v.distance"
         )
-        params: list = [blob, k] + ([kind_filter] if kind_filter else [])
-        cur = conn.execute(sql, params)
-        return [_row(r, score=-float(r[7])) for r in cur.fetchall()[:limit]]
+        cur = conn.execute(sql, [blob, limit])
+        return [_row(r, score=-float(r[7])) for r in cur.fetchall()]
     except sqlite3.OperationalError:
         return None
 
