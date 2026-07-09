@@ -23,7 +23,7 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
   - URL: `http://aledev.taild6f8cb.ts.net:8787/`
   - Stack: FastAPI + SQLite + FTS5 + Jinja2 + vanilla JS
   - Features: full-text search, version/motif/variant/aspect/tag filters, favorites, ratings (0–5), private notes, detail view, download, JSON API.
-  - Indexed: 92 assets across v1–v8.
+  - Indexed: 152 assets across v1–v9.
   - Service: systemd user service `lupine-assets.service` on port 8787.
   - Next step: Curate shortlist and generate social cards / X thread.
   - Owner: media director
@@ -38,6 +38,13 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 - **v8 abstract asset corpus** — 24 non-research visuals across 8 motifs.
   - Status: 🟢 generated and indexed
   - Motifs: particle ribbon, ink wash, moiré circles, constellation threads, shadow geometry, stroke dissolution, folded light, scale shards.
+  - Next step: Review via asset library and select keepers.
+  - Owner: media director
+
+- **v9 standalone iconography corpus** — 48 copy-paste-ready icons across 16 motifs.
+  - Status: 🟢 generated and indexed
+  - Motifs: orbit mark, lattice node, proof check, error tick, molecule glyph, bond angle, calibration cross, trust shield, field line, manifold curve, atomic ring, coordinate axis, hex cell, wave packet, convergence star, divergence burst.
+  - Formats: square (1:1), circle (1:1), wide (16:9).
   - Next step: Review via asset library and select keepers.
   - Owner: media director
 
@@ -90,6 +97,7 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 
 - Built a full FastAPI application for the brand asset library with SQLite/FTS5 search, filters, favorites, ratings, notes, tags, and detail/download views.
 - Generated the v8 abstract asset corpus (24 non-research visuals) and indexed it in the library.
+- Generated the v9 standalone iconography corpus (48 copy-paste-ready icons) and indexed it in the library.
 - Deployed the app as a systemd user service on `aledev.taild6f8cb.ts.net:8787`.
 - Merged latest remote `lupine-science` work and `lupine-rhizo` work into local branches.
 - Published the environment-error-field paper as a public proof-pack on `lupine.science`.

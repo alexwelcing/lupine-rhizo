@@ -10,7 +10,7 @@
 Built a proper application to manage the brand image corpus.
 - **Stack:** FastAPI + SQLite + FTS5 + Jinja2 + vanilla JS.
 - **Features:** full-text search, multi-filter gallery, favorites, ratings, notes, tags, detail view, download, JSON API.
-- **Assets indexed:** 92 generated stills across v1–v8.
+- **Assets indexed:** 152 generated stills across v1–v9 (92 originals + 48 new standalone icons + v1 root assets).
 - **Service:** systemd user service `lupine-assets.service` running on port 8787.
 - **URL:** `http://aledev.taild6f8cb.ts.net:8787/`
 - **Owner:** media director
@@ -60,6 +60,7 @@ Pulled the latest remote `lupine-rhizo` work and published a web-native proof-pa
 - Latest remote `lupine-science` and `lupine-rhizo` work pulled and merged
 - **FastAPI-based brand asset library app with search, filters, favorites, and ratings**
 - v8 abstract asset corpus (24 non-research visuals) generated and indexed
+- v9 standalone iconography corpus (48 icons in square, circle, and wide formats) generated and indexed
 
 ---
 
