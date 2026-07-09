@@ -1,6 +1,6 @@
 # Lupine Science Research Command Center
 
-Last updated: 2026-07-02
+Last updated: 2026-07-09
 
 ## North Star
 
@@ -12,17 +12,33 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 |---|---|---|---|
 | **Coordinator** | `coordinator` | `kimi-k2.7-code` | Orchestrates research, tracks progress, dispatches work. Primary contact. |
 | **Researcher** | `researcher` | `kimi-k2.7-code` | Executes science work: cleanup, triage, Lean formalization, A6 bridge, experiments. |
-| **Media Director** | skill | `kimi-k2.7-code` / MiniMax | Produces launch films, images, articles, audio, pitch visuals, content design system, creative exploration loops. |
+| **Media Director** | skill | `kimi-k2.7-code` / MiniMax | Produces launch films, images, articles, audio, pitch visuals, content design system, creative exploration loops, brand asset library. |
 
 **How to reach us:** `https://aledev.taild6f8cb.ts.net/` — use the profile switcher to pick `coordinator` (default) or `researcher`.
 
 ## Active Initiatives
 
+- **Brand Asset Library App** — Proper FastAPI application for managing the image corpus.
+  - Status: 🟢 live
+  - URL: `http://aledev.taild6f8cb.ts.net:8787/`
+  - Stack: FastAPI + SQLite + FTS5 + Jinja2 + vanilla JS
+  - Features: full-text search, version/motif/variant/aspect/tag filters, favorites, ratings (0–5), private notes, detail view, download, JSON API.
+  - Indexed: 92 assets across v1–v8.
+  - Service: systemd user service `lupine-assets.service` on port 8787.
+  - Next step: Curate shortlist and generate social cards / X thread.
+  - Owner: media director
+
 - **Brand / pitch deliverables** — Production assets and pitch deck from the winning still are shipped.
   - Status: 🟢 shipped
   - Deliverables: `media/projects/brand-exploration/renders/deliverables/` (OG card, site hero, one-pager cover, deck backgrounds), `renders/deliverables/slides/` (9-slide narrative in 16:9 and 4:3).
   - Deployed: `public/og-lupine-science.jpg`, `public/ribbon-still.jpg`, `public/one-pager-assets/cover-shape-of-wrongness.jpg`.
-  - Next step: Generate social cards / X thread for the proof-pack and pitch deck.
+  - Next step: Generate alternate deliverables from v8 winners.
+  - Owner: media director
+
+- **v8 abstract asset corpus** — 24 non-research visuals across 8 motifs.
+  - Status: 🟢 generated and indexed
+  - Motifs: particle ribbon, ink wash, moiré circles, constellation threads, shadow geometry, stroke dissolution, folded light, scale shards.
+  - Next step: Review via asset library and select keepers.
   - Owner: media director
 
 - **Public proof-pack: environment-error-field paper** — Web-native proof-pack published on `lupine.science`.
@@ -72,10 +88,12 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 
 ## Done Recently
 
-- Merged latest remote `lupine-science` work (new article "The Order Is Right, the Size Is Wrong") and resolved the articles index conflict.
-- Merged latest remote `lupine-rhizo` work: y-matrix / environment-error-field manuscript, figures, evidence corpus, LAMMPS-to-Lean bridge, offline HPC lane, library catalog updates, Lean evidence module, and CI fixes.
+- Built a full FastAPI application for the brand asset library with SQLite/FTS5 search, filters, favorites, ratings, notes, tags, and detail/download views.
+- Generated the v8 abstract asset corpus (24 non-research visuals) and indexed it in the library.
+- Deployed the app as a systemd user service on `aledev.taild6f8cb.ts.net:8787`.
+- Merged latest remote `lupine-science` work and `lupine-rhizo` work into local branches.
 - Published the environment-error-field paper as a public proof-pack on `lupine.science`.
-- Built a 9-slide pitch deck in 16:9 and 4:3 from the winning brand still, informed by the envfield results.
+- Built a 9-slide pitch deck in 16:9 and 4:3 from the winning brand still.
 - Produced production brand deliverables: OG card, site hero, one-pager cover, deck backgrounds.
 - Ran v6/v7 brand-exploration matrices, selected `v7/error-vector-alignment_wide_v7.jpg` as the upstream-cascade replacement.
 - Updated `build-articles.py` to use per-article hero images for OG/Twitter cards.
@@ -90,6 +108,7 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 ## Upcoming Bets
 
 - Scale A6 bridge to the merged y-matrix / envfield multi-config corpus.
-- Post social thread for the new proof-pack and pitch deck.
+- Curate v8 asset winners and generate social cards / X thread for the proof-pack and pitch deck.
+- Generate alternate deliverables from v8 winners.
 - Materialize the MatPES/MPtrj/OMat24 manifest and re-run A6 at scale.
 - Add LUPI landing page.
