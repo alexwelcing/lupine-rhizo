@@ -145,6 +145,50 @@ export function stubQueue(): Queue<unknown> & { sent: unknown[] } {
  * tested lanes. Tests pass `overrides` to attach scenario-specific
  * stubs without rebuilding the whole env.
  */
+export function stubVectorize(
+  opts: { vectors?: VectorizeVector[] } = {},
+): VectorizeIndex {
+  const store = new Map<string, VectorizeVector>();
+  for (const v of opts.vectors ?? []) store.set(v.id, v);
+
+  return {
+    describe: async () => ({
+      id: "test-index",
+      name: "test",
+      config: { dimensions: 384, metric: "cosine" },
+      vectorsCount: store.size,
+    }),
+    query: async (vector: number[], options?: VectorizeQueryOptions) => {
+      // Naïve brute-force cosine similarity for tests
+      const topK = options?.topK ?? 10;
+      const matches = Array.from(store.values())
+        .map((v: VectorizeVector) => {
+          const dot = (v.values as number[]).reduce((s: number, val: number, i: number) => s + val * vector[i], 0);
+          const normA = Math.sqrt((v.values as number[]).reduce((s: number, val: number) => s + val * val, 0));
+          const normB = Math.sqrt(vector.reduce((s: number, val: number) => s + val * val, 0));
+          const score = normA && normB ? dot / (normA * normB) : 0;
+          return { id: v.id, score, metadata: v.metadata };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, topK);
+      return { matches, count: matches.length } as VectorizeMatches;
+    },
+    insert: async (vectors: VectorizeVector[]) => {
+      for (const v of vectors) store.set(v.id, v);
+      return { ids: vectors.map((v: VectorizeVector) => v.id), count: vectors.length } as VectorizeVectorMutation;
+    },
+    upsert: async (vectors: VectorizeVector[]) => {
+      for (const v of vectors) store.set(v.id, v);
+      return { ids: vectors.map((v: VectorizeVector) => v.id), count: vectors.length } as VectorizeVectorMutation;
+    },
+    deleteByIds: async (ids: string[]) => {
+      for (const id of ids) store.delete(id);
+      return { ids, count: ids.length } as VectorizeVectorMutation;
+    },
+    getByIds: async (ids: string[]) => ids.map((id: string) => store.get(id)).filter(Boolean) as VectorizeVector[],
+  } as unknown as VectorizeIndex;
+}
+
 export function buildStubEnv(overrides: Partial<Env> = {}): Env {
   const env: Partial<Env> = {
     LEDGER: stubLedger(),

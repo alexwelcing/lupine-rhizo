@@ -2399,6 +2399,27 @@ ${narrative}
         const result = await probeGateway(env);
         return Response.json(result, { headers: JSON_CORS_HEADERS });
       }
+      // ─── Coordination memory edge admin routes (Phase C) ───
+      if (url.pathname === "/admin/coord-memory/backfill" && request.method === "POST") {
+        const body = JSON.parse(bodyText || "{}") as { limit?: number };
+        const result = await backfillCoordMemory(env, { limit: body.limit ?? 500 });
+        return Response.json(result, { headers: JSON_CORS_HEADERS });
+      }
+
+      if (url.pathname === "/admin/coord-memory/query" && request.method === "GET") {
+        const q = url.searchParams.get("q") ?? "";
+        const start = Date.now();
+        const { bias, hits } = await consultMemoryEdge(env, q, undefined, 5);
+        return Response.json({
+          query: q,
+          latency_ms: Date.now() - start,
+          bias,
+          hits,
+        }, { headers: JSON_CORS_HEADERS });
+      }
+
+
+
 
       if (url.pathname === "/admin/test-image" && (request.method === "POST" || request.method === "GET")) {
         const prompt =
@@ -3728,6 +3749,72 @@ ${narrative}
     );
   },
 } satisfies ExportedHandler<Env>;
+
+
+// ─── Coordination memory backfill helper (Phase C) ───────────────────────────
+
+async function backfillCoordMemory(
+  env: Env,
+  opts?: { limit?: number },
+): Promise<{ embedded: number; skipped: number; errors: string[] }> {
+  const result = { embedded: 0, skipped: 0, errors: [] as string[] };
+  if (!env.COORD_MEMORY) {
+    result.errors.push("COORD_MEMORY binding not available");
+    return result;
+  }
+
+  const traces = await getRecentCoordinationTraces(env, { limit: opts?.limit ?? 500 });
+  if (traces.length === 0) {
+    return result;
+  }
+
+  // Embed in batches of 50 to stay within Workers AI limits
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < traces.length; i += BATCH_SIZE) {
+    const batch = traces.slice(i, i + BATCH_SIZE);
+    const texts = batch.map((t) =>
+      `Strategy: ${t.strategy}. Outcome: ${t.coordination_outcome}. Intent: ${t.intent}. ` +
+      `Coordination hit: ${t.coordination_hit}. Winner: ${t.winner_provider ?? "none"}. ` +
+      `Baseline: ${t.baseline_provider ?? "none"}.\n\n${t.winner_text?.slice(0, 500) ?? ""}`
+    );
+
+    try {
+      const response = await env.AI.run("@cf/baai/bge-small-en-v1.5", { text: texts });
+      const embeddings = (response as { data?: number[][] }).data ?? [];
+      if (!embeddings.length || embeddings.length !== batch.length) {
+        result.errors.push(`batch ${i}: embedding count mismatch (${embeddings.length} vs ${batch.length})`);
+        result.skipped += batch.length;
+        continue;
+      }
+
+      const vectors = batch.map((t, idx) => ({
+        id: String(t.id),
+        values: embeddings[idx],
+        metadata: {
+          kind: "coordination_trace",
+          ref_id: t.trace_id ?? String(t.id),
+          text: texts[idx].slice(0, 500),
+          strategy: t.strategy,
+          coordination_outcome: t.coordination_outcome,
+          coordination_hit: t.coordination_hit,
+          intent: t.intent ?? "unknown",
+          agent_class: t.agent_class ?? "",
+          winner_provider: t.winner_provider ?? "",
+          baseline_provider: t.baseline_provider ?? "",
+        },
+      }));
+
+      await env.COORD_MEMORY.upsert(vectors);
+      result.embedded += vectors.length;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      result.errors.push(`batch ${i}-${i + batch.length}: ${msg}`);
+      result.skipped += batch.length;
+    }
+  }
+
+  return result;
+}
 
 export default instrument(baseHandler, phoenixConfig);
 

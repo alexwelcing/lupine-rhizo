@@ -12,13 +12,31 @@
  *
  * Both degrade gracefully: if EVIDENCE_INDEX_URL is unset or the service is
  * unreachable, they return empty/void without blocking coordination. Memory
- * is an uplift, never a dependency.
+ * stays "uplift, never a dependency" — all failure paths fall back to the
+ * current GCP behavior.
+ *
+ * Phase C — Edge Memory Flywheel:
+ *   A `COORD_MEMORY_MODE` switch controls whether the edge-local Vectorize
+ *   path is used alongside or instead of GCP:
+ *     off    (default) — GCP only; untouched behavior.
+ *     shadow — compute edge alongside GCP, log comparison, act on GCP.
+ *     active — act on edge; GCP becomes fallback on error.
  */
 import type { Env } from "../types";
 import type { CoordinationStrategy } from "./coordinator";
+import { consultMemoryEdge, emitTraceEdge, consultMemoryShadow } from "./memoryClientEdge";
 
 const CONSULT_TIMEOUT_MS = 800; // strict: coordination is on the hot path
 const EMIT_TIMEOUT_MS = 3000;   // fire-and-forget but bounded
+
+type MemoryMode = "off" | "shadow" | "active";
+
+function getMode(env: Env): MemoryMode {
+  const raw = env.COORD_MEMORY_MODE?.trim().toLowerCase();
+  if (raw === "shadow") return "shadow";
+  if (raw === "active") return "active";
+  return "off";
+}
 
 export interface MemoryBias {
   /** Per-strategy hit-rate computed from similar past prompts (0–1). */
@@ -40,11 +58,10 @@ interface SearchResponse {
 }
 
 /**
- * Consult the evidence index for past coordination results on similar prompts.
- * Returns a per-strategy hit-rate bias that the coordinator can use to steer
- * selection. On any error/timeout → empty bias (registry-only fallback).
+ * GCP-only consult (the original behavior). Extracted so shadow mode can
+ * call it as a reference.
  */
-export async function consultMemory(
+async function consultMemoryGcp(
   env: Env,
   prompt: string,
   intent?: string,
@@ -74,11 +91,85 @@ export async function consultMemory(
 }
 
 /**
+ * Consult the evidence index for past coordination results on similar prompts.
+ * Returns a per-strategy hit-rate bias that the coordinator can use to steer
+ * selection. On any error/timeout → empty bias (registry-only fallback).
+ *
+ * Mode-aware: off → GCP only; shadow → GCP + edge compare log; active → edge
+ * with GCP fallback.
+ */
+export async function consultMemory(
+  env: Env,
+  prompt: string,
+  intent?: string,
+  limit = 5,
+): Promise<{ bias: MemoryBias; hits: SearchHit[] }> {
+  const mode = getMode(env);
+
+  if (mode === "off" || !env.COORD_MEMORY) {
+    return consultMemoryGcp(env, prompt, intent, limit);
+  }
+
+  if (mode === "shadow") {
+    return consultMemoryShadow(env, prompt, consultMemoryGcp, intent, limit);
+  }
+
+  // mode === "active"
+  try {
+    const edge = await consultMemoryEdge(env, prompt, intent, limit);
+    // If edge returned empty and GCP is configured, try GCP as fallback.
+    if (Object.keys(edge.bias).length === 0 && env.EVIDENCE_INDEX_URL) {
+      const gcp = await consultMemoryGcp(env, prompt, intent, limit);
+      if (Object.keys(gcp.bias).length > 0) {
+        console.log(JSON.stringify({
+          level: "info",
+          source: "coord_memory",
+          action: "fallback_to_gcp",
+          reason: "edge_empty",
+          prompt_prefix: prompt.slice(0, 60),
+        }));
+        return gcp;
+      }
+    }
+    return edge;
+  } catch (e) {
+    console.warn("[coord_memory] active mode edge error, falling back to GCP:", e instanceof Error ? e.message : String(e));
+    return consultMemoryGcp(env, prompt, intent, limit);
+  }
+}
+
+/**
  * POST a coordination trace to the evidence index for future search.
  * Fire-and-forget: never throws, never blocks. Called after coordination
  * completes.
+ *
+ * Mode-aware: shadow/active also dual-write to the edge index.
  */
 export async function emitTrace(
+  env: Env,
+  trace: {
+    id: string;
+    text: string;
+    kind?: string;
+    ref_id?: string;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<void> {
+  const mode = getMode(env);
+
+  // Always write to GCP if configured (existing behavior).
+  const gcpPromise = _emitTraceGcp(env, trace);
+
+  // Dual-write to edge in shadow/active modes.
+  if ((mode === "shadow" || mode === "active") && env.COORD_MEMORY) {
+    await emitTraceEdge(env, trace);
+  }
+
+  // Await GCP so any GCP-side error is surfaced before returning.
+  await gcpPromise;
+}
+
+async function _emitTraceGcp(
   env: Env,
   trace: {
     id: string;
