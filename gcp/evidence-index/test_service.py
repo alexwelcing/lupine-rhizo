@@ -102,3 +102,31 @@ def test_ingest_is_idempotent(warm_client):
     _ingest(warm_client, "updated text", ref_id="idempotent-1")
     after = warm_client.get("/count").json()["count"]
     assert after == mid, "upsert should not create a duplicate"
+
+
+def test_bge_query_prefix_applied_only_to_queries(monkeypatch):
+    """The BGE instruction prefix is prepended for is_query embeds and never
+    for document embeds, and only when the active model is a BGE model.
+    Verified without a model download by capturing what the encoder sees."""
+    import app
+
+    seen: list[str] = []
+
+    class _FakeEncoder:
+        def encode(self, text, normalize_embeddings=True):
+            seen.append(text)
+            return app.np.zeros(app.EMBED_DIM, dtype=app.np.float32)
+
+    monkeypatch.setattr(app, "_embedder", _FakeEncoder())
+    monkeypatch.setattr(app, "EMBED_MODEL", "BAAI/bge-small-en-v1.5")
+
+    app.embed("a document body", is_query=False)
+    app.embed("a user query", is_query=True)
+    assert seen[0] == "a document body"                      # doc: bare
+    assert seen[1] == app._BGE_QUERY_PREFIX + "a user query"  # query: prefixed
+
+    # Non-BGE model: no prefix even for queries.
+    seen.clear()
+    monkeypatch.setattr(app, "EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+    app.embed("a user query", is_query=True)
+    assert seen[0] == "a user query"
