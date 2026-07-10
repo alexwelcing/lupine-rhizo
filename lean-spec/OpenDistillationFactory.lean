@@ -35,6 +35,16 @@ import OpenDistillationFactory.Materials.Theory.ProjectionLaw
 import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.ConvexProjection
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration
+
+-- Climate-series physics layer: the environment error field and the
+-- defect-kinetics laws for the five material classes (LMR cathodes, halide
+-- electrolytes, MOF DAC sorbents, ammonia catalysts, lead-free perovskites)
+import OpenDistillationFactory.Materials.Theory.EnvironmentField
+import OpenDistillationFactory.Materials.Theory.BarrierArrhenius
+import OpenDistillationFactory.Materials.Theory.RankingIntegrity
+import OpenDistillationFactory.Materials.Theory.ScalingVolcano
+import OpenDistillationFactory.Materials.Theory.DefectStability
+import OpenDistillationFactory.Materials.Theory.SorptionStability
 -- QUARANTINED 2026-07-02: AlloyResidualTransfer does not compile (unknown
 -- constants Submodule.finrank / structure-field mismatches) and has broken
 -- main's lake build since the 2026-06-28 sync push. Re-import once repaired.
@@ -43,6 +53,7 @@ import OpenDistillationFactory.Materials.Theory.WeakAcceleration
 -- Validation layer: experiment design, integrity checks, and audit
 import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
+import OpenDistillationFactory.Materials.Validation.ClimateSeries
 
 -- Executable vision: the build-locking epistemic contract
 import OpenDistillationFactory.Materials.Vision

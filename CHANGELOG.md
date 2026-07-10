@@ -16,6 +16,51 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-10 - Climate-series physics layer: 73 new Lean theorems for the five material classes
+
+- **Why.** The climate partnerships proof pack ("The 0.2% Synthesis Problem",
+  "A Field, Not a Neural Net", "Five Materials That Could Unlock 5–12
+  GtCO₂/Year") commits the platform to five defect-mediated material classes —
+  cobalt-free LMR cathodes, halide solid electrolytes, MOF DAC sorbents,
+  electrochemical ammonia catalysts, lead-free tin perovskites — but the
+  formal evidence plane only covered fcc-metal elastic/error-geometry claims.
+  The underlying mechanics the pack argues from (softening ⇒ barrier
+  underestimation ⇒ exponential rate error ⇒ ranking inversion, plus the
+  correction/impossibility dichotomy) existed as prose, not as machine-checked
+  physical law.
+- **What.** Added a seven-module physics layer to `lean-spec`
+  (`Theory/EnvironmentField`, `Theory/BarrierArrhenius`,
+  `Theory/RankingIntegrity`, `Theory/ScalingVolcano`,
+  `Theory/DefectStability`, `Theory/SorptionStability`,
+  `Validation/ClimateSeries`), 73 new theorems, all wired into the
+  `Vision.lean` build locks (T78–T150) with six new `#guard` contracts.
+  Highlights: the environment error field's seven structural laws (softening,
+  bulk invariance, closure, family transfer, dominance, boundedness,
+  zero-parameter blind continuation); the mechanism theorem
+  (under-coordinated transition states ⇒ provably underestimated barriers);
+  exact Arrhenius amplification identities with kernel-checked
+  room-temperature brackets (100 meV ⇒ 32–64× rate error; 180 meV ⇒ >10³×
+  conductivity error, riding Mathlib's log 2 decimal bounds); the
+  monotonicity impossibility lemma with a concrete cathode inversion witness;
+  Sabatier-volcano laws including non-monotonicity of activity in the
+  descriptor and breaker-flag soundness; the decidable metastability window
+  hull-only screening provably misses; competitive-Langmuir humidity laws;
+  and the first-shell domain gate with witnessed refusals.
+- **Results.** `lake build` green at 3659 jobs, 150 build-locked theorems,
+  257 theorem declarations in `Materials/`, 0 `sorry`, 0 new axioms. The
+  proof pack's quantitative claims (0.2% funnel, A-Lab novelty collapse, the
+  kernel-rejected 27→26 episode, blind-prediction improvements, portfolio
+  envelope) are now decidable certificates in
+  `Validation/ClimateSeries.lean`.
+- **Next.** Bind measured per-cell fields P(c) from the Y-matrix runs as
+  `ErrorField` instances (the generated-evidence rung L2), so
+  `corrected_recovers_reference_order` and the barrier theorems certify each
+  (model, material) cell's screening output; then surface the domain-gate and
+  impossibility certificates through `promotion_gate.py` so refusals carry
+  their Lean witness into runner telemetry.
+
+---
+
 ## 2026-06-19 - LUPI 0.3 Studio, molecule trust, and public-surface split prep
 
 - **Why.** The checkout had a full LUPI release pass, public-surface split plan,
