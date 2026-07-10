@@ -75,6 +75,12 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip \
 
 # Application source + runtime + the compiled policy engine.
 COPY python/lupine_distill_runtime ./lupine_distill_runtime
+# Lean env-field certificates: the report backs the run-time CertificateGate
+# (tier-2-refused cells are excluded from correction). Without it in the
+# image, the gate's "auto" default resolves to a nonexistent path and the
+# gate is silently absent in production.
+COPY data/y_matrix_runs/env_field_binding_report.json ./data/y_matrix_runs/env_field_binding_report.json
+ENV MLIP_DISTILL_ENV_FIELD_REPORT=/app/data/y_matrix_runs/env_field_binding_report.json
 COPY --from=atlas_distill_builder /build/atlas-distill/target/release/atlas-distill /usr/local/bin/atlas-distill
 
 # Fail closed at build time: the policy engine and runner must both answer

@@ -94,6 +94,68 @@ def test_boundary_zero_vacancy_anchor_is_admissible():
     assert cert.tier == "error_field"
 
 
+# ── bcc anchor admissibility: mirrors scaledAnchorsBccValid ────────────────
+
+
+def test_admissible_bcc_anchors_mirror():
+    """Same triple as Lean `scaledAnchorsBccValid_example` (positive half):
+    the chgnet/Fe bcc cell."""
+    cert = check_anchor_admissibility(-4852, -4596, -1697, structure="bcc")
+    assert cert.tier == "error_field"
+    assert cert.structure == "bcc"
+    assert cert.coordinations == (4, 6, 7)
+    assert cert.violations == ()
+    assert cert.theorem_ref == THEOREM_REFS["anchored_field_bcc"]
+
+
+def test_inadmissible_bcc_anchors_mirror():
+    """Same triple as Lean `scaledAnchorsBccValid_example` (negative half)."""
+    cert = check_anchor_admissibility(-4596, -4852, -1697, structure="bcc")
+    assert cert.tier == "measured_field"
+    assert cert.theorem_ref == THEOREM_REFS["measured_field_bcc"]
+    assert any("P(4)" in v and "P(6)" in v for v in cert.violations)
+    assert "scaledAnchorsBccValid" in cert.reason
+
+
+def test_bcc_stiffening_cell_witnesses_bcc_coordinations():
+    """Same triple as the Lean `field_refused_mace_mp_small_V` refusal."""
+    cert = check_anchor_admissibility(5401, 3072, 404, structure="bcc")
+    assert len(cert.violations) == 3
+    assert any("P(7) = 404e-4 > 0 (softening)" in v for v in cert.violations)
+
+
+def test_unknown_structure_is_rejected():
+    with pytest.raises(ValueError, match="unknown anchor structure"):
+        check_anchor_admissibility(-3, -2, -1, structure="hcp")
+
+
+# ── diamond anchor admissibility: mirrors scaledAnchorDiamondValid ─────────
+
+
+def test_admissible_diamond_anchor_mirror():
+    """Same value as Lean `scaledAnchorDiamondValid_example` (positive half):
+    the chgnet/Si cell."""
+    cert = check_anchor_admissibility(-6906, structure="diamond")
+    assert cert.tier == "error_field"
+    assert cert.coordinations == (3,)
+    assert cert.theorem_ref == THEOREM_REFS["anchored_field_diamond"]
+
+
+def test_stiffening_diamond_anchor_refused():
+    """Same value as Lean `scaledAnchorDiamondValid_example` (negative half)."""
+    cert = check_anchor_admissibility(6906, structure="diamond")
+    assert cert.tier == "measured_field"
+    assert cert.violations == ("P(3) = 6906e-4 > 0 (softening)",)
+    assert "scaledAnchorDiamondValid" in cert.reason
+
+
+def test_anchor_arity_must_match_layout():
+    with pytest.raises(ValueError, match="anchor"):
+        check_anchor_admissibility(-3, -2, structure="fcc")
+    with pytest.raises(ValueError, match="anchor"):
+        check_anchor_admissibility(-3, -2, structure="diamond")
+
+
 # ── Ranking pairs: mirrors ReconcilesPair / inversion_defeats_monotone ─────
 
 

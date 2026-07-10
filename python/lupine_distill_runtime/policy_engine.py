@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import tempfile
@@ -24,6 +25,15 @@ def _default_atlas_distill_bin() -> pathlib.Path:
     if found:
         return pathlib.Path(found)
     return _repo_root() / "atlas-distill" / "target" / "debug" / exe
+
+
+#: Default env-field binding report (emitted by
+#: ``python/scripts/bind_env_field_instances.py``) consulted by the run-time
+#: certificate gate when the session runs from a repo checkout.
+def _default_env_field_report() -> pathlib.Path:
+    return (
+        _repo_root() / "data" / "y_matrix_runs" / "env_field_binding_report.json"
+    )
 
 
 def jsonable(value: Any) -> Any:
@@ -303,6 +313,226 @@ class RustPolicyEngine:
         }
 
 
+def _material_roots_for_prediction(prediction: dict[str, Any]) -> set[str]:
+    """Candidate material keys for certificate lookup: the normalized
+    ``material_id`` root (and its leading token), plus the element symbol of
+    single-species configurations. Conservative by design — multi-species
+    systems only match on an explicit material id."""
+    roots: set[str] = set()
+    material_id = prediction.get("material_id")
+    if isinstance(material_id, str) and material_id.strip():
+        normalized = material_id.strip().lower()
+        for suffix in ("-support", "_support"):
+            if normalized.endswith(suffix):
+                normalized = normalized[: -len(suffix)]
+        if normalized:
+            roots.add(normalized)
+            head = re.split(r"[-_:/ ]", normalized, maxsplit=1)[0]
+            if head:
+                roots.add(head)
+    species: set[str] = set()
+    chemical_system = prediction.get("chemical_system")
+    if isinstance(chemical_system, str) and chemical_system.strip():
+        species = {
+            part.strip().lower()
+            for part in chemical_system.replace(",", "-").split("-")
+            if part.strip()
+        }
+    elif isinstance(prediction.get("symbols"), list):
+        species = {
+            str(symbol).strip().lower()
+            for symbol in prediction["symbols"]
+            if str(symbol).strip()
+        }
+    if len(species) == 1:
+        roots.add(next(iter(species)))
+    return roots
+
+
+@dataclass(frozen=True)
+class CertificateGate:
+    """Run-time mirror of the Lean tier-2 refusal certificates.
+
+    A (model, material) cell whose measured anchors violate monotone
+    softening carries a kernel-checked refusal
+    (``¬ scaledAnchorsValid …`` and friends in
+    ``lean-spec … Theory/AnchoredField.lean``): the directional correction is
+    provably outside its domain there, so the cell must be EXCLUDED from
+    correction at run time — not corrected and flagged after the fact. The
+    gate indexes those refusals from the env-field binding report and the
+    wrapping engine strips the support model for matching predictions (the
+    finite/explosion guards still run; the prediction itself is not refused).
+    """
+
+    #: (binder model_id, lowercase material) -> report entry with certificate.
+    refusals: dict[tuple[str, str], dict[str, Any]]
+    report_path: str
+    corpus_sha256_12: str | None
+
+    @classmethod
+    def load(
+        cls, report_path: str | os.PathLike[str] | None
+    ) -> CertificateGate | None:
+        """Build the gate from a binding report; ``None`` (gate disabled)
+        when the report is missing or unreadable — an absent corpus must
+        never break the flywheel."""
+        path = pathlib.Path(report_path) if report_path else _default_env_field_report()
+        if not path.exists():
+            return None
+        try:
+            report = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        if not isinstance(report, dict):
+            return None
+        from lupine_distill.odf.field_certificates import (
+            RUNTIME_MLIP_ALIASES,
+            certificates_from_binding_report,
+        )
+
+        refusals: dict[tuple[str, str], dict[str, Any]] = {}
+        for entry in certificates_from_binding_report(report):
+            if entry["certificate"].tier != "measured_field":
+                continue
+            model_id = str(entry["model_id"])
+            material = str(entry["material"]).lower()
+            refusals[(model_id, material)] = entry
+        # Index each refusal under the runtime backend id too (the runner's
+        # "mace-mp-0" is the binder's "mace-mp-medium"): production cells
+        # look up with the runtime id, and an exact-only index would let
+        # aliased models slip past the gate and still be corrected.
+        for runtime_id, binder_id in RUNTIME_MLIP_ALIASES.items():
+            for (model_id, material), entry in list(refusals.items()):
+                if model_id == binder_id:
+                    refusals.setdefault((runtime_id, material), entry)
+        return cls(
+            refusals=refusals,
+            report_path=str(path),
+            corpus_sha256_12=report.get("corpus_sha256_12"),
+        )
+
+    def refusal_for(
+        self, mlip_id: str, prediction: dict[str, Any]
+    ) -> dict[str, Any] | None:
+        for root in _material_roots_for_prediction(prediction):
+            entry = self.refusals.get((mlip_id, root))
+            if entry is not None:
+                return entry
+        return None
+
+    def skip_action(self, entry: dict[str, Any]) -> dict[str, Any]:
+        certificate = entry["certificate"]
+        return {
+            "action": "skip_correction",
+            "reason": f"lean_certificate_refusal: {certificate.reason}",
+            "material": entry["material"],
+            "structure": entry["structure"],
+            "lean_name": entry["lean_name"],
+            "theorem_ref": certificate.theorem_ref,
+            "anchors_scaled": list(certificate.anchors_scaled),
+            "corpus_sha256_12": self.corpus_sha256_12,
+        }
+
+
+class CertificateGatedPolicyEngine:
+    """Wrap any policy engine with the Lean certificate gate: predictions on
+    tier-2-refused (model, material) cells are decided WITHOUT the support
+    model — no correction is applied — and the decision carries a
+    ``skip_correction`` action naming the refusal theorem. Everything else
+    passes through untouched."""
+
+    def __init__(self, inner: DistillPolicyEngine, gate: CertificateGate) -> None:
+        self.inner = inner
+        self.gate = gate
+
+    @property
+    def name(self) -> str:
+        return f"certificate_gated({getattr(self.inner, 'name', 'unknown')})"
+
+    def _annotate(self, decision: DistillDecision, entry: dict[str, Any]) -> DistillDecision:
+        action = self.gate.skip_action(entry)
+        decision.actions = list(decision.actions) + [action]
+        hooks = dict(decision.theorem_hooks or {})
+        hooks["env_field_certificate"] = action
+        decision.theorem_hooks = hooks
+        return decision
+
+    def decide(
+        self,
+        *,
+        row_id: str,
+        mlip_id: str,
+        prediction: dict[str, Any],
+        support_model: Any | None,
+        context: dict[str, Any] | None = None,
+    ) -> DistillDecision:
+        entry = (
+            self.gate.refusal_for(mlip_id, prediction)
+            if support_model is not None
+            else None
+        )
+        decision = self.inner.decide(
+            row_id=row_id,
+            mlip_id=mlip_id,
+            prediction=prediction,
+            support_model=None if entry is not None else support_model,
+            context=context,
+        )
+        return self._annotate(decision, entry) if entry is not None else decision
+
+    def decide_many(
+        self,
+        *,
+        row_id: str,
+        mlip_id: str,
+        predictions: list[dict[str, Any]],
+        support_model: Any | None,
+        contexts: list[dict[str, Any]] | None = None,
+    ) -> list[DistillDecision]:
+        contexts = contexts or [{} for _ in predictions]
+        entries = [
+            self.gate.refusal_for(mlip_id, prediction)
+            if support_model is not None
+            else None
+            for prediction in predictions
+        ]
+        gated = [idx for idx, entry in enumerate(entries) if entry is not None]
+        if not gated:
+            return self.inner.decide_many(
+                row_id=row_id,
+                mlip_id=mlip_id,
+                predictions=predictions,
+                support_model=support_model,
+                contexts=contexts,
+            )
+        allowed = [idx for idx, entry in enumerate(entries) if entry is None]
+        decisions: list[DistillDecision | None] = [None] * len(predictions)
+        if allowed:
+            for idx, decision in zip(
+                allowed,
+                self.inner.decide_many(
+                    row_id=row_id,
+                    mlip_id=mlip_id,
+                    predictions=[predictions[idx] for idx in allowed],
+                    support_model=support_model,
+                    contexts=[contexts[idx] for idx in allowed],
+                ),
+            ):
+                decisions[idx] = decision
+        for idx, decision in zip(
+            gated,
+            self.inner.decide_many(
+                row_id=row_id,
+                mlip_id=mlip_id,
+                predictions=[predictions[idx] for idx in gated],
+                support_model=None,
+                contexts=[contexts[idx] for idx in gated],
+            ),
+        ):
+            decisions[idx] = self._annotate(decision, entries[idx])
+        return [decision for decision in decisions if decision is not None]
+
+
 class AutoPolicyEngine:
     def __init__(
         self,
@@ -361,20 +591,37 @@ def build_policy_engine(
     atlas_distill_bin: str | os.PathLike[str] | None = None,
     ribbon_version: str = "hyperribbon-v1",
     policy_limits_path: str | os.PathLike[str] | None = None,
+    env_field_report_path: str | os.PathLike[str] | None = "auto",
 ) -> DistillPolicyEngine:
+    """Build the requested engine, wrapped in the Lean certificate gate.
+
+    ``env_field_report_path`` selects the env-field binding report backing
+    the gate: the default ``"auto"`` uses the repo's report when it exists
+    (inert otherwise), an explicit path loads that report, and ``None``
+    disables the gate entirely.
+    """
+    engine: DistillPolicyEngine
     if name == "python":
-        return PythonPolicyEngine(profile)
-    if name == "rust":
-        return RustPolicyEngine(
+        engine = PythonPolicyEngine(profile)
+    elif name == "rust":
+        engine = RustPolicyEngine(
             atlas_distill_bin=atlas_distill_bin,
             ribbon_version=ribbon_version,
             policy_limits_path=policy_limits_path,
         )
-    if name == "auto":
-        return AutoPolicyEngine(
+    elif name == "auto":
+        engine = AutoPolicyEngine(
             profile=profile,
             atlas_distill_bin=atlas_distill_bin,
             ribbon_version=ribbon_version,
             policy_limits_path=policy_limits_path,
         )
-    raise ValueError(f"unsupported distill policy engine: {name}")
+    else:
+        raise ValueError(f"unsupported distill policy engine: {name}")
+    if env_field_report_path is not None:
+        gate = CertificateGate.load(
+            None if env_field_report_path == "auto" else env_field_report_path
+        )
+        if gate is not None and gate.refusals:
+            engine = CertificateGatedPolicyEngine(engine, gate)
+    return engine

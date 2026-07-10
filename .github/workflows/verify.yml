@@ -110,6 +110,8 @@ jobs:
       - name: Run tool smoke tests
         run: |
           python -m pytest tools/test_mlip_regime_filter.py -q
+          python -m pytest tools/test_mlip_local_promotion.py -q
+          python -m pytest tools/test_mlip_phoenix_trace.py -q
           python -m pytest gcp/mlip-cell-runner/test_distill_runtime.py -q
           python -m pytest gcp/mlip-cell-runner/test_openinference_patcher.py -q
           python -m pytest gcp/mlip-cell-runner/test_runner_observability.py -q
