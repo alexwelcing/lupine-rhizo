@@ -332,19 +332,37 @@ def nistCount := nistScaffoldAlSample.length
 #check mkAnchoredFieldBcc_toMeasuredField
 #check scaledAnchorsBccValid_example
 
+/- T182–T190: The diamond measurement bridge — the single-anchor layout for
+    the diamond-cubic semiconductors (E_vac → c=3, bulk pin c=4). One
+    measured anchor still instantiates both tiers; the rocksalt cells of the
+    sweep measure no anchor observables and are documented as unbound in the
+    binder report rather than silently skipped. -/
+#check stepFieldDiamond_bulk_anchor
+#check stepFieldDiamond_softening
+#check stepFieldDiamond_monotone
+#check mkAnchoredFieldDiamond_at_vacancy
+#check mkAnchoredFieldDiamond_at_bulk
+#check mkAnchoredFieldDiamond_clamped_below
+#check mkMeasuredFieldDiamond_at_bulk
+#check mkAnchoredFieldDiamond_toMeasuredField
+#check scaledAnchorDiamondValid_example
+
 /- The bound Y-matrix corpus (generated: DistillAtlas.EnvFieldInstances):
-    64 measured fields (36 fcc + 28 bcc); 15 anchored softening instances
-    (8 fcc + 7 bcc) + 49 kernel-checked tier-2 refusals (28 fcc + 21 bcc).
-    Representative instances surfaced here; the counts are locked by the
-    #guards below. -/
+    68 measured fields (36 fcc + 28 bcc + 4 diamond); 19 anchored softening
+    instances (8 fcc + 7 bcc + 4 diamond) + 49 kernel-checked tier-2
+    refusals (28 fcc + 21 bcc + 0 diamond). Representative instances
+    surfaced here; the counts are locked by the #guards below. -/
 #check mfield_chgnet_Ni
 #check field_chgnet_Ni
 #check field_refused_mace_mpa_0_medium_Ni
 #check mfield_chgnet_Fe
 #check field_chgnet_Fe
 #check field_refused_mace_mp_small_V
+#check mfield_chgnet_Si
+#check field_chgnet_Si
 #check fcc_cells_accounted
 #check bcc_cells_accounted
+#check diamond_cells_accounted
 #check cells_accounted
 
 -- ═══════════════════════════════════════════════════════════════
@@ -366,10 +384,11 @@ def computationallyProvenCount : Nat :=
   -- SorptionStability 10, ClimateSeries certificates 10
   -- Measured-fields push: MeasuredField tier 6, measured ranking laws 3,
   -- AnchoredField measurement bridge 11
-  -- Bcc anchors push: AnchoredField bcc measurement bridge 11 (the
-  -- generated EnvFieldInstances corpus — 64 fields, 15 instances, 49
+  -- Bcc anchors push: AnchoredField bcc measurement bridge 11
+  -- Diamond anchor push: AnchoredField diamond measurement bridge 9 (the
+  -- generated EnvFieldInstances corpus — 68 fields, 19 instances, 49
   -- refusal theorems — is locked by #guards but not counted here)
-  181
+  190
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
@@ -416,18 +435,21 @@ def epistemicGapCount : Nat :=
 
 -- Measured-fields corpus locks: the bound Y-matrix cells account exactly
 -- (fcc: 8 anchored instances + 28 refusals = 36 cells; bcc: 7 + 21 = 28;
--- total 15 + 49 = 64); the chgnet/Ni (fcc) and chgnet/Fe (bcc) anchors are
--- admissible for the directional tier, while the stiffening
--- mace-mpa-0-medium/Ni (fcc) and mace-mp-small/V (bcc) cells are provably
--- refused (their measured anchors sit above bulk accuracy — noise floor,
--- not softening).
+-- diamond: 4 + 0 = 4; total 19 + 49 = 68); the chgnet/Ni (fcc), chgnet/Fe
+-- (bcc), and chgnet/Si (diamond) anchors are admissible for the directional
+-- tier, while the stiffening mace-mpa-0-medium/Ni (fcc) and mace-mp-small/V
+-- (bcc) cells are provably refused (their measured anchors sit above bulk
+-- accuracy — noise floor, not softening).
 #guard 8 + 28 = 36
 #guard 7 + 21 = 28
-#guard 15 + 49 = 64
+#guard 4 + 0 = 4
+#guard 19 + 49 = 68
 #guard decide (scaledAnchorsValid (-980) (-673) (-136))
 #guard decide (¬ scaledAnchorsValid 4190 2296 125)
 #guard decide (scaledAnchorsBccValid (-4852) (-4596) (-1697))
 #guard decide (¬ scaledAnchorsBccValid 5401 3072 404)
+#guard decide (scaledAnchorDiamondValid (-6906))
+#guard decide (¬ scaledAnchorDiamondValid 6906)
 
 /-- The complete status board as a computed string. -/
 def visionReport : String :=

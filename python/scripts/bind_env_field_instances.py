@@ -1,6 +1,7 @@
 """Bind measured environment-error-field anchors into Lean ``ErrorField`` instances.
 
-For each fcc and bcc (material, model) cell of the Y-matrix sweep this binder:
+For each fcc, bcc, and diamond (material, model) cell of the Y-matrix sweep
+this binder:
 
 1. reads the model-relaxed statics run
    (``data/y_matrix_runs/<Mat>_<structure>_<model>.json``, schema
@@ -23,18 +24,29 @@ For each fcc and bcc (material, model) cell of the Y-matrix sweep this binder:
        P(6)  = (gamma_110^model - gamma_110^ref) * (a0^2 / sqrt(2))  [ (110), eV/atom ]
        P(7)  = (Evac^model - Evac^ref) / 8                           [ vacancy shell ]
 
+   diamond (bulk c = 4, 4 first-shell atoms per vacancy; the statics runs
+   measure only the vacancy observable, so this is a single-anchor layout):
+
+       P(3)  = (Evac^model - Evac^ref) / 4                           [ vacancy shell ]
+
+   The rocksalt cells (MgO, NaCl) measure no surface or vacancy observables
+   at all; they are recorded as unbound structures in the report rather
+   than silently skipped — binding them needs new charge-balanced slab and
+   defect runs, not new code.
+
    (surface-energy errors in J/m^2 are converted with 1 J/m^2 = 0.06241509074
    eV/A^2; the facet areas are the area per surface atom on model-relaxed
    geometry);
 4. checks the anchored-field admissibility predicate **on the integer-scaled
    anchors** (x1e4 eV/atom, exactly the literals emitted into Lean):
 
-       p_lo <= p_mid <= p_hi <= 0    (monotone softening)
+       p_1 <= p_2 <= ... <= p_n <= 0    (monotone softening)
 
-   and emits, per cell, either an ``ErrorField`` instance via
-   ``Theory.AnchoredField.mkAnchoredField`` / ``mkAnchoredFieldBcc`` (side
-   conditions ``by norm_num``) or a kernel-checked refusal certificate
-   ``¬ scaledAnchorsValid ...`` / ``¬ scaledAnchorsBccValid ...``;
+   and emits, per cell, either an ``ErrorField`` instance via the layout's
+   constructor (``mkAnchoredField`` / ``mkAnchoredFieldBcc`` /
+   ``mkAnchoredFieldDiamond``; side conditions ``by norm_num``) or a
+   kernel-checked refusal certificate on the layout's decidable predicate
+   (``¬ scaledAnchorsValid ...`` etc.);
 5. writes the Lean module to
    ``lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean``
    and a JSON report (schema ``lupine.env_field_binding_report.v2``) to
@@ -98,7 +110,7 @@ class StructureLayout:
     bulk_coordination: int
     vacancy_coordination: int
     vacancy_shell_atoms: int
-    facets: tuple[FacetSpec, FacetSpec]
+    facets: tuple[FacetSpec, ...]
     measured_ctor: str  # Lean tier-1 constructor
     anchored_ctor: str  # Lean tier-2 constructor
     validity_predicate: str  # Lean decidable admissibility predicate
@@ -161,7 +173,28 @@ LAYOUTS: tuple[StructureLayout, ...] = (
         anchored_ctor="mkAnchoredFieldBcc",
         validity_predicate="scaledAnchorsBccValid",
     ),
+    StructureLayout(
+        structure="diamond",
+        materials=("Si",),
+        bulk_coordination=4,
+        vacancy_coordination=3,
+        vacancy_shell_atoms=4,
+        facets=(),
+        measured_ctor="mkMeasuredFieldDiamond",
+        anchored_ctor="mkAnchoredFieldDiamond",
+        validity_predicate="scaledAnchorDiamondValid",
+    ),
 )
+
+#: Sweep structures whose statics runs measure none of the anchor
+#: observables; recorded in the report so absence is documented, not silent.
+UNBOUND_STRUCTURES = {
+    "rocksalt": (
+        "statics runs carry only EOS + lattice results (no surface energies, "
+        "no vacancy formation); the anchor layout needs new charge-balanced "
+        "slab and defect runs for MgO/NaCl"
+    ),
+}
 
 
 def _sanitize(name: str) -> str:
@@ -190,7 +223,7 @@ class CellAnchors:
     structure: str
     bulk_coordination: int
     a0_angstrom: float
-    anchors: tuple[Anchor, Anchor, Anchor]
+    anchors: tuple[Anchor, ...]
     valid: bool
     violations: tuple[str, ...]
 
@@ -199,16 +232,15 @@ class CellAnchors:
         return f"{_sanitize(self.model_id)}_{_sanitize(self.material)}"
 
     @property
-    def scaled(self) -> tuple[int, int, int]:
-        a1, a2, a3 = self.anchors
-        return (a1.p_scaled, a2.p_scaled, a3.p_scaled)
+    def scaled(self) -> tuple[int, ...]:
+        return tuple(a.p_scaled for a in self.anchors)
 
 
 def _load_targets(targets_dir: Path) -> dict[tuple[str, str, str], float]:
     """Map (structure, material, property) -> DFT-PBE reference value."""
     structures = {layout.structure for layout in LAYOUTS}
     refs: dict[tuple[str, str, str], float] = {}
-    for fname in ("surface_energies.json", "vacancy_formation.json"):
+    for fname in ("surface_energies.json", "vacancy_formation.json", "beyond_metals.json"):
         payload = json.loads((targets_dir / fname).read_text(encoding="utf-8"))
         for entry in payload["entries"]:
             if entry.get("structure") not in structures:
@@ -264,20 +296,16 @@ def _bind_cell(
         )
     )
 
-    lo, mid, hi = anchors
     violations: list[str] = []
-    if not lo.p_scaled <= mid.p_scaled:
-        violations.append(
-            f"P({lo.coordination}) = {lo.p_scaled}e-4 > "
-            f"P({mid.coordination}) = {mid.p_scaled}e-4 (mono)"
-        )
-    if not mid.p_scaled <= hi.p_scaled:
-        violations.append(
-            f"P({mid.coordination}) = {mid.p_scaled}e-4 > "
-            f"P({hi.coordination}) = {hi.p_scaled}e-4 (mono)"
-        )
-    if not hi.p_scaled <= 0:
-        violations.append(f"P({hi.coordination}) = {hi.p_scaled}e-4 > 0 (softening)")
+    for lower, upper in zip(anchors, anchors[1:]):
+        if not lower.p_scaled <= upper.p_scaled:
+            violations.append(
+                f"P({lower.coordination}) = {lower.p_scaled}e-4 > "
+                f"P({upper.coordination}) = {upper.p_scaled}e-4 (mono)"
+            )
+    last = anchors[-1]
+    if not last.p_scaled <= 0:
+        violations.append(f"P({last.coordination}) = {last.p_scaled}e-4 > 0 (softening)")
 
     return CellAnchors(
         material=material,
@@ -285,7 +313,7 @@ def _bind_cell(
         structure=layout.structure,
         bulk_coordination=layout.bulk_coordination,
         a0_angstrom=a0,
-        anchors=(anchors[0], anchors[1], anchors[2]),
+        anchors=tuple(anchors),
         valid=not violations,
         violations=tuple(violations),
     )
@@ -298,13 +326,13 @@ def _lean_rat(scaled: int) -> str:
 
 def _anchor_provenance(cell: CellAnchors, layout: StructureLayout) -> str:
     parts: list[str] = []
-    for anchor, facet in zip(cell.anchors[:2], layout.facets):
+    for anchor, facet in zip(cell.anchors, layout.facets):
         parts.append(
             f"P({anchor.coordination}) = {anchor.p_scaled}e-4 from "
             f"Δ{facet.gamma_label} = {anchor.model_value:.4f} − "
             f"{anchor.ref_value:.4f} J/m² on {facet.area_label}"
         )
-    vac = cell.anchors[2]
+    vac = cell.anchors[-1]
     parts.append(
         f"P({vac.coordination}) = {vac.p_scaled}e-4 from "
         f"ΔE_vac = {vac.model_value:.4f} − {vac.ref_value:.4f} eV over "
@@ -345,7 +373,7 @@ def _emit_instance(cell: CellAnchors, layout: StructureLayout) -> str:
         f"noncomputable def field_{cell.lean_name} : "
         f"ErrorField {layout.bulk_coordination} :=\n"
         f"  {layout.anchored_ctor} {_rat_args(cell)}\n"
-        f"    (by norm_num) (by norm_num) (by norm_num)\n"
+        f"    {' '.join(['(by norm_num)'] * len(cell.anchors))}\n"
     )
 
 
@@ -392,15 +420,16 @@ def _emit_module(cells: list[CellAnchors], corpus_sha: str) -> str:
     lines.append(
         "/- AUTHORED by python/scripts/bind_env_field_instances.py from the\n"
         f"   Y-matrix statics corpus + DFT-PBE targets (corpus sha256 {corpus_sha}).\n"
-        "   THE MEASURED FIELDS: per (model, material) cell, the three anchors —\n"
+        "   THE MEASURED FIELDS: per (model, material) cell, the measured anchors —\n"
         "   fcc: P(8)/P(9)/P(11) with bulk pin c = 12; bcc: P(4)/P(6)/P(7) with\n"
-        "   bulk pin c = 8 (eV/atom, x1e-4 exact integers) — are bound from the\n"
-        "   facet surface-energy and vacancy-formation errors on model-relaxed\n"
-        "   geometry. TIER 1: every cell yields a `MeasuredField`\n"
+        "   bulk pin c = 8; diamond: P(3) with bulk pin c = 4 (eV/atom, x1e-4\n"
+        "   exact integers) — are bound from the facet surface-energy and\n"
+        "   vacancy-formation errors on model-relaxed geometry.\n"
+        "   TIER 1: every cell yields a `MeasuredField`\n"
         "   (closure/transfer/ranking laws, no shape assumption). TIER 2: cells\n"
         "   passing monotone softening (p_lo <= p_mid <= p_hi <= 0, checked on\n"
         "   the emitted literals) also yield an `ErrorField` via\n"
-        "   `mkAnchoredField`/`mkAnchoredFieldBcc` (directional barrier laws);\n"
+        "   the layout constructor (directional barrier laws);\n"
         "   violating cells get kernel-checked refusal certificates instead.\n"
         f"   {len(cells)} measured fields; {per_structure_counts};\n"
         f"   total {len(valid)} instances + {len(refused)} refusals =\n"
@@ -493,7 +522,8 @@ def main(argv: list[str] | None = None) -> int:
 
     sha = hashlib.sha256()
     for p in sorted(run_paths) + sorted(
-        args.targets_dir / f for f in ("surface_energies.json", "vacancy_formation.json")
+        args.targets_dir / f
+        for f in ("surface_energies.json", "vacancy_formation.json", "beyond_metals.json")
     ):
         sha.update(p.name.encode())
         sha.update(p.read_bytes())
@@ -530,6 +560,7 @@ def main(argv: list[str] | None = None) -> int:
             }
             for layout in LAYOUTS
         },
+        "unbound_structures": UNBOUND_STRUCTURES,
         "cells": [asdict(c) | {"lean_name": c.lean_name} for c in cells],
         "n_cells": len(cells),
         "n_instances": sum(c.valid for c in cells),

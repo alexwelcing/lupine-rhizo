@@ -25,10 +25,10 @@ def test_repo_report_exists_and_loads_for_chgnet():
     env_field = promo.load_field_certificates(REPORT, ["chgnet"])
     assert env_field is not None
     assert env_field["corpus_sha256_12"]
-    # chgnet binds every fcc (9) and bcc (7) material.
-    assert len(env_field["entries"]) == 16
+    # chgnet binds every fcc (9), bcc (7), and diamond (1) material.
+    assert len(env_field["entries"]) == 17
     structures = {entry["structure"] for entry in env_field["entries"]}
-    assert structures == {"fcc", "bcc"}
+    assert structures == {"fcc", "bcc", "diamond"}
 
 
 def test_chgnet_fe_bcc_cell_is_tier2_with_lean_ref():
@@ -59,11 +59,11 @@ def test_missing_report_returns_none():
 def test_packet_block_rolls_up_tiers_and_refs():
     env_field = promo.load_field_certificates(REPORT, ["chgnet"])
     block = promo.field_certificates_packet_block(env_field, ["chgnet"])
-    assert block["n_cells"] == 16
-    assert block["n_error_field"] + block["n_measured_field_refusals"] == 16
-    # chgnet softens monotonically on Ag/Al/Au/Cu/Ni/Pd (fcc) and
-    # Cr/Fe/Mo/W (bcc): 10 directional-tier cells.
-    assert block["n_error_field"] == 10
+    assert block["n_cells"] == 17
+    assert block["n_error_field"] + block["n_measured_field_refusals"] == 17
+    # chgnet softens monotonically on Ag/Al/Au/Cu/Ni/Pd (fcc),
+    # Cr/Fe/Mo/W (bcc), and Si (diamond): 11 directional-tier cells.
+    assert block["n_error_field"] == 11
     assert any(ref.endswith("mkAnchoredFieldBcc") for ref in block["theorem_refs"])
     cell = block["cells"][0]
     assert {"material", "model_id", "structure", "lean_name", "tier",

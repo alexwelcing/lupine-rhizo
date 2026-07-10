@@ -7,7 +7,7 @@ touches a theorem proven here.
 
 ## Current state
 
-- **181 build-locked theorems** in the executable vision, **409 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3661-job build green**.
+- **190 build-locked theorems** in the executable vision, **418 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3661-job build green**.
 - The build is locked by `#guard` contracts in `Materials/Vision.lean`.
 - Epistemic gaps are documented as structures/comments, not as axioms.
 - The climate-series physics layer (`Theory/EnvironmentField`,
@@ -23,13 +23,17 @@ touches a theorem proven here.
   into per-cell field instances at two tiers: every (model, material) cell
   yields a `MeasuredField` (closure/transfer/ranking laws; fcc anchors
   γ₁₀₀→c=8, γ₁₁₁→c=9, E_vac→c=11 pinned at c=12, bcc anchors γ₁₀₀→c=4,
-  γ₁₁₀→c=6, E_vac→c=7 pinned at c=8), and the monotone-softening cells
-  additionally yield an `ErrorField` (directional barrier laws) —
-  64 measured fields (36 fcc + 28 bcc), 15 anchored instances,
-  49 kernel-checked tier-2 refusals. The promotion gate mirrors these
-  certificates in `python/lupine_distill/odf/field_certificates.py` and the
-  local flywheel (`tools/mlip_local_promotion.py`) attaches them to every
-  promotion packet and its Phoenix telemetry spans.
+  γ₁₁₀→c=6, E_vac→c=7 pinned at c=8, diamond anchor E_vac→c=3 pinned at
+  c=4), and the monotone-softening cells additionally yield an `ErrorField`
+  (directional barrier laws) — 68 measured fields (36 fcc + 28 bcc +
+  4 diamond), 19 anchored instances, 49 kernel-checked tier-2 refusals; the
+  rocksalt cells measure no anchor observables and are documented as
+  unbound. The promotion gate mirrors these certificates in
+  `python/lupine_distill/odf/field_certificates.py`, the local flywheel
+  (`tools/mlip_local_promotion.py`) attaches them to every promotion packet
+  and its Phoenix telemetry spans, and the run-time certificate gate
+  (`lupine_distill_runtime.policy_engine.CertificateGate`) excludes
+  tier-2-refused cells from correction inside the distill policy engine.
 
 See [`AGENTS.md`](../AGENTS.md) §"Formal verification" for the operating rules
 governing this root.

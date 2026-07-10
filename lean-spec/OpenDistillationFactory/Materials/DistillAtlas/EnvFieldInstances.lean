@@ -1,18 +1,19 @@
 /- AUTHORED by python/scripts/bind_env_field_instances.py from the
-   Y-matrix statics corpus + DFT-PBE targets (corpus sha256 0da8d5b67142).
-   THE MEASURED FIELDS: per (model, material) cell, the three anchors —
+   Y-matrix statics corpus + DFT-PBE targets (corpus sha256 0246be6f665c).
+   THE MEASURED FIELDS: per (model, material) cell, the measured anchors —
    fcc: P(8)/P(9)/P(11) with bulk pin c = 12; bcc: P(4)/P(6)/P(7) with
-   bulk pin c = 8 (eV/atom, x1e-4 exact integers) — are bound from the
-   facet surface-energy and vacancy-formation errors on model-relaxed
-   geometry. TIER 1: every cell yields a `MeasuredField`
+   bulk pin c = 8; diamond: P(3) with bulk pin c = 4 (eV/atom, x1e-4
+   exact integers) — are bound from the facet surface-energy and
+   vacancy-formation errors on model-relaxed geometry.
+   TIER 1: every cell yields a `MeasuredField`
    (closure/transfer/ranking laws, no shape assumption). TIER 2: cells
    passing monotone softening (p_lo <= p_mid <= p_hi <= 0, checked on
    the emitted literals) also yield an `ErrorField` via
-   `mkAnchoredField`/`mkAnchoredFieldBcc` (directional barrier laws);
+   the layout constructor (directional barrier laws);
    violating cells get kernel-checked refusal certificates instead.
-   64 measured fields; fcc: 8 instances + 28 refusals = 36 cells; bcc: 7 instances + 21 refusals = 28 cells;
-   total 15 instances + 49 refusals =
-   64 cells. 0 sorry. -/
+   68 measured fields; fcc: 8 instances + 28 refusals = 36 cells; bcc: 7 instances + 21 refusals = 28 cells; diamond: 4 instances + 0 refusals = 4 cells;
+   total 19 instances + 49 refusals =
+   68 cells. 0 sorry. -/
 
 import OpenDistillationFactory.Materials.Theory.AnchoredField
 
@@ -279,6 +280,22 @@ noncomputable def mfield_mace_mpa_0_medium_V : MeasuredField 8 :=
 noncomputable def mfield_mace_mpa_0_medium_W : MeasuredField 8 :=
   mkMeasuredFieldBcc (691 / 10000 : ℝ) (163 / 10000 : ℝ) (216 / 10000 : ℝ)
 
+/-- chgnet/Si (diamond) measured field, tier 1 (eV/atom, ×1e-4 exact): P(3) = -6906e-4 from ΔE_vac = 0.8676 − 3.6300 eV over 4 shell atoms; a₀ = 5.4671 Å (model-relaxed). Closure, bulk-invariance, family-transfer, and ranking-recovery laws apply unconditionally. -/
+noncomputable def mfield_chgnet_Si : MeasuredField 4 :=
+  mkMeasuredFieldDiamond (-6906 / 10000 : ℝ)
+
+/-- mace-mp-medium/Si (diamond) measured field, tier 1 (eV/atom, ×1e-4 exact): P(3) = -4451e-4 from ΔE_vac = 1.8494 − 3.6300 eV over 4 shell atoms; a₀ = 5.4556 Å (model-relaxed). Closure, bulk-invariance, family-transfer, and ranking-recovery laws apply unconditionally. -/
+noncomputable def mfield_mace_mp_medium_Si : MeasuredField 4 :=
+  mkMeasuredFieldDiamond (-4451 / 10000 : ℝ)
+
+/-- mace-mp-small/Si (diamond) measured field, tier 1 (eV/atom, ×1e-4 exact): P(3) = -3973e-4 from ΔE_vac = 2.0408 − 3.6300 eV over 4 shell atoms; a₀ = 5.4646 Å (model-relaxed). Closure, bulk-invariance, family-transfer, and ranking-recovery laws apply unconditionally. -/
+noncomputable def mfield_mace_mp_small_Si : MeasuredField 4 :=
+  mkMeasuredFieldDiamond (-3973 / 10000 : ℝ)
+
+/-- mace-mpa-0-medium/Si (diamond) measured field, tier 1 (eV/atom, ×1e-4 exact): P(3) = -2778e-4 from ΔE_vac = 2.5189 − 3.6300 eV over 4 shell atoms; a₀ = 5.4674 Å (model-relaxed). Closure, bulk-invariance, family-transfer, and ranking-recovery laws apply unconditionally. -/
+noncomputable def mfield_mace_mpa_0_medium_Si : MeasuredField 4 :=
+  mkMeasuredFieldDiamond (-2778 / 10000 : ℝ)
+
 /-! ## Tier 2: anchored softening fields (monotone-softening cells) -/
 
 /-- chgnet/Ag (fcc) anchored softening field, tier 2: monotone softening holds on the measured anchors, so the directional laws of `Theory.BarrierArrhenius` (barrier underestimation, mobility overestimation) also apply. Forgets to `mfield_chgnet_Ag` (`mkAnchoredField_toMeasuredField`). -/
@@ -355,6 +372,26 @@ noncomputable def field_mace_mp_medium_Mo : ErrorField 8 :=
 noncomputable def field_mace_mpa_0_medium_Nb : ErrorField 8 :=
   mkAnchoredFieldBcc (-627 / 10000 : ℝ) (-95 / 10000 : ℝ) (-56 / 10000 : ℝ)
     (by norm_num) (by norm_num) (by norm_num)
+
+/-- chgnet/Si (diamond) anchored softening field, tier 2: monotone softening holds on the measured anchors, so the directional laws of `Theory.BarrierArrhenius` (barrier underestimation, mobility overestimation) also apply. Forgets to `mfield_chgnet_Si` (`mkAnchoredFieldDiamond_toMeasuredField`). -/
+noncomputable def field_chgnet_Si : ErrorField 4 :=
+  mkAnchoredFieldDiamond (-6906 / 10000 : ℝ)
+    (by norm_num)
+
+/-- mace-mp-medium/Si (diamond) anchored softening field, tier 2: monotone softening holds on the measured anchors, so the directional laws of `Theory.BarrierArrhenius` (barrier underestimation, mobility overestimation) also apply. Forgets to `mfield_mace_mp_medium_Si` (`mkAnchoredFieldDiamond_toMeasuredField`). -/
+noncomputable def field_mace_mp_medium_Si : ErrorField 4 :=
+  mkAnchoredFieldDiamond (-4451 / 10000 : ℝ)
+    (by norm_num)
+
+/-- mace-mp-small/Si (diamond) anchored softening field, tier 2: monotone softening holds on the measured anchors, so the directional laws of `Theory.BarrierArrhenius` (barrier underestimation, mobility overestimation) also apply. Forgets to `mfield_mace_mp_small_Si` (`mkAnchoredFieldDiamond_toMeasuredField`). -/
+noncomputable def field_mace_mp_small_Si : ErrorField 4 :=
+  mkAnchoredFieldDiamond (-3973 / 10000 : ℝ)
+    (by norm_num)
+
+/-- mace-mpa-0-medium/Si (diamond) anchored softening field, tier 2: monotone softening holds on the measured anchors, so the directional laws of `Theory.BarrierArrhenius` (barrier underestimation, mobility overestimation) also apply. Forgets to `mfield_mace_mpa_0_medium_Si` (`mkAnchoredFieldDiamond_toMeasuredField`). -/
+noncomputable def field_mace_mpa_0_medium_Si : ErrorField 4 :=
+  mkAnchoredFieldDiamond (-2778 / 10000 : ℝ)
+    (by norm_num)
 
 /-! ## Tier-2 refusal certificates (outside the softening domain) -/
 
@@ -562,8 +599,12 @@ theorem fcc_cells_accounted : 8 + 28 = 36 := by
 theorem bcc_cells_accounted : 7 + 21 = 28 := by
   decide
 
+/-- Every diamond sweep cell is accounted for: instances + refusals = cells. -/
+theorem diamond_cells_accounted : 4 + 0 = 4 := by
+  decide
+
 /-- Every sweep cell is accounted for: instances + refusals = cells. -/
-theorem cells_accounted : 15 + 49 = 64 := by
+theorem cells_accounted : 19 + 49 = 68 := by
   decide
 
 end OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances

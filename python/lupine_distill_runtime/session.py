@@ -13,7 +13,7 @@ from .events import RuntimeEventLog
 from .instrumented import InstrumentedCalculator
 from .leakage import LeakageGuard
 from .policy import RuntimePolicy
-from .policy_engine import build_policy_engine
+from .policy_engine import CertificateGatedPolicyEngine, build_policy_engine
 
 PredictRow = Callable[[str, dict[str, Any], Any], dict[str, Any]]
 
@@ -752,6 +752,10 @@ class DistillSession:
     atlas_distill_bin: str | None = None
     ribbon_version: str = "hyperribbon-v1"
     policy_limits_path: str | None = None
+    #: Env-field binding report backing the Lean certificate gate: "auto"
+    #: uses the repo report when present, an explicit path loads that report,
+    #: None disables the gate.
+    env_field_report_path: str | None = "auto"
     event_log: RuntimeEventLog = field(default_factory=RuntimeEventLog)
     support_model: DistillSupportModel | None = None
     leakage_guard: dict[str, Any] | None = None
@@ -768,6 +772,7 @@ class DistillSession:
             atlas_distill_bin=self.atlas_distill_bin,
             ribbon_version=self.ribbon_version,
             policy_limits_path=self.policy_limits_path,
+            env_field_report_path=self.env_field_report_path,
         )
 
     @property
@@ -988,6 +993,13 @@ class DistillSession:
             "policy_engine": getattr(self.policy_engine, "name", self.policy_engine_name),
             "ribbon_version": self.ribbon_version,
             "policy_limits_path": self.policy_limits_path,
+            "certificate_gate": {
+                "report": self.policy_engine.gate.report_path,
+                "corpus_sha256_12": self.policy_engine.gate.corpus_sha256_12,
+                "refusal_cells": len(self.policy_engine.gate.refusals),
+            }
+            if isinstance(self.policy_engine, CertificateGatedPolicyEngine)
+            else None,
             "run_id": self.run_id,
             "cell_id": self.cell_id,
             "row_id": self.row_id,

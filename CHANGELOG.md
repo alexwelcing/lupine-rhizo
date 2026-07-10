@@ -16,6 +16,56 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-10 - Diamond anchor + run-time certificate gate: Si joins the corpus, refusals now block correction inside the policy engine
+
+- **Why.** Two follow-ups from the bcc rung (below): the remaining Y-matrix
+  structures had no anchor layouts, and refusal certificates reached
+  telemetry but not the run-time correction path — a tier-2-refused cell
+  would still have been corrected if a support model covered it, with the
+  refusal only flagged after the fact.
+- **What.**
+  - `Theory/AnchoredField.lean`: the diamond layout — `stepFieldDiamond`
+    (single vacancy anchor: each diamond vacancy exposes 4 first-shell atoms
+    at c=3, bulk pin at the diamond coordination c=4),
+    `mkAnchoredFieldDiamond : ErrorField 4` / `mkMeasuredFieldDiamond`, and
+    the decidable `scaledAnchorDiamondValid` — 9 new theorems (T182–T190),
+    zero sorry, zero new axioms. One anchor is enough for both tiers: the
+    measured tier unconditionally, the directional tier iff `p3 ≤ 0`.
+  - `bind_env_field_instances.py` generalized to variable-anchor layouts
+    (targets now also read `beyond_metals.json`) and bound the 4 Si diamond
+    cells. Corpus: 68 cells → 19 instances + 49 refusals.
+  - The run-time gate: `CertificateGate` +
+    `CertificateGatedPolicyEngine` in `lupine_distill_runtime.policy_engine`
+    index the binding report's refusals (via the shared
+    `certificates_from_binding_report` mirror in
+    `lupine_distill.odf.field_certificates`) and decide refused cells
+    WITHOUT the support model — the correction is never applied, not
+    applied-then-flagged. Decisions carry a `skip_correction` action naming
+    the refusal theorem, exact scaled anchors, and corpus hash;
+    `DistillSession` wires the gate by default ("auto": repo report when
+    present), surfaces it in the runtime summary, and the cell runner
+    exposes `--env-field-report` / `MLIP_DISTILL_ENV_FIELD_REPORT`. The
+    finite/explosion guards still run on gated cells, and the prediction
+    itself is not refused — only its correction is withheld.
+- **Results.** All four Si diamond cells soften monotonically and bind as
+  tier-2 instances — uMLIPs underestimate the Si vacancy formation energy by
+  1.1–2.8 eV against the DFT-PBE 3.63 eV reference (chgnet worst at 0.87 eV;
+  per-atom anchors −2778e-4 to −6906e-4 eV). 190 build-locked theorems, 418
+  theorem declarations, 0 `sorry`, `lake build` green. Gate behavior pinned
+  by tests: chgnet/Pt (fcc) and chgnet/Ta (bcc) predictions pass through
+  uncorrected with the Lean refusal in the decision record; chgnet/Ni still
+  corrects; unbound models are untouched. Notable negative result: the
+  rocksalt cells (MgO, NaCl) measure *no* anchor observables — their statics
+  runs carry only EOS + lattice results — so no rocksalt layout is possible
+  from the existing corpus; the binder now records this as
+  `unbound_structures` in the report instead of silently skipping them.
+- **Next.** Run charge-balanced rocksalt slab + vacancy statics for MgO/NaCl
+  to give the ionic family its anchors, and surface the runtime
+  `skip_correction` events in the Phoenix flywheel dashboards alongside the
+  promotion-packet certificate spans.
+
+---
+
 ## 2026-07-10 - Bcc anchor set + flywheel telemetry: refractory metals join the measured-fields corpus, certificates ride the live promotion spans
 
 - **Why.** The measured-fields rung (below) covered only the 36 fcc cells; the

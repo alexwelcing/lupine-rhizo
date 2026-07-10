@@ -47,6 +47,11 @@ THEOREM_REFS: dict[str, str] = {
     "anchored_field_bcc": f"{_THEORY}.AnchoredField.mkAnchoredFieldBcc",
     "measured_field_bcc": f"{_THEORY}.AnchoredField.mkMeasuredFieldBcc",
     "anchor_admissibility_bcc": f"{_THEORY}.AnchoredField.scaledAnchorsBccValid",
+    "anchored_field_diamond": f"{_THEORY}.AnchoredField.mkAnchoredFieldDiamond",
+    "measured_field_diamond": f"{_THEORY}.AnchoredField.mkMeasuredFieldDiamond",
+    "anchor_admissibility_diamond": (
+        f"{_THEORY}.AnchoredField.scaledAnchorDiamondValid"
+    ),
     "barrier_underestimated": (
         f"{_THEORY}.BarrierArrhenius.softened_barrier_underestimates"
     ),
@@ -63,11 +68,13 @@ THEOREM_REFS: dict[str, str] = {
 DEFAULT_CMIN = 4
 DEFAULT_CMAX = 12
 
-#: First-shell coordinations probed by the three anchors of each supported
-#: crystal-structure layout (mirrors the `stepField` / `stepFieldBcc` layouts).
-ANCHOR_COORDINATIONS: dict[str, tuple[int, int, int]] = {
+#: First-shell coordinations probed by the anchors of each supported
+#: crystal-structure layout (mirrors the `stepField` / `stepFieldBcc` /
+#: `stepFieldDiamond` layouts).
+ANCHOR_COORDINATIONS: dict[str, tuple[int, ...]] = {
     "fcc": (8, 9, 11),
     "bcc": (4, 6, 7),
+    "diamond": (3,),
 }
 
 #: (tier-2 constructor, tier-1 fallback, admissibility predicate) theorem-ref
@@ -75,6 +82,11 @@ ANCHOR_COORDINATIONS: dict[str, tuple[int, int, int]] = {
 _ANCHOR_REF_KEYS: dict[str, tuple[str, str, str]] = {
     "fcc": ("anchored_field", "measured_field", "anchor_admissibility"),
     "bcc": ("anchored_field_bcc", "measured_field_bcc", "anchor_admissibility_bcc"),
+    "diamond": (
+        "anchored_field_diamond",
+        "measured_field_diamond",
+        "anchor_admissibility_diamond",
+    ),
 }
 
 
@@ -143,12 +155,13 @@ class AnchorCertificate:
 
     #: "error_field" (tier 2: directional laws) or "measured_field" (tier 1).
     tier: str
-    #: Crystal-structure layout the anchors were measured on ("fcc" | "bcc").
+    #: Crystal-structure layout the anchors were measured on
+    #: ("fcc" | "bcc" | "diamond").
     structure: str
-    #: First-shell coordinations the three anchors probe (fcc: 8/9/11;
-    #: bcc: 4/6/7).
-    coordinations: tuple[int, int, int]
-    anchors_scaled: tuple[int, int, int]
+    #: First-shell coordinations the anchors probe (fcc: 8/9/11; bcc: 4/6/7;
+    #: diamond: 3).
+    coordinations: tuple[int, ...]
+    anchors_scaled: tuple[int, ...]
     violations: tuple[str, ...]
     theorem_ref: str
     reason: str
@@ -167,38 +180,41 @@ class AnchorCertificate:
 
 
 def check_anchor_admissibility(
-    p_lo_scaled: int,
-    p_mid_scaled: int,
-    p_hi_scaled: int,
+    *anchors_scaled: int,
     structure: str = "fcc",
 ) -> AnchorCertificate:
     """Mirror of ``scaledAnchorsValid`` (fcc) / ``scaledAnchorsBccValid``
-    (bcc): monotone softening ``p_lo <= p_mid <= p_hi <= 0`` on the exact
-    integer-scaled anchors, ordered by the coordination they probe (fcc:
-    P(8)/P(9)/P(11); bcc: P(4)/P(6)/P(7)). Admissible cells construct the
-    tier-2 ``ErrorField`` (``mkAnchoredField`` / ``mkAnchoredFieldBcc``);
-    violating cells fall back to the tier-1 ``MeasuredField`` (correction and
-    ranking laws only) with a kernel-checked refusal certificate."""
+    (bcc) / ``scaledAnchorDiamondValid`` (diamond): monotone softening
+    ``p_1 <= p_2 <= ... <= p_n <= 0`` on the exact integer-scaled anchors,
+    ordered by the coordination they probe (fcc: P(8)/P(9)/P(11); bcc:
+    P(4)/P(6)/P(7); diamond: P(3)). Admissible cells construct the tier-2
+    ``ErrorField`` via the layout constructor; violating cells fall back to
+    the tier-1 ``MeasuredField`` (correction and ranking laws only) with a
+    kernel-checked refusal certificate."""
     try:
-        c_lo, c_mid, c_hi = ANCHOR_COORDINATIONS[structure]
+        coordinations = ANCHOR_COORDINATIONS[structure]
         anchored_key, measured_key, predicate_key = _ANCHOR_REF_KEYS[structure]
     except KeyError:
         raise ValueError(
             f"unknown anchor structure {structure!r}; "
             f"expected one of {sorted(ANCHOR_COORDINATIONS)}"
         ) from None
+    if len(anchors_scaled) != len(coordinations):
+        raise ValueError(
+            f"{structure} layout has {len(coordinations)} anchor(s) at "
+            f"coordinations {coordinations}; got {len(anchors_scaled)} value(s)"
+        )
     predicate = THEOREM_REFS[predicate_key].rsplit(".", 1)[-1]
     violations: list[str] = []
-    if not p_lo_scaled <= p_mid_scaled:
+    for (c_lo, p_lo), (c_hi, p_hi) in zip(
+        zip(coordinations, anchors_scaled), zip(coordinations[1:], anchors_scaled[1:])
+    ):
+        if not p_lo <= p_hi:
+            violations.append(f"P({c_lo}) = {p_lo}e-4 > P({c_hi}) = {p_hi}e-4 (mono)")
+    if not anchors_scaled[-1] <= 0:
         violations.append(
-            f"P({c_lo}) = {p_lo_scaled}e-4 > P({c_mid}) = {p_mid_scaled}e-4 (mono)"
+            f"P({coordinations[-1]}) = {anchors_scaled[-1]}e-4 > 0 (softening)"
         )
-    if not p_mid_scaled <= p_hi_scaled:
-        violations.append(
-            f"P({c_mid}) = {p_mid_scaled}e-4 > P({c_hi}) = {p_hi_scaled}e-4 (mono)"
-        )
-    if not p_hi_scaled <= 0:
-        violations.append(f"P({c_hi}) = {p_hi_scaled}e-4 > 0 (softening)")
     if violations:
         tier = "measured_field"
         ref = THEOREM_REFS[measured_key]
@@ -218,8 +234,8 @@ def check_anchor_admissibility(
     return AnchorCertificate(
         tier=tier,
         structure=structure,
-        coordinations=(c_lo, c_mid, c_hi),
-        anchors_scaled=(p_lo_scaled, p_mid_scaled, p_hi_scaled),
+        coordinations=tuple(coordinations),
+        anchors_scaled=tuple(anchors_scaled),
         violations=tuple(violations),
         theorem_ref=ref,
         reason=reason,
@@ -290,6 +306,56 @@ def check_ranking_pair(
 Certificate = DomainCertificate | AnchorCertificate | RankingCertificate
 
 
+def certificates_from_binding_report(
+    report: Mapping[str, Any],
+    model_ids: Iterable[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Re-check every bound cell of an env-field binding report
+    (``lupine.env_field_binding_report.v2``, emitted by
+    ``python/scripts/bind_env_field_instances.py``) through the Lean-mirror
+    admissibility predicate.
+
+    Returns one entry per cell — ``material``, ``model_id``, ``structure``,
+    ``lean_name``, and the :class:`AnchorCertificate` — optionally filtered to
+    the given binder model ids (exact match). Cells with unknown structures
+    or malformed anchors are skipped rather than guessed at. Shared by the
+    promotion packet builder (``tools/mlip_local_promotion.py``) and the
+    run-time certificate gate (``lupine_distill_runtime.policy_engine``)."""
+    wanted = {str(m) for m in model_ids} if model_ids is not None else None
+    entries: list[dict[str, Any]] = []
+    for cell in report.get("cells", []):
+        if not isinstance(cell, Mapping):
+            continue
+        model_id = cell.get("model_id")
+        if wanted is not None and model_id not in wanted:
+            continue
+        structure = str(cell.get("structure", "fcc"))
+        expected = ANCHOR_COORDINATIONS.get(structure)
+        if expected is None:
+            continue
+        anchors = [
+            anchor.get("p_scaled")
+            for anchor in cell.get("anchors", [])
+            if isinstance(anchor, Mapping)
+        ]
+        if len(anchors) != len(expected) or not all(
+            isinstance(a, int) for a in anchors
+        ):
+            continue
+        entries.append(
+            {
+                "material": cell.get("material"),
+                "model_id": model_id,
+                "structure": structure,
+                "lean_name": cell.get("lean_name"),
+                "certificate": check_anchor_admissibility(
+                    *anchors, structure=structure
+                ),
+            }
+        )
+    return entries
+
+
 def theorem_refs(certificates: Iterable[Certificate]) -> list[str]:
     """Deduplicated, order-preserving theorem references of a certificate set."""
     seen: dict[str, None] = {}
@@ -335,6 +401,7 @@ __all__ = [
     "check_field_domain",
     "check_anchor_admissibility",
     "check_ranking_pair",
+    "certificates_from_binding_report",
     "theorem_refs",
     "merge_into_candidate_metadata",
 ]

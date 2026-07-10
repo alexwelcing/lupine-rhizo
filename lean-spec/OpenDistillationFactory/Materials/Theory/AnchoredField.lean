@@ -6,17 +6,20 @@ import OpenDistillationFactory.Materials.Theory.EnvironmentField
 # Anchored fields: measured `ErrorField` instances from three anchors
 
 `Theory.EnvironmentField` proves the laws of *any* softening field. This
-module is the bridge from measurement to those laws: it packages the three
-standard anchors of a crystal-structure family into a concrete `ErrorField`,
+module is the bridge from measurement to those laws: it packages the
+measured anchors of a crystal-structure family into a concrete `ErrorField`,
 discharging the structure's proof obligations (`bulk_anchor`, `softening`,
-`mono`) once and for all. Two layouts are provided:
+`mono`) once and for all. Three layouts are provided:
 
 * **fcc** — the (100) surface probing c = 8, the (111) surface probing
   c = 9, and the vacancy probing c = 11, with the bulk pinned to zero at
   c = 12 (`stepField` / `mkAnchoredField` / `scaledAnchorsValid`);
 * **bcc** — the (100) surface probing c = 4, the (110) surface probing
   c = 6, and the vacancy probing c = 7, with the bulk pinned to zero at
-  c = 8 (`stepFieldBcc` / `mkAnchoredFieldBcc` / `scaledAnchorsBccValid`).
+  c = 8 (`stepFieldBcc` / `mkAnchoredFieldBcc` / `scaledAnchorsBccValid`);
+* **diamond** — the single vacancy anchor probing c = 3, with the bulk
+  pinned to zero at c = 4 (`stepFieldDiamond` / `mkAnchoredFieldDiamond` /
+  `scaledAnchorDiamondValid`).
 
 The interpolation is the *clamped step field*: piecewise-constant between
 anchors — each anchor's value held across the gap up to the next anchor, the
@@ -285,6 +288,112 @@ that contradicts monotone softening) is refused. -/
 theorem scaledAnchorsBccValid_example :
     scaledAnchorsBccValid (-4852) (-4596) (-1697) ∧
       ¬ scaledAnchorsBccValid (-4596) (-4852) (-1697) := by
+  constructor <;> decide
+
+/-! ## The diamond layout
+
+Single-anchor measurement bridge for the diamond-cubic semiconductors (Si in
+the current corpus): the statics runs measure only the vacancy observable —
+each vacancy exposes 4 first-shell atoms at c = 3 — with the bulk pin at
+the diamond first-shell coordination c = 4. One anchor still instantiates
+the full two-tier semantics: the measured tier unconditionally, the
+directional tier exactly when the anchor softens (`p3 ≤ 0`). The rocksalt
+cells (MgO, NaCl) of the sweep measure *no* surface or vacancy observables
+at all, so no rocksalt layout exists yet — binding them requires new
+charge-balanced slab and defect runs, not new mathematics. -/
+
+/-- Clamped step interpolation of the single diamond anchor: `p3` up to
+c = 3 (and below, as a conservative floor), zero at bulk (c ≥ 4). -/
+def stepFieldDiamond (p3 : ℝ) : ℕ → ℝ := fun c =>
+  if c ≤ 3 then p3
+  else 0
+
+theorem stepFieldDiamond_bulk_anchor (p3 : ℝ) :
+    ∀ c, 4 ≤ c → stepFieldDiamond p3 c = 0 := by
+  intro c hc
+  unfold stepFieldDiamond
+  split_ifs <;> first | rfl | omega
+
+theorem stepFieldDiamond_softening {p3 : ℝ} (h30 : p3 ≤ 0) :
+    ∀ c, stepFieldDiamond p3 c ≤ 0 := by
+  intro c
+  unfold stepFieldDiamond
+  split_ifs <;> linarith
+
+theorem stepFieldDiamond_monotone {p3 : ℝ} (h30 : p3 ≤ 0) :
+    Monotone (stepFieldDiamond p3) := by
+  intro a b hab
+  unfold stepFieldDiamond
+  split_ifs <;> linarith
+
+/-- **The diamond measurement bridge.** One admissible measured anchor
+(`p3 ≤ 0`) yields a genuine `ErrorField 4`: every law proven in
+`Theory.EnvironmentField`, `Theory.BarrierArrhenius`, and
+`Theory.RankingIntegrity` now applies to this cell's measured field. The
+per-cell hypothesis is a numeric fact dischargeable by `norm_num`. -/
+def mkAnchoredFieldDiamond (p3 : ℝ) (h30 : p3 ≤ 0) : ErrorField 4 where
+  P := stepFieldDiamond p3
+  bulk_anchor := stepFieldDiamond_bulk_anchor p3
+  softening := stepFieldDiamond_softening h30
+  mono := stepFieldDiamond_monotone h30
+
+section EvalDiamond
+
+variable (p3 : ℝ) (h30 : p3 ≤ 0)
+
+/-- The diamond anchored field reproduces its vacancy anchor. -/
+theorem mkAnchoredFieldDiamond_at_vacancy :
+    (mkAnchoredFieldDiamond p3 h30).P 3 = p3 := rfl
+
+/-- The diamond anchored field vanishes at bulk — the pinned boundary
+condition `P(4) = 0` at the diamond first-shell coordination. -/
+theorem mkAnchoredFieldDiamond_at_bulk :
+    (mkAnchoredFieldDiamond p3 h30).P 4 = 0 := rfl
+
+/-- Below the anchor the diamond step field continues at the vacancy value —
+the conservative clamp for under-coordinated environments such as c = 2
+dimer and chain sites. -/
+theorem mkAnchoredFieldDiamond_clamped_below :
+    (mkAnchoredFieldDiamond p3 h30).P 2 = p3 := rfl
+
+end EvalDiamond
+
+/-- **The diamond measured-tier constructor.** Any measured diamond anchor —
+softening or stiffening — yields a `MeasuredField 4`: the closure,
+bulk-invariance, family-transfer, and ranking-recovery laws apply to every
+bound diamond sweep cell unconditionally. Only the *directional* softening
+laws require the admissibility hypothesis of `mkAnchoredFieldDiamond`. -/
+def mkMeasuredFieldDiamond (p3 : ℝ) : MeasuredField 4 where
+  P := stepFieldDiamond p3
+  bulk_anchor := stepFieldDiamond_bulk_anchor p3
+
+/-- The diamond measured tier is pinned at bulk: `P(4) = 0`. -/
+theorem mkMeasuredFieldDiamond_at_bulk (p3 : ℝ) :
+    (mkMeasuredFieldDiamond p3).P 4 = 0 := rfl
+
+/-- The two diamond constructors agree: an admissible cell's strong field
+forgets to exactly its measured field, so both tiers' laws compose on the
+same object. -/
+@[simp] theorem mkAnchoredFieldDiamond_toMeasuredField (p3 : ℝ) (h30 : p3 ≤ 0) :
+    (mkAnchoredFieldDiamond p3 h30).toMeasuredField =
+      mkMeasuredFieldDiamond p3 := rfl
+
+/-- Decidable admissibility of the integer-scaled diamond anchor
+(×10⁻⁴ eV/atom): softening `p3 ≤ 0`. A cell violating this predicate is
+outside the diamond anchored field's domain — the generator emits a
+kernel-checked refusal certificate `¬ scaledAnchorDiamondValid …` for it
+instead of an instance. -/
+def scaledAnchorDiamondValid (p3 : Int) : Prop :=
+  p3 ≤ 0
+
+instance (p3 : Int) : Decidable (scaledAnchorDiamondValid p3) := by
+  unfold scaledAnchorDiamondValid
+  infer_instance
+
+/-- Sanity lock: an admissible scaled diamond anchor (the chgnet/Si cell),
+and a stiffening one (anchor above bulk accuracy) is refused. -/
+theorem scaledAnchorDiamondValid_example :
+    scaledAnchorDiamondValid (-6906) ∧ ¬ scaledAnchorDiamondValid 6906 := by
   constructor <;> decide
 
 end OpenDistillationFactory.Materials.Theory.AnchoredField

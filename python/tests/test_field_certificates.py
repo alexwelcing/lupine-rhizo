@@ -129,6 +129,33 @@ def test_unknown_structure_is_rejected():
         check_anchor_admissibility(-3, -2, -1, structure="hcp")
 
 
+# ── diamond anchor admissibility: mirrors scaledAnchorDiamondValid ─────────
+
+
+def test_admissible_diamond_anchor_mirror():
+    """Same value as Lean `scaledAnchorDiamondValid_example` (positive half):
+    the chgnet/Si cell."""
+    cert = check_anchor_admissibility(-6906, structure="diamond")
+    assert cert.tier == "error_field"
+    assert cert.coordinations == (3,)
+    assert cert.theorem_ref == THEOREM_REFS["anchored_field_diamond"]
+
+
+def test_stiffening_diamond_anchor_refused():
+    """Same value as Lean `scaledAnchorDiamondValid_example` (negative half)."""
+    cert = check_anchor_admissibility(6906, structure="diamond")
+    assert cert.tier == "measured_field"
+    assert cert.violations == ("P(3) = 6906e-4 > 0 (softening)",)
+    assert "scaledAnchorDiamondValid" in cert.reason
+
+
+def test_anchor_arity_must_match_layout():
+    with pytest.raises(ValueError, match="anchor"):
+        check_anchor_admissibility(-3, -2, structure="fcc")
+    with pytest.raises(ValueError, match="anchor"):
+        check_anchor_admissibility(-3, -2, structure="diamond")
+
+
 # ── Ranking pairs: mirrors ReconcilesPair / inversion_defeats_monotone ─────
 
 

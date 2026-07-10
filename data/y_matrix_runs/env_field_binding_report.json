@@ -1,6 +1,6 @@
 {
  "schema": "lupine.env_field_binding_report.v2",
- "corpus_sha256_12": "0da8d5b67142",
+ "corpus_sha256_12": "0246be6f665c",
  "generator": "python/scripts/bind_env_field_instances.py",
  "lean_module": "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean",
  "scale": 10000,
@@ -34,7 +34,23 @@
    "n_cells": 28,
    "n_instances": 7,
    "n_refusals": 21
+  },
+  "diamond": {
+   "bulk_coordination": 4,
+   "vacancy_shell_atoms": 4,
+   "anchor_coordination": {
+    "vacancy": 3
+   },
+   "measured_ctor": "mkMeasuredFieldDiamond",
+   "anchored_ctor": "mkAnchoredFieldDiamond",
+   "validity_predicate": "scaledAnchorDiamondValid",
+   "n_cells": 4,
+   "n_instances": 4,
+   "n_refusals": 0
   }
+ },
+ "unbound_structures": {
+  "rocksalt": "statics runs carry only EOS + lattice results (no surface energies, no vacancy formation); the anchor layout needs new charge-balanced slab and defect runs for MgO/NaCl"
  },
  "cells": [
   {
@@ -2469,9 +2485,89 @@
     "P(7) = 216e-4 > 0 (softening)"
    ],
    "lean_name": "mace_mpa_0_medium_W"
+  },
+  {
+   "material": "Si",
+   "model_id": "chgnet",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.46706176748268,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 0.86761474609375,
+     "ref_value": 3.63,
+     "p_ev": -0.6905963134765625,
+     "p_scaled": -6906
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Si"
+  },
+  {
+   "material": "Si",
+   "model_id": "mace-mp-medium",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.4555668459990025,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 1.8494479183909789,
+     "ref_value": 3.63,
+     "p_ev": -0.44513802040225525,
+     "p_scaled": -4451
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_medium_Si"
+  },
+  {
+   "material": "Si",
+   "model_id": "mace-mp-small",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.464591368091647,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 2.0407996845915477,
+     "ref_value": 3.63,
+     "p_ev": -0.39730007885211305,
+     "p_scaled": -3973
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_small_Si"
+  },
+  {
+   "material": "Si",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.467402582146662,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 2.518926651182028,
+     "ref_value": 3.63,
+     "p_ev": -0.277768337204493,
+     "p_scaled": -2778
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mpa_0_medium_Si"
   }
  ],
- "n_cells": 64,
- "n_instances": 15,
+ "n_cells": 68,
+ "n_instances": 19,
  "n_refusals": 49
 }

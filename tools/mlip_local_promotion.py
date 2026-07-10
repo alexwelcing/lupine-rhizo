@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from lupine_distill.odf.field_certificates import (
-    check_anchor_admissibility,
+    certificates_from_binding_report,
     merge_into_candidate_metadata,
     theorem_refs,
 )
@@ -273,31 +273,7 @@ def load_field_certificates(
     report = load_json(report_path)
     if not isinstance(report, dict):
         return None
-    wanted = {str(m) for m in model_ids} if model_ids is not None else None
-    entries: list[dict[str, Any]] = []
-    for cell in report.get("cells", []):
-        if not isinstance(cell, dict):
-            continue
-        model_id = cell.get("model_id")
-        if wanted is not None and model_id not in wanted:
-            continue
-        anchors = [
-            anchor.get("p_scaled")
-            for anchor in cell.get("anchors", [])
-            if isinstance(anchor, dict)
-        ]
-        if len(anchors) != 3 or not all(isinstance(a, int) for a in anchors):
-            continue
-        certificate = check_anchor_admissibility(
-            *anchors, structure=str(cell.get("structure", "fcc"))
-        )
-        entries.append({
-            "material": cell.get("material"),
-            "model_id": model_id,
-            "structure": cell.get("structure"),
-            "lean_name": cell.get("lean_name"),
-            "certificate": certificate,
-        })
+    entries = certificates_from_binding_report(report, model_ids)
     return {
         "report": str(report_path),
         "report_schema": report.get("schema"),
