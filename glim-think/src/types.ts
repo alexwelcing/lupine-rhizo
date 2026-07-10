@@ -295,5 +295,8 @@ export interface Env {
   FLEET_ORCHESTRATOR: DurableObjectNamespace;
   DASHBOARD: DurableObjectNamespace;
   EXTENSION_MANAGER: DurableObjectNamespace;
-  LITERATURIST_AGENT: DurableObjectNamespace;
+  /** Edge-local Vectorize index for coordination traces (384-dim, cosine). */
+  COORD_MEMORY?: VectorizeIndex;
+  /** Mode for the edge memory flywheel: off | shadow | active. Default off. */
+  COORD_MEMORY_MODE?: string;
 }

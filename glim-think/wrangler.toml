@@ -89,6 +89,11 @@ binding = "LEDGER"
 database_name = "glim-ledger"
 database_id = "b88f2156-6d74-41f7-a702-a7667cd6e0e2"
 
+# ─── Vectorize: edge-local coordination memory (Phase C) ───
+[[vectorize]]
+binding = "COORD_MEMORY"
+index_name = "glim-coord-memory"
+
 # ─── Queues: async research work (Phase C) ───
 # Producer: server.ts enqueues tasks via env.RESEARCH_QUEUE.send
 # Consumer: this worker drains the queue via the `queue()` handler in server.ts
