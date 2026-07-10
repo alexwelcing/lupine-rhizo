@@ -15,7 +15,19 @@ Built a proper application to manage the brand image corpus.
 - **URL:** `http://aledev.taild6f8cb.ts.net:8787/`
 - **Owner:** media director
 
-### 2. Brand / Pitch Deliverables — 🟢 SHIPPED
+### 2. Climate Partnerships Article Series — 🟢 PUBLISHED
+- **Five in-depth articles** based on `climate.md` and `partnerships.md`, targeting sophisticated materials/mechanical/chemical engineers and climate-tech investors.
+- Articles:
+  1. The 0.2% Synthesis Problem
+  2. A Field, Not a Neural Net
+  3. Five Materials That Could Unlock 5–12 GtCO₂/Year
+  4. From Predicted Crystal to Commercial Cell
+  5. Investing in the Trust Layer
+- Each article has a brand-asset hero, footnotes, and is built into `public/articles/`.
+- Live at https://lupine.science/articles/
+- **Owner:** researcher + media director
+
+### 3. Brand / Pitch Deliverables — 🟢 SHIPPED
 Turned the winning brand-exploration still into a full set of production assets and a pitch deck.
 - **Cover winner:** `v3/shape-of-wrongness_wide.jpg`
 - **Deliverables:** OG card, site hero, one-pager cover, 16:9 + 4:3 deck backgrounds in `media/projects/brand-exploration/renders/deliverables/`.

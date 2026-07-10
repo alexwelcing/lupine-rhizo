@@ -28,6 +28,14 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
   - Next step: Curate shortlist and generate social cards / X thread.
   - Owner: media director
 
+- **Climate Partnerships Article Series** — Five published articles based on climate.md and partnerships.md.
+  - Status: 🟢 published
+  - Articles: The 0.2% Synthesis Problem; A Field, Not a Neural Net; Five Materials That Could Unlock 5–12 GtCO₂/Year; From Predicted Crystal to Commercial Cell; Investing in the Trust Layer.
+  - Audience: sophisticated materials, mechanical, and chemical engineers; climate-tech investors.
+  - Location: `media/projects/climate-partnerships-series/` and `articles/`.
+  - Next step: Drive traffic; consider a social thread and proof-pack PDF.
+  - Owner: researcher + media director
+
 - **Brand / pitch deliverables** — Production assets and pitch deck from the winning still are shipped.
   - Status: 🟢 shipped
   - Deliverables: `media/projects/brand-exploration/renders/deliverables/` (OG card, site hero, one-pager cover, deck backgrounds), `renders/deliverables/slides/` (9-slide narrative in 16:9 and 4:3).
@@ -98,6 +106,7 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 - Built a full FastAPI application for the brand asset library with SQLite/FTS5 search, filters, favorites, ratings, notes, tags, and detail/download views.
 - Generated the v8 abstract asset corpus (24 non-research visuals) and indexed it in the library.
 - Generated the v9 standalone iconography corpus (48 copy-paste-ready icons) and indexed it in the library.
+- Created and published the five-article Climate Partnerships Series based on climate.md and partnerships.md.
 - Deployed the app as a systemd user service on `aledev.taild6f8cb.ts.net:8787`.
 - Merged latest remote `lupine-science` work and `lupine-rhizo` work into local branches.
 - Published the environment-error-field paper as a public proof-pack on `lupine.science`.
