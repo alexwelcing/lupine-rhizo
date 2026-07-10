@@ -128,6 +128,25 @@ def test_decide_many_preserves_order_with_mixed_batch():
     assert any(a.get("action") == "skip_correction" for a in decisions[1].actions)
 
 
+def test_runtime_alias_gates_mace_mp_0():
+    """The runner's `mace-mp-0` loads mace_mp(model="medium") — the binder's
+    `mace-mp-medium` — so its refusal certificates must gate `mace-mp-0`
+    predictions (Codex P1 on PR #17)."""
+    gate = CertificateGate.load(REPORT)
+    assert any(model == "mace-mp-0" for (model, _m) in gate.refusals)
+    engine = CertificateGatedPolicyEngine(PythonPolicyEngine("accuracy"), gate)
+    decision = engine.decide(
+        row_id="energy_volume",
+        mlip_id="mace-mp-0",
+        prediction={"symbols": ["W", "W"], "energy_ev_per_atom": -13.0},
+        support_model=_BiasSupportModel(),
+    )
+    skip = [a for a in decision.actions if a.get("action") == "skip_correction"]
+    assert len(skip) == 1
+    assert skip[0]["lean_name"] == "mace_mp_medium_W"
+    assert decision.corrected_prediction["energy_ev_per_atom"] == -13.0
+
+
 def test_unbound_model_is_inert():
     engine = _gated_engine()
     decision = engine.decide(

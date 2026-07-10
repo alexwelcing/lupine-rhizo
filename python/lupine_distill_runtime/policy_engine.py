@@ -386,6 +386,7 @@ class CertificateGate:
         if not isinstance(report, dict):
             return None
         from lupine_distill.odf.field_certificates import (
+            RUNTIME_MLIP_ALIASES,
             certificates_from_binding_report,
         )
 
@@ -396,6 +397,14 @@ class CertificateGate:
             model_id = str(entry["model_id"])
             material = str(entry["material"]).lower()
             refusals[(model_id, material)] = entry
+        # Index each refusal under the runtime backend id too (the runner's
+        # "mace-mp-0" is the binder's "mace-mp-medium"): production cells
+        # look up with the runtime id, and an exact-only index would let
+        # aliased models slip past the gate and still be corrected.
+        for runtime_id, binder_id in RUNTIME_MLIP_ALIASES.items():
+            for (model_id, material), entry in list(refusals.items()):
+                if model_id == binder_id:
+                    refusals.setdefault((runtime_id, material), entry)
         return cls(
             refusals=refusals,
             report_path=str(path),

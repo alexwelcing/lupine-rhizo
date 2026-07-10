@@ -306,6 +306,22 @@ def check_ranking_pair(
 Certificate = DomainCertificate | AnchorCertificate | RankingCertificate
 
 
+#: Runtime backend ids (the cell runner's ``load_calculator`` /
+#: ``backend_catalog.json``) -> binder model ids
+#: (``bind_env_field_instances.MODELS``). The runner's ``mace-mp-0`` loads
+#: ``mace_mp(model="medium")`` — i.e. the binder's ``mace-mp-medium`` — so
+#: certificate lookups must resolve the alias or MACE cells silently never
+#: gate production predictions.
+RUNTIME_MLIP_ALIASES: dict[str, str] = {
+    "mace-mp-0": "mace-mp-medium",
+}
+
+
+def resolve_binder_model_id(mlip_id: str) -> str:
+    """Binder model id for a runtime backend id (identity when unaliased)."""
+    return RUNTIME_MLIP_ALIASES.get(mlip_id, mlip_id)
+
+
 def certificates_from_binding_report(
     report: Mapping[str, Any],
     model_ids: Iterable[str] | None = None,
@@ -317,11 +333,17 @@ def certificates_from_binding_report(
 
     Returns one entry per cell — ``material``, ``model_id``, ``structure``,
     ``lean_name``, and the :class:`AnchorCertificate` — optionally filtered to
-    the given binder model ids (exact match). Cells with unknown structures
-    or malformed anchors are skipped rather than guessed at. Shared by the
-    promotion packet builder (``tools/mlip_local_promotion.py``) and the
-    run-time certificate gate (``lupine_distill_runtime.policy_engine``)."""
-    wanted = {str(m) for m in model_ids} if model_ids is not None else None
+    the given model ids (runtime backend ids are resolved through
+    :data:`RUNTIME_MLIP_ALIASES` before matching). Cells with unknown
+    structures or malformed anchors are skipped rather than guessed at.
+    Shared by the promotion packet builder (``tools/mlip_local_promotion.py``)
+    and the run-time certificate gate
+    (``lupine_distill_runtime.policy_engine``)."""
+    wanted = (
+        {resolve_binder_model_id(str(m)) for m in model_ids}
+        if model_ids is not None
+        else None
+    )
     entries: list[dict[str, Any]] = []
     for cell in report.get("cells", []):
         if not isinstance(cell, Mapping):
@@ -401,6 +423,8 @@ __all__ = [
     "check_field_domain",
     "check_anchor_admissibility",
     "check_ranking_pair",
+    "RUNTIME_MLIP_ALIASES",
+    "resolve_binder_model_id",
     "certificates_from_binding_report",
     "theorem_refs",
     "merge_into_candidate_metadata",

@@ -45,6 +45,14 @@ def test_chgnet_fe_bcc_cell_is_tier2_with_lean_ref():
     assert fe["lean_name"] == "chgnet_Fe"
 
 
+def test_runtime_alias_resolves_to_binder_model():
+    """A run whose mlip id is the runner's `mace-mp-0` attaches the binder's
+    `mace-mp-medium` certificates."""
+    env_field = promo.load_field_certificates(REPORT, ["mace-mp-0"])
+    assert len(env_field["entries"]) == 17
+    assert {entry["model_id"] for entry in env_field["entries"]} == {"mace-mp-medium"}
+
+
 def test_unknown_model_yields_no_entries():
     env_field = promo.load_field_certificates(REPORT, ["no-such-model"])
     assert env_field is not None
