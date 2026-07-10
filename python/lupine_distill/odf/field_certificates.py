@@ -13,7 +13,10 @@ symbol-for-symbol:
 - :func:`check_field_domain`        mirrors ``SorptionStability.FieldDomain.admits``
   (soundness/witness: ``admits_iff`` / ``refusal_has_witness``);
 - :func:`check_anchor_admissibility` mirrors ``AnchoredField.scaledAnchorsValid``
-  (tier-2 constructor: ``mkAnchoredField``; tier-1 fallback: ``mkMeasuredField``);
+  (fcc; tier-2 constructor: ``mkAnchoredField``; tier-1 fallback:
+  ``mkMeasuredField``) and ``AnchoredField.scaledAnchorsBccValid`` (bcc;
+  ``mkAnchoredFieldBcc`` / ``mkMeasuredFieldBcc``), selected by its
+  ``structure`` argument;
 - :func:`check_ranking_pair`        mirrors ``RankingIntegrity.ReconcilesPair``
   (impossibility: ``inversion_defeats_monotone``; recovery:
   ``measured_corrected_recovers_reference_order``).
@@ -41,6 +44,9 @@ THEOREM_REFS: dict[str, str] = {
     "anchored_field": f"{_THEORY}.AnchoredField.mkAnchoredField",
     "measured_field": f"{_THEORY}.AnchoredField.mkMeasuredField",
     "anchor_admissibility": f"{_THEORY}.AnchoredField.scaledAnchorsValid",
+    "anchored_field_bcc": f"{_THEORY}.AnchoredField.mkAnchoredFieldBcc",
+    "measured_field_bcc": f"{_THEORY}.AnchoredField.mkMeasuredFieldBcc",
+    "anchor_admissibility_bcc": f"{_THEORY}.AnchoredField.scaledAnchorsBccValid",
     "barrier_underestimated": (
         f"{_THEORY}.BarrierArrhenius.softened_barrier_underestimates"
     ),
@@ -56,6 +62,20 @@ THEOREM_REFS: dict[str, str] = {
 # the FieldDomain witnesses locked in Theory/SorptionStability.lean.
 DEFAULT_CMIN = 4
 DEFAULT_CMAX = 12
+
+#: First-shell coordinations probed by the three anchors of each supported
+#: crystal-structure layout (mirrors the `stepField` / `stepFieldBcc` layouts).
+ANCHOR_COORDINATIONS: dict[str, tuple[int, int, int]] = {
+    "fcc": (8, 9, 11),
+    "bcc": (4, 6, 7),
+}
+
+#: (tier-2 constructor, tier-1 fallback, admissibility predicate) theorem-ref
+#: keys per structure.
+_ANCHOR_REF_KEYS: dict[str, tuple[str, str, str]] = {
+    "fcc": ("anchored_field", "measured_field", "anchor_admissibility"),
+    "bcc": ("anchored_field_bcc", "measured_field_bcc", "anchor_admissibility_bcc"),
+}
 
 
 @dataclass(frozen=True)
@@ -123,9 +143,12 @@ class AnchorCertificate:
 
     #: "error_field" (tier 2: directional laws) or "measured_field" (tier 1).
     tier: str
-    p8_scaled: int
-    p9_scaled: int
-    p11_scaled: int
+    #: Crystal-structure layout the anchors were measured on ("fcc" | "bcc").
+    structure: str
+    #: First-shell coordinations the three anchors probe (fcc: 8/9/11;
+    #: bcc: 4/6/7).
+    coordinations: tuple[int, int, int]
+    anchors_scaled: tuple[int, int, int]
     violations: tuple[str, ...]
     theorem_ref: str
     reason: str
@@ -134,7 +157,9 @@ class AnchorCertificate:
         return {
             "kind": "anchor_admissibility",
             "tier": self.tier,
-            "anchors_scaled": [self.p8_scaled, self.p9_scaled, self.p11_scaled],
+            "structure": self.structure,
+            "coordinations": list(self.coordinations),
+            "anchors_scaled": list(self.anchors_scaled),
             "violations": list(self.violations),
             "theorem_ref": self.theorem_ref,
             "reason": self.reason,
@@ -142,41 +167,59 @@ class AnchorCertificate:
 
 
 def check_anchor_admissibility(
-    p8_scaled: int, p9_scaled: int, p11_scaled: int
+    p_lo_scaled: int,
+    p_mid_scaled: int,
+    p_hi_scaled: int,
+    structure: str = "fcc",
 ) -> AnchorCertificate:
-    """Mirror of ``scaledAnchorsValid``: monotone softening
-    ``p8 <= p9 <= p11 <= 0`` on the exact integer-scaled anchors. Admissible
-    cells construct the tier-2 ``ErrorField`` (``mkAnchoredField``); violating
-    cells fall back to the tier-1 ``MeasuredField`` (correction and ranking
-    laws only) with a kernel-checked refusal certificate."""
+    """Mirror of ``scaledAnchorsValid`` (fcc) / ``scaledAnchorsBccValid``
+    (bcc): monotone softening ``p_lo <= p_mid <= p_hi <= 0`` on the exact
+    integer-scaled anchors, ordered by the coordination they probe (fcc:
+    P(8)/P(9)/P(11); bcc: P(4)/P(6)/P(7)). Admissible cells construct the
+    tier-2 ``ErrorField`` (``mkAnchoredField`` / ``mkAnchoredFieldBcc``);
+    violating cells fall back to the tier-1 ``MeasuredField`` (correction and
+    ranking laws only) with a kernel-checked refusal certificate."""
+    try:
+        c_lo, c_mid, c_hi = ANCHOR_COORDINATIONS[structure]
+        anchored_key, measured_key, predicate_key = _ANCHOR_REF_KEYS[structure]
+    except KeyError:
+        raise ValueError(
+            f"unknown anchor structure {structure!r}; "
+            f"expected one of {sorted(ANCHOR_COORDINATIONS)}"
+        ) from None
+    predicate = THEOREM_REFS[predicate_key].rsplit(".", 1)[-1]
     violations: list[str] = []
-    if not p8_scaled <= p9_scaled:
-        violations.append(f"P(8) = {p8_scaled}e-4 > P(9) = {p9_scaled}e-4 (mono)")
-    if not p9_scaled <= p11_scaled:
-        violations.append(f"P(9) = {p9_scaled}e-4 > P(11) = {p11_scaled}e-4 (mono)")
-    if not p11_scaled <= 0:
-        violations.append(f"P(11) = {p11_scaled}e-4 > 0 (softening)")
+    if not p_lo_scaled <= p_mid_scaled:
+        violations.append(
+            f"P({c_lo}) = {p_lo_scaled}e-4 > P({c_mid}) = {p_mid_scaled}e-4 (mono)"
+        )
+    if not p_mid_scaled <= p_hi_scaled:
+        violations.append(
+            f"P({c_mid}) = {p_mid_scaled}e-4 > P({c_hi}) = {p_hi_scaled}e-4 (mono)"
+        )
+    if not p_hi_scaled <= 0:
+        violations.append(f"P({c_hi}) = {p_hi_scaled}e-4 > 0 (softening)")
     if violations:
         tier = "measured_field"
-        ref = THEOREM_REFS["measured_field"]
+        ref = THEOREM_REFS[measured_key]
         reason = (
-            "tier-2 refusal (¬ scaledAnchorsValid): "
+            f"tier-2 refusal (¬ {predicate}): "
             + "; ".join(violations)
             + " — correction/ranking laws remain valid at the measured tier; "
             "directional softening laws do not apply"
         )
     else:
         tier = "error_field"
-        ref = THEOREM_REFS["anchored_field"]
+        ref = THEOREM_REFS[anchored_key]
         reason = (
             "monotone softening holds on the measured anchors — directional "
             "laws (barrier underestimation, mobility overestimation) apply"
         )
     return AnchorCertificate(
         tier=tier,
-        p8_scaled=p8_scaled,
-        p9_scaled=p9_scaled,
-        p11_scaled=p11_scaled,
+        structure=structure,
+        coordinations=(c_lo, c_mid, c_hi),
+        anchors_scaled=(p_lo_scaled, p_mid_scaled, p_hi_scaled),
         violations=tuple(violations),
         theorem_ref=ref,
         reason=reason,
@@ -284,6 +327,7 @@ __all__ = [
     "THEOREM_REFS",
     "DEFAULT_CMIN",
     "DEFAULT_CMAX",
+    "ANCHOR_COORDINATIONS",
     "DomainCertificate",
     "AnchorCertificate",
     "RankingCertificate",

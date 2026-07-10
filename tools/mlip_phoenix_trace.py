@@ -91,6 +91,8 @@ def promotion_packet_to_spans(packet: dict[str, Any]) -> tuple[Attributes, list[
     thresholds = _dict(packet.get("thresholds"))
     state = _dict(gate.get("state_hypothesis") or packet.get("hypothesis_motivation"))
     blockers = gate.get("blockers") if isinstance(gate.get("blockers"), list) else []
+    odf_gate = _dict(packet.get("odf_gate"))
+    certs = _dict(packet.get("field_certificates"))
 
     root = sanitize({
         "mlip.schema": packet.get("schema"),
@@ -125,6 +127,17 @@ def promotion_packet_to_spans(packet: dict[str, Any]) -> tuple[Attributes, list[
         "mlip.thresholds.min_accuracy_delta": thresholds.get("min_accuracy_delta"),
         "mlip.thresholds.min_speedup": thresholds.get("min_speedup"),
         "mlip.thresholds.max_accelerate_loss": thresholds.get("max_accelerate_loss"),
+        "mlip.odf_gate.decision": odf_gate.get("decision"),
+        "mlip.odf_gate.uplift_band": odf_gate.get("uplift_band"),
+        "mlip.odf_gate.formal_fields_present": odf_gate.get("formal_fields_present"),
+        "mlip.field_certificates.corpus_sha256_12": certs.get("corpus_sha256_12"),
+        "mlip.field_certificates.lean_module": certs.get("lean_module"),
+        "mlip.field_certificates.n_cells": certs.get("n_cells"),
+        "mlip.field_certificates.n_error_field": certs.get("n_error_field"),
+        "mlip.field_certificates.n_measured_field_refusals": certs.get(
+            "n_measured_field_refusals"
+        ),
+        "mlip.field_certificates.theorem_refs": certs.get("theorem_refs"),
     })
 
     children: list[Attributes] = []
@@ -159,6 +172,33 @@ def promotion_packet_to_spans(packet: dict[str, Any]) -> tuple[Attributes, list[
             attrs.update(_variant_metrics(triplet.get("cells"), variant))
         children.append(sanitize(attrs))
     return root, children
+
+
+def certificate_spans(packet: dict[str, Any]) -> list[Attributes]:
+    """Per-cell span attributes for the packet's ``field_certificates`` block:
+    one span per bound (model, material) Y-matrix cell, carrying the cell's
+    kernel-checked tier, its exact scaled anchors, the refusal witnesses (if
+    any), and the Lean theorem reference backing the certificate."""
+    certs = _dict(packet.get("field_certificates"))
+    cells = certs.get("cells") if isinstance(certs.get("cells"), list) else []
+    spans: list[Attributes] = []
+    for cell in cells:
+        if not isinstance(cell, dict):
+            continue
+        spans.append(sanitize({
+            "mlip.certificate.kind": cell.get("kind"),
+            "mlip.certificate.material": cell.get("material"),
+            "mlip.certificate.model_id": cell.get("model_id"),
+            "mlip.certificate.structure": cell.get("structure"),
+            "mlip.certificate.lean_name": cell.get("lean_name"),
+            "mlip.certificate.tier": cell.get("tier"),
+            "mlip.certificate.coordinations": cell.get("coordinations"),
+            "mlip.certificate.anchors_scaled": cell.get("anchors_scaled"),
+            "mlip.certificate.violations": cell.get("violations"),
+            "mlip.certificate.theorem_ref": cell.get("theorem_ref"),
+            "mlip.certificate.reason": cell.get("reason"),
+        }))
+    return spans
 
 
 def growth_report_to_spans(report: dict[str, Any]) -> tuple[Attributes, list[Attributes]]:
@@ -207,6 +247,7 @@ def emit_trace(
     root_attributes: Attributes,
     child_name: str,
     children: list[Attributes],
+    extra_children: list[tuple[str, list[Attributes]]] | None = None,
     endpoint: str | None = None,
     token: str | None = None,
     project: str | None = None,
@@ -255,6 +296,10 @@ def emit_trace(
             for child in children:
                 with tracer.start_as_current_span(child_name) as child_span:
                     child_span.set_attributes(child)
+            for extra_name, extra in (extra_children or []):
+                for child in extra:
+                    with tracer.start_as_current_span(extra_name) as child_span:
+                        child_span.set_attributes(child)
         provider.force_flush()
     finally:
         provider.shutdown()
@@ -263,11 +308,15 @@ def emit_trace(
 
 def emit_promotion_trace(packet: dict[str, Any], **kwargs: Any) -> bool:
     root, children = promotion_packet_to_spans(packet)
+    certificates = certificate_spans(packet)
     return emit_trace(
         root_name=PROMOTION_ROOT,
         root_attributes=root,
         child_name="mlip.triplet",
         children=children,
+        extra_children=(
+            [("mlip.field_certificate", certificates)] if certificates else None
+        ),
         **kwargs,
     )
 

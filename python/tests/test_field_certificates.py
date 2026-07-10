@@ -94,6 +94,41 @@ def test_boundary_zero_vacancy_anchor_is_admissible():
     assert cert.tier == "error_field"
 
 
+# ── bcc anchor admissibility: mirrors scaledAnchorsBccValid ────────────────
+
+
+def test_admissible_bcc_anchors_mirror():
+    """Same triple as Lean `scaledAnchorsBccValid_example` (positive half):
+    the chgnet/Fe bcc cell."""
+    cert = check_anchor_admissibility(-4852, -4596, -1697, structure="bcc")
+    assert cert.tier == "error_field"
+    assert cert.structure == "bcc"
+    assert cert.coordinations == (4, 6, 7)
+    assert cert.violations == ()
+    assert cert.theorem_ref == THEOREM_REFS["anchored_field_bcc"]
+
+
+def test_inadmissible_bcc_anchors_mirror():
+    """Same triple as Lean `scaledAnchorsBccValid_example` (negative half)."""
+    cert = check_anchor_admissibility(-4596, -4852, -1697, structure="bcc")
+    assert cert.tier == "measured_field"
+    assert cert.theorem_ref == THEOREM_REFS["measured_field_bcc"]
+    assert any("P(4)" in v and "P(6)" in v for v in cert.violations)
+    assert "scaledAnchorsBccValid" in cert.reason
+
+
+def test_bcc_stiffening_cell_witnesses_bcc_coordinations():
+    """Same triple as the Lean `field_refused_mace_mp_small_V` refusal."""
+    cert = check_anchor_admissibility(5401, 3072, 404, structure="bcc")
+    assert len(cert.violations) == 3
+    assert any("P(7) = 404e-4 > 0 (softening)" in v for v in cert.violations)
+
+
+def test_unknown_structure_is_rejected():
+    with pytest.raises(ValueError, match="unknown anchor structure"):
+        check_anchor_admissibility(-3, -2, -1, structure="hcp")
+
+
 # ── Ranking pairs: mirrors ReconcilesPair / inversion_defeats_monotone ─────
 
 

@@ -316,13 +316,35 @@ def nistCount := nistScaffoldAlSample.length
 #check mkAnchoredField_toMeasuredField
 #check scaledAnchorsValid_example
 
+/- T171–T181: The bcc measurement bridge — the same anchored-field
+    construction for the bcc refractory metals (γ₁₀₀ → c=4, γ₁₁₀ → c=6,
+    E_vac → c=7, bulk pin c=8), with its own step layout, decidable
+    admissibility predicate, and kernel-checked refusals. -/
+#check stepFieldBcc_bulk_anchor
+#check stepFieldBcc_softening
+#check stepFieldBcc_monotone
+#check mkAnchoredFieldBcc_at_100
+#check mkAnchoredFieldBcc_at_110
+#check mkAnchoredFieldBcc_at_vacancy
+#check mkAnchoredFieldBcc_at_bulk
+#check mkAnchoredFieldBcc_clamped_below
+#check mkMeasuredFieldBcc_at_bulk
+#check mkAnchoredFieldBcc_toMeasuredField
+#check scaledAnchorsBccValid_example
+
 /- The bound Y-matrix corpus (generated: DistillAtlas.EnvFieldInstances):
-    36 measured fields; 8 anchored softening instances + 28 kernel-checked
-    tier-2 refusals. Representative instances surfaced here; the counts are
-    locked by the #guards below. -/
+    64 measured fields (36 fcc + 28 bcc); 15 anchored softening instances
+    (8 fcc + 7 bcc) + 49 kernel-checked tier-2 refusals (28 fcc + 21 bcc).
+    Representative instances surfaced here; the counts are locked by the
+    #guards below. -/
 #check mfield_chgnet_Ni
 #check field_chgnet_Ni
 #check field_refused_mace_mpa_0_medium_Ni
+#check mfield_chgnet_Fe
+#check field_chgnet_Fe
+#check field_refused_mace_mp_small_V
+#check fcc_cells_accounted
+#check bcc_cells_accounted
 #check cells_accounted
 
 -- ═══════════════════════════════════════════════════════════════
@@ -343,10 +365,11 @@ def computationallyProvenCount : Nat :=
   -- RankingIntegrity 6, ScalingVolcano 11, DefectStability 8,
   -- SorptionStability 10, ClimateSeries certificates 10
   -- Measured-fields push: MeasuredField tier 6, measured ranking laws 3,
-  -- AnchoredField measurement bridge 11 (the generated EnvFieldInstances
-  -- corpus — 36 fields, 8 instances, 28 refusal theorems — is locked by
-  -- #guards but not counted here)
-  170
+  -- AnchoredField measurement bridge 11
+  -- Bcc anchors push: AnchoredField bcc measurement bridge 11 (the
+  -- generated EnvFieldInstances corpus — 64 fields, 15 instances, 49
+  -- refusal theorems — is locked by #guards but not counted here)
+  181
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
@@ -392,13 +415,19 @@ def epistemicGapCount : Nat :=
 #guard decide (¬ hullOnlyAccepts ⟨25, 500⟩)
 
 -- Measured-fields corpus locks: the bound Y-matrix cells account exactly
--- (8 anchored instances + 28 refusals = 36 cells); the chgnet/Ni anchors are
+-- (fcc: 8 anchored instances + 28 refusals = 36 cells; bcc: 7 + 21 = 28;
+-- total 15 + 49 = 64); the chgnet/Ni (fcc) and chgnet/Fe (bcc) anchors are
 -- admissible for the directional tier, while the stiffening
--- mace-mpa-0-medium/Ni cell is provably refused (its measured anchors sit
--- above bulk accuracy — noise floor, not softening).
+-- mace-mpa-0-medium/Ni (fcc) and mace-mp-small/V (bcc) cells are provably
+-- refused (their measured anchors sit above bulk accuracy — noise floor,
+-- not softening).
 #guard 8 + 28 = 36
+#guard 7 + 21 = 28
+#guard 15 + 49 = 64
 #guard decide (scaledAnchorsValid (-980) (-673) (-136))
 #guard decide (¬ scaledAnchorsValid 4190 2296 125)
+#guard decide (scaledAnchorsBccValid (-4852) (-4596) (-1697))
+#guard decide (¬ scaledAnchorsBccValid 5401 3072 404)
 
 /-- The complete status board as a computed string. -/
 def visionReport : String :=

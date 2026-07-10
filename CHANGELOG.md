@@ -16,6 +16,60 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-10 - Bcc anchor set + flywheel telemetry: refractory metals join the measured-fields corpus, certificates ride the live promotion spans
+
+- **Why.** The measured-fields rung (below) covered only the 36 fcc cells; the
+  bcc refractory metals (Cr/Fe/Mo/Nb/Ta/V/W — 28 more Y-matrix cells with
+  DFT-PBE targets already in the corpus) had no anchor layout, and the field
+  certificates stopped at the promotion gate's metadata instead of reaching
+  the live flywheel telemetry (`tools/mlip_local_promotion.py` → Phoenix).
+- **What.**
+  - `Theory/AnchoredField.lean`: the bcc layout — `stepFieldBcc` (clamped
+    step interpolation of γ₁₀₀ → c=4, γ₁₁₀ → c=6, E_vac → c=7, bulk pin at
+    the bcc first-shell coordination c=8, the unanchored c=5 gap held at the
+    deeper (100) value, exactly as the fcc field holds c=10),
+    `mkAnchoredFieldBcc : ErrorField 8` / `mkMeasuredFieldBcc :
+    MeasuredField 8`, and the decidable `scaledAnchorsBccValid` predicate —
+    11 new theorems (T171–T181), zero sorry, zero new axioms.
+  - `python/scripts/bind_env_field_instances.py`: generalized over structure
+    layouts (per-atom facet areas: fcc a₀²/2 and √3a₀²/4; bcc a₀² and
+    a₀²/√2; vacancy shells 12 vs 8) and extended to the 28 bcc cells; report
+    schema bumped to `lupine.env_field_binding_report.v2` (per-structure
+    layout + counts, nested anchors). Fcc literals verified byte-identical
+    across the refactor.
+  - `lupine_distill.odf.field_certificates`: `check_anchor_admissibility`
+    takes a `structure` argument, mirrors `scaledAnchorsBccValid` for bcc
+    cells, and stamps certificates with structure + anchor coordinations;
+    three new theorem refs (`mkAnchoredFieldBcc`, `mkMeasuredFieldBcc`,
+    `scaledAnchorsBccValid`) resolve-checked against the Lean sources.
+  - Flywheel wiring: `tools/mlip_local_promotion.py` loads the binding
+    report, re-checks every bound cell of the run's models through the Lean
+    mirror, merges the certificates into the ODF gate's candidate metadata
+    (they satisfy the formal-spec requirement without manual
+    `--atlas-theorem-refs` flags), and carries a `field_certificates` block
+    in the packet; `tools/mlip_phoenix_trace.py` emits it as
+    `mlip.field_certificate` child spans (per-cell tier, exact scaled
+    anchors, refusal witnesses, theorem ref) plus root-span rollups.
+    New tests: `tools/test_mlip_local_promotion.py`,
+    `tools/test_mlip_phoenix_trace.py` (restores the justfile
+    `flywheel-telemetry-check` target lost in the 2026-07-01 cleanup), both
+    added to the CI tools-smoke job.
+- **Results.** 64 bound cells (36 fcc + 28 bcc): 15 anchored softening
+  instances + 49 kernel-checked refusals. Of the bcc cells, 7 soften
+  monotonically end-to-end — chgnet on Cr/Fe/Mo/W, mace-mp-medium on Fe/Mo,
+  and mace-mpa-0-medium on Nb — while all seven mace-mp-small bcc cells are
+  refused (anchors at or above bulk accuracy, the fcc noise-floor story
+  repeated). 181 build-locked theorems, 409 theorem declarations, 0 `sorry`.
+  End-to-end smoke: a chgnet promotion packet now carries 16 per-cell
+  certificates (10 tier-2, 6 refusals) into its Phoenix spans, and the ODF
+  gate promotes on certificate-backed formal fields alone.
+- **Next.** Extend the binder to the remaining Y-matrix structures (rocksalt
+  MgO/NaCl and diamond Si need their own anchor layouts), and close the
+  loop by reading refusal certificates back in the distill policy engine so
+  refused cells are excluded from correction at run time, not just flagged.
+
+---
+
 ## 2026-07-10 - Measured fields rung: Y-matrix corpus bound into per-cell Lean field instances + certificate-carrying promotion gate
 
 - **Why.** The climate-series physics layer (same day, below) proved the

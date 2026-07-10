@@ -66,7 +66,7 @@ deps or config degrade to a logged no-op.
 ATLAS's toolchain) is the evidence layer: it holds the proven theorems behind
 the materials-science claims. Treat a green `lake build` with zero `sorry`
 proofs as the gate — a broken or `sorry`-bearing proof is a regression, not
-noise. Current state: **170 build-locked theorems, 376 theorem declarations in `Materials/`, 0 `sorry`, 3661-job build green** (includes the climate-series physics layer — environment error field, Arrhenius barrier softening, ranking integrity, scaling/volcano, defect stability, sorption stability, certificate pack — and the measured-fields rung: `Theory/AnchoredField` plus the generated `DistillAtlas/EnvFieldInstances` corpus of 36 per-cell fields with 8 anchored softening instances and 28 kernel-checked refusals, mirrored into the promotion gate by `lupine_distill.odf.field_certificates`).
+noise. Current state: **181 build-locked theorems, 409 theorem declarations in `Materials/`, 0 `sorry`, 3661-job build green** (includes the climate-series physics layer — environment error field, Arrhenius barrier softening, ranking integrity, scaling/volcano, defect stability, sorption stability, certificate pack — and the measured-fields rung: `Theory/AnchoredField` with both the fcc and bcc anchor layouts plus the generated `DistillAtlas/EnvFieldInstances` corpus of 64 per-cell fields (36 fcc + 28 bcc) with 15 anchored softening instances and 49 kernel-checked refusals, mirrored into the promotion gate by `lupine_distill.odf.field_certificates` and attached to flywheel telemetry by `tools/mlip_local_promotion.py`).
 
 - Verify proofs with `lake build` in `lean-spec/`. Never introduce a `sorry`
   into a proof; the only acceptable `sorry` text is inside doc comments that
