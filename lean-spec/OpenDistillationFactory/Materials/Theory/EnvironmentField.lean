@@ -194,6 +194,85 @@ theorem abs_fieldSum_le (cfg : Config) (M : ℝ) (hM : ∀ c, |F.P c| ≤ M) :
 
 end ErrorField
 
+/-! ## The measured tier: correction laws without shape assumptions
+
+The laws that make runtime correction *sound* — closure, bulk invariance, and
+family transfer — need only the bulk pin `P(cBulk) = 0`, not the softening
+shape. `MeasuredField` is that weaker, universally-instantiable tier: every
+(model, material) cell with measured anchors yields one, including cells
+whose anchors are non-monotone or stiffening (e.g. MACE-MPA-0 at the noise
+floor), where the *directional* `ErrorField` layer must refuse. The
+correction stays sound everywhere in-domain; only the softening-direction
+claims are reserved for the stronger tier. -/
+
+/-- A measured environment field: per-atom signed error pinned to zero at and
+above the bulk coordination, with no assumption on shape. The tier every
+measured cell instantiates. -/
+structure MeasuredField (cBulk : ℕ) where
+  /-- Measured per-atom signed error as a function of coordination number. -/
+  P : ℕ → ℝ
+  /-- The field vanishes at and above the bulk coordination. -/
+  bulk_anchor : ∀ c, cBulk ≤ c → P c = 0
+
+namespace MeasuredField
+
+variable {cBulk : ℕ} (F : MeasuredField cBulk)
+
+/-- Field-predicted systematic error of a configuration: `Σᵢ P(cᵢ)`. -/
+def fieldSum (cfg : Config) : ℝ := (cfg.map F.P).sum
+
+/-- Runtime-corrected energy: `E_model − Σᵢ P(cᵢ)`. -/
+def corrected (eModel : ℝ) (cfg : Config) : ℝ := eModel - F.fieldSum cfg
+
+theorem fieldSum_cons (c : ℕ) (cfg : Config) :
+    F.fieldSum (c :: cfg) = F.P c + F.fieldSum cfg := by
+  simp [fieldSum]
+
+/-- Bulk invariance holds at the measured tier. -/
+theorem fieldSum_bulk (cfg : Config) (h : ∀ c ∈ cfg, cBulk ≤ c) :
+    F.fieldSum cfg = 0 := by
+  induction cfg with
+  | nil => simp [fieldSum]
+  | cons c cfg ih =>
+    have hc : cBulk ≤ c := h c (by simp)
+    rw [fieldSum_cons, F.bulk_anchor c hc,
+      ih fun c' hc' => h c' (by simp [hc'])]
+    ring
+
+/-- The closure law holds at the measured tier: exact field-decomposability
+means correction recovers the reference — no softening needed. -/
+theorem corrected_exact (eModel eRef : ℝ) (cfg : Config)
+    (h : eModel = eRef + F.fieldSum cfg) :
+    F.corrected eModel cfg = eRef := by
+  unfold corrected
+  linarith
+
+/-- Bulk observables pass through the measured-tier correction unchanged. -/
+theorem corrected_bulk_invariant (eModel : ℝ) (cfg : Config)
+    (h : ∀ c ∈ cfg, cBulk ≤ c) :
+    F.corrected eModel cfg = eModel := by
+  unfold corrected
+  rw [F.fieldSum_bulk cfg h]
+  ring
+
+/-- The family-transfer law holds at the measured tier. -/
+theorem fieldSum_transfer (cfg₁ cfg₂ : Config) (h : cfg₁.Perm cfg₂) :
+    F.fieldSum cfg₁ = F.fieldSum cfg₂ :=
+  List.Perm.sum_eq (h.map F.P)
+
+end MeasuredField
+
+/-- Forget the shape: every softening field is a measured field. -/
+def ErrorField.toMeasuredField {cBulk : ℕ} (F : ErrorField cBulk) :
+    MeasuredField cBulk :=
+  ⟨F.P, F.bulk_anchor⟩
+
+/-- The two tiers agree on the field sum, so every measured-tier law applies
+verbatim to a softening field. -/
+@[simp] theorem ErrorField.toMeasuredField_fieldSum {cBulk : ℕ}
+    (F : ErrorField cBulk) (cfg : Config) :
+    F.toMeasuredField.fieldSum cfg = F.fieldSum cfg := rfl
+
 /-- **The blind-prediction law.** An affine continuation of the field below the
 lowest anchors carries zero adjustable parameters: any two affine maps that
 agree at two distinct anchor coordinations (here `x₀` and `x₀ + 1`, e.g. the

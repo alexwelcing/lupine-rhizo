@@ -94,6 +94,38 @@ theorem corrected_recovers_strict_order {cBulk : ℕ} (F : ErrorField cBulk)
     (F.corrected m₁ cfg₁ < F.corrected m₂ cfg₂ ↔ r₁ < r₂) := by
   rw [F.corrected_exact m₁ r₁ cfg₁ h₁, F.corrected_exact m₂ r₂ cfg₂ h₂]
 
+/-! ### The measured tier
+
+Ranking soundness does not need the softening shape: the transfer and
+recovery laws hold for any `MeasuredField` — every bound sweep cell,
+including the non-monotone and stiffening ones the directional layer
+refuses. -/
+
+/-- The transfer law at the measured tier: iso-signature candidates keep
+their raw comparison under any measured field's correction. -/
+theorem measured_same_signature_corrected_iff {cBulk : ℕ}
+    (F : MeasuredField cBulk) (m₁ m₂ : ℝ) (cfg₁ cfg₂ : Config)
+    (h : cfg₁.Perm cfg₂) :
+    (F.corrected m₁ cfg₁ ≤ F.corrected m₂ cfg₂ ↔ m₁ ≤ m₂) := by
+  unfold MeasuredField.corrected
+  rw [F.fieldSum_transfer cfg₁ cfg₂ h]
+  constructor <;> intro h' <;> linarith
+
+/-- The soundness law at the measured tier: for field-decomposable errors,
+corrected ordering is reference ordering — with no shape assumption. -/
+theorem measured_corrected_recovers_reference_order {cBulk : ℕ}
+    (F : MeasuredField cBulk) (m₁ m₂ r₁ r₂ : ℝ) (cfg₁ cfg₂ : Config)
+    (h₁ : m₁ = r₁ + F.fieldSum cfg₁) (h₂ : m₂ = r₂ + F.fieldSum cfg₂) :
+    (F.corrected m₁ cfg₁ ≤ F.corrected m₂ cfg₂ ↔ r₁ ≤ r₂) := by
+  rw [F.corrected_exact m₁ r₁ cfg₁ h₁, F.corrected_exact m₂ r₂ cfg₂ h₂]
+
+/-- Strict measured-tier soundness. -/
+theorem measured_corrected_recovers_strict_order {cBulk : ℕ}
+    (F : MeasuredField cBulk) (m₁ m₂ r₁ r₂ : ℝ) (cfg₁ cfg₂ : Config)
+    (h₁ : m₁ = r₁ + F.fieldSum cfg₁) (h₂ : m₂ = r₂ + F.fieldSum cfg₂) :
+    (F.corrected m₁ cfg₁ < F.corrected m₂ cfg₂ ↔ r₁ < r₂) := by
+  rw [F.corrected_exact m₁ r₁ cfg₁ h₁, F.corrected_exact m₂ r₂ cfg₂ h₂]
+
 /-- **Concrete inversion witness (LMR-cathode regime).** Reference migration
 barriers 0.30 eV < 0.45 eV rank candidate A ahead of candidate B for
 voltage-fade resistance, but a softened model reporting 0.28 eV and 0.25 eV

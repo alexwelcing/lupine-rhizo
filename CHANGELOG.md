@@ -16,6 +16,58 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-10 - Measured fields rung: Y-matrix corpus bound into per-cell Lean field instances + certificate-carrying promotion gate
+
+- **Why.** The climate-series physics layer (same day, below) proved the
+  *laws* of the environment error field abstractly; the discovery loop needs
+  those laws attached to *measured cells* so each (model, material) screening
+  output carries its own certificate, and needs refusals to reach runner
+  telemetry with their Lean witness instead of dying in a log line.
+- **What.**
+  - `Theory/AnchoredField.lean`: the measurement bridge — clamped step
+    interpolation of the three fcc anchors (γ₁₀₀ → c=8, γ₁₁₁ → c=9,
+    E_vac → c=11, bulk pin c=12) with generic monotonicity/softening proofs,
+    so per-cell instances are one-liners with `norm_num` side goals; plus the
+    decidable `scaledAnchorsValid` admissibility predicate for kernel-checked
+    refusals.
+  - Two-tier field semantics, matching what the theorems actually need:
+    `MeasuredField` (bulk pin only — closure, bulk-invariance, transfer, and
+    new measured-tier ranking-recovery laws) vs `ErrorField` (softening +
+    monotone — the directional barrier laws). Non-monotone cells (Ca/Sr
+    anchor anomalies; MACE stiffening/noise-floor cells) keep certified
+    correction semantics while the directional layer provably refuses them.
+  - `python/scripts/bind_env_field_instances.py`: binds the 36 fcc Y-matrix
+    cells (model-relaxed geometry + DFT-PBE targets) into per-atom anchors
+    (Δγ · area-per-atom; ΔE_vac/12), emits
+    `DistillAtlas/EnvFieldInstances.lean` (36 `MeasuredField` instances, 8
+    `ErrorField` instances, 28 refusal theorems, all provenance-stamped,
+    corpus sha256 1f244b71846b) and a telemetry report
+    (`data/y_matrix_runs/env_field_binding_report.json`).
+  - `python/lupine_distill/odf/field_certificates.py`: the promotion-gate
+    surface — domain-gate admits/refusals with witness atoms, anchor
+    admissibility tiers, ranking-inversion impossibility certificates, each
+    naming its lean-spec theorem; `merge_into_candidate_metadata` feeds them
+    into `promotion_gate.evaluate_promotion` so decisions and telemetry carry
+    machine-checkable provenance. Tests
+    (`python/tests/test_field_certificates.py`, 17 passing) pin the Python
+    predicates to the same witness values the Lean modules lock and verify
+    every theorem reference resolves in the Lean sources.
+- **Results.** `lake build` green at 3661 jobs; 170 build-locked theorems,
+  376 theorem declarations in `Materials/`, 0 `sorry`. Of 36 bound cells, 8
+  exhibit monotone softening end-to-end (six chgnet cells — Ag, Al, Au, Cu,
+  Ni, Pd — plus Ni and Pt on mace-mp-medium); 28 carry kernel-checked tier-2
+  refusals — consistent with the proof pack's own account of noise-floor
+  MACE-MPA-0 cells. Notable negative result: Ca and Sr break anchor
+  monotonicity for *every* model (DFT γ₁₁₁ ≈ γ₁₀₀ for these soft alkaline
+  earths), a genuine limit of the smooth-decay idealization now recorded as
+  refusal certificates rather than silent misfits.
+- **Next.** Feed `field_certificates` outputs into the live flywheel
+  (`tools/mlip_local_promotion.py` telemetry spans), and extend the binder
+  beyond fcc — the bcc anchor set ((100) → c=4, (110) → c=6, vacancy → c=7,
+  bulk 8) needs its own `stepField` layout and admissibility predicate.
+
+---
+
 ## 2026-07-10 - Climate-series physics layer: 73 new Lean theorems for the five material classes
 
 - **Why.** The climate partnerships proof pack ("The 0.2% Synthesis Problem",
