@@ -17,8 +17,10 @@ from pathlib import Path
 import pytest
 
 from lupine_distill.odf.field_certificates import (
+    GAP_COORDINATIONS,
     THEOREM_REFS,
     check_anchor_admissibility,
+    check_bracket_separation,
     check_field_domain,
     check_ranking_pair,
     merge_into_candidate_metadata,
@@ -184,6 +186,128 @@ def test_tied_model_values_on_strict_reference_are_inverted():
     """m2 <= m1 includes ties: a monotone g cannot produce strict order."""
     cert = check_ranking_pair(0.30, 0.45, 0.27, 0.27)
     assert cert.inverted
+
+
+# ── Identification payload: mirrors Theory/AnchorBracket.lean ──────────────
+
+
+def test_fcc_gap_and_width_mirror_chgnet_ni():
+    """Same anchors as Lean `chgnet_Ni_gap_certificate` /
+    `chgnet_Ni_bracket_width`: gap coordination c = 10, certified per-atom
+    width p11 − p9 = 537e-4 eV/atom."""
+    cert = check_anchor_admissibility(-980, -673, -136)
+    assert cert.gap_coordination == GAP_COORDINATIONS["fcc"] == 10
+    assert cert.bracket_width_scaled == 537
+    assert cert.identification_ref == THEOREM_REFS["anchor_identification"]
+    assert "537e-4" in cert.reason
+
+
+def test_bcc_gap_and_width_mirror_chgnet_fe():
+    """Same anchors as Lean `chgnet_Fe_gap_certificate` /
+    `chgnet_Fe_bracket_width`: gap coordination c = 5, width p6 − p4 =
+    256e-4 eV/atom."""
+    cert = check_anchor_admissibility(-4852, -4596, -1697, structure="bcc")
+    assert cert.gap_coordination == 5
+    assert cert.bracket_width_scaled == 256
+    assert cert.identification_ref == THEOREM_REFS["anchor_identification_bcc"]
+
+
+def test_diamond_zero_width_mirror():
+    """The diamond layout has no unanchored in-range coordination — Lean
+    `corrected_exact_diamond`: in-range corrections are exact."""
+    cert = check_anchor_admissibility(-6906, structure="diamond")
+    assert cert.gap_coordination is None
+    assert cert.bracket_width_scaled == 0
+    assert "exact" in cert.reason
+
+
+def test_refused_cell_has_no_bracket_but_carries_impossibility():
+    """Same anchors as Lean `no_interpolant_mace_mpa_0_medium_Ni`: a refused
+    cell brackets nothing (no consistent field exists), and its
+    identification_ref names the existence iff that proves impossibility."""
+    cert = check_anchor_admissibility(4190, 2296, 125)
+    assert cert.tier == "measured_field"
+    assert cert.bracket_width_scaled is None
+    assert cert.identification_ref == THEOREM_REFS["anchor_identification"]
+    assert "identification impossibility" in cert.reason
+
+
+# ── Bracket separation: mirrors certified_order_of_separation_fcc/_bcc ─────
+
+
+def test_separation_certifies_strict_margin():
+    """corrected_a < corrected_b − count·width ⇒ certified for every
+    consistent field (fcc rule)."""
+    cert = check_bracket_separation(
+        corrected_a=-1.00,
+        corrected_b=-0.50,
+        gap_count_b=4,
+        bracket_width_scaled=537,
+    )
+    assert cert.certified
+    assert cert.theorem_ref == THEOREM_REFS["bracket_separation"]
+    assert cert.margin == pytest.approx(0.5 - 4 * 537e-4)
+
+
+def test_separation_zero_margin_not_certified():
+    """Strictness mirror: the Lean rule is a strict `<`; a pair sitting
+    exactly at the budget boundary is NOT certified."""
+    cert = check_bracket_separation(
+        corrected_a=0.0,
+        corrected_b=4 * 537e-4,
+        gap_count_b=4,
+        bracket_width_scaled=537,
+    )
+    assert not cert.certified
+    assert "budget" in cert.reason
+
+
+def test_separation_overlap_not_certified():
+    cert = check_bracket_separation(
+        corrected_a=-0.52,
+        corrected_b=-0.50,
+        gap_count_b=1,
+        bracket_width_scaled=537,
+    )
+    assert not cert.certified
+
+
+def test_separation_bcc_uses_bcc_theorem():
+    cert = check_bracket_separation(
+        corrected_a=-2.0,
+        corrected_b=-1.0,
+        gap_count_b=2,
+        bracket_width_scaled=256,
+        structure="bcc",
+    )
+    assert cert.certified
+    assert cert.theorem_ref == THEOREM_REFS["bracket_separation_bcc"]
+
+
+def test_separation_diamond_degenerates_to_exact_comparison():
+    """Zero width: any strictly ordered corrected pair is certified, backed
+    by the diamond exactness law."""
+    cert = check_bracket_separation(
+        corrected_a=-1.0001,
+        corrected_b=-1.0,
+        gap_count_b=7,
+        bracket_width_scaled=0,
+        structure="diamond",
+    )
+    assert cert.certified
+    assert cert.theorem_ref == THEOREM_REFS["corrected_exact_diamond"]
+
+
+def test_separation_rejects_negative_count():
+    with pytest.raises(ValueError, match="nonnegative"):
+        check_bracket_separation(0.0, 1.0, -1, 537)
+
+
+def test_separation_certificate_serializes():
+    payload = check_bracket_separation(-1.0, -0.5, 4, 537).to_dict()
+    assert payload["kind"] == "bracket_separation"
+    assert payload["certified"] is True
+    assert payload["gap_count_b"] == 4
 
 
 # ── Metadata enrichment: integration with the promotion gate ───────────────

@@ -19,7 +19,22 @@ symbol-for-symbol:
   ``structure`` argument;
 - :func:`check_ranking_pair`        mirrors ``RankingIntegrity.ReconcilesPair``
   (impossibility: ``inversion_defeats_monotone``; recovery:
-  ``measured_corrected_recovers_reference_order``).
+  ``measured_corrected_recovers_reference_order``);
+- the identification payload of :class:`AnchorCertificate`
+  (``gap_coordination`` / ``bracket_width_scaled`` / ``identification_ref``)
+  mirrors ``AnchorBracket.interpolant_gap_mem`` /
+  ``AnchorBracket.corrected_bracket_fcc`` (bcc mirror
+  ``corrected_bracket_bcc``; diamond exactness ``corrected_exact_diamond``)
+  and the existence/impossibility iffs
+  ``AnchorBracket.exists_interpolant_iff_fcc`` / ``…_bcc`` / ``…_diamond``:
+  an admissible cell's correction uncertainty is one scalar per atom at the
+  unanchored coordination, bounded by the anchor gap; a refused cell admits
+  *no* consistent softening field at all;
+- :func:`check_bracket_separation` mirrors
+  ``AnchorBracket.certified_order_of_separation_fcc`` (bcc mirror
+  ``certified_order_of_separation_bcc``; diamond degenerate case
+  ``corrected_exact_diamond``): interval separation certifies the corrected
+  order against every field consistent with the anchors.
 
 ``python/tests/test_field_certificates.py`` pins the mirrored semantics on the
 same witness values the Lean modules lock (`uniform_node_admitted`,
@@ -61,6 +76,22 @@ THEOREM_REFS: dict[str, str] = {
     "ranking_recovery": (
         f"{_THEORY}.RankingIntegrity.measured_corrected_recovers_reference_order"
     ),
+    "anchor_identification": f"{_THEORY}.AnchorBracket.exists_interpolant_iff_fcc",
+    "anchor_identification_bcc": (
+        f"{_THEORY}.AnchorBracket.exists_interpolant_iff_bcc"
+    ),
+    "anchor_identification_diamond": (
+        f"{_THEORY}.AnchorBracket.exists_interpolant_iff_diamond"
+    ),
+    "corrected_bracket": f"{_THEORY}.AnchorBracket.corrected_bracket_fcc",
+    "corrected_bracket_bcc": f"{_THEORY}.AnchorBracket.corrected_bracket_bcc",
+    "corrected_exact_diamond": f"{_THEORY}.AnchorBracket.corrected_exact_diamond",
+    "bracket_separation": (
+        f"{_THEORY}.AnchorBracket.certified_order_of_separation_fcc"
+    ),
+    "bracket_separation_bcc": (
+        f"{_THEORY}.AnchorBracket.certified_order_of_separation_bcc"
+    ),
 }
 
 # Default measured first-shell domain for the fcc anchors (inclusive), matching
@@ -88,6 +119,46 @@ _ANCHOR_REF_KEYS: dict[str, tuple[str, str, str]] = {
         "anchor_admissibility_diamond",
     ),
 }
+
+#: The single unanchored in-range coordination of each layout (`None` when the
+#: anchors and the bulk pin leave no gap) — mirrors the one-scalar reduction
+#: of ``Theory/AnchorBracket.lean``: all in-range correction ambiguity lives
+#: at this coordination (fcc c = 10, bcc c = 5, diamond none).
+GAP_COORDINATIONS: dict[str, int | None] = {
+    "fcc": 10,
+    "bcc": 5,
+    "diamond": None,
+}
+
+#: (identification iff, bracket law, separation law) theorem-ref keys per
+#: structure. For the diamond layout, whose gap budget is zero, both the
+#: bracket and separation laws degenerate to exact correction.
+_BRACKET_REF_KEYS: dict[str, tuple[str, str, str]] = {
+    "fcc": ("anchor_identification", "corrected_bracket", "bracket_separation"),
+    "bcc": (
+        "anchor_identification_bcc",
+        "corrected_bracket_bcc",
+        "bracket_separation_bcc",
+    ),
+    "diamond": (
+        "anchor_identification_diamond",
+        "corrected_exact_diamond",
+        "corrected_exact_diamond",
+    ),
+}
+
+
+def _bracket_width_scaled(structure: str, anchors_scaled: Sequence[int]) -> int:
+    """Certified per-atom bracket width (x1e-4 eV/atom) of an admissible cell:
+    the anchor gap bounding the correction ambiguity at the unanchored
+    coordination — fcc: ``p11 − p9``; bcc: ``p6 − p4``; diamond: ``0`` (fully
+    identified). Mirrors the width term of ``corrected_bracket_fcc`` /
+    ``corrected_bracket_bcc`` / ``corrected_exact_diamond``."""
+    if structure == "fcc":
+        return anchors_scaled[2] - anchors_scaled[1]
+    if structure == "bcc":
+        return anchors_scaled[1] - anchors_scaled[0]
+    return 0
 
 
 @dataclass(frozen=True)
@@ -165,6 +236,20 @@ class AnchorCertificate:
     violations: tuple[str, ...]
     theorem_ref: str
     reason: str
+    #: The single unanchored in-range coordination whose field value the
+    #: anchors do not pin (fcc: 10; bcc: 5; diamond: None) — the one scalar
+    #: of ``AnchorBracket``'s reduction identity.
+    gap_coordination: int | None = None
+    #: Certified per-atom bracket width (x1e-4 eV/atom) for admissible cells:
+    #: the exact bound on correction overshoot per gap-coordination atom
+    #: (``corrected_bracket_fcc`` / ``…_bcc``; 0 for diamond = exact).
+    #: ``None`` for refused cells — no consistent field exists to bracket.
+    bracket_width_scaled: int | None = None
+    #: Existence/impossibility law backing this cell's identification status
+    #: (``exists_interpolant_iff_fcc`` / ``…_bcc`` / ``…_diamond``): for
+    #: admissible anchors a softening field exists; for refused anchors NO
+    #: softening field is consistent — the refusal is scheme-independent.
+    identification_ref: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -176,6 +261,9 @@ class AnchorCertificate:
             "violations": list(self.violations),
             "theorem_ref": self.theorem_ref,
             "reason": self.reason,
+            "gap_coordination": self.gap_coordination,
+            "bracket_width_scaled": self.bracket_width_scaled,
+            "identification_ref": self.identification_ref,
         }
 
 
@@ -205,6 +293,8 @@ def check_anchor_admissibility(
             f"coordinations {coordinations}; got {len(anchors_scaled)} value(s)"
         )
     predicate = THEOREM_REFS[predicate_key].rsplit(".", 1)[-1]
+    identification_key, _bracket_key, _separation_key = _BRACKET_REF_KEYS[structure]
+    gap_coordination = GAP_COORDINATIONS[structure]
     violations: list[str] = []
     for (c_lo, p_lo), (c_hi, p_hi) in zip(
         zip(coordinations, anchors_scaled), zip(coordinations[1:], anchors_scaled[1:])
@@ -218,18 +308,32 @@ def check_anchor_admissibility(
     if violations:
         tier = "measured_field"
         ref = THEOREM_REFS[measured_key]
+        bracket_width = None
         reason = (
             f"tier-2 refusal (¬ {predicate}): "
             + "; ".join(violations)
             + " — correction/ranking laws remain valid at the measured tier; "
-            "directional softening laws do not apply"
+            "directional softening laws do not apply; no softening field is "
+            "consistent with these anchors (identification impossibility)"
         )
     else:
         tier = "error_field"
         ref = THEOREM_REFS[anchored_key]
+        bracket_width = _bracket_width_scaled(structure, anchors_scaled)
+        if gap_coordination is None:
+            width_note = (
+                "no unanchored in-range coordination — in-range corrections "
+                "are certified exact"
+            )
+        else:
+            width_note = (
+                f"certified per-atom bracket width {bracket_width}e-4 eV/atom "
+                f"at the unanchored coordination c = {gap_coordination}"
+            )
         reason = (
             "monotone softening holds on the measured anchors — directional "
-            "laws (barrier underestimation, mobility overestimation) apply"
+            "laws (barrier underestimation, mobility overestimation) apply; "
+            + width_note
         )
     return AnchorCertificate(
         tier=tier,
@@ -239,6 +343,9 @@ def check_anchor_admissibility(
         violations=tuple(violations),
         theorem_ref=ref,
         reason=reason,
+        gap_coordination=gap_coordination,
+        bracket_width_scaled=bracket_width,
+        identification_ref=THEOREM_REFS[identification_key],
     )
 
 
@@ -303,7 +410,122 @@ def check_ranking_pair(
     )
 
 
-Certificate = DomainCertificate | AnchorCertificate | RankingCertificate
+@dataclass(frozen=True)
+class BracketSeparationCertificate:
+    """Margin-certified corrected ranking of one candidate pair in one cell.
+
+    Mirrors ``AnchorBracket.certified_order_of_separation_fcc`` (bcc mirror
+    ``certified_order_of_separation_bcc``; diamond degenerate case
+    ``corrected_exact_diamond``): candidate A ranks strictly below candidate
+    B against **every** softening field consistent with the cell's anchors
+    when A's corrected energy sits strictly below B's corrected energy minus
+    B's gap budget (B's count of gap-coordination atoms times the certified
+    per-atom bracket width). ``certified = False`` does not mean the order
+    is wrong — only that the measured anchors cannot exclude a flip.
+    """
+
+    certified: bool
+    corrected_a: float
+    corrected_b: float
+    #: Number of gap-coordination atoms in candidate B's configuration (the
+    #: budget side of the separation rule). Candidate A needs no budget: its
+    #: corrected value is already its certified upper bound.
+    gap_count_b: int
+    #: Certified per-atom bracket width, x1e-4 eV/atom (0 for diamond).
+    bracket_width_scaled: int
+    structure: str
+    #: Certified slack in eV: ``corrected_b − budget − corrected_a``;
+    #: certification holds iff this is strictly positive.
+    margin: float
+    theorem_ref: str
+    reason: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": "bracket_separation",
+            "certified": self.certified,
+            "corrected_a": self.corrected_a,
+            "corrected_b": self.corrected_b,
+            "gap_count_b": self.gap_count_b,
+            "bracket_width_scaled": self.bracket_width_scaled,
+            "structure": self.structure,
+            "margin": self.margin,
+            "theorem_ref": self.theorem_ref,
+            "reason": self.reason,
+        }
+
+
+def check_bracket_separation(
+    corrected_a: float,
+    corrected_b: float,
+    gap_count_b: int,
+    bracket_width_scaled: int,
+    structure: str = "fcc",
+    scale: int = 10000,
+) -> BracketSeparationCertificate:
+    """Mirror of ``certified_order_of_separation_fcc`` / ``…_bcc``: certify
+    ``corrected_a < corrected_b − gap_count_b · width`` (width in eV =
+    ``bracket_width_scaled / scale``), which by the Lean theorem forces
+    A's reference energy strictly below B's for every field consistent with
+    the anchors. Inputs are the *step-field corrected* energies of the two
+    candidates in the SAME (model, material) cell, and ``gap_count_b`` is
+    candidate B's population of the layout's unanchored coordination
+    (``GAP_COORDINATIONS``); for the diamond layout the width is zero and
+    the rule degenerates to the exact-correction comparison
+    (``corrected_exact_diamond``). Strictness matters: a zero margin is NOT
+    certified, exactly as in Lean.
+
+    Two honesty caveats. (1) The Lean theorem governs the coordination-
+    resolved *step-field* correction; the runtime policy engine's live
+    correction is a uniform additive bias per (row, mlip) — do NOT feed
+    engine-bias-corrected energies here and read the result as certified.
+    (2) This mirror compares floats; the Lean statement compares exact
+    rationals, so margins within float rounding (~1e-12 of the boundary)
+    are not trustworthy — treat hairline certifications as ambiguous."""
+    if structure not in _BRACKET_REF_KEYS:
+        raise ValueError(
+            f"unknown anchor structure {structure!r}; "
+            f"expected one of {sorted(_BRACKET_REF_KEYS)}"
+        )
+    if gap_count_b < 0:
+        raise ValueError(f"gap_count_b must be nonnegative; got {gap_count_b}")
+    _identification_key, _bracket_key, separation_key = _BRACKET_REF_KEYS[structure]
+    budget = gap_count_b * bracket_width_scaled / scale
+    margin = corrected_b - budget - corrected_a
+    certified = margin > 0
+    ref = THEOREM_REFS[separation_key]
+    if certified:
+        reason = (
+            f"corrected order certified against every consistent field: "
+            f"corrected_a = {corrected_a} < {corrected_b} − "
+            f"{gap_count_b}·{bracket_width_scaled}e-4 (margin {margin:.6g} eV)"
+        )
+    else:
+        reason = (
+            f"anchor-gap budget can flip this pair: corrected separation "
+            f"{corrected_b - corrected_a:.6g} eV does not exceed the gap "
+            f"budget {budget:.6g} eV — rank only after tightening the "
+            "anchors or escalate to the oracle"
+        )
+    return BracketSeparationCertificate(
+        certified=certified,
+        corrected_a=corrected_a,
+        corrected_b=corrected_b,
+        gap_count_b=gap_count_b,
+        bracket_width_scaled=bracket_width_scaled,
+        structure=structure,
+        margin=margin,
+        theorem_ref=ref,
+        reason=reason,
+    )
+
+
+Certificate = (
+    DomainCertificate
+    | AnchorCertificate
+    | RankingCertificate
+    | BracketSeparationCertificate
+)
 
 
 #: Runtime backend ids (the cell runner's ``load_calculator`` /
@@ -416,13 +638,16 @@ __all__ = [
     "DEFAULT_CMIN",
     "DEFAULT_CMAX",
     "ANCHOR_COORDINATIONS",
+    "GAP_COORDINATIONS",
     "DomainCertificate",
     "AnchorCertificate",
     "RankingCertificate",
+    "BracketSeparationCertificate",
     "Certificate",
     "check_field_domain",
     "check_anchor_admissibility",
     "check_ranking_pair",
+    "check_bracket_separation",
     "RUNTIME_MLIP_ALIASES",
     "resolve_binder_model_id",
     "certificates_from_binding_report",
