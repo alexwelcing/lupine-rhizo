@@ -33,10 +33,12 @@ import OpenDistillationFactory.Materials.Theory.ScalingVolcano
 import OpenDistillationFactory.Materials.Theory.DefectStability
 import OpenDistillationFactory.Materials.Theory.SorptionStability
 import OpenDistillationFactory.Materials.Theory.AnchoredField
+import OpenDistillationFactory.Materials.Theory.AnchorBracket
 import OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
 import OpenDistillationFactory.Materials.Validation.ClimateSeries
+import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 namespace OpenDistillationFactory.Materials.Vision
 
@@ -62,10 +64,12 @@ open OpenDistillationFactory.Materials.Theory.ScalingVolcano
 open OpenDistillationFactory.Materials.Theory.DefectStability
 open OpenDistillationFactory.Materials.Theory.SorptionStability
 open OpenDistillationFactory.Materials.Theory.AnchoredField
+open OpenDistillationFactory.Materials.Theory.AnchorBracket
 open OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
 open OpenDistillationFactory.Materials.Validation.ClimateSeries
+open OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 1: DATA AUDIT
@@ -365,6 +369,65 @@ def nistCount := nistScaffoldAlSample.length
 #check diamond_cells_accounted
 #check cells_accounted
 
+/- T191–T239: The anchor-identification laws (Theory/AnchorBracket) — what
+    the measured anchors do and do not determine. Existence ↔ admissibility
+    (refusal completeness: every corpus refusal now rules out ALL softening
+    fields, not just the step constructor), the one-scalar reduction of
+    in-range correction ambiguity, deep/shallow envelope extremality,
+    certified correction brackets, two-point margin-certified ranking with
+    the separation rule, certified Arrhenius rate caps, below-range and
+    measured-tier non-identifiability, diamond exactness, and the
+    domain-gate compatibility glue. -/
+#check AnchorBracket.mapSum_congr_on
+#check AnchorBracket.mapSum_le_on
+#check AnchorBracket.mapSum_sub_of_eq_off
+#check AnchorBracket.exists_interpolant_iff_fcc
+#check AnchorBracket.scaledAnchorsValid_iff_exists_interpolant
+#check AnchorBracket.interpolant_eq_step_off_gap
+#check AnchorBracket.interpolant_gap_mem
+#check AnchorBracket.interpolant_fieldSum_reduction_fcc
+#check AnchorBracket.stepField_le_interpolant_inRange
+#check AnchorBracket.interpolant_le_stepFieldSup
+#check AnchorBracket.corrected_ge_ref_fcc
+#check AnchorBracket.corrected_bracket_fcc
+#check AnchorBracket.certified_order_iff_fcc
+#check AnchorBracket.certified_order_of_separation_fcc
+#check AnchorBracket.corrected_barrier_bracket_fcc
+#check AnchorBracket.hopRate_le_of_barrier_close
+#check AnchorBracket.rate_factor_cap_fcc
+#check AnchorBracket.below_range_unidentified_fcc
+#check AnchorBracket.measured_gap_unidentified_fcc
+#check AnchorBracket.exists_interpolant_iff_bcc
+#check AnchorBracket.scaledAnchorsBccValid_iff_exists_interpolant
+#check AnchorBracket.interpolant_fieldSum_reduction_bcc
+#check AnchorBracket.corrected_bracket_bcc
+#check AnchorBracket.stepFieldBcc_le_interpolant_inRange
+#check AnchorBracket.interpolant_le_stepFieldBccSup
+#check AnchorBracket.certified_order_iff_bcc
+#check AnchorBracket.certified_order_of_separation_bcc
+#check AnchorBracket.exists_interpolant_iff_diamond
+#check AnchorBracket.scaledAnchorDiamondValid_iff_exists_interpolant
+#check AnchorBracket.measured_fieldSum_exact_diamond
+#check AnchorBracket.corrected_exact_diamond
+#check AnchorBracket.inRangeFcc_of_admits
+#check AnchorBracket.inRangeBcc_of_admits
+#check AnchorBracket.inRangeDiamond_of_admits
+
+/- T240–T247: Corpus-bound anchor-bracket certificates
+    (Validation/AnchorBracketCertificates): impossibility certificates for
+    the flagship refusals (composed THROUGH the generated refusal theorems,
+    so corpus regeneration desync breaks the build), gap/width certificates
+    for the flagship instances, the cross-model identification comparison
+    on Ni, and diamond exactness on chgnet/Si. -/
+#check no_interpolant_mace_mpa_0_medium_Ni
+#check no_interpolant_mace_mp_small_V
+#check chgnet_Ni_gap_certificate
+#check chgnet_Ni_bracket_width
+#check chgnet_Fe_gap_certificate
+#check chgnet_Fe_bracket_width
+#check ni_bracket_width_comparison
+#check chgnet_Si_inrange_exact
+
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 3: HYPOTHESIS INVENTORY
 -- ═══════════════════════════════════════════════════════════════
@@ -388,7 +451,9 @@ def computationallyProvenCount : Nat :=
   -- Diamond anchor push: AnchoredField diamond measurement bridge 9 (the
   -- generated EnvFieldInstances corpus — 68 fields, 19 instances, 49
   -- refusal theorems — is locked by #guards but not counted here)
-  190
+  -- Anchor-identification push: AnchorBracket identification/bracket/
+  -- ranking/kinetics laws 49, corpus bracket certificates 8
+  247
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
@@ -450,6 +515,15 @@ def epistemicGapCount : Nat :=
 #guard decide (¬ scaledAnchorsBccValid 5401 3072 404)
 #guard decide (scaledAnchorDiamondValid (-6906))
 #guard decide (¬ scaledAnchorDiamondValid 6906)
+
+-- Anchor-identification locks: the certified per-atom bracket widths of the
+-- flagship cells are exact corpus integers (chgnet/Ni fcc: p11 − p9 = 537;
+-- chgnet/Fe bcc: p6 − p4 = 256; mace-mp-medium/Ni fcc: 81), and on Ni the
+-- mace-mp-medium bracket is more than 6× tighter than chgnet's.
+#guard (-136 : Int) - (-673) = 537
+#guard (-4596 : Int) - (-4852) = 256
+#guard (-229 : Int) - (-310) = 81
+#guard 6 * 81 < 537
 
 /-- The complete status board as a computed string. -/
 def visionReport : String :=

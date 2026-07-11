@@ -16,6 +16,67 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-11 - The anchor-identification laws: what three anchors determine — certified brackets, margin-certified ranking, and refusal completeness
+
+- **Why.** The measured-fields rung binds anchors into per-cell field
+  instances, and `AnchoredField.lean` *claims in prose* that the clamped
+  step field is "the conservative envelope of the measured data … with no
+  extrapolation freedom" — but no theorem said what the anchors actually
+  determine about the unknown true field, when a corrected value or
+  *ranking* may be trusted (the promotion gate's core operation), or
+  whether the 49 kernel refusals rule out only our step constructor or
+  every softening field.
+- **What.**
+  - `Theory/AnchorBracket.lean` (49 theorems, T191–T239): existence ↔
+    admissibility iffs per layout with scaled-integer bridges (**refusal
+    completeness** — a refused cell is consistent with *no* `ErrorField`
+    at all); the **one-scalar reduction** — on in-range configurations any
+    consistent field's sum is the step-field sum plus
+    `count_gap · (P(gap) − p_lo)` with `P(gap)` forced into the neighboring
+    anchor interval (fcc gap c = 10, bcc c = 5, diamond none); deep/shallow
+    **envelope extremality**; **certified correction brackets**
+    (`E_ref ≤ corrected ≤ E_ref + count·width`; diamond: exact recovery even
+    at the measured tier); the **two-point certification test** — corrected
+    order holds for *every* consistent field iff it holds at the two
+    envelope fields — plus the interval-**separation margin rule**;
+    **certified Arrhenius rate caps** (`exp(width/kT)` factor bounds via the
+    exact amplification identity); **honest non-identifiability** (below the
+    lowest anchor every value `v ≤ p_lo` is realized, and at the measured
+    tier even the gap is free — the tier-2 axioms are what buy finite
+    brackets); and `FieldDomain → InRange` glue making explicit that the
+    default `[4, 12]` runtime domain does *not* discharge the fcc bracket
+    precondition (needs `cmin ≥ 8`).
+  - `Validation/AnchorBracketCertificates.lean` (8 theorems, T240–T247):
+    corpus-bound certificates — impossibility for the flagship refusals
+    (composed *through* the generated `field_refused_*` theorems, so corpus
+    regeneration desync breaks the build), gap/width certificates
+    (chgnet/Ni 537×10⁻⁴ eV/atom, chgnet/Fe 256×10⁻⁴), the cross-model
+    comparison (on Ni, mace-mp-medium's bracket is provably more than 6×
+    tighter than chgnet's), and chgnet/Si exactness over any consistent
+    measured field.
+  - Runtime mirror (`lupine_distill.odf.field_certificates`): every
+    `AnchorCertificate` now carries the identification payload
+    (`gap_coordination`, `bracket_width_scaled`, `identification_ref`), and
+    `check_bracket_separation` mirrors the separation rule (strict
+    inequality, budget on the higher candidate only, float-boundary and
+    uniform-bias caveats documented). 12 new mirror tests pin the semantics
+    on the same corpus witnesses the Lean locks use.
+  - `Vision.lean`: T191–T247 checks, four corpus width `#guard` locks,
+    theorem count 190 → 247.
+- **Results.** Full `lake build` green at 3663 jobs, zero `sorry`, zero new
+  axioms (flagships checked: `propext`/`Classical.choice`/`Quot.sound`
+  only); 35/35 field-certificate mirror tests pass; evidence manifest check
+  green. An independent adversarial audit (vacuity, inequality directions,
+  boundary strictness, cast traps, prose-vs-formal, corpus numerals)
+  returned "survives with fixes"; all findings fixed — notably the flagship
+  diamond certificate was strengthened from a degenerate self-instantiation
+  to quantification over any consistent measured field.
+- **Next.** Interval anchors (measurement-noise-robust admissibility and
+  brackets with a certified stability radius); a bcc/diamond mirror of the
+  kinetics caps; consuming `bracket_width_scaled` inside the promotion
+  gate's ranking path so cross-model cell preference (e.g. Ni) is applied,
+  not just certified.
+
 ## 2026-07-10 - Diamond anchor + run-time certificate gate: Si joins the corpus, refusals now block correction inside the policy engine
 
 - **Why.** Two follow-ups from the bcc rung (below): the remaining Y-matrix

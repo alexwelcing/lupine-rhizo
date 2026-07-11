@@ -3,6 +3,7 @@ import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.LinearCombination
+import Mathlib.Tactic.IntervalCases
 import OpenDistillationFactory.Materials.Theory.EnvironmentField
 import OpenDistillationFactory.Materials.Theory.AnchoredField
 import OpenDistillationFactory.Materials.Theory.BarrierArrhenius
@@ -152,7 +153,7 @@ theorem mapSum_sub_of_eq_off (P Q : ℕ → ℝ) (c₀ : ℕ) (cfg : Config)
       linear_combination ih'
     · have hPQ : P c = Q c := h c List.mem_cons_self hc
       have hcount : (c :: cfg).count c₀ = cfg.count c₀ := by
-        simp [List.count_cons, Ne.symm hc]
+        simp [hc]
       simp only [List.map_cons, List.sum_cons, hcount]
       linear_combination ih' + hPQ
 

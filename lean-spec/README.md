@@ -7,7 +7,7 @@ touches a theorem proven here.
 
 ## Current state
 
-- **190 build-locked theorems** in the executable vision, **418 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3661-job build green**.
+- **247 build-locked theorems** in the executable vision, **475 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3663-job build green**.
 - The build is locked by `#guard` contracts in `Materials/Vision.lean`.
 - Epistemic gaps are documented as structures/comments, not as axioms.
 - The climate-series physics layer (`Theory/EnvironmentField`,
@@ -34,6 +34,27 @@ touches a theorem proven here.
   and its Phoenix telemetry spans, and the run-time certificate gate
   (`lupine_distill_runtime.policy_engine.CertificateGate`) excludes
   tier-2-refused cells from correction inside the distill policy engine.
+- The anchor-identification rung (`Theory/AnchorBracket`,
+  `Validation/AnchorBracketCertificates`) proves exactly what a cell's
+  measured anchors determine about the unknown true error field: a
+  softening field through the anchors exists iff they pass the decidable
+  admissibility test (so every corpus refusal certifies impossibility for
+  *all* interpolation schemes, not just the step field); on in-range
+  configurations the entire remaining ambiguity is one scalar — the field
+  value at the single unanchored coordination (fcc c = 10, bcc c = 5,
+  none for diamond) — pinned inside the neighboring anchor gap; corrected
+  energies therefore carry certified two-sided error bars with exact
+  per-atom widths (chgnet/Ni 537×10⁻⁴ eV, chgnet/Fe 256×10⁻⁴ eV,
+  mace-mp-medium/Ni 81×10⁻⁴ eV; diamond cells are exact), corrected
+  rankings are certified against every consistent field by a two-point
+  envelope test (with an interval-separation margin rule), corrected
+  Arrhenius rates carry certified multiplicative caps, and below the
+  anchored range (or at the measured tier) non-identifiability is proven,
+  justifying refusal. The runtime mirror
+  (`field_certificates.py`) carries the identification payload
+  (gap coordination, bracket width, identification refs) on every anchor
+  certificate and exposes the separation rule as
+  `check_bracket_separation`.
 
 See [`AGENTS.md`](../AGENTS.md) §"Formal verification" for the operating rules
 governing this root.

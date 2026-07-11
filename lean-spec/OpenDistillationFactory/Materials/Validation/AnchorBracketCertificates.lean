@@ -62,7 +62,7 @@ theorem no_interpolant_mace_mpa_0_medium_Ni :
       InterpolatesFcc F (4190 / 10000) (2296 / 10000) (125 / 10000) :=
   fun ⟨F, hF⟩ => field_refused_mace_mpa_0_medium_Ni
     ((scaledAnchorsValid_iff_exists_interpolant 4190 2296 125).mpr
-      ⟨F, by exact_mod_cast hF⟩)
+      ⟨F, by push_cast; exact hF⟩)
 
 /-- **No softening field exists for the mace-mp-small/V (bcc) cell.** Its
 measured anchors (5401, 3072, 404)×10⁻⁴ eV/atom violate monotone
@@ -74,7 +74,7 @@ theorem no_interpolant_mace_mp_small_V :
       InterpolatesBcc F (5401 / 10000) (3072 / 10000) (404 / 10000) :=
   fun ⟨F, hF⟩ => field_refused_mace_mp_small_V
     ((scaledAnchorsBccValid_iff_exists_interpolant 5401 3072 404).mpr
-      ⟨F, by exact_mod_cast hF⟩)
+      ⟨F, by push_cast; exact hF⟩)
 
 /-! ## Gap certificates for the flagship admitted cells -/
 
