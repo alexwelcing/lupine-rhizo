@@ -12,9 +12,9 @@ This script materializes:
     SQL LIKE to real BM25 ranking, and provides the lexical leg of
     `query.py --hybrid` (reciprocal-rank fusion).
 
-Idempotent: skips each rebuild when the sidecar row count already matches
-`evidence_chunks` (use --force to rebuild anyway). Run it after every
-`cocoindex update main.py`, or via `just evidence-index` which chains it.
+Idempotent: skips each rebuild when the content fingerprint is unchanged
+(use --force to rebuild anyway). Run it after every `cocoindex update main.py`,
+or via `just evidence-index` which chains it.
 
 Usage:
     python build_vec_index.py [--db ./evidence.db] [--force]
@@ -22,6 +22,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import pathlib
 import sqlite3
 import sys
@@ -30,6 +31,54 @@ import time
 VEC_TABLE = "evidence_chunks_vec_row"  # the name query.py's fast path expects
 FTS_TABLE = "evidence_chunks_fts"      # the name query.py's BM25 path expects
 EMBED_DIM = 384
+META_TABLE = "_evidence_index_meta"    # stores content fingerprint + build stats
+
+
+def _fingerprint(conn: sqlite3.Connection) -> tuple[int, str]:
+    """Return (row_count, sha256) of the evidence_chunks table.
+
+    The hash covers the columns the sidecars actually index: text for FTS5 and
+    the embedding blob for vec0, plus rowid/kind/ref_id so any row mutation
+    invalidates the cached sidecars. Streaming keeps memory bounded on large
+    corpora.
+    """
+    n_rows = conn.execute("SELECT COUNT(*) FROM evidence_chunks").fetchone()[0]
+    h = hashlib.sha256()
+    for rowid, text, kind, ref_id, embedding in conn.execute(
+        "SELECT rowid, text, kind, ref_id, embedding FROM evidence_chunks ORDER BY rowid"
+    ):
+        h.update(str(rowid).encode("utf-8"))
+        h.update(b"\x00")
+        h.update((text or "").encode("utf-8"))
+        h.update(b"\x00")
+        h.update((kind or "").encode("utf-8"))
+        h.update(b"\x00")
+        h.update((ref_id or "").encode("utf-8"))
+        h.update(b"\x00")
+        h.update(bytes(embedding or b""))
+        h.update(b"\x00")
+    return n_rows, h.hexdigest()
+
+
+def _meta_get(conn: sqlite3.Connection, key: str) -> str | None:
+    try:
+        row = conn.execute(
+            f"SELECT value FROM {META_TABLE} WHERE key=?", (key,)
+        ).fetchone()
+        return row[0] if row else None
+    except sqlite3.OperationalError:
+        return None
+
+
+def _meta_set(conn: sqlite3.Connection, key: str, value: str) -> None:
+    conn.execute(
+        f"CREATE TABLE IF NOT EXISTS {META_TABLE} (key TEXT PRIMARY KEY, value TEXT)"
+    )
+    conn.execute(
+        f"INSERT INTO {META_TABLE} (key, value) VALUES (?, ?) "
+        f"ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+        (key, value),
+    )
 
 
 def build_fts(conn, n_rows: int, force: bool = False) -> None:
@@ -69,16 +118,22 @@ def build(db_path: pathlib.Path, force: bool = False) -> int:
         sqlite_vec.load(conn)
         conn.enable_load_extension(False)
 
-        n_rows = conn.execute("SELECT COUNT(*) FROM evidence_chunks").fetchone()[0]
+        n_rows, fingerprint = _fingerprint(conn)
+        stored_fp = _meta_get(conn, "content_fingerprint")
         has_vec = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (VEC_TABLE,)
         ).fetchone()
-        if has_vec and not force:
-            n_vec = conn.execute(f"SELECT COUNT(*) FROM {VEC_TABLE}").fetchone()[0]
-            if n_vec == n_rows:
-                print(f"vec index up to date ({n_vec} rows); use --force to rebuild")
-                build_fts(conn, n_rows, force=force)
-                return 0
+        needs_rebuild = force or not has_vec or stored_fp != fingerprint
+
+        if not needs_rebuild:
+            print(f"vec index up to date ({n_rows} rows, fp {fingerprint[:16]}...); use --force to rebuild")
+            build_fts(conn, n_rows, force=False)
+            return 0
+
+        if stored_fp:
+            print(f"vec index stale ({n_rows} rows, fp changed {stored_fp[:16]}... -> {fingerprint[:16]}...); rebuilding")
+        else:
+            print(f"vec index initializing ({n_rows} rows, fp {fingerprint[:16]}...)")
 
         t0 = time.perf_counter()
         conn.execute(f"DROP TABLE IF EXISTS {VEC_TABLE}")
@@ -89,10 +144,13 @@ def build(db_path: pathlib.Path, force: bool = False) -> int:
             f"INSERT INTO {VEC_TABLE}(rowid, embedding) "
             "SELECT rowid, embedding FROM evidence_chunks"
         )
+        _meta_set(conn, "content_fingerprint", fingerprint)
+        _meta_set(conn, "last_build_n_rows", str(n_rows))
+        _meta_set(conn, "last_build_at", str(time.time()))
         conn.commit()
         dt = time.perf_counter() - t0
         print(f"built {VEC_TABLE}: {n_rows} vectors in {dt:.2f}s -> {db_path}")
-        build_fts(conn, n_rows, force=force)
+        build_fts(conn, n_rows, force=True)
         return 0
     finally:
         conn.close()
@@ -101,7 +159,7 @@ def build(db_path: pathlib.Path, force: bool = False) -> int:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--db", default=str(pathlib.Path(__file__).resolve().parent / "evidence.db"))
-    ap.add_argument("--force", action="store_true", help="rebuild even if row counts match")
+    ap.add_argument("--force", action="store_true", help="rebuild even if the content fingerprint matches")
     args = ap.parse_args(argv)
     return build(pathlib.Path(args.db), force=args.force)
 

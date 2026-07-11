@@ -178,6 +178,52 @@ def test_build_vec_index_creates_knn_sidecar(tmp_path):
         conn.close()
 
 
+def test_build_vec_index_detects_content_changes(tmp_path):
+    """Changing a row's text or embedding without changing row count must
+    invalidate the sidecars and trigger an automatic rebuild."""
+    import sqlite3
+    import build_vec_index
+
+    db = tmp_path / "evidence.db"
+    _make_synthetic_db(db)
+    assert build_vec_index.build(db) == 0
+
+    # Mutate one row in place: same row count, different content.
+    conn = sqlite3.connect(str(db))
+    try:
+        new_text = "synthetic evidence record number 0 about topic 0 MODIFIED"
+        new_vec = pipeline._fallback_vector(new_text).tobytes()
+        conn.execute(
+            "UPDATE evidence_chunks SET text=?, embedding=? WHERE id=?",
+            (new_text, new_vec, "row-0"),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    # A second build must detect the fingerprint change and rebuild.
+    assert build_vec_index.build(db) == 0
+
+    import query
+
+    conn = sqlite3.connect(str(db))
+    try:
+        assert query._load_vec(conn), "sqlite-vec must load for sidecar inspection"
+        stored_fp = conn.execute(
+            f"SELECT value FROM {build_vec_index.META_TABLE} WHERE key='content_fingerprint'"
+        ).fetchone()[0]
+        n_vec = conn.execute(
+            f"SELECT COUNT(*) FROM {build_vec_index.VEC_TABLE}").fetchone()[0]
+        assert n_vec == 8
+        # The new embedding for row 0 should now be in the sidecar.
+        row0_vec = conn.execute(
+            "SELECT embedding FROM evidence_chunks_vec_row WHERE rowid=(SELECT rowid FROM evidence_chunks WHERE id='row-0')"
+        ).fetchone()[0]
+        assert row0_vec == new_vec
+    finally:
+        conn.close()
+
+
 def test_fetch_site_content_record_shape_and_write_if_changed(tmp_path):
     """Site-guide records follow the pipeline contract, and an unchanged
     fetch must NOT rewrite the file (that would dirty the content
