@@ -16,6 +16,33 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-11 - Climate-portfolio contract module in Lean
+
+- **Why.** The climate-series proof pack makes quantitative claims about five
+  material classes, but the formal evidence plane had no single build-locked
+  document that maps each class to its governing theory, failure mode,
+  correction path, and current data status. We needed a contract module that
+  both validates the portfolio envelope and records the rocksalt/halide
+  layout-ready / data-pending state.
+- **What.**
+  - Added `Validation/ClimatePortfolio.lean`: an inductive `MaterialClass` for
+    the five targets (cobalt-free LMR cathodes, halide solid electrolytes,
+    MOF DAC sorbents, electrochemical ammonia catalysts, lead-free perovskites);
+    per-class strings for governing theory, uMLIP failure mode, and correction
+    path; decidable portfolio-envelope certificates; rocksalt-layout-existence
+    and halide-unbound-pending-defect-runs certificates; and per-class
+    screening invariants restated as witnesses backed by existing theorems in
+    `RankingIntegrity`, `BarrierArrhenius`, `SorptionStability`,
+    `ScalingVolcano`, and `DefectStability`.
+  - Wired `ClimatePortfolio` into `Vision.lean` with `#check` locks and bumped
+    the theorem-inventory count from 190 to 200.
+- **Results.** `lake build` green (3,662 jobs, 0 `sorry`). Python unit tests
+  (55) all pass. The status board now prints 200 formally proven theorems.
+- **Next.** Bind the first rocksalt/halide cells once charge-balanced slab +
+    vacancy formation runs are available for MgO/NaCl/Li₂ZrCl₆/Li₃YCl₆; then
+    extend `ClimatePortfolio` with measured-field witnesses for the halide
+    electrolyte class.
+
 ## 2026-07-11 - Production wiring of the orphaned certificate gates + rocksalt/halide layout + climate-series Python mirror
 
 - **Why.** The climate-series formalization introduced three new certificate
