@@ -16,6 +16,76 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-11 - Production wiring of the orphaned certificate gates + rocksalt/halide layout + climate-series Python mirror
+
+- **Why.** The climate-series formalization introduced three new certificate
+  predicates — field-domain admission, ranking-inversion detection, and
+  barrier-underestimation conservatism — plus a `ClimateSeries` validation pack
+  and the rocksalt/halide family. Only the anchor-admissibility gate was
+  actually reaching production: `check_field_domain`, `check_ranking_pair`, and
+  `BarrierArrhenius.softened_barrier_underestimates` were tested but never
+  called by the runtime policy engine or promotion gate. Meanwhile the
+  rocksalt cells were recorded as `unbound_structures` rather than having an
+  explicit layout ready for charge-balanced slab/defect data.
+- **What.**
+  - `Theory/AnchoredField.lean`: added the rocksalt/halide layout —
+    `stepFieldRocksalt` (single c=5 anchor, bulk pin at c=6),
+    `mkAnchoredFieldRocksalt : ErrorField 6`, `mkMeasuredFieldRocksalt`, and
+    decidable `scaledAnchorRocksaltValid` — plus the evaluation theorems
+    (`_at_vacancy`, `_at_bulk`, `_clamped_below`, `_toMeasuredField`,
+    `scaledAnchorRocksaltValid_example`). The layout is ready for MgO/NaCl and
+    the Li–M–Cl halide electrolytes once their slab/defect observables are
+    measured. Zero `sorry`, zero new axioms.
+  - `lupine_distill.odf.field_certificates`: added `BarrierCertificate` and
+    `check_barrier_conservatism`, mirroring
+    `BarrierArrhenius.softened_barrier_underestimates` and
+    `softening_never_hides_conductor`; added rocksalt to
+    `ANCHOR_COORDINATIONS` / `_ANCHOR_REF_KEYS` and the corresponding theorem
+    refs.
+  - `lupine_distill.odf.climate_series` (new): Python mirror of
+    `Validation.ClimateSeries` with typed certificates for all 10 headline
+    claims (synthesis funnel, A-Lab novelty, kernel-rejected zero margin,
+    corrected strict improvement, blind residuals, Ni/Cu error reductions,
+    portfolio envelope, inventory floor), theorem refs, and pass/fail checks.
+    Inventory-floor defaults and the Lean `proof_pack_inventory_floor` theorem
+    updated to the current build state: 51 modules, 190 build-locked theorems,
+    ~640 declarations, zero `sorry`.
+  - `lupine_distill_runtime.policy_engine`: `_domain_action` now calls
+    `check_field_domain` when a prediction or context carries
+    `first_shell_coordinations`; out-of-domain atoms trigger a
+    `skip_correction` action backed by `FieldDomain.refusal_has_witness` and
+    strip the support model before any correction is applied.
+  - `lupine_distill.odf.promotion_gate`: added `reference_ranking` and
+    `model_ranking` metadata fields; `evaluate` now checks every adjacent pair
+    with `check_ranking_pair`. A machine-checked inversion downgrades
+    `promote` → `review` or `review` → `reject`, because no monotone
+    recalibration can rescue it.
+  - `python/scripts/bind_env_field_instances.py`: generalized `_bind_cell` to
+    handle layouts with no facets and optional vacancy blocks; cells missing
+    all bindable observables are skipped with a warning instead of crashing.
+    Added the rocksalt layout (MgO, NaCl, LiCl, Li3YCl6, Li2ZrCl6) and moved
+    layered oxides to `unbound_structures` with a clear data requirement.
+    Regenerated `EnvFieldInstances.lean` and `env_field_binding_report.json`;
+    corpus remains 68 cells → 19 instances + 49 refusals, now with a
+    `rocksalt` structure entry at 0 cells.
+  - Tests: added `python/tests/test_climate_series.py`,
+    `python/tests/test_bind_env_field_instances.py`, rocksalt/barrier/ranking
+    tests in `test_field_certificates.py`, and domain-gate tests in
+    `test_certificate_gate.py`.
+- **Results.** `lake build` green (3,661 jobs, 0 `sorry`). Python test suite
+  now contains 55 tests, all passing. The field-domain gate, ranking
+  gate, and barrier-conservatism certificate are now wired into production
+  paths. Rocksalt layout exists but cannot bind until charge-balanced slab +
+  vacancy runs are added; the binder documents this explicitly rather than
+  failing silently.
+- **Next.** Add charge-balanced rocksalt slab and vacancy formation targets +
+    statics runs so the halide electrolyte portfolio target can be formally
+    bound; surface `ranking_inverted` and `field_domain` skip events in the
+    Phoenix flywheel dashboards; expose `climate_series` certificates in the
+    promotion packet renderer and website article footnotes.
+
+---
+
 ## 2026-07-10 - Diamond anchor + run-time certificate gate: Si joins the corpus, refusals now block correction inside the policy engine
 
 - **Why.** Two follow-ups from the bcc rung (below): the remaining Y-matrix

@@ -1,6 +1,6 @@
 {
  "schema": "lupine.env_field_binding_report.v2",
- "corpus_sha256_12": "0246be6f665c",
+ "corpus_sha256_12": "c4393f3e3bcb",
  "generator": "python/scripts/bind_env_field_instances.py",
  "lean_module": "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean",
  "scale": 10000,
@@ -47,10 +47,23 @@
    "n_cells": 4,
    "n_instances": 4,
    "n_refusals": 0
+  },
+  "rocksalt": {
+   "bulk_coordination": 6,
+   "vacancy_shell_atoms": 5,
+   "anchor_coordination": {
+    "vacancy": 5
+   },
+   "measured_ctor": "mkMeasuredFieldRocksalt",
+   "anchored_ctor": "mkAnchoredFieldRocksalt",
+   "validity_predicate": "scaledAnchorRocksaltValid",
+   "n_cells": 0,
+   "n_instances": 0,
+   "n_refusals": 0
   }
  },
  "unbound_structures": {
-  "rocksalt": "statics runs carry only EOS + lattice results (no surface energies, no vacancy formation); the anchor layout needs new charge-balanced slab and defect runs for MgO/NaCl"
+  "layered_oxide": "layered oxide cathodes (e.g., LiCoO2, NMC) require Li-migration barriers and transition-metal redox energetics that are not yet in the Y-matrix statics corpus; add intercalation voltage + Li-diffusion runs to bind them"
  },
  "cells": [
   {

@@ -1,5 +1,5 @@
 /- AUTHORED by python/scripts/bind_env_field_instances.py from the
-   Y-matrix statics corpus + DFT-PBE targets (corpus sha256 0246be6f665c).
+   Y-matrix statics corpus + DFT-PBE targets (corpus sha256 c4393f3e3bcb).
    THE MEASURED FIELDS: per (model, material) cell, the measured anchors —
    fcc: P(8)/P(9)/P(11) with bulk pin c = 12; bcc: P(4)/P(6)/P(7) with
    bulk pin c = 8; diamond: P(3) with bulk pin c = 4 (eV/atom, x1e-4
@@ -11,7 +11,7 @@
    the emitted literals) also yield an `ErrorField` via
    the layout constructor (directional barrier laws);
    violating cells get kernel-checked refusal certificates instead.
-   68 measured fields; fcc: 8 instances + 28 refusals = 36 cells; bcc: 7 instances + 21 refusals = 28 cells; diamond: 4 instances + 0 refusals = 4 cells;
+   68 measured fields; fcc: 8 instances + 28 refusals = 36 cells; bcc: 7 instances + 21 refusals = 28 cells; diamond: 4 instances + 0 refusals = 4 cells; rocksalt: 0 instances + 0 refusals = 0 cells;
    total 19 instances + 49 refusals =
    68 cells. 0 sorry. -/
 
@@ -601,6 +601,10 @@ theorem bcc_cells_accounted : 7 + 21 = 28 := by
 
 /-- Every diamond sweep cell is accounted for: instances + refusals = cells. -/
 theorem diamond_cells_accounted : 4 + 0 = 4 := by
+  decide
+
+/-- Every rocksalt sweep cell is accounted for: instances + refusals = cells. -/
+theorem rocksalt_cells_accounted : 0 + 0 = 0 := by
   decide
 
 /-- Every sweep cell is accounted for: instances + refusals = cells. -/

@@ -184,15 +184,27 @@ LAYOUTS: tuple[StructureLayout, ...] = (
         anchored_ctor="mkAnchoredFieldDiamond",
         validity_predicate="scaledAnchorDiamondValid",
     ),
+    StructureLayout(
+        structure="rocksalt",
+        materials=("MgO", "NaCl", "LiCl", "Li3YCl6", "Li2ZrCl6"),
+        bulk_coordination=6,
+        vacancy_coordination=5,
+        vacancy_shell_atoms=5,
+        facets=(),
+        measured_ctor="mkMeasuredFieldRocksalt",
+        anchored_ctor="mkAnchoredFieldRocksalt",
+        validity_predicate="scaledAnchorRocksaltValid",
+    ),
 )
 
 #: Sweep structures whose statics runs measure none of the anchor
 #: observables; recorded in the report so absence is documented, not silent.
 UNBOUND_STRUCTURES = {
-    "rocksalt": (
-        "statics runs carry only EOS + lattice results (no surface energies, "
-        "no vacancy formation); the anchor layout needs new charge-balanced "
-        "slab and defect runs for MgO/NaCl"
+    "layered_oxide": (
+        "layered oxide cathodes (e.g., LiCoO2, NMC) require Li-migration "
+        "barriers and transition-metal redox energetics that are not yet in "
+        "the Y-matrix statics corpus; add intercalation voltage + Li-diffusion "
+        "runs to bind them"
     ),
 }
 
@@ -282,19 +294,28 @@ def _bind_cell(
                 p_scaled=round(p * SCALE),
             )
         )
-    evac_model = float(run["results"]["vacancy"]["values"]["vacancy_formation_ev"])
-    evac_ref = refs[(layout.structure, material, "vacancy_formation_energy")]
-    p_vac = (evac_model - evac_ref) / layout.vacancy_shell_atoms
-    anchors.append(
-        Anchor(
-            observable="vacancy",
-            coordination=layout.vacancy_coordination,
-            model_value=evac_model,
-            ref_value=evac_ref,
-            p_ev=p_vac,
-            p_scaled=round(p_vac * SCALE),
+
+    vacancy_block = run["results"].get("vacancy")
+    if vacancy_block is not None:
+        evac_model = float(vacancy_block["values"]["vacancy_formation_ev"])
+        evac_ref = refs[(layout.structure, material, "vacancy_formation_energy")]
+        p_vac = (evac_model - evac_ref) / layout.vacancy_shell_atoms
+        anchors.append(
+            Anchor(
+                observable="vacancy",
+                coordination=layout.vacancy_coordination,
+                model_value=evac_model,
+                ref_value=evac_ref,
+                p_ev=p_vac,
+                p_scaled=round(p_vac * SCALE),
+            )
         )
-    )
+
+    if not anchors:
+        raise ValueError(
+            f"{layout.structure}/{material}/{model_id}: no bindable observables "
+            "(surface energies or vacancy formation) in statics run"
+        )
 
     violations: list[str] = []
     for lower, upper in zip(anchors, anchors[1:]):
@@ -512,12 +533,16 @@ def main(argv: list[str] | None = None) -> int:
                     )
                     continue
                 layout_paths.append(p)
-        cells.extend(
-            sorted(
-                (_bind_cell(p, layout, refs) for p in layout_paths),
-                key=lambda c: (c.model_id, c.material),
-            )
-        )
+        bound_for_layout: list[CellAnchors] = []
+        for p in layout_paths:
+            try:
+                bound_for_layout.append(_bind_cell(p, layout, refs))
+            except (KeyError, ValueError) as exc:
+                print(
+                    f"WARNING: cannot bind {p.name}: {exc}; cell skipped",
+                    file=sys.stderr,
+                )
+        cells.extend(sorted(bound_for_layout, key=lambda c: (c.model_id, c.material)))
         run_paths.extend(layout_paths)
 
     sha = hashlib.sha256()
@@ -533,11 +558,15 @@ def main(argv: list[str] | None = None) -> int:
     args.lean_out.parent.mkdir(parents=True, exist_ok=True)
     args.lean_out.write_text(module, encoding="utf-8")
 
+    try:
+        lean_module_rel = str(args.lean_out.relative_to(_REPO_ROOT))
+    except ValueError:
+        lean_module_rel = str(args.lean_out)
     report = {
         "schema": REPORT_SCHEMA,
         "corpus_sha256_12": corpus_sha,
         "generator": "python/scripts/bind_env_field_instances.py",
-        "lean_module": str(args.lean_out.relative_to(_REPO_ROOT)),
+        "lean_module": lean_module_rel,
         "scale": SCALE,
         "structures": {
             layout.structure: {

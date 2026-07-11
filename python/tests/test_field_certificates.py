@@ -19,6 +19,7 @@ import pytest
 from lupine_distill.odf.field_certificates import (
     THEOREM_REFS,
     check_anchor_admissibility,
+    check_barrier_conservatism,
     check_field_domain,
     check_ranking_pair,
     merge_into_candidate_metadata,
@@ -149,6 +150,26 @@ def test_stiffening_diamond_anchor_refused():
     assert "scaledAnchorDiamondValid" in cert.reason
 
 
+# ── rocksalt anchor admissibility: mirrors scaledAnchorRocksaltValid ───────
+
+
+def test_admissible_rocksalt_anchor_mirror():
+    """Same value as Lean `scaledAnchorRocksaltValid_example` (positive half)."""
+    cert = check_anchor_admissibility(-4123, structure="rocksalt")
+    assert cert.tier == "error_field"
+    assert cert.structure == "rocksalt"
+    assert cert.coordinations == (5,)
+    assert cert.theorem_ref == THEOREM_REFS["anchored_field_rocksalt"]
+
+
+def test_stiffening_rocksalt_anchor_refused():
+    """Same value as Lean `scaledAnchorRocksaltValid_example` (negative half)."""
+    cert = check_anchor_admissibility(4123, structure="rocksalt")
+    assert cert.tier == "measured_field"
+    assert cert.violations == ("P(5) = 4123e-4 > 0 (softening)",)
+    assert "scaledAnchorRocksaltValid" in cert.reason
+
+
 def test_anchor_arity_must_match_layout():
     with pytest.raises(ValueError, match="anchor"):
         check_anchor_admissibility(-3, -2, structure="fcc")
@@ -239,6 +260,124 @@ def test_refusal_witness_lands_in_formal_properties():
         [check_field_domain([8, 8, 3, 8])],
     )
     assert any("atom 2 (c=3)" in p for p in enriched["formal_properties"])
+
+
+# ── Barrier conservatism: mirrors softened_barrier_underestimates ─────────
+
+
+def test_barrier_conservative_when_ts_is_softer():
+    """Reference barrier 0.50 eV; model barrier 0.45 eV; TS is softer."""
+    cert = check_barrier_conservatism(
+        model_init_ev=0.0,
+        model_ts_ev=0.45,
+        init_coordination=[12, 12, 12],
+        ts_coordination=[11, 11, 11],
+        reference_init_ev=0.0,
+        reference_ts_ev=0.50,
+    )
+    assert cert.conservative
+    assert cert.model_barrier_ev == pytest.approx(0.45)
+    assert cert.reference_barrier_ev == pytest.approx(0.50)
+    assert cert.theorem_ref == THEOREM_REFS["barrier_underestimated"]
+
+
+def test_barrier_flags_violated_lower_bound():
+    """Model barrier above reference barrier violates the lower-bound guarantee."""
+    cert = check_barrier_conservatism(
+        model_init_ev=0.0,
+        model_ts_ev=0.60,
+        init_coordination=[12, 12],
+        ts_coordination=[11, 11],
+        reference_init_ev=0.0,
+        reference_ts_ev=0.50,
+    )
+    assert not cert.conservative
+
+
+def test_barrier_hides_conductor_is_flagged():
+    """True conductor (0.20 eV) classified as insulator by softened model."""
+    cert = check_barrier_conservatism(
+        model_init_ev=0.0,
+        model_ts_ev=0.45,
+        init_coordination=[12],
+        ts_coordination=[11],
+        reference_init_ev=0.0,
+        reference_ts_ev=0.20,
+        conductor_threshold_ev=0.30,
+    )
+    assert not cert.conservative
+    assert cert.theorem_ref == THEOREM_REFS["barrier_conservatism"]
+
+
+def test_barrier_non_monotonic_coordination_is_inert():
+    """If TS is not element-wise softer, the law does not apply."""
+    cert = check_barrier_conservatism(
+        model_init_ev=0.0,
+        model_ts_ev=0.40,
+        init_coordination=[12, 8],
+        ts_coordination=[11, 9],
+    )
+    assert not cert.conservative
+    assert "not softer" in cert.reason
+
+
+def test_barrier_mismatched_lengths_are_inert():
+    cert = check_barrier_conservatism(
+        model_init_ev=0.0,
+        model_ts_ev=0.40,
+        init_coordination=[12, 12, 12],
+        ts_coordination=[11, 11],
+    )
+    assert not cert.conservative
+
+
+# ── Promotion gate: ranking-inversion detection ────────────────────────────
+
+
+def test_inverted_ranking_downgrades_promote_to_review():
+    """Same values as Lean `cathode_inversion_witness`."""
+    metadata = {
+        "model_id": "m",
+        "distill_version": 1,
+        "overall_uplift_pct": 7.5,
+        "atlas_theorem_refs": ["ref"],
+        "formal_properties": ["prop"],
+        "reference_ranking": [0.30, 0.45],
+        "model_ranking": [0.28, 0.25],
+    }
+    result = evaluate_promotion(metadata)
+    assert result.ranking_inverted
+    assert result.decision.value == "review"
+    assert any("ranking inversion" in r for r in result.reasons)
+
+
+def test_consistent_ranking_leaves_promote_intact():
+    metadata = {
+        "model_id": "m",
+        "distill_version": 1,
+        "overall_uplift_pct": 7.5,
+        "atlas_theorem_refs": ["ref"],
+        "formal_properties": ["prop"],
+        "reference_ranking": [0.30, 0.45],
+        "model_ranking": [0.10, 0.20],
+    }
+    result = evaluate_promotion(metadata)
+    assert not result.ranking_inverted
+    assert result.decision.value == "promote"
+
+
+def test_mismatched_ranking_lengths_are_rejected():
+    metadata = {
+        "model_id": "m",
+        "distill_version": 1,
+        "overall_uplift_pct": 7.5,
+        "atlas_theorem_refs": ["ref"],
+        "formal_properties": ["prop"],
+        "reference_ranking": [0.30, 0.45, 0.50],
+        "model_ranking": [0.10, 0.20],
+    }
+    result = evaluate_promotion(metadata)
+    assert any("length" in r for r in result.reasons)
 
 
 # ── Mirror integrity: every reference resolves to a Lean declaration ───────

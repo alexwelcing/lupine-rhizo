@@ -7,7 +7,7 @@ touches a theorem proven here.
 
 ## Current state
 
-- **190 build-locked theorems** in the executable vision, **418 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3661-job build green**.
+- **190 build-locked theorems** in the executable vision, **427 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3661-job build green**.
 - The build is locked by `#guard` contracts in `Materials/Vision.lean`.
 - Epistemic gaps are documented as structures/comments, not as axioms.
 - The climate-series physics layer (`Theory/EnvironmentField`,
