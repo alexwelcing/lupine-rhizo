@@ -167,6 +167,45 @@ def test_build_policy_engine_wraps_and_disables():
     assert isinstance(bare, PythonPolicyEngine)
 
 
+def test_out_of_domain_coordination_skips_correction():
+    """When the runner supplies first-shell coordinations, the domain gate
+    mirrors ``FieldDomain.refusal_has_witness`` and strips the support model
+    for out-of-domain atoms."""
+    engine = CertificateGatedPolicyEngine(PythonPolicyEngine("accuracy"), CertificateGate.load(REPORT))
+    decision = engine.decide(
+        row_id="energy_volume",
+        mlip_id="chgnet",
+        prediction={
+            "material_id": "Ni-fcc-conventional",
+            "energy_ev_per_atom": -5.0,
+            "first_shell_coordinations": [8, 8, 3, 8],
+        },
+        support_model=_BiasSupportModel(),
+    )
+    assert decision.corrected_prediction["energy_ev_per_atom"] == -5.0
+    skip = [a for a in decision.actions if a.get("action") == "skip_correction"]
+    assert len(skip) == 1
+    assert skip[0].get("kind") == "field_domain"
+    assert skip[0]["theorem_ref"].endswith("FieldDomain.refusal_has_witness")
+    assert any("atom 2 (c=3)" in str(a.get("reason", "")) for a in skip)
+
+
+def test_in_domain_coordination_allows_correction():
+    engine = CertificateGatedPolicyEngine(PythonPolicyEngine("accuracy"), CertificateGate.load(REPORT))
+    decision = engine.decide(
+        row_id="energy_volume",
+        mlip_id="chgnet",
+        prediction={
+            "material_id": "Ni-fcc-conventional",
+            "energy_ev_per_atom": -5.0,
+            "first_shell_coordinations": [8, 8, 8, 8, 8, 8],
+        },
+        support_model=_BiasSupportModel(),
+    )
+    assert decision.corrected_prediction["energy_ev_per_atom"] == pytest.approx(-4.9)
+    assert not any(a.get("kind") == "field_domain" for a in decision.actions)
+
+
 def test_session_summary_carries_gate_provenance():
     session = DistillSession(
         profile="accuracy",

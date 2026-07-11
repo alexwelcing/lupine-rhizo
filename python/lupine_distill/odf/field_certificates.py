@@ -67,8 +67,20 @@ THEOREM_REFS: dict[str, str] = {
     "anchor_admissibility_diamond": (
         f"{_THEORY}.AnchoredField.scaledAnchorDiamondValid"
     ),
+    "anchored_field_rocksalt": (
+        f"{_THEORY}.AnchoredField.mkAnchoredFieldRocksalt"
+    ),
+    "measured_field_rocksalt": (
+        f"{_THEORY}.AnchoredField.mkMeasuredFieldRocksalt"
+    ),
+    "anchor_admissibility_rocksalt": (
+        f"{_THEORY}.AnchoredField.scaledAnchorRocksaltValid"
+    ),
     "barrier_underestimated": (
         f"{_THEORY}.BarrierArrhenius.softened_barrier_underestimates"
+    ),
+    "barrier_conservatism": (
+        f"{_THEORY}.BarrierArrhenius.softening_never_hides_conductor"
     ),
     "inversion_impossibility": (
         f"{_THEORY}.RankingIntegrity.inversion_defeats_monotone"
@@ -101,11 +113,12 @@ DEFAULT_CMAX = 12
 
 #: First-shell coordinations probed by the anchors of each supported
 #: crystal-structure layout (mirrors the `stepField` / `stepFieldBcc` /
-#: `stepFieldDiamond` layouts).
+#: `stepFieldDiamond` / `stepFieldRocksalt` layouts).
 ANCHOR_COORDINATIONS: dict[str, tuple[int, ...]] = {
     "fcc": (8, 9, 11),
     "bcc": (4, 6, 7),
     "diamond": (3,),
+    "rocksalt": (5,),
 }
 
 #: (tier-2 constructor, tier-1 fallback, admissibility predicate) theorem-ref
@@ -117,6 +130,11 @@ _ANCHOR_REF_KEYS: dict[str, tuple[str, str, str]] = {
         "anchored_field_diamond",
         "measured_field_diamond",
         "anchor_admissibility_diamond",
+    ),
+    "rocksalt": (
+        "anchored_field_rocksalt",
+        "measured_field_rocksalt",
+        "anchor_admissibility_rocksalt",
     ),
 }
 
@@ -293,8 +311,13 @@ def check_anchor_admissibility(
             f"coordinations {coordinations}; got {len(anchors_scaled)} value(s)"
         )
     predicate = THEOREM_REFS[predicate_key].rsplit(".", 1)[-1]
-    identification_key, _bracket_key, _separation_key = _BRACKET_REF_KEYS[structure]
-    gap_coordination = GAP_COORDINATIONS[structure]
+    bracket_keys = _BRACKET_REF_KEYS.get(structure)
+    if bracket_keys is None:
+        identification_key = None
+        gap_coordination = None
+    else:
+        identification_key, _bracket_key, _separation_key = bracket_keys
+        gap_coordination = GAP_COORDINATIONS[structure]
     violations: list[str] = []
     for (c_lo, p_lo), (c_hi, p_hi) in zip(
         zip(coordinations, anchors_scaled), zip(coordinations[1:], anchors_scaled[1:])
@@ -313,23 +336,31 @@ def check_anchor_admissibility(
             f"tier-2 refusal (¬ {predicate}): "
             + "; ".join(violations)
             + " — correction/ranking laws remain valid at the measured tier; "
-            "directional softening laws do not apply; no softening field is "
-            "consistent with these anchors (identification impossibility)"
+            "directional softening laws do not apply"
         )
+        if identification_key is not None:
+            reason += (
+                "; no softening field is consistent with these anchors "
+                "(identification impossibility)"
+            )
     else:
         tier = "error_field"
         ref = THEOREM_REFS[anchored_key]
-        bracket_width = _bracket_width_scaled(structure, anchors_scaled)
-        if gap_coordination is None:
-            width_note = (
-                "no unanchored in-range coordination — in-range corrections "
-                "are certified exact"
-            )
+        if identification_key is None:
+            bracket_width = None
+            width_note = "no anchor-identification bracket law is recorded for this layout"
         else:
-            width_note = (
-                f"certified per-atom bracket width {bracket_width}e-4 eV/atom "
-                f"at the unanchored coordination c = {gap_coordination}"
-            )
+            bracket_width = _bracket_width_scaled(structure, anchors_scaled)
+            if gap_coordination is None:
+                width_note = (
+                    "no unanchored in-range coordination — in-range corrections "
+                    "are certified exact"
+                )
+            else:
+                width_note = (
+                    f"certified per-atom bracket width {bracket_width}e-4 eV/atom "
+                    f"at the unanchored coordination c = {gap_coordination}"
+                )
         reason = (
             "monotone softening holds on the measured anchors — directional "
             "laws (barrier underestimation, mobility overestimation) apply; "
@@ -345,7 +376,9 @@ def check_anchor_admissibility(
         reason=reason,
         gap_coordination=gap_coordination,
         bracket_width_scaled=bracket_width,
-        identification_ref=THEOREM_REFS[identification_key],
+        identification_ref=""
+        if identification_key is None
+        else THEOREM_REFS[identification_key],
     )
 
 
@@ -455,6 +488,40 @@ class BracketSeparationCertificate:
         }
 
 
+@dataclass(frozen=True)
+class BarrierCertificate:
+    """Conservatism of a model-predicted barrier under monotone softening.
+
+    Mirrors ``BarrierArrhenius.softened_barrier_underestimates``: when the
+    transition-state configuration is *softer* (lower or equal first-shell
+    coordination at every anchor) than the initial state, the model barrier
+    is a lower bound on the reference barrier. The certificate also carries
+    the ``softening_never_hides_conductor`` conservatism check: if the true
+    material is not a conductor at the threshold ``EaStar``, the softened
+    model cannot falsely claim it is.
+    """
+
+    conservative: bool
+    model_barrier_ev: float
+    reference_barrier_ev: float | None
+    init_coordination: tuple[int, ...]
+    ts_coordination: tuple[int, ...]
+    theorem_ref: str
+    reason: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": "barrier_conservatism",
+            "conservative": self.conservative,
+            "model_barrier_ev": self.model_barrier_ev,
+            "reference_barrier_ev": self.reference_barrier_ev,
+            "init_coordination": list(self.init_coordination),
+            "ts_coordination": list(self.ts_coordination),
+            "theorem_ref": self.theorem_ref,
+            "reason": self.reason,
+        }
+
+
 def check_bracket_separation(
     corrected_a: float,
     corrected_b: float,
@@ -520,11 +587,119 @@ def check_bracket_separation(
     )
 
 
+def check_barrier_conservatism(
+    model_init_ev: float,
+    model_ts_ev: float,
+    init_coordination: Sequence[int],
+    ts_coordination: Sequence[int],
+    reference_init_ev: float | None = None,
+    reference_ts_ev: float | None = None,
+    conductor_threshold_ev: float | None = None,
+) -> BarrierCertificate:
+    """Mirror of the barrier-underestimation / conductor-conservatism laws.
+
+    The softening law applies when ``ts_coordination`` is element-wise less
+    than or equal to ``init_coordination`` (a transition state that is no more
+    coordinated than the initial state). Under that ordering,
+    ``softened_barrier_underestimates`` guarantees ``model_barrier <=
+    reference_barrier``, so the model cannot overestimate the barrier and
+    falsely screen out a viable ion conductor or catalyst.
+
+    When ``conductor_threshold_ev`` is supplied, the additional
+    ``softening_never_hides_conductor`` check is performed: a true conductor
+    (reference barrier below threshold) remains classified as a conductor by
+    the softened model.
+    """
+    model_barrier = model_ts_ev - model_init_ev
+    reference_barrier = (
+        None
+        if reference_init_ev is None or reference_ts_ev is None
+        else reference_ts_ev - reference_init_ev
+    )
+
+    if len(init_coordination) != len(ts_coordination):
+        return BarrierCertificate(
+            conservative=False,
+            model_barrier_ev=model_barrier,
+            reference_barrier_ev=reference_barrier,
+            init_coordination=tuple(init_coordination),
+            ts_coordination=tuple(ts_coordination),
+            theorem_ref=THEOREM_REFS["barrier_underestimated"],
+            reason=(
+                "cannot assess barrier conservatism: initial and transition-state "
+                f"configurations have different lengths ({len(init_coordination)} vs "
+                f"{len(ts_coordination)})"
+            ),
+        )
+
+    ordering_holds = all(
+        ts <= init for ts, init in zip(ts_coordination, init_coordination)
+    )
+
+    if not ordering_holds:
+        return BarrierCertificate(
+            conservative=False,
+            model_barrier_ev=model_barrier,
+            reference_barrier_ev=reference_barrier,
+            init_coordination=tuple(init_coordination),
+            ts_coordination=tuple(ts_coordination),
+            theorem_ref=THEOREM_REFS["barrier_underestimated"],
+            reason=(
+                "transition state is not softer than initial state at every anchor — "
+                "barrier-underestimation law does not apply"
+            ),
+        )
+
+    # Under the softening ordering, the model barrier is a lower bound on the
+    # reference barrier (or equal when the field sum cancels exactly).
+    conservative = True
+    reasons: list[str] = [
+        "transition state is softer than initial state at every anchor; "
+        "model barrier is a lower bound on the reference barrier "
+        "(softened_barrier_underestimates)"
+    ]
+
+    if reference_barrier is not None and model_barrier > reference_barrier + 1e-9:
+        conservative = False
+        reasons.append(
+            f"model barrier {model_barrier:.6f} eV exceeds reference barrier "
+            f"{reference_barrier:.6f} eV — lower-bound guarantee is violated"
+        )
+
+    if conductor_threshold_ev is not None and reference_barrier is not None:
+        true_conductor = reference_barrier <= conductor_threshold_ev
+        model_conductor = model_barrier <= conductor_threshold_ev
+        if true_conductor and not model_conductor:
+            conservative = False
+            reasons.append(
+                "softened model hides a true conductor ("
+                "softening_never_hides_conductor violated)"
+            )
+        else:
+            reasons.append(
+                "softened model does not hide a true conductor "
+                "(softening_never_hides_conductor)"
+            )
+
+    return BarrierCertificate(
+        conservative=conservative,
+        model_barrier_ev=model_barrier,
+        reference_barrier_ev=reference_barrier,
+        init_coordination=tuple(init_coordination),
+        ts_coordination=tuple(ts_coordination),
+        theorem_ref=THEOREM_REFS["barrier_conservatism"]
+        if conductor_threshold_ev is not None
+        else THEOREM_REFS["barrier_underestimated"],
+        reason="; ".join(reasons),
+    )
+
+
 Certificate = (
     DomainCertificate
     | AnchorCertificate
     | RankingCertificate
     | BracketSeparationCertificate
+    | BarrierCertificate
 )
 
 
@@ -643,11 +818,13 @@ __all__ = [
     "AnchorCertificate",
     "RankingCertificate",
     "BracketSeparationCertificate",
+    "BarrierCertificate",
     "Certificate",
     "check_field_domain",
     "check_anchor_admissibility",
     "check_ranking_pair",
     "check_bracket_separation",
+    "check_barrier_conservatism",
     "RUNTIME_MLIP_ALIASES",
     "resolve_binder_model_id",
     "certificates_from_binding_report",

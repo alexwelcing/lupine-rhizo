@@ -39,6 +39,7 @@ import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
 import OpenDistillationFactory.Materials.Validation.ClimateSeries
 import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
+import OpenDistillationFactory.Materials.Validation.ClimatePortfolio
 
 namespace OpenDistillationFactory.Materials.Vision
 
@@ -70,6 +71,7 @@ open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
 open OpenDistillationFactory.Materials.Validation.ClimateSeries
 open OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
+open OpenDistillationFactory.Materials.Validation.ClimatePortfolio
 
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 1: DATA AUDIT
@@ -288,7 +290,22 @@ def nistCount := nistScaffoldAlSample.length
 #check portfolio_range_within_component_sums
 #check proof_pack_inventory_floor
 
-/- T151–T156: The measured tier — correction, bulk-invariance, transfer, and
+/- T151–T156: Climate-portfolio contract — five material classes mapped to
+    their governing theory, failure mode, correction path, and data status;
+    portfolio envelope verified component-wise; per-class screening invariants
+    restated as build-locked witnesses. -/
+#check portfolio_lower_bound_fits
+#check portfolio_upper_bound_fits
+#check dac_dominates_lower_bound
+#check rocksalt_layout_exists
+#check halide_cells_unbound_pending_defect_runs
+#check lmr_ranking_invariant_holds
+#check halide_barrier_invariant_holds
+#check dac_ranking_invariant_holds
+#check ammonia_volcano_invariant_holds
+#check perovskite_metastability_invariant_holds
+
+/- T157–T162: The measured tier — correction, bulk-invariance, transfer, and
     ranking-recovery laws with no shape assumption, so every bound sweep cell
     (including noise-floor and stiffening cells the directional layer
     refuses) carries certified correction semantics. -/
@@ -445,6 +462,7 @@ def computationallyProvenCount : Nat :=
   -- Climate-series physics push: EnvironmentField 12, BarrierArrhenius 16,
   -- RankingIntegrity 6, ScalingVolcano 11, DefectStability 8,
   -- SorptionStability 10, ClimateSeries certificates 10
+  -- Climate-portfolio contract: ClimatePortfolio 10
   -- Measured-fields push: MeasuredField tier 6, measured ranking laws 3,
   -- AnchoredField measurement bridge 11
   -- Bcc anchors push: AnchoredField bcc measurement bridge 11
@@ -453,7 +471,7 @@ def computationallyProvenCount : Nat :=
   -- refusal theorems — is locked by #guards but not counted here)
   -- Anchor-identification push: AnchorBracket identification/bracket/
   -- ranking/kinetics laws 49, corpus bracket certificates 8
-  247
+  257
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
