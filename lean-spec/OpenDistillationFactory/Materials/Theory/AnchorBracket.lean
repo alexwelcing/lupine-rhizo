@@ -24,8 +24,8 @@ central epistemic question:
 > true error field, and which corrections, error bars, and rankings does it
 > therefore certify?**
 
-The answers, each a theorem below (fcc layout; bcc and diamond mirrors
-follow in the later sections):
+The answers, each a theorem below (fcc layout; bcc, diamond, and rocksalt
+mirrors follow in the later sections):
 
 1. **Existence ↔ admissibility** (`exists_interpolant_iff_fcc`): a softening
    field through the measured anchors exists *iff* the anchors satisfy the
@@ -985,6 +985,70 @@ theorem corrected_exact_diamond {M : MeasuredField 4} {p3 : ℝ}
   unfold MeasuredField.corrected
   linarith
 
+/-! ## The rocksalt layout: single anchor at c = 5, bulk pin c = 6
+
+The rocksalt mirror of the diamond case: one anchor, no unanchored in-range
+coordination, so in-range identification is complete at the measured tier
+and the gap budget is zero. The binder currently emits no bound rocksalt
+cells (the statics runs carry no anchor observables), but the layout's
+identification laws are ready for when charge-balanced slab and defect
+runs land. -/
+
+/-- In-range gate for the rocksalt layout: every coordination at least the
+anchor c = 5. -/
+def InRangeRocksalt (cfg : Config) : Prop := ∀ c ∈ cfg, 5 ≤ c
+
+/-- **Existence ↔ admissibility, rocksalt.** A softening field through the
+single measured rocksalt anchor exists iff `p5 ≤ 0`. -/
+theorem exists_interpolant_iff_rocksalt (p5 : ℝ) :
+    (∃ F : ErrorField 6, F.P 5 = p5) ↔ p5 ≤ 0 := by
+  constructor
+  · rintro ⟨F, h5⟩
+    rw [← h5]
+    exact F.softening 5
+  · intro h50
+    exact ⟨mkAnchoredFieldRocksalt p5 h50, rfl⟩
+
+/-- The scaled-integer bridge for the rocksalt layout. -/
+theorem scaledAnchorRocksaltValid_iff_exists_interpolant (a : Int) :
+    scaledAnchorRocksaltValid a ↔
+      ∃ F : ErrorField 6, F.P 5 = (a : ℝ) / 10000 := by
+  rw [exists_interpolant_iff_rocksalt]
+  unfold scaledAnchorRocksaltValid
+  constructor
+  · intro h
+    have h' : (a : ℝ) ≤ 0 := by exact_mod_cast h
+    linarith
+  · intro h
+    have h' : (a : ℝ) ≤ 0 := by linarith
+    exact_mod_cast h'
+
+/-- **Complete identification, rocksalt, measured tier.** Any measured field
+through the rocksalt anchor computes exactly the step-field sum on every
+in-range configuration: zero gap budget. -/
+theorem measured_fieldSum_exact_rocksalt {M : MeasuredField 6} {p5 : ℝ}
+    (hM : M.P 5 = p5) {cfg : Config} (hcfg : InRangeRocksalt cfg) :
+    M.fieldSum cfg = (mkMeasuredFieldRocksalt p5).fieldSum cfg := by
+  have hcongr : ∀ c ∈ cfg, M.P c = stepFieldRocksalt p5 c := by
+    intro c hc
+    have h5c : 5 ≤ c := hcfg c hc
+    rcases lt_or_ge c 6 with hlt | hge
+    · interval_cases c
+      exact hM
+    · rw [M.bulk_anchor c hge, stepFieldRocksalt_bulk_anchor p5 c hge]
+  exact mapSum_congr_on M.P (stepFieldRocksalt p5) cfg hcongr
+
+/-- **Exact correction, rocksalt.** For an exactly field-decomposable model
+on an in-range rocksalt configuration, the step-field correction recovers
+the reference energy exactly. -/
+theorem corrected_exact_rocksalt {M : MeasuredField 6} {p5 : ℝ}
+    (hM : M.P 5 = p5) {eModel eRef : ℝ} {cfg : Config}
+    (hcfg : InRangeRocksalt cfg) (h : eModel = eRef + M.fieldSum cfg) :
+    (mkMeasuredFieldRocksalt p5).corrected eModel cfg = eRef := by
+  have hex := measured_fieldSum_exact_rocksalt hM hcfg
+  unfold MeasuredField.corrected
+  linarith
+
 /-! ## Gate compatibility: the runtime domain gate and the in-range policy
 
 The runtime's first-shell domain gate (`SorptionStability.FieldDomain`,
@@ -1024,6 +1088,15 @@ open SorptionStability in
 the gate's floor is at or above the diamond anchor c = 3. -/
 theorem inRangeDiamond_of_admits {D : FieldDomain} (h3 : 3 ≤ D.cmin)
     {cfg : Config} (h : D.admits cfg = true) : InRangeDiamond cfg := by
+  intro c hc
+  have := (FieldDomain.admits_iff D cfg).mp h c hc
+  omega
+
+open SorptionStability in
+/-- A domain-gate pass discharges the rocksalt in-range precondition whenever
+the gate's floor is at or above the rocksalt anchor c = 5. -/
+theorem inRangeRocksalt_of_admits {D : FieldDomain} (h5 : 5 ≤ D.cmin)
+    {cfg : Config} (h : D.admits cfg = true) : InRangeRocksalt cfg := by
   intro c hc
   have := (FieldDomain.admits_iff D cfg).mp h c hc
   omega

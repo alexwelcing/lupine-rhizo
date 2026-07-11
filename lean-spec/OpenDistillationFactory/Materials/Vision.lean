@@ -38,6 +38,7 @@ import OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
 import OpenDistillationFactory.Materials.Validation.ClimateSeries
+import OpenDistillationFactory.Materials.Validation.ClimatePortfolio
 import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 namespace OpenDistillationFactory.Materials.Vision
@@ -69,6 +70,7 @@ open OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
 open OpenDistillationFactory.Materials.Validation.ClimateSeries
+open OpenDistillationFactory.Materials.Validation.ClimatePortfolio
 open OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 -- ═══════════════════════════════════════════════════════════════
@@ -288,7 +290,22 @@ def nistCount := nistScaffoldAlSample.length
 #check portfolio_range_within_component_sums
 #check proof_pack_inventory_floor
 
-/- T151–T156: The measured tier — correction, bulk-invariance, transfer, and
+/- T151–T156: Climate-portfolio contract — five material classes mapped to
+    their governing theory, failure mode, correction path, and data status;
+    portfolio envelope verified component-wise; per-class screening invariants
+    restated as build-locked witnesses. -/
+#check portfolio_lower_bound_fits
+#check portfolio_upper_bound_fits
+#check dac_dominates_lower_bound
+#check rocksalt_layout_exists
+#check halide_cells_unbound_pending_defect_runs
+#check lmr_ranking_invariant_holds
+#check halide_barrier_invariant_holds
+#check dac_ranking_invariant_holds
+#check ammonia_volcano_invariant_holds
+#check perovskite_metastability_invariant_holds
+
+/- T157–T162: The measured tier — correction, bulk-invariance, transfer, and
     ranking-recovery laws with no shape assumption, so every bound sweep cell
     (including noise-floor and stiffening cells the directional layer
     refuses) carries certified correction semantics. -/
@@ -299,12 +316,12 @@ def nistCount := nistScaffoldAlSample.length
 #check MeasuredField.fieldSum_transfer
 #check ErrorField.toMeasuredField_fieldSum
 
-/- T157–T159: Measured-tier ranking laws. -/
+/- T163–T165: Measured-tier ranking laws. -/
 #check measured_same_signature_corrected_iff
 #check measured_corrected_recovers_reference_order
 #check measured_corrected_recovers_strict_order
 
-/- T160–T170: Anchored fields — the measurement bridge from the three fcc
+/- T166–T176: Anchored fields — the measurement bridge from the three fcc
     anchors (γ₁₀₀ → c=8, γ₁₁₁ → c=9, E_vac → c=11, bulk pin c=12) to
     `MeasuredField`/`ErrorField` instances, with decidable admissibility and
     kernel-checked refusals. -/
@@ -320,7 +337,7 @@ def nistCount := nistScaffoldAlSample.length
 #check mkAnchoredField_toMeasuredField
 #check scaledAnchorsValid_example
 
-/- T171–T181: The bcc measurement bridge — the same anchored-field
+/- T177–T187: The bcc measurement bridge — the same anchored-field
     construction for the bcc refractory metals (γ₁₀₀ → c=4, γ₁₁₀ → c=6,
     E_vac → c=7, bulk pin c=8), with its own step layout, decidable
     admissibility predicate, and kernel-checked refusals. -/
@@ -336,7 +353,7 @@ def nistCount := nistScaffoldAlSample.length
 #check mkAnchoredFieldBcc_toMeasuredField
 #check scaledAnchorsBccValid_example
 
-/- T182–T190: The diamond measurement bridge — the single-anchor layout for
+/- T188–T196: The diamond measurement bridge — the single-anchor layout for
     the diamond-cubic semiconductors (E_vac → c=3, bulk pin c=4). One
     measured anchor still instantiates both tiers; the rocksalt cells of the
     sweep measure no anchor observables and are documented as unbound in the
@@ -369,7 +386,7 @@ def nistCount := nistScaffoldAlSample.length
 #check diamond_cells_accounted
 #check cells_accounted
 
-/- T191–T239: The anchor-identification laws (Theory/AnchorBracket) — what
+/- T197–T250: The anchor-identification laws (Theory/AnchorBracket) — what
     the measured anchors do and do not determine. Existence ↔ admissibility
     (refusal completeness: every corpus refusal now rules out ALL softening
     fields, not just the step constructor), the one-scalar reduction of
@@ -409,11 +426,16 @@ def nistCount := nistScaffoldAlSample.length
 #check AnchorBracket.scaledAnchorDiamondValid_iff_exists_interpolant
 #check AnchorBracket.measured_fieldSum_exact_diamond
 #check AnchorBracket.corrected_exact_diamond
+#check AnchorBracket.exists_interpolant_iff_rocksalt
+#check AnchorBracket.scaledAnchorRocksaltValid_iff_exists_interpolant
+#check AnchorBracket.measured_fieldSum_exact_rocksalt
+#check AnchorBracket.corrected_exact_rocksalt
 #check AnchorBracket.inRangeFcc_of_admits
 #check AnchorBracket.inRangeBcc_of_admits
 #check AnchorBracket.inRangeDiamond_of_admits
+#check AnchorBracket.inRangeRocksalt_of_admits
 
-/- T240–T247: Corpus-bound anchor-bracket certificates
+/- T251–T258: Corpus-bound anchor-bracket certificates
     (Validation/AnchorBracketCertificates): impossibility certificates for
     the flagship refusals (composed THROUGH the generated refusal theorems,
     so corpus regeneration desync breaks the build), gap/width certificates
@@ -445,6 +467,7 @@ def computationallyProvenCount : Nat :=
   -- Climate-series physics push: EnvironmentField 12, BarrierArrhenius 16,
   -- RankingIntegrity 6, ScalingVolcano 11, DefectStability 8,
   -- SorptionStability 10, ClimateSeries certificates 10
+  -- Climate-portfolio contract: ClimatePortfolio 10
   -- Measured-fields push: MeasuredField tier 6, measured ranking laws 3,
   -- AnchoredField measurement bridge 11
   -- Bcc anchors push: AnchoredField bcc measurement bridge 11
@@ -452,8 +475,9 @@ def computationallyProvenCount : Nat :=
   -- generated EnvFieldInstances corpus — 68 fields, 19 instances, 49
   -- refusal theorems — is locked by #guards but not counted here)
   -- Anchor-identification push: AnchorBracket identification/bracket/
-  -- ranking/kinetics laws 49, corpus bracket certificates 8
-  247
+  -- ranking/kinetics laws 54 (incl. the rocksalt single-anchor mirror),
+  -- corpus bracket certificates 8
+  262
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/

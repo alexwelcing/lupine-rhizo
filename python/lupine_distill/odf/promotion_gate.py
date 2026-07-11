@@ -40,6 +40,8 @@ from typing import Any, Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from lupine_distill.odf.field_certificates import check_ranking_pair
+
 # Uplift gate thresholds (percent), per §13.2 decision logic.
 PROMOTE_THRESHOLD_PCT = 5.0   # uplift strictly above this -> promote
 REJECT_THRESHOLD_PCT = 0.0    # uplift strictly below this -> reject
@@ -78,6 +80,23 @@ class CandidateMetadata(BaseModel):
         default_factory=list,
         description="Proved formal properties of the model.",
     )
+    reference_ranking: list[float] | None = Field(
+        default=None,
+        description=(
+            "Reference-property ranking of promotion-representative materials "
+            "(lower-is-better, e.g. formation energy). Adjacent pairs are checked "
+            "for monotone rescuability against model_ranking."
+        ),
+    )
+    model_ranking: list[float] | None = Field(
+        default=None,
+        description=(
+            "Model-predicted ranking corresponding to reference_ranking. An "
+            "inverted adjacent pair is not repairable by any monotone "
+            "recalibration (machine-checked impossibility) and downgrades the "
+            "promotion decision."
+        ),
+    )
 
 
 @dataclass(frozen=True)
@@ -90,6 +109,7 @@ class GateResult:
     uplift_pct: float | None
     uplift_band: str
     formal_fields_present: bool
+    ranking_inverted: bool = False
     reasons: tuple[str, ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict[str, Any]:
@@ -101,6 +121,7 @@ class GateResult:
             "uplift_pct": self.uplift_pct,
             "uplift_band": self.uplift_band,
             "formal_fields_present": self.formal_fields_present,
+            "ranking_inverted": self.ranking_inverted,
             "reasons": list(self.reasons),
         }
 
@@ -172,6 +193,63 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
             reasons.append("Downgraded review -> reject: marginal uplift AND incomplete formal spec.")
         # REJECT stays REJECT.
 
+    ranking_present = (
+        candidate.reference_ranking is not None and candidate.model_ranking is not None
+    )
+    ranking_inverted = False
+    if ranking_present:
+        ref = candidate.reference_ranking
+        mod = candidate.model_ranking
+        if len(ref) != len(mod):
+            reasons.append(
+                f"Ranking check FAILED: reference_ranking length {len(ref)} != "
+                f"model_ranking length {len(mod)}."
+            )
+        elif len(ref) < 2:
+            reasons.append(
+                "Ranking check SKIPPED: at least two ranked materials are required."
+            )
+        else:
+            inverted_pairs: list[tuple[int, float, float, float, float]] = []
+            for i in range(len(ref) - 1):
+                cert = check_ranking_pair(ref[i], ref[i + 1], mod[i], mod[i + 1])
+                if cert.inverted:
+                    inverted_pairs.append(
+                        (i, ref[i], ref[i + 1], mod[i], mod[i + 1])
+                    )
+            if inverted_pairs:
+                ranking_inverted = True
+                details = "; ".join(
+                    f"pair {idx}: ref ({r1:.4f}, {r2:.4f}) vs model ({m1:.4f}, {m2:.4f})"
+                    for idx, r1, r2, m1, m2 in inverted_pairs
+                )
+                reasons.append(
+                    "Ranking check FAILED: ranking inversion detected — "
+                    "no monotone recalibration can reconcile the pair(s) "
+                    f"({details})."
+                )
+                # A ranking inversion is a machine-checked impossibility for
+                # field-decomposable errors; it blocks promotion regardless of
+                # uplift, because the model is ordering candidates opposite to
+                # the reference.
+                if decision is PromotionDecision.PROMOTE:
+                    decision = PromotionDecision.REVIEW
+                    reasons.append(
+                        "Downgraded promote -> review: ranking inversion requires "
+                        "energy-level correction or escalation."
+                    )
+                elif decision is PromotionDecision.REVIEW:
+                    decision = PromotionDecision.REJECT
+                    reasons.append(
+                        "Downgraded review -> reject: marginal uplift AND ranking inversion."
+                    )
+                # REJECT stays REJECT.
+            else:
+                reasons.append(
+                    f"Ranking check PASSED: {len(ref) - 1} adjacent pair(s) are "
+                    "monotone-rescuable."
+                )
+
     return GateResult(
         model_id=candidate.model_id,
         distill_version=candidate.distill_version,
@@ -179,6 +257,7 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
         uplift_pct=uplift,
         uplift_band=band_label,
         formal_fields_present=formal_present,
+        ranking_inverted=ranking_inverted,
         reasons=tuple(reasons),
     )
 

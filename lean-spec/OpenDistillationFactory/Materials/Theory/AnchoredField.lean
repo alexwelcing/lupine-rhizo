@@ -396,4 +396,113 @@ theorem scaledAnchorDiamondValid_example :
     scaledAnchorDiamondValid (-6906) ∧ ¬ scaledAnchorDiamondValid 6906 := by
   constructor <;> decide
 
+/-! ## The rocksalt / halide layout
+
+Single-anchor measurement bridge for the six-coordinate rocksalt family
+(MgO, NaCl, and the Li–M–Cl halide solid electrolytes targeted by the
+climate-series portfolio). The first-shell coordination is c = 6; a
+charge-neutral cation vacancy exposes five first-shell anions (c = 5), and
+the non-polar (100) surface also probes c = 5. Because the current statics
+runs for these cells carry only EOS and lattice results, the binder emits no
+bound rocksalt cells yet — but the layout is ready for charge-balanced slab
+and defect runs. One admissible anchor (`p5 ≤ 0`) yields a genuine
+`ErrorField 6`: every law proven in `Theory.EnvironmentField`,
+`Theory.BarrierArrhenius`, and `Theory.RankingIntegrity` applies once the
+measurements are available. -/
+
+/-- Clamped step interpolation of the single rocksalt anchor: `p5` up to
+c = 5 (and below, as a conservative floor), zero at bulk (c ≥ 6). -/
+def stepFieldRocksalt (p5 : ℝ) : ℕ → ℝ := fun c =>
+  if c ≤ 5 then p5
+  else 0
+
+theorem stepFieldRocksalt_bulk_anchor (p5 : ℝ) :
+    ∀ c, 6 ≤ c → stepFieldRocksalt p5 c = 0 := by
+  intro c hc
+  unfold stepFieldRocksalt
+  split_ifs <;> first | rfl | omega
+
+theorem stepFieldRocksalt_softening {p5 : ℝ} (h50 : p5 ≤ 0) :
+    ∀ c, stepFieldRocksalt p5 c ≤ 0 := by
+  intro c
+  unfold stepFieldRocksalt
+  split_ifs <;> linarith
+
+theorem stepFieldRocksalt_monotone {p5 : ℝ} (h50 : p5 ≤ 0) :
+    Monotone (stepFieldRocksalt p5) := by
+  intro a b hab
+  unfold stepFieldRocksalt
+  split_ifs <;> linarith
+
+/-- **The rocksalt measurement bridge.** One admissible measured anchor
+(`p5 ≤ 0`) yields a genuine `ErrorField 6`: every law proven in
+`Theory.EnvironmentField`, `Theory.BarrierArrhenius`, and
+`Theory.RankingIntegrity` will apply to rocksalt/halfide cells once their
+slab and defect observables are measured. The per-cell hypothesis is a
+numeric fact dischargeable by `norm_num`. -/
+def mkAnchoredFieldRocksalt (p5 : ℝ) (h50 : p5 ≤ 0) : ErrorField 6 where
+  P := stepFieldRocksalt p5
+  bulk_anchor := stepFieldRocksalt_bulk_anchor p5
+  softening := stepFieldRocksalt_softening h50
+  mono := stepFieldRocksalt_monotone h50
+
+section EvalRocksalt
+
+variable (p5 : ℝ) (h50 : p5 ≤ 0)
+
+/-- The rocksalt anchored field reproduces its c = 5 anchor. -/
+theorem mkAnchoredFieldRocksalt_at_vacancy :
+    (mkAnchoredFieldRocksalt p5 h50).P 5 = p5 := rfl
+
+/-- The rocksalt anchored field vanishes at bulk — the pinned boundary
+condition `P(6) = 0` at the rocksalt first-shell coordination. -/
+theorem mkAnchoredFieldRocksalt_at_bulk :
+    (mkAnchoredFieldRocksalt p5 h50).P 6 = 0 := rfl
+
+/-- Below the anchor the rocksalt step field continues at the c = 5 value —
+the conservative clamp for under-coordinated environments such as c = 4
+step-edge and kink sites. -/
+theorem mkAnchoredFieldRocksalt_clamped_below :
+    (mkAnchoredFieldRocksalt p5 h50).P 4 = p5 := rfl
+
+end EvalRocksalt
+
+/-- **The rocksalt measured-tier constructor.** Any measured rocksalt anchor —
+softening or stiffening — yields a `MeasuredField 6`: the closure,
+bulk-invariance, family-transfer, and ranking-recovery laws apply to every
+bound rocksalt cell unconditionally. Only the *directional* softening laws
+require the admissibility hypothesis of `mkAnchoredFieldRocksalt`. -/
+def mkMeasuredFieldRocksalt (p5 : ℝ) : MeasuredField 6 where
+  P := stepFieldRocksalt p5
+  bulk_anchor := stepFieldRocksalt_bulk_anchor p5
+
+/-- The rocksalt measured tier is pinned at bulk: `P(6) = 0`. -/
+theorem mkMeasuredFieldRocksalt_at_bulk (p5 : ℝ) :
+    (mkMeasuredFieldRocksalt p5).P 6 = 0 := rfl
+
+/-- The two rocksalt constructors agree: an admissible cell's strong field
+forgets to exactly its measured field, so both tiers' laws compose on the
+same object. -/
+@[simp] theorem mkAnchoredFieldRocksalt_toMeasuredField (p5 : ℝ) (h50 : p5 ≤ 0) :
+    (mkAnchoredFieldRocksalt p5 h50).toMeasuredField =
+      mkMeasuredFieldRocksalt p5 := rfl
+
+/-- Decidable admissibility of the integer-scaled rocksalt anchor
+(×10⁻⁴ eV/atom): softening `p5 ≤ 0`. A cell violating this predicate is
+outside the rocksalt anchored field's domain — the generator will emit a
+kernel-checked refusal certificate `¬ scaledAnchorRocksaltValid …` for it
+instead of an instance. -/
+def scaledAnchorRocksaltValid (p5 : Int) : Prop :=
+  p5 ≤ 0
+
+instance (p5 : Int) : Decidable (scaledAnchorRocksaltValid p5) := by
+  unfold scaledAnchorRocksaltValid
+  infer_instance
+
+/-- Sanity lock: an admissible scaled rocksalt anchor, and a stiffening one
+(anchor above bulk accuracy) is refused. -/
+theorem scaledAnchorRocksaltValid_example :
+    scaledAnchorRocksaltValid (-4123) ∧ ¬ scaledAnchorRocksaltValid 4123 := by
+  constructor <;> decide
+
 end OpenDistillationFactory.Materials.Theory.AnchoredField

@@ -16,6 +16,277 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-11 - Production wiring of the orphaned certificate gates + rocksalt/halide layout + climate-series Python mirror
+
+- **Why.** The climate-series formalization introduced three new certificate
+  predicates — field-domain admission, ranking-inversion detection, and
+  barrier-underestimation conservatism — plus a `ClimateSeries` validation pack
+  and the rocksalt/halide family. Only the anchor-admissibility gate was
+  actually reaching production: `check_field_domain`, `check_ranking_pair`, and
+  `BarrierArrhenius.softened_barrier_underestimates` were tested but never
+  called by the runtime policy engine or promotion gate. Meanwhile the
+  rocksalt cells were recorded as `unbound_structures` rather than having an
+  explicit layout ready for charge-balanced slab/defect data.
+- **What.**
+  - `Theory/AnchoredField.lean`: added the rocksalt/halide layout —
+    `stepFieldRocksalt` (single c=5 anchor, bulk pin at c=6),
+    `mkAnchoredFieldRocksalt : ErrorField 6`, `mkMeasuredFieldRocksalt`, and
+    decidable `scaledAnchorRocksaltValid` — plus the evaluation theorems
+    (`_at_vacancy`, `_at_bulk`, `_clamped_below`, `_toMeasuredField`,
+    `scaledAnchorRocksaltValid_example`). The layout is ready for MgO/NaCl and
+    the Li–M–Cl halide electrolytes once their slab/defect observables are
+    measured. Zero `sorry`, zero new axioms.
+  - `lupine_distill.odf.field_certificates`: added `BarrierCertificate` and
+    `check_barrier_conservatism`, mirroring
+    `BarrierArrhenius.softened_barrier_underestimates` and
+    `softening_never_hides_conductor`; added rocksalt to
+    `ANCHOR_COORDINATIONS` / `_ANCHOR_REF_KEYS` and the corresponding theorem
+    refs.
+  - `lupine_distill.odf.climate_series` (new): Python mirror of
+    `Validation.ClimateSeries` with typed certificates for all 10 headline
+    claims (synthesis funnel, A-Lab novelty, kernel-rejected zero margin,
+    corrected strict improvement, blind residuals, Ni/Cu error reductions,
+    portfolio envelope, inventory floor), theorem refs, and pass/fail checks.
+    Inventory-floor defaults and the Lean `proof_pack_inventory_floor` theorem
+    updated to the current build state: 51 modules, 190 build-locked theorems,
+    ~640 declarations, zero `sorry`.
+  - `lupine_distill_runtime.policy_engine`: `_domain_action` now calls
+    `check_field_domain` when a prediction or context carries
+    `first_shell_coordinations`; out-of-domain atoms trigger a
+    `skip_correction` action backed by `FieldDomain.refusal_has_witness` and
+    strip the support model before any correction is applied.
+  - `lupine_distill.odf.promotion_gate`: added `reference_ranking` and
+    `model_ranking` metadata fields; `evaluate` now checks every adjacent pair
+    with `check_ranking_pair`. A machine-checked inversion downgrades
+    `promote` → `review` or `review` → `reject`, because no monotone
+    recalibration can rescue it.
+  - `python/scripts/bind_env_field_instances.py`: generalized `_bind_cell` to
+    handle layouts with no facets and optional vacancy blocks; cells missing
+    all bindable observables are skipped with a warning instead of crashing.
+    Added the rocksalt layout (MgO, NaCl, LiCl, Li3YCl6, Li2ZrCl6) and moved
+    layered oxides to `unbound_structures` with a clear data requirement.
+    Regenerated `EnvFieldInstances.lean` and `env_field_binding_report.json`;
+    corpus remains 68 cells → 19 instances + 49 refusals, now with a
+    `rocksalt` structure entry at 0 cells.
+  - Tests: added `python/tests/test_climate_series.py`,
+    `python/tests/test_bind_env_field_instances.py`, rocksalt/barrier/ranking
+    tests in `test_field_certificates.py`, and domain-gate tests in
+    `test_certificate_gate.py`.
+- **Results.** `lake build` green (3,661 jobs, 0 `sorry`). Python test suite
+  now contains 55 tests, all passing. The field-domain gate, ranking
+  gate, and barrier-conservatism certificate are now wired into production
+  paths. Rocksalt layout exists but cannot bind until charge-balanced slab +
+  vacancy runs are added; the binder documents this explicitly rather than
+  failing silently.
+- **Next.** Add charge-balanced rocksalt slab and vacancy formation targets +
+    statics runs so the halide electrolyte portfolio target can be formally
+    bound; surface `ranking_inverted` and `field_domain` skip events in the
+    Phoenix flywheel dashboards; expose `climate_series` certificates in the
+    promotion packet renderer and website article footnotes.
+
+---
+
+## 2026-07-10 - Diamond anchor + run-time certificate gate: Si joins the corpus, refusals now block correction inside the policy engine
+
+- **Why.** Two follow-ups from the bcc rung (below): the remaining Y-matrix
+  structures had no anchor layouts, and refusal certificates reached
+  telemetry but not the run-time correction path — a tier-2-refused cell
+  would still have been corrected if a support model covered it, with the
+  refusal only flagged after the fact.
+- **What.**
+  - `Theory/AnchoredField.lean`: the diamond layout — `stepFieldDiamond`
+    (single vacancy anchor: each diamond vacancy exposes 4 first-shell atoms
+    at c=3, bulk pin at the diamond coordination c=4),
+    `mkAnchoredFieldDiamond : ErrorField 4` / `mkMeasuredFieldDiamond`, and
+    the decidable `scaledAnchorDiamondValid` — 9 new theorems (T182–T190),
+    zero sorry, zero new axioms. One anchor is enough for both tiers: the
+    measured tier unconditionally, the directional tier iff `p3 ≤ 0`.
+  - `bind_env_field_instances.py` generalized to variable-anchor layouts
+    (targets now also read `beyond_metals.json`) and bound the 4 Si diamond
+    cells. Corpus: 68 cells → 19 instances + 49 refusals.
+  - The run-time gate: `CertificateGate` +
+    `CertificateGatedPolicyEngine` in `lupine_distill_runtime.policy_engine`
+    index the binding report's refusals (via the shared
+    `certificates_from_binding_report` mirror in
+    `lupine_distill.odf.field_certificates`) and decide refused cells
+    WITHOUT the support model — the correction is never applied, not
+    applied-then-flagged. Decisions carry a `skip_correction` action naming
+    the refusal theorem, exact scaled anchors, and corpus hash;
+    `DistillSession` wires the gate by default ("auto": repo report when
+    present), surfaces it in the runtime summary, and the cell runner
+    exposes `--env-field-report` / `MLIP_DISTILL_ENV_FIELD_REPORT`. The
+    finite/explosion guards still run on gated cells, and the prediction
+    itself is not refused — only its correction is withheld.
+- **Results.** All four Si diamond cells soften monotonically and bind as
+  tier-2 instances — uMLIPs underestimate the Si vacancy formation energy by
+  1.1–2.8 eV against the DFT-PBE 3.63 eV reference (chgnet worst at 0.87 eV;
+  per-atom anchors −2778e-4 to −6906e-4 eV). 190 build-locked theorems, 418
+  theorem declarations, 0 `sorry`, `lake build` green. Gate behavior pinned
+  by tests: chgnet/Pt (fcc) and chgnet/Ta (bcc) predictions pass through
+  uncorrected with the Lean refusal in the decision record; chgnet/Ni still
+  corrects; unbound models are untouched. Notable negative result: the
+  rocksalt cells (MgO, NaCl) measure *no* anchor observables — their statics
+  runs carry only EOS + lattice results — so no rocksalt layout is possible
+  from the existing corpus; the binder now records this as
+  `unbound_structures` in the report instead of silently skipping them.
+- **Next.** Run charge-balanced rocksalt slab + vacancy statics for MgO/NaCl
+  to give the ionic family its anchors, and surface the runtime
+  `skip_correction` events in the Phoenix flywheel dashboards alongside the
+  promotion-packet certificate spans.
+
+---
+
+## 2026-07-10 - Bcc anchor set + flywheel telemetry: refractory metals join the measured-fields corpus, certificates ride the live promotion spans
+
+- **Why.** The measured-fields rung (below) covered only the 36 fcc cells; the
+  bcc refractory metals (Cr/Fe/Mo/Nb/Ta/V/W — 28 more Y-matrix cells with
+  DFT-PBE targets already in the corpus) had no anchor layout, and the field
+  certificates stopped at the promotion gate's metadata instead of reaching
+  the live flywheel telemetry (`tools/mlip_local_promotion.py` → Phoenix).
+- **What.**
+  - `Theory/AnchoredField.lean`: the bcc layout — `stepFieldBcc` (clamped
+    step interpolation of γ₁₀₀ → c=4, γ₁₁₀ → c=6, E_vac → c=7, bulk pin at
+    the bcc first-shell coordination c=8, the unanchored c=5 gap held at the
+    deeper (100) value, exactly as the fcc field holds c=10),
+    `mkAnchoredFieldBcc : ErrorField 8` / `mkMeasuredFieldBcc :
+    MeasuredField 8`, and the decidable `scaledAnchorsBccValid` predicate —
+    11 new theorems (T171–T181), zero sorry, zero new axioms.
+  - `python/scripts/bind_env_field_instances.py`: generalized over structure
+    layouts (per-atom facet areas: fcc a₀²/2 and √3a₀²/4; bcc a₀² and
+    a₀²/√2; vacancy shells 12 vs 8) and extended to the 28 bcc cells; report
+    schema bumped to `lupine.env_field_binding_report.v2` (per-structure
+    layout + counts, nested anchors). Fcc literals verified byte-identical
+    across the refactor.
+  - `lupine_distill.odf.field_certificates`: `check_anchor_admissibility`
+    takes a `structure` argument, mirrors `scaledAnchorsBccValid` for bcc
+    cells, and stamps certificates with structure + anchor coordinations;
+    three new theorem refs (`mkAnchoredFieldBcc`, `mkMeasuredFieldBcc`,
+    `scaledAnchorsBccValid`) resolve-checked against the Lean sources.
+  - Flywheel wiring: `tools/mlip_local_promotion.py` loads the binding
+    report, re-checks every bound cell of the run's models through the Lean
+    mirror, merges the certificates into the ODF gate's candidate metadata
+    (they satisfy the formal-spec requirement without manual
+    `--atlas-theorem-refs` flags), and carries a `field_certificates` block
+    in the packet; `tools/mlip_phoenix_trace.py` emits it as
+    `mlip.field_certificate` child spans (per-cell tier, exact scaled
+    anchors, refusal witnesses, theorem ref) plus root-span rollups.
+    New tests: `tools/test_mlip_local_promotion.py`,
+    `tools/test_mlip_phoenix_trace.py` (restores the justfile
+    `flywheel-telemetry-check` target lost in the 2026-07-01 cleanup), both
+    added to the CI tools-smoke job.
+- **Results.** 64 bound cells (36 fcc + 28 bcc): 15 anchored softening
+  instances + 49 kernel-checked refusals. Of the bcc cells, 7 soften
+  monotonically end-to-end — chgnet on Cr/Fe/Mo/W, mace-mp-medium on Fe/Mo,
+  and mace-mpa-0-medium on Nb — while all seven mace-mp-small bcc cells are
+  refused (anchors at or above bulk accuracy, the fcc noise-floor story
+  repeated). 181 build-locked theorems, 409 theorem declarations, 0 `sorry`.
+  End-to-end smoke: a chgnet promotion packet now carries 16 per-cell
+  certificates (10 tier-2, 6 refusals) into its Phoenix spans, and the ODF
+  gate promotes on certificate-backed formal fields alone.
+- **Next.** Extend the binder to the remaining Y-matrix structures (rocksalt
+  MgO/NaCl and diamond Si need their own anchor layouts), and close the
+  loop by reading refusal certificates back in the distill policy engine so
+  refused cells are excluded from correction at run time, not just flagged.
+
+---
+
+## 2026-07-10 - Measured fields rung: Y-matrix corpus bound into per-cell Lean field instances + certificate-carrying promotion gate
+
+- **Why.** The climate-series physics layer (same day, below) proved the
+  *laws* of the environment error field abstractly; the discovery loop needs
+  those laws attached to *measured cells* so each (model, material) screening
+  output carries its own certificate, and needs refusals to reach runner
+  telemetry with their Lean witness instead of dying in a log line.
+- **What.**
+  - `Theory/AnchoredField.lean`: the measurement bridge — clamped step
+    interpolation of the three fcc anchors (γ₁₀₀ → c=8, γ₁₁₁ → c=9,
+    E_vac → c=11, bulk pin c=12) with generic monotonicity/softening proofs,
+    so per-cell instances are one-liners with `norm_num` side goals; plus the
+    decidable `scaledAnchorsValid` admissibility predicate for kernel-checked
+    refusals.
+  - Two-tier field semantics, matching what the theorems actually need:
+    `MeasuredField` (bulk pin only — closure, bulk-invariance, transfer, and
+    new measured-tier ranking-recovery laws) vs `ErrorField` (softening +
+    monotone — the directional barrier laws). Non-monotone cells (Ca/Sr
+    anchor anomalies; MACE stiffening/noise-floor cells) keep certified
+    correction semantics while the directional layer provably refuses them.
+  - `python/scripts/bind_env_field_instances.py`: binds the 36 fcc Y-matrix
+    cells (model-relaxed geometry + DFT-PBE targets) into per-atom anchors
+    (Δγ · area-per-atom; ΔE_vac/12), emits
+    `DistillAtlas/EnvFieldInstances.lean` (36 `MeasuredField` instances, 8
+    `ErrorField` instances, 28 refusal theorems, all provenance-stamped,
+    corpus sha256 1f244b71846b) and a telemetry report
+    (`data/y_matrix_runs/env_field_binding_report.json`).
+  - `python/lupine_distill/odf/field_certificates.py`: the promotion-gate
+    surface — domain-gate admits/refusals with witness atoms, anchor
+    admissibility tiers, ranking-inversion impossibility certificates, each
+    naming its lean-spec theorem; `merge_into_candidate_metadata` feeds them
+    into `promotion_gate.evaluate_promotion` so decisions and telemetry carry
+    machine-checkable provenance. Tests
+    (`python/tests/test_field_certificates.py`, 17 passing) pin the Python
+    predicates to the same witness values the Lean modules lock and verify
+    every theorem reference resolves in the Lean sources.
+- **Results.** `lake build` green at 3661 jobs; 170 build-locked theorems,
+  376 theorem declarations in `Materials/`, 0 `sorry`. Of 36 bound cells, 8
+  exhibit monotone softening end-to-end (six chgnet cells — Ag, Al, Au, Cu,
+  Ni, Pd — plus Ni and Pt on mace-mp-medium); 28 carry kernel-checked tier-2
+  refusals — consistent with the proof pack's own account of noise-floor
+  MACE-MPA-0 cells. Notable negative result: Ca and Sr break anchor
+  monotonicity for *every* model (DFT γ₁₁₁ ≈ γ₁₀₀ for these soft alkaline
+  earths), a genuine limit of the smooth-decay idealization now recorded as
+  refusal certificates rather than silent misfits.
+- **Next.** Feed `field_certificates` outputs into the live flywheel
+  (`tools/mlip_local_promotion.py` telemetry spans), and extend the binder
+  beyond fcc — the bcc anchor set ((100) → c=4, (110) → c=6, vacancy → c=7,
+  bulk 8) needs its own `stepField` layout and admissibility predicate.
+
+---
+
+## 2026-07-10 - Climate-series physics layer: 73 new Lean theorems for the five material classes
+
+- **Why.** The climate partnerships proof pack ("The 0.2% Synthesis Problem",
+  "A Field, Not a Neural Net", "Five Materials That Could Unlock 5–12
+  GtCO₂/Year") commits the platform to five defect-mediated material classes —
+  cobalt-free LMR cathodes, halide solid electrolytes, MOF DAC sorbents,
+  electrochemical ammonia catalysts, lead-free tin perovskites — but the
+  formal evidence plane only covered fcc-metal elastic/error-geometry claims.
+  The underlying mechanics the pack argues from (softening ⇒ barrier
+  underestimation ⇒ exponential rate error ⇒ ranking inversion, plus the
+  correction/impossibility dichotomy) existed as prose, not as machine-checked
+  physical law.
+- **What.** Added a seven-module physics layer to `lean-spec`
+  (`Theory/EnvironmentField`, `Theory/BarrierArrhenius`,
+  `Theory/RankingIntegrity`, `Theory/ScalingVolcano`,
+  `Theory/DefectStability`, `Theory/SorptionStability`,
+  `Validation/ClimateSeries`), 73 new theorems, all wired into the
+  `Vision.lean` build locks (T78–T150) with six new `#guard` contracts.
+  Highlights: the environment error field's seven structural laws (softening,
+  bulk invariance, closure, family transfer, dominance, boundedness,
+  zero-parameter blind continuation); the mechanism theorem
+  (under-coordinated transition states ⇒ provably underestimated barriers);
+  exact Arrhenius amplification identities with kernel-checked
+  room-temperature brackets (100 meV ⇒ 32–64× rate error; 180 meV ⇒ >10³×
+  conductivity error, riding Mathlib's log 2 decimal bounds); the
+  monotonicity impossibility lemma with a concrete cathode inversion witness;
+  Sabatier-volcano laws including non-monotonicity of activity in the
+  descriptor and breaker-flag soundness; the decidable metastability window
+  hull-only screening provably misses; competitive-Langmuir humidity laws;
+  and the first-shell domain gate with witnessed refusals.
+- **Results.** `lake build` green at 3659 jobs, 150 build-locked theorems,
+  257 theorem declarations in `Materials/`, 0 `sorry`, 0 new axioms. The
+  proof pack's quantitative claims (0.2% funnel, A-Lab novelty collapse, the
+  kernel-rejected 27→26 episode, blind-prediction improvements, portfolio
+  envelope) are now decidable certificates in
+  `Validation/ClimateSeries.lean`.
+- **Next.** Bind measured per-cell fields P(c) from the Y-matrix runs as
+  `ErrorField` instances (the generated-evidence rung L2), so
+  `corrected_recovers_reference_order` and the barrier theorems certify each
+  (model, material) cell's screening output; then surface the domain-gate and
+  impossibility certificates through `promotion_gate.py` so refusals carry
+  their Lean witness into runner telemetry.
+
+---
+
 ## 2026-06-19 - LUPI 0.3 Studio, molecule trust, and public-surface split prep
 
 - **Why.** The checkout had a full LUPI release pass, public-surface split plan,

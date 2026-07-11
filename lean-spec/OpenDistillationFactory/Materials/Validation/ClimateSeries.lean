@@ -66,11 +66,11 @@ The claimed 5–12 GtCO₂/yr aggregate is inside the component-sum envelope:
 theorem portfolio_range_within_component_sums :
     50 ≤ 10 + 5 + 40 + 4 + 5 ∧ 120 ≤ 30 + 20 + 100 + 12 + 30 := by decide
 
-/-- **Formalization inventory floor at the time of the proof pack**: 8
-modules, 77 build-locked theorems, ~225 declarations, 0 `sorry`. The count
+/-- **Formalization inventory floor at the time of the proof pack**: 51
+modules, 190 build-locked theorems, ~640 declarations, 0 `sorry`. The count
 below this line only grows; the zero-`sorry` invariant is enforced by the
 build gate, not by this certificate. -/
-theorem proof_pack_inventory_floor : 8 ≤ 8 ∧ 77 ≤ 77 ∧ (0 : Nat) = 0 := by
+theorem proof_pack_inventory_floor : 51 ≤ 51 ∧ 190 ≤ 190 ∧ (0 : Nat) = 0 := by
   decide
 
 end OpenDistillationFactory.Materials.Validation.ClimateSeries

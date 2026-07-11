@@ -6,7 +6,7 @@ import OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 
 `Theory.AnchorBracket` proves what measured anchors determine *in general*;
 this module instantiates those laws on the generated corpus
-(`DistillAtlas.EnvFieldInstances`, corpus sha256 `0246be6f665c`), producing
+(`DistillAtlas.EnvFieldInstances`, corpus sha256 `c4393f3e3bcb`), producing
 kernel-checked certificates about the actual (model, material) cells the
 platform corrects with. Three kinds of certificate:
 

@@ -15,6 +15,42 @@ import numpy as np
 from .policy import RuntimePolicy
 
 
+def _domain_action(prediction: dict[str, Any], context: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Run the Lean-mirror field-domain gate when coordination data is present.
+
+    If the prediction or context carries ``first_shell_coordinations`` and any
+    atom is outside the measured first-shell domain ``[cmin, cmax]``, return a
+    ``skip_correction`` action backed by ``FieldDomain.refusal_has_witness``.
+    The absence of coordination data is inert — the gate never refuses a
+    prediction just because the runner did not supply it.
+    """
+    coords = prediction.get("first_shell_coordinations")
+    if coords is None and context is not None:
+        coords = context.get("first_shell_coordinations")
+    if coords is None:
+        return None
+    try:
+        coord_seq = [int(c) for c in coords]
+    except (TypeError, ValueError):
+        return None
+    if not coord_seq:
+        return None
+    from lupine_distill.odf.field_certificates import check_field_domain
+
+    cert = check_field_domain(coord_seq)
+    if cert.admitted:
+        return None
+    return {
+        "action": "skip_correction",
+        "reason": f"lean_certificate_refusal: {cert.reason}",
+        "kind": "field_domain",
+        "cmin": cert.cmin,
+        "cmax": cert.cmax,
+        "witnesses": [list(w) for w in cert.witnesses],
+        "theorem_ref": cert.theorem_ref,
+    }
+
+
 def _repo_root() -> pathlib.Path:
     return pathlib.Path(__file__).resolve().parents[2]
 
@@ -124,9 +160,15 @@ class PythonPolicyEngine:
     ) -> DistillDecision:
         current = prediction
         actions: list[dict[str, Any]] = []
+        domain_action = _domain_action(prediction, context)
+        if domain_action is not None:
+            actions.append(domain_action)
+            support_model = None
         if support_model is not None:
             current, actions = support_model.correct_prediction(prediction)
-        actions = actions + self.policy.guard_prediction(row_id, current)
+            actions = actions + self.policy.guard_prediction(row_id, current)
+        else:
+            actions = actions + self.policy.guard_prediction(row_id, current)
         return DistillDecision(
             corrected_prediction=current,
             actions=actions,
