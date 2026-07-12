@@ -39,6 +39,7 @@ import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
 import OpenDistillationFactory.Materials.Validation.ClimateSeries
 import OpenDistillationFactory.Materials.Validation.ClimatePortfolio
+import OpenDistillationFactory.Materials.Validation.ClimateForcers
 import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 namespace OpenDistillationFactory.Materials.Vision
@@ -69,8 +70,11 @@ open OpenDistillationFactory.Materials.Theory.AnchorBracket
 open OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
+open OpenDistillationFactory.Materials.Theory.ClimateForcers
+open OpenDistillationFactory.Materials.Theory.ClimateForcers.ClimateForcer
 open OpenDistillationFactory.Materials.Validation.ClimateSeries
 open OpenDistillationFactory.Materials.Validation.ClimatePortfolio
+open OpenDistillationFactory.Materials.Validation.ClimateForcers
 open OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 -- ═══════════════════════════════════════════════════════════════
@@ -305,6 +309,29 @@ def nistCount := nistScaffoldAlSample.length
 #check ammonia_volcano_invariant_holds
 #check perovskite_metastability_invariant_holds
 
+/- T259–T268: Non-CO₂ climate-forcer expansion — methane, refrigerants, and
+    nitrous oxide. Formalizes 100-year and 20-year GWP accounting, CO₂e
+    monotonicity, and the high-leverage substitution bounds for low-GWP
+    refrigerants (HFC-410A / HFC-134a) and SF₆ switchgear. -/
+#check ClimateForcer.gwp100_pos
+#check ClimateForcer.gwp20_pos
+#check ClimateForcer.lifetime_pos
+#check co2e_monotone_mass
+#check co2e_monotone_gwp
+#check co2e20_ge_co2e
+#check hfc410a_1kg_exceeds_1tonne_co2e
+#check hfc134a_1kg_exceeds_1tonne_co2e
+#check sf6_1kg_exceeds_25tonne_co2e
+#check methane_gwp100_bounds
+#check methane_gwp20_bounds
+#check nitrous_oxide_gwp100_bounds
+#check hfc410a_substitution_savings
+#check hfc134a_substitution_savings
+#check methane_20yr_potency
+#check heat_pump_full_leak_co2e
+#check low_gwp_replacement_savings
+#check mixed_stream_exceeds_2tonne
+
 /- T157–T162: The measured tier — correction, bulk-invariance, transfer, and
     ranking-recovery laws with no shape assumption, so every bound sweep cell
     (including noise-floor and stiffening cells the directional layer
@@ -477,7 +504,9 @@ def computationallyProvenCount : Nat :=
   -- Anchor-identification push: AnchorBracket identification/bracket/
   -- ranking/kinetics laws 54 (incl. the rocksalt single-anchor mirror),
   -- corpus bracket certificates 8
-  262
+  -- Non-CO₂ climate-forcer expansion: Theory.ClimateForcers 18,
+  -- Validation.ClimateForcers 9
+  289
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
@@ -548,6 +577,23 @@ def epistemicGapCount : Nat :=
 #guard (-4596 : Int) - (-4852) = 256
 #guard (-229 : Int) - (-310) = 81
 #guard 6 * 81 < 537
+
+-- Non-CO₂ climate-forcer locks: every expansion forcer exceeds CO₂ on the
+-- 100-year horizon; 1 kg leaks of HFC-410A, HFC-134a, and SF₆ exceed 1 t,
+-- 1 t, and 25 t CO₂e respectively; methane is stronger on the 20-year horizon;
+-- and a representative mixed process stream exceeds 2 t CO₂e.  These are
+-- integer-scaled so `decide` can compile them; the corresponding real-valued
+-- theorems (`hfc410a_1kg_exceeds_1tonne_co2e`, etc.) carry the actual proof.
+#guard decide (gwp100 .methane > gwp100 .co2)
+#guard decide (gwp100 .nitrousOxide > gwp100 .co2)
+#guard decide (gwp100 .hfc134a > gwp100 .co2)
+#guard decide (gwp100 .hfc410a > gwp100 .co2)
+#guard decide (gwp100 .sf6 > gwp100 .co2)
+#guard decide (gwp100 .hfc410a > 1000)
+#guard decide (gwp100 .hfc134a > 1000)
+#guard decide (gwp100 .sf6 > 25000)
+#guard decide (gwp100 .methane < gwp20 .methane)
+#guard decide (29 + 273 + 2088 > 2000)
 
 /-- The complete status board as a computed string. -/
 def visionReport : String :=
