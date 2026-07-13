@@ -1,10 +1,10 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-07-13T14:53:59.823Z",
+  "generatedAt": "2026-07-13T15:32:06.906Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "19562e849c17695460ffc61545c125e11f30ffa3",
-    "dirty": true,
+    "commit": "4e3283e9c28850b8334577c02d3a6e2563938f73",
+    "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
   "catalog": {
@@ -1632,8 +1632,8 @@
     {
       "source": "CHANGELOG.md",
       "bundleSource": "articles/CHANGELOG.md",
-      "bytes": 76180,
-      "sha256": "cc440da1c5ba88a3eba5bc4b4e51dafa9bfd04b14f72a7ee747149a0a7053969"
+      "bytes": 77656,
+      "sha256": "8cc0d41103ce0e8d4e8d40b5319fdbf6058deb48f1a4ee818edac8c1d03d1908"
     },
     {
       "source": "docs/papers-working.md",

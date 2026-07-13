@@ -16,6 +16,32 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-13 - CI unblock: disk-quota fix for evidence-index workflows + diff-hygiene guard for LAMMPS work dirs
+
+- **Why.** Two recurring CI failures were blocking the research pipeline:
+  the `Evidence Index` and `Evidence Index Nightly` workflows were exceeding
+  the GitHub runner disk quota because `sentence-transformers` pulled the
+  full CUDA `torch` distribution; and the `Verify` diff-whitespace check was
+  failing on generated LAMMPS log files inside `data/lammps_validation/**/work/`.
+- **What.**
+  - Added an explicit CPU-only `torch` install step to
+    `.github/workflows/evidence-index.yml` and
+    `.github/workflows/evidence-nightly.yml` before `pip install -e .`, so
+    `sentence-transformers` reuses the CPU wheel instead of downloading
+    several gigabytes of NVIDIA CUDA packages.
+  - Added `data/lammps_validation/**/work/` to `.gitignore` so generated
+    LAMMPS run artifacts (which contain trailing whitespace by design) are
+    excluded from the diff-hygiene gate.
+- **Results.** Local reproduction of the evidence-index unit tests now passes
+  after installing CPU torch; the diff-hygiene rule now ignores LAMMPS work
+  directories. The PR branch `wip/statics-discovery-gates` still needs its
+  committed `work/` directory removed and rebased to pick up the `.gitignore`
+  change.
+- **Next.** Clean the committed `data/lammps_validation/2026-07-13-ni-eam-elastic/work/`
+  directory from `wip/statics-discovery-gates` and re-run `Verify`.
+
+---
+
 ## 2026-07-13 - Non-CO₂ environmental-concern contract module
 
 - **Why.** The climate-series proof pack and the Lupine Science articles now
