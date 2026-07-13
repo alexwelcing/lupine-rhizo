@@ -1,0 +1,430 @@
+{
+  "schema": "lupine.perovskite_vacancy_panel.v1",
+  "generated_at": "2026-07-13T14:33:13.290513+00:00",
+  "device": "cuda",
+  "models": [
+    "chgnet",
+    "mace-mp-small",
+    "mace-mp-medium",
+    "mace-mpa-0-medium"
+  ],
+  "calculator_versions": {
+    "chgnet": "chgnet 0.4.2",
+    "mace-mp-small": "mace-torch 0.3.16",
+    "mace-mp-medium": "mace-torch 0.3.16",
+    "mace-mpa-0-medium": "mace-torch 0.3.16"
+  },
+  "parameters": {
+    "structure_type": "perovskite",
+    "supercell": [
+      2,
+      2,
+      2
+    ],
+    "fmax_ev_per_angstrom": 0.01,
+    "optimizer": "FIRE",
+    "observable": "referenced_vacancy_formation (E_vac = E_defect + mu - E_bulk)",
+    "cell_budget_seconds": 240.0
+  },
+  "provenance": [
+    "Relaxed a0 per (compound, model) reused from C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/round1/report.json (candidates[*].per_model[*].properties.a0, generated_at 2026-07-13T14:14:06.554750+00:00); no re-relaxation.",
+    "Bulk a0/b0/c11 dispersions quoted from the same round-1 report (gates.concordance blocks, thresholds.v2 baseline).",
+    "Elemental references: Sn -> explicit 'diamond' override (alpha-Sn; ASE's default Sn reference state is beta-Sn bct, unsupported by compute_referenced_vacancy_formation); Ge -> ASE default 'diamond'; Pb -> ASE default 'fcc'. mu relaxed per model by the module's recentring EOS scan.",
+    "Dispersion metric: (max - min) / |median| across models (lupine_distill.statics.gates.relative_dispersion)."
+  ],
+  "scope_reductions": [],
+  "dropped_compounds": [],
+  "cells": {
+    "hp-cssni3": {
+      "chgnet": {
+        "error": "ConvergenceError: BM3 fit found no minimum with positive curvature in the scanned volume range; the scan does not bracket the equilibrium volume",
+        "a0_angstrom": 6.330762093735947,
+        "wall_time_seconds": 1.8340724999998201
+      },
+      "mace-mp-small": {
+        "vacancy_formation_ev": 1.004062675525475,
+        "e_bulk_ev": -113.59384456275409,
+        "e_defect_ev": -108.62400435570252,
+        "mu_ev_per_atom": -3.9657775315260917,
+        "reference_structure": "diamond",
+        "a0_angstrom": 6.271078325259013,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 35,
+        "wall_time_seconds": 8.017244099999516
+      },
+      "mace-mp-medium": {
+        "vacancy_formation_ev": 0.8184796212608205,
+        "e_bulk_ev": -113.13144486403665,
+        "e_defect_ev": -108.39172502710133,
+        "mu_ev_per_atom": -3.9212402156745023,
+        "reference_structure": "diamond",
+        "a0_angstrom": 6.281756263239543,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 29,
+        "wall_time_seconds": 4.557071500000347
+      },
+      "mace-mpa-0-medium": {
+        "vacancy_formation_ev": 1.560008480567717,
+        "e_bulk_ev": -113.50312403408421,
+        "e_defect_ev": -107.94842531934631,
+        "mu_ev_per_atom": -3.9946902341701755,
+        "reference_structure": "diamond",
+        "a0_angstrom": 6.286266331405646,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 34,
+        "wall_time_seconds": 5.379218799999762
+      }
+    },
+    "hp-cssnbr3": {
+      "chgnet": {
+        "error": "ConvergenceError: BM3 fit found no minimum with positive curvature in the scanned volume range; the scan does not bracket the equilibrium volume",
+        "a0_angstrom": 5.921640038423254,
+        "wall_time_seconds": 1.5994049000000814
+      },
+      "mace-mp-small": {
+        "vacancy_formation_ev": 1.007986368887316,
+        "e_bulk_ev": -127.77755586255401,
+        "e_defect_ev": -122.80379196214061,
+        "mu_ev_per_atom": -3.965777531526091,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.874545242088909,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 37,
+        "wall_time_seconds": 3.0783334000007017
+      },
+      "mace-mp-medium": {
+        "vacancy_formation_ev": 1.0676795603431941,
+        "e_bulk_ev": -127.6609172194624,
+        "e_defect_ev": -122.67199744344471,
+        "mu_ev_per_atom": -3.9212402156745023,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.89475965026055,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 36,
+        "wall_time_seconds": 5.3681901999998445
+      },
+      "mace-mpa-0-medium": {
+        "vacancy_formation_ev": 1.5228652555965851,
+        "e_bulk_ev": -127.79509659318265,
+        "e_defect_ev": -122.27754110341589,
+        "mu_ev_per_atom": -3.9946902341701755,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.884762173011468,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 34,
+        "wall_time_seconds": 5.093790399999307
+      }
+    },
+    "hp-cssncl3": {
+      "chgnet": {
+        "error": "ConvergenceError: BM3 fit found no minimum with positive curvature in the scanned volume range; the scan does not bracket the equilibrium volume",
+        "a0_angstrom": 5.6610838036388,
+        "wall_time_seconds": 1.8340565999997125
+      },
+      "mace-mp-small": {
+        "vacancy_formation_ev": 0.8084595968107351,
+        "e_bulk_ev": -141.44418271062995,
+        "e_defect_ev": -136.6699455822931,
+        "mu_ev_per_atom": -3.9657775315260917,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.612855845404335,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 35,
+        "wall_time_seconds": 3.504540800000541
+      },
+      "mace-mp-medium": {
+        "vacancy_formation_ev": 1.057002380383551,
+        "e_bulk_ev": -140.64425615611327,
+        "e_defect_ev": -135.6660135600552,
+        "mu_ev_per_atom": -3.9212402156745023,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.636460792087922,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 33,
+        "wall_time_seconds": 4.792719699999907
+      },
+      "mace-mpa-0-medium": {
+        "vacancy_formation_ev": 1.8908705479004766,
+        "e_bulk_ev": -141.12859585084172,
+        "e_defect_ev": -135.24303506877106,
+        "mu_ev_per_atom": -3.994690234170176,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.626283942531848,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 34,
+        "wall_time_seconds": 5.36579570000049
+      }
+    },
+    "hp-csgei3": {
+      "chgnet": {
+        "vacancy_formation_ev": -0.40785914254286126,
+        "e_bulk_ev": -121.24762725830078,
+        "e_defect_ev": -117.19877624511719,
+        "mu_ev_per_atom": -4.45671015572646,
+        "reference_structure": "diamond",
+        "a0_angstrom": 6.0193573864773455,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 39,
+        "wall_time_seconds": 4.778306299999713
+      },
+      "mace-mp-small": {
+        "vacancy_formation_ev": 0.4383900335301689,
+        "e_bulk_ev": -114.17878035812286,
+        "e_defect_ev": -109.14317225799296,
+        "mu_ev_per_atom": -4.597218066599738,
+        "reference_structure": "diamond",
+        "a0_angstrom": 5.948487802299855,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 27,
+        "wall_time_seconds": 2.1590556000001015
+      },
+      "mace-mp-medium": {
+        "vacancy_formation_ev": 0.3615730704678555,
+        "e_bulk_ev": -113.71960020133184,
+        "e_defect_ev": -108.8322115748518,
+        "mu_ev_per_atom": -4.525815556012197,
+        "reference_structure": "diamond",
+        "a0_angstrom": 6.024218908156026,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 40,
+        "wall_time_seconds": 5.186744399999952
+      },
+      "mace-mpa-0-medium": {
+        "vacancy_formation_ev": 1.354994875793409,
+        "e_bulk_ev": -113.67047693985,
+        "e_defect_ev": -107.70522969579629,
+        "mu_ev_per_atom": -4.610252368260302,
+        "reference_structure": "diamond",
+        "a0_angstrom": 6.025241663023835,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 32,
+        "wall_time_seconds": 4.342591400000856
+      }
+    },
+    "hp-cspbi3-control": {
+      "chgnet": {
+        "vacancy_formation_ev": 1.0683637426374446,
+        "e_bulk_ev": -122.64506530761719,
+        "e_defect_ev": -117.91258239746094,
+        "mu_ev_per_atom": -3.664119167518806,
+        "reference_structure": "fcc",
+        "a0_angstrom": 6.410150284354361,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 25,
+        "wall_time_seconds": 2.506632300000092
+      },
+      "mace-mp-small": {
+        "vacancy_formation_ev": 1.7821184983404805,
+        "e_bulk_ev": -113.57936069801374,
+        "e_defect_ev": -108.10690799780508,
+        "mu_ev_per_atom": -3.6903342018681786,
+        "reference_structure": "fcc",
+        "a0_angstrom": 6.379170809922727,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 23,
+        "wall_time_seconds": 2.26218979999976
+      },
+      "mace-mp-medium": {
+        "vacancy_formation_ev": 1.2594076365131457,
+        "e_bulk_ev": -113.43291676471843,
+        "e_defect_ev": -108.47700920176548,
+        "mu_ev_per_atom": -3.696499926439796,
+        "reference_structure": "fcc",
+        "a0_angstrom": 6.38995272504722,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 23,
+        "wall_time_seconds": 3.181697500000155
+      },
+      "mace-mpa-0-medium": {
+        "vacancy_formation_ev": 2.8137353402189973,
+        "e_bulk_ev": -113.55399472025243,
+        "e_defect_ev": -107.03515734870466,
+        "mu_ev_per_atom": -3.705102031328775,
+        "reference_structure": "fcc",
+        "a0_angstrom": 6.409820676566619,
+        "n_atoms_perfect": 40,
+        "vacancy_index": 1,
+        "n_relax_steps": 42,
+        "wall_time_seconds": 5.447943299999679
+      }
+    }
+  },
+  "chemical_potentials": {
+    "Ge": {
+      "reference_structure": "diamond",
+      "ase_default_overridden": false,
+      "mu_ev_per_atom_by_model": {
+        "chgnet": -4.45671015572646,
+        "mace-mp-small": -4.597218066599738,
+        "mace-mp-medium": -4.525815556012197,
+        "mace-mpa-0-medium": -4.610252368260302
+      }
+    },
+    "Pb": {
+      "reference_structure": "fcc",
+      "ase_default_overridden": false,
+      "mu_ev_per_atom_by_model": {
+        "chgnet": -3.664119167518806,
+        "mace-mp-small": -3.6903342018681786,
+        "mace-mp-medium": -3.696499926439796,
+        "mace-mpa-0-medium": -3.705102031328775
+      }
+    },
+    "Sn": {
+      "reference_structure": "diamond",
+      "ase_default_overridden": true,
+      "mu_ev_per_atom_by_model": {
+        "mace-mp-small": -3.9657775315260917,
+        "mace-mp-medium": -3.9212402156745023,
+        "mace-mpa-0-medium": -3.994690234170176
+      }
+    }
+  },
+  "compounds": {
+    "hp-cssni3": {
+      "formula": "CsSnI3",
+      "vacancy_species": "Sn",
+      "e_vac_ev_by_model": {
+        "mace-mp-small": 1.004062675525475,
+        "mace-mp-medium": 0.8184796212608205,
+        "mace-mpa-0-medium": 1.560008480567717
+      },
+      "n_models": 3,
+      "e_vac_relative_dispersion": 0.7385284578164588,
+      "e_vac_relative_dispersion_error": null,
+      "e_vac_absolute_spread_ev": 0.7415288593068965,
+      "bulk_relative_dispersions_round1": {
+        "a0": 0.009497718201487556,
+        "b0": 0.34555473551882987,
+        "c11": 0.7636344042194898
+      },
+      "dispersion_ratios_defect_over_bulk": {
+        "e_vac_vs_a0": 77.75851442936985,
+        "e_vac_vs_b0": 2.1372256893183716,
+        "e_vac_vs_c11": 0.9671230810656157
+      }
+    },
+    "hp-cssnbr3": {
+      "formula": "CsSnBr3",
+      "vacancy_species": "Sn",
+      "e_vac_ev_by_model": {
+        "mace-mp-small": 1.007986368887316,
+        "mace-mp-medium": 1.0676795603431941,
+        "mace-mpa-0-medium": 1.5228652555965851
+      },
+      "n_models": 3,
+      "e_vac_relative_dispersion": 0.48224102608442443,
+      "e_vac_relative_dispersion_error": null,
+      "e_vac_absolute_spread_ev": 0.5148788867092691,
+      "bulk_relative_dispersions_round1": {
+        "a0": 0.007996045517111331,
+        "b0": 0.22485302470470972,
+        "c11": 0.6209076189540188
+      },
+      "dispersion_ratios_defect_over_bulk": {
+        "e_vac_vs_a0": 60.30994008881528,
+        "e_vac_vs_b0": 2.1446944141299937,
+        "e_vac_vs_c11": 0.7766711365159407
+      }
+    },
+    "hp-cssncl3": {
+      "formula": "CsSnCl3",
+      "vacancy_species": "Sn",
+      "e_vac_ev_by_model": {
+        "mace-mp-small": 0.8084595968107351,
+        "mace-mp-medium": 1.057002380383551,
+        "mace-mpa-0-medium": 1.8908705479004766
+      },
+      "n_models": 3,
+      "e_vac_relative_dispersion": 1.02403832874716,
+      "e_vac_relative_dispersion_error": null,
+      "e_vac_absolute_spread_ev": 1.0824109510897415,
+      "bulk_relative_dispersions_round1": {
+        "a0": 0.008564157205165155,
+        "b0": 0.37081570660601043,
+        "c11": 0.7239591988591051
+      },
+      "dispersion_ratios_defect_over_bulk": {
+        "e_vac_vs_a0": 119.57257488565823,
+        "e_vac_vs_b0": 2.7615829386515034,
+        "e_vac_vs_c11": 1.4144972953737625
+      }
+    },
+    "hp-csgei3": {
+      "formula": "CsGeI3",
+      "vacancy_species": "Ge",
+      "e_vac_ev_by_model": {
+        "chgnet": -0.40785914254286126,
+        "mace-mp-small": 0.4383900335301689,
+        "mace-mp-medium": 0.3615730704678555,
+        "mace-mpa-0-medium": 1.354994875793409
+      },
+      "n_models": 4,
+      "e_vac_relative_dispersion": 4.407338312294523,
+      "e_vac_relative_dispersion_error": null,
+      "e_vac_absolute_spread_ev": 1.7628540183362702,
+      "bulk_relative_dispersions_round1": {
+        "a0": 0.012746024743195548,
+        "b0": 0.1297152445051652,
+        "c11": 0.5197993622698616
+      },
+      "dispersion_ratios_defect_over_bulk": {
+        "e_vac_vs_a0": 345.7814025229612,
+        "e_vac_vs_b0": 33.97702659473478,
+        "e_vac_vs_c11": 8.478922123044828
+      }
+    },
+    "hp-cspbi3-control": {
+      "formula": "CsPbI3",
+      "vacancy_species": "Pb",
+      "e_vac_ev_by_model": {
+        "chgnet": 1.0683637426374446,
+        "mace-mp-small": 1.7821184983404805,
+        "mace-mp-medium": 1.2594076365131457,
+        "mace-mpa-0-medium": 2.8137353402189973
+      },
+      "n_models": 4,
+      "e_vac_relative_dispersion": 1.1476946244721642,
+      "e_vac_relative_dispersion_error": null,
+      "e_vac_absolute_spread_ev": 1.7453715975815527,
+      "bulk_relative_dispersions_round1": {
+        "a0": 0.004840628573585194,
+        "b0": 0.15283963213701846,
+        "c11": 0.4638570366042043
+      },
+      "dispersion_ratios_defect_over_bulk": {
+        "e_vac_vs_a0": 237.09619670780242,
+        "e_vac_vs_b0": 7.509142808216609,
+        "e_vac_vs_c11": 2.4742421347624366
+      }
+    }
+  },
+  "n_cells_ok": 17,
+  "n_cells_failed": 3,
+  "notes": [
+    "Neutral vacancies only: no charged defects, no electrostatic alignment or image-charge corrections; for these halide perovskites the physical vacancy is usually charged (V_Sn'' etc.), so values are the metal-rich-limit NEUTRAL formation energy.",
+    "Finite-size: single 2x2x2 (40-atom) supercell, one vacancy, fixed-cell position relaxation; no supercell-size extrapolation. Defect-defect interaction under PBC is NOT converged out.",
+    "Athermal: T=0 statics, no vibrational or configurational entropy.",
+    "Chemical potential is the metal-rich limit: mu(X) from the relaxed elemental bulk under the SAME calculator (alpha-Sn diamond for Sn \u2014 ASE's default beta-Sn bct reference is unsupported by the module and alpha-Sn is the T=0 ground state; diamond-Ge; fcc-Pb). Halide-rich conditions would shift all values by the compound formation energy.",
+    "Cubic perovskite reference phase: a0 per (compound, model) is reused from data/candidates/round1/report.json (per_model properties a0); the room-temperature phases of several of these compounds are distorted (orthorhombic/monoclinic) \u2014 this panel probes the cubic prototype.",
+    "No thresholds exist for E_vac dispersion: values are descriptive. Deriving per-property vacancy flag/refuse percentiles (as thresholds.v2 did for a0/B0/C11/C12/C44) is a Round-3 calibration need.",
+    "Model non-independence: mace-mp-small and mace-mp-medium share architecture and training data; dispersion is ensemble spread, not independent-error spread."
+  ],
+  "total_wall_time_seconds": 89.96225140000024
+}
