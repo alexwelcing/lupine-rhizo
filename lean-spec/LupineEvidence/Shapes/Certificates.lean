@@ -198,6 +198,59 @@ theorem hull_born_refusal_volumetric (h : ElasticHull)
   unfold bornStable at hb
   omega
 
+/-! ## Correction-direction laws (campaign Round-1 -> Round-2 iteration)
+
+    Round 1 of the unbiased accuracy campaign (2026-07-13) showed a
+    cross-class multiplicative de-bias HARMING accuracy: a bias calibrated
+    on elemental fcc metals (models underpredict B0 there) inflated HEA
+    predictions that were already above their references. These laws make
+    the failure mode a theorem and license the Round-2 gate: a correction
+    whose direction is not verified in-class must ABSTAIN. -/
+
+/-- Inflating a prediction that is already at-or-above its reference
+    strictly increases the error. -/
+theorem wrong_direction_inflation_worsens (pred ref corrected : Int)
+    (hover : ref ≤ pred) (hinc : pred < corrected) :
+    (pred - ref).natAbs < (corrected - ref).natAbs := by omega
+
+/-- Deflating a prediction that is already at-or-below its reference
+    strictly increases the error. -/
+theorem wrong_direction_deflation_worsens (pred ref corrected : Int)
+    (hunder : pred ≤ ref) (hdec : corrected < pred) :
+    (pred - ref).natAbs < (corrected - ref).natAbs := by omega
+
+/-- Direction evidence for one (model, property, class) correction:
+    `calibrationDirection` = sign witness of (median bias - 1) on the
+    calibration class (x10000, nonzero); `anchorDirection` = sign witness of
+    (pred - ref) on an in-class anchor of the TARGET class. The correction
+    divides by the bias, so it moves predictions opposite to the calibration
+    direction; it is licensed only when the target class errs the same way. -/
+structure CorrectionAnchor where
+  calibrationDirection : Int
+  anchorDirection : Int
+deriving Repr, DecidableEq
+
+/-- Verified direction: calibration and in-class anchor agree in sign.
+    Without an in-class anchor there is no witness and the correction
+    must abstain (corrected := pred), which never changes the error. -/
+def directionVerified (c : CorrectionAnchor) : Prop :=
+  0 < c.calibrationDirection * c.anchorDirection
+
+instance (c : CorrectionAnchor) : Decidable (directionVerified c) :=
+  inferInstanceAs (Decidable (_ < _))
+
+/-- Round-1 witness (HEA B0, x10000): calibration bias 0.8565 - 1 < 0
+    (elemental fcc metals underpredicted) but the alloy anchor overpredicts
+    (+1900 vs its reference): direction NOT verified — the Round-1 harm was
+    licensed by nothing, and the Round-2 gate abstains here. -/
+example : ¬ directionVerified { calibrationDirection := -1435, anchorDirection := 1900 } := by
+  decide
+
+/-- The Round-1 harm as arithmetic (HEA-like B0, GPa x10): raw 1940 vs
+    reference 1630, de-bias inflates to 2265 — strictly worse, by law. -/
+example : (1940 - 1630 : Int).natAbs < (2265 - 1630 : Int).natAbs :=
+  wrong_direction_inflation_worsens 1940 1630 2265 (by omega) (by omega)
+
 /-! ## Anchor calibration -/
 
 /-- Power-law calibration for one property family: pred ~ c * T^alpha, with

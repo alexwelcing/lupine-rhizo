@@ -8,6 +8,12 @@ public compute function returns a frozen result dataclass with
 
 from __future__ import annotations
 
+from lupine_distill.statics.alloys import (
+    RSS_STRUCTURE_TYPES,
+    build_rss_supercell,
+    estimate_rss_lattice_constant,
+    site_counts_for_supercell,
+)
 from lupine_distill.statics.calculations import (
     DEFAULT_FMAX,
     DEFAULT_MAX_RECENTER,
@@ -112,6 +118,7 @@ __all__ = [
     "InputValidationError",
     "LatticeResult",
     "PROPERTY_EVIDENCE_NAMES",
+    "RSS_STRUCTURE_TYPES",
     "ReferencedVacancyFormationResult",
     "SFE_METHOD",
     "SUPPORTED_OPTIMIZERS",
@@ -124,6 +131,7 @@ __all__ = [
     "VOIGT_CONVENTION",
     "VacancyFormationResult",
     "born_stability_cubic",
+    "build_rss_supercell",
     "build_structure",
     "compute_cubic_elastic_constants",
     "compute_eos",
@@ -141,6 +149,7 @@ __all__ = [
     "dispersions_by_material",
     "dynamic_return",
     "estimate_lattice_constant",
+    "estimate_rss_lattice_constant",
     "facet_ordering",
     "fit_birch_murnaghan",
     "load_property_by_material",
@@ -150,6 +159,7 @@ __all__ = [
     "relax_positions",
     "scan_energy_volume",
     "single_point_energy",
+    "site_counts_for_supercell",
     "validate_lattice_constant",
     "validate_relax_parameters",
     "validate_scan_parameters",
