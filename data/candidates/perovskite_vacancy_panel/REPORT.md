@@ -1,8 +1,8 @@
 # Perovskite B-site vacancy panel (neutral, referenced)
 
-Generated: 2026-07-13T14:33:13.290513+00:00  
-Schema: `lupine.perovskite_vacancy_panel.v1`  
-Device: cuda | Supercell: 2x2x2 (one B-site vacancy, fixed-cell position relaxation)  
+Generated: 2026-07-13T14:33:13.290513+00:00
+Schema: `lupine.perovskite_vacancy_panel.v1`
+Device: cuda | Supercell: 2x2x2 (one B-site vacancy, fixed-cell position relaxation)
 E_vac = E_defect + mu - E_bulk (metal-rich-limit neutral vacancy; fmax = 0.01 eV/A)
 
 Article context: target class #5 failure mode — uMLIPs are expected to misestimate Sn vacancy formation (under-coordinated neighbours), so the H3 signature is E_vac dispersing MORE across models than the same compounds' bulk properties.

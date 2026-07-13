@@ -1,8 +1,8 @@
 # Softening Is Coordination Loss: Where Foundation Interatomic Potentials Fail, What Can Be Corrected, and What Must Be Refused
 
-> **Date:** 2026-07-13  
-> **Deck:** Referenced measurements of foundation-MLIP error across bulk, kinetic, and defect observables in five material classes; a correction with confirmatory out-of-sample validation and machine-checked safety conditions; and the license structure that says when cross-model agreement means anything.  
-> **Summary:** Universal potentials get migration barriers nearly right and defect formation energies wrong by half — because softening is coordination loss, not saddle-point error — and we show which of those failures can be provably corrected, which can be refused, and which demand abstention.  
+> **Date:** 2026-07-13
+> **Deck:** Referenced measurements of foundation-MLIP error across bulk, kinetic, and defect observables in five material classes; a correction with confirmatory out-of-sample validation and machine-checked safety conditions; and the license structure that says when cross-model agreement means anything.
+> **Summary:** Universal potentials get migration barriers nearly right and defect formation energies wrong by half — because softening is coordination loss, not saddle-point error — and we show which of those failures can be provably corrected, which can be refused, and which demand abstention.
 > **Status:** Draft for internal review
 
 ---

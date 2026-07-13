@@ -1,0 +1,9 @@
+# Auto-detect text files
+* text=auto
+
+# Generated / verbatim artifacts: do not enforce trailing-whitespace hygiene
+*.log -whitespace
+log.* -whitespace
+data/lammps_validation/**/work/*.mod -whitespace
+data/lammps_validation/**/work/*.lmp -whitespace
+data/lammps_validation/**/work/log.* -whitespace

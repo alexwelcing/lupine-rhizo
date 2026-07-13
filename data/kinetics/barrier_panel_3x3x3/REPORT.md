@@ -1,7 +1,7 @@
 # Halide cation-vacancy migration-barrier panel (CI-NEB)
 
-Generated: 2026-07-13T17:04:36.589281+00:00  
-Schema: `lupine.kinetics_barrier_panel.v1`  
+Generated: 2026-07-13T17:04:36.589281+00:00
+Schema: `lupine.kinetics_barrier_panel.v1`
 Device: cuda | Supercell: 3^3 rocksalt (one cation vacancy) | 5 interior images, climb=True, improvedtangent tangent, fmax = 0.05 eV/A
 
 Barrier = E_saddle - E_endpoint(relaxed) from the climbing-image NEB band; the <110> nearest-neighbour cation hop is symmetric, so forward ~ backward and the asymmetry is a convergence check.

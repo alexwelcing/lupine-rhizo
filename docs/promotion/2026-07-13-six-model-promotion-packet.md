@@ -159,7 +159,7 @@ gs://shed-489901-atlas-outputs/mlip-campaigns/mlip-cloud-20260713-cand-r1/baseli
 
 1. `gcloud run jobs execute ... --wait` exits 0.
 2. Artifact exists: `gcloud storage ls gs://shed-489901-atlas-outputs/mlip-campaigns/mlip-cloud-20260713-cand-r1/baseline/elastic_constants/sevennet/cell_result.json`
-3. D1 row (from `glim-think/`): 
+3. D1 row (from `glim-think/`):
    `npx wrangler d1 execute glim-ledger --remote --json --command "SELECT cell_id, status, accuracy_score, accuracy_unit, artifact_uri FROM mlip_baseline_cells WHERE run_id='mlip-cloud-20260713-cand-r1'"` — every fan-out cell `status='completed'`, non-null `accuracy_score` (`gpa_mae`-derived for elastic, `relaxation_penalty` for relax), `artifact_uri` pointing at §3.5; zero `failed` rows; corresponding `lab_beats` ticker entries exist.
 4. Artifact sanity: `manifest_hash` identical across all 6 cells (sealed inputs); `execution.cloud_run_job` = expected job name.
 5. Local merge (new analyzer, not the locked scripts): recompute per-candidate per-property dispersion on the six-model basis {chgnet, mace-mp-medium, mace-mpa-0-medium, sevennet, orb-v3, uma-s-1p1} and re-run the prereg §4 metrics with the cloud models as additional raw arms. Fixed-lattice Cij cells are labeled `protocol=fixed_lattice` and kept out of headline claims until `candidate_statics` lands.
