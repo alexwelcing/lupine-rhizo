@@ -65,18 +65,25 @@ from run_discovery_gates import (  # noqa: E402
 )
 
 from lupine_distill.statics import (  # noqa: E402
+    STATUS_ANTI_CORRELATED,
     ConcordanceThresholds,
     ConvergenceError,
     InputValidationError,
+    LicenseRegistry,
     StaticsError,
+    annotate_concordance,
     born_stability_cubic,
     build_rss_supercell,
     build_structure,
     concordance,
+    driving_license_summary,
     dynamic_return,
     estimate_lattice_constant,
     estimate_rss_lattice_constant,
     fit_birch_murnaghan,
+    license_registry_block,
+    load_license_registry,
+    registry_program_note,
     relax_positions,
     scan_energy_volume,
 )
@@ -112,8 +119,21 @@ BIAS_CLASS_BY_STRUCTURE: Final[Mapping[str, str]] = {
     "rocksalt": "ionics-rocksalt",
 }
 
-#: Round-3 registered fix 6 (B0 concordance demoted program-wide): carried
-#: verbatim into every campaign report's notes.
+#: License-registry calibration class per structure type (concordance
+#: license lookup). Distinct from BIAS_CLASS_BY_STRUCTURE: bias classes are
+#: model_biases.v1 keys, license classes are licenses.v1 by_class keys.
+#: Classes absent from the registry (rocksalt today) resolve to the
+#: fail-closed descriptive license.
+LICENSE_CLASS_BY_STRUCTURE: Final[Mapping[str, str]] = {
+    "fcc-rss": "metals-fcc",
+    "perovskite": "perovskites",
+    "rocksalt": "ionics-rocksalt",
+}
+
+#: Round-3 registered fix 6 (B0 concordance demoted program-wide): the
+#: fallback note when no license registry is loaded; with a registry loaded
+#: the note is GENERATED from the registry entries instead
+#: (:func:`lupine_distill.statics.registry_program_note`).
 B0_CONCORDANCE_DESCRIPTIVE_NOTE: Final[str] = (
     "B0 concordance is DESCRIPTIVE only, program-wide: fcc B0 dispersion is "
     "anti-correlated with |error| (rho = -0.63, n=9), so a B0 concordance "
@@ -689,8 +709,15 @@ def assemble_report(
     bias_note: str,
     models: list[str],
     parameters: Mapping[str, object],
+    license_registry: LicenseRegistry | None = None,
+    license_registry_path: str | None = None,
 ) -> dict[str, object]:
-    """Pure report assembly from measured records (no I/O, unit-testable)."""
+    """Pure report assembly from measured records (no I/O, unit-testable).
+
+    ``license_registry`` annotates every concordance verdict with its
+    dispersion-error license (it never re-gates); ``None`` fails closed to
+    descriptive licenses plus the hard-coded fallback note.
+    """
     candidates_report: dict[str, dict[str, object]] = {}
     for candidate in candidates:
         per_model = dict(per_candidate_models.get(candidate.id, {}))
@@ -705,7 +732,13 @@ def assemble_report(
                 concordance_gates[prop] = concordance(
                     prop, values_by_model, thresholds[prop]
                 ).to_dict()
-        gates["concordance"] = concordance_gates
+        gates["concordance"] = annotate_concordance(
+            concordance_gates,
+            license_registry,
+            LICENSE_CLASS_BY_STRUCTURE.get(
+                candidate.structure_type, candidate.structure_type
+            ),
+        )
         gates["born_aggregate"] = {
             "passed": bool(ok_models)
             and all(r["born_passed"] for r in ok_models.values()),
@@ -735,7 +768,14 @@ def assemble_report(
             prop: thresholds[prop].to_dict() for prop in CAMPAIGN_PROPERTIES
         },
         "bias_provenance": bias_note,
-        "notes": {"b0_concordance_descriptive": B0_CONCORDANCE_DESCRIPTIVE_NOTE},
+        "license_registry": license_registry_block(
+            license_registry, license_registry_path
+        ),
+        "notes": {
+            "b0_concordance_descriptive": registry_program_note(license_registry)
+            if license_registry is not None
+            else B0_CONCORDANCE_DESCRIPTIVE_NOTE
+        },
         "candidates": candidates_report,
         "arm_metrics": {
             "abs_rel_error_by_group_property": arm_error_metrics(candidates_report),
@@ -748,6 +788,19 @@ def _fmt(value: float | None, digits: int = 4) -> str:
     return "-" if value is None else f"{value:.{digits}f}"
 
 
+def _license_registry_line(report: Mapping[str, object]) -> str:
+    block = report.get("license_registry", {})
+    if block.get("loaded"):
+        return (
+            f"License registry: {block['path']} (schema {block['schema']}, "
+            f"generated {block['generated_at']})"
+        )
+    return (
+        f"License registry: ABSENT ({block.get('path')}) - every concordance "
+        f"license is descriptive (fail-closed)"
+    )
+
+
 def render_markdown(report: Mapping[str, object]) -> str:
     models: list[str] = list(report["models"])
     lines: list[str] = [
@@ -756,6 +809,8 @@ def render_markdown(report: Mapping[str, object]) -> str:
         f"Generated: {report['generated_at']} | models: {', '.join(models)}",
         "",
         f"Bias arm: {report['bias_provenance']}",
+        "",
+        _license_registry_line(report),
         "",
         f"Note: {report['notes']['b0_concordance_descriptive']}",
         "",
@@ -769,8 +824,10 @@ def render_markdown(report: Mapping[str, object]) -> str:
     lines.append("")
     for cid, sub in report["candidates"].items():
         born = sub["gates"]["born_aggregate"]
+        license_summary = driving_license_summary(sub["gates"]["concordance"])
         lines += [
-            f"## {cid} - **{sub['verdict']}**",
+            f"## {cid} - **{sub['verdict']}**"
+            + (f" ({license_summary})" if license_summary else ""),
             "",
             f"group: {sub['group']} | structure: {sub['structure_type']} | "
             f"formula: {sub['formula'] or '-'} | Born aggregate: "
@@ -780,8 +837,8 @@ def render_markdown(report: Mapping[str, object]) -> str:
             + " | ".join(f"{m} raw" for m in models)
             + " | "
             + " | ".join(f"{m} corr" for m in models)
-            + " | concordance |",
-            "|---" * (2 + 2 * len(models) + 1) + "|",
+            + " | concordance | license |",
+            "|---" * (2 + 2 * len(models) + 2) + "|",
         ]
         references = sub["references"]
         arm = sub["corrected_arm"]
@@ -800,13 +857,24 @@ def render_markdown(report: Mapping[str, object]) -> str:
                 corr_cells.append(_fmt(float(corrected["value"])) + mark)
             gate = sub["gates"]["concordance"].get(prop)
             level = str(gate["values"]["level"]).upper() if gate else "-"
+            license_status = gate.get("license", {}).get("status", "-") if gate else "-"
             lines.append(
                 f"| {prop} | {_fmt(references.get(prop))} | "
                 + " | ".join(raw_cells)
                 + " | "
                 + " | ".join(corr_cells)
-                + f" | {level} |"
+                + f" | {level} | {license_status} |"
             )
+        for prop, gate in sub["gates"]["concordance"].items():
+            lic = gate.get("license", {})
+            if lic.get("status") != STATUS_ANTI_CORRELATED:
+                continue
+            lines += [
+                "",
+                f"**WARNING ({prop}):** anti-correlated dispersion-error "
+                f"license (rho={lic['rho']:+.2f}, n={lic['n']}): low "
+                f"dispersion must NOT be read as low error.",
+            ]
         dynamic = sub["gates"].get("dynamic_return")
         if dynamic is not None:
             dv = dynamic["values"]
@@ -893,6 +961,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "(missing file -> uncorrected arm)",
     )
     parser.add_argument(
+        "--license-registry",
+        default=str(_REPO_ROOT / "data" / "discovery_gates" / "licenses.v1.json"),
+        help="Gate-license registry (licenses.v1); an absent file means every "
+        "concordance license defaults to descriptive (fail-closed)",
+    )
+    parser.add_argument(
         "--dynamic-model",
         default=DEFAULT_DYNAMIC_MODEL,
         help="Model used for the dynamic-return gate (must be in --models)",
@@ -924,10 +998,20 @@ def main(argv: list[str] | None = None) -> int:
         candidates = load_targets(Path(args.targets))
         thresholds = load_thresholds_file(Path(args.thresholds_file))
         biases, bias_note = load_bias_file(Path(args.bias_file) if args.bias_file else None)
+        registry_path = Path(args.license_registry)
+        license_registry = (
+            load_license_registry(registry_path) if registry_path.is_file() else None
+        )
     except InputValidationError as exc:
         raise SystemExit(str(exc)) from exc
     log.info(
         "campaign: %d candidates x %d models; %s", len(candidates), len(models), bias_note
+    )
+    log.info(
+        "license registry: %s",
+        license_registry.provenance
+        if license_registry is not None
+        else f"absent ({registry_path.as_posix()}); all licenses descriptive",
     )
 
     per_candidate_models: dict[str, dict[str, dict[str, object]]] = {
@@ -1007,6 +1091,8 @@ def main(argv: list[str] | None = None) -> int:
         bias_note=bias_note,
         models=models,
         parameters=parameters,
+        license_registry=license_registry,
+        license_registry_path=registry_path.as_posix(),
     )
     report["total_wall_time_seconds"] = time.perf_counter() - t_run0
 

@@ -1,0 +1,24 @@
+{
+  "run_id": "mlip-cloud-20260713-cand-r1",
+  "campaign_id": "mlip-cloud-20260713-cand-r1",
+  "mlip_id": "uma-s-1p1",
+  "defaults": {
+    "manifest_url": "gs://shed-489901-atlas-inputs/mlip-campaigns/round1-candidates-v1/manifest.json",
+    "variant_id": "baseline",
+    "distill_profile": "off",
+    "checkpoint_mode": "read-write"
+  },
+  "batch_artifact_prefix": "gs://shed-489901-atlas-outputs/mlip-campaigns/mlip-cloud-20260713-cand-r1/batch/uma-s-1p1",
+  "cells": [
+    {
+      "cell_id": "mlip-cloud-20260713-cand-r1:baseline:elastic_constants:uma-s-1p1",
+      "row_id": "elastic_constants",
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/mlip-campaigns/mlip-cloud-20260713-cand-r1/baseline/elastic_constants/uma-s-1p1"
+    },
+    {
+      "cell_id": "mlip-cloud-20260713-cand-r1:baseline:relaxation_stability:uma-s-1p1",
+      "row_id": "relaxation_stability",
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/mlip-campaigns/mlip-cloud-20260713-cand-r1/baseline/relaxation_stability/uma-s-1p1"
+    }
+  ]
+}

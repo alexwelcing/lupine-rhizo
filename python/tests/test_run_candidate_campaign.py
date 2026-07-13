@@ -25,6 +25,7 @@ from lupine_distill.statics import (  # noqa: E402
     build_rss_supercell,
     build_structure,
     compute_cubic_elastic_constants,
+    load_license_registry,
 )
 
 pytestmark = pytest.mark.unit
@@ -446,6 +447,143 @@ class TestAssembleReport:
         markdown = rcc.render_markdown(report)
         assert "REFUSED" in markdown
         assert "boom" in markdown
+
+
+# --------------------------------------------------------------------------
+# gate-license annotation wiring (synthetic registry; annotates, never
+# re-gates)
+# --------------------------------------------------------------------------
+
+
+def _license_registry_payload() -> dict:
+    return {
+        "schema": "lupine.discovery_gates.licenses.v1",
+        "generated_at": "2026-07-13T00:00:00+00:00",
+        "derived_from": {"path": "synthetic", "schema": "s", "generated_at": "t"},
+        "derivation_rule": {"n_min": 5},
+        "program_overrides": [
+            {"property": "b0", "license_ceiling": "descriptive", "provenance": "test"}
+        ],
+        "by_class": {
+            "metals-fcc": {
+                "a0": {
+                    "status": "licensed",
+                    "rho": 0.9,
+                    "n": 6,
+                    "corpus": "synthetic-bound",
+                    "corpus_kind": "reference-bound",
+                    "caveats": [],
+                },
+                "b0": {
+                    "status": "anti-correlated",
+                    "rho": -0.63,
+                    "n": 9,
+                    "corpus": "synthetic-bound",
+                    "corpus_kind": "reference-bound",
+                    "caveats": [],
+                },
+            }
+        },
+    }
+
+
+@pytest.fixture()
+def license_registry(tmp_path: Path):
+    path = tmp_path / "licenses.v1.json"
+    path.write_text(json.dumps(_license_registry_payload()), encoding="utf-8")
+    return load_license_registry(path)
+
+
+class TestLicenseAnnotation:
+    def _report(
+        self,
+        targets_file: Path,
+        thresholds_file: Path,
+        per_model: dict,
+        registry=None,
+    ) -> dict:
+        candidates = rcc.load_targets(targets_file)
+        thresholds = rcc.load_thresholds_file(thresholds_file)
+        return rcc.assemble_report(
+            candidates=candidates,
+            per_candidate_models={"nicu-rss": per_model},
+            dynamic_gates={},
+            thresholds=thresholds,
+            biases={},
+            bias_note="test",
+            models=list(per_model),
+            parameters={},
+            license_registry=registry,
+            license_registry_path=registry.path if registry else "missing.json",
+        )
+
+    def test_registry_annotates_and_note_derives(
+        self, targets_file: Path, thresholds_file: Path, license_registry
+    ) -> None:
+        per_model = {
+            "m1": _record(3.55, 150.0, 200.0, 100.0, 50.0),
+            "m2": _record(3.55, 150.0, 200.0, 100.0, 50.0),
+        }
+        report = self._report(
+            targets_file, thresholds_file, per_model, license_registry
+        )
+        sub = report["candidates"]["nicu-rss"]
+        gates = sub["gates"]["concordance"]
+        # fcc-rss resolves to metals-fcc: a0 licensed, b0 anti-correlated;
+        # unlisted c11/c12/c44 fail closed to descriptive.
+        assert gates["a0"]["license"]["status"] == "licensed"
+        assert gates["b0"]["license"]["status"] == "anti-correlated"
+        assert gates["c44"]["license"]["status"] == "descriptive"
+        assert gates["b0"]["license"]["source"] == license_registry.path
+        # A license annotates; it never re-gates.
+        assert sub["verdict"] == "CERTIFIED"
+        assert report["license_registry"]["loaded"] is True
+        # The note is now GENERATED from the registry, not the constant.
+        note = report["notes"]["b0_concordance_descriptive"]
+        assert note != rcc.B0_CONCORDANCE_DESCRIPTIVE_NOTE
+        assert "License registry" in note
+        markdown = rcc.render_markdown(report)
+        assert "| concordance | license |" in markdown
+        assert "**WARNING (b0):**" in markdown
+        assert "must NOT be read as low error" in markdown
+
+    def test_headline_appends_driving_license_summary(
+        self, targets_file: Path, thresholds_file: Path, license_registry
+    ) -> None:
+        # c44 disperses 40% -> refuse drives the verdict; its license is the
+        # fail-closed descriptive.
+        per_model = {
+            "m1": _record(3.55, 150.0, 200.0, 100.0, 40.0),
+            "m2": _record(3.55, 150.0, 200.0, 100.0, 60.0),
+        }
+        report = self._report(
+            targets_file, thresholds_file, per_model, license_registry
+        )
+        assert report["candidates"]["nicu-rss"]["verdict"] == "REFUSED"
+        markdown = rcc.render_markdown(report)
+        assert (
+            "**REFUSED** (c44 - descriptive: agreement arithmetic only, "
+            "no uncertainty claim)" in markdown
+        )
+
+    def test_absent_registry_fails_closed_with_constant_note(
+        self, targets_file: Path, thresholds_file: Path
+    ) -> None:
+        per_model = {
+            "m1": _record(3.55, 150.0, 200.0, 100.0, 50.0),
+            "m2": _record(3.55, 150.0, 200.0, 100.0, 50.0),
+        }
+        report = self._report(targets_file, thresholds_file, per_model, None)
+        sub = report["candidates"]["nicu-rss"]
+        for prop in rcc.CAMPAIGN_PROPERTIES:
+            license_entry = sub["gates"]["concordance"][prop]["license"]
+            assert license_entry["status"] == "descriptive"
+            assert license_entry["source"] is None
+        assert report["license_registry"]["loaded"] is False
+        assert (
+            report["notes"]["b0_concordance_descriptive"]
+            == rcc.B0_CONCORDANCE_DESCRIPTIVE_NOTE
+        )
 
 
 # --------------------------------------------------------------------------

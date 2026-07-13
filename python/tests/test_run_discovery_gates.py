@@ -207,3 +207,95 @@ class TestRunnerEndToEnd:
             for t in report["concordance_thresholds"].values()
         }
         assert len(values) == 1
+
+
+# --------------------------------------------------------------------------
+# Gate-license annotation wiring (synthetic registry; annotates, never
+# re-gates)
+# --------------------------------------------------------------------------
+
+
+def _license_registry_payload() -> dict:
+    return {
+        "schema": "lupine.discovery_gates.licenses.v1",
+        "generated_at": "2026-07-13T00:00:00+00:00",
+        "derived_from": {"path": "synthetic", "schema": "s", "generated_at": "t"},
+        "derivation_rule": {"n_min": 5},
+        "program_overrides": [
+            {"property": "b0", "license_ceiling": "descriptive", "provenance": "test"}
+        ],
+        "by_class": {
+            "metals-fcc": {
+                "a0": {
+                    "status": "licensed",
+                    "rho": 0.9,
+                    "n": 6,
+                    "corpus": "synthetic-bound",
+                    "corpus_kind": "reference-bound",
+                    "caveats": [],
+                },
+                "b0": {
+                    "status": "anti-correlated",
+                    "rho": -0.63,
+                    "n": 9,
+                    "corpus": "synthetic-bound",
+                    "corpus_kind": "reference-bound",
+                    "caveats": [],
+                },
+            }
+        },
+    }
+
+
+@pytest.fixture()
+def license_registry_file(tmp_path: Path) -> Path:
+    path = tmp_path / "licenses.v1.json"
+    path.write_text(json.dumps(_license_registry_payload()), encoding="utf-8")
+    return path
+
+
+class TestLicenseAnnotation:
+    def test_registry_annotates_every_concordance_verdict(
+        self, emt_runner, license_registry_file: Path, tmp_path: Path
+    ) -> None:
+        report = emt_runner("--license-registry", str(license_registry_file))
+        block = report["license_registry"]
+        assert block["loaded"] is True
+        assert block["path"] == license_registry_file.as_posix()
+        for label in ("Ni_fcc", "Cu_fcc"):
+            sub = report["subjects"][label]
+            gates = sub["gates"]["concordance"]
+            assert set(gates) == set(rdg.CONCORDANCE_PROPERTIES)
+            for gate in gates.values():
+                assert gate["license"]["status"] in (
+                    "licensed", "descriptive", "anti-correlated"
+                )
+            # fcc subjects resolve to metals-fcc: a0 licensed, b0
+            # anti-correlated; unlisted c11/c12/c44 fail closed.
+            assert gates["a0"]["license"]["status"] == "licensed"
+            assert gates["b0"]["license"]["status"] == "anti-correlated"
+            assert gates["c44"]["license"]["status"] == "descriptive"
+            assert any(
+                "fail-closed" in caveat
+                for caveat in gates["c44"]["license"]["caveats"]
+            )
+            # A license annotates; it never re-gates.
+            assert sub["overall_verdict"] == "CERTIFIED"
+        markdown = (tmp_path / "out" / "REPORT.md").read_text(encoding="utf-8")
+        assert "| license |" in markdown
+        assert "**WARNING (b0):**" in markdown
+        assert "must NOT be read as low error" in markdown
+
+    def test_absent_registry_fails_closed_with_note(
+        self, emt_runner, tmp_path: Path
+    ) -> None:
+        report = emt_runner("--license-registry", str(tmp_path / "missing.json"))
+        block = report["license_registry"]
+        assert block["loaded"] is False
+        assert "fail-closed" in block["note"]
+        for label in ("Ni_fcc", "Cu_fcc"):
+            gates = report["subjects"][label]["gates"]["concordance"]
+            for gate in gates.values():
+                assert gate["license"]["status"] == "descriptive"
+                assert gate["license"]["source"] is None
+        assert any("License registry absent" in note for note in report["notes"])

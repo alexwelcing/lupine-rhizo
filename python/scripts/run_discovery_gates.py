@@ -52,8 +52,10 @@ for _p in (str(_HERE.parents[1]), str(_HERE.parents[2])):  # python/ ; repo root
 _REPO_ROOT = _HERE.parents[2]
 
 from lupine_distill.statics import (  # noqa: E402
+    STATUS_ANTI_CORRELATED,
     ConcordanceThresholds,
     StaticsError,
+    annotate_concordance,
     born_stability_cubic,
     build_structure,
     compute_cubic_elastic_constants,
@@ -63,8 +65,12 @@ from lupine_distill.statics import (  # noqa: E402
     derive_concordance_thresholds,
     derive_per_property_thresholds,
     dispersions_by_material,
+    driving_license_summary,
     dynamic_return,
+    license_registry_block,
+    load_license_registry,
     load_property_by_material,
+    registry_program_note,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
@@ -72,6 +78,17 @@ log = logging.getLogger("discovery_gates")
 
 REPORT_SCHEMA = "lupine.discovery_gates.v1"
 CONCORDANCE_PROPERTIES = ("a0", "b0", "c11", "c12", "c44")
+
+#: Structure type -> license-registry calibration class. Classes absent from
+#: the registry (all rocksalt/antifluorite subjects today) resolve to the
+#: fail-closed descriptive license at annotation time.
+LICENSE_CLASS_BY_STRUCTURE = {
+    "fcc": "metals-fcc",
+    "bcc": "metals-bcc",
+    "perovskite": "perovskites",
+    "rocksalt": "ionics-rocksalt",
+    "antifluorite": "ionics-antifluorite",
+}
 
 
 @dataclass(frozen=True)
@@ -248,6 +265,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Calc-evidence directory for the per-property (v2) baseline",
     )
     parser.add_argument(
+        "--license-registry",
+        default=str(_REPO_ROOT / "data" / "discovery_gates" / "licenses.v1.json"),
+        help="Gate-license registry (licenses.v1); an absent file means every "
+        "concordance license defaults to descriptive (fail-closed)",
+    )
+    parser.add_argument(
         "--gate-order",
         default="early-stop",
         choices=("early-stop", "legacy"),
@@ -400,6 +423,19 @@ def _verdict_word(gate: dict[str, object]) -> str:
     return "PASS" if gate["passed"] else "FAIL"
 
 
+def _license_registry_line(report: dict[str, object]) -> str:
+    block = report.get("license_registry", {})
+    if block.get("loaded"):
+        return (
+            f"License registry: {block['path']} (schema {block['schema']}, "
+            f"generated {block['generated_at']})"
+        )
+    return (
+        f"License registry: ABSENT ({block.get('path')}) - every concordance "
+        f"license is descriptive (fail-closed)"
+    )
+
+
 def render_markdown(report: dict[str, object]) -> str:
     thresholds = report["concordance_thresholds"]
     lines: list[str] = [
@@ -408,6 +444,8 @@ def render_markdown(report: dict[str, object]) -> str:
         f"Generated: {report['generated_at']} | device: {report['device']} | "
         f"models: {', '.join(report['models'])} | thresholds: "
         f"{report['thresholds_version']} | gate order: {report['gate_order']}",
+        "",
+        _license_registry_line(report),
         "",
         "All gates are reference-free: no experimental or DFT value for any "
         "subject is consulted.",
@@ -432,8 +470,10 @@ def render_markdown(report: dict[str, object]) -> str:
         "",
     ]
     for subject_label, sub in report["subjects"].items():
+        license_summary = driving_license_summary(sub["gates"]["concordance"])
         lines += [
-            f"## {subject_label} - **{sub['overall_verdict']}**",
+            f"## {subject_label} - **{sub['overall_verdict']}**"
+            + (f" ({license_summary})" if license_summary else ""),
             "",
             f"{sub['role']}",
             "",
@@ -454,12 +494,16 @@ def render_markdown(report: dict[str, object]) -> str:
                 f"{r['b0_elastic_vs_eos_rel_diff'] * 100:.1f}% | "
                 f"{'PASS' if r['born_passed'] else 'FAIL'} | {total:.1f} |"
             )
-        lines += ["", "| gate | verdict | key numbers | wall (s) |", "|---|---|---|---|"]
+        lines += [
+            "",
+            "| gate | verdict | key numbers | license | wall (s) |",
+            "|---|---|---|---|---|",
+        ]
         for model, r in sub["per_model"].items():
             if "error" in r:
                 lines.append(
                     f"| born ({model}) | ERROR | measurement failed: "
-                    f"{r['error'][:120]} | - |"
+                    f"{r['error'][:120]} | - | - |"
                 )
                 continue
             born = r["gates"]["born"]
@@ -468,12 +512,13 @@ def render_markdown(report: dict[str, object]) -> str:
                 f"| born ({model}) | {_verdict_word(born)} | "
                 f"C11-C12={v['c11_minus_c12_gpa']:.1f}, "
                 f"C11+2C12={v['c11_plus_2c12_gpa']:.1f}, C44={v['c44_gpa']:.1f} GPa "
-                f"| {r['wall_time_seconds']['elastic_plus_born']:.1f} |"
+                f"| - | {r['wall_time_seconds']['elastic_plus_born']:.1f} |"
             )
         for prop, gate in sub["gates"]["concordance"].items():
             lines.append(
                 f"| concordance ({prop}) | {_verdict_word(gate)} | "
                 f"dispersion={gate['values']['dispersion']:.3f} | "
+                f"{gate.get('license', {}).get('status', '-')} | "
                 f"{gate['wall_time_seconds']:.3f} |"
             )
         dynamic = sub["gates"].get("dynamic_return")
@@ -486,12 +531,22 @@ def render_markdown(report: dict[str, object]) -> str:
                 f"({report['dynamic_model']})"
             )
             lines.append(
-                f"| dynamic_return | {_verdict_word(dynamic)} | {key} | "
+                f"| dynamic_return | {_verdict_word(dynamic)} | {key} | - | "
                 f"{dynamic['wall_time_seconds']:.1f} |"
             )
         skipped = sub["gates"].get("dynamic_return_skipped")
         if skipped is not None:
-            lines.append(f"| dynamic_return | SKIPPED | {skipped} | 0.0 |")
+            lines.append(f"| dynamic_return | SKIPPED | {skipped} | - | 0.0 |")
+        for prop, gate in sub["gates"]["concordance"].items():
+            lic = gate.get("license", {})
+            if lic.get("status") != STATUS_ANTI_CORRELATED:
+                continue
+            lines += [
+                "",
+                f"**WARNING ({prop}):** anti-correlated dispersion-error "
+                f"license (rho={lic['rho']:+.2f}, n={lic['n']}): low "
+                f"dispersion must NOT be read as low error.",
+            ]
         lines += ["", f"Subject wall time: **{sub['wall_time_seconds']:.1f} s**", ""]
     lines += [
         "## Scope and honesty notes",
@@ -554,6 +609,20 @@ def main(argv: list[str] | None = None) -> int:
             t.refuse,
             t.n_samples,
         )
+
+    # 1b. Gate-license registry: annotates every concordance verdict with
+    # what its zone means epistemically; it never re-gates. An absent
+    # registry fails closed (every license descriptive).
+    registry_path = Path(args.license_registry)
+    license_registry = (
+        load_license_registry(registry_path) if registry_path.is_file() else None
+    )
+    log.info(
+        "license registry: %s",
+        license_registry.provenance
+        if license_registry is not None
+        else f"absent ({registry_path.as_posix()}); all licenses descriptive",
+    )
 
     # 2. Measurements, model-outer so each calculator loads exactly once.
     per_subject: dict[str, dict[str, object]] = {
@@ -644,7 +713,13 @@ def main(argv: list[str] | None = None) -> int:
                 concordance_gates[prop] = concordance(
                     prop, values_by_model, thresholds_by_prop[prop]
                 ).to_dict()
-        sub["gates"]["concordance"] = concordance_gates
+        sub["gates"]["concordance"] = annotate_concordance(
+            concordance_gates,
+            license_registry,
+            LICENSE_CLASS_BY_STRUCTURE.get(
+                subject.structure_type, subject.structure_type
+            ),
+        )
 
     # 3b. Early-stop dynamic stage: the expensive gate runs only for
     # subjects the cheap gates did not already refuse. A refusal is final
@@ -737,6 +812,11 @@ def main(argv: list[str] | None = None) -> int:
         "Cubic symmetry of each relaxed subject is assumed by construction "
         "(all panel prototypes are cubic); the elastic probe measures the "
         "cubic C11/C12/C44 only.",
+        registry_program_note(license_registry)
+        if license_registry is not None
+        else "License registry absent: every concordance license in this "
+        "report is descriptive (fail-closed) - concordance levels are "
+        "agreement arithmetic only, carrying no dispersion-error claim.",
     ]
 
     report = {
@@ -761,6 +841,9 @@ def main(argv: list[str] | None = None) -> int:
             for prop in CONCORDANCE_PROPERTIES
         },
         "threshold_transfer_note": threshold_note,
+        "license_registry": license_registry_block(
+            license_registry, args.license_registry
+        ),
         "subjects": per_subject,
         "notes": notes,
         "total_wall_time_seconds": time.perf_counter() - t_run0,
