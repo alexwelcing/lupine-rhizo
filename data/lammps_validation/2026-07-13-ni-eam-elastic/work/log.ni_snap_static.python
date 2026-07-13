@@ -1,0 +1,94 @@
+LAMMPS (30 Mar 2026)
+  using 1 OpenMP thread(s) per MPI task
+Restoring plugin: Hello world command v1.1 by Axel Kohlmeyer (akohlmey@gmail.com)
+Loaded 1 plugins from C:\lammps\plugins
+
+units metal
+boundary p p p
+lattice fcc 3.52
+Lattice spacing in x,y,z = 3.52 3.52 3.52
+region box block 0 2 0 2 0 2
+create_box 1 box
+Created orthogonal box = (0 0 0) to (7.04 7.04 7.04)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 box
+Created 32 atoms
+  using lattice units in orthogonal box = (0 0 0) to (7.04 7.04 7.04)
+  create_atoms CPU = 0.000 seconds
+mass 1 58.71
+pair_style snap
+pair_coeff * * C:/lammps/Potentials/Ni_Zuo_JPCA2020.snapcoeff C:/lammps/Potentials/Ni_Zuo_JPCA2020.snapparam Ni
+Reading potential file C:/lammps/Potentials/Ni_Zuo_JPCA2020.snapcoeff with DATE: 2020-01-31
+SNAP Element = Ni, Radius 0.5, Weight 1
+Reading potential file C:/lammps/Potentials/Ni_Zuo_JPCA2020.snapparam with DATE: 2020-01-31
+SNAP keyword rcutfac 4.1
+SNAP keyword twojmax 8
+SNAP keyword rfac0 0.99363
+SNAP keyword rmin0 0
+SNAP keyword quadraticflag 0
+SNAP keyword bzeroflag 0
+neighbor 1.0 bin
+min_style cg
+fix relax all box/relax iso 0.0
+thermo 10
+thermo_style custom step pe press lx
+minimize 0.0 1.0e-10 200 2000
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 5.1
+  ghost atom cutoff = 5.1
+  binsize = 2.55, bins = 3 3 3
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair snap, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+WARNING: Energy due to 1 extra global DOFs will be included in minimizer energies
+ (src/min.cpp:222)
+Per MPI rank memory allocation (min/avg/max) = 4.643 | 4.643 | 4.643 Mbytes
+   Step         PotEng         Press            Lx      
+         0  -184.98222      2684.4045      7.04         
+         7  -184.9826      -8.478642e-10   7.0430435    
+Loop time of 0.106292 on 1 procs for 7 steps with 32 atoms
+
+102.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = force tolerance
+  Energy initial, next-to-last, final = 
+     -184.982222291813  -184.982601137309  -184.982601137309
+  Force two-norm initial, final = 1.753787 5.6041322e-13
+  Force max component initial, final = 1.753787 5.5440941e-13
+  Final line search alpha, max atom move = 1 5.5440941e-13
+  Iterations, force evaluations = 7 10
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.10566    | 0.10566    | 0.10566    |   0.0 | 99.41
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.6e-05    | 3.6e-05    | 3.6e-05    |   0.0 |  0.03
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.000594   |            |       |  0.56
+
+Nlocal:             32 ave          32 max          32 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:            333 ave         333 max         333 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:         1728 ave        1728 max        1728 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1728
+Ave neighs/atom = 54
+Neighbor list builds = 0
+Dangerous builds = 0
+variable natoms equal count(all)
+variable a0 equal lx/2.0
+variable epa equal pe/count(all)
+
+Total wall time: 0:00:00

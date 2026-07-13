@@ -1,0 +1,35 @@
+{
+  "legA_elastic_via_module": {
+    "ok": true,
+    "lammps_version": 20260330,
+    "C11cubic": 233.273125813295,
+    "C12cubic": 154.28732113832532,
+    "C44cubic": 127.636559609988,
+    "bulkmodulus": 180.61592269664834,
+    "shearmodulus1": 127.636559609988,
+    "poissonratio": 0.39809872847418054,
+    "natoms": 96
+  },
+  "legB_probes": {
+    "ok": true,
+    "version": 20260330,
+    "has_style_pair_mliap": true,
+    "has_style_pair_snap": true,
+    "has_style_pair_eam": true,
+    "installed_packages_ml": [
+      "ML-HDNNP",
+      "ML-IAP",
+      "ML-POD",
+      "ML-RANN",
+      "ML-SNAP",
+      "ML-UF3"
+    ]
+  },
+  "legC_snap_static": {
+    "ok": true,
+    "natoms": 32,
+    "a0_angstrom": 3.521521751938988,
+    "energy_per_atom_eV": -5.780706285540891,
+    "potential": "Ni_Zuo_JPCA2020.snap (SNAP, Zuo et al. JPCA 2020)"
+  }
+}

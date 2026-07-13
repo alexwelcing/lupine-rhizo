@@ -1,0 +1,217 @@
+{
+  "schema": "lupine.mlip.lammps_evidence.v1",
+  "material": "Ni",
+  "source": {
+    "potential_id": "Ni_u3.eam",
+    "lammps_version": "LAMMPS (30 Mar 2026)",
+    "input_script": "in.elastic.lmp"
+  },
+  "properties": [
+    {
+      "name": "C11",
+      "value": 233.273125810536,
+      "unit": "GPa",
+      "reference_value": 246.5,
+      "reference_source": "Simmons & Wang 1971",
+      "tolerance": null
+    },
+    {
+      "name": "C22",
+      "value": 233.2731258172,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C33",
+      "value": 233.273125812149,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C12",
+      "value": 154.287321139691,
+      "unit": "GPa",
+      "reference_value": 147.3,
+      "reference_source": "Simmons & Wang 1971",
+      "tolerance": null
+    },
+    {
+      "name": "C13",
+      "value": 154.287321136971,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C23",
+      "value": 154.287321138314,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C44",
+      "value": 127.636559610815,
+      "unit": "GPa",
+      "reference_value": 124.7,
+      "reference_source": "Simmons & Wang 1971",
+      "tolerance": null
+    },
+    {
+      "name": "C55",
+      "value": 127.636559609527,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C66",
+      "value": 127.636559609622,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C14",
+      "value": -1.47650330307756e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C15",
+      "value": -1.9574323075774e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C16",
+      "value": -1.36372382894518e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C24",
+      "value": -2.86399274985696e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C25",
+      "value": 8.76622548354569e-10,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C26",
+      "value": -4.2351096802266e-11,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C34",
+      "value": -3.3538228752109e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C35",
+      "value": -7.39621625664847e-10,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C36",
+      "value": -1.59706650459183e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C45",
+      "value": 1.85985270054205e-09,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C46",
+      "value": -4.27358544010628e-10,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C56",
+      "value": -1.65221406654621e-10,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "bulk_modulus",
+      "value": 180.615922696648,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "shear_modulus_1",
+      "value": 127.636559609988,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "shear_modulus_2",
+      "value": 39.492902337485,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "poisson_ratio",
+      "value": 0.398098728474181,
+      "unit": "dimensionless",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "trajectory": null,
+  "provenance": {
+    "log_sha256": "6e90a94246fc25885f23a0f9d6ce58a5db9e4e8a54692afe72dee87f68cc3393",
+    "log_name": "log.ni_eam_elastic.serial",
+    "parsed_at": null
+  }
+}

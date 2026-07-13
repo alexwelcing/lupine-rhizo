@@ -1,0 +1,1812 @@
+{
+ "protocol": {
+  "date": "2026-07-13",
+  "primary_target": "Tr2SCAN_0K",
+  "secondary_target": "TPBE_0K",
+  "evaluation": "leave-one-material-out over 16 cubic metals",
+  "properties": [
+   "c11",
+   "c12",
+   "c44"
+  ],
+  "aggregation": "per-element MAE over C11/C12/C44; mean and median across elements",
+  "directional_agreement": "property-level: sign(correction)==sign(target-raw) AND |err_after|<|err_before|; two-sided exact sign test on improved-vs-worsened"
+ },
+ "target_reconstruction": {
+  "tpbe": {
+   "Ag": [
+    107.0,
+    79.0,
+    42.0
+   ],
+   "Al": [
+    103.93,
+    72.95,
+    31.86
+   ],
+   "Au": [
+    165.9,
+    142.2,
+    26.7
+   ],
+   "Ca": [
+    20.83,
+    15.09,
+    14.09
+   ],
+   "Cr": [
+    499.47,
+    139.17,
+    102.31
+   ],
+   "Cu": [
+    146.43,
+    131.1,
+    71.18
+   ],
+   "Fe": [
+    247.06,
+    150.16,
+    97.43
+   ],
+   "Mo": [
+    471.86,
+    157.66,
+    106.39
+   ],
+   "Nb": [
+    233.03,
+    145.2,
+    10.95
+   ],
+   "Ni": [
+    275.77,
+    159.22,
+    131.71
+   ],
+   "Pd": [
+    187.33,
+    147.05,
+    70.71
+   ],
+   "Pt": [
+    286.76,
+    222.21,
+    64.55
+   ],
+   "Sr": [
+    15.2,
+    10.49,
+    12.49
+   ],
+   "Ta": [
+    265.48,
+    157.82,
+    68.55
+   ],
+   "V": [
+    275.85,
+    131.27,
+    15.6
+   ],
+   "W": [
+    509.82,
+    201.0,
+    142.69
+   ]
+  },
+  "tr2scan": {
+   "Ag": [
+    126.4619,
+    93.3691,
+    49.6392
+   ],
+   "Al": [
+    103.93,
+    72.95,
+    31.86
+   ],
+   "Au": [
+    169.6562,
+    145.4196,
+    27.3045
+   ],
+   "Ca": [
+    20.83,
+    15.09,
+    14.09
+   ],
+   "Cr": [
+    531.3126,
+    148.0425,
+    108.8326
+   ],
+   "Cu": [
+    175.0202,
+    156.6971,
+    85.0778
+   ],
+   "Fe": [
+    272.7083,
+    165.7487,
+    107.5446
+   ],
+   "Mo": [
+    494.5326,
+    165.2355,
+    111.502
+   ],
+   "Nb": [
+    231.9994,
+    144.5579,
+    10.9016
+   ],
+   "Ni": [
+    315.2088,
+    181.9906,
+    150.5463
+   ],
+   "Pd": [
+    215.4909,
+    169.1557,
+    81.3397
+   ],
+   "Pt": [
+    320.385,
+    248.266,
+    72.119
+   ],
+   "Sr": [
+    15.2,
+    10.49,
+    12.49
+   ],
+   "Ta": [
+    281.9181,
+    167.5919,
+    72.7945
+   ],
+   "V": [
+    297.8875,
+    141.7571,
+    16.8463
+   ],
+   "W": [
+    555.5498,
+    219.0293,
+    155.489
+   ]
+  },
+  "tr2scan_over_tpbe_factor": {
+   "Ag": 1.18189,
+   "Al": 1.0,
+   "Au": 1.02264,
+   "Ca": 1.0,
+   "Cr": 1.06375,
+   "Cu": 1.19525,
+   "Fe": 1.10381,
+   "Mo": 1.04805,
+   "Nb": 0.99558,
+   "Ni": 1.14301,
+   "Pd": 1.15033,
+   "Pt": 1.11726,
+   "Sr": 1.0,
+   "Ta": 1.06192,
+   "V": 1.07989,
+   "W": 1.0897
+  }
+ },
+ "reproduction_gates": [
+  {
+   "gate": "raw vs TPBE",
+   "got_mean_median": [
+    14.547,
+    13.485
+   ],
+   "expected_mean_median": [
+    14.55,
+    13.48
+   ],
+   "tol_gpa": 0.05,
+   "pass": true
+  },
+  {
+   "gate": "raw vs Tr2SCAN",
+   "got_mean_median": [
+    22.548,
+    22.496
+   ],
+   "expected_mean_median": [
+    22.55,
+    22.5
+   ],
+   "tol_gpa": 0.1,
+   "pass": true
+  },
+  {
+   "gate": "shift-only vs TPBE",
+   "got_mean_median": [
+    16.278,
+    15.743
+   ],
+   "expected_mean_median": [
+    16.28,
+    15.74
+   ],
+   "tol_gpa": 0.1,
+   "pass": true
+  },
+  {
+   "gate": "shift-only vs Tr2SCAN",
+   "got_mean_median": [
+    14.547,
+    13.485
+   ],
+   "expected_mean_median": [
+    14.55,
+    13.48
+   ],
+   "tol_gpa": 0.1,
+   "pass": true
+  },
+  {
+   "gate": "scalar-bulk vs TPBE",
+   "got_mean_median": [
+    19.171,
+    19.011
+   ],
+   "expected_mean_median": [
+    19.17,
+    19.01
+   ],
+   "tol_gpa": 0.15,
+   "pass": true
+  },
+  {
+   "gate": "scalar-bulk vs Tr2SCAN",
+   "got_mean_median": [
+    14.134,
+    11.16
+   ],
+   "expected_mean_median": [
+    14.13,
+    11.16
+   ],
+   "tol_gpa": 0.15,
+   "pass": true
+  },
+  {
+   "gate": "v0.1-unshifted (recorded preds) vs TPBE",
+   "got_mean_median": [
+    54.276,
+    55.093
+   ],
+   "expected_mean_median": [
+    54.28,
+    55.09
+   ],
+   "tol_gpa": 0.15,
+   "pass": true
+  },
+  {
+   "gate": "v0.1-unshifted (recorded preds) vs Tr2SCAN",
+   "got_mean_median": [
+    45.834,
+    46.044
+   ],
+   "expected_mean_median": [
+    45.83,
+    46.05
+   ],
+   "tol_gpa": 0.15,
+   "pass": true
+  },
+  {
+   "gate": "v0.1 (recorded+shift) vs TPBE",
+   "got_mean_median": [
+    63.395,
+    65.325
+   ],
+   "expected_mean_median": [
+    63.4,
+    65.33
+   ],
+   "tol_gpa": 0.15,
+   "pass": true
+  },
+  {
+   "gate": "v0.1 (recorded+shift) vs Tr2SCAN",
+   "got_mean_median": [
+    54.276,
+    55.093
+   ],
+   "expected_mean_median": [
+    54.28,
+    55.09
+   ],
+   "tol_gpa": 0.15,
+   "pass": true
+  },
+  {
+   "gate": "ensemble vs TPBE",
+   "got_mean_median": [
+    11.601,
+    11.619
+   ],
+   "expected_mean_median": [
+    11.6,
+    11.62
+   ],
+   "tol_gpa": 0.05,
+   "pass": true
+  },
+  {
+   "gate": "ensemble vs Tr2SCAN",
+   "got_mean_median": [
+    19.889,
+    19.655
+   ],
+   "expected_mean_median": [
+    19.89,
+    19.65
+   ],
+   "tol_gpa": 0.1,
+   "pass": true
+  },
+  {
+   "gate": "scalar-bulk LOO alphas match recorded v0.2 alphas",
+   "max_abs_dev": 7.820510944789305e-05,
+   "tol": 0.01,
+   "pass": true
+  }
+ ],
+ "arms": {
+  "raw": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 22.548,
+    "median_mae_gpa": 22.496,
+    "per_element_mae": {
+     "Ag": 11.704,
+     "Al": 10.61,
+     "Au": 23.504,
+     "Ca": 2.513,
+     "Cr": 34.449,
+     "Cu": 21.835,
+     "Fe": 37.761,
+     "Mo": 22.207,
+     "Nb": 21.432,
+     "Ni": 36.179,
+     "Pd": 22.785,
+     "Pt": 36.027,
+     "Sr": 2.26,
+     "Ta": 28.758,
+     "V": 10.502,
+     "W": 38.239
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.387,
+     "noble_coinage_fcc": 19.014,
+     "post_transition": 10.61,
+     "transition_bcc": 27.621,
+     "transition_fcc": 31.664
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 14.547,
+    "median_mae_gpa": 13.485,
+    "per_element_mae": {
+     "Ag": 3.653,
+     "Al": 10.61,
+     "Au": 21.38,
+     "Ca": 2.513,
+     "Cr": 45.847,
+     "Cu": 9.727,
+     "Fe": 20.643,
+     "Mo": 13.033,
+     "Nb": 21.973,
+     "Ni": 9.163,
+     "Pd": 6.413,
+     "Pt": 18.657,
+     "Sr": 2.26,
+     "Ta": 18.607,
+     "V": 13.937,
+     "W": 14.34
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.387,
+     "noble_coinage_fcc": 11.587,
+     "post_transition": 10.61,
+     "transition_bcc": 21.197,
+     "transition_fcc": 11.411
+    }
+   },
+   "predictions": {
+    "Ag": [
+     108.02,
+     77.5,
+     50.44
+    ],
+    "Al": [
+     96.05,
+     52.75,
+     35.61
+    ],
+    "Au": [
+     144.76,
+     111.23,
+     38.73
+    ],
+    "Ca": [
+     20.43,
+     9.66,
+     15.8
+    ],
+    "Cr": [
+     545.99,
+     219.71,
+     91.83
+    ],
+    "Cu": [
+     161.9,
+     117.8,
+     71.59
+    ],
+    "Fe": [
+     220.07,
+     117.35,
+     95.3
+    ],
+    "Mo": [
+     446.79,
+     147.55,
+     110.31
+    ],
+    "Nb": [
+     215.02,
+     103.3,
+     16.96
+    ],
+    "Ni": [
+     253.89,
+     155.05,
+     130.27
+    ],
+    "Pd": [
+     186.76,
+     134.27,
+     76.6
+    ],
+    "Pt": [
+     273.72,
+     192.33,
+     77.6
+    ],
+    "Sr": [
+     21.29,
+     10.36,
+     11.93
+    ],
+    "Ta": [
+     236.32,
+     152.02,
+     47.69
+    ],
+    "V": [
+     306.32,
+     120.33,
+     15.2
+    ],
+    "W": [
+     485.12,
+     185.11,
+     145.12
+    ]
+   }
+  },
+  "shift-only": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 14.547,
+    "median_mae_gpa": 13.485,
+    "per_element_mae": {
+     "Ag": 3.653,
+     "Al": 10.61,
+     "Au": 21.38,
+     "Ca": 2.513,
+     "Cr": 45.847,
+     "Cu": 9.727,
+     "Fe": 20.643,
+     "Mo": 13.033,
+     "Nb": 21.973,
+     "Ni": 9.163,
+     "Pd": 6.413,
+     "Pt": 18.657,
+     "Sr": 2.26,
+     "Ta": 18.607,
+     "V": 13.937,
+     "W": 14.34
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.387,
+     "noble_coinage_fcc": 11.587,
+     "post_transition": 10.61,
+     "transition_bcc": 21.197,
+     "transition_fcc": 11.411
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 39,
+     "n_ties_zero_correction": 9,
+     "frac_toward_target": 0.7948717948717948,
+     "frac_toward_and_improved": 0.717948717948718,
+     "n_improved": 28,
+     "n_worsened": 11,
+     "sign_test_two_sided_p": 0.009475304279476404,
+     "per_class_frac_toward_and_improved": {
+      "noble_coinage_fcc": 0.6666666666666666,
+      "transition_bcc": 0.7142857142857143,
+      "transition_fcc": 0.7777777777777778
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 10,
+     "n_materials_worsened": 3,
+     "improved_elements": [
+      "Ag",
+      "Au",
+      "Cu",
+      "Fe",
+      "Mo",
+      "Ni",
+      "Pd",
+      "Pt",
+      "Ta",
+      "W"
+     ],
+     "sign_test_two_sided_p": 0.09228515625
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 16.278,
+    "median_mae_gpa": 15.743,
+    "per_element_mae": {
+     "Ag": 16.477,
+     "Al": 10.61,
+     "Au": 19.256,
+     "Ca": 2.513,
+     "Cr": 57.244,
+     "Cu": 23.555,
+     "Fe": 8.849,
+     "Mo": 4.655,
+     "Nb": 22.515,
+     "Ni": 17.852,
+     "Pd": 17.812,
+     "Pt": 15.009,
+     "Sr": 2.26,
+     "Ta": 11.103,
+     "V": 17.936,
+     "W": 12.799
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.387,
+     "noble_coinage_fcc": 19.763,
+     "post_transition": 10.61,
+     "transition_bcc": 19.3,
+     "transition_fcc": 16.891
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 39,
+     "n_ties_zero_correction": 9,
+     "frac_toward_target": 0.6410256410256411,
+     "frac_toward_and_improved": 0.46153846153846156,
+     "n_improved": 18,
+     "n_worsened": 21,
+     "sign_test_two_sided_p": 0.7492586247608415,
+     "per_class_frac_toward_and_improved": {
+      "noble_coinage_fcc": 0.3333333333333333,
+      "transition_bcc": 0.5714285714285714,
+      "transition_fcc": 0.3333333333333333
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 6,
+     "n_materials_worsened": 7,
+     "improved_elements": [
+      "Au",
+      "Fe",
+      "Mo",
+      "Pt",
+      "Ta",
+      "W"
+     ],
+     "sign_test_two_sided_p": 1.0
+    }
+   },
+   "predictions": {
+    "Ag": [
+     127.4819,
+     91.8691,
+     58.0792
+    ],
+    "Al": [
+     96.05,
+     52.75,
+     35.61
+    ],
+    "Au": [
+     148.5162,
+     114.4496,
+     39.3345
+    ],
+    "Ca": [
+     20.43,
+     9.66,
+     15.8
+    ],
+    "Cr": [
+     577.8326,
+     228.5825,
+     98.3526
+    ],
+    "Cu": [
+     190.4902,
+     143.3971,
+     85.4878
+    ],
+    "Fe": [
+     245.7183,
+     132.9387,
+     105.4146
+    ],
+    "Mo": [
+     469.4626,
+     155.1255,
+     115.422
+    ],
+    "Nb": [
+     213.9894,
+     102.6579,
+     16.9116
+    ],
+    "Ni": [
+     293.3288,
+     177.8206,
+     149.1063
+    ],
+    "Pd": [
+     214.9209,
+     156.3757,
+     87.2297
+    ],
+    "Pt": [
+     307.345,
+     218.386,
+     85.169
+    ],
+    "Sr": [
+     21.29,
+     10.36,
+     11.93
+    ],
+    "Ta": [
+     252.7581,
+     161.7919,
+     51.9345
+    ],
+    "V": [
+     328.3575,
+     130.8171,
+     16.4463
+    ],
+    "W": [
+     530.8498,
+     203.1393,
+     157.919
+    ]
+   }
+  },
+  "scalar-bulk-v0.2": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 14.134,
+    "median_mae_gpa": 11.16,
+    "per_element_mae": {
+     "Ag": 7.32,
+     "Al": 10.61,
+     "Au": 20.733,
+     "Ca": 2.513,
+     "Cr": 52.454,
+     "Cu": 11.71,
+     "Fe": 16.912,
+     "Mo": 10.569,
+     "Nb": 22.151,
+     "Ni": 5.652,
+     "Pd": 7.799,
+     "Pt": 14.814,
+     "Sr": 2.26,
+     "Ta": 15.573,
+     "V": 15.14,
+     "W": 9.938
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.387,
+     "noble_coinage_fcc": 13.254,
+     "post_transition": 10.61,
+     "transition_bcc": 20.391,
+     "transition_fcc": 9.422
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 39,
+     "n_ties_zero_correction": 9,
+     "frac_toward_target": 0.7948717948717948,
+     "frac_toward_and_improved": 0.717948717948718,
+     "n_improved": 28,
+     "n_worsened": 11,
+     "sign_test_two_sided_p": 0.009475304279476404,
+     "per_class_frac_toward_and_improved": {
+      "noble_coinage_fcc": 0.6666666666666666,
+      "transition_bcc": 0.7142857142857143,
+      "transition_fcc": 0.7777777777777778
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 10,
+     "n_materials_worsened": 3,
+     "improved_elements": [
+      "Ag",
+      "Au",
+      "Cu",
+      "Fe",
+      "Mo",
+      "Ni",
+      "Pd",
+      "Pt",
+      "Ta",
+      "W"
+     ],
+     "sign_test_two_sided_p": 0.09228515625
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 19.171,
+    "median_mae_gpa": 19.011,
+    "per_element_mae": {
+     "Ag": 21.144,
+     "Al": 10.61,
+     "Au": 18.609,
+     "Ca": 2.513,
+     "Cr": 63.852,
+     "Cu": 31.549,
+     "Fe": 9.453,
+     "Mo": 5.038,
+     "Nb": 22.692,
+     "Ni": 26.396,
+     "Pd": 24.257,
+     "Pt": 17.418,
+     "Sr": 2.26,
+     "Ta": 10.016,
+     "V": 21.513,
+     "W": 19.413
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.387,
+     "noble_coinage_fcc": 23.767,
+     "post_transition": 10.61,
+     "transition_bcc": 21.711,
+     "transition_fcc": 22.69
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 39,
+     "n_ties_zero_correction": 9,
+     "frac_toward_target": 0.6410256410256411,
+     "frac_toward_and_improved": 0.3333333333333333,
+     "n_improved": 13,
+     "n_worsened": 26,
+     "sign_test_two_sided_p": 0.05325191409792751,
+     "per_class_frac_toward_and_improved": {
+      "noble_coinage_fcc": 0.2222222222222222,
+      "transition_bcc": 0.47619047619047616,
+      "transition_fcc": 0.1111111111111111
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 5,
+     "n_materials_worsened": 8,
+     "improved_elements": [
+      "Au",
+      "Fe",
+      "Mo",
+      "Pt",
+      "Ta"
+     ],
+     "sign_test_two_sided_p": 0.5810546875
+    }
+   },
+   "predictions": {
+    "Ag": [
+     134.0527,
+     96.7204,
+     60.6584
+    ],
+    "Al": [
+     96.05,
+     52.75,
+     35.61
+    ],
+    "Au": [
+     149.6604,
+     115.4303,
+     39.5187
+    ],
+    "Ca": [
+     20.43,
+     9.66,
+     15.8
+    ],
+    "Cr": [
+     596.293,
+     233.7262,
+     102.1339
+    ],
+    "Cu": [
+     200.5603,
+     152.4129,
+     90.3829
+    ],
+    "Fe": [
+     251.4323,
+     136.4116,
+     107.668
+    ],
+    "Mo": [
+     476.1315,
+     157.3537,
+     116.9256
+    ],
+    "Nb": [
+     213.6517,
+     102.4474,
+     16.8957
+    ],
+    "Ni": [
+     305.8019,
+     185.0221,
+     155.0635
+    ],
+    "Pd": [
+     223.8618,
+     163.3941,
+     90.6045
+    ],
+    "Pt": [
+     314.7826,
+     224.1494,
+     86.8432
+    ],
+    "Sr": [
+     21.29,
+     10.36,
+     11.93
+    ],
+    "Ta": [
+     257.6698,
+     164.7118,
+     53.2028
+    ],
+    "V": [
+     335.9516,
+     134.4309,
+     16.8757
+    ],
+    "W": [
+     542.7013,
+     207.8118,
+     161.236
+    ]
+   }
+  },
+  "directional-v0.3-bulk-global": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 13.259,
+    "median_mae_gpa": 9.034,
+    "per_element_mae": {
+     "Ag": 7.958,
+     "Al": 5.923,
+     "Au": 17.157,
+     "Ca": 3.807,
+     "Cr": 53.945,
+     "Cu": 7.999,
+     "Fe": 16.547,
+     "Mo": 8.306,
+     "Nb": 18.0,
+     "Ni": 8.026,
+     "Pd": 4.373,
+     "Pt": 14.297,
+     "Sr": 7.582,
+     "Ta": 16.336,
+     "V": 12.122,
+     "W": 9.762
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 5.695,
+     "noble_coinage_fcc": 11.038,
+     "post_transition": 5.923,
+     "transition_bcc": 19.288,
+     "transition_fcc": 8.898
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 45,
+     "n_ties_zero_correction": 3,
+     "frac_toward_target": 0.8444444444444444,
+     "frac_toward_and_improved": 0.7333333333333333,
+     "n_improved": 33,
+     "n_worsened": 12,
+     "sign_test_two_sided_p": 0.0024589003220967243,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.25,
+      "noble_coinage_fcc": 0.6666666666666666,
+      "post_transition": 1.0,
+      "transition_bcc": 0.8095238095238095,
+      "transition_fcc": 0.7777777777777778
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 12,
+     "n_materials_worsened": 4,
+     "improved_elements": [
+      "Ag",
+      "Al",
+      "Au",
+      "Cu",
+      "Fe",
+      "Mo",
+      "Nb",
+      "Ni",
+      "Pd",
+      "Pt",
+      "Ta",
+      "W"
+     ],
+     "sign_test_two_sided_p": 0.076812744140625
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 18.436,
+    "median_mae_gpa": 17.099,
+    "per_element_mae": {
+     "Ag": 21.781,
+     "Al": 5.923,
+     "Au": 15.033,
+     "Ca": 3.807,
+     "Cr": 65.343,
+     "Cu": 28.737,
+     "Fe": 6.589,
+     "Mo": 6.094,
+     "Nb": 18.541,
+     "Ni": 22.78,
+     "Pd": 22.794,
+     "Pt": 16.82,
+     "Sr": 7.582,
+     "Ta": 12.699,
+     "V": 23.079,
+     "W": 17.377
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 5.695,
+     "noble_coinage_fcc": 21.851,
+     "post_transition": 5.923,
+     "transition_bcc": 21.389,
+     "transition_fcc": 20.798
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 45,
+     "n_ties_zero_correction": 3,
+     "frac_toward_target": 0.7111111111111111,
+     "frac_toward_and_improved": 0.4,
+     "n_improved": 18,
+     "n_worsened": 27,
+     "sign_test_two_sided_p": 0.23269319190831084,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.25,
+      "noble_coinage_fcc": 0.2222222222222222,
+      "post_transition": 1.0,
+      "transition_bcc": 0.5714285714285714,
+      "transition_fcc": 0.1111111111111111
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 7,
+     "n_materials_worsened": 9,
+     "improved_elements": [
+      "Al",
+      "Au",
+      "Fe",
+      "Mo",
+      "Nb",
+      "Pt",
+      "Ta"
+     ],
+     "sign_test_two_sided_p": 0.803619384765625
+    }
+   },
+   "predictions": {
+    "Ag": [
+     132.7863,
+     102.4779,
+     58.0792
+    ],
+    "Al": [
+     100.7371,
+     62.1241,
+     35.61
+    ],
+    "Au": [
+     152.7393,
+     122.8958,
+     39.3345
+    ],
+    "Ca": [
+     25.6107,
+     20.0213,
+     15.8
+    ],
+    "Cr": [
+     585.9314,
+     244.7801,
+     98.3526
+    ],
+    "Cu": [
+     195.6726,
+     153.7619,
+     85.4878
+    ],
+    "Fe": [
+     249.8143,
+     141.1307,
+     105.4146
+    ],
+    "Mo": [
+     474.1895,
+     164.5793,
+     115.422
+    ],
+    "Nb": [
+     217.9628,
+     110.6045,
+     16.9116
+    ],
+    "Ni": [
+     298.2567,
+     187.6763,
+     149.1063
+    ],
+    "Pd": [
+     219.9033,
+     166.3405,
+     87.2297
+    ],
+    "Pt": [
+     311.7051,
+     227.1062,
+     85.169
+    ],
+    "Sr": [
+     26.6985,
+     21.1771,
+     11.93
+    ],
+    "Ta": [
+     257.5454,
+     171.3666,
+     51.9345
+    ],
+    "V": [
+     333.8028,
+     141.7077,
+     16.4463
+    ],
+    "W": [
+     535.4276,
+     212.2948,
+     157.919
+    ]
+   }
+  },
+  "v0.1-global-loo-pca-unshifted(recorded)": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 45.834,
+    "median_mae_gpa": 46.044,
+    "per_element_mae": {
+     "Ag": 50.721,
+     "Al": 51.6,
+     "Au": 36.797,
+     "Ca": 59.84,
+     "Cr": 64.614,
+     "Cu": 49.284,
+     "Fe": 31.261,
+     "Mo": 40.558,
+     "Nb": 38.642,
+     "Ni": 39.712,
+     "Pd": 42.805,
+     "Pt": 24.941,
+     "Sr": 64.093,
+     "Ta": 50.605,
+     "V": 57.424,
+     "W": 30.446
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 61.966,
+     "noble_coinage_fcc": 45.601,
+     "post_transition": 51.6,
+     "transition_bcc": 44.793,
+     "transition_fcc": 35.819
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 48,
+     "n_ties_zero_correction": 0,
+     "frac_toward_target": 0.7291666666666666,
+     "frac_toward_and_improved": 0.1875,
+     "n_improved": 9,
+     "n_worsened": 39,
+     "sign_test_two_sided_p": 1.5221826110689562e-05,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.0,
+      "noble_coinage_fcc": 0.1111111111111111,
+      "post_transition": 0.0,
+      "transition_bcc": 0.23809523809523808,
+      "transition_fcc": 0.3333333333333333
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 3,
+     "n_materials_worsened": 13,
+     "improved_elements": [
+      "Fe",
+      "Pt",
+      "W"
+     ],
+     "sign_test_two_sided_p": 0.021270751953125
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 54.276,
+    "median_mae_gpa": 55.093,
+    "per_element_mae": {
+     "Ag": 59.452,
+     "Al": 51.6,
+     "Au": 39.324,
+     "Ca": 59.84,
+     "Cr": 76.011,
+     "Cu": 62.714,
+     "Fe": 41.635,
+     "Mo": 48.937,
+     "Nb": 38.1,
+     "Ni": 54.169,
+     "Pd": 56.017,
+     "Pt": 43.318,
+     "Sr": 64.093,
+     "Ta": 57.926,
+     "V": 67.85,
+     "W": 47.432
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 61.966,
+     "noble_coinage_fcc": 53.83,
+     "post_transition": 51.6,
+     "transition_bcc": 53.985,
+     "transition_fcc": 51.168
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 48,
+     "n_ties_zero_correction": 0,
+     "frac_toward_target": 0.7708333333333334,
+     "frac_toward_and_improved": 0.08333333333333333,
+     "n_improved": 4,
+     "n_worsened": 44,
+     "sign_test_two_sided_p": 1.5138326148189662e-09,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.0,
+      "noble_coinage_fcc": 0.2222222222222222,
+      "post_transition": 0.0,
+      "transition_bcc": 0.047619047619047616,
+      "transition_fcc": 0.1111111111111111
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 0,
+     "n_materials_worsened": 16,
+     "improved_elements": [],
+     "sign_test_two_sided_p": 3.0517578125e-05
+    }
+   },
+   "predictions": {
+    "Ag": [
+     180.7549,
+     177.6901,
+     36.089
+    ],
+    "Al": [
+     169.2624,
+     152.6706,
+     22.1144
+    ],
+    "Au": [
+     216.1523,
+     209.273,
+     27.3475
+    ],
+    "Ca": [
+     93.3174,
+     110.1028,
+     2.0717
+    ],
+    "Cr": [
+     609.1433,
+     247.34,
+     92.1201
+    ],
+    "Cu": [
+     233.2715,
+     219.0796,
+     57.8587
+    ],
+    "Fe": [
+     289.5427,
+     215.1951,
+     80.0433
+    ],
+    "Mo": [
+     517.9902,
+     248.692,
+     96.7412
+    ],
+    "Nb": [
+     287.8891,
+     197.9775,
+     4.2859
+    ],
+    "Ni": [
+     326.2617,
+     255.949,
+     116.4224
+    ],
+    "Pd": [
+     259.8494,
+     234.7915,
+     62.9202
+    ],
+    "Pt": [
+     346.8907,
+     290.5242,
+     66.0596
+    ],
+    "Sr": [
+     93.3642,
+     110.4798,
+     -1.6356
+    ],
+    "Ta": [
+     307.7008,
+     253.1997,
+     32.3712
+    ],
+    "V": [
+     373.5546,
+     222.8693,
+     1.3532
+    ],
+    "W": [
+     555.9185,
+     285.8736,
+     131.3652
+    ]
+   }
+  },
+  "v0.1-global-loo-pca(recorded+shift)": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 54.276,
+    "median_mae_gpa": 55.093,
+    "per_element_mae": {
+     "Ag": 59.452,
+     "Al": 51.6,
+     "Au": 39.324,
+     "Ca": 59.84,
+     "Cr": 76.011,
+     "Cu": 62.714,
+     "Fe": 41.635,
+     "Mo": 48.937,
+     "Nb": 38.1,
+     "Ni": 54.169,
+     "Pd": 56.017,
+     "Pt": 43.318,
+     "Sr": 64.093,
+     "Ta": 57.926,
+     "V": 67.85,
+     "W": 47.432
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 61.966,
+     "noble_coinage_fcc": 53.83,
+     "post_transition": 51.6,
+     "transition_bcc": 53.985,
+     "transition_fcc": 51.168
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 48,
+     "n_ties_zero_correction": 0,
+     "frac_toward_target": 0.7708333333333334,
+     "frac_toward_and_improved": 0.20833333333333334,
+     "n_improved": 10,
+     "n_worsened": 38,
+     "sign_test_two_sided_p": 6.169640777642371e-05,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.0,
+      "noble_coinage_fcc": 0.2222222222222222,
+      "post_transition": 0.0,
+      "transition_bcc": 0.23809523809523808,
+      "transition_fcc": 0.3333333333333333
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 0,
+     "n_materials_worsened": 16,
+     "improved_elements": [],
+     "sign_test_two_sided_p": 3.0517578125e-05
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 63.395,
+    "median_mae_gpa": 65.325,
+    "per_element_mae": {
+     "Ag": 69.335,
+     "Al": 51.6,
+     "Au": 41.851,
+     "Ca": 59.84,
+     "Cr": 87.409,
+     "Cu": 76.528,
+     "Fe": 52.009,
+     "Mo": 57.316,
+     "Nb": 37.559,
+     "Ni": 70.993,
+     "Pd": 71.122,
+     "Pt": 65.735,
+     "Sr": 64.093,
+     "Ta": 65.248,
+     "V": 78.276,
+     "W": 65.402
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 61.966,
+     "noble_coinage_fcc": 62.571,
+     "post_transition": 51.6,
+     "transition_bcc": 63.317,
+     "transition_fcc": 69.283
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 48,
+     "n_ties_zero_correction": 0,
+     "frac_toward_target": 0.7708333333333334,
+     "frac_toward_and_improved": 0.125,
+     "n_improved": 6,
+     "n_worsened": 42,
+     "sign_test_two_sided_p": 1.0087482138487758e-07,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.0,
+      "noble_coinage_fcc": 0.2222222222222222,
+      "post_transition": 0.0,
+      "transition_bcc": 0.09523809523809523,
+      "transition_fcc": 0.2222222222222222
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 0,
+     "n_materials_worsened": 16,
+     "improved_elements": [],
+     "sign_test_two_sided_p": 3.0517578125e-05
+    }
+   },
+   "predictions": {
+    "Ag": [
+     200.2168,
+     192.0592,
+     43.7282
+    ],
+    "Al": [
+     169.2624,
+     152.6706,
+     22.1144
+    ],
+    "Au": [
+     219.9085,
+     212.4926,
+     27.952
+    ],
+    "Ca": [
+     93.3174,
+     110.1028,
+     2.0717
+    ],
+    "Cr": [
+     640.9859,
+     256.2125,
+     98.6427
+    ],
+    "Cu": [
+     261.8617,
+     244.6767,
+     71.7565
+    ],
+    "Fe": [
+     315.191,
+     230.7838,
+     90.1579
+    ],
+    "Mo": [
+     540.6628,
+     256.2675,
+     101.8532
+    ],
+    "Nb": [
+     286.8585,
+     197.3354,
+     4.2375
+    ],
+    "Ni": [
+     365.7005,
+     278.7196,
+     135.2587
+    ],
+    "Pd": [
+     288.0103,
+     256.8972,
+     73.5499
+    ],
+    "Pt": [
+     380.5157,
+     316.5802,
+     73.6286
+    ],
+    "Sr": [
+     93.3642,
+     110.4798,
+     -1.6356
+    ],
+    "Ta": [
+     324.1389,
+     262.9716,
+     36.6157
+    ],
+    "V": [
+     395.5921,
+     233.3564,
+     2.5995
+    ],
+    "W": [
+     601.6483,
+     303.9029,
+     144.1642
+    ]
+   }
+  },
+  "ensemble-1x1x1(recorded)": {
+   "vs_Tr2SCAN_0K": {
+    "mean_mae_gpa": 19.889,
+    "median_mae_gpa": 19.655,
+    "per_element_mae": {
+     "Ag": 10.342,
+     "Al": 12.24,
+     "Au": 24.992,
+     "Ca": 2.488,
+     "Cr": 26.575,
+     "Cu": 19.875,
+     "Fe": 17.773,
+     "Mo": 19.435,
+     "Nb": 24.266,
+     "Ni": 35.721,
+     "Pd": 12.442,
+     "Pt": 34.568,
+     "Sr": 2.224,
+     "Ta": 15.784,
+     "V": 21.685,
+     "W": 37.817
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.356,
+     "noble_coinage_fcc": 18.403,
+     "post_transition": 12.24,
+     "transition_bcc": 23.334,
+     "transition_fcc": 27.577
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 48,
+     "n_ties_zero_correction": 0,
+     "frac_toward_target": 0.7083333333333334,
+     "frac_toward_and_improved": 0.6041666666666666,
+     "n_improved": 29,
+     "n_worsened": 19,
+     "sign_test_two_sided_p": 0.19341265286193732,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.5,
+      "noble_coinage_fcc": 0.6666666666666666,
+      "post_transition": 0.0,
+      "transition_bcc": 0.6190476190476191,
+      "transition_fcc": 0.7777777777777778
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 12,
+     "n_materials_worsened": 4,
+     "improved_elements": [
+      "Ag",
+      "Ca",
+      "Cr",
+      "Cu",
+      "Fe",
+      "Mo",
+      "Ni",
+      "Pd",
+      "Pt",
+      "Sr",
+      "Ta",
+      "W"
+     ],
+     "sign_test_two_sided_p": 0.076812744140625
+    }
+   },
+   "vs_TPBE_0K": {
+    "mean_mae_gpa": 11.601,
+    "median_mae_gpa": 11.619,
+    "per_element_mae": {
+     "Ag": 3.481,
+     "Al": 12.24,
+     "Au": 22.868,
+     "Ca": 2.488,
+     "Cr": 17.218,
+     "Cu": 11.98,
+     "Fe": 8.064,
+     "Mo": 12.87,
+     "Nb": 24.808,
+     "Ni": 8.706,
+     "Pd": 8.048,
+     "Pt": 17.198,
+     "Sr": 2.224,
+     "Ta": 6.052,
+     "V": 11.259,
+     "W": 16.111
+    },
+    "per_class_mean_mae": {
+     "alkaline_earth_fcc": 2.356,
+     "noble_coinage_fcc": 12.776,
+     "post_transition": 12.24,
+     "transition_bcc": 13.769,
+     "transition_fcc": 11.317
+    },
+    "directional_agreement": {
+     "n_property_cases": 48,
+     "n_active_corrections": 48,
+     "n_ties_zero_correction": 0,
+     "frac_toward_target": 0.625,
+     "frac_toward_and_improved": 0.5208333333333334,
+     "n_improved": 25,
+     "n_worsened": 23,
+     "sign_test_two_sided_p": 0.8854334972865132,
+     "per_class_frac_toward_and_improved": {
+      "alkaline_earth_fcc": 0.5,
+      "noble_coinage_fcc": 0.4444444444444444,
+      "post_transition": 0.0,
+      "transition_bcc": 0.6190476190476191,
+      "transition_fcc": 0.5555555555555556
+     }
+    },
+    "material_level": {
+     "n_materials_improved": 10,
+     "n_materials_worsened": 6,
+     "improved_elements": [
+      "Ag",
+      "Ca",
+      "Cr",
+      "Fe",
+      "Mo",
+      "Ni",
+      "Pt",
+      "Sr",
+      "Ta",
+      "V"
+     ],
+     "sign_test_two_sided_p": 0.454498291015625
+    }
+   },
+   "predictions": {
+    "Ag": [
+     110.9667,
+     79.3133,
+     48.1633
+    ],
+    "Al": [
+     93.5867,
+     51.1733,
+     36.46
+    ],
+    "Au": [
+     135.2733,
+     112.1733,
+     34.65
+    ],
+    "Ca": [
+     24.4733,
+     12.3033,
+     15.1233
+    ],
+    "Cr": [
+     500.18,
+     181.8067,
+     94.0033
+    ],
+    "Cu": [
+     163.0433,
+     117.36,
+     76.7667
+    ],
+    "Fe": [
+     250.7233,
+     137.08,
+     104.88
+    ],
+    "Mo": [
+     451.08,
+     175.2333,
+     106.6467
+    ],
+    "Nb": [
+     211.0333,
+     112.6167,
+     30.7933
+    ],
+    "Ni": [
+     255.84,
+     155.48,
+     129.2633
+    ],
+    "Pd": [
+     203.5567,
+     146.7633,
+     78.34
+    ],
+    "Pt": [
+     274.1933,
+     196.2433,
+     77.61
+    ],
+    "Sr": [
+     19.5333,
+     9.1567,
+     11.4833
+    ],
+    "Ta": [
+     252.3333,
+     158.45,
+     64.17
+    ],
+    "V": [
+     262.9867,
+     118.7133,
+     23.9567
+    ],
+    "W": [
+     474.13,
+     194.0767,
+     148.41
+    ]
+   }
+  }
+ },
+ "directional_variant_scan": {
+  "bulk/global": {
+   "mean_mae_vs_tr2scan": 13.259,
+   "median_mae_vs_tr2scan": 9.034,
+   "max_per_element_dev_from_recorded_feedback_gpa": 0.003
+  },
+  "bulk/class": {
+   "mean_mae_vs_tr2scan": 14.691,
+   "median_mae_vs_tr2scan": 12.136,
+   "max_per_element_dev_from_recorded_feedback_gpa": 4.117
+  },
+  "pc1/global": {
+   "mean_mae_vs_tr2scan": 13.292,
+   "median_mae_vs_tr2scan": 9.115,
+   "max_per_element_dev_from_recorded_feedback_gpa": 1.185
+  },
+  "pc1/class": {
+   "mean_mae_vs_tr2scan": 14.809,
+   "median_mae_vs_tr2scan": 11.601,
+   "max_per_element_dev_from_recorded_feedback_gpa": 4.27
+  },
+  "class_mean/global": {
+   "mean_mae_vs_tr2scan": 14.693,
+   "median_mae_vs_tr2scan": 12.454,
+   "max_per_element_dev_from_recorded_feedback_gpa": 4.393
+  },
+  "class_mean/class": {
+   "mean_mae_vs_tr2scan": 15.413,
+   "median_mae_vs_tr2scan": 13.015,
+   "max_per_element_dev_from_recorded_feedback_gpa": 6.355
+  }
+ },
+ "v01_reimplementation_scan": {
+  "variants_max_abs_dev_gpa": {
+   "pca(centered=False,sign=+1)": 92.48556052547798,
+   "pca(centered=False,sign=-1)": 112.83838758234415,
+   "pca(centered=True,sign=+1)": 92.65159178229578,
+   "pca(centered=True,sign=-1)": 112.9360652154899
+  },
+  "best": "pca(centered=False,sign=+1)",
+  "best_max_abs_dev_gpa": 92.48556052547798
+ },
+ "scalar_bulk_alphas": {
+  "Ag": 1.33762,
+  "Al": 1.3225,
+  "Au": 1.3046,
+  "Ca": 1.3225,
+  "Cr": 1.57974,
+  "Cu": 1.35222,
+  "Fe": 1.22278,
+  "Mo": 1.29414,
+  "Nb": 1.32771,
+  "Ni": 1.31626,
+  "Pd": 1.31749,
+  "Pt": 1.22119,
+  "Sr": 1.3225,
+  "Ta": 1.2988,
+  "V": 1.3446,
+  "W": 1.25916
+ },
+ "directional_v03_alphas": {
+  "Ag": 5.3044,
+  "Al": 4.6871,
+  "Au": 4.2231,
+  "Ca": 5.1807,
+  "Cr": 8.0988,
+  "Cu": 5.1824,
+  "Fe": 4.096,
+  "Mo": 4.7269,
+  "Nb": 3.9733,
+  "Ni": 4.9279,
+  "Pd": 4.9824,
+  "Pt": 4.3601,
+  "Sr": 5.4085,
+  "Ta": 4.7873,
+  "V": 5.4453,
+  "W": 4.5777
+ },
+ "recorded_feedback_projection_none_vs_tr2scan": {
+  "mean_mae": 13.258103050335638,
+  "median_mae": 9.03313087071513,
+  "rmse": 21.05235641694027,
+  "per_element": {
+   "Ag": 7.957128157797172,
+   "Al": 5.92462979516289,
+   "Au": 17.15753850886949,
+   "Ca": 3.804239772519153,
+   "Cr": 53.94599562664293,
+   "Cu": 7.995741280734284,
+   "Fe": 16.54685642633812,
+   "Mo": 8.30556751261868,
+   "Nb": 17.99726454397646,
+   "Ni": 8.027011976477013,
+   "Pd": 4.369896957141644,
+   "Pt": 14.294151705821122,
+   "Sr": 7.582349226897492,
+   "Ta": 16.339255505806324,
+   "V": 12.121327579755823,
+   "W": 9.760694228811579
+  }
+ }
+}
