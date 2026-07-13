@@ -1,0 +1,218 @@
+{
+  "schema": "lupine.discovery_gates.dispersion_vs_error_by_class.v1",
+  "generated_at": "2026-07-13T15:35:44.719143+00:00",
+  "sources": {
+    "metals": "C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound",
+    "perovskites": "C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/round1/report.json"
+  },
+  "note": "Class-stratified extension of dispersion_vs_error.json: per (class, property), Spearman rank correlation between per-material cross-model relative dispersion and per-material median |relative error| vs the bound/report reference. Feeds the gate-license design: a class-property with rho ~ 0 earns no license to read concordance as an uncertainty statement. Caveats: N=4 models with three non-independent MACE/CHGNet-era variants sharing training data; median-of-models error; perovskite a0 has only n=4 referenced materials; small-n rank correlations are fragile to a single material.",
+  "by_class": {
+    "metals-fcc": {
+      "a0": {
+        "n_materials": 9,
+        "spearman_rho_dispersion_vs_median_rel_error": 0.06666666666666667,
+        "per_material": {
+          "Ag": {
+            "dispersion": 0.0028499083776431346,
+            "median_rel_error": 0.0037735812023658583
+          },
+          "Al": {
+            "dispersion": 0.005397489344956845,
+            "median_rel_error": 0.00179861037839068
+          },
+          "Au": {
+            "dispersion": 0.0023864904501691,
+            "median_rel_error": 0.0028822856611606757
+          },
+          "Ca": {
+            "dispersion": 0.008634564337059012,
+            "median_rel_error": 0.002586438216825277
+          },
+          "Cu": {
+            "dispersion": 0.007477142593143983,
+            "median_rel_error": 0.0032940715342127712
+          },
+          "Ni": {
+            "dispersion": 0.005072291846681757,
+            "median_rel_error": 0.0020096840599051384
+          },
+          "Pd": {
+            "dispersion": 0.0033077696882961773,
+            "median_rel_error": 0.004250994234564872
+          },
+          "Pt": {
+            "dispersion": 0.0019152905554512018,
+            "median_rel_error": 0.0016091210161011233
+          },
+          "Sr": {
+            "dispersion": 0.0071200139516488705,
+            "median_rel_error": 0.002091162500878133
+          }
+        }
+      },
+      "B0": {
+        "n_materials": 9,
+        "spearman_rho_dispersion_vs_median_rel_error": -0.6333333333333333,
+        "per_material": {
+          "Ag": {
+            "dispersion": 0.1196263942220374,
+            "median_rel_error": 0.25279537861050255
+          },
+          "Al": {
+            "dispersion": 0.38480984386785383,
+            "median_rel_error": 0.11106056571826797
+          },
+          "Au": {
+            "dispersion": 0.08760744977908931,
+            "median_rel_error": 0.2628051555520895
+          },
+          "Ca": {
+            "dispersion": 0.23577558891014797,
+            "median_rel_error": 0.11197543865353071
+          },
+          "Cu": {
+            "dispersion": 0.1746842670083773,
+            "median_rel_error": 0.04817333284278997
+          },
+          "Ni": {
+            "dispersion": 0.14068061531291579,
+            "median_rel_error": 0.11384580683027959
+          },
+          "Pd": {
+            "dispersion": 0.16917146728725702,
+            "median_rel_error": 0.21319442402306027
+          },
+          "Pt": {
+            "dispersion": 0.0980198085143283,
+            "median_rel_error": 0.14736500690565982
+          },
+          "Sr": {
+            "dispersion": 0.3782242759143122,
+            "median_rel_error": 0.17167225642103323
+          }
+        }
+      }
+    },
+    "metals-bcc": {
+      "a0": {
+        "n_materials": 7,
+        "spearman_rho_dispersion_vs_median_rel_error": 0.8928571428571429,
+        "per_material": {
+          "Cr": {
+            "dispersion": 0.0023263594448498736,
+            "median_rel_error": 0.0009379522309417647
+          },
+          "Fe": {
+            "dispersion": 0.01105952766293657,
+            "median_rel_error": 0.009233555742281671
+          },
+          "Mo": {
+            "dispersion": 0.00600642507929188,
+            "median_rel_error": 0.002569635689684484
+          },
+          "Nb": {
+            "dispersion": 0.004857754664934123,
+            "median_rel_error": 0.002795720169521884
+          },
+          "Ta": {
+            "dispersion": 0.002939353240703442,
+            "median_rel_error": 0.0009871172486105053
+          },
+          "V": {
+            "dispersion": 0.00742246510780175,
+            "median_rel_error": 0.003284665864355718
+          },
+          "W": {
+            "dispersion": 0.005115517163878921,
+            "median_rel_error": 0.002124180796822363
+          }
+        }
+      },
+      "B0": {
+        "n_materials": 7,
+        "spearman_rho_dispersion_vs_median_rel_error": 0.3214285714285715,
+        "per_material": {
+          "Cr": {
+            "dispersion": 0.19573884274891248,
+            "median_rel_error": 0.4518974765257524
+          },
+          "Fe": {
+            "dispersion": 1.4613125579156678,
+            "median_rel_error": 0.4924671908561835
+          },
+          "Mo": {
+            "dispersion": 0.27681191892541773,
+            "median_rel_error": 0.10086690327248052
+          },
+          "Nb": {
+            "dispersion": 0.22184587562333768,
+            "median_rel_error": 0.09725764853859906
+          },
+          "Ta": {
+            "dispersion": 0.06170946399920718,
+            "median_rel_error": 0.04168203544574317
+          },
+          "V": {
+            "dispersion": 0.05549473826740082,
+            "median_rel_error": 0.16067131215985764
+          },
+          "W": {
+            "dispersion": 0.38322977589570617,
+            "median_rel_error": 0.13696022436230645
+          }
+        }
+      }
+    },
+    "perovskites": {
+      "a0": {
+        "n_materials": 4,
+        "spearman_rho_dispersion_vs_median_rel_error": -0.7999999999999999,
+        "per_material": {
+          "CsPbI3": {
+            "dispersion": 0.004840628573585194,
+            "median_rel_error": 0.017567128948217554
+          },
+          "CsSnBr3": {
+            "dispersion": 0.007996045517111331,
+            "median_rel_error": 0.014776173610614837
+          },
+          "CsSnCl3": {
+            "dispersion": 0.008564157205165155,
+            "median_rel_error": 0.009387411240345091
+          },
+          "CsSnI3": {
+            "dispersion": 0.009497718201487556,
+            "median_rel_error": 0.010453657713875904
+          }
+        },
+        "small_n_warning": "n=4 < 5: a single material determines the rank ordering; treat this rho as anecdote, not calibration"
+      },
+      "b0": {
+        "n_materials": 5,
+        "spearman_rho_dispersion_vs_median_rel_error": 0.9999999999999999,
+        "per_material": {
+          "CsGeI3": {
+            "dispersion": 0.1297152445051652,
+            "median_rel_error": 0.04486256791859257
+          },
+          "CsPbI3": {
+            "dispersion": 0.15283963213701846,
+            "median_rel_error": 0.060678747143816256
+          },
+          "CsSnBr3": {
+            "dispersion": 0.22485302470470972,
+            "median_rel_error": 0.08573061895543639
+          },
+          "CsSnCl3": {
+            "dispersion": 0.37081570660601043,
+            "median_rel_error": 0.10082885386830263
+          },
+          "CsSnI3": {
+            "dispersion": 0.34555473551882987,
+            "median_rel_error": 0.09729766411108628
+          }
+        }
+      }
+    }
+  }
+}
