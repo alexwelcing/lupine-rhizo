@@ -112,3 +112,20 @@
 *The strongest artifact of the day remains Round 1: preregistered, failed,
 and reported as failed. The damage concentrated where claims outran their
 licenses; the licenses, not the claims, are what Round 3 fixes.*
+
+## Addendum — independent blind re-derivation (2026-07-14)
+
+13. **The Round-3 analysis omitted its own registered exclusion.** The frozen
+    script only applied weak-reference exclusions via an optional flag that
+    was never passed, so the CsPbBr3 c12 cells (kind 'other', excluded at
+    registration "from ALL report tables") appeared in the published
+    perovskite c12 row and hull denominators. Found by a blind re-derivation
+    (independent code, numbers locked before unblinding; 153/156 shared
+    cells identical to <1e-12, all sign-test p's bit-for-bit). Disposition:
+    official analysis REGENERATED with the exclusion (verdicts unchanged —
+    FAIL/FAIL, kill stands; corrected hull tables: proxy p=1.0 unchanged,
+    oracle p strengthens 0.0171 -> 0.0091); manuscript numbers updated.
+    Residual ambiguity documented: whether excluded references also leave
+    the LOO calibration sets (3 cells diverge under the stricter reading;
+    no verdict changes either way) — to be disambiguated verbatim in the
+    Round-4 registration.

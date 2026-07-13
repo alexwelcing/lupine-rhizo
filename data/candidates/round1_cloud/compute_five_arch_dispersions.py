@@ -7,7 +7,9 @@ cross-model relative dispersion (max - min) / |median| — the same statistic
 as lupine_distill.statics.gates.relative_dispersion — on two bases:
 
   local3 : {chgnet, mace-mp-medium, mace-mpa-0-medium}   (3 models, 2 archs)
-  arch5  : local3 + {sevennet, orb-v3, uma-s-1p1}        (6 models, 5 archs)
+  merged : local3 + whichever cloud backends produced artifacts
+           (target: sevennet, orb-v3, uma-s-1p1 -> 6 models / 5 archs;
+            missing backends are recorded in cloud_missing with the reason)
 
 DECLARED PROTOCOL DEVIATION (packet §3.1): the cloud elastic_constants row
 strains a FIXED builder-supplied lattice (reference/guess a0), while the
@@ -77,8 +79,18 @@ def main() -> int:
 
     cloud_elastic: dict[str, dict[str, dict[str, float]]] = {}  # model -> material -> prop
     cloud_meta: dict[str, dict] = {}
+    cloud_missing: dict[str, str] = {}
     for model in CLOUD_MODELS:
         art_path = HERE / "baseline" / "elastic_constants" / model / "cell_result.json"
+        if not art_path.is_file():
+            cloud_missing[model] = (
+                "cell failed before GPU work: HF gated-repo 403 on facebook/UMA "
+                "(mounted HF_TOKEN account not in authorized list; verified live "
+                "2026-07-13; failure beat recorded in D1, no artifact uploaded)"
+                if model == "uma-s-1p1"
+                else "no artifact found"
+            )
+            continue
         art = load_json(art_path)
         if art.get("run_id") != RUN_ID:
             fail(f"{art_path} run_id {art.get('run_id')!r} != {RUN_ID!r}")
@@ -93,12 +105,16 @@ def main() -> int:
             "gpa_mae": art.get("accuracy", {}).get("error"),
         }
 
+    available_cloud = tuple(m for m in CLOUD_MODELS if m in cloud_elastic)
+    if not available_cloud:
+        fail("no cloud elastic artifacts available")
+
     hashes = {meta["manifest_hash"] for meta in cloud_meta.values()}
     if len(hashes) != 1:
         fail(f"manifest_hash differs across cloud cells: {hashes}")
 
     elastic_materials = sorted(
-        set.intersection(*(set(cloud_elastic[m]) for m in CLOUD_MODELS))
+        set.intersection(*(set(cloud_elastic[m]) for m in available_cloud))
     )
 
     rows: list[dict] = []
@@ -113,10 +129,10 @@ def main() -> int:
                 if prop not in entry or entry[prop] is None:
                     fail(f"local {material}/{model}/{prop} missing")
                 values[model] = float(entry[prop])
-            for model in CLOUD_MODELS:
+            for model in available_cloud:
                 values[model] = float(cloud_elastic[model][material][prop])
             local3 = [values[m] for m in LOCAL_MODELS]
-            arch5 = list(values.values())
+            merged = list(values.values())
             rows.append(
                 {
                     "material": material,
@@ -125,9 +141,9 @@ def main() -> int:
                     "values_gpa": values,
                     "reference_gpa": candidates[material]["references"].get(prop),
                     "dispersion_local3": relative_dispersion(local3),
-                    "dispersion_arch5": relative_dispersion(arch5),
-                    "ratio_arch5_over_local3": (
-                        relative_dispersion(arch5) / relative_dispersion(local3)
+                    "dispersion_merged": relative_dispersion(merged),
+                    "ratio_merged_over_local3": (
+                        relative_dispersion(merged) / relative_dispersion(local3)
                     ),
                     "protocol_mismatch": (
                         "local=relaxed_cell_relaxed_ion; cloud=fixed_lattice "
@@ -154,19 +170,37 @@ def main() -> int:
             "convergence_rate": acc.get("convergence_rate"),
         }
 
-    n_understated = sum(1 for row in rows if row["ratio_arch5_over_local3"] > 1.0)
+    arch_by_model = {
+        "chgnet": "CHGNet",
+        "mace-mp-medium": "MACE",
+        "mace-mpa-0-medium": "MACE",
+        "sevennet": "SevenNet",
+        "orb-v3": "ORB",
+        "uma-s-1p1": "UMA",
+    }
+    merged_models = list(LOCAL_MODELS) + list(available_cloud)
+    merged_archs = sorted({arch_by_model[m] for m in merged_models})
+    n_understated = sum(1 for row in rows if row["ratio_merged_over_local3"] > 1.0)
     payload = {
         "schema": "lupine.mlip.five_arch_dispersions.v1",
         "run_id": RUN_ID,
         "generated_by": "data/candidates/round1_cloud/compute_five_arch_dispersions.py",
         "dispersion_metric": "(max - min) / |median| (gates.relative_dispersion)",
         "bases": {
-            "local3": {"models": list(LOCAL_MODELS), "architectures": ["CHGNet", "MACE", "MACE"]},
-            "arch5": {
-                "models": list(LOCAL_MODELS) + list(CLOUD_MODELS),
-                "architectures": ["CHGNet", "MACE", "MACE", "SevenNet", "ORB", "UMA"],
+            "local3": {
+                "models": list(LOCAL_MODELS),
+                "independent_architectures": ["CHGNet", "MACE"],
+            },
+            "merged": {
+                "models": merged_models,
+                "independent_architectures": merged_archs,
+                "note": (
+                    "target basis was 6 models / 5 architectures; "
+                    f"achieved {len(merged_models)} models / {len(merged_archs)} architectures"
+                ),
             },
         },
+        "cloud_missing": cloud_missing,
         "protocol_deviation": {
             "elastic_constants": (
                 "cloud cells computed on a fixed builder-supplied lattice "
@@ -183,9 +217,9 @@ def main() -> int:
         "relaxation_stability_cloud_only": relaxation,
         "summary": {
             "n_rows": len(rows),
-            "n_rows_arch5_exceeds_local3": n_understated,
-            "median_ratio_arch5_over_local3": statistics.median(
-                row["ratio_arch5_over_local3"] for row in rows
+            "n_rows_merged_exceeds_local3": n_understated,
+            "median_ratio_merged_over_local3": statistics.median(
+                row["ratio_merged_over_local3"] for row in rows
             ),
         },
     }
