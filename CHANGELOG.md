@@ -375,6 +375,41 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-07 - Evidence index: full corpus coverage, measured retrieval, one embedding space
+
+- **Why.** CocoIndex was installed but under-used: it indexed only a handful of
+  ledger records, its semantic fast path never fired, nothing measured whether
+  retrieval actually worked, and the largest prose corpora (research docs, the
+  published Library) were unindexed. We wanted the evidence tier to be
+  *load-bearing* for the research loop, not just present.
+- **What.**
+  - **Coverage.** Indexed the research-doc corpus (`docs/**`, root `*.md`), the
+    published Library sourced from the *deployed* `lupine-ledger` repo (with a
+    pending-vs-deployed publication-drift record), live-site `llms.txt` guides,
+    and agent-run traces pulled back from Phoenix telemetry — one index spanning
+    what agents did, what the program believes, and what we published.
+  - **Retrieval, measured.** Built a 15-query gold-set eval (`eval_retrieval.py`).
+    A/B'd embedders and adopted `bge-small-en-v1.5` (384-dim); replaced SQL-LIKE
+    keyword search with FTS5/BM25; added hybrid (BM25+vector RRF) as the default
+    mode. Activated the vec0 KNN sidecar that existed in code but was never built.
+  - **One space.** Aligned the live GCP `evidence-index` service to the same
+    bge-small model so the offline and live tiers share one embedding space.
+  - **Durability.** Unit tests + CI on every `cocoindex/**` change; a nightly
+    workflow that refreshes all sources, rebuilds, and publishes retrieval
+    metrics + publication drift as tracked signals.
+- **Results.** Index grew 6 → ~2,880 chunks; no-change rerun stays 0.2s.
+  Retrieval MRR: keyword 0.11 → 0.64 (BM25), semantic 0.45 → 0.51 (bge), best
+  mode (hybrid+kind) **0.82 / 0.93 hit@5**. The eval caught two real defects
+  (a rare-kind filter bug; the index claiming 5 unpublished articles as public)
+  before any consumer hit them. vec0 KNN 1.4ms vs 20.9ms brute-force.
+- **Next.** Highest value: agents consult the index *before* acting
+  (retrieval-augmented hypothesis generation) — the Literaturist is already a
+  retrieval-augmented DO, so the pattern extends to Theorist/Causal. Then a
+  claim-lifecycle exporter (needs an `EvidenceChunk` metadata column so
+  `--kind claim --status refuted` is a query). Edge-tier Vectorize memory is
+  specced and deferred (`docs/rfc-evidence-edge-memory.md`); the GCP redeploy to
+  bge-small requires the re-embed backfill in `gcp/evidence-index/DEPLOY.md`.
+
 ## 2026-06-19 - LUPI 0.3 Studio, molecule trust, and public-surface split prep
 
 - **Why.** The checkout had a full LUPI release pass, public-surface split plan,
