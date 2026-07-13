@@ -1,0 +1,790 @@
+{
+  "schema": "lupine.discovery_gates.thresholds.v3",
+  "generated_at": "2026-07-13T15:35:29.520798+00:00",
+  "corpus_root": "data/y_matrix_runs/class_corpus",
+  "per_class": {
+    "ionics-rocksalt": {
+      "evidence_dir": "data/y_matrix_runs/class_corpus/ionics-rocksalt",
+      "n_materials": 6,
+      "per_property": {
+        "a0": {
+          "flag": 0.009186850937743213,
+          "refuse": 0.01072797189914302,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 6,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 6 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/ionics-rocksalt (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "LiBr",
+              0.005229344819852218
+            ],
+            [
+              "LiCl",
+              0.010473530953890293
+            ],
+            [
+              "LiF",
+              0.005057705366967869
+            ],
+            [
+              "LiI",
+              0.010812785547560596
+            ],
+            [
+              "MgO",
+              0.000740486333892826
+            ],
+            [
+              "NaCl",
+              0.005326810889301969
+            ]
+          ]
+        },
+        "b0": {
+          "flag": 0.204620281872034,
+          "refuse": 0.2382669250633176,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 6,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 6 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/ionics-rocksalt (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "LiBr",
+              0.06402965673524384
+            ],
+            [
+              "LiCl",
+              0.16809101175708466
+            ],
+            [
+              "LiF",
+              0.20053139269954492
+            ],
+            [
+              "LiI",
+              0.20598324492953035
+            ],
+            [
+              "MgO",
+              0.10715223610373967
+            ],
+            [
+              "NaCl",
+              0.24902815177458
+            ]
+          ]
+        },
+        "c11": {
+          "flag": 0.37840386934257764,
+          "refuse": 0.45529223783945705,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 6,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 6 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/ionics-rocksalt (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "LiBr",
+              0.4154878356972015
+            ],
+            [
+              "LiCl",
+              0.2671519702787061
+            ],
+            [
+              "LiF",
+              0.21235686208942958
+            ],
+            [
+              "LiI",
+              0.4685603718868756
+            ],
+            [
+              "MgO",
+              0.226078386719494
+            ],
+            [
+              "NaCl",
+              0.23478883699688605
+            ]
+          ]
+        },
+        "c12": {
+          "flag": 0.5738933094942646,
+          "refuse": 0.7280009306352283,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 6,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 6 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/ionics-rocksalt (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "LiBr",
+              0.1841143827123167
+            ],
+            [
+              "LiCl",
+              0.5257488597063967
+            ],
+            [
+              "LiF",
+              0.11145934905642613
+            ],
+            [
+              "LiI",
+              0.5899414594235539
+            ],
+            [
+              "MgO",
+              0.18016657104560188
+            ],
+            [
+              "NaCl",
+              0.7740207543724531
+            ]
+          ]
+        },
+        "c44": {
+          "flag": 0.5576243700551858,
+          "refuse": 0.5697683654424943,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 6,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 6 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/ionics-rocksalt (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "LiBr",
+              0.534297757399127
+            ],
+            [
+              "LiCl",
+              0.3726070591264323
+            ],
+            [
+              "LiF",
+              0.5653999076072055
+            ],
+            [
+              "LiI",
+              0.507140229518252
+            ],
+            [
+              "MgO",
+              0.40788971899075627
+            ],
+            [
+              "NaCl",
+              0.5712245180542572
+            ]
+          ]
+        }
+      }
+    },
+    "metals-bcc": {
+      "evidence_dir": "data/y_matrix_runs/class_corpus/metals-bcc",
+      "n_materials": 7,
+      "per_property": {
+        "a0": {
+          "flag": 0.006714443646674966,
+          "refuse": 0.009968408685382272,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 7,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 7 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-bcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Cr",
+              0.0023270598456338627
+            ],
+            [
+              "Fe",
+              0.011059527662932682
+            ],
+            [
+              "Mo",
+              0.006006422888918611
+            ],
+            [
+              "Nb",
+              0.004857515961198356
+            ],
+            [
+              "Ta",
+              0.002939428977556096
+            ],
+            [
+              "V",
+              0.007422464404431322
+            ],
+            [
+              "W",
+              0.0051155163729167084
+            ]
+          ]
+        },
+        "b0": {
+          "flag": 0.330020776166124,
+          "refuse": 1.1378667974982348,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 7,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 7 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-bcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Cr",
+              0.19572827612037305
+            ],
+            [
+              "Fe",
+              1.4612815629332583
+            ],
+            [
+              "Mo",
+              0.2768092075157323
+            ],
+            [
+              "Nb",
+              0.22183123901945173
+            ],
+            [
+              "Ta",
+              0.0616987794175035
+            ],
+            [
+              "V",
+              0.05549359409805739
+            ],
+            [
+              "W",
+              0.3832323448165157
+            ]
+          ]
+        },
+        "c11": {
+          "flag": 1.0752458473105273,
+          "refuse": 1.7833499877773822,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 7,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 7 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-bcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Cr",
+              0.9398058207852881
+            ],
+            [
+              "Fe",
+              2.0287774651809327
+            ],
+            [
+              "Mo",
+              0.6970172254389795
+            ],
+            [
+              "Nb",
+              0.48847912128769794
+            ],
+            [
+              "Ta",
+              0.0835323584558712
+            ],
+            [
+              "V",
+              0.29610940325472385
+            ],
+            [
+              "W",
+              1.2106858738357664
+            ]
+          ]
+        },
+        "c12": {
+          "flag": 0.8474802934635862,
+          "refuse": 1.152476523749908,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 7,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 7 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-bcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Cr",
+              1.0589924824856667
+            ],
+            [
+              "Fe",
+              1.1925411128631542
+            ],
+            [
+              "Mo",
+              0.15829845968935208
+            ],
+            [
+              "Nb",
+              0.570372974454035
+            ],
+            [
+              "Ta",
+              0.10878764374167155
+            ],
+            [
+              "V",
+              0.5182197460069189
+            ],
+            [
+              "W",
+              0.6359681044415058
+            ]
+          ]
+        },
+        "c44": {
+          "flag": 3.455830842783324,
+          "refuse": 167.55559970039928,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 7,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 7 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-bcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Cr",
+              3.789181745622983
+            ],
+            [
+              "Fe",
+              0.37191703527173897
+            ],
+            [
+              "Mo",
+              1.2220930218480712
+            ],
+            [
+              "Nb",
+              3.1224799399436654
+            ],
+            [
+              "Ta",
+              0.5877301056719106
+            ],
+            [
+              "V",
+              237.74120739530366
+            ],
+            [
+              "W",
+              1.2416484255395355
+            ]
+          ]
+        }
+      }
+    },
+    "metals-fcc": {
+      "evidence_dir": "data/y_matrix_runs/class_corpus/metals-fcc",
+      "n_materials": 9,
+      "per_property": {
+        "a0": {
+          "flag": 0.007119903343691245,
+          "refuse": 0.008171597328873539,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 9,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 9 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-fcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Ag",
+              0.0028505273730854773
+            ],
+            [
+              "Al",
+              0.005397494038932501
+            ],
+            [
+              "Au",
+              0.0023864905782498627
+            ],
+            [
+              "Ca",
+              0.008634563966058181
+            ],
+            [
+              "Cu",
+              0.007477147373096574
+            ],
+            [
+              "Ni",
+              0.005071856257715127
+            ],
+            [
+              "Pd",
+              0.0033077696882971848
+            ],
+            [
+              "Pt",
+              0.0019150844842449049
+            ],
+            [
+              "Sr",
+              0.007119903343691245
+            ]
+          ]
+        },
+        "b0": {
+          "flag": 0.23577054179011758,
+          "refuse": 0.38223930527540745,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 9,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 9 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-fcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Ag",
+              0.11970833212684007
+            ],
+            [
+              "Al",
+              0.3848305703956026
+            ],
+            [
+              "Au",
+              0.08758978865280956
+            ],
+            [
+              "Ca",
+              0.23577054179011758
+            ],
+            [
+              "Cu",
+              0.1746945336320969
+            ],
+            [
+              "Ni",
+              0.1406793497026431
+            ],
+            [
+              "Pd",
+              0.1691720194739778
+            ],
+            [
+              "Pt",
+              0.09802073232771079
+            ],
+            [
+              "Sr",
+              0.3783524075951148
+            ]
+          ]
+        },
+        "c11": {
+          "flag": 0.33129104978284935,
+          "refuse": 0.5390577808028062,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 9,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 9 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-fcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Ag",
+              0.3209175189225219
+            ],
+            [
+              "Al",
+              0.6223238271047399
+            ],
+            [
+              "Au",
+              0.4141587113499058
+            ],
+            [
+              "Ca",
+              0.3003097335031344
+            ],
+            [
+              "Cu",
+              0.33129104978284935
+            ],
+            [
+              "Ni",
+              0.14738419816547066
+            ],
+            [
+              "Pd",
+              0.21165456056028295
+            ],
+            [
+              "Pt",
+              0.1099838754894583
+            ],
+            [
+              "Sr",
+              0.31728350199585
+            ]
+          ]
+        },
+        "c12": {
+          "flag": 0.4165138735200979,
+          "refuse": 0.46410984236989167,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 9,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 9 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-fcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Ag",
+              0.3157348879485208
+            ],
+            [
+              "Al",
+              0.4165138735200979
+            ],
+            [
+              "Au",
+              0.38614937267873517
+            ],
+            [
+              "Ca",
+              0.41756950890815836
+            ],
+            [
+              "Cu",
+              0.4951367313443806
+            ],
+            [
+              "Ni",
+              0.1881315799355254
+            ],
+            [
+              "Pd",
+              0.1924725628836372
+            ],
+            [
+              "Pt",
+              0.12279438321707654
+            ],
+            [
+              "Sr",
+              0.31936308863482404
+            ]
+          ]
+        },
+        "c44": {
+          "flag": 0.5837573298993269,
+          "refuse": 0.9947589229563056,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 9,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 9 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/metals-fcc (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "Ag",
+              0.5837573298993269
+            ],
+            [
+              "Al",
+              0.9441137546580334
+            ],
+            [
+              "Au",
+              1.0285223684884872
+            ],
+            [
+              "Ca",
+              0.4605133075417642
+            ],
+            [
+              "Cu",
+              0.3695207890998424
+            ],
+            [
+              "Ni",
+              0.37711187376526795
+            ],
+            [
+              "Pd",
+              0.3923580013793386
+            ],
+            [
+              "Pt",
+              0.47227469055194227
+            ],
+            [
+              "Sr",
+              0.3412612815079285
+            ]
+          ]
+        }
+      }
+    },
+    "perovskites": {
+      "evidence_dir": "data/y_matrix_runs/class_corpus/perovskites",
+      "n_materials": 5,
+      "per_property": {
+        "a0": {
+          "flag": 0.009497718201487556,
+          "refuse": 0.012096363434853949,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 5,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 5 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/perovskites (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "CsGeI3",
+              0.012746024743195548
+            ],
+            [
+              "CsPbI3",
+              0.004840628573585194
+            ],
+            [
+              "CsSnBr3",
+              0.007996045517111331
+            ],
+            [
+              "CsSnCl3",
+              0.008564157205165155
+            ],
+            [
+              "CsSnI3",
+              0.009497718201487556
+            ]
+          ]
+        },
+        "b0": {
+          "flag": 0.34555473551882987,
+          "refuse": 0.3657635123885743,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 5,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 5 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/perovskites (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "CsGeI3",
+              0.1297152445051652
+            ],
+            [
+              "CsPbI3",
+              0.15283963213701846
+            ],
+            [
+              "CsSnBr3",
+              0.22485302470470972
+            ],
+            [
+              "CsSnCl3",
+              0.37081570660601043
+            ],
+            [
+              "CsSnI3",
+              0.34555473551882987
+            ]
+          ]
+        },
+        "c11": {
+          "flag": 0.7239591988591051,
+          "refuse": 0.7556993631474128,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 5,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 5 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/perovskites (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "CsGeI3",
+              0.5197993622698616
+            ],
+            [
+              "CsPbI3",
+              0.4638570366042043
+            ],
+            [
+              "CsSnBr3",
+              0.6209076189540188
+            ],
+            [
+              "CsSnCl3",
+              0.7239591988591051
+            ],
+            [
+              "CsSnI3",
+              0.7636344042194898
+            ]
+          ]
+        },
+        "c12": {
+          "flag": 1.827646748132466,
+          "refuse": 2.05667771036586,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 5,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 5 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/perovskites (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "CsGeI3",
+              2.1139354509242088
+            ],
+            [
+              "CsPbI3",
+              0.7124268832474254
+            ],
+            [
+              "CsSnBr3",
+              1.827646748132466
+            ],
+            [
+              "CsSnCl3",
+              0.22825229702507147
+            ],
+            [
+              "CsSnI3",
+              0.3553852068438113
+            ]
+          ]
+        },
+        "c44": {
+          "flag": 1.272953377222325,
+          "refuse": 1.5582385791012912,
+          "flag_percentile": 75.0,
+          "refuse_percentile": 95.0,
+          "n_samples": 5,
+          "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 5 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/class_corpus/perovskites (schema lupine.mlip.calc_evidence.v1)",
+          "sample_dispersions": [
+            [
+              "CsGeI3",
+              0.6190353294027836
+            ],
+            [
+              "CsPbI3",
+              1.6295598795710329
+            ],
+            [
+              "CsSnBr3",
+              1.272953377222325
+            ],
+            [
+              "CsSnCl3",
+              1.2034255822755537
+            ],
+            [
+              "CsSnI3",
+              1.098013779495959
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "classes_without_thresholds": {
+    "covalent-intermetallic": "only 3 material(s) < 5 required for percentile thresholds"
+  },
+  "provenance": {
+    "metals-fcc": "evidence copied as-is from data/y_matrix_runs/elastic_baseline (fcc metals; same files thresholds.v2 was derived from)",
+    "metals-bcc": "evidence copied as-is from data/y_matrix_runs/elastic_baseline (bcc metals; same files thresholds.v2 was derived from)",
+    "covalent-intermetallic": "evidence copied as-is from data/y_matrix_runs/elastic_baseline (Si diamond + Ni3Al L12 + NiAl B2; n=3, no thresholds)",
+    "ionics-rocksalt": "calc_evidence.v1 emitted from data/climate_targets/halide_panel/report.json (generated_at 2026-07-13T13:17:10.087939+00:00) per_model properties",
+    "perovskites": "calc_evidence.v1 emitted from data/candidates/round1/report.json (generated_at 2026-07-13T14:14:06.554750+00:00) per_model properties (raw arm)"
+  },
+  "notes": [
+    "Class stratification: each (class, property) threshold is p75/p95 of that class's OWN measured cross-model dispersion distribution; nothing is transferred across classes. This answers the 2026-07-13 halide-panel finding that metal-derived C11/C44 percentiles refuse known-good ionics.",
+    "Order-statistic fragility at small n: with n=5-9 materials per class the p95 'refuse' threshold is dominated by the single largest observed dispersion and the p75 'flag' threshold by the top two; adding or removing ONE material can move both substantially. Treat these as descriptive calibration, not sharp decision boundaries.",
+    "Same-instrument guarantee (with one documented caveat): metals and ionics-rocksalt cells were measured by the run_discovery_gates probe (compute_lattice recentring EOS scan, BM3 EOS, relaxed-ion stress-strain elastic constants, elastic_delta=0.005). Perovskite cells come from the candidate-campaign runner, which relaxes the supplied cell via the equivalent ev_relax scan and applies the SAME relaxed-ion elastic probe with the same delta; the lattice leg is atoms-based rather than formula-based but mirrors the same algorithm.",
+    "Model non-independence: mace-mp-small, mace-mp-medium and mace-mpa-0-medium share architecture (and largely training data), so the effective number of independent models is below the nominal 4; dispersions are ensemble spread, not independent-error spread.",
+    "covalent-intermetallic (Si, Ni3Al, NiAl) is materialized as a corpus class so the cells are not silently dropped, but with n=3 < 5 no thresholds are derived for it.",
+    "ionics-rocksalt uses the halide-panel cells only; the elastic baseline's own MgO/NaCl cells are excluded from this class to keep one instrument run per class and avoid duplicate (material, model) cells.",
+    "Perovskite cells are the RAW per_model arm of the Round-1 campaign report, never the bias-corrected arm: a calibration corpus must contain unmodified instrument readings."
+  ]
+}

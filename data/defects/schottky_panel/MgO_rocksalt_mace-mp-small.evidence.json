@@ -1,0 +1,33 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "MgO",
+  "source": {
+    "model_id": "mace-mp-small",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "E_schottky_pair",
+      "value": 4.3713220959194246,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "E_schottky_per_vacancy",
+      "value": 2.1856610479597123,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "d4361f5506605ba649c97afa2046091c27a84e43e4781da9d206c9b234745ebf",
+    "run_label": null,
+    "computed_at": "2026-07-13T16:09:49.537597Z"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "LiF",
+  "source": {
+    "model_id": "mace-mp-small",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "E_schottky_pair",
+      "value": 1.403685790041493,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "E_schottky_per_vacancy",
+      "value": 0.7018428950207465,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "9ca277683bbcf99fc5fefb6c2bce972bdc992fd9ebb32e493eda9c5224ad88e8",
+    "run_label": null,
+    "computed_at": "2026-07-13T16:09:35.205011Z"
+  }
+}

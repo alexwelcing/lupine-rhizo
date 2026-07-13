@@ -1,0 +1,225 @@
+{
+  "schema": "lupine.campaign_lammps_leg.v1",
+  "generated_at": "2026-07-13T14:04:39.028042+00:00",
+  "potential": "MEAM MoCoNiVFeAlCr_2nn (Choi et al. 2NN MEAM; shipped with LAMMPS 30Mar2026)",
+  "parameters": {
+    "seed": 20260713,
+    "repeat": 3,
+    "elastic_delta": 0.005,
+    "instrument": "identical to the MLIP leg: run_candidate_campaign.measure_candidate (same RSS cells, E-V relax, FD stress probe)"
+  },
+  "candidates": {
+    "hea-cocrni": {
+      "properties": {
+        "a0": 3.5574368798389036,
+        "b0": 196.15529330467828,
+        "c11": 246.97069659660687,
+        "c12": 164.44350000129313,
+        "c44": 81.35719172601965
+      },
+      "e0_ev_per_atom": -4.276909017608438,
+      "b0_prime": 4.905757518030902,
+      "n_atoms": 108,
+      "n_conventional_cells": 27,
+      "a_guess_angstrom": 3.56,
+      "elastic_n_relax_steps": 45,
+      "gates": {
+        "born": {
+          "gate": "born_stability_cubic",
+          "passed": true,
+          "values": {
+            "c11_gpa": 246.97069659660687,
+            "c12_gpa": 164.44350000129313,
+            "c44_gpa": 81.35719172601965,
+            "c11_minus_c12_gpa": 82.52719659531374,
+            "c11_plus_2c12_gpa": 575.8576965991931,
+            "checks": {
+              "C11 - C12 > 0": true,
+              "C11 + 2*C12 > 0": true,
+              "C44 > 0": true
+            }
+          },
+          "criteria": {
+            "conditions": [
+              "C11 - C12 > 0",
+              "C11 + 2*C12 > 0",
+              "C44 > 0"
+            ],
+            "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+          },
+          "detail": "all Born stability conditions satisfied",
+          "wall_time_seconds": 1.1799999811046291e-05
+        }
+      },
+      "born_passed": true,
+      "wall_time_seconds": {
+        "ev_relax": 0.9828981000000567,
+        "elastic_plus_born": 0.7262141000001066
+      },
+      "abs_rel_error_vs_reference": {
+        "a0": 0.0007199775733417133,
+        "b0": 0.03785869473374752,
+        "c11": 0.008149812865032647,
+        "c12": 0.03423584906473667,
+        "c44": 0.4104551324201475
+      }
+    },
+    "hea-cocrfeni": {
+      "properties": {
+        "a0": 3.576774642729788,
+        "b0": 194.03326739956353,
+        "c11": 232.64390979731803,
+        "c12": 169.09295498296112,
+        "c44": 80.82062505047551
+      },
+      "e0_ev_per_atom": -4.279392187334045,
+      "b0_prime": 4.969305666905812,
+      "n_atoms": 108,
+      "n_conventional_cells": 27,
+      "a_guess_angstrom": 3.57,
+      "elastic_n_relax_steps": 50,
+      "gates": {
+        "born": {
+          "gate": "born_stability_cubic",
+          "passed": true,
+          "values": {
+            "c11_gpa": 232.64390979731803,
+            "c12_gpa": 169.09295498296112,
+            "c44_gpa": 80.82062505047551,
+            "c11_minus_c12_gpa": 63.55095481435691,
+            "c11_plus_2c12_gpa": 570.8298197632403,
+            "checks": {
+              "C11 - C12 > 0": true,
+              "C11 + 2*C12 > 0": true,
+              "C44 > 0": true
+            }
+          },
+          "criteria": {
+            "conditions": [
+              "C11 - C12 > 0",
+              "C11 + 2*C12 > 0",
+              "C44 > 0"
+            ],
+            "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+          },
+          "detail": "all Born stability conditions satisfied",
+          "wall_time_seconds": 9.399999726156238e-06
+        }
+      },
+      "born_passed": true,
+      "wall_time_seconds": {
+        "ev_relax": 0.8296061999999438,
+        "elastic_plus_born": 0.6841713999992862
+      },
+      "abs_rel_error_vs_reference": {
+        "a0": 0.0018976590279518534,
+        "b0": 0.19038814355560446
+      }
+    },
+    "hea-coni": {
+      "properties": {
+        "a0": 3.5312820685370365,
+        "b0": 204.11526485857885,
+        "c11": 292.4289550825146,
+        "c12": 159.85498700032383,
+        "c44": 110.56351006926849
+      },
+      "e0_ev_per_atom": -4.445919547122845,
+      "b0_prime": 4.8094246593262175,
+      "n_atoms": 108,
+      "n_conventional_cells": 27,
+      "a_guess_angstrom": 3.535,
+      "elastic_n_relax_steps": 17,
+      "gates": {
+        "born": {
+          "gate": "born_stability_cubic",
+          "passed": true,
+          "values": {
+            "c11_gpa": 292.4289550825146,
+            "c12_gpa": 159.85498700032383,
+            "c44_gpa": 110.56351006926849,
+            "c11_minus_c12_gpa": 132.5739680821908,
+            "c11_plus_2c12_gpa": 612.1389290831623,
+            "checks": {
+              "C11 - C12 > 0": true,
+              "C11 + 2*C12 > 0": true,
+              "C44 > 0": true
+            }
+          },
+          "criteria": {
+            "conditions": [
+              "C11 - C12 > 0",
+              "C11 + 2*C12 > 0",
+              "C44 > 0"
+            ],
+            "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+          },
+          "detail": "all Born stability conditions satisfied",
+          "wall_time_seconds": 9.100000170292333e-06
+        }
+      },
+      "born_passed": true,
+      "wall_time_seconds": {
+        "ev_relax": 0.6232914000001983,
+        "elastic_plus_born": 0.19404039999972156
+      },
+      "abs_rel_error_vs_reference": {
+        "a0": 0.0010517486458171484,
+        "b0": 0.18671665615452823
+      }
+    },
+    "hea-feni": {
+      "properties": {
+        "a0": 3.5819269463799768,
+        "b0": 176.44642720760928,
+        "c11": 226.56258507656287,
+        "c12": 149.2537257781007,
+        "c44": 89.50113350983747
+      },
+      "e0_ev_per_atom": -4.399717232313582,
+      "b0_prime": 4.894793890135206,
+      "n_atoms": 108,
+      "n_conventional_cells": 27,
+      "a_guess_angstrom": 3.582,
+      "elastic_n_relax_steps": 36,
+      "gates": {
+        "born": {
+          "gate": "born_stability_cubic",
+          "passed": true,
+          "values": {
+            "c11_gpa": 226.56258507656287,
+            "c12_gpa": 149.2537257781007,
+            "c44_gpa": 89.50113350983747,
+            "c11_minus_c12_gpa": 77.30885929846218,
+            "c11_plus_2c12_gpa": 525.0700366327642,
+            "checks": {
+              "C11 - C12 > 0": true,
+              "C11 + 2*C12 > 0": true,
+              "C44 > 0": true
+            }
+          },
+          "criteria": {
+            "conditions": [
+              "C11 - C12 > 0",
+              "C11 + 2*C12 > 0",
+              "C44 > 0"
+            ],
+            "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+          },
+          "detail": "all Born stability conditions satisfied",
+          "wall_time_seconds": 7.899999218352605e-06
+        }
+      },
+      "born_passed": true,
+      "wall_time_seconds": {
+        "ev_relax": 0.7296553999995012,
+        "elastic_plus_born": 0.41470680000020366
+      },
+      "abs_rel_error_vs_reference": {
+        "a0": 2.0394645455912346e-05,
+        "b0": 0.0014350469292060736
+      }
+    }
+  },
+  "total_wall_time_seconds": 5.209606500000518
+}

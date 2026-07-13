@@ -1,0 +1,149 @@
+{
+  "schema": "lupine.discovery_gates.licenses.v1",
+  "generated_at": "2026-07-13T17:39:31.512550+00:00",
+  "generated_by": "python/scripts/derive_gate_licenses.py",
+  "derived_from": {
+    "path": "data/discovery_gates/dispersion_vs_error_by_class.json",
+    "schema": "lupine.discovery_gates.dispersion_vs_error_by_class.v1",
+    "generated_at": "2026-07-13T15:35:44.719143+00:00",
+    "pooled_path": "data/discovery_gates/dispersion_vs_error.json",
+    "pooled_schema": "lupine.discovery_gates.dispersion_vs_error.v1",
+    "pooled_generated_at": "2026-07-13T13:16:34.658051+00:00"
+  },
+  "derivation_rule": {
+    "rho_metric": "spearman_rho_dispersion_vs_median_rel_error",
+    "licensed_min_rho": 0.5,
+    "anti_correlated_max_rho": -0.5,
+    "n_min": 5,
+    "corpus_kind_required_for_status": "reference-bound",
+    "note": "descriptive is the fail-closed default for every other case"
+  },
+  "update_discipline": [
+    "License statuses are (re)derived ONLY from reference-bound corpora (external, non-null references); corpus_kind 'in-sample' records data from gated subjects while barring it from conferring status.",
+    "Registries are immutable and versioned: rederivation writes licenses.v2.json, v3, ...; existing files are never mutated, and reports pin the registry version they used.",
+    "Upgrades (descriptive -> licensed) require an out-of-sample reference-bound corpus, n >= 5, rho >= +0.5, and a derivation registered BEFORE the new corpus is measured; downgrades are fail-safe and may be applied as soon as evidence exists.",
+    "Program overrides lift only by registered decision citing new reference-bound evidence.",
+    "A gated subject that later acquires external references may join a future corpus version; the registry entry documents the transition."
+  ],
+  "program_overrides": [
+    {
+      "property": "b0",
+      "license_ceiling": "descriptive",
+      "provenance": "2026-07-13 errata finding 4; Round-3 prereg fix 6 (fcc B0 rho=-0.63): B0 concordance descriptive program-wide",
+      "lift_requires": "registered decision citing new reference-bound evidence"
+    }
+  ],
+  "by_class": {
+    "metals-bcc": {
+      "a0": {
+        "status": "licensed",
+        "rho": 0.8928571428571429,
+        "n": 7,
+        "corpus": "data/y_matrix_runs/bound",
+        "corpus_kind": "reference-bound",
+        "caveats": [
+          "n=7; 4 models with three non-independent MACE/CHGNet-era variants sharing training data"
+        ]
+      },
+      "b0": {
+        "status": "descriptive",
+        "rho": 0.3214285714285715,
+        "n": 7,
+        "corpus": "data/y_matrix_runs/bound",
+        "corpus_kind": "reference-bound",
+        "caveats": [
+          "n=7; 4 models with three non-independent MACE/CHGNet-era variants sharing training data",
+          "program override: b0 license_ceiling=descriptive caps positive licensing (never erases an anti-correlated warning)"
+        ]
+      }
+    },
+    "metals-fcc": {
+      "a0": {
+        "status": "descriptive",
+        "rho": 0.06666666666666667,
+        "n": 9,
+        "corpus": "data/y_matrix_runs/bound",
+        "corpus_kind": "reference-bound",
+        "caveats": [
+          "n=9; 4 models with three non-independent MACE/CHGNet-era variants sharing training data"
+        ]
+      },
+      "b0": {
+        "status": "anti-correlated",
+        "rho": -0.6333333333333333,
+        "n": 9,
+        "corpus": "data/y_matrix_runs/bound",
+        "corpus_kind": "reference-bound",
+        "caveats": [
+          "n=9; 4 models with three non-independent MACE/CHGNet-era variants sharing training data",
+          "program override: b0 license_ceiling=descriptive caps positive licensing (never erases an anti-correlated warning)",
+          "low dispersion must NOT be read as low error (errata finding 4)"
+        ]
+      }
+    },
+    "perovskites": {
+      "a0": {
+        "status": "descriptive",
+        "rho": -0.7999999999999999,
+        "n": 4,
+        "corpus": "data/candidates/round1/report.json",
+        "corpus_kind": "in-sample",
+        "caveats": [
+          "n=4; 4 models with three non-independent MACE/CHGNet-era variants sharing training data",
+          "n=4 < 5: a single material determines the rank ordering; treat this rho as anecdote, not calibration",
+          "circular: rho computed on the gated candidates themselves (errata finding 6); in-sample data is recorded but confers no status"
+        ]
+      },
+      "b0": {
+        "status": "descriptive",
+        "rho": 0.9999999999999999,
+        "n": 5,
+        "corpus": "data/candidates/round1/report.json",
+        "corpus_kind": "in-sample",
+        "caveats": [
+          "n=5; 4 models with three non-independent MACE/CHGNet-era variants sharing training data",
+          "circular: rho computed on the gated candidates themselves (errata finding 6); in-sample data is recorded but confers no status",
+          "program override: b0 license_ceiling=descriptive caps positive licensing (never erases an anti-correlated warning)"
+        ]
+      }
+    }
+  },
+  "pooled_context": {
+    "note": "Pooled (all-classes) rho/n from dispersion_vs_error.json, recorded for context ONLY: pooling masks class-level structure (the fcc B0 anti-correlation vanishes in the pooled rho) and confers no status.",
+    "corpus": "data/y_matrix_runs/bound",
+    "properties": {
+      "B0": {
+        "rho": 0.16363636363636364,
+        "n": 21
+      },
+      "B0_prime": {
+        "rho": 0.6573426573426573,
+        "n": 12
+      },
+      "a0": {
+        "rho": 0.5662337662337662,
+        "n": 21
+      },
+      "gamma_100": {
+        "rho": 0.12058823529411765,
+        "n": 16
+      },
+      "gamma_110": {
+        "rho": 0.19411764705882353,
+        "n": 16
+      },
+      "gamma_111": {
+        "rho": 0.19999999999999998,
+        "n": 9
+      },
+      "stacking_fault_energy": {
+        "rho": 0.8928571428571429,
+        "n": 7
+      },
+      "vacancy_formation_energy": {
+        "rho": 0.6102941176470589,
+        "n": 17
+      }
+    }
+  }
+}

@@ -1,0 +1,3416 @@
+{
+  "schema": "lupine.prediction_hull_analysis.v1",
+  "label": "EXPLORATORY",
+  "generated_at": "2026-07-13T17:44:06.335272+00:00",
+  "hypothesis": "PREDICTION-HULL membership (knowable at runtime) predicts frozen-rule correction success; the proven theorems' ratio in-hull condition (unknowable) is the oracle upper bound.",
+  "frozen_rule": "For a held-out candidate X, model m, property p, class C: (1) calibration set = other class-C members with a non-null reference (never X), require >= 2 members else ABSTAIN; (2) ratios_i = pred_i / ref_i over calibration members; (3) direction gate: apply only if ALL ratios are strictly on one side of 1, else ABSTAIN; (4) magnitude cap: b = median(ratios), s = max(ratios) - min(ratios), ABSTAIN unless |b - 1| > s; (5) corrected = pred / b; else corrected = pred (abstention, risk-free).",
+  "inputs": {
+    "round3_report": "C:\\Users\\alexw\\Downloads\\lupine-rhizo\\data\\candidates\\round3\\report.json",
+    "round3_analysis": "C:\\Users\\alexw\\Downloads\\lupine-rhizo\\data\\candidates\\round3\\round3_analysis.json",
+    "round1_report": "C:\\Users\\alexw\\Downloads\\lupine-rhizo\\data\\candidates\\round1\\report.json",
+    "round2_report": "C:\\Users\\alexw\\Downloads\\lupine-rhizo\\data\\candidates\\round2\\report.json"
+  },
+  "crosschecks": {
+    "round3_analysis_match": {
+      "n_applied_matched": 49,
+      "max_corrected_deviation": 0.0,
+      "verified": true
+    },
+    "round2_raw_ref_match": {
+      "n_rows_crosschecked": 140,
+      "verified": true
+    }
+  },
+  "datasets": {
+    "round3_primary": {
+      "summary": {
+        "n_applied_cells": 49,
+        "n_success": 36,
+        "n_failure": 13,
+        "n_ties": 0,
+        "predictors": {
+          "proxy_raw_in_cross_model_hull": {
+            "definition": "(c) KNOWABLE: raw prediction of model m inside [min, max] of the other models' raw predictions for the same candidate/property",
+            "pooled": {
+              "n_cells": 49,
+              "n_undefined_excluded": 0,
+              "n_ties_excluded": 0,
+              "table": {
+                "in_hull_success": 17,
+                "in_hull_failure": 6,
+                "out_hull_success": 19,
+                "out_hull_failure": 7
+              },
+              "success_rate_in_hull": 0.7391304347826086,
+              "success_rate_out_hull": 0.7307692307692307,
+              "fisher_p_two_sided": 1.0,
+              "binomial_sign_p_in_hull": 0.03468966484069824,
+              "binomial_sign_p_out_hull": 0.028959274291992188
+            },
+            "per_property": {
+              "a0": {
+                "n_cells": 32,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 16,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 16,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 3.0517578125e-05,
+                "binomial_sign_p_out_hull": 3.0517578125e-05
+              },
+              "b0": {
+                "n_cells": 5,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 3,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 2
+                },
+                "success_rate_in_hull": 0.0,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 0.25,
+                "binomial_sign_p_out_hull": 0.5
+              },
+              "c11": {
+                "n_cells": 6,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 1,
+                  "in_hull_failure": 2,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 3
+                },
+                "success_rate_in_hull": 0.3333333333333333,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 0.25
+              },
+              "c12": {
+                "n_cells": 2,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 1,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 1
+                },
+                "success_rate_in_hull": 0.0,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 1.0
+              },
+              "c44": {
+                "n_cells": 4,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 3,
+                  "out_hull_failure": 1
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 0.75,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 0.625
+              }
+            }
+          },
+          "proxy_corrected_in_cross_model_hull": {
+            "definition": "(c2) KNOWABLE: LOO-bias-corrected prediction of model m inside the other models' raw-prediction hull",
+            "pooled": {
+              "n_cells": 49,
+              "n_undefined_excluded": 0,
+              "n_ties_excluded": 0,
+              "table": {
+                "in_hull_success": 1,
+                "in_hull_failure": 2,
+                "out_hull_success": 35,
+                "out_hull_failure": 11
+              },
+              "success_rate_in_hull": 0.3333333333333333,
+              "success_rate_out_hull": 0.7608695652173914,
+              "fisher_p_two_sided": 0.16793313069908813,
+              "binomial_sign_p_in_hull": 1.0,
+              "binomial_sign_p_out_hull": 0.0005355850721002753
+            },
+            "per_property": {
+              "a0": {
+                "n_cells": 32,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 32,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 4.656612873077393e-10
+              },
+              "b0": {
+                "n_cells": 5,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 5
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 0.0625
+              },
+              "c11": {
+                "n_cells": 6,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 2,
+                  "out_hull_success": 1,
+                  "out_hull_failure": 3
+                },
+                "success_rate_in_hull": 0.0,
+                "success_rate_out_hull": 0.25,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 0.5,
+                "binomial_sign_p_out_hull": 0.625
+              },
+              "c12": {
+                "n_cells": 2,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 2
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 0.5
+              },
+              "c44": {
+                "n_cells": 4,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 1,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 2,
+                  "out_hull_failure": 1
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 0.6666666666666666,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 1.0
+              }
+            }
+          },
+          "oracle_ratio_in_calibration_hull": {
+            "definition": "(d) UNKNOWABLE oracle: true ratio r = raw/ref inside [min, max] of m's LOO calibration ratios (the theorems' in-hull hypothesis)",
+            "pooled": {
+              "n_cells": 49,
+              "n_undefined_excluded": 0,
+              "n_ties_excluded": 0,
+              "table": {
+                "in_hull_success": 17,
+                "in_hull_failure": 1,
+                "out_hull_success": 19,
+                "out_hull_failure": 12
+              },
+              "success_rate_in_hull": 0.9444444444444444,
+              "success_rate_out_hull": 0.6129032258064516,
+              "fisher_p_two_sided": 0.01709208004251008,
+              "binomial_sign_p_in_hull": 0.00014495849609375,
+              "binomial_sign_p_out_hull": 0.28104151505976915
+            },
+            "per_property": {
+              "a0": {
+                "n_cells": 32,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 16,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 16,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 3.0517578125e-05,
+                "binomial_sign_p_out_hull": 3.0517578125e-05
+              },
+              "b0": {
+                "n_cells": 5,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 1,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 4
+                },
+                "success_rate_in_hull": 0.0,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 0.125
+              },
+              "c11": {
+                "n_cells": 6,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 1,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 5
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 0.16666666666666666,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 0.0625
+              },
+              "c12": {
+                "n_cells": 2,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 2
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 0.5
+              },
+              "c44": {
+                "n_cells": 4,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 3,
+                  "out_hull_failure": 1
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 0.75,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 0.625
+              }
+            }
+          }
+        },
+        "round4_cap_preview": {
+          "definition": "cells whose Round-3 license survives the PROVEN caps (inflation b - 1 > 2s; deflation 1 - b > 3s AND b >= 0.5)",
+          "n_licensed": 20,
+          "n_delicensed": 29,
+          "n_inflation_side": 32,
+          "n_deflation_side": 17,
+          "licensed_success": 18,
+          "licensed_failure": 2,
+          "theorem_consistency": {
+            "definition": "the proven theorems guarantee success on cells that are BOTH cap-licensed AND oracle in-hull; licensed out-of-hull cells carry no guarantee",
+            "licensed_in_hull_success": 5,
+            "licensed_in_hull_failure": 0,
+            "licensed_out_hull_success": 13,
+            "licensed_out_hull_failure": 2
+          }
+        }
+      },
+      "cells": [
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kbr",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 6.6,
+          "raw": 6.717222365524971,
+          "corrected": 6.619804483400484,
+          "b": 1.0147161267932863,
+          "s": 0.003065253897402087,
+          "n_calibration": 3,
+          "raw_abs_err": 0.11722236552497112,
+          "corrected_abs_err": 0.019804483400484685,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0177609644734804,
+          "cross_model_hull": [
+            6.694987599952758,
+            6.725739116513817
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.013642296155705,
+            1.016707550053107
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kbr",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 6.6,
+          "raw": 6.707225657716585,
+          "corrected": 6.603078490198771,
+          "b": 1.0157725169665035,
+          "s": 0.011456107730376974,
+          "n_calibration": 3,
+          "raw_abs_err": 0.10722565771658576,
+          "corrected_abs_err": 0.0030784901987717106,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0162463117752403,
+          "cross_model_hull": [
+            6.694987599952758,
+            6.725739116513817
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0114591574134122,
+            1.0229152651437892
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kbr",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 6.6,
+          "raw": 6.725739116513817,
+          "corrected": 6.6333831523225495,
+          "b": 1.0139229051104837,
+          "s": 0.00783443607924017,
+          "n_calibration": 3,
+          "raw_abs_err": 0.12573911651381753,
+          "corrected_abs_err": 0.03338315232254985,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0190513812899724,
+          "cross_model_hull": [
+            6.694987599952758,
+            6.717222365524971
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0098769428210201,
+            1.0177113789002603
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kbr",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 6.6,
+          "raw": 6.694987599952758,
+          "corrected": 6.58702955803761,
+          "b": 1.0163894880027395,
+          "s": 0.010203209100241528,
+          "n_calibration": 3,
+          "raw_abs_err": 0.0949875999527583,
+          "corrected_abs_err": 0.0129704419623895,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0143920605989027,
+          "cross_model_hull": [
+            6.707225657716585,
+            6.725739116513817
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0128178006417239,
+            1.0230210097419654
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kbr",
+          "model": "mace-mpa-0-medium",
+          "prop": "c11",
+          "reference": 34.6,
+          "raw": 29.533376317266,
+          "corrected": 37.12387277979651,
+          "b": 0.7955359747202508,
+          "s": 0.16428785209741148,
+          "n_calibration": 3,
+          "raw_abs_err": 5.066623682734001,
+          "corrected_abs_err": 2.5238727797965055,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.8535657895163584,
+          "cross_model_hull": [
+            29.267797854817555,
+            33.1165807824729
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7901576730417779,
+            0.9544455251391893
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kcl",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 6.2931,
+          "raw": 6.378952333937467,
+          "corrected": 6.274127042338051,
+          "b": 1.016707550053107,
+          "s": 0.0030448376801941457,
+          "n_calibration": 3,
+          "raw_abs_err": 0.08585233393746705,
+          "corrected_abs_err": 0.01897295766194862,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.013642296155705,
+          "cross_model_hull": [
+            6.355256588866961,
+            6.3962406869500406
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147161267932863,
+            1.0177609644734804
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kcl",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 6.2931,
+          "raw": 6.3923580265219035,
+          "corrected": 6.290166028111185,
+          "b": 1.0162463117752403,
+          "s": 0.011456107730376974,
+          "n_calibration": 3,
+          "raw_abs_err": 0.09925802652190363,
+          "corrected_abs_err": 0.002933971888815279,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0157725169665035,
+          "cross_model_hull": [
+            6.355256588866961,
+            6.3962406869500406
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0114591574134122,
+            1.0229152651437892
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kcl",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 6.2931,
+          "raw": 6.355256588866961,
+          "corrected": 6.244655135657868,
+          "b": 1.0177113789002603,
+          "s": 0.00512847617948875,
+          "n_calibration": 3,
+          "raw_abs_err": 0.06215658886696129,
+          "corrected_abs_err": 0.04844486434213202,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0098769428210201,
+          "cross_model_hull": [
+            6.378952333937467,
+            6.3962406869500406
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0139229051104837,
+            1.0190513812899724
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kcl",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 6.2931,
+          "raw": 6.3962406869500406,
+          "corrected": 6.30549166874755,
+          "b": 1.0143920605989027,
+          "s": 0.010203209100241528,
+          "n_calibration": 3,
+          "raw_abs_err": 0.10314068695004064,
+          "corrected_abs_err": 0.012391668747549822,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0163894880027395,
+          "cross_model_hull": [
+            6.355256588866961,
+            6.3923580265219035
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0128178006417239,
+            1.0230210097419654
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kcl",
+          "model": "mace-mp-medium",
+          "prop": "c11",
+          "reference": 40.32,
+          "raw": 39.161609525689975,
+          "corrected": 46.296332109108036,
+          "b": 0.845890111410912,
+          "s": 0.12138273882397876,
+          "n_calibration": 3,
+          "raw_abs_err": 1.1583904743100248,
+          "corrected_abs_err": 5.976332109108036,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.9712700775220728,
+          "cross_model_hull": [
+            32.076010500720514,
+            34.51099545281535
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.8069787309333817,
+            0.9283614697573604
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-kcl",
+          "model": "mace-mp-medium",
+          "prop": "c44",
+          "reference": 6.29,
+          "raw": 4.375640647887359,
+          "corrected": 4.676614664330959,
+          "b": 0.9356427591224992,
+          "s": 0.00955279454902258,
+          "n_calibration": 3,
+          "raw_abs_err": 1.9143593521126414,
+          "corrected_abs_err": 1.613385335669041,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.6956503414765276,
+          "cross_model_hull": [
+            4.3922805278678565,
+            7.850725024840703
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            0.9314042284673293,
+            0.9409570230163519
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 4.6342,
+          "raw": 4.702397474785447,
+          "corrected": 4.625123000748662,
+          "b": 1.016707550053107,
+          "s": 0.004118668317775409,
+          "n_calibration": 3,
+          "raw_abs_err": 0.06819747478544702,
+          "corrected_abs_err": 0.00907699925133798,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0147161267932863,
+          "cross_model_hull": [
+            4.687304027285235,
+            4.740883963346216
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.013642296155705,
+            1.0177609644734804
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 4.6342,
+          "raw": 4.687304027285235,
+          "corrected": 4.612370025822942,
+          "b": 1.0162463117752403,
+          "s": 0.007142748177285663,
+          "n_calibration": 3,
+          "raw_abs_err": 0.05310402728523478,
+          "corrected_abs_err": 0.021829974177057565,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0114591574134122,
+          "cross_model_hull": [
+            4.698721526863003,
+            4.740883963346216
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0157725169665035,
+            1.0229152651437892
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 4.6342,
+          "raw": 4.698721526863003,
+          "corrected": 4.616948993869406,
+          "b": 1.0177113789002603,
+          "s": 0.009174438468952273,
+          "n_calibration": 3,
+          "raw_abs_err": 0.06452152686300305,
+          "corrected_abs_err": 0.017251006130593716,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0139229051104837,
+          "cross_model_hull": [
+            4.687304027285235,
+            4.740883963346216
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0098769428210201,
+            1.0190513812899724
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 4.6342,
+          "raw": 4.740883963346216,
+          "corrected": 4.673620927737912,
+          "b": 1.0143920605989027,
+          "s": 0.003571687361015652,
+          "n_calibration": 3,
+          "raw_abs_err": 0.10668396334621644,
+          "corrected_abs_err": 0.03942092773791206,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0230210097419654,
+          "cross_model_hull": [
+            4.687304027285235,
+            4.702397474785447
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0128178006417239,
+            1.0163894880027395
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mp-small",
+          "prop": "b0",
+          "reference": 48.49,
+          "raw": 50.52729584082042,
+          "corrected": 63.40571084729464,
+          "b": 0.7968887213094984,
+          "s": 0.08912618691378404,
+          "n_calibration": 3,
+          "raw_abs_err": 2.03729584082042,
+          "corrected_abs_err": 14.91571084729464,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.0420147626483898,
+          "cross_model_hull": [
+            38.14727102994908,
+            47.75636762403976
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7932841899448455,
+            0.8824103768586296
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mp-medium",
+          "prop": "b0",
+          "reference": 48.49,
+          "raw": 47.75636762403976,
+          "corrected": 57.04784504298133,
+          "b": 0.8371283365403,
+          "s": 0.11870550065888696,
+          "n_calibration": 3,
+          "raw_abs_err": 0.7336323759602408,
+          "corrected_abs_err": 8.557845042981327,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.9848704397615954,
+          "cross_model_hull": [
+            38.14727102994908,
+            50.52729584082042
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.8001370628376219,
+            0.9188425634965088
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "chgnet",
+          "prop": "c11",
+          "reference": 96.3,
+          "raw": 102.47049841532949,
+          "corrected": 126.42442188227149,
+          "b": 0.810527719958662,
+          "s": 0.16134243733544784,
+          "n_calibration": 3,
+          "raw_abs_err": 6.17049841532949,
+          "corrected_abs_err": 30.12442188227149,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.0640757883211784,
+          "cross_model_hull": [
+            76.09218391392321,
+            100.89599015665911
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7957841748747516,
+            0.9571266122101995
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mp-small",
+          "prop": "c12",
+          "reference": 24.59,
+          "raw": 25.69580636660308,
+          "corrected": 34.44175213148792,
+          "b": 0.7460655970260882,
+          "s": 0.2445347229399839,
+          "n_calibration": 3,
+          "raw_abs_err": 1.1058063666030797,
+          "corrected_abs_err": 9.851752131487917,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.0449697587069167,
+          "cross_model_hull": [
+            16.67215840768275,
+            27.456824428386046
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.6040487295067923,
+            0.8485834524467762
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-naf",
+          "model": "mace-mp-medium",
+          "prop": "c12",
+          "reference": 24.59,
+          "raw": 27.456824428386046,
+          "corrected": 35.96506806831599,
+          "b": 0.7634303479206975,
+          "s": 0.038896718272620756,
+          "n_calibration": 3,
+          "raw_abs_err": 2.866824428386046,
+          "corrected_abs_err": 11.375068068315993,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.1165849706541702,
+          "cross_model_hull": [
+            16.67215840768275,
+            25.69580636660308
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7571097752516495,
+            0.7960064935242702
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-rbcl",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 6.581,
+          "raw": 6.6909523868994984,
+          "corrected": 6.593915490477419,
+          "b": 1.0147161267932863,
+          "s": 0.004118668317775409,
+          "n_calibration": 3,
+          "raw_abs_err": 0.10995238689949804,
+          "corrected_abs_err": 0.012915490477418246,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.016707550053107,
+          "cross_model_hull": [
+            6.665353946023186,
+            6.731805359911277
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.013642296155705,
+            1.0177609644734804
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-rbcl",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 6.581,
+          "raw": 6.731805359911277,
+          "corrected": 6.627276528424984,
+          "b": 1.0157725169665035,
+          "s": 0.004787154361828083,
+          "n_calibration": 3,
+          "raw_abs_err": 0.15080535991127686,
+          "corrected_abs_err": 0.04627652842498353,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0229152651437892,
+          "cross_model_hull": [
+            6.665353946023186,
+            6.697558584542614
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0114591574134122,
+            1.0162463117752403
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-rbcl",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 6.581,
+          "raw": 6.697558584542614,
+          "corrected": 6.6055895875168185,
+          "b": 1.0139229051104837,
+          "s": 0.009174438468952273,
+          "n_calibration": 3,
+          "raw_abs_err": 0.11655858454261381,
+          "corrected_abs_err": 0.024589587516818057,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0177113789002603,
+          "cross_model_hull": [
+            6.665353946023186,
+            6.731805359911277
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0098769428210201,
+            1.0190513812899724
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-rbcl",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 6.581,
+          "raw": 6.665353946023186,
+          "corrected": 6.557873752827735,
+          "b": 1.0163894880027395,
+          "s": 0.00862894914306267,
+          "n_calibration": 3,
+          "raw_abs_err": 0.08435394602318524,
+          "corrected_abs_err": 0.023126247172265302,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0128178006417239,
+          "cross_model_hull": [
+            6.6909523868994984,
+            6.731805359911277
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0143920605989027,
+            1.0230210097419654
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-rbcl",
+          "model": "mace-mpa-0-medium",
+          "prop": "c11",
+          "reference": 36.46,
+          "raw": 34.799083846574845,
+          "corrected": 43.74294180575793,
+          "b": 0.7955359747202508,
+          "s": 0.06340811647458056,
+          "n_calibration": 3,
+          "raw_abs_err": 1.6609161534251555,
+          "corrected_abs_err": 7.282941805757929,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.9544455251391893,
+          "cross_model_hull": [
+            28.04933817415589,
+            29.422444529831097
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7901576730417779,
+            0.8535657895163584
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "ionics-rocksalt-oos",
+          "candidate": "rs-rbcl",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 4.68,
+          "raw": 2.5172228235379737,
+          "corrected": 3.196754085047621,
+          "b": 0.78743086160801,
+          "s": 0.038052139697444365,
+          "n_calibration": 3,
+          "raw_abs_err": 2.162777176462026,
+          "corrected_abs_err": 1.483245914952379,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.5378681246876013,
+          "cross_model_hull": [
+            4.358971789227101,
+            6.905731072434705
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7522500334032811,
+            0.7903021731007255
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cscaf3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 4.526,
+          "raw": 4.585218588945734,
+          "corrected": 4.4750000313007945,
+          "b": 1.0246298451115097,
+          "s": 0.009002547981774134,
+          "n_calibration": 3,
+          "raw_abs_err": 0.059218588945734396,
+          "corrected_abs_err": 0.05099996869920531,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0130840894709974,
+          "cross_model_hull": [
+            4.584351372879394,
+            4.598027004413236
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0173862828201776,
+            1.0263888308019518
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cscaf3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 4.526,
+          "raw": 4.584351372879394,
+          "corrected": 4.488355186284969,
+          "b": 1.021387831980802,
+          "s": 0.009969447515445484,
+          "n_calibration": 3,
+          "raw_abs_err": 0.05835137287939407,
+          "corrected_abs_err": 0.0376448137150307,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0128924818558096,
+          "cross_model_hull": [
+            4.585218588945734,
+            4.598027004413236
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0142626341913639,
+            1.0242320817068093
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cscaf3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 4.526,
+          "raw": 4.598027004413236,
+          "corrected": 4.518722904194373,
+          "b": 1.0175501135830327,
+          "s": 0.006726780446706382,
+          "n_calibration": 3,
+          "raw_abs_err": 0.07202700441323628,
+          "corrected_abs_err": 0.007277095805626743,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0159140531182582,
+          "cross_model_hull": [
+            4.584351372879394,
+            4.597677457895515
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0143378768759486,
+            1.021064657322655
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cscaf3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 4.526,
+          "raw": 4.597677457895515,
+          "corrected": 4.491547774868176,
+          "b": 1.0236287552413832,
+          "s": 0.01145874262356461,
+          "n_calibration": 3,
+          "raw_abs_err": 0.0716774578955155,
+          "corrected_abs_err": 0.03445222513182422,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.015836822336614,
+          "cross_model_hull": [
+            4.584351372879394,
+            4.598027004413236
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147843363673343,
+            1.026243078990899
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cscaf3",
+          "model": "chgnet",
+          "prop": "b0",
+          "reference": 50.9,
+          "raw": 46.44358892379456,
+          "corrected": 57.98653003675516,
+          "b": 0.800937543501154,
+          "s": 0.19121053288272083,
+          "n_calibration": 3,
+          "raw_abs_err": 4.456411076205441,
+          "corrected_abs_err": 7.086530036755164,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.912447719524451,
+          "cross_model_hull": [
+            45.23965612704001,
+            48.14157839577767
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7949691616288053,
+            0.9861796945115261
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cscaf3",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 25.5,
+          "raw": 19.355543273234122,
+          "corrected": 37.574149239157926,
+          "b": 0.5151292488363975,
+          "s": 0.4450056355202754,
+          "n_calibration": 3,
+          "raw_abs_err": 6.144456726765878,
+          "corrected_abs_err": 12.074149239157926,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.759040912675848,
+          "cross_model_hull": [
+            24.270837897411397,
+            25.054101935015993
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.18212103755579787,
+            0.6271266730760733
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbbr3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 5.874,
+          "raw": 6.029007992130665,
+          "corrected": 5.925977275237441,
+          "b": 1.0173862828201776,
+          "s": 0.0115457556405123,
+          "n_calibration": 3,
+          "raw_abs_err": 0.15500799213066507,
+          "corrected_abs_err": 0.05197727523744167,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0263888308019518,
+          "cross_model_hull": [
+            5.997733797113274,
+            6.0163392479457976
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0130840894709974,
+            1.0246298451115097
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbbr3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 5.874,
+          "raw": 6.0163392479457976,
+          "corrected": 5.931737052250194,
+          "b": 1.0142626341913639,
+          "s": 0.008495350124992473,
+          "n_calibration": 3,
+          "raw_abs_err": 0.1423392479457979,
+          "corrected_abs_err": 0.057737052250194765,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0242320817068093,
+          "cross_model_hull": [
+            5.997733797113274,
+            6.029007992130665
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0128924818558096,
+            1.021387831980802
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbbr3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 5.874,
+          "raw": 5.997733797113274,
+          "corrected": 5.903780717181499,
+          "b": 1.0159140531182582,
+          "s": 0.0032122367070841484,
+          "n_calibration": 3,
+          "raw_abs_err": 0.12373379711327459,
+          "corrected_abs_err": 0.02978071718149966,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.021064657322655,
+          "cross_model_hull": [
+            6.012795308287885,
+            6.029007992130665
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0143378768759486,
+            1.0175501135830327
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbbr3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 5.874,
+          "raw": 6.012795308287885,
+          "corrected": 5.919056265805894,
+          "b": 1.015836822336614,
+          "s": 0.01145874262356461,
+          "n_calibration": 3,
+          "raw_abs_err": 0.138795308287885,
+          "corrected_abs_err": 0.04505626580589439,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0236287552413832,
+          "cross_model_hull": [
+            5.997733797113274,
+            6.029007992130665
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147843363673343,
+            1.026243078990899
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 5.605,
+          "raw": 5.743050281850012,
+          "corrected": 5.644906343665626,
+          "b": 1.0173862828201776,
+          "s": 0.013304741330954384,
+          "n_calibration": 3,
+          "raw_abs_err": 0.13805028185001156,
+          "corrected_abs_err": 0.039906343665625954,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0246298451115097,
+          "cross_model_hull": [
+            5.703368386632899,
+            5.752092457743989
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0130840894709974,
+            1.0263888308019518
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 5.605,
+          "raw": 5.724878798252396,
+          "corrected": 5.644375140386239,
+          "b": 1.0142626341913639,
+          "s": 0.011339599850999749,
+          "n_calibration": 3,
+          "raw_abs_err": 0.11987879825239567,
+          "corrected_abs_err": 0.03937514038623835,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.021387831980802,
+          "cross_model_hull": [
+            5.703368386632899,
+            5.752092457743989
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0128924818558096,
+            1.0242320817068093
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 5.605,
+          "raw": 5.703368386632899,
+          "corrected": 5.614026471163496,
+          "b": 1.0159140531182582,
+          "s": 0.006726780446706382,
+          "n_calibration": 3,
+          "raw_abs_err": 0.09836838663289882,
+          "corrected_abs_err": 0.009026471163495309,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0175501135830327,
+          "cross_model_hull": [
+            5.724878798252396,
+            5.752092457743989
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0143378768759486,
+            1.021064657322655
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 5.605,
+          "raw": 5.752092457743989,
+          "corrected": 5.662417753781659,
+          "b": 1.015836822336614,
+          "s": 0.008844418874048854,
+          "n_calibration": 3,
+          "raw_abs_err": 0.14709245774398827,
+          "corrected_abs_err": 0.057417753781658476,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.026243078990899,
+          "cross_model_hull": [
+            5.703368386632899,
+            5.743050281850012
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147843363673343,
+            1.0236287552413832
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "chgnet",
+          "prop": "b0",
+          "reference": 20.5,
+          "raw": 20.216683737486285,
+          "corrected": 25.24127368173141,
+          "b": 0.800937543501154,
+          "s": 0.11747855789564576,
+          "n_calibration": 3,
+          "raw_abs_err": 0.2833162625137149,
+          "corrected_abs_err": 4.7412736817314105,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.9861796945115261,
+          "cross_model_hull": [
+            21.53344119643854,
+            23.82712193317445
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.7949691616288053,
+            0.912447719524451
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "mace-mpa-0-medium",
+          "prop": "b0",
+          "reference": 20.5,
+          "raw": 21.53344119643854,
+          "corrected": 24.22768541433729,
+          "b": 0.8887948158554029,
+          "s": 0.11050224354890004,
+          "n_calibration": 3,
+          "raw_abs_err": 1.0334411964385417,
+          "corrected_abs_err": 3.727685414337291,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.0504117656799288,
+          "cross_model_hull": [
+            20.216683737486285,
+            23.82712193317445
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.8113135206889774,
+            0.9218157642378775
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "mace-mp-medium",
+          "prop": "c11",
+          "reference": 29.5,
+          "raw": 51.77340607012432,
+          "corrected": 61.07285778332724,
+          "b": 0.8477318394663095,
+          "s": 0.14993152633587514,
+          "n_calibration": 3,
+          "raw_abs_err": 22.273406070124317,
+          "corrected_abs_err": 31.572857783327237,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.7550307142415023,
+          "cross_model_hull": [
+            45.34863401926189,
+            61.2002456619481
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            0.7369802020974899,
+            0.8869117284333651
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "mace-mpa-0-medium",
+          "prop": "c11",
+          "reference": 29.5,
+          "raw": 45.51958606079334,
+          "corrected": 53.50899453849089,
+          "b": 0.8506903643657424,
+          "s": 0.05541034621309926,
+          "n_calibration": 3,
+          "raw_abs_err": 16.019586060793337,
+          "corrected_abs_err": 24.00899453849089,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 1.543036815620113,
+          "cross_model_hull": [
+            45.34863401926189,
+            61.2002456619481
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            0.8118831762003541,
+            0.8672935224134534
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-cspbcl3",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 5.04,
+          "raw": 0.9178900292812212,
+          "corrected": 1.4636437400739883,
+          "b": 0.6271266730760733,
+          "s": 0.2439116638394504,
+          "n_calibration": 3,
+          "raw_abs_err": 4.122109970718779,
+          "corrected_abs_err": 3.576356259926012,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.18212103755579787,
+          "cross_model_hull": [
+            4.621755238822968,
+            6.402349521187683
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.5151292488363975,
+            0.759040912675848
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-kmgf3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 3.9924,
+          "raw": 4.061812995531277,
+          "corrected": 3.9641759557464704,
+          "b": 1.0246298451115097,
+          "s": 0.013304741330954384,
+          "n_calibration": 3,
+          "raw_abs_err": 0.06941299553127678,
+          "corrected_abs_err": 0.028224044253529534,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0173862828201776,
+          "cross_model_hull": [
+            4.049342140745601,
+            4.051424984512946
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0130840894709974,
+            1.0263888308019518
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-kmgf3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 3.9924,
+          "raw": 4.049342140745601,
+          "corrected": 3.9645490321659835,
+          "b": 1.021387831980802,
+          "s": 0.011339599850999749,
+          "n_calibration": 3,
+          "raw_abs_err": 0.05694214074560122,
+          "corrected_abs_err": 0.027850967834016416,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0142626341913639,
+          "cross_model_hull": [
+            4.049642539639537,
+            4.061812995531277
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0128924818558096,
+            1.0242320817068093
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-kmgf3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 3.9924,
+          "raw": 4.049642539639537,
+          "corrected": 3.9797966562843725,
+          "b": 1.0175501135830327,
+          "s": 0.005150604204396725,
+          "n_calibration": 3,
+          "raw_abs_err": 0.05724253963953707,
+          "corrected_abs_err": 0.012603343715627435,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0143378768759486,
+          "cross_model_hull": [
+            4.049342140745601,
+            4.061812995531277
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0159140531182582,
+            1.021064657322655
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "perovskite-oos",
+          "candidate": "pv-kmgf3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 3.9924,
+          "raw": 4.051424984512946,
+          "corrected": 3.957904624863312,
+          "b": 1.0236287552413832,
+          "s": 0.010406256654284851,
+          "n_calibration": 3,
+          "raw_abs_err": 0.0590249845129458,
+          "corrected_abs_err": 0.0344953751366881,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0147843363673343,
+          "cross_model_hull": [
+            4.049342140745601,
+            4.061812995531277
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.015836822336614,
+            1.026243078990899
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        }
+      ]
+    },
+    "round1_2_secondary": {
+      "note": "Round-1 campaign cells re-evaluated under the frozen Round-3 rule (LOO within group), NOT the exploratory Round-2 sign gate; Round-2 report used as raw/ref cross-check only.",
+      "summary": {
+        "n_applied_cells": 39,
+        "n_success": 35,
+        "n_failure": 4,
+        "n_ties": 0,
+        "predictors": {
+          "proxy_raw_in_cross_model_hull": {
+            "definition": "(c) KNOWABLE: raw prediction of model m inside [min, max] of the other models' raw predictions for the same candidate/property",
+            "pooled": {
+              "n_cells": 39,
+              "n_undefined_excluded": 0,
+              "n_ties_excluded": 0,
+              "table": {
+                "in_hull_success": 16,
+                "in_hull_failure": 1,
+                "out_hull_success": 19,
+                "out_hull_failure": 3
+              },
+              "success_rate_in_hull": 0.9411764705882353,
+              "success_rate_out_hull": 0.8636363636363636,
+              "fisher_p_two_sided": 0.6180471969945655,
+              "binomial_sign_p_in_hull": 0.000274658203125,
+              "binomial_sign_p_out_hull": 0.0008554458618164062
+            },
+            "per_property": {
+              "a0": {
+                "n_cells": 28,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 16,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 12,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 3.0517578125e-05,
+                "binomial_sign_p_out_hull": 0.00048828125
+              },
+              "c11": {
+                "n_cells": 5,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 5,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": null,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": null,
+                "binomial_sign_p_out_hull": 0.0625
+              },
+              "c44": {
+                "n_cells": 6,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 0,
+                  "in_hull_failure": 1,
+                  "out_hull_success": 2,
+                  "out_hull_failure": 3
+                },
+                "success_rate_in_hull": 0.0,
+                "success_rate_out_hull": 0.4,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 1.0
+              }
+            }
+          },
+          "proxy_corrected_in_cross_model_hull": {
+            "definition": "(c2) KNOWABLE: LOO-bias-corrected prediction of model m inside the other models' raw-prediction hull",
+            "pooled": {
+              "n_cells": 39,
+              "n_undefined_excluded": 0,
+              "n_ties_excluded": 0,
+              "table": {
+                "in_hull_success": 4,
+                "in_hull_failure": 0,
+                "out_hull_success": 31,
+                "out_hull_failure": 4
+              },
+              "success_rate_in_hull": 1.0,
+              "success_rate_out_hull": 0.8857142857142857,
+              "fisher_p_two_sided": 1.0,
+              "binomial_sign_p_in_hull": 0.125,
+              "binomial_sign_p_out_hull": 3.4654513001441956e-06
+            },
+            "per_property": {
+              "a0": {
+                "n_cells": 28,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 1,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 27,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 1.4901161193847656e-08
+              },
+              "c11": {
+                "n_cells": 5,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 2,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 3,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 0.5,
+                "binomial_sign_p_out_hull": 0.25
+              },
+              "c44": {
+                "n_cells": 6,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 1,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 1,
+                  "out_hull_failure": 4
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 0.2,
+                "fisher_p_two_sided": 0.3333333333333333,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 0.375
+              }
+            }
+          },
+          "oracle_ratio_in_calibration_hull": {
+            "definition": "(d) UNKNOWABLE oracle: true ratio r = raw/ref inside [min, max] of m's LOO calibration ratios (the theorems' in-hull hypothesis)",
+            "pooled": {
+              "n_cells": 39,
+              "n_undefined_excluded": 0,
+              "n_ties_excluded": 0,
+              "table": {
+                "in_hull_success": 19,
+                "in_hull_failure": 1,
+                "out_hull_success": 16,
+                "out_hull_failure": 3
+              },
+              "success_rate_in_hull": 0.95,
+              "success_rate_out_hull": 0.8421052631578947,
+              "fisher_p_two_sided": 0.34164934164934163,
+              "binomial_sign_p_in_hull": 4.00543212890625e-05,
+              "binomial_sign_p_out_hull": 0.004425048828125
+            },
+            "per_property": {
+              "a0": {
+                "n_cells": 28,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 14,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 14,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 0.0001220703125,
+                "binomial_sign_p_out_hull": 0.0001220703125
+              },
+              "c11": {
+                "n_cells": 5,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 3,
+                  "in_hull_failure": 0,
+                  "out_hull_success": 2,
+                  "out_hull_failure": 0
+                },
+                "success_rate_in_hull": 1.0,
+                "success_rate_out_hull": 1.0,
+                "fisher_p_two_sided": 1.0,
+                "binomial_sign_p_in_hull": 0.25,
+                "binomial_sign_p_out_hull": 0.5
+              },
+              "c44": {
+                "n_cells": 6,
+                "n_undefined_excluded": 0,
+                "n_ties_excluded": 0,
+                "table": {
+                  "in_hull_success": 2,
+                  "in_hull_failure": 1,
+                  "out_hull_success": 0,
+                  "out_hull_failure": 3
+                },
+                "success_rate_in_hull": 0.6666666666666666,
+                "success_rate_out_hull": 0.0,
+                "fisher_p_two_sided": 0.4,
+                "binomial_sign_p_in_hull": 1.0,
+                "binomial_sign_p_out_hull": 0.25
+              }
+            }
+          }
+        },
+        "round4_cap_preview": {
+          "definition": "cells whose Round-3 license survives the PROVEN caps (inflation b - 1 > 2s; deflation 1 - b > 3s AND b >= 0.5)",
+          "n_licensed": 18,
+          "n_delicensed": 21,
+          "n_inflation_side": 16,
+          "n_deflation_side": 23,
+          "licensed_success": 18,
+          "licensed_failure": 0,
+          "theorem_consistency": {
+            "definition": "the proven theorems guarantee success on cells that are BOTH cap-licensed AND oracle in-hull; licensed out-of-hull cells carry no guarantee",
+            "licensed_in_hull_success": 7,
+            "licensed_in_hull_failure": 0,
+            "licensed_out_hull_success": 11,
+            "licensed_out_hull_failure": 0
+          }
+        }
+      },
+      "cells": [
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-csgei3",
+          "model": "chgnet",
+          "prop": "c11",
+          "reference": 40.32,
+          "raw": 26.805360376703348,
+          "corrected": 45.73527957470708,
+          "b": 0.5860980981414505,
+          "s": 0.13568105952434228,
+          "n_calibration": 4,
+          "raw_abs_err": 13.514639623296652,
+          "corrected_abs_err": 5.415279574707078,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.6648154855333172,
+          "cross_model_hull": [
+            36.95584500532385,
+            46.956703917980676
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            0.48636656106957576,
+            0.622047620593918
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-csgei3",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 8.87,
+          "raw": 4.20318126590559,
+          "corrected": 85.24618085219295,
+          "b": 0.04930638796820026,
+          "s": 0.5304075568520069,
+          "n_calibration": 4,
+          "raw_abs_err": 4.666818734094409,
+          "corrected_abs_err": 76.37618085219295,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.4738648552317464,
+          "cross_model_hull": [
+            6.099588917753669,
+            8.571937723738529
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            -0.421296971929134,
+            0.10911058492287286
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 6.2894,
+          "raw": 6.410150284354361,
+          "corrected": 6.296986686301865,
+          "b": 1.0179710715124533,
+          "s": 0.005555790959098195,
+          "n_calibration": 3,
+          "raw_abs_err": 0.12075028435436153,
+          "corrected_abs_err": 0.007586686301864987,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0191990149067258,
+          "cross_model_hull": [
+            6.379170809922727,
+            6.409820676566619
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147129958126546,
+            1.0202687867717528
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 6.2894,
+          "raw": 6.379170809922727,
+          "corrected": 6.326194827947851,
+          "b": 1.0083740674158246,
+          "s": 0.006086146956004734,
+          "n_calibration": 3,
+          "raw_abs_err": 0.08977080992272768,
+          "corrected_abs_err": 0.03679482794785116,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.014273350386798,
+          "cross_model_hull": [
+            6.38995272504722,
+            6.410150284354361
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0060684433418776,
+            1.0121545902978824
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 6.2894,
+          "raw": 6.38995272504722,
+          "corrected": 6.324810473813786,
+          "b": 1.0102994787753938,
+          "s": 0.005546377382002365,
+          "n_calibration": 3,
+          "raw_abs_err": 0.10055272504722002,
+          "corrected_abs_err": 0.03541047381378615,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.01598764986282,
+          "cross_model_hull": [
+            6.379170809922727,
+            6.410150284354361
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0100910537449015,
+            1.0156374311269039
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 6.2894,
+          "raw": 6.409820676566619,
+          "corrected": 6.34123224916789,
+          "b": 1.0108162616828502,
+          "s": 0.005439572389029479,
+          "n_calibration": 3,
+          "raw_abs_err": 0.12042067656661892,
+          "corrected_abs_err": 0.05183224916788998,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0191466080336151,
+          "cross_model_hull": [
+            6.379170809922727,
+            6.410150284354361
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0084753437052965,
+            1.013914916094326
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "chgnet",
+          "prop": "c11",
+          "reference": 34.84,
+          "raw": 21.2577312256682,
+          "corrected": 35.90557630598551,
+          "b": 0.5920453983111393,
+          "s": 0.1784489244637414,
+          "n_calibration": 4,
+          "raw_abs_err": 13.582268774331805,
+          "corrected_abs_err": 1.065576305985509,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.6101530202545407,
+          "cross_model_hull": [
+            36.164913502063825,
+            38.1486614402609
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.48636656106957576,
+            0.6648154855333172
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 3.66,
+          "raw": -1.5419469172606306,
+          "corrected": -16.92014107989915,
+          "b": 0.0911308546411849,
+          "s": 0.44840320365484276,
+          "n_calibration": 4,
+          "raw_abs_err": 5.2019469172606305,
+          "corrected_abs_err": 20.58014107989915,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": -0.421296971929134,
+          "cross_model_hull": [
+            3.198360617464601,
+            3.944810459920376
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.025461651576903617,
+            0.4738648552317464
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cspbi3-control",
+          "model": "mace-mp-medium",
+          "prop": "c44",
+          "reference": 3.66,
+          "raw": 3.5356752973436922,
+          "corrected": 4.930486694708308,
+          "b": 0.7171047233812413,
+          "s": 0.17461322162359083,
+          "n_calibration": 4,
+          "raw_abs_err": 0.1243247026563079,
+          "corrected_abs_err": 1.2704866947083078,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.9660315020064733,
+          "cross_model_hull": [
+            -1.5419469172606306,
+            3.944810459920376
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.596190535222085,
+            0.7708037568456758
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssnbr3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 5.804,
+          "raw": 5.921640038423254,
+          "corrected": 5.817100509177694,
+          "b": 1.0179710715124533,
+          "s": 0.004486019094071203,
+          "n_calibration": 3,
+          "raw_abs_err": 0.11764003842325366,
+          "corrected_abs_err": 0.013100509177693453,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0202687867717528,
+          "cross_model_hull": [
+            5.874545242088909,
+            5.89475965026055
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147129958126546,
+            1.0191990149067258
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssnbr3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 5.804,
+          "raw": 5.874545242088909,
+          "corrected": 5.8257599356394545,
+          "b": 1.0083740674158246,
+          "s": 0.008204907044920384,
+          "n_calibration": 3,
+          "raw_abs_err": 0.070545242088909,
+          "corrected_abs_err": 0.02175993563945422,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0121545902978824,
+          "cross_model_hull": [
+            5.884762173011468,
+            5.921640038423254
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0060684433418776,
+            1.014273350386798
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssnbr3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 5.804,
+          "raw": 5.89475965026055,
+          "corrected": 5.834665635387358,
+          "b": 1.0102994787753938,
+          "s": 0.0058965961179184845,
+          "n_calibration": 3,
+          "raw_abs_err": 0.09075965026054966,
+          "corrected_abs_err": 0.03066563538735778,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0156374311269039,
+          "cross_model_hull": [
+            5.874545242088909,
+            5.921640038423254
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0100910537449015,
+            1.01598764986282
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssnbr3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 5.804,
+          "raw": 5.884762173011468,
+          "corrected": 5.82179214570041,
+          "b": 1.0108162616828502,
+          "s": 0.010671264328318664,
+          "n_calibration": 3,
+          "raw_abs_err": 0.08076217301146738,
+          "corrected_abs_err": 0.01779214570040999,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.013914916094326,
+          "cross_model_hull": [
+            5.874545242088909,
+            5.921640038423254
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0084753437052965,
+            1.0191466080336151
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssnbr3",
+          "model": "chgnet",
+          "prop": "c11",
+          "reference": 43.89,
+          "raw": 24.668074995884744,
+          "corrected": 40.03905561824575,
+          "b": 0.6161003204242294,
+          "s": 0.1784489244637414,
+          "n_calibration": 4,
+          "raw_abs_err": 19.221925004115256,
+          "corrected_abs_err": 3.8509443817542532,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.5620431760283605,
+          "cross_model_hull": [
+            41.504524093267385,
+            51.329686457273525
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.48636656106957576,
+            0.6648154855333172
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssnbr3",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 5.21,
+          "raw": 0.3811173579129789,
+          "corrected": 5.664130549151005,
+          "b": 0.06728611824988824,
+          "s": 0.8951618271608803,
+          "n_calibration": 4,
+          "raw_abs_err": 4.828882642087021,
+          "corrected_abs_err": 0.4541305491510048,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.07315112435949692,
+          "cross_model_hull": [
+            3.8894963516238965,
+            6.08086591901189
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            -0.421296971929134,
+            0.4738648552317464
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssncl3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 5.579,
+          "raw": 5.6610838036388,
+          "corrected": 5.554443951416972,
+          "b": 1.0191990149067258,
+          "s": 0.0022977152592995598,
+          "n_calibration": 3,
+          "raw_abs_err": 0.08208380363879986,
+          "corrected_abs_err": 0.024556048583027845,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0147129958126546,
+          "cross_model_hull": [
+            5.612855845404335,
+            5.636460792087922
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0179710715124533,
+            1.0202687867717528
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssncl3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 5.579,
+          "raw": 5.612855845404335,
+          "corrected": 5.545453134537919,
+          "b": 1.0121545902978824,
+          "s": 0.0058992829709734185,
+          "n_calibration": 3,
+          "raw_abs_err": 0.03385584540433495,
+          "corrected_abs_err": 0.033546865462080966,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0060684433418776,
+          "cross_model_hull": [
+            5.626283942531848,
+            5.6610838036388
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0083740674158246,
+            1.014273350386798
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssncl3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 5.579,
+          "raw": 5.636460792087922,
+          "corrected": 5.549678083284079,
+          "b": 1.0156374311269039,
+          "s": 0.0058965961179184845,
+          "n_calibration": 3,
+          "raw_abs_err": 0.05746079208792221,
+          "corrected_abs_err": 0.029321916715920437,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0102994787753938,
+          "cross_model_hull": [
+            5.612855845404335,
+            5.6610838036388
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0100910537449015,
+            1.01598764986282
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssncl3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 5.579,
+          "raw": 5.626283942531848,
+          "corrected": 5.549069111444482,
+          "b": 1.013914916094326,
+          "s": 0.008330346350764906,
+          "n_calibration": 3,
+          "raw_abs_err": 0.04728394253184831,
+          "corrected_abs_err": 0.0299308885555174,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0084753437052965,
+          "cross_model_hull": [
+            5.612855845404335,
+            5.6610838036388
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0108162616828502,
+            1.0191466080336151
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssncl3",
+          "model": "chgnet",
+          "prop": "c11",
+          "reference": 50.66,
+          "raw": 31.512932459287885,
+          "corrected": 53.767334443188155,
+          "b": 0.5860980981414505,
+          "s": 0.1784489244637414,
+          "n_calibration": 4,
+          "raw_abs_err": 19.14706754071211,
+          "corrected_abs_err": 3.107334443188158,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.622047620593918,
+          "cross_model_hull": [
+            48.353034314093776,
+            70.69284756344305
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            0.48636656106957576,
+            0.6648154855333172
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssncl3",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 6.01,
+          "raw": 0.6557546153864658,
+          "corrected": 13.299587384283537,
+          "b": 0.04930638796820026,
+          "s": 0.8951618271608803,
+          "n_calibration": 4,
+          "raw_abs_err": 5.354245384613534,
+          "corrected_abs_err": 7.2895873842835375,
+          "success": false,
+          "tie": false,
+          "true_ratio_r": 0.10911058492287286,
+          "cross_model_hull": [
+            4.632530578642512,
+            7.484938769142808
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            -0.421296971929134,
+            0.4738648552317464
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssni3",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 6.219,
+          "raw": 6.330762093735947,
+          "corrected": 6.211507273008226,
+          "b": 1.0191990149067258,
+          "s": 0.005555790959098195,
+          "n_calibration": 3,
+          "raw_abs_err": 0.1117620937359467,
+          "corrected_abs_err": 0.00749272699177439,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0179710715124533,
+          "cross_model_hull": [
+            6.271078325259013,
+            6.286266331405646
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0147129958126546,
+            1.0202687867717528
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssni3",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 6.219,
+          "raw": 6.271078325259013,
+          "corrected": 6.195771263966112,
+          "b": 1.0121545902978824,
+          "s": 0.008204907044920384,
+          "n_calibration": 3,
+          "raw_abs_err": 0.05207832525901246,
+          "corrected_abs_err": 0.02322873603388853,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0083740674158246,
+          "cross_model_hull": [
+            6.281756263239543,
+            6.330762093735947
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0060684433418776,
+            1.014273350386798
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssni3",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 6.219,
+          "raw": 6.281756263239543,
+          "corrected": 6.185038155072327,
+          "b": 1.0156374311269039,
+          "s": 0.0056881710874261415,
+          "n_calibration": 3,
+          "raw_abs_err": 0.06275626323954242,
+          "corrected_abs_err": 0.03396184492767329,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0100910537449015,
+          "cross_model_hull": [
+            6.271078325259013,
+            6.330762093735947
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0102994787753938,
+            1.01598764986282
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssni3",
+          "model": "mace-mpa-0-medium",
+          "prop": "a0",
+          "reference": 6.219,
+          "raw": 6.286266331405646,
+          "corrected": 6.1999939360008645,
+          "b": 1.013914916094326,
+          "s": 0.010671264328318664,
+          "n_calibration": 3,
+          "raw_abs_err": 0.06726633140564608,
+          "corrected_abs_err": 0.019006063999135847,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 1.0108162616828502,
+          "cross_model_hull": [
+            6.271078325259013,
+            6.330762093735947
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            1.0084753437052965,
+            1.0191466080336151
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "inflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssni3",
+          "model": "chgnet",
+          "prop": "c11",
+          "reference": 21.34,
+          "raw": 10.379062413224746,
+          "corrected": 16.846383728672656,
+          "b": 0.6161003204242294,
+          "s": 0.10277230950495664,
+          "n_calibration": 4,
+          "raw_abs_err": 10.960937586775254,
+          "corrected_abs_err": 4.493616271327344,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.48636656106957576,
+          "cross_model_hull": [
+            34.982223022389356,
+            37.37780951769277
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.5620431760283605,
+            0.6648154855333172
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "halide-perovskite",
+          "candidate": "hp-cssni3",
+          "model": "chgnet",
+          "prop": "c44",
+          "reference": 5.74,
+          "raw": 0.14614988005142676,
+          "corrected": 1.6037365240002592,
+          "b": 0.0911308546411849,
+          "s": 0.8951618271608803,
+          "n_calibration": 4,
+          "raw_abs_err": 5.5938501199485735,
+          "corrected_abs_err": 4.1362634759997405,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.025461651576903617,
+          "cross_model_hull": [
+            3.422133672174768,
+            4.273287124955166
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            -0.421296971929134,
+            0.4738648552317464
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-cocrfeni",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 3.57,
+          "raw": 3.524874120830503,
+          "corrected": 3.558152226481359,
+          "b": 0.9906473631445036,
+          "s": 0.003709157623348891,
+          "n_calibration": 3,
+          "raw_abs_err": 0.04512587916949684,
+          "corrected_abs_err": 0.011847773518640636,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9873596977116256,
+          "cross_model_hull": [
+            3.537231934548361,
+            3.5550118058756635
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9889621381346145,
+            0.9926712957579634
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-cocrfeni",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 3.57,
+          "raw": 3.5385862824441747,
+          "corrected": 3.5669682477342595,
+          "b": 0.9920431124364191,
+          "s": 0.002616336604681302,
+          "n_calibration": 3,
+          "raw_abs_err": 0.031413717555825116,
+          "corrected_abs_err": 0.003031752265740373,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.991200639340105,
+          "cross_model_hull": [
+            3.524874120830503,
+            3.5550118058756635
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9903801549368706,
+            0.9929964915415519
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-cocrfeni",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 3.57,
+          "raw": 3.537231934548361,
+          "corrected": 3.5706855637984285,
+          "b": 0.9906310346704178,
+          "s": 0.00299516627145624,
+          "n_calibration": 3,
+          "raw_abs_err": 0.032768065451638684,
+          "corrected_abs_err": 0.0006855637984286567,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9908212701816138,
+          "cross_model_hull": [
+            3.524874120830503,
+            3.5550118058756635
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9898040836604264,
+            0.9927992499318826
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-cocrni",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 3.56,
+          "raw": 3.520705211759228,
+          "corrected": 3.5539439590126585,
+          "b": 0.9906473631445036,
+          "s": 0.005311598046337851,
+          "n_calibration": 3,
+          "raw_abs_err": 0.03929478824077215,
+          "corrected_abs_err": 0.006056040987341582,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9889621381346145,
+          "cross_model_hull": [
+            3.523702537831118,
+            3.5338970621962233
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9873596977116256,
+            0.9926712957579634
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-cocrni",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 3.56,
+          "raw": 3.5257533515752595,
+          "corrected": 3.554032387681365,
+          "b": 0.9920431124364191,
+          "s": 0.0017958522014468459,
+          "n_calibration": 3,
+          "raw_abs_err": 0.03424664842474057,
+          "corrected_abs_err": 0.005967612318634963,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9903801549368706,
+          "cross_model_hull": [
+            3.520705211759228,
+            3.5338970621962233
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.991200639340105,
+            0.9929964915415519
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-cocrni",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 3.56,
+          "raw": 3.523702537831118,
+          "corrected": 3.556345270207246,
+          "b": 0.9908212701816138,
+          "s": 0.002168215261464823,
+          "n_calibration": 3,
+          "raw_abs_err": 0.03629746216888208,
+          "corrected_abs_err": 0.0036547297927542743,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9898040836604264,
+          "cross_model_hull": [
+            3.520705211759228,
+            3.5338970621962233
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9906310346704178,
+            0.9927992499318826
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-coni",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 3.535,
+          "raw": 3.509093030504401,
+          "corrected": 3.548258214539204,
+          "b": 0.9889621381346145,
+          "s": 0.003287665432878062,
+          "n_calibration": 3,
+          "raw_abs_err": 0.02590696949559934,
+          "corrected_abs_err": 0.013258214539203728,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9926712957579634,
+          "cross_model_hull": [
+            3.509545348509205,
+            3.525369576506831
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9873596977116256,
+            0.9906473631445036
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-coni",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 3.535,
+          "raw": 3.5102425975993863,
+          "corrected": 3.541404694751147,
+          "b": 0.991200639340105,
+          "s": 0.0016629574995484786,
+          "n_calibration": 3,
+          "raw_abs_err": 0.02475740240061386,
+          "corrected_abs_err": 0.006404694751146689,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9929964915415519,
+          "cross_model_hull": [
+            3.509093030504401,
+            3.525369576506831
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9903801549368706,
+            0.9920431124364191
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-coni",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 3.535,
+          "raw": 3.509545348509205,
+          "corrected": 3.542737129850599,
+          "b": 0.9906310346704178,
+          "s": 0.0010171865211874298,
+          "n_calibration": 3,
+          "raw_abs_err": 0.025454651490794955,
+          "corrected_abs_err": 0.007737129850598823,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9927992499318826,
+          "cross_model_hull": [
+            3.509093030504401,
+            3.525369576506831
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9898040836604264,
+            0.9908212701816138
+          ],
+          "oracle_ratio_in_calibration_hull": false,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-feni",
+          "model": "chgnet",
+          "prop": "a0",
+          "reference": 3.582,
+          "raw": 3.548498854783612,
+          "corrected": 3.5881038494323034,
+          "b": 0.9889621381346145,
+          "s": 0.005311598046337851,
+          "n_calibration": 3,
+          "raw_abs_err": 0.03350114521638803,
+          "corrected_abs_err": 0.006103849432303576,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9906473631445036,
+          "cross_model_hull": [
+            3.5484403661894364,
+            3.581702149459627
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9873596977116256,
+            0.9926712957579634
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": false
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-feni",
+          "model": "mace-mp-small",
+          "prop": "a0",
+          "reference": 3.582,
+          "raw": 3.553498428747253,
+          "corrected": 3.585044528535621,
+          "b": 0.991200639340105,
+          "s": 0.002616336604681302,
+          "n_calibration": 3,
+          "raw_abs_err": 0.02850157125274677,
+          "corrected_abs_err": 0.003044528535621094,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9920431124364191,
+          "cross_model_hull": [
+            3.5484403661894364,
+            3.581702149459627
+          ],
+          "proxy_raw_in_cross_model_hull": true,
+          "proxy_corrected_in_cross_model_hull": false,
+          "calibration_ratio_hull": [
+            0.9903801549368706,
+            0.9929964915415519
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        },
+        {
+          "group": "hea-fcc",
+          "candidate": "hea-feni",
+          "model": "mace-mp-medium",
+          "prop": "a0",
+          "reference": 3.582,
+          "raw": 3.5484403661894364,
+          "corrected": 3.581312263854631,
+          "b": 0.9908212701816138,
+          "s": 0.00299516627145624,
+          "n_calibration": 3,
+          "raw_abs_err": 0.03355963381056348,
+          "corrected_abs_err": 0.0006877361453687669,
+          "success": true,
+          "tie": false,
+          "true_ratio_r": 0.9906310346704178,
+          "cross_model_hull": [
+            3.548498854783612,
+            3.581702149459627
+          ],
+          "proxy_raw_in_cross_model_hull": false,
+          "proxy_corrected_in_cross_model_hull": true,
+          "calibration_ratio_hull": [
+            0.9898040836604264,
+            0.9927992499318826
+          ],
+          "oracle_ratio_in_calibration_hull": true,
+          "round4_cap_preview": {
+            "side": "deflation",
+            "licensed": true
+          }
+        }
+      ]
+    }
+  },
+  "reading": [
+    "- Round-3 proxy (c), pooled: in-hull 17/23 success vs out-of-hull 19/26; Fisher p = 1.",
+    "- Round-3 variant (c2), pooled: in-hull 1/3 success vs out-of-hull 35/46; Fisher p = 0.1679.",
+    "- Round-3 oracle (d), pooled: in-hull 17/18 success vs out-of-hull 19/31; Fisher p = 0.01709.",
+    "- Round-1/2 proxy (c), pooled: in-hull 16/17 success vs out-of-hull 19/22; Fisher p = 0.618.",
+    "- Round-1/2 oracle (d), pooled: in-hull 19/20 success vs out-of-hull 16/19; Fisher p = 0.3416."
+  ]
+}

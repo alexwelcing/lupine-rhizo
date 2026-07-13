@@ -1,0 +1,4817 @@
+{
+  "schema": "lupine.candidate_campaign.v1",
+  "generated_at": "2026-07-13T14:25:01.933871+00:00",
+  "models": [
+    "chgnet",
+    "mace-mp-small",
+    "mace-mp-medium",
+    "mace-mpa-0-medium"
+  ],
+  "parameters": {
+    "targets": "C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/round1_targets.json",
+    "device": "cuda",
+    "seed": 20260713,
+    "repeat": 3,
+    "elastic_delta": 0.005,
+    "elastic_relax_internal": true,
+    "rattle_amplitude_a": 0.05,
+    "dynamic_model": "mace-mp-medium",
+    "skip_dynamic": false,
+    "thresholds_file": "C:/Users/alexw/Downloads/lupine-rhizo/data/discovery_gates/thresholds.v2.json",
+    "bias_file": "C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/model_biases.v1.json",
+    "calculator_versions": {
+      "chgnet": "chgnet 0.4.2",
+      "mace-mp-small": "mace-torch 0.3.16",
+      "mace-mp-medium": "mace-torch 0.3.16",
+      "mace-mpa-0-medium": "mace-torch 0.3.16"
+    },
+    "ev_scan": {
+      "volume_span": 0.06,
+      "n_points": 11,
+      "max_recenter": 8
+    }
+  },
+  "concordance_thresholds": {
+    "a0": {
+      "flag": 0.006006422888918611,
+      "refuse": 0.008634563966058181,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.0028505273730854773
+        ],
+        [
+          "Al",
+          0.005397494038932501
+        ],
+        [
+          "Au",
+          0.0023864905782498627
+        ],
+        [
+          "Ca",
+          0.008634563966058181
+        ],
+        [
+          "Cr",
+          0.0023270598456338627
+        ],
+        [
+          "Cu",
+          0.007477147373096574
+        ],
+        [
+          "Fe",
+          0.011059527662932682
+        ],
+        [
+          "MgO",
+          0.0007404862719377626
+        ],
+        [
+          "Mo",
+          0.006006422888918611
+        ],
+        [
+          "NaCl",
+          0.005326809606092279
+        ],
+        [
+          "Nb",
+          0.004857515961198356
+        ],
+        [
+          "Ni",
+          0.005071856257715127
+        ],
+        [
+          "Ni3Al",
+          0.0016192263552263866
+        ],
+        [
+          "NiAl",
+          0.0013056691364478996
+        ],
+        [
+          "Pd",
+          0.0033077696882971848
+        ],
+        [
+          "Pt",
+          0.0019150844842449049
+        ],
+        [
+          "Si",
+          0.0021654064917895626
+        ],
+        [
+          "Sr",
+          0.007119903343691245
+        ],
+        [
+          "Ta",
+          0.002939428977556096
+        ],
+        [
+          "V",
+          0.007422464404431322
+        ],
+        [
+          "W",
+          0.0051155163729167084
+        ]
+      ]
+    },
+    "b0": {
+      "flag": 0.249029206968999,
+      "refuse": 0.3848305703956026,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.11970833212684007
+        ],
+        [
+          "Al",
+          0.3848305703956026
+        ],
+        [
+          "Au",
+          0.08758978865280956
+        ],
+        [
+          "Ca",
+          0.23577054179011758
+        ],
+        [
+          "Cr",
+          0.19572827612037305
+        ],
+        [
+          "Cu",
+          0.1746945336320969
+        ],
+        [
+          "Fe",
+          1.4612815629332583
+        ],
+        [
+          "MgO",
+          0.10756974222384887
+        ],
+        [
+          "Mo",
+          0.2768092075157323
+        ],
+        [
+          "NaCl",
+          0.249029206968999
+        ],
+        [
+          "Nb",
+          0.22183123901945173
+        ],
+        [
+          "Ni",
+          0.1406793497026431
+        ],
+        [
+          "Ni3Al",
+          0.17965847210791158
+        ],
+        [
+          "NiAl",
+          0.0688973580510594
+        ],
+        [
+          "Pd",
+          0.1691720194739778
+        ],
+        [
+          "Pt",
+          0.09802073232771079
+        ],
+        [
+          "Si",
+          0.19730529117506926
+        ],
+        [
+          "Sr",
+          0.3783524075951148
+        ],
+        [
+          "Ta",
+          0.0616987794175035
+        ],
+        [
+          "V",
+          0.05549359409805739
+        ],
+        [
+          "W",
+          0.3832323448165157
+        ]
+      ]
+    },
+    "c11": {
+      "flag": 0.48847912128769794,
+      "refuse": 1.2106858738357664,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.3209175189225219
+        ],
+        [
+          "Al",
+          0.6223238271047399
+        ],
+        [
+          "Au",
+          0.4141587113499058
+        ],
+        [
+          "Ca",
+          0.3003097335031344
+        ],
+        [
+          "Cr",
+          0.9398058207852881
+        ],
+        [
+          "Cu",
+          0.33129104978284935
+        ],
+        [
+          "Fe",
+          2.0287774651809327
+        ],
+        [
+          "MgO",
+          0.226075493840671
+        ],
+        [
+          "Mo",
+          0.6970172254389795
+        ],
+        [
+          "NaCl",
+          0.23448412305576888
+        ],
+        [
+          "Nb",
+          0.48847912128769794
+        ],
+        [
+          "Ni",
+          0.14738419816547066
+        ],
+        [
+          "Ni3Al",
+          0.2841956981535926
+        ],
+        [
+          "NiAl",
+          0.3307648815219072
+        ],
+        [
+          "Pd",
+          0.21165456056028295
+        ],
+        [
+          "Pt",
+          0.1099838754894583
+        ],
+        [
+          "Si",
+          0.28850483332465016
+        ],
+        [
+          "Sr",
+          0.31728350199585
+        ],
+        [
+          "Ta",
+          0.0835323584558712
+        ],
+        [
+          "V",
+          0.29610940325472385
+        ],
+        [
+          "W",
+          1.2106858738357664
+        ]
+      ]
+    },
+    "c12": {
+      "flag": 0.570372974454035,
+      "refuse": 1.0589924824856667,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.3157348879485208
+        ],
+        [
+          "Al",
+          0.4165138735200979
+        ],
+        [
+          "Au",
+          0.38614937267873517
+        ],
+        [
+          "Ca",
+          0.41756950890815836
+        ],
+        [
+          "Cr",
+          1.0589924824856667
+        ],
+        [
+          "Cu",
+          0.4951367313443806
+        ],
+        [
+          "Fe",
+          1.1925411128631542
+        ],
+        [
+          "MgO",
+          0.1801498746476557
+        ],
+        [
+          "Mo",
+          0.15829845968935208
+        ],
+        [
+          "NaCl",
+          0.7740111405616333
+        ],
+        [
+          "Nb",
+          0.570372974454035
+        ],
+        [
+          "Ni",
+          0.1881315799355254
+        ],
+        [
+          "Ni3Al",
+          0.21097143726970574
+        ],
+        [
+          "NiAl",
+          0.08943438665964686
+        ],
+        [
+          "Pd",
+          0.1924725628836372
+        ],
+        [
+          "Pt",
+          0.12279438321707654
+        ],
+        [
+          "Si",
+          0.6534449270375714
+        ],
+        [
+          "Sr",
+          0.31936308863482404
+        ],
+        [
+          "Ta",
+          0.10878764374167155
+        ],
+        [
+          "V",
+          0.5182197460069189
+        ],
+        [
+          "W",
+          0.6359681044415058
+        ]
+      ]
+    },
+    "c44": {
+      "flag": 1.2220930218480712,
+      "refuse": 3.789181745622983,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.5837573298993269
+        ],
+        [
+          "Al",
+          0.9441137546580334
+        ],
+        [
+          "Au",
+          1.0285223684884872
+        ],
+        [
+          "Ca",
+          0.4605133075417642
+        ],
+        [
+          "Cr",
+          3.789181745622983
+        ],
+        [
+          "Cu",
+          0.3695207890998424
+        ],
+        [
+          "Fe",
+          0.37191703527173897
+        ],
+        [
+          "MgO",
+          0.4076943229500604
+        ],
+        [
+          "Mo",
+          1.2220930218480712
+        ],
+        [
+          "NaCl",
+          0.5711533475128872
+        ],
+        [
+          "Nb",
+          3.1224799399436654
+        ],
+        [
+          "Ni",
+          0.37711187376526795
+        ],
+        [
+          "Ni3Al",
+          0.705301207676529
+        ],
+        [
+          "NiAl",
+          0.7516895117077717
+        ],
+        [
+          "Pd",
+          0.3923580013793386
+        ],
+        [
+          "Pt",
+          0.47227469055194227
+        ],
+        [
+          "Si",
+          1.2410614318173612
+        ],
+        [
+          "Sr",
+          0.3412612815079285
+        ],
+        [
+          "Ta",
+          0.5877301056719106
+        ],
+        [
+          "V",
+          237.74120739530366
+        ],
+        [
+          "W",
+          1.2416484255395355
+        ]
+      ]
+    }
+  },
+  "bias_provenance": "biases from C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/model_biases.v1.json (schema lupine.model_biases.v1); cij available: False",
+  "candidates": {
+    "hea-cocrni": {
+      "group": "hea-fcc",
+      "formula": "CoCrNi",
+      "structure_type": "fcc-rss",
+      "composition": {
+        "Co": 1,
+        "Cr": 1,
+        "Ni": 1
+      },
+      "references": {
+        "a0": 3.56,
+        "b0": 189.0,
+        "c11": 249.0,
+        "c12": 159.0,
+        "c44": 138.0
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 3.520705211759228,
+            "b0": 211.02299195530478,
+            "c11": 238.18237487948235,
+            "c12": 174.81102097671362,
+            "c44": 93.56456678788099
+          },
+          "e0_ev_per_atom": -7.443111949495559,
+          "b0_prime": 6.9975683980025725,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.56,
+          "elastic_n_relax_steps": 116,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 238.18237487948235,
+                "c12_gpa": 174.81102097671362,
+                "c44_gpa": 93.56456678788099,
+                "c11_minus_c12_gpa": 63.37135390276873,
+                "c11_plus_2c12_gpa": 587.8044168329096,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 1.4599999303754885e-05
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 9.448580800000855,
+            "elastic_plus_born": 23.79245450000053
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 3.5257533515752577,
+            "b0": 200.6866894365888,
+            "c11": 237.12189083514016,
+            "c12": 175.70577605454747,
+            "c44": 95.53564841442781
+          },
+          "e0_ev_per_atom": -7.448686703351931,
+          "b0_prime": 5.727645527105289,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.56,
+          "elastic_n_relax_steps": 93,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 237.12189083514016,
+                "c12_gpa": 175.70577605454747,
+                "c44_gpa": 95.53564841442781,
+                "c11_minus_c12_gpa": 61.41611478059269,
+                "c11_plus_2c12_gpa": 588.533442944235,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.399999387620483e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 12.502934499999355,
+            "elastic_plus_born": 9.614747399999942
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 3.523702537831129,
+            "b0": 201.20980276649397,
+            "c11": 238.67793301617462,
+            "c12": 177.37667182003352,
+            "c44": 92.6120899608248
+          },
+          "e0_ev_per_atom": -7.430807474525019,
+          "b0_prime": 5.464318429788811,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.56,
+          "elastic_n_relax_steps": 74,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 238.67793301617462,
+                "c12_gpa": 177.37667182003352,
+                "c44_gpa": 92.6120899608248,
+                "c11_minus_c12_gpa": 61.3012611961411,
+                "c11_plus_2c12_gpa": 593.4312766562416,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 9.499999578110874e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 14.956285500000376,
+            "elastic_plus_born": 22.004642400000193
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 3.533897062196226,
+            "b0": 197.07279957140014,
+            "c11": 264.68609397321774,
+            "c12": 154.14449987742768,
+            "c44": 127.49806588117178
+          },
+          "e0_ev_per_atom": -7.425475985323185,
+          "b0_prime": 7.636492648475839,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.56,
+          "elastic_n_relax_steps": 80,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 264.68609397321774,
+                "c12_gpa": 154.14449987742768,
+                "c44_gpa": 127.49806588117178,
+                "c11_minus_c12_gpa": 110.54159409579006,
+                "c11_plus_2c12_gpa": 572.975093728073,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.69999985297909e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 15.894939499999964,
+            "elastic_plus_born": 24.005269500000395
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.516795524922874,
+              "corrected": true
+            },
+            "b0": {
+              "value": 246.39340287964347,
+              "corrected": true
+            },
+            "c11": {
+              "value": 238.18237487948235,
+              "corrected": false
+            },
+            "c12": {
+              "value": 174.81102097671362,
+              "corrected": false
+            },
+            "c44": {
+              "value": 93.56456678788099,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5163411841768455,
+              "corrected": true
+            },
+            "b0": {
+              "value": 201.78392679183602,
+              "corrected": true
+            },
+            "c11": {
+              "value": 237.12189083514016,
+              "corrected": false
+            },
+            "c12": {
+              "value": 175.70577605454747,
+              "corrected": false
+            },
+            "c44": {
+              "value": 95.53564841442781,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5181859099917263,
+              "corrected": true
+            },
+            "b0": {
+              "value": 235.9994857779585,
+              "corrected": true
+            },
+            "c11": {
+              "value": 238.67793301617462,
+              "corrected": false
+            },
+            "c12": {
+              "value": 177.37667182003352,
+              "corrected": false
+            },
+            "c44": {
+              "value": 92.6120899608248,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.525828322604235,
+              "corrected": true
+            },
+            "b0": {
+              "value": 218.4673377326032,
+              "corrected": true
+            },
+            "c11": {
+              "value": 264.68609397321774,
+              "corrected": false
+            },
+            "c12": {
+              "value": 154.14449987742768,
+              "corrected": false
+            },
+            "c44": {
+              "value": 127.49806588117178,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 3.520705211759228,
+                "mace-mp-small": 3.5257533515752577,
+                "mace-mp-medium": 3.523702537831129,
+                "mace-mpa-0-medium": 3.533897062196226
+              },
+              "dispersion": 0.003742657772161464,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.004 -> pass (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 0.00013080000007903436
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 211.02299195530478,
+                "mace-mp-small": 200.6866894365888,
+                "mace-mp-medium": 201.20980276649397,
+                "mace-mpa-0-medium": 197.07279957140014
+              },
+              "dispersion": 0.06942181708247132,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.069 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 5.3199999456410296e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 238.18237487948235,
+                "mace-mp-small": 237.12189083514016,
+                "mace-mp-medium": 238.67793301617462,
+                "mace-mpa-0-medium": 264.68609397321774
+              },
+              "dispersion": 0.11560703493950251,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.116 -> pass (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.769999966607429e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 174.81102097671362,
+                "mace-mp-small": 175.70577605454747,
+                "mace-mp-medium": 177.37667182003352,
+                "mace-mpa-0-medium": 154.14449987742768
+              },
+              "dispersion": 0.13255953574478124,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.133 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.400000059627928e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 93.56456678788099,
+                "mace-mp-small": 95.53564841442781,
+                "mace-mp-medium": 92.6120899608248,
+                "mace-mpa-0-medium": 127.49806588117178
+              },
+              "dispersion": 0.36896812500212367,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 0.369 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.440000000409782e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 108,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -802.5256070030946,
+            "e_relaxed_ev": -802.5321562190796,
+            "energy_delta_ev_per_atom": -6.064088875042991e-05,
+            "max_displacement_a": 0.02313236553261288,
+            "n_relax_steps": 40
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 40 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 11.89336220000041
+        }
+      },
+      "verdict": "CERTIFIED"
+    },
+    "hea-cocrfeni": {
+      "group": "hea-fcc",
+      "formula": "CoCrFeNi",
+      "structure_type": "fcc-rss",
+      "composition": {
+        "Co": 1,
+        "Cr": 1,
+        "Fe": 1,
+        "Ni": 1
+      },
+      "references": {
+        "a0": 3.57,
+        "b0": 163.0,
+        "c11": null,
+        "c12": null,
+        "c44": null
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 3.524874120830503,
+            "b0": 155.25520268576557,
+            "c11": 158.423520369909,
+            "c12": 123.81939586354889,
+            "c44": 73.61291787962294
+          },
+          "e0_ev_per_atom": -7.680996682217451,
+          "b0_prime": 7.289954425215443,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.57,
+          "elastic_n_relax_steps": 144,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 158.423520369909,
+                "c12_gpa": 123.81939586354889,
+                "c44_gpa": 73.61291787962294,
+                "c11_minus_c12_gpa": 34.60412450636011,
+                "c11_plus_2c12_gpa": 406.0623120970068,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 1.160000010713702e-05
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 13.235487800000556,
+            "elastic_plus_born": 30.448301299999912
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 3.538586282444172,
+            "b0": 191.59073444344176,
+            "c11": 219.70828654524854,
+            "c12": 164.30826301353895,
+            "c44": 96.09167594824201
+          },
+          "e0_ev_per_atom": -7.691794766492928,
+          "b0_prime": 5.87508160640141,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.57,
+          "elastic_n_relax_steps": 74,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 219.70828654524854,
+                "c12_gpa": 164.30826301353895,
+                "c44_gpa": 96.09167594824201,
+                "c11_minus_c12_gpa": 55.40002353170959,
+                "c11_plus_2c12_gpa": 548.3248125723264,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.200000593205914e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 5.616107300000294,
+            "elastic_plus_born": 7.744037600000411
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 3.5372319345483603,
+            "b0": 182.85533813777036,
+            "c11": 212.9839106369156,
+            "c12": 157.90567285347666,
+            "c44": 98.14713417582358
+          },
+          "e0_ev_per_atom": -7.67551297958982,
+          "b0_prime": 4.913818681853764,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.57,
+          "elastic_n_relax_steps": 74,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 212.9839106369156,
+                "c12_gpa": 157.90567285347666,
+                "c44_gpa": 98.14713417582358,
+                "c11_minus_c12_gpa": 55.07823778343894,
+                "c11_plus_2c12_gpa": 528.7952563438689,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.600000571983401e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 16.81973519999974,
+            "elastic_plus_born": 22.234716599999956
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 3.5550118058756657,
+            "b0": 168.0127926922052,
+            "c11": 207.31074619693106,
+            "c12": 137.53837981123127,
+            "c44": 120.00472739217837
+          },
+          "e0_ev_per_atom": -7.675635452223511,
+          "b0_prime": 6.316338227932053,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.57,
+          "elastic_n_relax_steps": 76,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 207.31074619693106,
+                "c12_gpa": 137.53837981123127,
+                "c44_gpa": 120.00472739217837,
+                "c11_minus_c12_gpa": 69.7723663856998,
+                "c11_plus_2c12_gpa": 482.3875058193936,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.099999831756577e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 16.78560480000033,
+            "elastic_plus_born": 22.817148500000258
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5209598044872927,
+              "corrected": true
+            },
+            "b0": {
+              "value": 181.27815054682196,
+              "corrected": true
+            },
+            "c11": {
+              "value": 158.423520369909,
+              "corrected": false
+            },
+            "c12": {
+              "value": 123.81939586354889,
+              "corrected": false
+            },
+            "c44": {
+              "value": 73.61291787962294,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.529139856922316,
+              "corrected": true
+            },
+            "b0": {
+              "value": 192.6382404406794,
+              "corrected": true
+            },
+            "c11": {
+              "value": 219.70828654524854,
+              "corrected": false
+            },
+            "c12": {
+              "value": 164.30826301353895,
+              "corrected": false
+            },
+            "c44": {
+              "value": 96.09167594824201,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5316941253958984,
+              "corrected": true
+            },
+            "b0": {
+              "value": 214.47148786457944,
+              "corrected": true
+            },
+            "c11": {
+              "value": 212.9839106369156,
+              "corrected": false
+            },
+            "c12": {
+              "value": 157.90567285347666,
+              "corrected": false
+            },
+            "c44": {
+              "value": 98.14713417582358,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.546894856229646,
+              "corrected": true
+            },
+            "b0": {
+              "value": 186.25253005140056,
+              "corrected": true
+            },
+            "c11": {
+              "value": 207.31074619693106,
+              "corrected": false
+            },
+            "c12": {
+              "value": 137.53837981123127,
+              "corrected": false
+            },
+            "c44": {
+              "value": 120.00472739217837,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 3.524874120830503,
+                "mace-mp-small": 3.538586282444172,
+                "mace-mp-medium": 3.5372319345483603,
+                "mace-mpa-0-medium": 3.5550118058756657
+              },
+              "dispersion": 0.008518501781966987,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.009 -> flag (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 4.1399999645364005e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 155.25520268576557,
+                "mace-mp-small": 191.59073444344176,
+                "mace-mp-medium": 182.85533813777036,
+                "mace-mpa-0-medium": 168.0127926922052
+              },
+              "dispersion": 0.20711788028012004,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.207 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.200000082870247e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 158.423520369909,
+                "mace-mp-small": 219.70828654524854,
+                "mace-mp-medium": 212.9839106369156,
+                "mace-mpa-0-medium": 207.31074619693106
+              },
+              "dispersion": 0.2916276244718809,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.292 -> pass (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 2.990000029967632e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 123.81939586354889,
+                "mace-mp-small": 164.30826301353895,
+                "mace-mp-medium": 157.90567285347666,
+                "mace-mpa-0-medium": 137.53837981123127
+              },
+              "dispersion": 0.27408821930790306,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.274 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 2.89999998130952e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 73.61291787962294,
+                "mace-mp-small": 96.09167594824201,
+                "mace-mp-medium": 98.14713417582358,
+                "mace-mpa-0-medium": 120.00472739217837
+              },
+              "dispersion": 0.4776780652941986,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 0.478 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 2.8399999791872688e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 108,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -828.953773944617,
+            "e_relaxed_ev": -828.9666621195025,
+            "energy_delta_ev_per_atom": -0.00011933495264421017,
+            "max_displacement_a": 0.024969019008031213,
+            "n_relax_steps": 39
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 39 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 11.92653059999975
+        }
+      },
+      "verdict": "FLAGGED"
+    },
+    "hea-coni": {
+      "group": "hea-fcc",
+      "formula": "CoNi",
+      "structure_type": "fcc-rss",
+      "composition": {
+        "Co": 1,
+        "Ni": 1
+      },
+      "references": {
+        "a0": 3.535,
+        "b0": 172.0,
+        "c11": null,
+        "c12": null,
+        "c44": null
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 3.5090933148196983,
+            "b0": 166.87083775302457,
+            "c11": 196.19446340647627,
+            "c12": 139.32316903176292,
+            "c44": 90.99597273612048
+          },
+          "e0_ev_per_atom": -6.360109001683827,
+          "b0_prime": 3.015134567049497,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.535,
+          "elastic_n_relax_steps": 62,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 196.19446340647627,
+                "c12_gpa": 139.32316903176292,
+                "c44_gpa": 90.99597273612048,
+                "c11_minus_c12_gpa": 56.87129437471336,
+                "c11_plus_2c12_gpa": 474.84080147000213,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 9.599999430065509e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 10.177295100000265,
+            "elastic_plus_born": 15.673394100000223
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 3.510242597599381,
+            "b0": 175.4123580616114,
+            "c11": 239.1852510403242,
+            "c12": 139.32904789150038,
+            "c44": 136.2582170015912
+          },
+          "e0_ev_per_atom": -6.394393824845345,
+          "b0_prime": 4.407069130977146,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.535,
+          "elastic_n_relax_steps": 17,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 239.1852510403242,
+                "c12_gpa": 139.32904789150038,
+                "c44_gpa": 136.2582170015912,
+                "c11_minus_c12_gpa": 99.85620314882382,
+                "c11_plus_2c12_gpa": 517.843346823325,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.199999683711212e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 4.075171800000135,
+            "elastic_plus_born": 2.0070465999997396
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 3.5095453485092074,
+            "b0": 205.32562619927307,
+            "c11": 266.864415618725,
+            "c12": 172.32011867357681,
+            "c44": 117.33783785464273
+          },
+          "e0_ev_per_atom": -6.396573846848737,
+          "b0_prime": 4.636281469110394,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.535,
+          "elastic_n_relax_steps": 26,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 266.864415618725,
+                "c12_gpa": 172.32011867357681,
+                "c44_gpa": 117.33783785464273,
+                "c11_minus_c12_gpa": 94.54429694514818,
+                "c11_plus_2c12_gpa": 611.5046529658787,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.199999683711212e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 9.934116200000062,
+            "elastic_plus_born": 8.427257600000303
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 3.5253695765068325,
+            "b0": 216.24347696692857,
+            "c11": 315.8230471410067,
+            "c12": 165.39325151276498,
+            "c44": 145.94204703529962
+          },
+          "e0_ev_per_atom": -6.449753015164649,
+          "b0_prime": 6.470341902244922,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.535,
+          "elastic_n_relax_steps": 16,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 315.8230471410067,
+                "c12_gpa": 165.39325151276498,
+                "c44_gpa": 145.94204703529962,
+                "c11_minus_c12_gpa": 150.42979562824175,
+                "c11_plus_2c12_gpa": 646.6095501665367,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.199999683711212e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 10.316677799999525,
+            "elastic_plus_born": 5.745095599999331
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5051965228092046,
+              "corrected": true
+            },
+            "b0": {
+              "value": 194.84072884367527,
+              "corrected": true
+            },
+            "c11": {
+              "value": 196.19446340647627,
+              "corrected": false
+            },
+            "c12": {
+              "value": 139.32316903176292,
+              "corrected": false
+            },
+            "c44": {
+              "value": 90.99597273612048,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5008718369014207,
+              "corrected": true
+            },
+            "b0": {
+              "value": 176.3714101660511,
+              "corrected": true
+            },
+            "c11": {
+              "value": 239.1852510403242,
+              "corrected": false
+            },
+            "c12": {
+              "value": 139.32904789150038,
+              "corrected": false
+            },
+            "c44": {
+              "value": 136.2582170015912,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5040508848405603,
+              "corrected": true
+            },
+            "b0": {
+              "value": 240.82694547591362,
+              "corrected": true
+            },
+            "c11": {
+              "value": 266.864415618725,
+              "corrected": false
+            },
+            "c12": {
+              "value": 172.32011867357681,
+              "corrected": false
+            },
+            "c44": {
+              "value": 117.33783785464273,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5173203072220383,
+              "corrected": true
+            },
+            "b0": {
+              "value": 239.7192145123528,
+              "corrected": true
+            },
+            "c11": {
+              "value": 315.8230471410067,
+              "corrected": false
+            },
+            "c12": {
+              "value": 165.39325151276498,
+              "corrected": false
+            },
+            "c44": {
+              "value": 145.94204703529962,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 3.5090933148196983,
+                "mace-mp-small": 3.510242597599381,
+                "mace-mp-medium": 3.5095453485092074,
+                "mace-mpa-0-medium": 3.5253695765068325
+              },
+              "dispersion": 0.004637251669733662,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.005 -> pass (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 5.289999990054639e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 166.87083775302457,
+                "mace-mp-small": 175.4123580616114,
+                "mace-mp-medium": 205.32562619927307,
+                "mace-mpa-0-medium": 216.24347696692857
+              },
+              "dispersion": 0.25935231710463386,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.259 -> flag (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 5.250000049272785e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 196.19446340647627,
+                "mace-mp-small": 239.1852510403242,
+                "mace-mp-medium": 266.864415618725,
+                "mace-mpa-0-medium": 315.8230471410067
+              },
+              "dispersion": 0.4727938446213034,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.473 -> pass (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.550000019458821e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 139.32316903176292,
+                "mace-mp-small": 139.32904789150038,
+                "mace-mp-medium": 172.32011867357681,
+                "mace-mpa-0-medium": 165.39325151276498
+              },
+              "dispersion": 0.21657062647744002,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.217 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.20999997711624e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 90.99597273612048,
+                "mace-mp-small": 136.2582170015912,
+                "mace-mp-medium": 117.33783785464273,
+                "mace-mpa-0-medium": 145.94204703529962
+              },
+              "dispersion": 0.43333540287390204,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 0.433 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.0000000151630957e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 108,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -690.8284641325589,
+            "e_relaxed_ev": -690.8287334142932,
+            "energy_delta_ev_per_atom": -2.4933493915779293e-06,
+            "max_displacement_a": 0.014685587764688167,
+            "n_relax_steps": 41
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 41 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 12.042032600000312
+        }
+      },
+      "verdict": "FLAGGED"
+    },
+    "hea-feni": {
+      "group": "hea-fcc",
+      "formula": "FeNi",
+      "structure_type": "fcc-rss",
+      "composition": {
+        "Fe": 1,
+        "Ni": 1
+      },
+      "references": {
+        "a0": 3.582,
+        "b0": 176.7,
+        "c11": null,
+        "c12": null,
+        "c44": null
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 3.548499171139101,
+            "b0": 108.73207822425631,
+            "c11": 122.36150662168515,
+            "c12": 100.420731899392,
+            "c44": 61.695772151006004
+          },
+          "e0_ev_per_atom": -7.087108530009566,
+          "b0_prime": -4.40001035599372,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.582,
+          "elastic_n_relax_steps": 62,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 122.36150662168515,
+                "c12_gpa": 100.420731899392,
+                "c44_gpa": 61.695772151006004,
+                "c11_minus_c12_gpa": 21.940774722293156,
+                "c11_plus_2c12_gpa": 323.2029704204691,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.999999979801942e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 9.910266400000182,
+            "elastic_plus_born": 17.115023199999996
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 3.5534984287472553,
+            "b0": 143.0690179407198,
+            "c11": 168.344024626331,
+            "c12": 113.45872886350604,
+            "c44": 89.99888377284805
+          },
+          "e0_ev_per_atom": -7.088600268363695,
+          "b0_prime": 3.866837152555889,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.582,
+          "elastic_n_relax_steps": 56,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 168.344024626331,
+                "c12_gpa": 113.45872886350604,
+                "c44_gpa": 89.99888377284805,
+                "c11_minus_c12_gpa": 54.88529576282495,
+                "c11_plus_2c12_gpa": 395.26148235334307,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 6.299999768089037e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 4.882548999999926,
+            "elastic_plus_born": 5.937739200000578
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 3.548440366189427,
+            "b0": 148.63681808815886,
+            "c11": 185.46931896685078,
+            "c12": 124.57887600121842,
+            "c44": 98.71381202314265
+          },
+          "e0_ev_per_atom": -7.083938352756787,
+          "b0_prime": 3.102187945046376,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.582,
+          "elastic_n_relax_steps": 49,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 185.46931896685078,
+                "c12_gpa": 124.57887600121842,
+                "c44_gpa": 98.71381202314265,
+                "c11_minus_c12_gpa": 60.89044296563236,
+                "c11_plus_2c12_gpa": 434.6270709692876,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.499999239575118e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 10.44078890000037,
+            "elastic_plus_born": 14.722250799999529
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 3.5817021494596255,
+            "b0": 171.96032837429206,
+            "c11": 218.80436364863863,
+            "c12": 148.27455074805653,
+            "c44": 111.17622461840251
+          },
+          "e0_ev_per_atom": -7.137331640777495,
+          "b0_prime": 3.3371709695510265,
+          "n_atoms": 108,
+          "n_conventional_cells": 27,
+          "a_guess_angstrom": 3.582,
+          "elastic_n_relax_steps": 17,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 218.80436364863863,
+                "c12_gpa": 148.27455074805653,
+                "c44_gpa": 111.17622461840251,
+                "c11_minus_c12_gpa": 70.5298129005821,
+                "c11_plus_2c12_gpa": 515.3534651447517,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 9.000000318337698e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 16.17794159999994,
+            "elastic_plus_born": 5.979385999999977
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5445586195553225,
+              "corrected": true
+            },
+            "b0": {
+              "value": 126.9570984071938,
+              "corrected": true
+            },
+            "c11": {
+              "value": 122.36150662168515,
+              "corrected": false
+            },
+            "c12": {
+              "value": 100.420731899392,
+              "corrected": false
+            },
+            "c44": {
+              "value": 61.695772151006004,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5440121945367933,
+              "corrected": true
+            },
+            "b0": {
+              "value": 143.85123559204385,
+              "corrected": true
+            },
+            "c11": {
+              "value": 168.344024626331,
+              "corrected": false
+            },
+            "c12": {
+              "value": 113.45872886350604,
+              "corrected": false
+            },
+            "c44": {
+              "value": 89.99888377284805,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.5428850093735735,
+              "corrected": true
+            },
+            "b0": {
+              "value": 174.33649928669766,
+              "corrected": true
+            },
+            "c11": {
+              "value": 185.46931896685078,
+              "corrected": false
+            },
+            "c12": {
+              "value": 124.57887600121842,
+              "corrected": false
+            },
+            "c44": {
+              "value": 98.71381202314265,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "fcc-metals",
+          "values": {
+            "a0": {
+              "value": 3.573524259319808,
+              "corrected": true
+            },
+            "b0": {
+              "value": 190.62861651764834,
+              "corrected": true
+            },
+            "c11": {
+              "value": 218.80436364863863,
+              "corrected": false
+            },
+            "c12": {
+              "value": 148.27455074805653,
+              "corrected": false
+            },
+            "c44": {
+              "value": 111.17622461840251,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": false,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 3.548499171139101,
+                "mace-mp-small": 3.5534984287472553,
+                "mace-mp-medium": 3.548440366189427,
+                "mace-mpa-0-medium": 3.5817021494596255
+              },
+              "dispersion": 0.009366881022525466,
+              "level": "refuse"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.009 -> refuse (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.399999968678458e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": false,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 108.73207822425631,
+                "mace-mp-small": 143.0690179407198,
+                "mace-mp-medium": 148.63681808815886,
+                "mace-mpa-0-medium": 171.96032837429206
+              },
+              "dispersion": 0.43350692609232677,
+              "level": "refuse"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.434 -> refuse (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.1800000215298496e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 122.36150662168515,
+                "mace-mp-small": 168.344024626331,
+                "mace-mp-medium": 185.46931896685078,
+                "mace-mpa-0-medium": 218.80436364863863
+              },
+              "dispersion": 0.5451623505632646,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.545 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 4.360000002634479e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 100.420731899392,
+                "mace-mp-small": 113.45872886350604,
+                "mace-mp-medium": 124.57887600121842,
+                "mace-mpa-0-medium": 148.27455074805653
+              },
+              "dispersion": 0.4020694030748596,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.402 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.500000002532033e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 61.695772151006004,
+                "mace-mp-small": 89.99888377284805,
+                "mace-mp-medium": 98.71381202314265,
+                "mace-mpa-0-medium": 111.17622461840251
+              },
+              "dispersion": 0.5243998265054486,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 0.524 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.079999987676274e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 108,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -765.0641250104054,
+            "e_relaxed_ev": -765.0713114216906,
+            "energy_delta_ev_per_atom": -6.654084523284432e-05,
+            "max_displacement_a": 0.019138842172506828,
+            "n_relax_steps": 37
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 37 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 10.682488600000397
+        }
+      },
+      "verdict": "REFUSED"
+    },
+    "hp-cssncl3": {
+      "group": "halide-perovskite",
+      "formula": "CsSnCl3",
+      "structure_type": "perovskite",
+      "composition": {
+        "Cs": 1,
+        "Sn": 1,
+        "Cl": 3
+      },
+      "references": {
+        "a0": 5.579,
+        "b0": 22.7,
+        "c11": 50.66,
+        "c12": 8.71,
+        "c44": 6.01
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 5.661083407720393,
+            "b0": 20.78711806115792,
+            "c11": 31.48644225355558,
+            "c12": 10.289531253275195,
+            "c44": 0.6556827477054504
+          },
+          "e0_ev_per_atom": -3.871207730284195,
+          "b0_prime": -1.2898689222662862,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.58,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 31.48644225355558,
+                "c12_gpa": 10.289531253275195,
+                "c44_gpa": 0.6556827477054504,
+                "c11_minus_c12_gpa": 21.196911000280387,
+                "c11_plus_2c12_gpa": 52.065504760105966,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.600000001024455e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.9180113000002166,
+            "elastic_plus_born": 0.39880059999995865
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 5.612855845404337,
+            "b0": 29.556512736703937,
+            "c11": 70.6928475634426,
+            "c12": 9.193575195479491,
+            "c44": 6.717043926567992
+          },
+          "e0_ev_per_atom": -3.536098231364817,
+          "b0_prime": 5.5412948397390895,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.58,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 70.6928475634426,
+                "c12_gpa": 9.193575195479491,
+                "c44_gpa": 6.717043926567992,
+                "c11_minus_c12_gpa": 61.49927236796311,
+                "c11_plus_2c12_gpa": 89.07999795440158,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 1.900000006571645e-05
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.1162818000002517,
+            "elastic_plus_born": 0.2017639000005147
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 5.636460792087918,
+            "b0": 25.365588948120216,
+            "c11": 59.88487513135225,
+            "c12": 8.21838838248655,
+            "c44": 4.632530578643045
+          },
+          "e0_ev_per_atom": -3.5161030708853174,
+          "b0_prime": 5.002821708746853,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.58,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 59.88487513135225,
+                "c12_gpa": 8.21838838248655,
+                "c44_gpa": 4.632530578643045,
+                "c11_minus_c12_gpa": 51.6664867488657,
+                "c11_plus_2c12_gpa": 76.32165189632535,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.900000466383062e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.0732676000006904,
+            "elastic_plus_born": 0.18959650000033434
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 5.626283942531833,
+            "b0": 21.927735460801905,
+            "c11": 48.35303431409512,
+            "c12": 8.895866880086432,
+            "c44": 7.484938769142117
+          },
+          "e0_ev_per_atom": -3.5282089539199113,
+          "b0_prime": 3.1587516700277725,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.58,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 48.35303431409512,
+                "c12_gpa": 8.895866880086432,
+                "c44_gpa": 7.484938769142117,
+                "c11_minus_c12_gpa": 39.45716743400869,
+                "c11_plus_2c12_gpa": 66.14476807426799,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.599999662488699e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.3478360999997676,
+            "elastic_plus_born": 0.25528440000016417
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.654796865125251,
+              "corrected": true
+            },
+            "b0": {
+              "value": 22.511621986485444,
+              "corrected": true
+            },
+            "c11": {
+              "value": 31.48644225355558,
+              "corrected": false
+            },
+            "c12": {
+              "value": 10.289531253275195,
+              "corrected": false
+            },
+            "c44": {
+              "value": 0.6556827477054504,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.610840906771857,
+              "corrected": true
+            },
+            "b0": {
+              "value": 29.530955731039768,
+              "corrected": true
+            },
+            "c11": {
+              "value": 70.6928475634426,
+              "corrected": false
+            },
+            "c12": {
+              "value": 9.193575195479491,
+              "corrected": false
+            },
+            "c44": {
+              "value": 6.717043926567992,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.630694272431932,
+              "corrected": true
+            },
+            "b0": {
+              "value": 25.074166620060378,
+              "corrected": true
+            },
+            "c11": {
+              "value": 59.88487513135225,
+              "corrected": false
+            },
+            "c12": {
+              "value": 8.21838838248655,
+              "corrected": false
+            },
+            "c44": {
+              "value": 4.632530578643045,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.617244760150941,
+              "corrected": true
+            },
+            "b0": {
+              "value": 22.05811416146251,
+              "corrected": true
+            },
+            "c11": {
+              "value": 48.35303431409512,
+              "corrected": false
+            },
+            "c12": {
+              "value": 8.895866880086432,
+              "corrected": false
+            },
+            "c44": {
+              "value": 7.484938769142117,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 5.661083407720393,
+                "mace-mp-small": 5.612855845404337,
+                "mace-mp-medium": 5.636460792087918,
+                "mace-mpa-0-medium": 5.626283942531833
+              },
+              "dispersion": 0.008564086899317262,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.009 -> flag (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.890000061801402e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 20.78711806115792,
+                "mace-mp-small": 29.556512736703937,
+                "mace-mp-medium": 25.365588948120216,
+                "mace-mpa-0-medium": 21.927735460801905
+              },
+              "dispersion": 0.3708512685520423,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.371 -> flag (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.1800000215298496e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 31.48644225355558,
+                "mace-mp-small": 70.6928475634426,
+                "mace-mp-medium": 59.88487513135225,
+                "mace-mpa-0-medium": 48.35303431409512
+              },
+              "dispersion": 0.7244486799636002,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.724 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.0199999855540227e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 10.289531253275195,
+                "mace-mp-small": 9.193575195479491,
+                "mace-mp-medium": 8.21838838248655,
+                "mace-mpa-0-medium": 8.895866880086432
+              },
+              "dispersion": 0.22898913765684503,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.229 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 2.9400000130408444e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 0.6556827477054504,
+                "mace-mp-small": 6.717043926567992,
+                "mace-mp-medium": 4.632530578643045,
+                "mace-mpa-0-medium": 7.484938769142117
+              },
+              "dispersion": 1.2034382466586893,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 1.203 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.0500000320898835e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 5,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -17.580532019514152,
+            "e_relaxed_ev": -17.58845371655907,
+            "energy_delta_ev_per_atom": -0.0015843394089834818,
+            "max_displacement_a": 0.17185667667154622,
+            "n_relax_steps": 22
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 22 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 1.1296764999997322
+        }
+      },
+      "verdict": "FLAGGED"
+    },
+    "hp-cssnbr3": {
+      "group": "halide-perovskite",
+      "formula": "CsSnBr3",
+      "structure_type": "perovskite",
+      "composition": {
+        "Cs": 1,
+        "Sn": 1,
+        "Br": 3
+      },
+      "references": {
+        "a0": 5.804,
+        "b0": 19.09,
+        "c11": 43.89,
+        "c12": 6.69,
+        "c44": 5.21
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 5.921650644170716,
+            "b0": 16.480152111382775,
+            "c11": 24.6876481850384,
+            "c12": 15.102925202948285,
+            "c44": 0.38092729908015543
+          },
+          "e0_ev_per_atom": -3.4816799584482725,
+          "b0_prime": 2.6770518272696875,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.8,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 24.6876481850384,
+                "c12_gpa": 15.102925202948285,
+                "c44_gpa": 0.38092729908015543,
+                "c11_minus_c12_gpa": 9.584722982090117,
+                "c11_plus_2c12_gpa": 54.89349859093497,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.300000445160549e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 2.869976300000417,
+            "elastic_plus_born": 0.39237129999946774
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 5.874545242088912,
+            "b0": 20.53578017159769,
+            "c11": 51.32968645727197,
+            "c12": 5.143803414723911,
+            "c44": 5.065660472008289
+          },
+          "e0_ev_per_atom": -3.1944391332915067,
+          "b0_prime": 4.67139689557413,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.8,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 51.32968645727197,
+                "c12_gpa": 5.143803414723911,
+                "c44_gpa": 5.065660472008289,
+                "c11_minus_c12_gpa": 46.185883042548056,
+                "c11_plus_2c12_gpa": 61.61729328671979,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.69999985297909e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.1016626999999062,
+            "elastic_plus_born": 0.21809159999975236
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 5.89475965026055,
+            "b0": 17.262585139882486,
+            "c11": 44.3749550675876,
+            "c12": 3.597060176069446,
+            "c44": 3.889496351623927
+          },
+          "e0_ev_per_atom": -3.19152709276612,
+          "b0_prime": 3.7366969550658924,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.8,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 44.3749550675876,
+                "c12_gpa": 3.597060176069446,
+                "c44_gpa": 3.889496351623927,
+                "c11_minus_c12_gpa": 40.77789489151815,
+                "c11_plus_2c12_gpa": 51.56907541972649,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.200000254670158e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.0011561999999685,
+            "elastic_plus_born": 0.21412880000025325
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 5.884762173011474,
+            "b0": 18.807131008462527,
+            "c11": 41.50452409326706,
+            "c12": 7.4493453485125745,
+            "c44": 6.080865919012108
+          },
+          "e0_ev_per_atom": -3.194878106880495,
+          "b0_prime": 2.8254551170562694,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 5.8,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 41.50452409326706,
+                "c12_gpa": 7.4493453485125745,
+                "c44_gpa": 6.080865919012108,
+                "c11_minus_c12_gpa": 34.055178744754485,
+                "c11_plus_2c12_gpa": 56.40321479029221,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 5.9000003602704965e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.3932980999998108,
+            "elastic_plus_born": 0.2354841000005763
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.915074745826352,
+              "corrected": true
+            },
+            "b0": {
+              "value": 17.847349186150876,
+              "corrected": true
+            },
+            "c11": {
+              "value": 24.6876481850384,
+              "corrected": false
+            },
+            "c12": {
+              "value": 15.102925202948285,
+              "corrected": false
+            },
+            "c44": {
+              "value": 0.38092729908015543,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.872436360535108,
+              "corrected": true
+            },
+            "b0": {
+              "value": 20.518023237454646,
+              "corrected": true
+            },
+            "c11": {
+              "value": 51.32968645727197,
+              "corrected": false
+            },
+            "c12": {
+              "value": 5.143803414723911,
+              "corrected": false
+            },
+            "c44": {
+              "value": 5.065660472008289,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.888728871613379,
+              "corrected": true
+            },
+            "b0": {
+              "value": 17.064257288710376,
+              "corrected": true
+            },
+            "c11": {
+              "value": 44.3749550675876,
+              "corrected": false
+            },
+            "c12": {
+              "value": 3.597060176069446,
+              "corrected": false
+            },
+            "c44": {
+              "value": 3.889496351623927,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.87530771975363,
+              "corrected": true
+            },
+            "b0": {
+              "value": 18.91895510942454,
+              "corrected": true
+            },
+            "c11": {
+              "value": 41.50452409326706,
+              "corrected": false
+            },
+            "c12": {
+              "value": 7.4493453485125745,
+              "corrected": false
+            },
+            "c44": {
+              "value": 6.080865919012108,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 5.921650644170716,
+                "mace-mp-small": 5.874545242088912,
+                "mace-mp-medium": 5.89475965026055,
+                "mace-mpa-0-medium": 5.884762173011474
+              },
+              "dispersion": 0.007997846226447228,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.008 -> flag (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 4.489999992074445e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 16.480152111382775,
+                "mace-mp-small": 20.53578017159769,
+                "mace-mp-medium": 17.262585139882486,
+                "mace-mpa-0-medium": 18.807131008462527
+              },
+              "dispersion": 0.2248771819293066,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.225 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.769999966607429e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 24.6876481850384,
+                "mace-mp-small": 51.32968645727197,
+                "mace-mp-medium": 44.3749550675876,
+                "mace-mpa-0-medium": 41.50452409326706
+              },
+              "dispersion": 0.6204517897071147,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.620 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 5.920000057813013e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": false,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 15.102925202948285,
+                "mace-mp-small": 5.143803414723911,
+                "mace-mp-medium": 3.597060176069446,
+                "mace-mpa-0-medium": 7.4493453485125745
+              },
+              "dispersion": 1.8273213861283395,
+              "level": "refuse"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 1.827 -> refuse (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 4.640000042854808e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 0.38092729908015543,
+                "mace-mp-small": 5.065660472008289,
+                "mace-mp-medium": 3.889496351623927,
+                "mace-mpa-0-medium": 6.080865919012108
+              },
+              "dispersion": 1.272995824012841,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 1.273 -> flag (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.2500000088475645e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 5,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -15.957614652432794,
+            "e_relaxed_ev": -15.956711112797095,
+            "energy_delta_ev_per_atom": 0.00018070792713977823,
+            "max_displacement_a": 0.10659967090542782,
+            "n_relax_steps": 12
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 12 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 0.705329399999755
+        }
+      },
+      "verdict": "REFUSED"
+    },
+    "hp-cssni3": {
+      "group": "halide-perovskite",
+      "formula": "CsSnI3",
+      "structure_type": "perovskite",
+      "composition": {
+        "Cs": 1,
+        "Sn": 1,
+        "I": 3
+      },
+      "references": {
+        "a0": 6.219,
+        "b0": 17.59,
+        "c11": 21.34,
+        "c12": 1.22,
+        "c44": 5.74
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 6.330766090280828,
+            "b0": 11.185590142204976,
+            "c11": 10.379746234501043,
+            "c12": 4.409449816295663,
+            "c44": 0.14606750616643474
+          },
+          "e0_ev_per_atom": -3.031753923970104,
+          "b0_prime": -2.2115124059049935,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.22,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 10.379746234501043,
+                "c12_gpa": 4.409449816295663,
+                "c44_gpa": 0.14606750616643474,
+                "c11_minus_c12_gpa": 5.970296418205381,
+                "c11_plus_2c12_gpa": 19.198645867092367,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 9.100000170292333e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.6237645999999586,
+            "elastic_plus_born": 0.22711429999981192
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 6.271078325258997,
+            "b0": 15.53958497282299,
+            "c11": 34.982223022389725,
+            "c12": 5.688915185002457,
+            "c44": 4.095326166623119
+          },
+          "e0_ev_per_atom": -2.8398520955940745,
+          "b0_prime": 3.0979323886632564,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.22,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 34.982223022389725,
+                "c12_gpa": 5.688915185002457,
+                "c44_gpa": 4.095326166623119,
+                "c11_minus_c12_gpa": 29.293307837387268,
+                "c11_plus_2c12_gpa": 46.36005339239464,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 6.399999620043673e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.1838382999994792,
+            "elastic_plus_born": 0.20208949999960168
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 6.28175626323954,
+            "b0": 16.67268154980129,
+            "c11": 37.37780951769087,
+            "c12": 6.197666385488991,
+            "c44": 3.4221336721744975
+          },
+          "e0_ev_per_atom": -2.8282915029531384,
+          "b0_prime": 1.299245806651534,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.22,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 37.37780951769087,
+                "c12_gpa": 6.197666385488991,
+                "c44_gpa": 3.4221336721744975,
+                "c11_minus_c12_gpa": 31.18014313220188,
+                "c11_plus_2c12_gpa": 49.77314228866885,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 6.400000529538374e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 0.9298849000006157,
+            "elastic_plus_born": 0.20646769999984826
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 6.286266331405647,
+            "b0": 16.21748320374958,
+            "c11": 35.72896273688513,
+            "c12": 6.520929623613974,
+            "c44": 4.273287124954633
+          },
+          "e0_ev_per_atom": -2.837575514508015,
+          "b0_prime": 4.53808158749062,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.22,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 35.72896273688513,
+                "c12_gpa": 6.520929623613974,
+                "c44_gpa": 4.273287124954633,
+                "c11_minus_c12_gpa": 29.208033113271156,
+                "c11_plus_2c12_gpa": 48.77082198411308,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.999999979801942e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.3924792000007074,
+            "elastic_plus_born": 0.2753845999995974
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.323735875775922,
+              "corrected": true
+            },
+            "b0": {
+              "value": 12.113549181576634,
+              "corrected": true
+            },
+            "c11": {
+              "value": 10.379746234501043,
+              "corrected": false
+            },
+            "c12": {
+              "value": 4.409449816295663,
+              "corrected": false
+            },
+            "c44": {
+              "value": 0.14606750616643474,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.268827093741049,
+              "corrected": true
+            },
+            "b0": {
+              "value": 15.52614816230657,
+              "corrected": true
+            },
+            "c11": {
+              "value": 34.982223022389725,
+              "corrected": false
+            },
+            "c12": {
+              "value": 5.688915185002457,
+              "corrected": false
+            },
+            "c44": {
+              "value": 4.095326166623119,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.275329558202057,
+              "corrected": true
+            },
+            "b0": {
+              "value": 16.481131032989676,
+              "corrected": true
+            },
+            "c11": {
+              "value": 37.37780951769087,
+              "corrected": false
+            },
+            "c12": {
+              "value": 6.197666385488991,
+              "corrected": false
+            },
+            "c44": {
+              "value": 3.4221336721744975,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.276166821952367,
+              "corrected": true
+            },
+            "b0": {
+              "value": 16.313909685721224,
+              "corrected": true
+            },
+            "c11": {
+              "value": 35.72896273688513,
+              "corrected": false
+            },
+            "c12": {
+              "value": 6.520929623613974,
+              "corrected": false
+            },
+            "c44": {
+              "value": 4.273287124954633,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": false,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 6.330766090280828,
+                "mace-mp-small": 6.271078325258997,
+                "mace-mp-medium": 6.28175626323954,
+                "mace-mpa-0-medium": 6.286266331405647
+              },
+              "dispersion": 0.009498354187756155,
+              "level": "refuse"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.009 -> refuse (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 4.630000057659345e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 11.185590142204976,
+                "mace-mp-small": 15.53958497282299,
+                "mace-mp-medium": 16.67268154980129,
+                "mace-mpa-0-medium": 16.21748320374958
+              },
+              "dispersion": 0.3455666232844619,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.346 -> flag (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.889999970851932e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 10.379746234501043,
+                "mace-mp-small": 34.982223022389725,
+                "mace-mp-medium": 37.37780951769087,
+                "mace-mpa-0-medium": 35.72896273688513
+              },
+              "dispersion": 0.7636150629718048,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.764 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 6.180000036692945e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 4.409449816295663,
+                "mace-mp-small": 5.688915185002457,
+                "mace-mp-medium": 6.197666385488991,
+                "mace-mpa-0-medium": 6.520929623613974
+              },
+              "dispersion": 0.3552711592978221,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.355 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 7.15000005584443e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 0.14606750616643474,
+                "mace-mp-small": 4.095326166623119,
+                "mace-mp-medium": 3.4221336721744975,
+                "mace-mpa-0-medium": 4.273287124954633
+              },
+              "dispersion": 1.0980356948467127,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 1.098 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 7.449999975506216e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 5,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -14.141430608004582,
+            "e_relaxed_ev": -14.139590189009692,
+            "energy_delta_ev_per_atom": 0.0003680837989779917,
+            "max_displacement_a": 0.09827194961662856,
+            "n_relax_steps": 11
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 11 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 0.5382963000001837
+        }
+      },
+      "verdict": "REFUSED"
+    },
+    "hp-csgei3": {
+      "group": "halide-perovskite",
+      "formula": "CsGeI3",
+      "structure_type": "perovskite",
+      "composition": {
+        "Cs": 1,
+        "Ge": 1,
+        "I": 3
+      },
+      "references": {
+        "a0": null,
+        "b0": 18.89,
+        "c11": 40.32,
+        "c12": 8.18,
+        "c44": 8.87
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 6.019359575843762,
+            "b0": 18.35460049836331,
+            "c11": 26.80274073270046,
+            "c12": 18.80872243049629,
+            "c44": 4.20316284726228
+          },
+          "e0_ev_per_atom": -3.0312148362742937,
+          "b0_prime": 6.459267667774361,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.05,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 26.80274073270046,
+                "c12_gpa": 18.80872243049629,
+                "c44_gpa": 4.20316284726228,
+                "c11_minus_c12_gpa": 7.9940183022041715,
+                "c11_plus_2c12_gpa": 64.42018559369303,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.69999985297909e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.427911299999323,
+            "elastic_plus_born": 0.2379614000001311
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 5.948487802299861,
+            "b0": 17.729908965906205,
+            "c11": 46.95670391798009,
+            "c12": 3.047041826823821,
+            "c44": 8.571937723738719
+          },
+          "e0_ev_per_atom": -2.8544724005998843,
+          "b0_prime": 4.27704269479595,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.05,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 46.95670391798009,
+                "c12_gpa": 3.047041826823821,
+                "c44_gpa": 8.571937723738719,
+                "c11_minus_c12_gpa": 43.90966209115627,
+                "c11_plus_2c12_gpa": 53.05078757162774,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.300000445160549e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.1892543999992995,
+            "elastic_plus_born": 0.2340942000000723
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 6.02421890815604,
+            "b0": 16.773833859084174,
+            "c11": 36.95584500531827,
+            "c12": 6.541667456066716,
+            "c44": 6.099588917753723
+          },
+          "e0_ev_per_atom": -2.84299564257405,
+          "b0_prime": 2.714130687949742,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.05,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 36.95584500531827,
+                "c12_gpa": 6.541667456066716,
+                "c44_gpa": 6.099588917753723,
+                "c11_minus_c12_gpa": 30.41417754925155,
+                "c11_plus_2c12_gpa": 50.0391799174517,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.300000106624793e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.063167500000418,
+            "elastic_plus_born": 0.2048304999998436
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 6.025241663023828,
+            "b0": 19.114227136907648,
+            "c11": 40.57923873652236,
+            "c12": 8.370362754234057,
+            "c44": 8.015135235543745
+          },
+          "e0_ev_per_atom": -2.841761704921369,
+          "b0_prime": 3.680229934126145,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.05,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 40.57923873652236,
+                "c12_gpa": 8.370362754234057,
+                "c44_gpa": 8.015135235543745,
+                "c11_minus_c12_gpa": 32.208875982288305,
+                "c11_plus_2c12_gpa": 57.31996424499047,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.300000106624793e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.4133558000003177,
+            "elastic_plus_born": 0.256108900000072
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.012675173293286,
+              "corrected": true
+            },
+            "b0": {
+              "value": 19.877302227103236,
+              "corrected": true
+            },
+            "c11": {
+              "value": 26.80274073270046,
+              "corrected": false
+            },
+            "c12": {
+              "value": 18.80872243049629,
+              "corrected": false
+            },
+            "c44": {
+              "value": 4.20316284726228,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 5.9463523763762645,
+              "corrected": true
+            },
+            "b0": {
+              "value": 17.71457822009382,
+              "corrected": true
+            },
+            "c11": {
+              "value": 46.95670391798009,
+              "corrected": false
+            },
+            "c12": {
+              "value": 3.047041826823821,
+              "corrected": false
+            },
+            "c44": {
+              "value": 8.571937723738719,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.018055683035303,
+              "corrected": true
+            },
+            "b0": {
+              "value": 16.581121215048938,
+              "corrected": true
+            },
+            "c11": {
+              "value": 36.95584500531827,
+              "corrected": false
+            },
+            "c12": {
+              "value": 6.541667456066716,
+              "corrected": false
+            },
+            "c44": {
+              "value": 6.099588917753723,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.015561515552189,
+              "corrected": true
+            },
+            "b0": {
+              "value": 19.227877180830173,
+              "corrected": true
+            },
+            "c11": {
+              "value": 40.57923873652236,
+              "corrected": false
+            },
+            "c12": {
+              "value": 8.370362754234057,
+              "corrected": false
+            },
+            "c44": {
+              "value": 8.015135235543745,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": false,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 6.019359575843762,
+                "mace-mp-small": 5.948487802299861,
+                "mace-mp-medium": 6.02421890815604,
+                "mace-mpa-0-medium": 6.025241663023828
+              },
+              "dispersion": 0.012746022426131282,
+              "level": "refuse"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.013 -> refuse (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 7.15000005584443e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 18.35460049836331,
+                "mace-mp-small": 17.729908965906205,
+                "mace-mp-medium": 16.773833859084174,
+                "mace-mpa-0-medium": 19.114227136907648
+              },
+              "dispersion": 0.12971733924447026,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.130 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 5.7499999456922524e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 26.80274073270046,
+                "mace-mp-small": 46.95670391798009,
+                "mace-mp-medium": 36.95584500531827,
+                "mace-mpa-0-medium": 40.57923873652236
+              },
+              "dispersion": 0.519866935396211,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.520 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 6.0200000007171184e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": false,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 18.80872243049629,
+                "mace-mp-small": 3.047041826823821,
+                "mace-mp-medium": 6.541667456066716,
+                "mace-mpa-0-medium": 8.370362754234057
+              },
+              "dispersion": 2.1139550257596422,
+              "level": "refuse"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 2.114 -> refuse (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 8.410000009462237e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": 4.20316284726228,
+                "mace-mp-small": 8.571937723738719,
+                "mace-mp-medium": 6.099588917753723,
+                "mace-mpa-0-medium": 8.015135235543745
+              },
+              "dispersion": 0.6190379392509503,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 0.619 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 6.759999996575061e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": true,
+          "per_model": {
+            "chgnet": true,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 5,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -14.21495002516648,
+            "e_relaxed_ev": -14.223150378843151,
+            "energy_delta_ev_per_atom": -0.0016400707353341204,
+            "max_displacement_a": 0.17734832631657793,
+            "n_relax_steps": 21
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 21 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 1.1266091999996206
+        }
+      },
+      "verdict": "REFUSED"
+    },
+    "hp-cspbi3-control": {
+      "group": "halide-perovskite",
+      "formula": "CsPbI3",
+      "structure_type": "perovskite",
+      "composition": {
+        "Cs": 1,
+        "Pb": 1,
+        "I": 3
+      },
+      "references": {
+        "a0": 6.2894,
+        "b0": 14.76,
+        "c11": 34.84,
+        "c12": 4.73,
+        "c44": 3.66
+      },
+      "per_model": {
+        "chgnet": {
+          "properties": {
+            "a0": 6.410148302348409,
+            "b0": 15.200716676874217,
+            "c11": 21.2592886501911,
+            "c12": 9.329511928916595,
+            "c44": -1.541947266981706
+          },
+          "e0_ev_per_atom": -3.066160887680033,
+          "b0_prime": 2.6555845663667204,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.29,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": false,
+              "values": {
+                "c11_gpa": 21.2592886501911,
+                "c12_gpa": 9.329511928916595,
+                "c44_gpa": -1.541947266981706,
+                "c11_minus_c12_gpa": 11.929776721274504,
+                "c11_plus_2c12_gpa": 39.918312508024286,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": false
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "violated: C44 > 0",
+              "wall_time_seconds": 1.2399999832268804e-05
+            }
+          },
+          "born_passed": false,
+          "wall_time_seconds": {
+            "ev_relax": 1.5589012999998886,
+            "elastic_plus_born": 0.1850062000003163
+          }
+        },
+        "mace-mp-small": {
+          "properties": {
+            "a0": 6.379170809922719,
+            "b0": 15.357473862880122,
+            "c11": 36.663259325701205,
+            "c12": 4.6216848435056495,
+            "c44": 3.198360617464707
+          },
+          "e0_ev_per_atom": -2.839488013375978,
+          "b0_prime": 2.3517770303106134,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.29,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 36.663259325701205,
+                "c12_gpa": 4.6216848435056495,
+                "c44_gpa": 3.198360617464707,
+                "c11_minus_c12_gpa": 32.04157448219556,
+                "c11_plus_2c12_gpa": 45.9066290127125,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 1.0800000382005237e-05
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.184354600000006,
+            "elastic_plus_born": 0.2059384999993199
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 6.389952725047209,
+            "b0": 17.593646274611253,
+            "c11": 38.14866144026207,
+            "c12": 7.260054804522421,
+            "c44": 3.535675297343709
+          },
+          "e0_ev_per_atom": -2.8358256953581735,
+          "b0_prime": 1.7646803726436717,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.29,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 38.14866144026207,
+                "c12_gpa": 7.260054804522421,
+                "c44_gpa": 3.535675297343709,
+                "c11_minus_c12_gpa": 30.888606635739645,
+                "c11_plus_2c12_gpa": 52.66877104930691,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 8.799999704933725e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.268398199999865,
+            "elastic_plus_born": 0.21343609999985347
+          }
+        },
+        "mace-mpa-0-medium": {
+          "properties": {
+            "a0": 6.409820676566623,
+            "b0": 15.953762752807512,
+            "c11": 36.16491350206067,
+            "c12": 5.952474191209643,
+            "c44": 3.9448104599192724
+          },
+          "e0_ev_per_atom": -2.8388450561827505,
+          "b0_prime": 4.787672562471978,
+          "n_atoms": 5,
+          "n_conventional_cells": 1,
+          "a_guess_angstrom": 6.29,
+          "elastic_n_relax_steps": 0,
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 36.16491350206067,
+                "c12_gpa": 5.952474191209643,
+                "c44_gpa": 3.9448104599192724,
+                "c11_minus_c12_gpa": 30.21243931085103,
+                "c11_plus_2c12_gpa": 48.069861884479955,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 7.199999345175456e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "ev_relax": 1.9238432000001922,
+            "elastic_plus_born": 0.22547620000023016
+          }
+        }
+      },
+      "corrected_arm": {
+        "chgnet": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.403029935166442,
+              "corrected": true
+            },
+            "b0": {
+              "value": 16.46177150419264,
+              "corrected": true
+            },
+            "c11": {
+              "value": 21.2592886501911,
+              "corrected": false
+            },
+            "c12": {
+              "value": 9.329511928916595,
+              "corrected": false
+            },
+            "c44": {
+              "value": -1.541947266981706,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-small": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.37688077467825,
+              "corrected": true
+            },
+            "b0": {
+              "value": 15.344194520692586,
+              "corrected": true
+            },
+            "c11": {
+              "value": 36.663259325701205,
+              "corrected": false
+            },
+            "c12": {
+              "value": 4.6216848435056495,
+              "corrected": false
+            },
+            "c44": {
+              "value": 3.198360617464707,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mp-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.383415326961955,
+              "corrected": true
+            },
+            "b0": {
+              "value": 17.39151490021679,
+              "corrected": true
+            },
+            "c11": {
+              "value": 38.14866144026207,
+              "corrected": false
+            },
+            "c12": {
+              "value": 7.260054804522421,
+              "corrected": false
+            },
+            "c44": {
+              "value": 3.535675297343709,
+              "corrected": false
+            }
+          }
+        },
+        "mace-mpa-0-medium": {
+          "bias_class": "all-21",
+          "values": {
+            "a0": {
+              "value": 6.399522664821019,
+              "corrected": true
+            },
+            "b0": {
+              "value": 16.048621196447385,
+              "corrected": true
+            },
+            "c11": {
+              "value": 36.16491350206067,
+              "corrected": false
+            },
+            "c12": {
+              "value": 5.952474191209643,
+              "corrected": false
+            },
+            "c44": {
+              "value": 3.9448104599192724,
+              "corrected": false
+            }
+          }
+        }
+      },
+      "gates": {
+        "concordance": {
+          "a0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "a0",
+              "values_by_model": {
+                "chgnet": 6.410148302348409,
+                "mace-mp-small": 6.379170809922719,
+                "mace-mp-medium": 6.389952725047209,
+                "mace-mpa-0-medium": 6.409820676566623
+              },
+              "dispersion": 0.004840318879673895,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "a0: cross-model dispersion 0.005 -> pass (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 6.709999979648273e-05
+          },
+          "b0": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "b0",
+              "values_by_model": {
+                "chgnet": 15.200716676874217,
+                "mace-mp-small": 15.357473862880122,
+                "mace-mp-medium": 17.593646274611253,
+                "mace-mpa-0-medium": 15.953762752807512
+              },
+              "dispersion": 0.1528479776833933,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "b0: cross-model dispersion 0.153 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 8.369999977730913e-05
+          },
+          "c11": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c11",
+              "values_by_model": {
+                "chgnet": 21.2592886501911,
+                "mace-mp-small": 36.663259325701205,
+                "mace-mp-medium": 38.14866144026207,
+                "mace-mpa-0-medium": 36.16491350206067
+              },
+              "dispersion": 0.46381426676773063,
+              "level": "pass"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c11: cross-model dispersion 0.464 -> pass (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 6.98000003467314e-05
+          },
+          "c12": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c12",
+              "values_by_model": {
+                "chgnet": 9.329511928916595,
+                "mace-mp-small": 4.6216848435056495,
+                "mace-mp-medium": 7.260054804522421,
+                "mace-mpa-0-medium": 5.952474191209643
+              },
+              "dispersion": 0.7126307290499309,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c12: cross-model dispersion 0.713 -> flag (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 8.029999935388332e-05
+          },
+          "c44": {
+            "gate": "concordance",
+            "passed": true,
+            "values": {
+              "property": "c44",
+              "values_by_model": {
+                "chgnet": -1.541947266981706,
+                "mace-mp-small": 3.198360617464707,
+                "mace-mp-medium": 3.535675297343709,
+                "mace-mpa-0-medium": 3.9448104599192724
+              },
+              "dispersion": 1.6295599834373848,
+              "level": "flag"
+            },
+            "criteria": {
+              "dispersion_metric": "(max - min) / |median| across models",
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
+            },
+            "detail": "c44: cross-model dispersion 1.630 -> flag (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 7.779999941703863e-05
+          }
+        },
+        "born_aggregate": {
+          "passed": false,
+          "per_model": {
+            "chgnet": false,
+            "mace-mp-small": true,
+            "mace-mp-medium": true,
+            "mace-mpa-0-medium": true
+          }
+        },
+        "dynamic_return": {
+          "gate": "dynamic_return",
+          "passed": true,
+          "values": {
+            "n_atoms": 5,
+            "rattle_amplitude_a": 0.05,
+            "seed": 20260713,
+            "fmax": 0.02,
+            "max_steps": 1000,
+            "e_reference_ev": -14.179114595589809,
+            "e_relaxed_ev": -14.177581498095318,
+            "energy_delta_ev_per_atom": 0.00030661949889818627,
+            "max_displacement_a": 0.08687708147112712,
+            "n_relax_steps": 23
+          },
+          "criteria": {
+            "abs_energy_return_ev_per_atom_max": 0.002,
+            "max_mic_displacement_a_max": 0.25,
+            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
+          },
+          "detail": "rattled structure returned to the original minimum in 23 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
+          "wall_time_seconds": 1.295788899999934
+        }
+      },
+      "verdict": "REFUSED"
+    }
+  },
+  "arm_metrics": {
+    "abs_rel_error_by_group_property": {
+      "all": {
+        "a0": {
+          "n_cells": 32,
+          "median_abs_rel_err_raw": 0.009855449404015471,
+          "mean_abs_rel_err_raw": 0.010669205164333964,
+          "median_abs_rel_err_corrected": 0.010824905705317482,
+          "mean_abs_rel_err_corrected": 0.01109619775870704
+        },
+        "b0": {
+          "n_cells": 36,
+          "median_abs_rel_err_raw": 0.07945323919598227,
+          "mean_abs_rel_err_raw": 0.10974625305202376,
+          "median_abs_rel_err_corrected": 0.10912563926750586,
+          "mean_abs_rel_err_corrected": 0.1382327010982073
+        },
+        "c11": {
+          "n_cells": 24,
+          "median_abs_rel_err_raw": 0.12978405597278064,
+          "mean_abs_rel_err_raw": 0.23387909855024444,
+          "median_abs_rel_err_corrected": 0.12978405597278064,
+          "mean_abs_rel_err_corrected": 0.23387909855024444
+        },
+        "c12": {
+          "n_cells": 24,
+          "median_abs_rel_err_raw": 0.21570285894057906,
+          "mean_abs_rel_err_raw": 0.8904689350756655,
+          "median_abs_rel_err_corrected": 0.21570285894057906,
+          "mean_abs_rel_err_corrected": 0.8904689350756655
+        },
+        "c44": {
+          "n_cells": 24,
+          "median_abs_rel_err_raw": 0.25449024291039446,
+          "mean_abs_rel_err_raw": 0.3517143202780983,
+          "median_abs_rel_err_corrected": 0.25449024291039446,
+          "mean_abs_rel_err_corrected": 0.3517143202780983
+        }
+      },
+      "halide-perovskite": {
+        "a0": {
+          "n_cells": 16,
+          "median_abs_rel_err_raw": 0.014094133240561864,
+          "mean_abs_rel_err_raw": 0.013587071707716586,
+          "median_abs_rel_err_corrected": 0.012936031867010065,
+          "mean_abs_rel_err_corrected": 0.012547777962388772
+        },
+        "b0": {
+          "n_cells": 20,
+          "median_abs_rel_err_raw": 0.07945323919598227,
+          "mean_abs_rel_err_raw": 0.10142223738686602,
+          "median_abs_rel_err_corrected": 0.0736755651715432,
+          "mean_abs_rel_err_corrected": 0.09681950143035581
+        },
+        "c11": {
+          "n_cells": 20,
+          "median_abs_rel_err_raw": 0.17580070781349177,
+          "mean_abs_rel_err_raw": 0.270875019617237,
+          "median_abs_rel_err_corrected": 0.17580070781349177,
+          "mean_abs_rel_err_corrected": 0.270875019617237
+        },
+        "c12": {
+          "n_cells": 20,
+          "median_abs_rel_err_raw": 0.3603870234262117,
+          "mean_abs_rel_err_raw": 1.0510315997719728,
+          "median_abs_rel_err_corrected": 0.3603870234262117,
+          "mean_abs_rel_err_corrected": 1.0510315997719728
+        },
+        "c44": {
+          "n_cells": 20,
+          "median_abs_rel_err_raw": 0.2494348496902256,
+          "mean_abs_rel_err_raw": 0.3703218115236836,
+          "median_abs_rel_err_corrected": 0.2494348496902256,
+          "mean_abs_rel_err_corrected": 0.3703218115236836
+        }
+      },
+      "hea-fcc": {
+        "a0": {
+          "n_cells": 16,
+          "median_abs_rel_err_raw": 0.008378124111738008,
+          "mean_abs_rel_err_raw": 0.007751338620951344,
+          "median_abs_rel_err_corrected": 0.010528920422652702,
+          "mean_abs_rel_err_corrected": 0.009644617555025306
+        },
+        "b0": {
+          "n_cells": 16,
+          "median_abs_rel_err_raw": 0.09056294899946757,
+          "mean_abs_rel_err_raw": 0.12015127263347099,
+          "median_abs_rel_err_corrected": 0.16887076790506583,
+          "mean_abs_rel_err_corrected": 0.18999920068302176
+        },
+        "c11": {
+          "n_cells": 4,
+          "median_abs_rel_err_raw": 0.04557376362525599,
+          "mean_abs_rel_err_raw": 0.048899493215281725,
+          "median_abs_rel_err_corrected": 0.04557376362525599,
+          "mean_abs_rel_err_corrected": 0.048899493215281725
+        },
+        "c12": {
+          "n_cells": 4,
+          "median_abs_rel_err_raw": 0.10225407871465753,
+          "mean_abs_rel_err_raw": 0.0876556115941304,
+          "median_abs_rel_err_corrected": 0.10225407871465753,
+          "mean_abs_rel_err_corrected": 0.0876556115941304
+        },
+        "c44": {
+          "n_cells": 4,
+          "median_abs_rel_err_raw": 0.31485429274525795,
+          "mean_abs_rel_err_raw": 0.2586768640501714,
+          "median_abs_rel_err_corrected": 0.31485429274525795,
+          "mean_abs_rel_err_corrected": 0.2586768640501714
+        }
+      }
+    },
+    "risk_coverage": {
+      "n_candidates": 9,
+      "n_certified": 1,
+      "n_flagged": 3,
+      "n_refused": 5,
+      "n_issued": 4,
+      "coverage_issued_fraction": 0.4444444444444444
+    }
+  },
+  "total_wall_time_seconds": 515.2882012999999
+}

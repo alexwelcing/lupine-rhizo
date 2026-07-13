@@ -1,0 +1,300 @@
+{
+  "schema": "lupine.kinetics_barrier_panel.v1",
+  "generated_at": "2026-07-13T17:04:36.589281+00:00",
+  "device": "cuda",
+  "models": [
+    "mace-mp-medium"
+  ],
+  "calculator_versions": {
+    "mace-mp-medium": "mace-torch 0.3.16"
+  },
+  "parameters": {
+    "structure_type": "rocksalt",
+    "observable": "cation_vacancy_migration_barrier (CI-NEB, <110> hop)",
+    "supercell": 3,
+    "n_images": 5,
+    "climb": true,
+    "neb_method": "improvedtangent",
+    "interpolation": "idpp (linear fallback)",
+    "optimizer": "FIRE",
+    "fmax_ev_per_angstrom": 0.05,
+    "max_steps": 300
+  },
+  "provenance": [
+    "Relaxed a0 per (compound, model) reused from C:/Users/alexw/Downloads/lupine-rhizo/data/climate_targets/halide_panel/report.json (subjects[*].per_model[*].properties.a0, generated_at 2026-07-13T13:17:10.087939+00:00); per-cell provenance recorded.",
+    "Kinetics references loaded from C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/kinetics_targets.json.",
+    "Dispersion metric: (max - min) / |median| across models on the FORWARD barrier (lupine_distill.statics.gates.relative_dispersion).",
+    "Endpoints from lupine_distill.statics.build_cation_vacancy_hop (deterministic first-cation vacancy, nearest <110> cation hopper); band from compute_migration_barrier (both endpoints relaxed, IDPP interpolation, two-stage climbing-image NEB, improved tangent)."
+  ],
+  "cells": {
+    "LiF_rocksalt": {
+      "mace-mp-medium": {
+        "forward_barrier_ev": 0.5701392187670535,
+        "backward_barrier_ev": 0.5701392187670535,
+        "barrier_asymmetry_ev": 0.0,
+        "e_initial_ev": -1037.8985827786073,
+        "e_final_ev": -1037.8985827786073,
+        "e_saddle_ev": -1037.3284435598403,
+        "saddle_image_index": 3,
+        "band_energies_ev": [
+          -1037.8985827786073,
+          -1037.7919155792124,
+          -1037.5054910673473,
+          -1037.3284435598403,
+          -1037.5054910692352,
+          -1037.7919155799993,
+          -1037.8985827786073
+        ],
+        "hop_distance_angstrom": 2.702072842546267,
+        "unrelaxed_hop_distance_angstrom": 2.8944120205823425,
+        "a0_angstrom": 4.093316734603262,
+        "a0_provenance": "halide panel report subjects[LiF_rocksalt].per_model[mace-mp-medium].properties.a0 (model-relaxed)",
+        "n_atoms": 215,
+        "interpolation_method": "idpp",
+        "n_relax_steps_initial": 19,
+        "n_relax_steps_final": 19,
+        "n_neb_steps": 17,
+        "n_pre_climb_steps": 13,
+        "n_force_calls": 360,
+        "wall_time_seconds": 279.92009549999966
+      }
+    },
+    "LiCl_rocksalt": {
+      "mace-mp-medium": {
+        "forward_barrier_ev": 0.49196741313221537,
+        "backward_barrier_ev": 0.49196741313232906,
+        "barrier_asymmetry_ev": 1.1368683772161603e-13,
+        "e_initial_ev": -790.8674278996876,
+        "e_final_ev": -790.8674278996878,
+        "e_saddle_ev": -790.3754604865554,
+        "saddle_image_index": 3,
+        "band_energies_ev": [
+          -790.8674278996876,
+          -790.7878745155797,
+          -790.5531171387909,
+          -790.3754604865554,
+          -790.5531171380117,
+          -790.7878745153379,
+          -790.8674278996878
+        ],
+        "hop_distance_angstrom": 3.4936980730882055,
+        "unrelaxed_hop_distance_angstrom": 3.6272650854580126,
+        "a0_angstrom": 5.129727478177125,
+        "a0_provenance": "halide panel report subjects[LiCl_rocksalt].per_model[mace-mp-medium].properties.a0 (model-relaxed)",
+        "n_atoms": 215,
+        "interpolation_method": "idpp",
+        "n_relax_steps_initial": 15,
+        "n_relax_steps_final": 15,
+        "n_neb_steps": 27,
+        "n_pre_climb_steps": 15,
+        "n_force_calls": 525,
+        "wall_time_seconds": 322.08212900000035
+      }
+    },
+    "LiBr_rocksalt": {
+      "mace-mp-medium": {
+        "forward_barrier_ev": 0.38068443871691215,
+        "backward_barrier_ev": 0.38068443871691215,
+        "barrier_asymmetry_ev": 0.0,
+        "e_initial_ev": -709.0198028628452,
+        "e_final_ev": -709.0198028628452,
+        "e_saddle_ev": -708.6391184241282,
+        "saddle_image_index": 3,
+        "band_energies_ev": [
+          -709.0198028628452,
+          -708.9628024295246,
+          -708.7827443372329,
+          -708.6391184241282,
+          -708.7827443374181,
+          -708.9628024296146,
+          -709.0198028628452
+        ],
+        "hop_distance_angstrom": 3.76289640429468,
+        "unrelaxed_hop_distance_angstrom": 3.8938384343535404,
+        "a0_angstrom": 5.506719123552395,
+        "a0_provenance": "halide panel report subjects[LiBr_rocksalt].per_model[mace-mp-medium].properties.a0 (model-relaxed)",
+        "n_atoms": 215,
+        "interpolation_method": "idpp",
+        "n_relax_steps_initial": 8,
+        "n_relax_steps_final": 8,
+        "n_neb_steps": 29,
+        "n_pre_climb_steps": 16,
+        "n_force_calls": 540,
+        "wall_time_seconds": 288.1753279000004
+      }
+    },
+    "LiI_rocksalt": {
+      "mace-mp-medium": {
+        "forward_barrier_ev": 0.2591692787431157,
+        "backward_barrier_ev": 0.25916927874322937,
+        "barrier_asymmetry_ev": 1.1368683772161603e-13,
+        "e_initial_ev": -620.4144236310334,
+        "e_final_ev": -620.4144236310335,
+        "e_saddle_ev": -620.1552543522903,
+        "saddle_image_index": 3,
+        "band_energies_ev": [
+          -620.4144236310334,
+          -620.4227491785971,
+          -620.2900626910279,
+          -620.1552543522903,
+          -620.2900626910445,
+          -620.4227491785803,
+          -620.4144236310335
+        ],
+        "hop_distance_angstrom": 4.152702538331926,
+        "unrelaxed_hop_distance_angstrom": 4.299229394028065,
+        "a0_angstrom": 6.080028516787553,
+        "a0_provenance": "halide panel report subjects[LiI_rocksalt].per_model[mace-mp-medium].properties.a0 (model-relaxed)",
+        "n_atoms": 215,
+        "interpolation_method": "idpp",
+        "n_relax_steps_initial": 10,
+        "n_relax_steps_final": 10,
+        "n_neb_steps": 35,
+        "n_pre_climb_steps": 17,
+        "n_force_calls": 585,
+        "wall_time_seconds": 319.2005360999992
+      }
+    },
+    "NaCl_rocksalt": {
+      "mace-mp-medium": {
+        "forward_barrier_ev": 0.6063350751724101,
+        "backward_barrier_ev": 0.6063350751724101,
+        "barrier_asymmetry_ev": 0.0,
+        "e_initial_ev": -726.4476811310408,
+        "e_final_ev": -726.4476811310408,
+        "e_saddle_ev": -725.8413460558684,
+        "saddle_image_index": 3,
+        "band_energies_ev": [
+          -726.4476811310408,
+          -726.3259797330959,
+          -726.0226637911401,
+          -725.8413460558684,
+          -726.0226637913477,
+          -726.3259797331688,
+          -726.4476811310408
+        ],
+        "hop_distance_angstrom": 3.8637119988224153,
+        "unrelaxed_hop_distance_angstrom": 4.018610285419412,
+        "a0_angstrom": 5.683173167532147,
+        "a0_provenance": "halide panel report subjects[NaCl_rocksalt].per_model[mace-mp-medium].properties.a0 (model-relaxed)",
+        "n_atoms": 215,
+        "interpolation_method": "idpp",
+        "n_relax_steps_initial": 19,
+        "n_relax_steps_final": 19,
+        "n_neb_steps": 30,
+        "n_pre_climb_steps": 18,
+        "n_force_calls": 555,
+        "wall_time_seconds": 315.3237647999995
+      }
+    }
+  },
+  "compounds": {
+    "LiF_rocksalt": {
+      "formula": "LiF",
+      "forward_barrier_ev_by_model": {
+        "mace-mp-medium": 0.5701392187670535
+      },
+      "n_models": 1,
+      "barrier_relative_dispersion": null,
+      "barrier_relative_dispersion_error": null,
+      "barrier_absolute_spread_ev": null,
+      "max_barrier_asymmetry_ev": 0.0,
+      "reference_comparison": {
+        "reference_barrier_ev": 0.66,
+        "source": "exp Li+ vacancy migration enthalpy, Stoebe & Huggins, J. Mater. Sci. 1, 117 (1966), NMR self-diffusion extrinsic region (+/-0.03 eV). CHARGED-vacancy hop; MLIP CI-NEB is the neutral-lattice hop.",
+        "delta_ev_by_model": {
+          "mace-mp-medium": -0.0898607812329465
+        },
+        "median_delta_ev": -0.0898607812329465
+      }
+    },
+    "LiCl_rocksalt": {
+      "formula": "LiCl",
+      "forward_barrier_ev_by_model": {
+        "mace-mp-medium": 0.49196741313221537
+      },
+      "n_models": 1,
+      "barrier_relative_dispersion": null,
+      "barrier_relative_dispersion_error": null,
+      "barrier_absolute_spread_ev": null,
+      "max_barrier_asymmetry_ev": 1.1368683772161603e-13,
+      "reference_comparison": {
+        "reference_barrier_ev": 0.41,
+        "source": "exp Li+ vacancy migration enthalpy, Haven, Recl. Trav. Chim. 69, 1471 (1950) via Alt et al., Solid State Ionics 429, 116991 (2025). Range 0.41-0.59 eV. CHARGED-vacancy hop.",
+        "delta_ev_by_model": {
+          "mace-mp-medium": 0.0819674131322154
+        },
+        "median_delta_ev": 0.0819674131322154
+      }
+    },
+    "LiBr_rocksalt": {
+      "formula": "LiBr",
+      "forward_barrier_ev_by_model": {
+        "mace-mp-medium": 0.38068443871691215
+      },
+      "n_models": 1,
+      "barrier_relative_dispersion": null,
+      "barrier_relative_dispersion_error": null,
+      "barrier_absolute_spread_ev": null,
+      "max_barrier_asymmetry_ev": 0.0,
+      "reference_comparison": {
+        "reference_barrier_ev": 0.39,
+        "source": "exp Li+ vacancy migration enthalpy, Haven (1950) via Alt et al. (2025). CHARGED-vacancy hop; neutral-lattice CI-NEB differs.",
+        "delta_ev_by_model": {
+          "mace-mp-medium": -0.009315561283087859
+        },
+        "median_delta_ev": -0.009315561283087859
+      }
+    },
+    "LiI_rocksalt": {
+      "formula": "LiI",
+      "forward_barrier_ev_by_model": {
+        "mace-mp-medium": 0.2591692787431157
+      },
+      "n_models": 1,
+      "barrier_relative_dispersion": null,
+      "barrier_relative_dispersion_error": null,
+      "barrier_absolute_spread_ev": null,
+      "max_barrier_asymmetry_ev": 1.1368683772161603e-13,
+      "reference_comparison": {
+        "reference_barrier_ev": 0.38,
+        "source": "exp Li+ vacancy migration enthalpy, Haven (1950) via Alt et al. (2025). CHARGED-vacancy hop; neutral-lattice CI-NEB differs.",
+        "delta_ev_by_model": {
+          "mace-mp-medium": -0.12083072125688432
+        },
+        "median_delta_ev": -0.12083072125688432
+      }
+    },
+    "NaCl_rocksalt": {
+      "formula": "NaCl",
+      "forward_barrier_ev_by_model": {
+        "mace-mp-medium": 0.6063350751724101
+      },
+      "n_models": 1,
+      "barrier_relative_dispersion": null,
+      "barrier_relative_dispersion_error": null,
+      "barrier_absolute_spread_ev": null,
+      "max_barrier_asymmetry_ev": 0.0,
+      "reference_comparison": {
+        "reference_barrier_ev": 0.69,
+        "source": "exp Na+ vacancy migration enthalpy (0.65-0.71 eV), Hooton & Jacobs, Can. J. Chem. 66, 830 (1988) and classic conductivity analyses. CHARGED-vacancy hop; neutral-lattice CI-NEB differs.",
+        "delta_ev_by_model": {
+          "mace-mp-medium": -0.0836649248275898
+        },
+        "median_delta_ev": -0.0836649248275898
+      }
+    }
+  },
+  "n_cells_ok": 5,
+  "n_cells_failed": 0,
+  "notes": [
+    "Neutral vacancy hop only: no charged defects, no electrostatic alignment or image-charge corrections; the physical migrating defect in these halides is usually charged (V_Li'), so values are the NEUTRAL-cell CI-NEB barrier.",
+    "Finite-size: single 2x2x2 (64-atom) rocksalt supercell, one vacancy, fixed-cell CI-NEB; defect-defect and elastic image interactions under PBC are NOT converged out and no supercell extrapolation is done.",
+    "Athermal: T=0 minimum-energy-path barrier; no attempt frequencies, no harmonic prefactors, no finite-temperature or quantum corrections \u2014 this is E_m, not a diffusivity.",
+    "Single mechanism: only the nearest-neighbour <110> cation-vacancy hop is probed; other mechanisms (anion hops, curved <110> paths, interstitialcy) are out of scope.",
+    "Symmetric hop: forward and backward barriers should coincide; the recorded asymmetry is a numerical convergence check, not physics.",
+    "No thresholds exist for barrier dispersion: values are descriptive. Deriving kinetics flag/refuse percentiles is future calibration work.",
+    "Model non-independence: mace-mp-small and mace-mp-medium share architecture and training data; dispersion is ensemble spread, not independent-error spread."
+  ],
+  "total_wall_time_seconds": 1536.5654239999985
+}

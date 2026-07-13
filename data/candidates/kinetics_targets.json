@@ -1,0 +1,143 @@
+{
+  "schema": "lupine.kinetics_targets.v1",
+  "compiled_at": "2026-07-13",
+  "family": "halide_rocksalt_kinetics",
+  "compounds": ["LiF", "LiCl", "LiBr", "LiI", "NaCl"],
+  "structure": "rocksalt",
+  "purpose": "Reference anchors for run_barrier_panel.py (cation-vacancy CI-NEB migration barriers) and the halide statics panel (a0, C11/C12/C44, B0). Web-verified 2026-07-13; every number is from a fetched source cited per entry. Unfindable values are null (never invented).",
+  "convention_caveat": "Experimental dH_m is the CHARGED cation-vacancy hop in the real ionic crystal (measured by ionic conductivity / tracer self-diffusion, i.e. the migration enthalpy of V_cation'); MLIP CI-NEB in run_barrier_panel.py gives the NEUTRAL-lattice hop in a single 2x2x2 supercell with no charge/image corrections. These are not the same observable; compare only with that caveat in mind.",
+  "value_format": "{value, unit, kind: exp|DFT-PBE|corpus-verified|other, source, caveat}. kind='exp' = experimental primary; 'DFT-PBE' = published PBE/GGA NEB; 'corpus-verified' = reused from data/y_matrix_targets/beyond_metals.json; 'other' = derived/compilation.",
+
+  "entries": {
+    "LiF": {
+      "structure": "rocksalt",
+      "dH_m_cation_vacancy": {
+        "value": 0.66,
+        "uncertainty": 0.03,
+        "unit": "eV",
+        "kind": "exp",
+        "temperature_regime": "extrinsic free-vacancy region (association-corrected); intrinsic region gives 1.87 +/- 0.09 eV = h_S/2 + h_m",
+        "method": "NMR motional-narrowing self-diffusion of 7Li and 19F in Mg/Mn-doped LiF single crystals",
+        "source": "T. G. Stoebe and R. A. Huggins, 'Measurement of ionic diffusion in lithium fluoride by nuclear magnetic resonance techniques', J. Mater. Sci. 1, 117-125 (1966), doi:10.1007/BF00550100. Three regions: intrinsic 1.87+/-0.09 eV, extrinsic free-vacancy 0.66+/-0.03 eV, divalent-vacancy association 0.91+/-0.05 eV.",
+        "caveat": "CHARGED Li+ (V_Li') vacancy hop in the real ionic crystal; MLIP CI-NEB gives the neutral-lattice hop. The 0.66 eV is the extrinsic free-cation-vacancy migration enthalpy; implied Schottky formation h_S ~ 2*(1.87-0.66) = 2.42 eV."
+      },
+      "dft_neb_cation_vacancy": {
+        "value_range": [0.66, 0.73],
+        "unit": "eV",
+        "kind": "DFT-PBE",
+        "charge_treatment": "neutral, non-stoichiometric periodic supercells (total charge = 0); no explicit image-charge/potential-alignment corrections",
+        "source": "Published PBE CI-NEB Li-vacancy migration barriers 0.66 eV (Zheng et al.) and 0.73 eV (Yildirim et al.), as compiled and reproduced in 'Exploring lithium diffusion in LiF with machine learning potentials: from point defects to collective ring diffusion', npj Comput. Mater. (2026), article s41524-026-02132-8, https://www.nature.com/articles/s41524-026-02132-8 (own PBE-trained MLIP OPES vacancy activation 0.76 eV).",
+        "caveat": "VACANCY mechanism only. The same paper reports far lower interstitial knock-off (0.24 +/- 0.01 eV) and collective-ring (0.26 +/- 0.01 eV) barriers; those are NOT the cation-vacancy hop and must not be compared to the vacancy CI-NEB. SCAN gives higher (nearer-experiment) barriers than PBE."
+      },
+      "a0": {
+        "value": 4.017,
+        "unit": "angstrom",
+        "kind": "exp",
+        "temperature": "room temperature",
+        "source": "Wyckoff, Crystal Structures Vol.1 (1963), a0 = 4.0173 A, verified via Crystallography Open Database entry 9008667 (crystallography.net COD API). Cross-check: UCL/Harding nearest-neighbour Li-F distance 2.008 A -> a0 = 4.016 A, https://www.homepages.ucl.ac.uk/~ucapahh/research/crystal/lif.htm.",
+        "caveat": "Conventional cubic cell edge (4 formula units). UCL/Harding page quotes the a0/2 nearest-neighbour distance (2.008 A RT; 1.996 A at 0 K -> a0(0K) = 3.992 A)."
+      },
+      "C11": {"value": 111.2, "unit": "GPa", "kind": "exp", "temperature": "300 K", "source": "C. V. Briscoe and C. F. Squire, 'Elastic Constants of LiF from 4.2K to 300K by Ultrasonic Methods', Phys. Rev. 106, 1175 (1957), verified via the APS record (link.aps.org/pdf/10.1103/PhysRev.106.1175). 300 K: C11=11.12, C12=4.20, C44=6.28 (x10^11 dyn/cm^2); 4.2 K: 12.46/4.24/6.49.", "caveat": "1x10^11 dyn/cm^2 = 10 GPa. NOTE: the UCL/Harding page mislabels C12 and C44 (lists 6.28 as C12, 4.20 as C44); Briscoe & Squire assign C44=6.28, C12=4.20, so C44 > C12 (large Cauchy violation, physically correct for LiF). Lewis-Lehoczky-Briscoe PR 161, 877 (1967) does NOT include LiF — its low-T primary is Briscoe & Squire."},
+      "C12": {"value": 42.0, "unit": "GPa", "kind": "exp", "temperature": "300 K", "source": "C. V. Briscoe and C. F. Squire, Phys. Rev. 106, 1175 (1957), 300 K: C12 = 4.20 x10^11 dyn/cm^2.", "caveat": "See C11 note on UCL label swap."},
+      "C44": {"value": 62.8, "unit": "GPa", "kind": "exp", "temperature": "300 K", "source": "C. V. Briscoe and C. F. Squire, Phys. Rev. 106, 1175 (1957), 300 K: C44 = 6.28 x10^11 dyn/cm^2.", "caveat": "See C11 note on UCL label swap; C44 > C12 for LiF."},
+      "B0": {"value": 65.1, "unit": "GPa", "kind": "other", "temperature": "300 K", "source": "Derived: B0 = (C11 + 2*C12)/3 = (111.2 + 84.0)/3 from Briscoe & Squire (1957) elastic constants.", "caveat": "Adiabatic elastic (Voigt/Reuss identical for cubic B). Literature RT LiF B0 ~ 62-70 GPa."},
+      "schottky_formation_enthalpy": {"value": 2.42, "unit": "eV", "kind": "other", "source": "Derived from Stoebe & Huggins (1966) NMR: h_S ~ 2*(intrinsic 1.87 - migration 0.66) = 2.42 eV.", "caveat": "Context only; not a kinetics target."}
+    },
+
+    "LiCl": {
+      "structure": "rocksalt",
+      "dH_m_cation_vacancy": {
+        "value": 0.41,
+        "unit": "eV",
+        "kind": "exp",
+        "temperature_regime": "Li-vacancy migration enthalpy extracted from Mg-doped (vacancy-donor) single-crystal ionic conductivity; intrinsic conductivity activation dH_A = 1.47 eV",
+        "method": "ionic conductivity of pure and MgCl2-doped LiCl single crystals",
+        "source": "Y. Haven, 'The ionic conductivity of Li-halide crystals', Recl. Trav. Chim. Pays-Bas 69, 1471-1489 (1950); Li-vacancy migration enthalpy 0.41 eV and intrinsic activation 1.47 eV as compiled in C. D. Alt, J. Kessler-Kuehn, J. K. Eckhardt, M. Stein, S. Chatterjee, M. T. Elm, J. Janek, 'The partial electronic conductivity of lithium halides ...', Solid State Ionics 429, 116991 (2025), https://www.sciencedirect.com/science/article/pii/S0167273825002103.",
+        "caveat": "CHARGED Li+ vacancy hop; MLIP CI-NEB gives the neutral-lattice hop. Implied Schottky h_S ~ 2*(1.47-0.41) = 2.12 eV. LITERATURE SPREAD: a later Ca/Sr-doped single-crystal conductivity study reports h_m = 0.59 +/- 0.03 eV with h_S = 1.66 +/- 0.03 eV (citation not independently confirmed this session); treat 0.41-0.59 eV as the experimental range."
+      },
+      "dft_neb_cation_vacancy": {"value": null, "unit": "eV", "kind": "DFT-PBE", "source": null, "caveat": "No clean published PBE/GGA Li-vacancy NEB barrier for rocksalt LiCl was value-verified this session. DFT-NEB datasets for LiCl as an SEI component exist but were not numerically confirmed."},
+      "a0": {"value": 5.1295, "unit": "angstrom", "kind": "exp", "temperature": "room temperature", "source": "Ievins, Straumanis & Karlsons, Z. Phys. Chem. B40, 146 (1938): a0 = 5.12952(4) A, verified via Crystallography Open Database entry 1011314. Cross-check: UCL/Harding nearest-neighbour 2.56 A -> a0 = 5.12 A, https://www.homepages.ucl.ac.uk/~ucapahh/research/crystal/licl.htm.", "caveat": "Conventional cubic cell edge. 0 K: a0 ~ 5.08 A (UCL r0=2.54 x2)."},
+      "C11": {"value": 49.63, "unit": "GPa", "kind": "exp", "temperature": "295 K", "source": "L. S. Ching (Cheng), J. Day, A. L. Ruoff, 'Pressure and temperature dependence of the elastic constants of LiBr and LiCl', J. Appl. Phys. 44, 1017 (1973), Table VI / abstract: 295 K C11 = 4.963 x10^11 dyn/cm^2. Verified from the OSTI full-text preprint https://www.osti.gov/servlets/purl/4585307. Concordant: Haussuhl, Z. Physik 159, 223 (1960): 49.4; Marshall, Pederson & Dorris, J. Phys. Chem. Solids 28, 1061 (1967): 48.48 (their 4.2 K set: 58.60/20.86/26.71 GPa).", "caveat": "1x10^11 dyn/cm^2 = 10 GPa. The ~61 GPa 'C11' on the UCL/Harding LiCl page is unattributed (its 'Ref. 2' is absent from the page's reference list) and matches no verified measurement — treated as an error on that page. Lewis-Lehoczky-Briscoe, Phys. Rev. 161, 877 (1967) coverage VERIFIED: LiCl, NaF, NaCl, NaBr, KF, RbCl, RbBr, RbI at 4.2 and 300 K (LiF is NOT included); UCL attributes RT 49.27/23.1/24.95 GPa to them, consistent with Ching within 1% but not verifiable from a fetchable source this session."},
+      "C12": {"value": 22.77, "unit": "GPa", "kind": "exp", "temperature": "295 K", "source": "Ching, Day & Ruoff, J. Appl. Phys. 44, 1017 (1973): C12 = 2.277 x10^11 dyn/cm^2 (from C11, C44, C00=(C11+C12+2C44)/2; Table VI). Verified via OSTI full text. Haussuhl (1960): 22.8.", "caveat": "Marshall et al. (1967) give a discrepant-low 18.90 GPa; Ching explicitly notes disagreement with Marshall's C11/C12 and near-agreement with Haussuhl."},
+      "C44": {"value": 25.03, "unit": "GPa", "kind": "exp", "temperature": "295 K", "source": "Ching, Day & Ruoff, J. Appl. Phys. 44, 1017 (1973): C44 = 2.503 x10^11 dyn/cm^2 (Table VI). Verified via OSTI full text. Haussuhl (1960): 24.6; Marshall et al. (1967): 24.70.", "caveat": "All three RT studies agree on C44 within ~2%."},
+      "B0": {"value": 31.7, "unit": "GPa", "kind": "other", "temperature": "295-303 K", "source": "Derived: B0 = (C11 + 2*C12)/3 = (49.63 + 45.54)/3 from Ching, Day & Ruoff (1973); matches their tabulated adiabatic B_S = 31.6 GPa at 303 K.", "caveat": "Adiabatic elastic bulk modulus. 4.2 K (Marshall et al.): 33.4 GPa (computed)."},
+      "schottky_formation_enthalpy": {"value": 2.12, "unit": "eV", "kind": "other", "source": "Derived from Haven (1950): h_S ~ 2*(1.47 - 0.41). Alternative study gives 1.66 eV.", "caveat": "Context only."}
+    },
+
+    "LiBr": {
+      "structure": "rocksalt",
+      "dH_m_cation_vacancy": {
+        "value": 0.39,
+        "unit": "eV",
+        "kind": "exp",
+        "temperature_regime": "Li-vacancy migration enthalpy from Mg-doped single-crystal conductivity; intrinsic activation dH_A = 1.29 eV",
+        "method": "ionic conductivity of pure and MgBr2-doped LiBr single crystals",
+        "source": "Y. Haven, Recl. Trav. Chim. Pays-Bas 69, 1471-1489 (1950); migration enthalpy 0.39 eV, intrinsic activation 1.29 eV as compiled in Alt et al., Solid State Ionics 429, 116991 (2025), https://www.sciencedirect.com/science/article/pii/S0167273825002103.",
+        "caveat": "CHARGED Li+ vacancy hop; MLIP CI-NEB gives the neutral-lattice hop. Implied Schottky h_S ~ 2*(1.29-0.39) = 1.80 eV."
+      },
+      "dft_neb_cation_vacancy": {"value": null, "unit": "eV", "kind": "DFT-PBE", "source": null, "caveat": "No clean published PBE/GGA Li-vacancy NEB barrier for rocksalt LiBr value-verified this session."},
+      "a0": {"value": 5.5013, "unit": "angstrom", "kind": "exp", "temperature": "room temperature", "source": "Wyckoff, Crystal Structures Vol.1 (1963): a0 = 5.5013 A, verified via Crystallography Open Database entry 9008664. Cross-check: UCL/Harding nearest-neighbour 2.74 A -> a0 = 5.48 A, https://www.homepages.ucl.ac.uk/~ucapahh/research/crystal/libr.htm.", "caveat": "Conventional cubic cell edge. 0 K: a0 ~ 5.46 A (UCL r0=2.73 x2)."},
+      "C11": {"value": 39.59, "unit": "GPa", "kind": "exp", "temperature": "295 K", "source": "L. S. Ching (Cheng), J. Day, A. L. Ruoff, 'Pressure and temperature dependence of the elastic constants of LiBr and LiCl', J. Appl. Phys. 44, 1017 (1973), Table VI 'Present work, 295K': C11 = 3.958-3.959 x10^11 dyn/cm^2. Verified from the OSTI full-text preprint https://www.osti.gov/servlets/purl/4585307. Concordant: Haussuhl, Z. Physik 159, 223 (1960): 39.4.", "caveat": "1x10^11 dyn/cm^2 = 10 GPa. RESOLVED AMBIGUITY: the alternative set 47.21/15.90/20.52 GPa on the UCL/Harding page is Marshall & Cleavelin's 0 K EXTRAPOLATION (J. Phys. Chem. Solids 30, 1905 (1969)), mislabeled as RT there — it is not a room-temperature measurement."},
+      "C12": {"value": 19.09, "unit": "GPa", "kind": "exp", "temperature": "295 K", "source": "Ching, Day & Ruoff, J. Appl. Phys. 44, 1017 (1973): C12 = 1.908-1.909 x10^11 dyn/cm^2 (from C00=(C11+C12+2C44)/2 = 4.843; Table VI). Verified via OSTI full text. Haussuhl (1960): 18.7.", "caveat": "See C11 note; Marshall & Cleavelin 0 K value is 15.90 GPa."},
+      "C44": {"value": 19.09, "unit": "GPa", "kind": "exp", "temperature": "295 K", "source": "Ching, Day & Ruoff, J. Appl. Phys. 44, 1017 (1973): C44 = 1.909 x10^11 dyn/cm^2 (Table VI). Verified via OSTI full text. Haussuhl (1960): 19.3.", "caveat": "Cauchy relation C12 ~ C44 essentially exact at RT for LiBr. Marshall & Cleavelin 0 K value is 20.52 GPa."},
+      "B0": {"value": 25.9, "unit": "GPa", "kind": "other", "temperature": "295 K", "source": "Derived: B0 = (C11 + 2*C12)/3 = (39.59 + 38.18)/3 from Ching, Day & Ruoff (1973); matches their tabulated B_S ~ 25.8-26.1 GPa near 295 K.", "caveat": "Adiabatic elastic bulk modulus. 0 K (Marshall & Cleavelin): 26.3 GPa (computed)."},
+      "schottky_formation_enthalpy": {"value": 1.80, "unit": "eV", "kind": "other", "source": "Derived from Haven (1950): h_S ~ 2*(1.29 - 0.39).", "caveat": "Context only."}
+    },
+
+    "LiI": {
+      "structure": "rocksalt",
+      "dH_m_cation_vacancy": {
+        "value": 0.38,
+        "unit": "eV",
+        "kind": "exp",
+        "temperature_regime": "Li-vacancy migration enthalpy from Mg-doped single-crystal conductivity; intrinsic activation dH_A = 1.05 eV",
+        "method": "ionic conductivity of pure and MgI2-doped LiI single crystals",
+        "source": "Y. Haven, Recl. Trav. Chim. Pays-Bas 69, 1471-1489 (1950); migration enthalpy 0.38 eV, intrinsic activation 1.05 eV as compiled in Alt et al., Solid State Ionics 429, 116991 (2025), https://www.sciencedirect.com/science/article/pii/S0167273825002103.",
+        "caveat": "CHARGED Li+ vacancy hop; MLIP CI-NEB gives the neutral-lattice hop. Implied Schottky h_S ~ 2*(1.05-0.38) = 1.34 eV. LiI has the lowest migration enthalpy of the lithium halides."
+      },
+      "dft_neb_cation_vacancy": {"value": null, "unit": "eV", "kind": "DFT-PBE", "source": null, "caveat": "No clean published PBE/GGA Li-vacancy NEB barrier for rocksalt LiI value-verified this session."},
+      "a0": {"value": 6.000, "unit": "angstrom", "kind": "exp", "temperature": "room temperature", "source": "Wyckoff, Crystal Structures Vol.1 (1963): a0 = 6.000 A, verified via Crystallography Open Database entry 9008669; Ott (1923): 6.00(1) A. Cross-check: UCL/Harding nearest-neighbour 3.00 A -> a0 = 6.00 A, https://www.homepages.ucl.ac.uk/~ucapahh/research/crystal/lii.htm.", "caveat": "Conventional cubic cell edge. 0 K: a0 ~ 5.902 A (UCL r0=2.951 x2)."},
+      "C11": {"value": 29.22, "unit": "GPa", "kind": "exp", "temperature": "295 K (adiabatic)", "source": "K. O. McLean and C. S. Smith, J. Phys. Chem. Solids 33, 275-278 (1972), doi:10.1016/0022-3697(72)90007-8 (verified via https://colab.ws/articles/10.1016%2F0022-3697%2872%2990007-8): abstract moduli (kbar) C_n=357.1, C'=74.3, C44=140.7 -> C11=29.07 GPa; the paper's final misorientation-corrected table (via UCL/Harding) gives 29.22 GPa (<=0.5% difference).", "caveat": "1x10^11 dyn/cm^2 = 10 GPa. The ONLY located experimental single-crystal measurement for LiI (one usable crystal, off-axis modes). Isothermal set (Berg, Phys. Rev. B 13, 2641 (1976), derived not independent): 27.07/12.21/14.07 GPa. Absent from Haussuhl (1960) — hygroscopic."},
+      "C12": {"value": 14.28, "unit": "GPa", "kind": "exp", "temperature": "295 K (adiabatic)", "source": "McLean & Smith, J. Phys. Chem. Solids 33, 275 (1972): abstract-derived 14.21 GPa; final corrected table 14.28 GPa (UCL/Harding).", "caveat": "Isothermal C12 = 12.21 GPa (Berg 1976, derived)."},
+      "C44": {"value": 14.15, "unit": "GPa", "kind": "exp", "temperature": "295 K (adiabatic)", "source": "McLean & Smith, J. Phys. Chem. Solids 33, 275 (1972): abstract 14.07 GPa; final corrected table 14.15 GPa (UCL/Harding).", "caveat": "Cauchy relation C12 ~ C44 well satisfied. Isothermal C44 = 14.07 GPa."},
+      "B0": {"value": 19.3, "unit": "GPa", "kind": "other", "temperature": "295 K", "source": "Derived: B0 = (C11 + 2*C12)/3 = (29.22 + 28.56)/3 from McLean & Smith (1972) adiabatic constants; consistent with UCL compressibility 0.519 x10^11 dyn/cm^2 -> B = 19.3 GPa.", "caveat": "Adiabatic elastic bulk modulus. No 0 K measurement exists (295 K only)."},
+      "schottky_formation_enthalpy": {"value": 1.34, "unit": "eV", "kind": "other", "source": "Derived from Haven (1950): h_S ~ 2*(1.05 - 0.38).", "caveat": "Context only."}
+    },
+
+    "NaCl": {
+      "structure": "rocksalt",
+      "dH_m_cation_vacancy": {
+        "value": 0.69,
+        "value_range": [0.65, 0.71],
+        "unit": "eV",
+        "kind": "exp",
+        "temperature_regime": "free (isolated) cation-vacancy migration enthalpy from extrinsic-region ionic conductivity, association-corrected; NOT the intrinsic activation (h_S/2 + h_m ~ 2.10 eV)",
+        "method": "ionic conductivity / self-diffusion of pure and divalent-doped (Sr2+, Ca2+, Cd2+) NaCl single crystals",
+        "source": "Classic NaCl defect analyses: I. E. Hooton and P. W. M. Jacobs, 'Ionic conductivity of pure and doped sodium chloride crystals', Can. J. Chem. 66, 830 (1988), https://cdnsciencepub.com/doi/10.1139/v88-144; consistent with the extrinsic-conductivity slope 0.685 eV and Nelson & Friauf (1970). Accepted cation-vacancy migration enthalpy 0.65-0.71 eV.",
+        "caveat": "CHARGED Na+ (V_Na') vacancy hop; MLIP CI-NEB gives the neutral-lattice hop. Anion (Cl-) vacancy migration is higher (~0.74-0.90 eV). Schottky formation h_S(NaCl) ~ 2.44 eV. The often-quoted 2.10 eV is the intrinsic conductivity activation (h_S/2 + h_m), not the migration enthalpy."
+      },
+      "dft_neb_cation_vacancy": {"value": null, "unit": "eV", "kind": "DFT-PBE", "source": null, "caveat": "No clean published PBE/GGA Na-vacancy NEB barrier for pure rocksalt NaCl value-verified this session. General method note (from charged-defect NEB literature): PBE, ~96-atom supercell, CI-NEB with 7 images, fmax ~0.05 eV/A; for a singly-charged V_Na' the potential-alignment correction lowers the saddle by ~0.06 eV vs neutral."},
+      "a0": {"value": 5.642, "unit": "angstrom", "kind": "corpus-verified", "temperature": "300 K", "source": "Reused from data/y_matrix_targets/beyond_metals.json (NaCl lattice_constant_a, exp): A. Dewaele, Minerals 9, 684 (2019), V0 = 44.90(12) A^3/f.u. -> a0 = (4*44.90)^(1/3) = 5.642 A.", "caveat": "Conventional cubic cell edge (4 f.u.)."},
+      "C11": {"value": 49.8, "unit": "GPa", "kind": "exp", "temperature": "ambient", "source": "Ambient NaCl-B1 single-crystal C11 = 49.8 +/- 0.5 GPa, from J. C. Crowhurst, J. M. Brown, A. F. Goncharov, S. D. Jacobsen, Science 319, 451 (2008) 'and references herein', as tabulated by F. Xu et al., arXiv:2209.10899 (Single-crystal elastic moduli ... of NaCl), Table (ref. b).", "caveat": "SPREAD across three cited studies: C11 = 48.2-51.6 GPa (b 49.8+/-0.5 [Crowhurst 2008]; c 51.6+/-0.5 [Zhao/Xu/Zerr, Phys. Status Solidi RRL 13, 1900173 (2019)]; d 48.2+/-1.4 [Rosa et al., JGR 121, 7161 (2016)]). NOT in beyond_metals.json corpus (NaCl Cij were 'not sought' there), so tagged 'exp' not 'corpus-verified'. Classic ultrasonic RT value ~49.1 GPa."},
+      "C12": {"value": 13.0, "unit": "GPa", "kind": "exp", "temperature": "ambient", "source": "NaCl-B1 C12 = 13.0 +/- 0.2 GPa (Crowhurst 2008, ref. b) via Xu et al., arXiv:2209.10899.", "caveat": "Spread C12 = 12.2-13.0 GPa across the three cited studies."},
+      "C44": {"value": 12.8, "unit": "GPa", "kind": "exp", "temperature": "ambient", "source": "NaCl-B1 C44 = 12.8 +/- 0.1 GPa (Crowhurst 2008, ref. b) via Xu et al., arXiv:2209.10899.", "caveat": "Spread C44 = 12.7-13.6 GPa across the three cited studies. Cauchy relation C12 ~ C44 well satisfied for NaCl."},
+      "B0": {"value": 24.0, "unit": "GPa", "kind": "corpus-verified", "temperature": "300 K (isothermal)", "source": "Reused from data/y_matrix_targets/beyond_metals.json (NaCl bulk_modulus_isothermal_300K, exp): A. Dewaele, Minerals 9, 684 (2019), Rydberg-Vinet fit K0 = 24.0(8) GPa (Mao scale).", "caveat": "Isothermal DAC B0. The adiabatic ELASTIC bulk modulus from the Cij above, (C11+2*C12)/3 = (49.8+26.0)/3 = 25.3 GPa, is slightly higher (adiabatic vs isothermal + method). Low-T-extrapolated tabulations run to ~26.6-28.5 GPa."},
+      "schottky_formation_enthalpy": {"value": 2.44, "unit": "eV", "kind": "other", "source": "Classic NaCl value (Hooton & Jacobs 1988; Barr & Lidiard compilation).", "caveat": "Context only; literature range ~2.3-2.5 eV."}
+    }
+  },
+
+  "targets": {
+    "LiF": {"barrier_ev": 0.66, "source": "exp Li+ vacancy migration enthalpy, Stoebe & Huggins, J. Mater. Sci. 1, 117 (1966), NMR self-diffusion extrinsic region (+/-0.03 eV). CHARGED-vacancy hop; MLIP CI-NEB is the neutral-lattice hop."},
+    "LiCl": {"barrier_ev": 0.41, "source": "exp Li+ vacancy migration enthalpy, Haven, Recl. Trav. Chim. 69, 1471 (1950) via Alt et al., Solid State Ionics 429, 116991 (2025). Range 0.41-0.59 eV. CHARGED-vacancy hop."},
+    "LiBr": {"barrier_ev": 0.39, "source": "exp Li+ vacancy migration enthalpy, Haven (1950) via Alt et al. (2025). CHARGED-vacancy hop; neutral-lattice CI-NEB differs."},
+    "LiI": {"barrier_ev": 0.38, "source": "exp Li+ vacancy migration enthalpy, Haven (1950) via Alt et al. (2025). CHARGED-vacancy hop; neutral-lattice CI-NEB differs."},
+    "NaCl": {"barrier_ev": 0.69, "source": "exp Na+ vacancy migration enthalpy (0.65-0.71 eV), Hooton & Jacobs, Can. J. Chem. 66, 830 (1988) and classic conductivity analyses. CHARGED-vacancy hop; neutral-lattice CI-NEB differs."}
+  },
+
+  "unfindable": [
+    {"compound": "LiCl", "property": "dft_neb_cation_vacancy", "note": "No PBE/GGA Li-vacancy NEB barrier for rocksalt LiCl numerically verified this session -> null."},
+    {"compound": "LiBr", "property": "dft_neb_cation_vacancy", "note": "No PBE/GGA Li-vacancy NEB barrier for rocksalt LiBr numerically verified this session -> null."},
+    {"compound": "LiI", "property": "dft_neb_cation_vacancy", "note": "No PBE/GGA Li-vacancy NEB barrier for rocksalt LiI numerically verified this session -> null."},
+    {"compound": "NaCl", "property": "dft_neb_cation_vacancy", "note": "No PBE/GGA Na-vacancy NEB barrier for pure rocksalt NaCl numerically verified this session -> null (only general method parameters recorded)."}
+  ]
+}

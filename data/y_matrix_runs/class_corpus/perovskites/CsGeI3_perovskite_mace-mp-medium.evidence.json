@@ -1,0 +1,57 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "CsGeI3",
+  "source": {
+    "model_id": "mace-mp-medium",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": null
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 6.024218908156026,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 16.773833859084444,
+      "unit": "GPa",
+      "reference_value": 18.89,
+      "reference_source": "references block of data/candidates/round1/report.json (candidate hp-csgei3)",
+      "tolerance": null
+    },
+    {
+      "name": "C11",
+      "value": 36.95584500532385,
+      "unit": "GPa",
+      "reference_value": 40.32,
+      "reference_source": "references block of data/candidates/round1/report.json (candidate hp-csgei3)",
+      "tolerance": null
+    },
+    {
+      "name": "C12",
+      "value": 6.541667456067735,
+      "unit": "GPa",
+      "reference_value": 8.18,
+      "reference_source": "references block of data/candidates/round1/report.json (candidate hp-csgei3)",
+      "tolerance": null
+    },
+    {
+      "name": "C44",
+      "value": 6.099588917753669,
+      "unit": "GPa",
+      "reference_value": 8.87,
+      "reference_source": "references block of data/candidates/round1/report.json (candidate hp-csgei3)",
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "2b59b8aa6b8db128db3809dd9d7862572b4c1e71a09b9ab3e598d31625c0517f",
+    "run_label": "class-corpus perovskites from data/candidates/round1/report.json",
+    "computed_at": "2026-07-13T14:14:06.554750Z"
+  }
+}

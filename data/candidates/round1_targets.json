@@ -1,0 +1,363 @@
+{
+ "schema": "lupine.campaign_targets.v1",
+ "generated_at": "2026-07-13",
+ "notes": "Round-1 candidate targets for the unbiased raw-MLIP vs Lupine-enhanced-MLIP accuracy campaign. All reference values web-verified 2026-07-13 (see per-value source/caveat). kind is one of: exp | DFT-PBE | other. null = genuinely unfindable/unverifiable this session (do not invent). Companion prereg: docs/plans/2026-07-13-unbiased-accuracy-campaign.md.",
+ "candidates": [
+  {
+   "id": "hea-cocrni",
+   "group": "hea-fcc",
+   "formula": "CoCrNi",
+   "structure_type": "fcc-rss",
+   "composition": { "Co": 1, "Cr": 1, "Ni": 1 },
+   "lattice_guess_angstrom": 3.56,
+   "references": {
+    "a0": {
+     "value": 3.56,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "G. Laplanche, M. Schneider, F. Scholz, J. Frenzel, G. Eggeler, J. Schreuer, 'Processing of a single-crystalline CrCoNi medium-entropy alloy and evolution of its thermal expansion and elastic stiffness coefficients with temperature', Scripta Mater. 177 (2020) 44-48, doi:10.1016/j.scriptamat.2019.09.020",
+     "caveat": "Room-temperature value. Verified 2026-07-13 via secondary quotation in arXiv:2603.25616 (NEP CrCoNi potential paper, Table 2) which cites this reference; primary PDF is paywalled. DFT-PBE comparison: a = 3.54 A (arXiv:2603.25616, their own DFT)."
+    },
+    "b0": {
+     "value": 189.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from the room-temperature single-crystal constants of Laplanche et al., Scripta Mater. 177 (2020) 44-48",
+     "caveat": "DERIVED, not directly quoted: (249+2*159)/3 = 189 GPa. Cross-check: polycrystal G=87 GPa, nu=0.30 at 293 K (Wu, Bei, Pharr, George, Acta Mater. 81 (2014) 428-441, Table II, verified from OSTI accepted manuscript purl 1162079) gives B = 2G(1+nu)/(3(1-2nu)) = 188.5 GPa. Consistent."
+    },
+    "c11": {
+     "value": 249.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Laplanche et al., Scripta Mater. 177 (2020) 44-48 (resonant ultrasound spectroscopy on Bridgman-grown CrCoNi single crystal), doi:10.1016/j.scriptamat.2019.09.020",
+     "caveat": "Room temperature. Verified via secondary quotation in arXiv:2603.25616 Table 2. DFT-PBE comparison from same arXiv paper: C11 = 295 GPa."
+    },
+    "c12": {
+     "value": 159.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Laplanche et al., Scripta Mater. 177 (2020) 44-48, doi:10.1016/j.scriptamat.2019.09.020",
+     "caveat": "Room temperature. Verified via arXiv:2603.25616 Table 2. DFT-PBE comparison: C12 = 185 GPa."
+    },
+    "c44": {
+     "value": 138.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Laplanche et al., Scripta Mater. 177 (2020) 44-48, doi:10.1016/j.scriptamat.2019.09.020",
+     "caveat": "Room temperature. Verified via arXiv:2603.25616 Table 2. DFT-PBE comparison: C44 = 142 GPa."
+    }
+   }
+  },
+  {
+   "id": "hea-cocrfeni",
+   "group": "hea-fcc",
+   "formula": "CoCrFeNi",
+   "structure_type": "fcc-rss",
+   "composition": { "Co": 1, "Cr": 1, "Fe": 1, "Ni": 1 },
+   "lattice_guess_angstrom": 3.57,
+   "references": {
+    "a0": {
+     "value": 3.57,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "Consensus of bulk XRD reports for equiatomic fcc CoCrFeNi, room temperature; reported range 3.559-3.575 A across e.g. 'Microstructure evolution and thermal stability of equiatomic CoCrFeNi films' (Acta Mater. 2020, doi:10.1016/j.actamat.2020.09.023 region) and arXiv:2102.05325",
+     "caveat": "No single canonical bulk-XRD citation pinned this session; treat as 3.57 +/- 0.01 A. Sufficient for a0 relative-error scoring at the ~0.3% level; tighten before any claim finer than that."
+    },
+    "b0": {
+     "value": 163.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived from polycrystal G = 84 GPa and nu = 0.28 at 293 K for FeNiCoCr: Z. Wu, H. Bei, G.M. Pharr, E.P. George, Acta Mater. 81 (2014) 428-441, Table II, doi:10.1016/j.actamat.2014.08.026 (values verified from OSTI accepted manuscript, osti.gov/pages/servlets/purl/1162079)",
+     "caveat": "DERIVED via isotropic relations: E = 2G(1+nu) = 215 GPa, B = E/(3(1-2nu)) = 163 GPa. Polycrystal-derived, not a direct EOS measurement."
+    },
+    "c11": null,
+    "c12": null,
+    "c44": null
+   },
+   "cij_null_reason": "No published EXPERIMENTAL single-crystal C11/C12/C44 for equiatomic CoCrFeNi found (searched 2026-07-13: Schreuer/Laplanche RUB group published single-crystal constants only for CrCoNi; Kobe group only for quinary CrMnFeCoNi, Teramoto et al., J. Alloys Compd. 777 (2019)). DFT-CPA values exist in Tian, Varga, Chen, Delczeg, Vitos, Phys. Rev. B 87 (2013) 075144 but the numeric table is paywalled and was not transcribed. If located before the run freeze, add as kind DFT-PBE; otherwise CoCrFeNi participates in a0/B0 legs only."
+  },
+  {
+   "id": "hea-coni",
+   "group": "hea-fcc",
+   "formula": "CoNi",
+   "structure_type": "fcc-rss",
+   "composition": { "Co": 1, "Ni": 1 },
+   "lattice_guess_angstrom": 3.535,
+   "references": {
+    "a0": {
+     "value": 3.535,
+     "unit": "Angstrom",
+     "kind": "other",
+     "source": "Vegard interpolation between fcc Ni (3.524 A) and fcc Co (3.5447 A); electrodeposited Ni-Co XRD across composition agrees with Vegard and with bulk metallurgical data (arXiv:1607.01960 and refs therein)",
+     "caveat": "ESTIMATE: no dedicated equiatomic-CoNi bulk XRD citation pinned this session. Ni-Co is fcc and near-ideal Vegard over 0-65 at.% Co, so uncertainty ~0.005 A, but score a0 for CoNi as secondary evidence only."
+    },
+    "b0": {
+     "value": 172.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived from polycrystal G = 84 GPa and nu = 0.29 at 293 K for NiCo: Wu, Bei, Pharr, George, Acta Mater. 81 (2014) 428-441, Table II (verified from OSTI purl 1162079)",
+     "caveat": "DERIVED via isotropic relations: E = 2G(1+nu) = 216.7 GPa, B = E/(3(1-2nu)) = 172 GPa."
+    },
+    "c11": null,
+    "c12": null,
+    "c44": null
+   },
+   "cij_null_reason": "No room-temperature single-crystal C11/C12/C44 measurement for equiatomic Co-50Ni located this session (older Ni-Co single-crystal literature exists for other compositions; not verified). a0/B0 legs only unless filled before freeze."
+  },
+  {
+   "id": "hea-feni",
+   "group": "hea-fcc",
+   "formula": "FeNi",
+   "structure_type": "fcc-rss",
+   "composition": { "Fe": 1, "Ni": 1 },
+   "lattice_guess_angstrom": 3.582,
+   "references": {
+    "a0": {
+     "value": 3.582,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "Taenite/tetrataenite (Fe-Ni 50:50) meteorite XRD: 'Tetragonal Lattice of Tetrataenite (Ordered Fe-Ni, 50-50) from 4 Meteorites', Phys. Scr. 23 (1981) 301 (Albertsen), a = b = 3.582 A, c = 3.607 A",
+     "caveat": "Ordered L10 tetrataenite is tetragonal (a=3.582, c=3.607); the DISORDERED fcc solid solution simulated here has a cubic parameter in the 3.58-3.60 A range. We score against a=3.582 A with +/-0.01 A convention uncertainty flagged."
+    },
+    "b0": {
+     "value": 176.7,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "R.S. Singh, S. Guruswamy, 'Elastic constants of equiatomic Fe-Ni Invar alloy single crystal', AIP Advances 13 (2023) 115112, doi:10.1063/5.0174535 (bulk modulus from RUS on [001] Fe-50Ni single crystal, no applied field)",
+     "caveat": "Verified from the article abstract/record (OUCI mirror). Cross-check: Wu et al. Acta Mater. 81 (2014) Table II gives G=62 GPa, nu=0.34 for FeNi -> B = 173 GPa. Consistent. Note Fe-Ni near 50:50 has Invar-adjacent magnetoelastic softness; temperature/field convention matters."
+    },
+    "c11": null,
+    "c12": null,
+    "c44": null
+   },
+   "cij_null_reason": "Single-crystal C11/C12/C44 for Fe-50Ni WERE measured in Singh & Guruswamy, AIP Advances 13 (2023) 115112, but the numeric values sit behind a fetch-blocked PDF and were not retrievable this session (abstract exposes only E=99.1, G=73.4, B=176.7 GPa, anisotropy 3.29). Fill from the paper before freeze to include FeNi in the Cij leg; do NOT back-solve Cij from the abstract moduli."
+  },
+  {
+   "id": "hp-cssncl3",
+   "group": "halide-perovskite",
+   "formula": "CsSnCl3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Sn": 1, "Cl": 3 },
+   "lattice_guess_angstrom": 5.58,
+   "references": {
+    "a0": {
+     "value": 5.579,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "Rietveld-refined cubic Pm-3m cell at 403 K, a = 5.579(3) A: Ben Bechir et al., 'Study of charge transfer mechanism and dielectric relaxation of all-inorganic perovskite CsSnCl3' (open access, PMC9034151); consistent with Poulsen & Rasmussen (1970)",
+     "caveat": "CONVENTION MISMATCH: cubic phase is stable only above ~379-391 K; room-temperature CsSnCl3 is monoclinic. Athermal DFT/MLIP relaxations of the 5-atom cubic cell are compared to a 403 K measurement."
+    },
+    "b0": {
+     "value": 22.7,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "M. Roknuzzaman, K. Ostrikov, H. Wang, A. Du, T. Tesfamichael, 'Towards lead-free perovskite photovoltaics and optoelectronics by ab-initio simulations', Sci. Rep. 7 (2017) 14025, doi:10.1038/s41598-017-13172-y (GGA-PBE), verified from PMC5656601 Table 1",
+     "caveat": "Voigt bulk modulus from elastic constants, athermal 0 K cubic cell. Alternative FP-LAPW GGA EOS value: B = 27.68 GPa (Hayatullah et al., Acta Phys. Pol. A 124 (2013) 102). Spread ~20% indicates method sensitivity."
+    },
+    "c11": {
+     "value": 50.66,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell; no experimental Cij known. Internal consistency: (C11+2C12)/3 = 22.7 GPa = their B."
+    },
+    "c12": {
+     "value": 8.71,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell."
+    },
+    "c44": {
+     "value": 6.01,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell."
+    }
+   },
+   "mp_id": "mp-1070375"
+  },
+  {
+   "id": "hp-cssnbr3",
+   "group": "halide-perovskite",
+   "formula": "CsSnBr3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Sn": 1, "Br": 3 },
+   "lattice_guess_angstrom": 5.8,
+   "references": {
+    "a0": {
+     "value": 5.804,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "Experimental cubic lattice constant as tabulated in Hayatullah et al., Acta Phys. Pol. A 124 (2013) 102, Table I 'experiment' row (their ref [17]: J.C. Zheng, A.C.H. Huan, A.T.S. Wee, M.H. Kuok); primary measurement commonly attributed to Donaldson et al. Moessbauer/XRD work showing cubic perovskite at room temperature",
+     "caveat": "CsSnBr3 is cubic AT room temperature (best-conditioned perovskite candidate in this set). Provenance chain runs through a secondary tabulation; primary-source pinning recommended before publication-grade claims."
+    },
+    "b0": {
+     "value": 19.09,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell. Alternative FP-LAPW GGA EOS: B = 25.19 GPa (Hayatullah 2013). Method spread noted."
+    },
+    "c11": {
+     "value": 43.89,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell; internal consistency (C11+2C12)/3 = 19.09 GPa = their B."
+    },
+    "c12": {
+     "value": 6.69,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell."
+    },
+    "c44": {
+     "value": 5.21,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell."
+    }
+   },
+   "mp_id": "mp-27214"
+  },
+  {
+   "id": "hp-cssni3",
+   "group": "halide-perovskite",
+   "formula": "CsSnI3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Sn": 1, "I": 3 },
+   "lattice_guess_angstrom": 6.22,
+   "references": {
+    "a0": {
+     "value": 6.219,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "K. Yamada, S. Funabiki, H. Horimoto, T. Matsui et al. (structural phase transitions of CsSnI3 polymorphs, 1991), as tabulated in Hayatullah et al., Acta Phys. Pol. A 124 (2013) 102, Table I ref [23]",
+     "caveat": "CONVENTION MISMATCH: this is the B-alpha CUBIC phase, stable only above ~426 K (value ~500 K); room-temperature black CsSnI3 is orthorhombic B-gamma, and a separate yellow non-perovskite phase also exists at RT. Athermal cubic relaxation vs high-T measurement."
+    },
+    "b0": {
+     "value": 17.59,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Hayatullah, G. Murtaza, S. Muhammad, S. Naeem, M.N. Khalid, A. Manzar, Acta Phys. Pol. A 124 (2013) 102, Table I (FP-LAPW, Wien2k, GGA; Birch-Murnaghan EOS)",
+     "caveat": "EOS-derived. Roknuzzaman 2017 (GGA-PBE) gives a much softer B = 6.30 GPa with an overestimated lattice constant - CsSnI3 DFT elasticity is strongly method/volume sensitive. This b0 reference is WEAK; interpret CsSnI3 B0 errors qualitatively."
+    },
+    "c11": {
+     "value": 21.34,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "WEAK REFERENCE: computed at their overestimated GGA-PBE equilibrium volume; (C11+2C12)/3 = 7.9 GPa, far below the EOS b0 above. Flagged pre-run: CsSnI3 Cij errors are reported but excluded from headline success criteria."
+    },
+    "c12": {
+     "value": 1.22,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "WEAK REFERENCE - see c11 caveat."
+    },
+    "c44": {
+     "value": 5.74,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "WEAK REFERENCE - see c11 caveat."
+    }
+   },
+   "mp_id": "mp-614013"
+  },
+  {
+   "id": "hp-csgei3",
+   "group": "halide-perovskite",
+   "formula": "CsGeI3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Ge": 1, "I": 3 },
+   "lattice_guess_angstrom": 6.05,
+   "references": {
+    "a0": null,
+    "b0": {
+     "value": 18.89,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell; internal consistency (C11+2C12)/3 = 18.9 GPa = their B. Note RT ground state is rhombohedral R3m (Ge off-centering ~0.17 A along [111]); cubic is a >550 K phase."
+    },
+    "c11": {
+     "value": 40.32,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell; cubic phase is dynamically-adjacent to the R3m distortion, so MLIP relaxations may fall into the rhombohedral well - record which minimum was scored."
+    },
+    "c12": {
+     "value": 8.18,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell."
+    },
+    "c44": {
+     "value": 8.87,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+     "caveat": "Athermal 0 K cubic cell."
+    }
+   },
+   "a0_null_reason": "Cubic (Pm-3m) CsGeI3 exists only above ~550 K (transition confirmed in multiple sources incl. arXiv:2603.11844 context; RT phase is R3m per Thiele et al. 1987). A numeric experimental HIGH-T cubic lattice parameter could not be verified this session (DFT cubic a ~ 6.0 A is reported but attribution unpinned). lattice_guess 6.05 A is an unreferenced initialization value only; a0 scoring for CsGeI3 is DEFERRED unless a Thiele 1987 (Z. anorg. allg. Chem. 545, 148) value is pinned before freeze.",
+   "mp_id": "mp-28377",
+   "mp_id_caveat": "mp-28377 is the trigonal R3m room-temperature ground state, not the cubic phase; a verified MP id for the cubic polymorph was not found this session."
+  },
+  {
+   "id": "hp-cspbi3-control",
+   "group": "halide-perovskite",
+   "formula": "CsPbI3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Pb": 1, "I": 3 },
+   "lattice_guess_angstrom": 6.29,
+   "references": {
+    "a0": {
+     "value": 6.2894,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "D.M. Trots, S.V. Myagkota, 'High-temperature structural evolution of caesium and rubidium triiodoplumbates', J. Phys. Chem. Solids 69 (2008) 2520-2526 (in-situ powder diffraction; alpha-CsPbI3, cubic Pm-3m, 634 K)",
+     "caveat": "CONVENTION MISMATCH: alpha cubic phase measured at 634 K; RT black phases are gamma-orthorhombic and RT equilibrium is the yellow delta non-perovskite phase. Athermal cubic relaxation vs 634 K measurement; thermal expansion makes the exp value an upper bound."
+    },
+    "b0": {
+     "value": 14.76,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "'Pressure-induced modifications in the electronic, mechanical, optical, and thermodynamic properties of CsPbI3 for advanced optoelectronic applications: A DFT study' (2025), ScienceDirect PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+     "caveat": "Athermal 0 K cubic cell; internal consistency (C11+2C12)/3 = 14.77 GPa. Experimental elastic moduli for CsPbI3 exist (Rakita et al.) and reportedly agree with simulation; not transcribed this session."
+    },
+    "c11": {
+     "value": 34.84,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "CsPbI3 pressure DFT study (2025), PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+     "caveat": "Athermal 0 K cubic cell; known-good control candidate - MLIPs have abundant CsPbI3-adjacent training data."
+    },
+    "c12": {
+     "value": 4.73,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "CsPbI3 pressure DFT study (2025), PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+     "caveat": "Athermal 0 K cubic cell."
+    },
+    "c44": {
+     "value": 3.66,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "CsPbI3 pressure DFT study (2025), PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+     "caveat": "Athermal 0 K cubic cell."
+    }
+   },
+   "mp_id": null,
+   "mp_id_caveat": "Cubic CsPbI3 is commonly referenced as mp-1069538 but that id could not be verified against Materials Project this session; orthorhombic and other polymorph entries exist. Set before freeze if the cubic entry is confirmed."
+  }
+ ]
+}
