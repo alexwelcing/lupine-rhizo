@@ -25,6 +25,12 @@ from lupine_distill.statics.calculations import (
     compute_lattice,
     compute_vacancy_formation,
 )
+from lupine_distill.statics.defects import (
+    ReferencedVacancyFormationResult,
+    SchottkyFormationResult,
+    compute_referenced_vacancy_formation,
+    compute_schottky_formation,
+)
 from lupine_distill.statics.elastic import (
     DEFAULT_STRAIN_DELTA,
     VOIGT_CONVENTION,
@@ -103,10 +109,12 @@ __all__ = [
     "FormationEnthalpyResult",
     "InputValidationError",
     "LatticeResult",
+    "ReferencedVacancyFormationResult",
     "SFE_METHOD",
     "SUPPORTED_OPTIMIZERS",
     "SUPPORTED_STRUCTURE_TYPES",
     "SUPPORTED_SURFACES",
+    "SchottkyFormationResult",
     "StackingFaultResult",
     "StaticsError",
     "SurfaceEnergyResult",
@@ -118,6 +126,8 @@ __all__ = [
     "compute_eos",
     "compute_formation_enthalpy",
     "compute_lattice",
+    "compute_referenced_vacancy_formation",
+    "compute_schottky_formation",
     "compute_stacking_fault_energy",
     "compute_surface_energies",
     "compute_surface_energy",

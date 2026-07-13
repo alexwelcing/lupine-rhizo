@@ -96,6 +96,54 @@ SUBJECTS: tuple[Subject, ...] = (
     ),
 )
 
+CLIMATE_HALIDE_SUBJECTS: tuple[Subject, ...] = (
+    Subject(
+        label="LiF_rocksalt",
+        formula="LiF",
+        structure_type="rocksalt",
+        role="halide solid-electrolyte anchor (known-good rocksalt, mp-1138-like)",
+    ),
+    Subject(
+        label="LiCl_rocksalt",
+        formula="LiCl",
+        structure_type="rocksalt",
+        role="halide solid-electrolyte anchor (known-good rocksalt, mp-22905-like)",
+    ),
+    Subject(
+        label="LiBr_rocksalt",
+        formula="LiBr",
+        structure_type="rocksalt",
+        role="halide solid-electrolyte anchor (known-good rocksalt, mp-23259-like)",
+    ),
+    Subject(
+        label="LiI_rocksalt",
+        formula="LiI",
+        structure_type="rocksalt",
+        role="halide solid-electrolyte anchor (known-good rocksalt, mp-22899-like)",
+    ),
+    Subject(
+        label="NaCl_rocksalt",
+        formula="NaCl",
+        structure_type="rocksalt",
+        role="rocksalt control with existing a0/B0 Y-matrix cells",
+    ),
+    Subject(
+        label="MgO_rocksalt",
+        formula="MgO",
+        structure_type="rocksalt",
+        role="oxide rocksalt control with existing a0/B0 Y-matrix cells",
+    ),
+)
+
+#: Subject panels selectable from the CLI. "li-s" is the original demo pair;
+#: "climate-halides" anchors the halide solid-electrolyte climate class
+#: (ClimatePortfolio.MaterialClass.halideSolidElectrolyte) on the cubic
+#: statics observables measurable with the local GPU lane today.
+PANELS: dict[str, tuple[Subject, ...]] = {
+    "li-s": SUBJECTS,
+    "climate-halides": CLIMATE_HALIDE_SUBJECTS,
+}
+
 DEFAULT_MODELS = ("chgnet", "mace-mp-small", "mace-mp-medium", "mace-mpa-0-medium")
 DEFAULT_DYNAMIC_MODEL = "mace-mp-medium"
 
@@ -162,6 +210,12 @@ def build_calculator(model_id: str, device: str) -> tuple[object, str]:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--device", default="cuda", choices=("cuda", "cpu"))
+    parser.add_argument(
+        "--panel",
+        default="li-s",
+        choices=sorted(PANELS),
+        help="Subject panel to run (default: li-s)",
+    )
     parser.add_argument(
         "--models",
         default=",".join(DEFAULT_MODELS),
@@ -401,6 +455,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.dynamic_supercell < 1:
         raise SystemExit("--dynamic-supercell must be >= 1")
+    subjects = PANELS[args.panel]
 
     # 1. Data-derived concordance thresholds from the bound Y-matrix baseline.
     bound_dir = Path(args.bound_dir)
@@ -432,7 +487,7 @@ def main(argv: list[str] | None = None) -> int:
             "per_model": {},
             "gates": {},
         }
-        for s in SUBJECTS
+        for s in subjects
     }
     calculator_versions: dict[str, str] = {}
     dynamic_gates: dict[str, dict[str, object]] = {}
@@ -442,7 +497,7 @@ def main(argv: list[str] | None = None) -> int:
         calculator, version = build_calculator(model_id, args.device)
         calculator_versions[model_id] = version
         log.info("calculator ready: %s", version)
-        for subject in SUBJECTS:
+        for subject in subjects:
             log.info("%s x %s", subject.label, model_id)
             try:
                 record = measure_subject(calculator, subject, args.delta)
@@ -477,7 +532,7 @@ def main(argv: list[str] | None = None) -> int:
         del calculator  # release GPU memory before the next model loads
 
     # 3. Cross-model concordance per subject.
-    for subject in SUBJECTS:
+    for subject in subjects:
         sub = per_subject[subject.label]
         ok_models = {
             m: r for m, r in sub["per_model"].items() if "error" not in r
@@ -514,18 +569,19 @@ def main(argv: list[str] | None = None) -> int:
         "a phonon calculation; instabilities incommensurate with the "
         f"{args.dynamic_supercell}x{args.dynamic_supercell}x"
         f"{args.dynamic_supercell} supercell are invisible to it.",
-        "Thermodynamic (hull-level) gates are OUT OF SCOPE in this run: "
-        "rocksalt LiS may be mechanically stable while remaining "
-        "thermodynamically unstable against decomposition (e.g. to Li2S + S); "
-        "deciding that requires the formation-energy lane.",
+        "Thermodynamic (hull-level) gates are OUT OF SCOPE in this run: a "
+        "mechanically stable subject (e.g. rocksalt LiS) may remain "
+        "thermodynamically unstable against decomposition; deciding that "
+        "requires the formation-energy lane.",
         "Cubic symmetry of each relaxed subject is assumed by construction "
-        "(both prototypes are cubic); the elastic probe measures the cubic "
-        "C11/C12/C44 only.",
+        "(all panel prototypes are cubic); the elastic probe measures the "
+        "cubic C11/C12/C44 only.",
     ]
 
     report = {
         "schema": REPORT_SCHEMA,
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "panel": args.panel,
         "device": args.device,
         "models": models,
         "dynamic_model": args.dynamic_model,

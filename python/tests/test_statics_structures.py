@@ -82,6 +82,30 @@ class TestBuildStructure:
         assert symbols.count("Li") == 8
         assert symbols.count("S") == 4
 
+    def test_perovskite_conventional_cell(self) -> None:
+        atoms = build_structure("CsSnI3", "perovskite", 6.22)
+        assert len(atoms) == 5
+        symbols = atoms.get_chemical_symbols()
+        assert symbols.count("Cs") == 1
+        assert symbols.count("Sn") == 1
+        assert symbols.count("I") == 3
+        assert np.allclose(atoms.cell.array, 6.22 * np.eye(3))
+        assert all(atoms.pbc)
+        # First singleton (A site, 12-coordinate) sits on the cube corner.
+        corner = np.argmin(np.linalg.norm(atoms.get_positions(), axis=1))
+        assert symbols[corner] == "Cs"
+        # B-X (octahedral) nearest-neighbour distance is a/2.
+        distances = atoms.get_all_distances(mic=True)
+        np.fill_diagonal(distances, np.inf)
+        assert distances.min() == pytest.approx(6.22 / 2.0)
+
+    def test_perovskite_first_singleton_takes_a_site(self) -> None:
+        # Formula order is semantic: the first count-1 element is the A site.
+        atoms = build_structure("SnCsI3", "perovskite", 6.22)
+        symbols = atoms.get_chemical_symbols()
+        corner = np.argmin(np.linalg.norm(atoms.get_positions(), axis=1))
+        assert symbols[corner] == "Sn"
+
     def test_structure_type_is_case_insensitive(self) -> None:
         assert len(build_structure("NiAl", "B2", 2.88)) == 2
         assert len(build_structure("Ni", "FCC", 3.52)) == 4
@@ -95,6 +119,7 @@ class TestBuildStructure:
             "b2",
             "l12",
             "antifluorite",
+            "perovskite",
         }
 
 
@@ -130,6 +155,18 @@ class TestBuildStructureValidation:
     def test_rocksalt_rejects_2_1_stoichiometry(self) -> None:
         with pytest.raises(InputValidationError):
             build_structure("Li2S", "rocksalt", 5.2)
+
+    def test_perovskite_rejects_binary(self) -> None:
+        with pytest.raises(InputValidationError):
+            build_structure("SnI3", "perovskite", 6.2)
+
+    def test_perovskite_rejects_wrong_anion_count(self) -> None:
+        with pytest.raises(InputValidationError):
+            build_structure("CsSnI2", "perovskite", 6.2)
+
+    def test_perovskite_rejects_two_singletons_missing(self) -> None:
+        with pytest.raises(InputValidationError):
+            build_structure("Cs2SnI3", "perovskite", 6.2)
 
     def test_nonpositive_lattice_constant(self) -> None:
         with pytest.raises(InputValidationError):
@@ -174,6 +211,12 @@ class TestEstimateLatticeConstant:
         # guess only needs to land within the EOS recentring budget.
         a = estimate_lattice_constant("Li2S", "antifluorite")
         assert 4.5 < a < 6.5
+
+    def test_perovskite_cssni3_guess_is_reasonable(self) -> None:
+        # CsSnI3 cubic perovskite (mp-27381-like) has a0 ~ 6.22 A; the B-X
+        # covalent-radius guess only needs to land within the recentring budget.
+        a = estimate_lattice_constant("CsSnI3", "perovskite")
+        assert 5.0 < a < 7.0
 
     def test_unknown_structure_raises(self) -> None:
         with pytest.raises(InputValidationError):

@@ -27,6 +27,7 @@ SUPPORTED_STRUCTURE_TYPES: Final[tuple[str, ...]] = (
     "b2",
     "l12",
     "antifluorite",
+    "perovskite",
 )
 
 _ELEMENTAL_TYPES: Final[frozenset[str]] = frozenset({"fcc", "bcc", "diamond"})
@@ -46,6 +47,8 @@ _NN_TO_A: Final[Mapping[str, float]] = {
     # Antifluorite: nearest neighbour is the cation-anion pair across a
     # tetrahedral hole, d = a*sqrt(3)/4.
     "antifluorite": 4.0 / math.sqrt(3.0),
+    # Perovskite: nearest neighbour is the octahedral B-X bond, d = a/2.
+    "perovskite": 2.0,
 }
 
 
@@ -127,6 +130,13 @@ def _validate_composition(structure_type: str, counts: Mapping[str, int]) -> Non
                 f"got composition {dict(counts)}"
             )
         return
+    if structure_type == "perovskite":
+        if n_elements != 3 or sorted(counts.values()) != [1, 1, 3]:
+            raise InputValidationError(
+                f"perovskite expects an ABX3 formula (e.g. 'CsSnI3'), "
+                f"got composition {dict(counts)}"
+            )
+        return
     raise InputValidationError(f"unhandled structure_type {structure_type!r}")  # pragma: no cover
 
 
@@ -170,13 +180,37 @@ def _build_antifluorite(counts: Mapping[str, int], a: float) -> Atoms:
     )
 
 
+def _build_perovskite(counts: Mapping[str, int], a: float) -> Atoms:
+    """Cubic perovskite (CaTiO3 prototype, 5-atom cell): the FIRST count-1
+    element in formula order is the A site (cube corner, 12-coordinate), the
+    second is the B site (body centre, octahedral); the count-3 element fills
+    the face centres. Formula order is semantic: 'CsSnI3' puts Cs on A."""
+    singletons = [sym for sym, n in counts.items() if n == 1]
+    anion = next(sym for sym, n in counts.items() if n == 3)
+    a_site, b_site = singletons[0], singletons[1]
+    scaled = [
+        (0.0, 0.0, 0.0),
+        (0.5, 0.5, 0.5),
+        (0.0, 0.5, 0.5),
+        (0.5, 0.0, 0.5),
+        (0.5, 0.5, 0.0),
+    ]
+    return Atoms(
+        symbols=[a_site, b_site, anion, anion, anion],
+        scaled_positions=scaled,
+        cell=np.eye(3) * a,
+        pbc=True,
+    )
+
+
 def build_structure(formula: str, structure_type: str, lattice_constant: float) -> Atoms:
     """Build the conventional cubic cell for ``(formula, structure_type)``.
 
     fcc/bcc/diamond use cubic conventional cells (4/2/8 atoms); rocksalt uses
     the 8-atom conventional cell; B2 (CsCl prototype) is its native 2-atom
     cubic cell; L1_2 (Cu3Au prototype) is its native 4-atom cubic cell;
-    antifluorite (Li2O prototype) is its 12-atom conventional cubic cell.
+    antifluorite (Li2O prototype) is its 12-atom conventional cubic cell;
+    perovskite (CaTiO3 prototype) is its native 5-atom cubic cell.
     """
     st = normalize_structure_type(structure_type)
     counts = parse_formula(formula)
@@ -191,11 +225,21 @@ def build_structure(formula: str, structure_type: str, lattice_constant: float) 
         return bulk(f"{symbols[0]}{symbols[1]}", "cesiumchloride", a=a)
     if st == "antifluorite":
         return _build_antifluorite(counts, a)
+    if st == "perovskite":
+        return _build_perovskite(counts, a)
     return _build_l12(counts, a)
 
 
-def _nearest_neighbour_distance(counts: Mapping[str, int]) -> float:
+def _nearest_neighbour_distance(structure_type: str, counts: Mapping[str, int]) -> float:
     """Covalent-radius estimate of the nearest-neighbour distance (A)."""
+    if structure_type == "perovskite":
+        # The nearest neighbour is the octahedral B-X bond: second singleton
+        # in formula order plus the count-3 anion.
+        b_site = [sym for sym, n in counts.items() if n == 1][1]
+        anion = next(sym for sym, n in counts.items() if n == 3)
+        return float(
+            covalent_radii[atomic_numbers[b_site]] + covalent_radii[atomic_numbers[anion]]
+        )
     radii = [float(covalent_radii[atomic_numbers[sym]]) for sym in counts]
     if len(radii) == 1:
         return 2.0 * radii[0]
@@ -220,7 +264,7 @@ def estimate_lattice_constant(formula: str, structure_type: str) -> float:
         ref = reference_states[atomic_numbers[symbol]]
         if ref is not None and ref.get("symmetry") == st and "a" in ref:
             return float(ref["a"])
-    return _NN_TO_A[st] * _nearest_neighbour_distance(counts)
+    return _NN_TO_A[st] * _nearest_neighbour_distance(st, counts)
 
 
 __all__ = [
