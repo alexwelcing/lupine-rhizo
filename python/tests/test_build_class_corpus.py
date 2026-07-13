@@ -418,6 +418,21 @@ def test_main_end_to_end(
     assert bcc.CLASS_COVALENT in artifact["classes_without_thresholds"]
     assert set(artifact["provenance"]) == set(bcc.ALL_CLASSES)
     assert artifact["notes"]  # honesty notes travel with the artifact
+    # Round-3 registered fix 1: floored-v1 dispersion metric recorded.
+    assert artifact["dispersion_metric"]["version"] == "floored-v1"
+    assert artifact["dispersion_metric"]["floor_fraction"] == pytest.approx(0.1)
+    for class_block in artifact["per_class"].values():
+        for entry in class_block["per_property"].values():
+            assert "floored-v1" in entry["source"]
+    # Round-3 registered fix 1: V/Cr calibration-cell audit block present
+    # (synthetic corpus carries Cr in metals-bcc; V absent is fine).
+    audit = artifact["calibration_cell_audit"][bcc.CLASS_METALS_BCC]
+    assert audit["audited_materials"] == ["V", "Cr"]
+    assert "sign-crossing" in audit["note"]
+    assert any(key.startswith("Cr.") for key in audit["cells"])
+    # Round-3 registered fix 2: perovskite class marked provisional/in-sample.
+    assert "provisional/in-sample" in artifact["per_class"][bcc.CLASS_PEROVSKITES]["status"]
+    assert any("PROVISIONAL/IN-SAMPLE" in note for note in artifact["notes"])
 
 
 def test_main_reports_failure_on_missing_inputs(tmp_path: Path) -> None:

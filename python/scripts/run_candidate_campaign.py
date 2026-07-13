@@ -96,13 +96,32 @@ log = logging.getLogger("candidate_campaign")
 
 REPORT_SCHEMA: Final[str] = "lupine.candidate_campaign.v1"
 CAMPAIGN_PROPERTIES: Final[tuple[str, ...]] = ("a0", "b0", "c11", "c12", "c44")
-TARGET_STRUCTURE_TYPES: Final[tuple[str, ...]] = ("fcc-rss", "perovskite")
+TARGET_STRUCTURE_TYPES: Final[tuple[str, ...]] = ("fcc-rss", "perovskite", "rocksalt")
+
+#: Formula-based structure types (built via ``build_structure``; fcc-rss
+#: candidates are composition-based RSS supercells instead).
+FORMULA_STRUCTURE_TYPES: Final[tuple[str, ...]] = ("perovskite", "rocksalt")
 
 #: Calibration class used to pick the de-bias factor, per structure type.
+#: Rocksalt maps to the ionics-rocksalt class; the Round-1 bias artifact
+#: carries no such class, so rocksalt values stay uncorrected (and labeled
+#: so) until an out-of-sample ionic calibration exists.
 BIAS_CLASS_BY_STRUCTURE: Final[Mapping[str, str]] = {
     "fcc-rss": "fcc-metals",
     "perovskite": "all-21",
+    "rocksalt": "ionics-rocksalt",
 }
+
+#: Round-3 registered fix 6 (B0 concordance demoted program-wide): carried
+#: verbatim into every campaign report's notes.
+B0_CONCORDANCE_DESCRIPTIVE_NOTE: Final[str] = (
+    "B0 concordance is DESCRIPTIVE only, program-wide: fcc B0 dispersion is "
+    "anti-correlated with |error| (rho = -0.63, n=9), so a B0 concordance "
+    "level carries no dispersion-error license. Only Born stability (exact "
+    "physics) and bcc a0 dispersion (rho = 0.89, n=7) currently carry a "
+    "dispersion-error license (2026-07-13 errata finding 4; Round-3 prereg "
+    "registered fix 6)."
+)
 
 DEFAULT_DYNAMIC_MODEL: Final[str] = "mace-mp-medium"
 _EV_VOLUME_SPAN: Final[float] = 0.06
@@ -191,9 +210,9 @@ def load_targets(path: Path) -> tuple[Candidate, ...]:
                 f"candidate {cid!r}: fcc-rss candidates need a composition"
             )
         formula = str(raw.get("formula", "")).strip()
-        if structure_type == "perovskite" and not formula:
+        if structure_type in FORMULA_STRUCTURE_TYPES and not formula:
             raise InputValidationError(
-                f"candidate {cid!r}: perovskite candidates need a formula"
+                f"candidate {cid!r}: {structure_type} candidates need a formula"
             )
         guess = raw.get("lattice_guess_angstrom")
         if guess is not None:
@@ -345,7 +364,13 @@ def apply_bias(
 def build_candidate_atoms(
     candidate: Candidate, repeat: int, seed: int
 ) -> tuple[Atoms, int, float]:
-    """Initial structure for a candidate; returns ``(atoms, n_conv_cells, a_guess)``."""
+    """Initial structure for a candidate; returns ``(atoms, n_conv_cells, a_guess)``.
+
+    ``fcc-rss`` builds a random solid-solution supercell (``repeat**3``
+    conventional cells); formula-based types (perovskite 5-atom cubic cell,
+    rocksalt 8-atom conventional cell) build one conventional cell via
+    ``build_structure``.
+    """
     if candidate.structure_type == "fcc-rss":
         composition = candidate.composition_dict()
         a_guess = (
@@ -355,12 +380,17 @@ def build_candidate_atoms(
         )
         atoms = build_rss_supercell(composition, "fcc", a_guess, repeat, seed)
         return atoms, repeat**3, a_guess
+    if candidate.structure_type not in FORMULA_STRUCTURE_TYPES:
+        raise InputValidationError(
+            f"candidate {candidate.id!r}: unsupported structure_type "
+            f"{candidate.structure_type!r}; known: {TARGET_STRUCTURE_TYPES}"
+        )
     a_guess = (
         candidate.lattice_guess_angstrom
         if candidate.lattice_guess_angstrom is not None
-        else estimate_lattice_constant(candidate.formula, "perovskite")
+        else estimate_lattice_constant(candidate.formula, candidate.structure_type)
     )
-    atoms = build_structure(candidate.formula, "perovskite", a_guess)
+    atoms = build_structure(candidate.formula, candidate.structure_type, a_guess)
     return atoms, 1, a_guess
 
 
@@ -705,6 +735,7 @@ def assemble_report(
             prop: thresholds[prop].to_dict() for prop in CAMPAIGN_PROPERTIES
         },
         "bias_provenance": bias_note,
+        "notes": {"b0_concordance_descriptive": B0_CONCORDANCE_DESCRIPTIVE_NOTE},
         "candidates": candidates_report,
         "arm_metrics": {
             "abs_rel_error_by_group_property": arm_error_metrics(candidates_report),
@@ -725,6 +756,8 @@ def render_markdown(report: Mapping[str, object]) -> str:
         f"Generated: {report['generated_at']} | models: {', '.join(models)}",
         "",
         f"Bias arm: {report['bias_provenance']}",
+        "",
+        f"Note: {report['notes']['b0_concordance_descriptive']}",
         "",
         "## Concordance thresholds",
         "",

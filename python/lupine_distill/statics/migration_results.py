@@ -14,7 +14,13 @@ class MigrationBarrierResult:
     ``forward_barrier_ev = e_saddle_ev - e_initial_ev`` and
     ``backward_barrier_ev = e_saddle_ev - e_final_ev``; for a symmetric hop
     (both endpoints the same minimum by symmetry) the two should match and
-    ``barrier_asymmetry_ev`` measures the numerical residual.
+    ``barrier_asymmetry_ev`` measures the numerical residual — a symmetry
+    identity, NOT convergence evidence. The convergence check is
+    endpoint-vs-band-minimum (registered Round-3 fix, errata finding 12):
+    ``endpoint_vs_band_min_delta_ev = min(interior) - min(endpoints)`` must
+    be >= 0 (``endpoint_below_band``); an interior image below the lower
+    relaxed endpoint means that endpoint missed its minimum and the barrier
+    is untrustworthy (warned and recorded, never raised).
     """
 
     formula: str
@@ -33,6 +39,8 @@ class MigrationBarrierResult:
     forward_barrier_ev: float
     backward_barrier_ev: float
     barrier_asymmetry_ev: float
+    endpoint_below_band: bool
+    endpoint_vs_band_min_delta_ev: float
     saddle_image_index: int
     band_energies_ev: tuple[float, ...]
     n_relax_steps_initial: int
@@ -61,6 +69,8 @@ class MigrationBarrierResult:
             "forward_barrier_ev": self.forward_barrier_ev,
             "backward_barrier_ev": self.backward_barrier_ev,
             "barrier_asymmetry_ev": self.barrier_asymmetry_ev,
+            "endpoint_below_band": self.endpoint_below_band,
+            "endpoint_vs_band_min_delta_ev": self.endpoint_vs_band_min_delta_ev,
             "e_initial_ev": self.e_initial_ev,
             "e_final_ev": self.e_final_ev,
             "e_saddle_ev": self.e_saddle_ev,
@@ -77,6 +87,7 @@ class MigrationBarrierResult:
             "forward_barrier_ev": "eV",
             "backward_barrier_ev": "eV",
             "barrier_asymmetry_ev": "eV",
+            "endpoint_vs_band_min_delta_ev": "eV",
             "e_initial_ev": "eV",
             "e_final_ev": "eV",
             "e_saddle_ev": "eV",

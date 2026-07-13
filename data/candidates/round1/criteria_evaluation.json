@@ -1,0 +1,420 @@
+{
+  "schema": "lupine.round1_criteria_evaluation.v1",
+  "generated_at": "2026-07-13T16:56:25.382047+00:00",
+  "preregistration": "docs/plans/2026-07-13-unbiased-accuracy-campaign.md",
+  "round1_report": "C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/round1/report.json",
+  "round1_generated_at": "2026-07-13T14:14:06.554750+00:00",
+  "criteria_text": "S4 (frozen 2026-07-13, pre-run): 'De-bias: reduces median |rel err| for >= 2 of 3 properties per group, with sign-test p < 0.1.' Properties/legs: a0, B0, C11/C12/C44 (where reference exists); directional sign test = exact two-sided binomial over (candidate, model) cells, ties dropped; exclusions: CsSnI3 Cij and CsGeI3 a0.",
+  "corrected_arm": "Round-1 corrected_arm (per-class median-bias de-bias) == Round-2 'cross_class' arm; verified cell-by-cell below",
+  "round2_cross_check": {
+    "round2_report": "C:/Users/alexw/Downloads/lupine-rhizo/data/candidates/round2/report.json",
+    "arm": "cross_class",
+    "n_cells_checked": 128,
+    "n_mismatches": 0,
+    "mismatches": [],
+    "consistent": true
+  },
+  "excluded_cells": [
+    {
+      "candidate": "hp-cssni3",
+      "model": "chgnet",
+      "prop": "c11",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mp-medium",
+      "prop": "c11",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mp-small",
+      "prop": "c11",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mpa-0-medium",
+      "prop": "c11",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "chgnet",
+      "prop": "c12",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mp-medium",
+      "prop": "c12",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mp-small",
+      "prop": "c12",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mpa-0-medium",
+      "prop": "c12",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "chgnet",
+      "prop": "c44",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mp-medium",
+      "prop": "c44",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mp-small",
+      "prop": "c44",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    },
+    {
+      "candidate": "hp-cssni3",
+      "model": "mace-mpa-0-medium",
+      "prop": "c44",
+      "reason": "preregistered S4 exclusion (weak/null reference, flagged pre-run)"
+    }
+  ],
+  "groups": {
+    "halide-perovskite": {
+      "per_property": {
+        "a0": {
+          "n_cells": 16,
+          "n_corrected_cells": 16,
+          "median_abs_rel_err_raw": 0.014094133240561964,
+          "median_abs_rel_err_corrected": 0.012936067310524933,
+          "mean_abs_rel_err_raw": 0.013586941467004732,
+          "mean_abs_rel_err_corrected": 0.012547647866307146,
+          "reduces_median": true,
+          "sign_test": {
+            "n_improved": 16,
+            "n_worsened": 0,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 3.0517578125e-05
+          }
+        },
+        "b0": {
+          "n_cells": 20,
+          "n_corrected_cells": 20,
+          "median_abs_rel_err_raw": 0.07945323919598232,
+          "median_abs_rel_err_corrected": 0.07367556517163112,
+          "mean_abs_rel_err_raw": 0.10141760767560482,
+          "mean_abs_rel_err_corrected": 0.09681782835889277,
+          "reduces_median": true,
+          "sign_test": {
+            "n_improved": 11,
+            "n_worsened": 9,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 0.8238029479980469
+          }
+        },
+        "c11": {
+          "n_cells": 16,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.12978405597277112,
+          "median_abs_rel_err_corrected": 0.12978405597277112,
+          "mean_abs_rel_err_raw": 0.17741956083336932,
+          "mean_abs_rel_err_corrected": 0.17741956083336932,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 16,
+            "p_two_sided_exact": null
+          }
+        },
+        "c12": {
+          "n_cells": 16,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.2157028589405841,
+          "median_abs_rel_err_corrected": 0.2157028589405841,
+          "mean_abs_rel_err_raw": 0.39484021627991694,
+          "mean_abs_rel_err_corrected": 0.39484021627991694,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 16,
+            "p_two_sided_exact": null
+          }
+        },
+        "c44": {
+          "n_cells": 16,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.19817450535949316,
+          "median_abs_rel_err_corrected": 0.19817450535949316,
+          "mean_abs_rel_err_raw": 0.34287312644985685,
+          "mean_abs_rel_err_corrected": 0.34287312644985685,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 16,
+            "p_two_sided_exact": null
+          }
+        }
+      },
+      "legs": {
+        "a0": {
+          "properties": [
+            "a0"
+          ],
+          "evaluable": true,
+          "n_cells": 16,
+          "n_corrected_cells": 16,
+          "median_abs_rel_err_raw": 0.014094133240561964,
+          "median_abs_rel_err_corrected": 0.012936067310524933,
+          "mean_abs_rel_err_raw": 0.013586941467004732,
+          "mean_abs_rel_err_corrected": 0.012547647866307146,
+          "reduces_median": true,
+          "sign_test": {
+            "n_improved": 16,
+            "n_worsened": 0,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 3.0517578125e-05
+          },
+          "criterion": "median |rel err| corrected < raw AND exact two-sided binomial sign test p < 0.1 (ties dropped)",
+          "criterion_met": true
+        },
+        "b0": {
+          "properties": [
+            "b0"
+          ],
+          "evaluable": true,
+          "n_cells": 20,
+          "n_corrected_cells": 20,
+          "median_abs_rel_err_raw": 0.07945323919598232,
+          "median_abs_rel_err_corrected": 0.07367556517163112,
+          "mean_abs_rel_err_raw": 0.10141760767560482,
+          "mean_abs_rel_err_corrected": 0.09681782835889277,
+          "reduces_median": true,
+          "sign_test": {
+            "n_improved": 11,
+            "n_worsened": 9,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 0.8238029479980469
+          },
+          "criterion": "median |rel err| corrected < raw AND exact two-sided binomial sign test p < 0.1 (ties dropped)",
+          "criterion_met": false
+        },
+        "cij": {
+          "properties": [
+            "c11",
+            "c12",
+            "c44"
+          ],
+          "evaluable": true,
+          "n_cells": 48,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.17504463336577342,
+          "median_abs_rel_err_corrected": 0.17504463336577342,
+          "mean_abs_rel_err_raw": 0.30504430118771436,
+          "mean_abs_rel_err_corrected": 0.30504430118771436,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 48,
+            "p_two_sided_exact": null
+          },
+          "criterion": "median |rel err| corrected < raw AND exact two-sided binomial sign test p < 0.1 (ties dropped)",
+          "criterion_met": false,
+          "note": "Silent Cij-bias degradation (2026-07-13 errata finding 8): the Round-1 Cij bias arm silently failed to load (the model_biases.v1 artifact carried no cij biases: 'cij available: False'), so every Cij corrected value equals raw. Under the preregistered rules those cells are ties and are dropped from the sign test; the Cij leg therefore has zero effective cells, shows no median reduction, and its criterion is NOT met. The 3-leg denominator is kept: the preregistered '>= 2 of 3 properties' criterion is evaluated as written, not silently degraded to 2-of-2."
+        }
+      },
+      "n_legs_met": 1,
+      "n_legs_required": 2,
+      "verdict": "FAIL"
+    },
+    "hea-fcc": {
+      "per_property": {
+        "a0": {
+          "n_cells": 16,
+          "n_corrected_cells": 16,
+          "median_abs_rel_err_raw": 0.008378124111737942,
+          "median_abs_rel_err_corrected": 0.01052896453267276,
+          "mean_abs_rel_err_raw": 0.0077513491676245395,
+          "mean_abs_rel_err_corrected": 0.00964462808998659,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 16,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 3.0517578125e-05
+          }
+        },
+        "b0": {
+          "n_cells": 16,
+          "n_corrected_cells": 16,
+          "median_abs_rel_err_raw": 0.09056294899949516,
+          "median_abs_rel_err_corrected": 0.16887076790487104,
+          "mean_abs_rel_err_raw": 0.12015051905663304,
+          "mean_abs_rel_err_corrected": 0.19000001057432891,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 3,
+            "n_worsened": 13,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 0.021270751953125
+          }
+        },
+        "c11": {
+          "n_cells": 4,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.04557452767451433,
+          "median_abs_rel_err_corrected": 0.04557452767451433,
+          "mean_abs_rel_err_raw": 0.04889987523989506,
+          "mean_abs_rel_err_corrected": 0.04889987523989506,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 4,
+            "p_two_sided_exact": null
+          }
+        },
+        "c12": {
+          "n_cells": 4,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.10225331622006473,
+          "median_abs_rel_err_corrected": 0.10225331622006473,
+          "mean_abs_rel_err_raw": 0.0876552303468538,
+          "mean_abs_rel_err_corrected": 0.0876552303468538,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 4,
+            "p_two_sided_exact": null
+          }
+        },
+        "c44": {
+          "n_cells": 4,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.31485395485050127,
+          "median_abs_rel_err_corrected": 0.31485395485050127,
+          "mean_abs_rel_err_raw": 0.2586766951027839,
+          "mean_abs_rel_err_corrected": 0.2586766951027839,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 4,
+            "p_two_sided_exact": null
+          }
+        }
+      },
+      "legs": {
+        "a0": {
+          "properties": [
+            "a0"
+          ],
+          "evaluable": true,
+          "n_cells": 16,
+          "n_corrected_cells": 16,
+          "median_abs_rel_err_raw": 0.008378124111737942,
+          "median_abs_rel_err_corrected": 0.01052896453267276,
+          "mean_abs_rel_err_raw": 0.0077513491676245395,
+          "mean_abs_rel_err_corrected": 0.00964462808998659,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 16,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 3.0517578125e-05
+          },
+          "criterion": "median |rel err| corrected < raw AND exact two-sided binomial sign test p < 0.1 (ties dropped)",
+          "criterion_met": false
+        },
+        "b0": {
+          "properties": [
+            "b0"
+          ],
+          "evaluable": true,
+          "n_cells": 16,
+          "n_corrected_cells": 16,
+          "median_abs_rel_err_raw": 0.09056294899949516,
+          "median_abs_rel_err_corrected": 0.16887076790487104,
+          "mean_abs_rel_err_raw": 0.12015051905663304,
+          "mean_abs_rel_err_corrected": 0.19000001057432891,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 3,
+            "n_worsened": 13,
+            "n_ties_dropped": 0,
+            "p_two_sided_exact": 0.021270751953125
+          },
+          "criterion": "median |rel err| corrected < raw AND exact two-sided binomial sign test p < 0.1 (ties dropped)",
+          "criterion_met": false
+        },
+        "cij": {
+          "properties": [
+            "c11",
+            "c12",
+            "c44"
+          ],
+          "evaluable": true,
+          "n_cells": 12,
+          "n_corrected_cells": 0,
+          "median_abs_rel_err_raw": 0.08776991519386118,
+          "median_abs_rel_err_corrected": 0.08776991519386118,
+          "mean_abs_rel_err_raw": 0.1317439335631776,
+          "mean_abs_rel_err_corrected": 0.1317439335631776,
+          "reduces_median": false,
+          "sign_test": {
+            "n_improved": 0,
+            "n_worsened": 0,
+            "n_ties_dropped": 12,
+            "p_two_sided_exact": null
+          },
+          "criterion": "median |rel err| corrected < raw AND exact two-sided binomial sign test p < 0.1 (ties dropped)",
+          "criterion_met": false,
+          "note": "Silent Cij-bias degradation (2026-07-13 errata finding 8): the Round-1 Cij bias arm silently failed to load (the model_biases.v1 artifact carried no cij biases: 'cij available: False'), so every Cij corrected value equals raw. Under the preregistered rules those cells are ties and are dropped from the sign test; the Cij leg therefore has zero effective cells, shows no median reduction, and its criterion is NOT met. The 3-leg denominator is kept: the preregistered '>= 2 of 3 properties' criterion is evaluated as written, not silently degraded to 2-of-2."
+        }
+      },
+      "n_legs_met": 0,
+      "n_legs_required": 2,
+      "verdict": "FAIL"
+    }
+  },
+  "notes": [
+    "Silent Cij-bias degradation (2026-07-13 errata finding 8): the Round-1 Cij bias arm silently failed to load (the model_biases.v1 artifact carried no cij biases: 'cij available: False'), so every Cij corrected value equals raw. Under the preregistered rules those cells are ties and are dropped from the sign test; the Cij leg therefore has zero effective cells, shows no median reduction, and its criterion is NOT met. The 3-leg denominator is kept: the preregistered '>= 2 of 3 properties' criterion is evaluated as written, not silently degraded to 2-of-2.",
+    "This evaluation was computed on 2026-07-13 as a Round-3 registered instrument fix (errata finding 8: Round-1's preregistered primary statistic was never computed at the time). References and exclusions are exactly the frozen S4 set; no post-hoc choices were made."
+  ],
+  "gates_descriptive": {
+    "halide-perovskite": {
+      "issued": {
+        "n_cells": 20,
+        "median_abs_rel_err_raw": 0.10082885386830263
+      },
+      "refused": {
+        "n_cells": 64,
+        "median_abs_rel_err_raw": 0.07945323919598232
+      }
+    },
+    "hea-fcc": {
+      "issued": {
+        "n_cells": 36,
+        "median_abs_rel_err_raw": 0.043079515468172784
+      },
+      "refused": {
+        "n_cells": 8,
+        "median_abs_rel_err_raw": 0.01809611714614264
+      }
+    },
+    "note": "Descriptive only (preregistered as report-either-way); within-group split, no pooled cross-class ratio (2026-07-13 errata finding 3)."
+  }
+}

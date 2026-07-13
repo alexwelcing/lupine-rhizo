@@ -37,7 +37,8 @@ from __future__ import annotations
 
 import math
 import time
-from typing import Final
+import warnings
+from typing import Final, Sequence
 
 import numpy as np
 from ase import Atoms
@@ -334,6 +335,38 @@ def build_fcc_vacancy_hop(
 # --------------------------------------------------------------------------
 
 
+def endpoint_band_minimum_check(
+    band_energies_ev: Sequence[float],
+) -> tuple[bool, float]:
+    """Endpoint-vs-band-minimum convergence check on a full NEB band.
+
+    Registered Round-3 instrument fix (2026-07-13 errata finding 12):
+    ``asym = 0.0000`` on a symmetric hop is a builder symmetry identity, not
+    convergence evidence — it cannot see an interior image that relaxed
+    BELOW an endpoint (the LiI/mace-mp-medium defect, ~3 meV). The real
+    check: a relaxed endpoint must be the lowest point on its band.
+
+    ``band_energies_ev`` is the full band ``(E_initial, *interior, E_final)``.
+    Returns ``(endpoint_below_band, endpoint_vs_band_min_delta_ev)`` where
+    ``endpoint_vs_band_min_delta_ev = min(interior) - min(E_initial, E_final)``
+    (>= 0 healthy) and ``endpoint_below_band`` is ``delta >= 0``. A negative
+    delta means an endpoint relaxation missed its minimum (or the band found
+    a lower basin) and the reported barrier is untrustworthy.
+    """
+    if not isinstance(band_energies_ev, Sequence) or len(band_energies_ev) < 3:
+        raise InputValidationError(
+            f"band must carry two endpoints plus >= 1 interior image, got "
+            f"{len(band_energies_ev) if isinstance(band_energies_ev, Sequence) else band_energies_ev!r}"
+        )
+    energies = [float(e) for e in band_energies_ev]
+    if not all(math.isfinite(e) for e in energies):
+        raise InputValidationError("band energies must all be finite")
+    endpoint_min = min(energies[0], energies[-1])
+    interior_min = min(energies[1:-1])
+    delta = interior_min - endpoint_min
+    return delta >= 0.0, delta
+
+
 def _interpolate_band(neb: NEB, interpolation: str) -> str:
     """IDPP-interpolate the band, falling back to linear; returns the method used.
 
@@ -457,6 +490,19 @@ def compute_migration_barrier(
     forward = e_saddle - e_initial
     backward = e_saddle - e_final
 
+    # Endpoint-vs-band-minimum convergence check (registered Round-3 fix):
+    # warn-and-record, never raise — the defect must reach the report.
+    endpoint_below_band, endpoint_delta = endpoint_band_minimum_check(band_energies)
+    if not endpoint_below_band:
+        warnings.warn(
+            f"NEB convergence defect on {relaxed_initial.get_chemical_formula()}: "
+            f"an interior image lies {-endpoint_delta:.6f} eV BELOW the lower "
+            f"relaxed endpoint (endpoint-vs-band-minimum check); an endpoint "
+            f"relaxation likely missed its minimum, so the reported barrier "
+            f"is untrustworthy (recorded in the result, not raised)",
+            stacklevel=2,
+        )
+
     return MigrationBarrierResult(
         formula=relaxed_initial.get_chemical_formula(),
         n_atoms=len(relaxed_initial),
@@ -474,6 +520,8 @@ def compute_migration_barrier(
         forward_barrier_ev=forward,
         backward_barrier_ev=backward,
         barrier_asymmetry_ev=abs(forward - backward),
+        endpoint_below_band=endpoint_below_band,
+        endpoint_vs_band_min_delta_ev=endpoint_delta,
         saddle_image_index=saddle_index,
         band_energies_ev=band_energies,
         n_relax_steps_initial=n_steps_initial,
@@ -498,4 +546,5 @@ __all__ = [
     "build_cation_vacancy_hop",
     "build_fcc_vacancy_hop",
     "compute_migration_barrier",
+    "endpoint_band_minimum_check",
 ]

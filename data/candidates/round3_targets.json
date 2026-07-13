@@ -1,0 +1,369 @@
+{
+ "schema": "lupine.campaign_targets.v1",
+ "generated_at": "2026-07-13",
+ "notes": "Round-3 OUT-OF-SAMPLE evaluation targets, sourced AFTER registration per the frozen prereg docs/plans/2026-07-13-round3-preregistration.md and locked before any GPU run. All reference values web-verified 2026-07-13 (see per-value source/caveat; primary APS/NBS scans read directly where stated). kind is one of: exp | DFT-PBE | other; kind 'other' marks weak/secondary-only cells that the analysis MUST exclude from success criteria (registered at sourcing time). null = genuinely unfindable this session (do not invent). REGISTERED FALLBACK SUBSTITUTIONS ENGAGED: RbSnBr3 -> CsCaF3 and KSnCl3 -> KMgF3 (no experimental cubic-phase a0/Cij findable for either Sn compound; see substitution_note fields). Rocksalt Cij unit conversions: 1 x 10^11 dyn/cm2 = 10 GPa.",
+ "candidates": [
+  {
+   "id": "rs-kcl",
+   "group": "ionics-rocksalt-oos",
+   "formula": "KCl",
+   "structure_type": "rocksalt",
+   "composition": { "K": 1, "Cl": 1 },
+   "lattice_guess_angstrom": 6.293,
+   "references": {
+    "a0": {
+     "value": 6.2931,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "H.E. Swanson, E. Tatge, Standard X-ray Diffraction Powder Patterns, NBS Circular 539 Vol. I (1953), p. 65: KCl (sylvite) unit cell 6.2931 A at 25 C (read directly from the archive.org full text)",
+     "caveat": "Room temperature (25 C). Cross-checks converted to angstroms in the same NBS table: Tu 1936: 6.29229 A; Vegard 1947: 6.289 A. Athermal-vs-RT convention flagged."
+    },
+    "b0": {
+     "value": 17.84,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from the 300 K constants of Norwood & Briscoe, Phys. Rev. 112, 45 (1958), Table II: (4.032+2*0.66)/3 x 10^11 dyn/cm2",
+     "caveat": "DERIVED, not directly quoted. Adiabatic, 300 K. Cross-check: Eros & Reitz (J. Appl. Phys. 29, 683 (1958)) room-temperature constants give (4.035+2*0.651)/3 = 17.9 GPa. Consistent."
+    },
+    "c11": {
+     "value": 40.32,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "M.H. Norwood, C.V. Briscoe, 'Elastic Constants of Potassium Iodide and Potassium Chloride', Phys. Rev. 112, 45 (1958), Table II, 300 K row: c11 = 4.032 x 10^11 dyn/cm2 (ultrasonic pulse-echo; read directly from the APS full text)",
+     "caveat": "300 K adiabatic; stated room-temperature max error +/-0.3%. Cross-checks: Eros & Reitz 1958: 4.035; Galt 1948 (Durand extrapolated to 300 K): 4.00."
+    },
+    "c12": {
+     "value": 6.6,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Norwood & Briscoe, Phys. Rev. 112, 45 (1958), Table II, 300 K row: c12 = 0.66 x 10^11 dyn/cm2",
+     "caveat": "300 K. c12 is determined from a difference of larger quantities; authors bound the plausible error at ~9% (worst case 35% excluded by an independent [110] shear determination). Cross-checks: Eros & Reitz 0.651; Galt 0.62."
+    },
+    "c44": {
+     "value": 6.29,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Norwood & Briscoe, Phys. Rev. 112, 45 (1958), Table II, 300 K row: c44 = 0.629 x 10^11 dyn/cm2",
+     "caveat": "300 K adiabatic; stated max error +/-0.5%. Cross-checks: Eros & Reitz 0.633; Galt 0.625."
+    }
+   }
+  },
+  {
+   "id": "rs-kbr",
+   "group": "ionics-rocksalt-oos",
+   "formula": "KBr",
+   "structure_type": "rocksalt",
+   "composition": { "K": 1, "Br": 1 },
+   "lattice_guess_angstrom": 6.6,
+   "references": {
+    "a0": {
+     "value": 6.6,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "H.E. Swanson, E. Tatge, NBS Circular 539 Vol. I (1953), p. 66: KBr unit cell 6.6000 A at 25 C (read directly from the archive.org full text)",
+     "caveat": "Room temperature (25 C). Cross-checks in the same NBS table (converted to angstroms): Ott 1926: 6.600; Vegard 1947: 6.593. Athermal-vs-RT convention flagged."
+    },
+    "b0": {
+     "value": 15.4,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from Galt, Phys. Rev. 73, 1460 (1948), Table I room-temperature constants: (3.46+2*0.58)/3 x 10^11 dyn/cm2",
+     "caveat": "DERIVED, not directly quoted. Adiabatic, RT. Cross-check with Huntington (Phys. Rev. 72, 321 (1947)) constants: (3.45+2*0.54)/3 = 15.1 GPa (2% lower, dominated by the c12 spread)."
+    },
+    "c11": {
+     "value": 34.6,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "J.K. Galt, 'Mechanical Properties of NaCl, KBr, KCl', Phys. Rev. 73, 1460 (1948), Table I (room temperature): c11 = 3.46 x 10^11 dyn/cm2, pulsed ultrasonics (read directly from the APS full text)",
+     "caveat": "Room temperature. Cross-check: Huntington 1947 (independent samples, same method family): 3.45 (0.3% diff)."
+    },
+    "c12": {
+     "value": 5.8,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Galt, Phys. Rev. 73, 1460 (1948), Table I: c12 = 0.58 x 10^11 dyn/cm2",
+     "caveat": "Room temperature. Weakest-determined KBr constant: Huntington gives 0.54 +/- 0.03 (~7% spread vs Galt). Galt notes c12 error is larger since it is obtained by subtracting two larger numbers."
+    },
+    "c44": {
+     "value": 5.05,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Galt, Phys. Rev. 73, 1460 (1948), Table I: c44 = 0.505 x 10^11 dyn/cm2",
+     "caveat": "Room temperature. Cross-check: Huntington 0.508 (0.6% diff)."
+    }
+   }
+  },
+  {
+   "id": "rs-rbcl",
+   "group": "ionics-rocksalt-oos",
+   "formula": "RbCl",
+   "structure_type": "rocksalt",
+   "composition": { "Rb": 1, "Cl": 1 },
+   "lattice_guess_angstrom": 6.581,
+   "references": {
+    "a0": {
+     "value": 6.581,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "H.E. Swanson, R.K. Fuyat, G.M. Ugrinic, Standard X-ray Diffraction Powder Patterns, NBS Circular 539 Vol. IV (1955), p. 41: RbCl unit cell 6.5810 A at 27 C (read directly from the NIST legacy scan, nvlpubs.nist.gov)",
+     "caveat": "27 C. Cross-checks in the same NBS table (converted to angstroms): Havighurst, Mack & Blake 1924: 6.584; Olshausen 1925: 6.587. Athermal-vs-RT convention flagged."
+    },
+    "b0": {
+     "value": 16.47,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table VIII, 295 K constants: (3.646+2*0.647)/3 x 10^11 dyn/cm2",
+     "caveat": "DERIVED, not directly quoted. Adiabatic, 295 K. Equivalent to the paper's own elastic compressibility beta = 3/(c11+2c12) = 6.08 x 10^-12 cm2/dyn (Table VIII)."
+    },
+    "c11": {
+     "value": 36.46,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "J.T. Lewis, A. Lehoczky, C.V. Briscoe, 'Elastic Constants of the Alkali Halides at 4.2K', Phys. Rev. 161, 877 (1967), Table VIII: RbCl at 295 K, c11 = 3.646 x 10^11 dyn/cm2 (ultrasonic pulse-echo; read directly from the APS full text)",
+     "caveat": "295 K adiabatic (their room-temperature row is 295 K, not 300 K); stated error +/-0.5% for c11/c44. Cross-check (their Table II): Haussuhl 3.634 (0.3% diff)."
+    },
+    "c12": {
+     "value": 6.47,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table VIII: RbCl at 295 K, c12 = 0.647 x 10^11 dyn/cm2",
+     "caveat": "295 K. Authors' conservative c12 error bound +/-5% (agreement across investigators suggests 2-3%). Cross-check: Haussuhl 0.615 (4.9% diff)."
+    },
+    "c44": {
+     "value": 4.68,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table VIII: RbCl at 295 K, c44 = 0.468 x 10^11 dyn/cm2",
+     "caveat": "295 K adiabatic, +/-0.5%. Cross-check: Haussuhl 0.465 (0.6% diff)."
+    }
+   }
+  },
+  {
+   "id": "rs-naf",
+   "group": "ionics-rocksalt-oos",
+   "formula": "NaF",
+   "structure_type": "rocksalt",
+   "composition": { "Na": 1, "F": 1 },
+   "lattice_guess_angstrom": 4.634,
+   "references": {
+    "a0": {
+     "value": 4.6342,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "H.E. Swanson, E. Tatge, NBS Circular 539 Vol. I (1953), p. 63: NaF (villiaumite) unit cell 4.6342 A at 25 C (read directly from the archive.org full text)",
+     "caveat": "Room temperature (25 C). Cross-check in the same NBS section: Straumanis, Ievins & Karlsons 1939 precision value 4.62345 kX = 4.63279 A at 25 C (0.03% diff). Athermal-vs-RT convention flagged."
+    },
+    "b0": {
+     "value": 48.49,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table III, 300 K row: (9.630+2*2.459)/3 x 10^11 dyn/cm2",
+     "caveat": "DERIVED, not directly quoted. Adiabatic, 300 K. Sensitive to the +/-5%-bounded c12; propagating that bound gives ~+/-1.7 GPa."
+    },
+    "c11": {
+     "value": 96.3,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table III (elastic constants of NaF, smoothed data): 300 K row, c11 = 9.630 x 10^11 dyn/cm2 (read directly from the APS full text)",
+     "caveat": "300 K adiabatic, stated error +/-0.5%. Their Table II room-temperature comparison (9.690 at ~290-295 K) agrees with Haussuhl and Miller & Smith within 0.1%; note c11 is strongly T-dependent (~0.6%/10 K here), so the RT convention matters at the 1% level."
+    },
+    "c12": {
+     "value": 24.59,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table III: 300 K row, c12 = 2.459 x 10^11 dyn/cm2",
+     "caveat": "300 K. Conservative error bound +/-5%. Table II cross-checks at room temperature: Miller & Smith 2.43 (0.8%), Bergmann 2.38 (2.9%), Bhagavantam 2.56 (4.5%)."
+    },
+    "c44": {
+     "value": 27.94,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Lewis, Lehoczky & Briscoe, Phys. Rev. 161, 877 (1967), Table III: 300 K row, c44 = 2.794 x 10^11 dyn/cm2",
+     "caveat": "300 K adiabatic, +/-0.5%; c44 nearly T-independent. Table II cross-checks: Haussuhl 2.81 (0.4%), Miller & Smith 2.80."
+    }
+   }
+  },
+  {
+   "id": "pv-cspbbr3",
+   "group": "perovskite-oos",
+   "formula": "CsPbBr3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Pb": 1, "Br": 3 },
+   "lattice_guess_angstrom": 5.874,
+   "references": {
+    "a0": {
+     "value": 5.874,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "C.K. Moller's classic determination of the cubic perovskite cell of CsPbBr3, a = 5.874 A (Nature 182 (1958) 1436 / Mat. Fys. Medd. Dan. Vid. Selsk. 32 (1959)), as quoted in the open-access review 'Phase transitions in CsPbBr3' (Mater. Adv. 2024, doi:10.1039/D4MA00216D) and multiple later tabulations",
+     "caveat": "CONVENTION MISMATCH + provenance: the true cubic Pm-3m phase is stable only above ~403 K (orthorhombic at RT, tetragonal 361-403 K; Rodova et al., J. Therm. Anal. Cal. 71 (2003) 667; Hirotsu & Suzuki, J. Phys. Soc. Jpn. 43 (1977) 575). Moller's 5.874 A is the historic RT pseudo-cubic determination; the >403 K cubic parameter is slightly larger via thermal expansion. Numeric value verified only through secondary quotations this session."
+    },
+    "b0": {
+     "value": 22.57,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "U.-H. Ko, J.-H. Ri, J.-H. Jang, C.-H. Ri, U.-G. Jong, C.-J. Yu, RSC Adv. 12 (2022) 9755-9762, doi:10.1039/d2ra01084d (DFPT, PBE, virtual crystal approximation): EOS bulk modulus fit K(x) = 22.570 + 5.081x GPa evaluated at x = 0 (pure CsPbBr3); verified from the PMC8961602 full text",
+     "caveat": "Athermal 0 K cubic cell at their PBE lattice constant 5.861 A. Internal consistency: (C11+2C12)/3 = 22.57 = their K. Family-level warning: for the Cl analogue the same method gives ~27.7-29.9 GPa vs 20.5 GPa from the measured cubic-phase Cij, so DFT B0 here likely overestimates."
+    },
+    "c11": {
+     "value": 55.275,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Ko et al., RSC Adv. 12 (2022) 9755, elastic-constant fit C11(x) = 55.275 + 11.283x GPa at x = 0 (verified from the PMC8961602 full text)",
+     "caveat": "Athermal 0 K cubic cell; NOT comparable to high-temperature cubic experimental constants (near-Tc soft-mode coupling depresses measured c11: cf. cubic CsPbCl3 exp c11 = 29.5 GPa at 323 K vs the analogous athermal DFT 66.6 GPa). Athermal-vs-athermal scoring only. Single-source DFT value."
+    },
+    "c12": {
+     "value": 6.217,
+     "unit": "GPa",
+     "kind": "other",
+     "source": "Ko et al., RSC Adv. 12 (2022) 9755, fit C12(x) = 6.217 + 1.979x GPa at x = 0 (verified from the PMC8961602 full text); DFPT-PBE",
+     "caveat": "WEAK REFERENCE - registered exclusion from success criteria: the measured c12 of the cubic Cl analogue (16.0 GPa, Hirotsu & Suzuki 1978) is ~2x the analogous DFT value (8.2 GPa), so the family-level credibility of DFT c12 is poor. kind set to 'other' so the analysis excludes this cell; reported descriptively only."
+    },
+    "c44": {
+     "value": 3.222,
+     "unit": "GPa",
+     "kind": "DFT-PBE",
+     "source": "Ko et al., RSC Adv. 12 (2022) 9755, fit C44(x) = 3.222 + 0.598x GPa at x = 0 (verified from the PMC8961602 full text)",
+     "caveat": "Athermal 0 K cubic cell, single source. Family check: measured cubic-CsPbCl3 c44 = 5.04 GPa vs analogous DFT 3.82 GPa (~24% soft); since c44 is nearly T-independent in the Cl analogue, most of that gap is model error, not convention. Interpret errors against this reference qualitatively."
+    }
+   }
+  },
+  {
+   "id": "pv-cspbcl3",
+   "group": "perovskite-oos",
+   "formula": "CsPbCl3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Pb": 1, "Cl": 3 },
+   "lattice_guess_angstrom": 5.605,
+   "references": {
+    "a0": {
+     "value": 5.605,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "C.K. Moller (1959) classic determination of cubic CsPbCl3, a = 5.605 A; cubic Pm-3m above 320 K confirmed by neutron scattering (Fujii, Hoshino, Yamada, Shirane, Phys. Rev. B 9 (1974) 4549); Springer Materials crystallographic entry sd_1602015 lists the cubic ht phase at 323 K",
+     "caveat": "CONVENTION MISMATCH: cubic only above ~320 K (successive transitions at 310/315/320 K); RT phase is orthorhombic. Athermal cubic relaxation compared to a ~320-323 K measurement. Value verified through secondary tabulations this session."
+    },
+    "b0": {
+     "value": 20.5,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from Hirotsu & Suzuki, J. Phys. Soc. Jpn. 44 (1978) 1604-1611, cubic-phase 50 C constants: (2.95+2*1.60)/3 x 10^11 dyn/cm2",
+     "caveat": "DERIVED, not directly quoted. Robust to the near-Tc c11/c12 swings: the 80 C constants give (3.24+2*1.45)/3 = 20.5 GPa as well. Adiabatic."
+    },
+    "c11": {
+     "value": 29.5,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "S. Hirotsu, T. Suzuki, 'Elastic constants and thermal expansion of CsPbCl3', J. Phys. Soc. Jpn. 44 (1978) 1604-1611 (ultrasonic pulse-overlap): cubic phase at 50 C, c11 = 2.95 x 10^11 dyn/cm2; 3.24 at 80 C",
+     "caveat": "Strongly T-dependent just above Tc = 47 C (soft-mode coupling): 29.5 GPa (50 C) -> 32.4 GPa (80 C). Athermal MLIP c11 embeds a large finite-T/anharmonic convention mismatch - flagged at registration; score c11 qualitatively. Numeric values verified via two independent secondary quotations (paywalled primary not read); Brillouin scattering above Tc (JPSJ, 1981) reported agreement with the ultrasonic determination."
+    },
+    "c12": {
+     "value": 16.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Hirotsu & Suzuki, J. Phys. Soc. Jpn. 44 (1978) 1604: cubic phase at 50 C, c12 = 1.60 x 10^11 dyn/cm2; 1.45 at 80 C",
+     "caveat": "50 C value (14.5 GPa at 80 C); same secondary-quotation provenance as c11. Note: ~2x the athermal DFT c12 for this family - convention plus DFT model error both contribute."
+    },
+    "c44": {
+     "value": 5.04,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Hirotsu & Suzuki, J. Phys. Soc. Jpn. 44 (1978) 1604: cubic phase at 50 C, c44 = 0.504 x 10^11 dyn/cm2; 0.509 at 80 C",
+     "caveat": "Nearly T-independent (5.04 at 50 C, 5.09 at 80 C) - best-conditioned Cij cell for this compound. Same secondary-quotation provenance."
+    }
+   }
+  },
+  {
+   "id": "pv-cscaf3",
+   "group": "perovskite-oos",
+   "formula": "CsCaF3",
+   "structure_type": "perovskite",
+   "composition": { "Cs": 1, "Ca": 1, "F": 3 },
+   "lattice_guess_angstrom": 4.526,
+   "substitution_note": "REGISTERED FALLBACK ENGAGED (prereg 2026-07-13): replaces RbSnBr3. Search outcome 2026-07-13: no experimental cubic-phase lattice constant or Cij found for RbSnBr3 - the RT structure is not cubic and the cubic-phase literature is DFT-only on hypothetical cells (e.g., Sci. Technol. Adv. Mater. 2022 three-phase DFT study), with lattice-dynamics work reporting cubic-phase instabilities. CsCaF3 is a classic cubic fluoroperovskite with measured single-crystal Cij, per the registered fallback list.",
+   "references": {
+    "a0": {
+     "value": 4.526,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "C. Ridou, M. Rousseau, F. Gervais, J. Phys. C: Solid State Phys. 19 (1986) 5757, as tabulated (Expt. a = 4.526 A) in Vaitheeswaran et al., J. Phys.: Condens. Matter 28 (2016) 315403, Table 1 (table read directly from the author-hosted PDF this session)",
+     "caveat": "Room temperature. Verified via secondary quotation (primary paywalled). No structural phase transition is reported for CsCaF3 (unlike RbCaF3), so the cubic reference phase is well-conditioned."
+    },
+    "b0": {
+     "value": 50.9,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Ridou, Rousseau & Gervais 1986 elastic constants, combined as B0 = (C11+2*C12)/3 = 50.9 GPa; quoted as the experimental B0 in Vaitheeswaran et al. 2016, Table 1 (note to table states it is derived from the elastic constants)",
+     "caveat": "DERIVED from measured Cij, not an EOS measurement: (102+2*25.3)/3 = 50.9 GPa. Room temperature, adiabatic."
+    },
+    "c11": {
+     "value": 102.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Ridou, Rousseau & Gervais, J. Phys. C 19 (1986) 5757: C11 = 102 +/- 1 GPa, as tabulated in Vaitheeswaran et al. 2016, Table 2 (Expt. row; read directly)",
+     "caveat": "Room temperature single-crystal measurement (Rousseau group, Le Mans). Verified via secondary quotation this session."
+    },
+    "c12": {
+     "value": 25.3,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Ridou, Rousseau & Gervais, J. Phys. C 19 (1986) 5757: C12 = 25.3 +/- 0.5 GPa, via Vaitheeswaran et al. 2016, Table 2",
+     "caveat": "Room temperature. Verified via secondary quotation this session."
+    },
+    "c44": {
+     "value": 25.5,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Ridou, Rousseau & Gervais, J. Phys. C 19 (1986) 5757: C44 = 25.5 +/- 0.5 GPa, via Vaitheeswaran et al. 2016, Table 2",
+     "caveat": "Room temperature. Verified via secondary quotation this session."
+    }
+   }
+  },
+  {
+   "id": "pv-kmgf3",
+   "group": "perovskite-oos",
+   "formula": "KMgF3",
+   "structure_type": "perovskite",
+   "composition": { "K": 1, "Mg": 1, "F": 3 },
+   "lattice_guess_angstrom": 3.992,
+   "substitution_note": "REGISTERED FALLBACK ENGAGED (prereg 2026-07-13): replaces KSnCl3. Search outcome 2026-07-13: as-synthesized KSnCl3 is experimentally orthorhombic (XRD of solar-absorber material, e.g. PMC10070651), not cubic; cubic-phase literature is hypothetical-DFT only; no experimental cubic a0 or Cij found. KMgF3 is a classic cubic fluoroperovskite (stable cubic to >=40 GPa) with measured single-crystal Cij, per the registered fallback list.",
+   "references": {
+    "a0": {
+     "value": 3.9924,
+     "unit": "Angstrom",
+     "kind": "exp",
+     "source": "R.H. Mitchell et al. (2006), Rietveld refinement of powder neutron diffraction data: a = 3.9924(2) A at 293 K, as quoted in the parascandolaite (natural KMgF3) type description, Phys. Chem. Minerals (2014), doi:10.1007/s00269-014-0668-y",
+     "caveat": "293 K. Determination spread across studies ~0.3% (natural-mineral single-crystal XRD gives 4.003(1) A; other synthetic reports 3.983-3.999 A); treat as 3.992 +/- 0.01 A and do not score a0 claims finer than that."
+    },
+    "b0": {
+     "value": 75.07,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "Derived as (C11+2*C12)/3 from the 298 K moduli of L.E.A. Jones, Phys. Chem. Minerals 4 (1979) 23-42: (138.0+2*43.6)/3",
+     "caveat": "DERIVED, not directly quoted. Adiabatic, 298 K. Using the earlier Rosenberg & Wigmore (1967) constants instead gives (132+2*39.6)/3 = 70.4 GPa (~6% lower); the ~5 GPa spread bounds the reference uncertainty."
+    },
+    "c11": {
+     "value": 138.0,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "L.E.A. Jones, 'Pressure and temperature dependence of the single crystal elastic moduli of the cubic perovskite KMgF3', Phys. Chem. Minerals 4 (1979) 23-42 (ultrasonic pulse superposition, 298 K): C11 = 138.0 GPa",
+     "caveat": "Numeric values verified via two independent secondary quotations (Seddik et al., Appl. Phys. A 106 (2012) 645; 2024 KMgF3 DFT paper PMC11387229 Table 1); primary PDF paywalled this session (abstract read: RT values 'consistent with Reshchikova's (1969) values'). Earlier ultrasonic determination (Rosenberg & Wigmore 1967): 132 GPa (~4% lower)."
+    },
+    "c12": {
+     "value": 43.6,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "L.E.A. Jones, Phys. Chem. Minerals 4 (1979) 23-42, 298 K: C12 = 43.6 GPa",
+     "caveat": "Same secondary-quotation provenance as c11. Cross-check Rosenberg & Wigmore 1967: 39.6 GPa (~10% lower) - c12 carries the largest reference spread for this compound."
+    },
+    "c44": {
+     "value": 49.83,
+     "unit": "GPa",
+     "kind": "exp",
+     "source": "L.E.A. Jones, Phys. Chem. Minerals 4 (1979) 23-42, 298 K: C44 = 49.83 GPa",
+     "caveat": "Same secondary-quotation provenance as c11. Cross-check Rosenberg & Wigmore 1967: 48.5 GPa (2.7% lower)."
+    }
+   }
+  }
+ ]
+}

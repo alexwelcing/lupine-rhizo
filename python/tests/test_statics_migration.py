@@ -22,6 +22,7 @@ from lupine_distill.statics import (
     build_cation_vacancy_hop,
     build_fcc_vacancy_hop,
     compute_migration_barrier,
+    endpoint_band_minimum_check,
 )
 
 pytestmark = pytest.mark.unit
@@ -193,6 +194,18 @@ class TestComputeMigrationBarrier:
         assert payload["values"]["saddle_image_index"] == al_barrier.saddle_image_index
         assert "wall_time_seconds" not in payload["canonical_inputs"]
 
+    def test_endpoint_band_minimum_recorded_healthy(self, al_barrier) -> None:
+        """Registered Round-3 fix: convergence check is warn-AND-record."""
+        assert al_barrier.endpoint_below_band is True
+        assert al_barrier.endpoint_vs_band_min_delta_ev >= 0.0
+        assert al_barrier.endpoint_vs_band_min_delta_ev == pytest.approx(
+            min(al_barrier.band_energies_ev[1:-1])
+            - min(al_barrier.e_initial_ev, al_barrier.e_final_ev)
+        )
+        payload = al_barrier.to_dict()
+        assert payload["values"]["endpoint_below_band"] is True
+        assert payload["units"]["endpoint_vs_band_min_delta_ev"] == "eV"
+
     def test_rejects_bad_n_images(self, al_hop) -> None:
         initial, final, _ = al_hop
         with pytest.raises(InputValidationError):
@@ -223,3 +236,37 @@ class TestComputeMigrationBarrier:
             compute_migration_barrier(EMT(), initial, final, max_steps=0)
         with pytest.raises(InputValidationError):
             compute_migration_barrier(EMT(), initial, final, interpolation="spline")
+
+
+class TestEndpointBandMinimumCheck:
+    """Endpoint-vs-band-minimum convergence check (Round-3 registered fix:
+    replaces the symmetric-asymmetry identity as convergence evidence)."""
+
+    def test_healthy_band_passes(self) -> None:
+        ok, delta = endpoint_band_minimum_check((-10.0, -9.6, -9.4, -9.6, -10.0))
+        assert ok is True
+        assert delta == pytest.approx(0.4)
+
+    def test_interior_image_below_endpoint_flagged(self) -> None:
+        # The LiI/mace-mp-medium defect shape: an image ~3 meV below the
+        # endpoints, invisible to the asymmetry identity.
+        ok, delta = endpoint_band_minimum_check((-10.0, -10.003, -9.5, -10.0))
+        assert ok is False
+        assert delta == pytest.approx(-0.003)
+
+    def test_asymmetric_endpoints_use_the_lower_one(self) -> None:
+        # Interior dips below the HIGHER endpoint but not the lower: healthy.
+        ok, delta = endpoint_band_minimum_check((-10.0, -9.9, -9.0, -9.5))
+        assert ok is True
+        assert delta == pytest.approx(0.1)
+
+    def test_boundary_equality_is_healthy(self) -> None:
+        ok, delta = endpoint_band_minimum_check((-10.0, -10.0, -10.0))
+        assert ok is True
+        assert delta == pytest.approx(0.0)
+
+    def test_validation(self) -> None:
+        with pytest.raises(InputValidationError):
+            endpoint_band_minimum_check((-10.0, -9.5))  # no interior image
+        with pytest.raises(InputValidationError):
+            endpoint_band_minimum_check((-10.0, math.nan, -10.0))

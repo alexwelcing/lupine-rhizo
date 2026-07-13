@@ -29,6 +29,7 @@ from lupine_distill.statics import (
     derive_concordance_thresholds,
     derive_per_property_thresholds,
     dispersions_by_material,
+    dispersions_by_material_floored,
     dynamic_return,
     facet_ordering,
     load_property_by_material,
@@ -281,6 +282,76 @@ class TestLoadPropertyByMaterial:
 
 
 # --------------------------------------------------------------------------
+# Floored dispersion metric (Round-3 registered fix 1, metric floored-v1)
+# --------------------------------------------------------------------------
+
+
+class TestDispersionsByMaterialFloored:
+    #: Synthetic bcc-C44-like class: three healthy cells plus a V-like
+    #: sign-crossing cell whose four models straddle zero (median exactly 0,
+    #: the case where (max-min)/|median| is undefined/explosive).
+    _CLASS = {
+        "W": {"m1": 120.0, "m2": 150.0, "m3": 140.0, "m4": 130.0},
+        "Mo": {"m1": 90.0, "m2": 110.0, "m3": 100.0, "m4": 105.0},
+        "Cr": {"m1": 40.0, "m2": 90.0, "m3": 60.0, "m4": 70.0},
+        "V": {"m1": -20.0, "m2": 30.0, "m3": 5.0, "m4": -5.0},
+    }
+
+    def test_v_c44_sign_crossing_is_finite_and_sane(self) -> None:
+        # V median = median(-20, -5, 5, 30) = 0 -> unfloored metric undefined.
+        with pytest.raises(InputValidationError):
+            relative_dispersion(list(self._CLASS["V"].values()))
+        dispersions = dispersions_by_material_floored(self._CLASS)
+        # class-median |median| = median(135, 102.5, 65, 0) = 83.75; floor 8.375.
+        floor = 0.1 * float(np.median([135.0, 102.5, 65.0, 0.0]))
+        expected_v = (30.0 - (-20.0)) / floor
+        assert dispersions["V"] == pytest.approx(expected_v)
+        assert math.isfinite(dispersions["V"])
+        # Sane: large (worst in class) but nowhere near the unfloored 237.7-like
+        # explosion a near-zero median produces.
+        assert dispersions["V"] < 10.0
+        assert dispersions["V"] == max(dispersions.values())
+
+    def test_healthy_cells_match_unfloored_metric(self) -> None:
+        dispersions = dispersions_by_material_floored(self._CLASS)
+        for material in ("W", "Mo", "Cr"):
+            unfloored = relative_dispersion(list(self._CLASS[material].values()))
+            assert dispersions[material] == pytest.approx(unfloored)
+
+    def test_floor_engages_only_below_fraction_of_class_median(self) -> None:
+        values = {
+            "A": {"m1": 99.0, "m2": 101.0},
+            "B": {"m1": 100.0, "m2": 102.0},
+            "C": {"m1": 1.0, "m2": 3.0},  # |median| = 2 < 0.1 * 100
+        }
+        dispersions = dispersions_by_material_floored(values)
+        assert dispersions["A"] == pytest.approx(2.0 / 100.0)
+        # C floored: denominator max(2, 0.1 * median(100, 101, 2)) = 10.
+        assert dispersions["C"] == pytest.approx(2.0 / 10.0)
+
+    def test_all_sign_crossing_medians_rejected(self) -> None:
+        with pytest.raises(InputValidationError, match="class-median"):
+            dispersions_by_material_floored(
+                {"A": {"m1": -1.0, "m2": 1.0}, "B": {"m1": -2.0, "m2": 2.0}}
+            )
+
+    def test_requires_two_models(self) -> None:
+        with pytest.raises(InputValidationError):
+            dispersions_by_material_floored({"Cu": {"m1": 150.0}})
+
+    def test_bad_floor_fraction_rejected(self) -> None:
+        for bad in (0.0, -0.1, math.nan):
+            with pytest.raises(InputValidationError):
+                dispersions_by_material_floored(
+                    {"Cu": {"m1": 90.0, "m2": 110.0}}, floor_fraction=bad
+                )
+
+    def test_empty_mapping_rejected(self) -> None:
+        with pytest.raises(InputValidationError):
+            dispersions_by_material_floored({})
+
+
+# --------------------------------------------------------------------------
 # Dynamic return (finite-rattle basin-return proxy; NOT phonons)
 # --------------------------------------------------------------------------
 
@@ -420,3 +491,40 @@ class TestDerivePerPropertyThresholds:
         self._populate(tmp_path)
         thresholds = derive_per_property_thresholds(tmp_path, properties=("b0",))
         assert set(thresholds) == {"b0"}
+
+    def test_floor_fraction_selects_floored_metric(self, tmp_path: Path) -> None:
+        """A sign-crossing C44 cell is finite under floored-v1 and the metric
+        version is recorded in the threshold source."""
+        healthy_c44 = [50.0, 60.0, 45.0, 55.0, 52.0]
+        for i, c44 in enumerate(healthy_c44):
+            _write_full_evidence(
+                tmp_path, f"M{i}", "m1",
+                {"a0": 4.0, "B0": 100.0, "C11": 200.0, "C12": 90.0, "C44": c44},
+            )
+            _write_full_evidence(
+                tmp_path, f"M{i}", "m2",
+                {"a0": 4.02, "B0": 105.0, "C11": 210.0, "C12": 95.0,
+                 "C44": c44 + 10.0},
+            )
+        # V-like sign-crossing cell: models straddle zero on C44.
+        _write_full_evidence(
+            tmp_path, "V", "m1",
+            {"a0": 3.0, "B0": 150.0, "C11": 250.0, "C12": 120.0, "C44": -20.0},
+        )
+        _write_full_evidence(
+            tmp_path, "V", "m2",
+            {"a0": 3.02, "B0": 155.0, "C11": 260.0, "C12": 125.0, "C44": 20.0},
+        )
+        # Unfloored metric cannot even be computed (median exactly 0).
+        with pytest.raises(InputValidationError):
+            derive_per_property_thresholds(tmp_path, properties=("c44",))
+        thresholds = derive_per_property_thresholds(
+            tmp_path, properties=("c44",), floor_fraction=0.1
+        )
+        t = thresholds["c44"]
+        assert math.isfinite(t.refuse)
+        assert "floored-v1" in t.source
+        dispersions = dict(t.sample_dispersions)
+        # V's dispersion = 40 / (0.1 * class-median |median C44|), finite.
+        assert math.isfinite(dispersions["V"])
+        assert dispersions["V"] == max(dispersions.values())

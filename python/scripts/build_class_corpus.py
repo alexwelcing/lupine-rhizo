@@ -53,11 +53,16 @@ for _p in (str(_HERE.parent), str(_HERE.parents[1]), str(_HERE.parents[2])):
 
 _REPO_ROOT = _HERE.parents[2]
 
-from run_elastic_baseline import BASELINE_MATERIALS  # noqa: E402
+from run_elastic_baseline import (  # noqa: E402
+    BASELINE_MATERIALS,
+    audit_calibration_cells,
+)
 
 from lupine_distill.calc_evidence import build_calc_evidence  # noqa: E402
 from lupine_distill.schemas import CALC_EVIDENCE_SCHEMA, PropertyValue  # noqa: E402
 from lupine_distill.statics import (  # noqa: E402
+    DEFAULT_DISPERSION_FLOOR_FRACTION,
+    DISPERSION_METRIC_FLOORED_V1,
     ConcordanceThresholds,
     InputValidationError,
     derive_per_property_thresholds,
@@ -145,7 +150,35 @@ THRESHOLD_NOTES: Final[tuple[str, ...]] = (
     "Perovskite cells are the RAW per_model arm of the Round-1 campaign "
     "report, never the bias-corrected arm: a calibration corpus must contain "
     "unmodified instrument readings.",
+    "PEROVSKITE CLASS IS PROVISIONAL/IN-SAMPLE (2026-07-13 errata finding 6; "
+    "Round-3 prereg fix 2): the calibration corpus IS the Round-1 gated "
+    "candidate set (same 5 compounds), so any perovskite dispersion-error "
+    "license computed on it is circular. No perovskite claim gates on v3 "
+    "until Round-3 evidence creates the first out-of-sample perovskite "
+    "corpus.",
+    "Dispersion metric floored-v1 (Round-3 registered instrument fix 1, "
+    "2026-07-13 prereg): per-(class, property) denominator = max(|cross-model "
+    "median|, 0.1 x class-median of per-material |median value|). The "
+    "unfloored (max-min)/|median| metric is undefined at sign-crossing "
+    "medians; the previous artifact is preserved as "
+    "thresholds.v3.unfloored.json for diffability.",
+    "Calibration-cell audit (V, Cr; metals-bcc): V's C44 cross-model median "
+    "is ~0 GPa - the models disagree on the SIGN of V's C44 (sign-crossing "
+    "predictions), a calibration-cell pathology, not a usable dispersion "
+    "sample; unfloored it produced dispersion 237.7 and a bcc C44 refuse "
+    "threshold of 167.6 that could never fire. Cr (next-largest bcc C44/C12 "
+    "disperser) is audited alongside. See the calibration_cell_audit block.",
 )
+
+#: Per-class status markings carried into the artifact (fix 2: the perovskite
+#: class must visibly carry its provisional/in-sample standing).
+CLASS_STATUS: Final[Mapping[str, str]] = {
+    CLASS_PEROVSKITES: (
+        "provisional/in-sample: calibration corpus = the Round-1 gated "
+        "candidates (same 5 compounds); no perovskite claim gates on v3 "
+        "until an out-of-sample perovskite corpus exists (Round-3 evidence)"
+    ),
+}
 
 
 # --------------------------------------------------------------------------
@@ -498,7 +531,9 @@ def derive_class_thresholds(
                 f"for percentile thresholds"
             )
             continue
-        per_class[class_name] = derive_per_property_thresholds(class_dir)
+        per_class[class_name] = derive_per_property_thresholds(
+            class_dir, floor_fraction=DEFAULT_DISPERSION_FLOOR_FRACTION
+        )
     return per_class, skipped
 
 
@@ -597,22 +632,44 @@ def main(argv: list[str] | None = None) -> int:
     for class_name, reason in sorted(skipped.items()):
         log.info("thresholds NOT derived for %s: %s", class_name, reason)
 
+    try:
+        bcc_audit = audit_calibration_cells(corpus_root / CLASS_METALS_BCC)
+    except InputValidationError as exc:
+        log.error("calibration-cell audit failed: %s", exc)
+        return 1
+
     artifact = {
         "schema": THRESHOLDS_SCHEMA,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "corpus_root": _relpath(corpus_root),
+        "dispersion_metric": {
+            "version": DISPERSION_METRIC_FLOORED_V1,
+            "definition": (
+                "(max - min) / max(|cross-model median|, floor_fraction * "
+                "class-median of per-material |median value|), per "
+                "(class, property)"
+            ),
+            "floor_fraction": DEFAULT_DISPERSION_FLOOR_FRACTION,
+            "registered_in": "docs/plans/2026-07-13-round3-preregistration.md",
+        },
         "per_class": {
             class_name: {
                 "evidence_dir": _relpath(corpus_root / class_name),
                 "n_materials": next(
                     iter(per_class[class_name].values())
                 ).n_samples,
+                **(
+                    {"status": CLASS_STATUS[class_name]}
+                    if class_name in CLASS_STATUS
+                    else {}
+                ),
                 "per_property": {
                     prop: t.to_dict() for prop, t in per_class[class_name].items()
                 },
             }
             for class_name in sorted(per_class)
         },
+        "calibration_cell_audit": {CLASS_METALS_BCC: bcc_audit},
         "classes_without_thresholds": dict(sorted(skipped.items())),
         "provenance": {
             CLASS_METALS_FCC: (

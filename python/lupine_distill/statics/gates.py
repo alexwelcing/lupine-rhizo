@@ -56,6 +56,14 @@ DYNAMIC_RETURN_LIMITS: Final[str] = (
 _MIN_THRESHOLD_SAMPLES: Final[int] = 5
 _MEDIAN_FLOOR: Final[float] = 1.0e-12
 
+#: Registered Round-3 dispersion-metric version (2026-07-13 prereg, fix 1):
+#: per-material denominator floored at ``floor_fraction`` times the
+#: class-median per-material |median value| of the same property.
+DISPERSION_METRIC_FLOORED_V1: Final[str] = "floored-v1"
+
+#: Registered floor fraction (0.1 x class-median |median value|).
+DEFAULT_DISPERSION_FLOOR_FRACTION: Final[float] = 0.1
+
 
 @dataclass(frozen=True)
 class GateVerdict:
@@ -503,6 +511,60 @@ def dispersions_by_material(
     return dispersions
 
 
+def dispersions_by_material_floored(
+    values_by_material: Mapping[str, Mapping[str, float]],
+    *,
+    floor_fraction: float = DEFAULT_DISPERSION_FLOOR_FRACTION,
+) -> dict[str, float]:
+    """Per-material cross-model dispersion with a class-median denominator floor.
+
+    Registered Round-3 instrument fix (metric :data:`DISPERSION_METRIC_FLOORED_V1`):
+    the unfloored metric ``(max - min) / |median|`` is undefined (explodes) when
+    a material's cross-model median crosses zero — models disagreeing on the
+    SIGN of a property (V's C44, cross-model median ~0 GPa, dispersion 237.7)
+    is a calibration-cell pathology, not a usable dispersion sample. Here
+
+    ``dispersion_i = (max_i - min_i) / max(|median_i|, floor_fraction * M)``
+
+    where ``median_i`` is material *i*'s cross-model median and ``M`` is the
+    class median of the per-material ``|median_i|`` over ``values_by_material``.
+    Cells with ``|median_i| >= floor_fraction * M`` are unchanged from the
+    unfloored metric; sign-crossing cells become finite and comparable.
+    """
+    fraction = _require_finite("floor_fraction", floor_fraction)
+    if fraction <= 0.0:
+        raise InputValidationError(
+            f"floor_fraction must be > 0, got {fraction}"
+        )
+    if not isinstance(values_by_material, Mapping) or not values_by_material:
+        raise InputValidationError("values_by_material must be a non-empty mapping")
+    medians: dict[str, float] = {}
+    spreads: dict[str, float] = {}
+    for material, by_model in values_by_material.items():
+        if len(by_model) < 2:
+            raise InputValidationError(
+                f"material {material!r} has {len(by_model)} model value(s); "
+                f"need >= 2 for a cross-model dispersion"
+            )
+        data = [
+            _require_finite(f"{material}[{model}]", value)
+            for model, value in by_model.items()
+        ]
+        medians[str(material)] = float(np.median(data))
+        spreads[str(material)] = float(max(data) - min(data))
+    class_median = float(np.median([abs(m) for m in medians.values()]))
+    floor = fraction * class_median
+    if floor < _MEDIAN_FLOOR:
+        raise InputValidationError(
+            f"class-median |median value| {class_median!r} too small to floor a "
+            f"relative dispersion (every material's cross-model median is ~0)"
+        )
+    return {
+        material: spreads[material] / max(abs(medians[material]), floor)
+        for material in medians
+    }
+
+
 #: Concordance property key -> calc-evidence property name. Concordance keys
 #: are the lowercase report keys; evidence files carry the Y-matrix names
 #: (``B0``, ``C11``, ...). The loader silently skips files without the
@@ -525,6 +587,7 @@ def derive_per_property_thresholds(
     properties: Sequence[str] = tuple(PROPERTY_EVIDENCE_NAMES),
     flag_percentile: float = 75.0,
     refuse_percentile: float = 95.0,
+    floor_fraction: float | None = None,
 ) -> dict[str, ConcordanceThresholds]:
     """Per-property flag/refuse thresholds from one calc-evidence directory.
 
@@ -533,6 +596,13 @@ def derive_per_property_thresholds(
     per-material cross-model dispersion distribution supplies its percentile
     thresholds. This replaces the single-property (B0) proxy transfer with a
     per-property calibration measured on the same probe that gates subjects.
+
+    ``floor_fraction`` selects the dispersion metric: ``None`` keeps the
+    original unfloored ``(max-min)/|median|``; a positive fraction applies
+    the registered :data:`DISPERSION_METRIC_FLOORED_V1` denominator floor
+    (``max(|median|, floor_fraction * class-median |median|)``, see
+    :func:`dispersions_by_material_floored`), and the metric is recorded in
+    each threshold's ``source``.
 
     A property with zero samples is an :class:`InputValidationError`: the
     loader skips files without the property, so an empty result almost always
@@ -554,7 +624,17 @@ def derive_per_property_thresholds(
                 f"lacks this property (or the directory is wrong), so no "
                 f"per-property threshold can be derived for {prop!r}"
             )
-        dispersions = dispersions_by_material(by_material)
+        if floor_fraction is None:
+            dispersions = dispersions_by_material(by_material)
+            metric_source = "(max-min)/|median|"
+        else:
+            dispersions = dispersions_by_material_floored(
+                by_material, floor_fraction=floor_fraction
+            )
+            metric_source = (
+                f"(max-min)/max(|median|, {floor_fraction:g} * class-median "
+                f"|median|) [metric {DISPERSION_METRIC_FLOORED_V1}]"
+            )
         thresholds[prop] = derive_concordance_thresholds(
             dispersions,
             flag_percentile=flag_percentile,
@@ -562,7 +642,7 @@ def derive_per_property_thresholds(
             source=(
                 f"p{flag_percentile:g}/p{refuse_percentile:g} of the "
                 f"per-material cross-model relative dispersion "
-                f"(max-min)/|median| of {evidence_name} over "
+                f"{metric_source} of {evidence_name} over "
                 f"{len(by_material)} materials in {directory.as_posix()} "
                 f"(schema {EVIDENCE_SCHEMA_ID})"
             ),
@@ -573,6 +653,8 @@ def derive_per_property_thresholds(
 __all__ = [
     "BORN_PROVENANCE",
     "ConcordanceThresholds",
+    "DEFAULT_DISPERSION_FLOOR_FRACTION",
+    "DISPERSION_METRIC_FLOORED_V1",
     "DYNAMIC_RETURN_LIMITS",
     "EVIDENCE_SCHEMA_ID",
     "GateVerdict",
@@ -582,6 +664,7 @@ __all__ = [
     "derive_concordance_thresholds",
     "derive_per_property_thresholds",
     "dispersions_by_material",
+    "dispersions_by_material_floored",
     "dynamic_return",
     "facet_ordering",
     "load_property_by_material",

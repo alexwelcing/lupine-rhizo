@@ -204,6 +204,88 @@ class TestApplyBias:
 
 
 # --------------------------------------------------------------------------
+# candidate structure building (no calculator; rocksalt has no EMT support,
+# so the rocksalt route is tested on structure geometry/bookkeeping only)
+# --------------------------------------------------------------------------
+
+
+def _rocksalt_candidate(lattice_guess: float | None = 6.29) -> "rcc.Candidate":
+    return rcc.Candidate(
+        id="rs-kcl",
+        group="ionic-rocksalt",
+        formula="KCl",
+        structure_type="rocksalt",
+        composition=(),
+        lattice_guess_angstrom=lattice_guess,
+        references=tuple((p, None) for p in rcc.CAMPAIGN_PROPERTIES),
+    )
+
+
+class TestBuildCandidateAtoms:
+    def test_rocksalt_counts_and_cell(self) -> None:
+        atoms, n_conv_cells, a_guess = rcc.build_candidate_atoms(
+            _rocksalt_candidate(), repeat=2, seed=42
+        )
+        # One conventional cubic rocksalt cell: 4 K + 4 Cl, cell = a * I.
+        assert len(atoms) == 8
+        symbols = atoms.get_chemical_symbols()
+        assert symbols.count("K") == 4 and symbols.count("Cl") == 4
+        assert n_conv_cells == 1  # a0 = (V0 / n_conv_cells)^(1/3) stays exact
+        assert a_guess == pytest.approx(6.29)
+        cell = atoms.get_cell()[:]
+        for i in range(3):
+            for j in range(3):
+                expected = 6.29 if i == j else 0.0
+                assert cell[i][j] == pytest.approx(expected)
+        assert all(atoms.get_pbc())
+
+    def test_rocksalt_estimates_lattice_when_no_guess(self) -> None:
+        atoms, n_conv_cells, a_guess = rcc.build_candidate_atoms(
+            _rocksalt_candidate(lattice_guess=None), repeat=2, seed=42
+        )
+        assert a_guess > 0.0
+        assert len(atoms) == 8 and n_conv_cells == 1
+
+    def test_rocksalt_ignores_rss_repeat_and_seed(self) -> None:
+        a, _, _ = rcc.build_candidate_atoms(_rocksalt_candidate(), repeat=3, seed=1)
+        b, _, _ = rcc.build_candidate_atoms(_rocksalt_candidate(), repeat=2, seed=99)
+        assert len(a) == len(b) == 8
+        assert (a.get_positions() == b.get_positions()).all()
+
+    def test_rocksalt_bias_class_routed_to_ionics(self) -> None:
+        assert rcc.BIAS_CLASS_BY_STRUCTURE["rocksalt"] == "ionics-rocksalt"
+        per_model = {"m1": _record(6.3, 18.0, 40.0, 8.0, 8.0)}
+        arm = rcc.corrected_arm(per_model, "rocksalt", {})
+        assert arm["m1"]["bias_class"] == "ionics-rocksalt"
+        # No ionic bias in the Round-1 artifact -> uncorrected, labeled so.
+        assert all(not v["corrected"] for v in arm["m1"]["values"].values())
+
+    def test_load_targets_accepts_rocksalt_and_requires_formula(
+        self, tmp_path: Path
+    ) -> None:
+        payload = _targets_payload()
+        payload["candidates"].append(
+            {
+                "id": "rs-kcl",
+                "group": "ionic-rocksalt",
+                "formula": "KCl",
+                "structure_type": "rocksalt",
+                "composition": {},
+                "lattice_guess_angstrom": 6.29,
+                "references": {"a0": {"value": 6.29}},
+            }
+        )
+        path = tmp_path / "targets.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        candidates = rcc.load_targets(path)
+        assert any(c.structure_type == "rocksalt" for c in candidates)
+        payload["candidates"][-1]["formula"] = ""
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(InputValidationError, match="rocksalt candidates need"):
+            rcc.load_targets(path)
+
+
+# --------------------------------------------------------------------------
 # cell-based measurement on EMT
 # --------------------------------------------------------------------------
 
@@ -333,6 +415,22 @@ class TestAssembleReport:
         assert coverage["n_candidates"] == 1
         assert coverage["n_certified"] == 1
         assert coverage["coverage_issued_fraction"] == pytest.approx(1.0)
+
+    def test_b0_concordance_descriptive_note_in_report(
+        self, targets_file: Path, thresholds_file: Path
+    ) -> None:
+        """Round-3 registered fix 6: B0 concordance demoted to descriptive."""
+        per_model = {
+            "m1": _record(3.55, 150.0, 200.0, 100.0, 50.0),
+            "m2": _record(3.55, 150.0, 200.0, 100.0, 50.0),
+        }
+        report = self._report(targets_file, thresholds_file, per_model)
+        note = report["notes"]["b0_concordance_descriptive"]
+        assert note == rcc.B0_CONCORDANCE_DESCRIPTIVE_NOTE
+        assert "DESCRIPTIVE" in note and "rho = -0.63" in note
+        # The note travels into the rendered markdown too.
+        assert "b0_concordance_descriptive" not in rcc.render_markdown(report)
+        assert "DESCRIPTIVE only" in rcc.render_markdown(report)
 
     def test_measurement_error_refuses_and_render_survives(
         self, targets_file: Path, thresholds_file: Path

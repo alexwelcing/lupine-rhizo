@@ -472,6 +472,8 @@ def main(argv: list[str] | None = None) -> int:
                 "forward_barrier_ev": result.forward_barrier_ev,
                 "backward_barrier_ev": result.backward_barrier_ev,
                 "barrier_asymmetry_ev": result.barrier_asymmetry_ev,
+                "endpoint_below_band": result.endpoint_below_band,
+                "endpoint_vs_band_min_delta_ev": result.endpoint_vs_band_min_delta_ev,
                 "e_initial_ev": result.e_initial_ev,
                 "e_final_ev": result.e_final_ev,
                 "e_saddle_ev": result.e_saddle_ev,

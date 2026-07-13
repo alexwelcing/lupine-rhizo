@@ -22,6 +22,9 @@ Run (Python 3.12 GPU venv):
         --device cuda
 Smoke (one material, all models):
     ... run_elastic_baseline.py --device cuda --materials Ni
+Rederive thresholds from ALREADY-MEASURED evidence (no GPU, no calculators;
+Round-3 registered metric fix):
+    ... run_elastic_baseline.py --rederive-only
 """
 
 from __future__ import annotations
@@ -46,6 +49,8 @@ for _p in (str(_HERE.parent), str(_HERE.parents[1]), str(_HERE.parents[2])):
 
 _REPO_ROOT = _HERE.parents[2]
 
+import numpy as np  # noqa: E402
+
 from run_discovery_gates import (  # noqa: E402
     DEFAULT_MODELS,
     MODEL_REGISTRY,
@@ -57,9 +62,15 @@ from run_discovery_gates import (  # noqa: E402
 from lupine_distill.calc_evidence import build_calc_evidence  # noqa: E402
 from lupine_distill.schemas import PropertyValue  # noqa: E402
 from lupine_distill.statics import (  # noqa: E402
+    DEFAULT_DISPERSION_FLOOR_FRACTION,
+    DISPERSION_METRIC_FLOORED_V1,
+    PROPERTY_EVIDENCE_NAMES,
     InputValidationError,
     StaticsError,
     derive_per_property_thresholds,
+    dispersions_by_material_floored,
+    load_property_by_material,
+    relative_dispersion,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
@@ -116,7 +127,137 @@ THRESHOLD_NOTES: tuple[str, ...] = (
     "run_discovery_gates.measure_subject (same lattice relax, BM3 EOS, "
     "relaxed-ion stress-strain elastic probe, same elastic_delta), so "
     "thresholds are calibrated on the identical probe that gates subjects.",
+    "Dispersion metric floored-v1 (Round-3 registered instrument fix 1, "
+    "2026-07-13 prereg): per-material denominator = max(|cross-model median|, "
+    "0.1 x class-median of per-material |median value|) per property. The "
+    "unfloored (max-min)/|median| metric is undefined at sign-crossing "
+    "medians; the previous artifact is preserved as "
+    "thresholds.v2.unfloored.json for diffability.",
+    "Calibration-cell audit (V, Cr): V's C44 cross-model median is ~0 GPa - "
+    "the models disagree on the SIGN of V's C44 (sign-crossing predictions), "
+    "a calibration-cell pathology, not a usable dispersion sample; unfloored "
+    "it produced dispersion 237.7 and a refuse threshold that could never "
+    "fire. Cr (the next-largest bcc C44/C12 disperser) is audited alongside. "
+    "See the calibration_cell_audit block.",
 )
+
+
+def audit_calibration_cells(
+    evidence_dir: Path,
+    *,
+    materials: tuple[str, ...] = ("V", "Cr"),
+    properties: tuple[str, ...] = ("c44", "c12"),
+    floor_fraction: float = DEFAULT_DISPERSION_FLOOR_FRACTION,
+) -> dict[str, object]:
+    """V/Cr calibration-cell audit block (Round-3 registered fix 1).
+
+    For each audited (material, property) cell: the per-model values, the
+    cross-model median, whether the predictions cross zero in sign, the
+    unfloored dispersion (``None`` when the metric is undefined), the
+    floored-v1 dispersion, and whether the denominator floor engaged.
+    """
+    cells: dict[str, object] = {}
+    for prop in properties:
+        evidence_name = PROPERTY_EVIDENCE_NAMES[prop]
+        by_material = load_property_by_material(
+            evidence_dir, property_name=evidence_name
+        )
+        floored = dispersions_by_material_floored(
+            by_material, floor_fraction=floor_fraction
+        )
+        medians = {
+            material: float(np.median(list(values.values())))
+            for material, values in by_material.items()
+        }
+        floor = floor_fraction * float(np.median([abs(m) for m in medians.values()]))
+        for material in materials:
+            if material not in by_material:
+                continue
+            values = by_material[material]
+            lo, hi = min(values.values()), max(values.values())
+            try:
+                unfloored: float | None = relative_dispersion(list(values.values()))
+            except InputValidationError:
+                unfloored = None
+            cells[f"{material}.{prop}"] = {
+                "values_by_model_gpa": dict(sorted(values.items())),
+                "cross_model_median_gpa": medians[material],
+                "sign_crossing_predictions": bool(lo < 0.0 < hi),
+                "dispersion_unfloored": unfloored,
+                "dispersion_floored_v1": floored[material],
+                "denominator_floor_gpa": floor,
+                "floor_engaged": bool(abs(medians[material]) < floor),
+            }
+    return {
+        "note": (
+            "V C44 cross-model median ~0 GPa = sign-crossing predictions "
+            "(models disagree on the SIGN), flagged as calibration-cell "
+            "pathology; Cr audited as the next-largest bcc disperser. "
+            "Cells with floor_engaged=false are numerically identical to "
+            "the unfloored metric."
+        ),
+        "audited_materials": list(materials),
+        "audited_properties": list(properties),
+        "floor_fraction": floor_fraction,
+        "cells": cells,
+    }
+
+
+def derive_and_write_thresholds(
+    out_dir: Path,
+    thresholds_path: Path,
+    *,
+    device: str,
+    models: list[str],
+    calculator_versions: dict[str, str],
+    materials_labels: list[str],
+    parameters: dict[str, object],
+    rederived_only: bool,
+) -> int:
+    """Floored-v1 threshold derivation + artifact write (shared by both modes)."""
+    try:
+        per_property = derive_per_property_thresholds(
+            out_dir, floor_fraction=DEFAULT_DISPERSION_FLOOR_FRACTION
+        )
+        audit = audit_calibration_cells(out_dir)
+    except InputValidationError as exc:
+        log.info("thresholds NOT derived: %s", exc)
+        return 1
+    artifact = {
+        "schema": THRESHOLDS_SCHEMA,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "evidence_dir": out_dir.as_posix(),
+        "rederived_from_existing_evidence": rederived_only,
+        "device": device,
+        "models": models,
+        "calculator_versions": calculator_versions,
+        "materials": materials_labels,
+        "parameters": parameters,
+        "dispersion_metric": {
+            "version": DISPERSION_METRIC_FLOORED_V1,
+            "definition": (
+                "(max - min) / max(|cross-model median|, floor_fraction * "
+                "class-median of per-material |median value|), per property"
+            ),
+            "floor_fraction": DEFAULT_DISPERSION_FLOOR_FRACTION,
+            "registered_in": "docs/plans/2026-07-13-round3-preregistration.md",
+        },
+        "per_property": {prop: t.to_dict() for prop, t in per_property.items()},
+        "calibration_cell_audit": audit,
+        "notes": list(THRESHOLD_NOTES),
+    }
+    thresholds_path.parent.mkdir(parents=True, exist_ok=True)
+    thresholds_path.write_text(json.dumps(artifact, indent=2), encoding="utf-8")
+    for prop, t in per_property.items():
+        log.info(
+            "thresholds.v2 %s: flag >= %.4f (p75), refuse >= %.4f (p95), n=%d",
+            prop,
+            t.flag,
+            t.refuse,
+            t.n_samples,
+        )
+    log.info("thresholds -> %s", thresholds_path)
+    return 0
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -148,7 +289,49 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--delta", type=float, default=0.5e-2, help="Elastic FD strain")
     parser.add_argument("--run-label", default=None, help="Optional evidence run label")
+    parser.add_argument(
+        "--rederive-only",
+        action="store_true",
+        help=(
+            "Skip all measurement (no calculators load, CPU-safe): rederive "
+            "the thresholds artifact from the existing calc-evidence files in "
+            "--out-dir under the registered floored-v1 dispersion metric, "
+            "taking run provenance from baseline_summary.json"
+        ),
+    )
     return parser.parse_args(argv)
+
+
+def rederive_only(args: argparse.Namespace) -> int:
+    """Rederive thresholds from existing evidence (Round-3 registered fix 1)."""
+    out_dir = Path(args.out_dir)
+    summary_path = out_dir / "baseline_summary.json"
+    if not summary_path.is_file():
+        log.info("rederive-only: no baseline_summary.json in %s", out_dir)
+        return 1
+    try:
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        log.info("rederive-only: cannot read %s: %s", summary_path, exc)
+        return 1
+    if not isinstance(summary, dict):
+        log.info("rederive-only: %s is not a JSON object", summary_path)
+        return 1
+    log.info(
+        "rederive-only: thresholds from existing evidence in %s (measured %s)",
+        out_dir,
+        summary.get("generated_at", "?"),
+    )
+    return derive_and_write_thresholds(
+        out_dir,
+        Path(args.thresholds_out),
+        device=str(summary.get("device", "unknown")),
+        models=list(summary.get("models", [])),
+        calculator_versions=dict(summary.get("calculator_versions", {})),
+        materials_labels=list(summary.get("materials", [])),
+        parameters=dict(summary.get("parameters", {})),
+        rederived_only=True,
+    )
 
 
 def select_materials(csv: str) -> tuple[tuple[str, str], ...]:
@@ -216,6 +399,8 @@ def evidence_from_record(
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.rederive_only:
+        return rederive_only(args)
     models = [m.strip() for m in args.models.split(",") if m.strip()]
     if not models:
         raise SystemExit("--models must name at least one model")
@@ -308,36 +493,16 @@ def main(argv: list[str] | None = None) -> int:
             len(materials),
         )
         return 0
-    try:
-        per_property = derive_per_property_thresholds(out_dir)
-    except InputValidationError as exc:
-        log.info("thresholds NOT derived: %s", exc)
-        return 1
-    artifact = {
-        "schema": THRESHOLDS_SCHEMA,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "evidence_dir": out_dir.as_posix(),
-        "device": args.device,
-        "models": models,
-        "calculator_versions": calculator_versions,
-        "materials": [f"{f}_{s}" for f, s in materials],
-        "parameters": {"elastic_delta": args.delta, "elastic_relax_internal": True},
-        "per_property": {prop: t.to_dict() for prop, t in per_property.items()},
-        "notes": list(THRESHOLD_NOTES),
-    }
-    thresholds_path = Path(args.thresholds_out)
-    thresholds_path.parent.mkdir(parents=True, exist_ok=True)
-    thresholds_path.write_text(json.dumps(artifact, indent=2), encoding="utf-8")
-    for prop, t in per_property.items():
-        log.info(
-            "thresholds.v2 %s: flag >= %.4f (p75), refuse >= %.4f (p95), n=%d",
-            prop,
-            t.flag,
-            t.refuse,
-            t.n_samples,
-        )
-    log.info("thresholds -> %s", thresholds_path)
-    return 0
+    return derive_and_write_thresholds(
+        out_dir,
+        Path(args.thresholds_out),
+        device=args.device,
+        models=models,
+        calculator_versions=calculator_versions,
+        materials_labels=[f"{f}_{s}" for f, s in materials],
+        parameters={"elastic_delta": args.delta, "elastic_relax_internal": True},
+        rederived_only=False,
+    )
 
 
 if __name__ == "__main__":

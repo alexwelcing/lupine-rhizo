@@ -52,6 +52,8 @@ from lupine_distill.statics.eos import (
 )
 from lupine_distill.statics.gates import (
     BORN_PROVENANCE,
+    DEFAULT_DISPERSION_FLOOR_FRACTION,
+    DISPERSION_METRIC_FLOORED_V1,
     DYNAMIC_RETURN_LIMITS,
     PROPERTY_EVIDENCE_NAMES,
     ConcordanceThresholds,
@@ -61,6 +63,7 @@ from lupine_distill.statics.gates import (
     derive_concordance_thresholds,
     derive_per_property_thresholds,
     dispersions_by_material,
+    dispersions_by_material_floored,
     dynamic_return,
     facet_ordering,
     load_property_by_material,
@@ -81,6 +84,7 @@ from lupine_distill.statics.migration import (
     build_cation_vacancy_hop,
     build_fcc_vacancy_hop,
     compute_migration_barrier,
+    endpoint_band_minimum_check,
 )
 from lupine_distill.statics.relax import (
     SUPPORTED_OPTIMIZERS,
@@ -113,8 +117,10 @@ __all__ = [
     "ConcordanceThresholds",
     "ConvergenceError",
     "CubicElasticResult",
+    "DEFAULT_DISPERSION_FLOOR_FRACTION",
     "DEFAULT_FMAX",
     "DEFAULT_STRAIN_DELTA",
+    "DISPERSION_METRIC_FLOORED_V1",
     "DYNAMIC_RETURN_LIMITS",
     "GateVerdict",
     "DEFAULT_MAX_RECENTER",
@@ -165,7 +171,9 @@ __all__ = [
     "derive_concordance_thresholds",
     "derive_per_property_thresholds",
     "dispersions_by_material",
+    "dispersions_by_material_floored",
     "dynamic_return",
+    "endpoint_band_minimum_check",
     "estimate_lattice_constant",
     "estimate_rss_lattice_constant",
     "facet_ordering",
