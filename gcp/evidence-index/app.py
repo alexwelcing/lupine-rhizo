@@ -39,8 +39,16 @@ from store import (
     EvidenceStore,
 )
 
-EMBED_DIM = 384
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+# Default aligned with the cocoindex local index (bge-small-en-v1.5, 384-dim)
+# so this service and the offline index share ONE embedding space. Overridable
+# via env for A/B or rollback. NOTE: changing the model requires re-embedding
+# any already-ingested vectors — bge and MiniLM vectors are NOT comparable even
+# at the same dimension. See the backfill note in the deploy runbook.
+EMBED_DIM = int(os.environ.get("EVIDENCE_EMBED_DIM", "384"))
+EMBED_MODEL = os.environ.get("EVIDENCE_EMBED_MODEL", "BAAI/bge-small-en-v1.5")
+# BGE retrieval models use a query-side instruction prefix (documents embed
+# bare). No-op for other model families.
+_BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 # ─── Embedder singleton (loaded once at startup, warm for all requests) ───────
 
@@ -60,9 +68,13 @@ def _load_embedder() -> None:
         _embedder_loaded = False
 
 
-def embed(text: str) -> list[float]:
-    """Real sentence-transformers embed, or deterministic hash-vector fallback."""
+def embed(text: str, is_query: bool = False) -> list[float]:
+    """Real sentence-transformers embed, or deterministic hash-vector fallback.
+    `is_query=True` applies the BGE query-side instruction prefix so query and
+    document vectors land in the same space."""
     if _embedder is not None:
+        if is_query and "bge" in EMBED_MODEL.lower():
+            text = _BGE_QUERY_PREFIX + text
         vec = _embedder.encode(text, normalize_embeddings=True)
         if int(np.asarray(vec).shape[-1]) == EMBED_DIM:
             return np.asarray(vec, dtype=np.float32).tolist()
@@ -222,7 +234,7 @@ async def _do_search(query: str, limit: int, kind: str | None, mode: str) -> dic
         terms = [t for t in query.lower().split() if len(t) >= 2]
         hits = await store.search_keyword(terms, limit, kind)
     else:
-        vec = embed(query)
+        vec = embed(query, is_query=True)
         hits = await store.search_semantic(vec, limit, kind)
     return {
         "query": query,
