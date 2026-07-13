@@ -26,6 +26,7 @@ SUPPORTED_STRUCTURE_TYPES: Final[tuple[str, ...]] = (
     "rocksalt",
     "b2",
     "l12",
+    "antifluorite",
 )
 
 _ELEMENTAL_TYPES: Final[frozenset[str]] = frozenset({"fcc", "bcc", "diamond"})
@@ -42,6 +43,9 @@ _NN_TO_A: Final[Mapping[str, float]] = {
     "rocksalt": 2.0,
     "b2": 2.0 / math.sqrt(3.0),
     "l12": math.sqrt(2.0),
+    # Antifluorite: nearest neighbour is the cation-anion pair across a
+    # tetrahedral hole, d = a*sqrt(3)/4.
+    "antifluorite": 4.0 / math.sqrt(3.0),
 }
 
 
@@ -116,6 +120,13 @@ def _validate_composition(structure_type: str, counts: Mapping[str, int]) -> Non
                 f"l12 expects an A3B formula (e.g. 'Ni3Al'), got composition {dict(counts)}"
             )
         return
+    if structure_type == "antifluorite":
+        if n_elements != 2 or sorted(counts.values()) != [1, 2]:
+            raise InputValidationError(
+                f"antifluorite expects an A2B formula (e.g. 'Li2S'), "
+                f"got composition {dict(counts)}"
+            )
+        return
     raise InputValidationError(f"unhandled structure_type {structure_type!r}")  # pragma: no cover
 
 
@@ -137,12 +148,35 @@ def _build_l12(counts: Mapping[str, int], a: float) -> Atoms:
     )
 
 
+def _build_antifluorite(counts: Mapping[str, int], a: float) -> Atoms:
+    """Antifluorite (Li2O prototype): minority species on the fcc sublattice,
+    majority species filling all eight tetrahedral holes (12-atom cell)."""
+    majority = next(sym for sym, n in counts.items() if n == 2)
+    minority = next(sym for sym, n in counts.items() if n == 1)
+    fcc_sites = [
+        (0.0, 0.0, 0.0),
+        (0.0, 0.5, 0.5),
+        (0.5, 0.0, 0.5),
+        (0.5, 0.5, 0.0),
+    ]
+    tetrahedral_sites = [
+        (x, y, z) for x in (0.25, 0.75) for y in (0.25, 0.75) for z in (0.25, 0.75)
+    ]
+    return Atoms(
+        symbols=[minority] * 4 + [majority] * 8,
+        scaled_positions=fcc_sites + tetrahedral_sites,
+        cell=np.eye(3) * a,
+        pbc=True,
+    )
+
+
 def build_structure(formula: str, structure_type: str, lattice_constant: float) -> Atoms:
     """Build the conventional cubic cell for ``(formula, structure_type)``.
 
     fcc/bcc/diamond use cubic conventional cells (4/2/8 atoms); rocksalt uses
     the 8-atom conventional cell; B2 (CsCl prototype) is its native 2-atom
-    cubic cell; L1_2 (Cu3Au prototype) is its native 4-atom cubic cell.
+    cubic cell; L1_2 (Cu3Au prototype) is its native 4-atom cubic cell;
+    antifluorite (Li2O prototype) is its 12-atom conventional cubic cell.
     """
     st = normalize_structure_type(structure_type)
     counts = parse_formula(formula)
@@ -155,6 +189,8 @@ def build_structure(formula: str, structure_type: str, lattice_constant: float) 
         return bulk(f"{symbols[0]}{symbols[1]}", "rocksalt", a=a, cubic=True)
     if st == "b2":
         return bulk(f"{symbols[0]}{symbols[1]}", "cesiumchloride", a=a)
+    if st == "antifluorite":
+        return _build_antifluorite(counts, a)
     return _build_l12(counts, a)
 
 
@@ -163,7 +199,7 @@ def _nearest_neighbour_distance(counts: Mapping[str, int]) -> float:
     radii = [float(covalent_radii[atomic_numbers[sym]]) for sym in counts]
     if len(radii) == 1:
         return 2.0 * radii[0]
-    # In rocksalt/B2/L1_2 the nearest neighbour is an A-B pair.
+    # In rocksalt/B2/L1_2/antifluorite the nearest neighbour is an A-B pair.
     return radii[0] + radii[1]
 
 

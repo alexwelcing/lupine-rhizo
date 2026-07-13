@@ -13,9 +13,15 @@
    the generator (binder CLI `--emit-lean`, or the Round emitters) and re-sync.
    Regenerated 2026-07-02: module names now carry structure
    (Material_structure_model); 84 evidence modules incl. MPA-0 + 9 Round
-   verdict modules + demo. -/
+   verdict modules + demo.
+   2026-07-02 (ladder L3 groundwork): Shapes.Certificates admitted — the
+   first HAND-WRITTEN module (typed claim-shapes the discovery workflow
+   instantiates; see LupineEvidence/Shapes/README.md). Generated instances
+   of these shapes land in LupineEvidence/Discovery/. -/
 
 import LupineEvidence.Demo.Ni_EAM
+import LupineEvidence.Shapes.Certificates
+import LupineEvidence.Discovery.Certificates_LiS_Demo
 import LupineEvidence.YMatrix.Ag_chgnet
 import LupineEvidence.YMatrix.Ag_fcc_chgnet
 import LupineEvidence.YMatrix.Ag_fcc_mace_mp_medium
