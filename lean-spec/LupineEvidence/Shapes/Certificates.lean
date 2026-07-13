@@ -251,6 +251,147 @@ example : ¬ directionVerified { calibrationDirection := -1435, anchorDirection 
 example : (1940 - 1630 : Int).natAbs < (2265 - 1630 : Int).natAbs :=
   wrong_direction_inflation_worsens 1940 1630 2265 (by omega) (by omega)
 
+/-! ## Capped in-hull correction laws (the theorem the review demanded)
+
+    Errata finding 2 (2026-07-13): `wrong_direction_*_worsens` takes the
+    TARGET's error side as a hypothesis, but the runtime sign-gate checks
+    only that CLASSMATES share a side — FeNi B0 / mace-mp-small received a
+    licensed deflation those theorems forbid. These laws state what the
+    implemented gate can honestly claim: every hypothesis below is checkable
+    from calibration data EXCEPT the in-hull hypothesis `lo ≤ r ≤ hi`, which
+    is the formal content of the informal word "in-class" — the target's
+    true ratio behaves like its classmates'. A run that cannot witness
+    in-hull membership gets NO license from these theorems.
+
+    Quantities are ratios x10000 (10000 = ratio 1): calibration ratio hull
+    [lo, hi] over classmates' pred/ref ratios, bias b = median ratio, spread
+    s = hi - lo, target ratio r = pred/ref. The correction divides the
+    prediction by b, so the corrected ratio is r/b, and the claim
+    |r/b - 1| < |r - 1| is stated division-free: for b > 0 it is equivalent
+    (multiply both sides by b * 10000 > 0) to
+
+        |r - b| * 10000 < |r - 10000| * b.
+
+    RELATION TO THE FROZEN ROUND-3 RUNTIME CAP. The Round-3 preregistration
+    (docs/plans/2026-07-13-round3-preregistration.md, rule 4) froze the cap
+    |b - 1| > s — ONE spread. That is strictly WEAKER than what these
+    theorems require (2s on the inflation side; 3s plus a 0.5 floor on the
+    deflation side), and the counterexamples below exhibit in-hull cells the
+    1s cap licenses where the correction strictly HARMS. These theorems
+    therefore do NOT retroactively license the Round-3 rule: Round-3 results
+    are read under Round-3's own frozen registration, and the caps proved
+    here inform a REGISTERED Round-4 cap change only.
+
+    ASYMMETRY (derived, not assumed). The corrected error is measured
+    relative to b. Inflation (b > 1) divides by a larger denominator and
+    gains margin: b - 1 > 2s suffices, with no ceiling on b. Deflation
+    (b < 1) divides by a smaller denominator, amplifying the same |r - b|:
+    the spread multiple rises to THREE and a floor b ≥ 0.5 is needed. The
+    exact deflation boundary is quadratic in b (10000 * s < (|b - 10000| -
+    s) * b); 3s + floor is the clean linear sufficient cap, and the
+    deflation counterexample shows the mirrored 2s cap admitting a strict
+    harm even with the floor in place. -/
+
+/-- CAPPED IN-HULL CORRECTION, inflation side (all calibration ratios > 1).
+    Hull strictly above 1 (10000 < lo ≤ hi), bias b in-hull, TARGET ratio r
+    in-hull (the "in-class" hypothesis), cap b - 1 > 2s: dividing by the
+    bias strictly shrinks the target's error, |r/b - 1| < |r - 1|, stated
+    division-free as |r - b| * 10000 < |r - 10000| * b.
+    (Underscored hypotheses pin the regime for the reader; they are
+    derivable from the cap and the memberships, so the proof never uses
+    them.) -/
+theorem capped_inhull_correction_helps_inflation
+    (lo hi s b r : Int) (hs : s = hi - lo)
+    (_hlo : 10000 < lo) (hle : lo ≤ hi)
+    (hb1 : lo ≤ b) (hb2 : b ≤ hi)
+    (hr1 : lo ≤ r) (hr2 : r ≤ hi)
+    (hcap : 2 * s < b - 10000) :
+    ((r - b).natAbs : Int) * 10000 < ((r - 10000).natAbs : Int) * b := by
+  have hcast : ((r - 10000).natAbs : Int) = r - 10000 := by omega
+  rw [hcast]
+  calc ((r - b).natAbs : Int) * 10000
+      ≤ s * 10000 := by omega
+    _ < (r - 10000) * 10000 := by omega
+    _ ≤ (r - 10000) * b :=
+        Int.mul_le_mul_of_nonneg_left (by omega) (by omega)
+
+/-- CAPPED IN-HULL CORRECTION, deflation side (all calibration ratios < 1).
+    NOT the mirror image: needs the bias magnitude above THREE spreads
+    (1 - b > 3s) AND the floor b ≥ 0.5 (5000 x10000), because the corrected
+    error is measured relative to b < 1 — see the asymmetry note above and
+    the 2s counterexample below. (Underscored hypotheses pin the regime
+    for the reader; they are derivable from the cap, the floor, and the
+    memberships, so the proof never uses them.) -/
+theorem capped_inhull_correction_helps_deflation
+    (lo hi s b r : Int) (hs : s = hi - lo)
+    (_hlo : 0 < lo) (_hle : lo ≤ hi) (_hhi : hi < 10000)
+    (hb1 : lo ≤ b) (hb2 : b ≤ hi)
+    (hr1 : lo ≤ r) (hr2 : r ≤ hi)
+    (hfloor : 5000 ≤ b)
+    (hcap : 3 * s < 10000 - b) :
+    ((r - b).natAbs : Int) * 10000 < ((r - 10000).natAbs : Int) * b := by
+  have hcast : ((r - 10000).natAbs : Int) = 10000 - r := by omega
+  rw [hcast]
+  calc ((r - b).natAbs : Int) * 10000
+      ≤ s * 10000 := by omega
+    _ < (10000 - r) * 5000 := by omega
+    _ ≤ (10000 - r) * b :=
+        Int.mul_le_mul_of_nonneg_left (by omega) (by omega)
+
+/-- Non-vacuity, inflation: hull [1.05, 1.07] (s = 200), b = 1.06 (cap:
+    600 > 400), r = 1.07 — corrected error ~0.94e-2 beats raw 7e-2. -/
+example : ((10700 - 10600 : Int).natAbs : Int) * 10000
+    < ((10700 - 10000 : Int).natAbs : Int) * 10600 :=
+  capped_inhull_correction_helps_inflation 10500 10700 200 10600 10700
+    (by decide) (by decide) (by decide) (by decide) (by decide)
+    (by decide) (by decide) (by decide)
+
+/-- Non-vacuity, deflation: hull [0.80, 0.84] (s = 400), b = 0.82 (floor
+    holds; cap: 1200 < 1800), r = 0.84 — corrected error ~2.4e-2 beats raw
+    16e-2. -/
+example : ((8400 - 8200 : Int).natAbs : Int) * 10000
+    < ((8400 - 10000 : Int).natAbs : Int) * 8200 :=
+  capped_inhull_correction_helps_deflation 8000 8400 400 8200 8400
+    (by decide) (by decide) (by decide) (by decide) (by decide)
+    (by decide) (by decide) (by decide) (by decide) (by decide)
+
+/-- Round-2 FeNi B0 (errata finding 2) — the case that demanded this
+    section. mace-mp-small predicted 143.1 GPa vs reference 176.7 GPa:
+    target ratio r = 0.810 (8100 x10000), while the elemental-fcc
+    calibration classmates' ratios spanned [1.02, 1.175] ([10200, 11750]).
+    The IN-HULL hypothesis FAILS — 8100 lies outside [10200, 11750] — so
+    neither theorem licenses the deflation Round 2 applied there (which
+    pushed the already-low prediction further from its reference). The
+    refusal is the theorem working as intended. -/
+example : ¬ (10200 ≤ (8100 : Int) ∧ (8100 : Int) ≤ 11750) := by decide
+
+/-- Independently of the target: that calibration hull cannot clear the
+    inflation cap for ANY in-hull bias — s = 1550 demands b > 1.31 (13100)
+    but the hull tops out at 11750. The FeNi-era correction fails BOTH
+    license hypotheses. -/
+example : ∀ b : Int, 10200 ≤ b → b ≤ 11750 →
+    ¬ (2 * (11750 - 10200) < b - 10000) := by
+  intro b hb1 hb2
+  omega
+
+/-- The frozen Round-3 runtime cap (|b - 1| > s, ONE spread) is strictly
+    weaker than the theorem's: an in-hull inflation cell it licenses where
+    the correction HARMS. Hull [1.0001, 1.0003] (s = 2), b = 10003 (1s cap:
+    3 > 2 passes; theorem cap: 3 > 4 fails), r = 10001: corrected error
+    ~2.0 x10000-units vs raw 1 — strictly worse. Round 3 stays governed by
+    its own registration; this witness motivates the registered Round-4 cap
+    change. -/
+example : ¬ (((10001 - 10003 : Int).natAbs : Int) * 10000
+    < ((10001 - 10000 : Int).natAbs : Int) * 10003) := by decide
+
+/-- Deflation asymmetry witness: the MIRRORED inflation cap (2s) is NOT
+    sufficient below 1, even with the b ≥ 0.5 floor. Hull [0.50, 0.74]
+    (s = 2400), b = 0.5 (floor holds; 2s cap: 5000 > 4800 passes; the
+    Round-3 1s cap passes too), r = 0.74: corrected error 0.48 vs raw 0.26
+    — strictly worse. Hence the deflation side's THREE spreads. -/
+example : ¬ (((7400 - 5000 : Int).natAbs : Int) * 10000
+    < ((7400 - 10000 : Int).natAbs : Int) * 5000) := by decide
+
 /-! ## Anchor calibration -/
 
 /-- Power-law calibration for one property family: pred ~ c * T^alpha, with
