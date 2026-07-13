@@ -1,0 +1,307 @@
+{
+  "schema": "lupine.schottky_panel_summary.v1",
+  "generated_at": "2026-07-13T16:11:12.666764+00:00",
+  "device": "cuda",
+  "models": [
+    "chgnet",
+    "mace-mp-small",
+    "mace-mp-medium",
+    "mace-mpa-0-medium"
+  ],
+  "calculator_versions": {
+    "chgnet": "chgnet 0.4.2",
+    "mace-mp-small": "mace-torch 0.3.16",
+    "mace-mp-medium": "mace-torch 0.3.16",
+    "mace-mpa-0-medium": "mace-torch 0.3.16"
+  },
+  "compounds": [
+    "LiF_rocksalt",
+    "LiCl_rocksalt",
+    "LiBr_rocksalt",
+    "LiI_rocksalt",
+    "NaCl_rocksalt",
+    "MgO_rocksalt"
+  ],
+  "parameters": {
+    "supercell": [
+      2,
+      2,
+      2
+    ]
+  },
+  "a0_source": {
+    "report": "data/climate_targets/halide_panel/report.json",
+    "generated_at": "2026-07-13T13:17:10.087939+00:00"
+  },
+  "n_cells_ok": 24,
+  "n_cells_failed": 0,
+  "cells": {
+    "LiF_rocksalt_chgnet": {
+      "a0_angstrom": 4.090758139622815,
+      "schottky_pair_ev": 0.976776123046875,
+      "schottky_per_vacancy_ev": 0.4883880615234375,
+      "pair_separation_angstrom": 6.136137209434223,
+      "n_relax_steps": 42,
+      "wall_time_seconds": 10.077638300001126
+    },
+    "LiCl_rocksalt_chgnet": {
+      "a0_angstrom": 5.1484022215615655,
+      "schottky_pair_ev": 0.6248149871826172,
+      "schottky_per_vacancy_ev": 0.3124074935913086,
+      "pair_separation_angstrom": 7.722603332342348,
+      "n_relax_steps": 34,
+      "wall_time_seconds": 4.687921000000642
+    },
+    "LiBr_rocksalt_chgnet": {
+      "a0_angstrom": 5.507691859396849,
+      "schottky_pair_ev": 0.21863746643066406,
+      "schottky_per_vacancy_ev": 0.10931873321533203,
+      "pair_separation_angstrom": 8.261537789095275,
+      "n_relax_steps": 37,
+      "wall_time_seconds": 4.223129800000606
+    },
+    "LiI_rocksalt_chgnet": {
+      "a0_angstrom": 6.014529685812853,
+      "schottky_pair_ev": -0.08318424224853516,
+      "schottky_per_vacancy_ev": -0.04159212112426758,
+      "pair_separation_angstrom": 9.02179452871928,
+      "n_relax_steps": 37,
+      "wall_time_seconds": 3.4000386000006984
+    },
+    "NaCl_rocksalt_chgnet": {
+      "a0_angstrom": 5.6954838281678875,
+      "schottky_pair_ev": 0.8872270584106445,
+      "schottky_per_vacancy_ev": 0.44361352920532227,
+      "pair_separation_angstrom": 8.543225742251831,
+      "n_relax_steps": 33,
+      "wall_time_seconds": 3.984690999999657
+    },
+    "MgO_rocksalt_chgnet": {
+      "a0_angstrom": 4.2535667464075715,
+      "schottky_pair_ev": 3.705514907836914,
+      "schottky_per_vacancy_ev": 1.852757453918457,
+      "pair_separation_angstrom": 6.380350119611357,
+      "n_relax_steps": 51,
+      "wall_time_seconds": 13.954126300001008
+    },
+    "LiF_rocksalt_mace-mp-small": {
+      "a0_angstrom": 4.079316671216189,
+      "schottky_pair_ev": 1.403685790041493,
+      "schottky_per_vacancy_ev": 0.7018428950207465,
+      "pair_separation_angstrom": 6.118975006824283,
+      "n_relax_steps": 38,
+      "wall_time_seconds": 7.502898999999161
+    },
+    "LiCl_rocksalt_mace-mp-small": {
+      "a0_angstrom": 5.14065570471667,
+      "schottky_pair_ev": 0.8241648170566975,
+      "schottky_per_vacancy_ev": 0.41208240852834876,
+      "pair_separation_angstrom": 7.7109835570750045,
+      "n_relax_steps": 46,
+      "wall_time_seconds": 2.9962380999986635
+    },
+    "LiBr_rocksalt_mace-mp-small": {
+      "a0_angstrom": 5.498542730435648,
+      "schottky_pair_ev": 0.7817800335978973,
+      "schottky_per_vacancy_ev": 0.39089001679894864,
+      "pair_separation_angstrom": 8.247814095653471,
+      "n_relax_steps": 45,
+      "wall_time_seconds": 3.21395880000091
+    },
+    "LiI_rocksalt_mace-mp-small": {
+      "a0_angstrom": 6.063853564706378,
+      "schottky_pair_ev": 0.5480399915396106,
+      "schottky_per_vacancy_ev": 0.2740199957698053,
+      "pair_separation_angstrom": 9.095780347059566,
+      "n_relax_steps": 43,
+      "wall_time_seconds": 2.6444424000001163
+    },
+    "NaCl_rocksalt_mace-mp-small": {
+      "a0_angstrom": 5.6900295220885715,
+      "schottky_pair_ev": 1.2993782235983815,
+      "schottky_per_vacancy_ev": 0.6496891117991908,
+      "pair_separation_angstrom": 8.535044283132857,
+      "n_relax_steps": 32,
+      "wall_time_seconds": 2.189249600000039
+    },
+    "MgO_rocksalt_mace-mp-small": {
+      "a0_angstrom": 4.253326700138062,
+      "schottky_pair_ev": 4.3713220959194246,
+      "schottky_per_vacancy_ev": 2.1856610479597123,
+      "pair_separation_angstrom": 6.379990050207092,
+      "n_relax_steps": 49,
+      "wall_time_seconds": 3.2880626000005577
+    },
+    "LiF_rocksalt_mace-mp-medium": {
+      "a0_angstrom": 4.093316734603262,
+      "schottky_pair_ev": 1.3935641610525522,
+      "schottky_per_vacancy_ev": 0.6967820805262761,
+      "pair_separation_angstrom": 6.139975101904894,
+      "n_relax_steps": 43,
+      "wall_time_seconds": 8.280489699998725
+    },
+    "LiCl_rocksalt_mace-mp-medium": {
+      "a0_angstrom": 5.129727478177125,
+      "schottky_pair_ev": 0.9183536641185128,
+      "schottky_per_vacancy_ev": 0.4591768320592564,
+      "pair_separation_angstrom": 7.694591217265688,
+      "n_relax_steps": 32,
+      "wall_time_seconds": 5.394394799999645
+    },
+    "LiBr_rocksalt_mace-mp-medium": {
+      "a0_angstrom": 5.506719123552395,
+      "schottky_pair_ev": 0.7300097017191263,
+      "schottky_per_vacancy_ev": 0.36500485085956313,
+      "pair_separation_angstrom": 8.260078685328592,
+      "n_relax_steps": 33,
+      "wall_time_seconds": 5.011058199999752
+    },
+    "LiI_rocksalt_mace-mp-medium": {
+      "a0_angstrom": 6.080028516787553,
+      "schottky_pair_ev": 0.30770404481947367,
+      "schottky_per_vacancy_ev": 0.15385202240973683,
+      "pair_separation_angstrom": 9.120042775181329,
+      "n_relax_steps": 38,
+      "wall_time_seconds": 5.3644067000004725
+    },
+    "NaCl_rocksalt_mace-mp-medium": {
+      "a0_angstrom": 5.683173167532147,
+      "schottky_pair_ev": 1.3038901278613366,
+      "schottky_per_vacancy_ev": 0.6519450639306683,
+      "pair_separation_angstrom": 8.524759751298221,
+      "n_relax_steps": 31,
+      "wall_time_seconds": 4.661329000000478
+    },
+    "MgO_rocksalt_mace-mp-medium": {
+      "a0_angstrom": 4.254521244416947,
+      "schottky_pair_ev": 3.8525280846992587,
+      "schottky_per_vacancy_ev": 1.9262640423496293,
+      "pair_separation_angstrom": 6.3817818666254205,
+      "n_relax_steps": 51,
+      "wall_time_seconds": 9.348879499999384
+    },
+    "LiF_rocksalt_mace-mpa-0-medium": {
+      "a0_angstrom": 4.100012990923709,
+      "schottky_pair_ev": 1.5302593429683498,
+      "schottky_per_vacancy_ev": 0.7651296714841749,
+      "pair_separation_angstrom": 6.150019486385563,
+      "n_relax_steps": 43,
+      "wall_time_seconds": 8.75428329999886
+    },
+    "LiCl_rocksalt_mace-mpa-0-medium": {
+      "a0_angstrom": 5.183608861515748,
+      "schottky_pair_ev": 0.9211675554441285,
+      "schottky_per_vacancy_ev": 0.46058377772206427,
+      "pair_separation_angstrom": 7.775413292273621,
+      "n_relax_steps": 45,
+      "wall_time_seconds": 7.65292799999952
+    },
+    "LiBr_rocksalt_mace-mpa-0-medium": {
+      "a0_angstrom": 5.527341806944352,
+      "schottky_pair_ev": 0.8711231349611523,
+      "schottky_per_vacancy_ev": 0.4355615674805762,
+      "pair_separation_angstrom": 8.291012710416528,
+      "n_relax_steps": 47,
+      "wall_time_seconds": 7.341335299999628
+    },
+    "LiI_rocksalt_mace-mpa-0-medium": {
+      "a0_angstrom": 6.051217188634575,
+      "schottky_pair_ev": 0.7103705041400872,
+      "schottky_per_vacancy_ev": 0.3551852520700436,
+      "pair_separation_angstrom": 9.076825782951863,
+      "n_relax_steps": 42,
+      "wall_time_seconds": 6.18332559999908
+    },
+    "NaCl_rocksalt_mace-mpa-0-medium": {
+      "a0_angstrom": 5.713497405779367,
+      "schottky_pair_ev": 1.4405137382832436,
+      "schottky_per_vacancy_ev": 0.7202568691416218,
+      "pair_separation_angstrom": 8.570246108669048,
+      "n_relax_steps": 44,
+      "wall_time_seconds": 6.9443962999994255
+    },
+    "MgO_rocksalt_mace-mpa-0-medium": {
+      "a0_angstrom": 4.256476761580443,
+      "schottky_pair_ev": 4.216473410293702,
+      "schottky_per_vacancy_ev": 2.108236705146851,
+      "pair_separation_angstrom": 6.3847151423706645,
+      "n_relax_steps": 40,
+      "wall_time_seconds": 7.783496199999718
+    }
+  },
+  "cross_model_dispersion": {
+    "LiBr": {
+      "n_models": 4,
+      "pair_energy_by_model_ev": {
+        "chgnet": 0.21863746643066406,
+        "mace-mp-medium": 0.7300097017191263,
+        "mace-mp-small": 0.7817800335978973,
+        "mace-mpa-0-medium": 0.8711231349611523
+      },
+      "relative_dispersion": 0.8631963206095741,
+      "absolute_spread_ev": 0.6524856685304883
+    },
+    "LiCl": {
+      "n_models": 4,
+      "pair_energy_by_model_ev": {
+        "chgnet": 0.6248149871826172,
+        "mace-mp-medium": 0.9183536641185128,
+        "mace-mp-small": 0.8241648170566975,
+        "mace-mpa-0-medium": 0.9211675554441285
+      },
+      "relative_dispersion": 0.34014281221469933,
+      "absolute_spread_ev": 0.29635256826151135
+    },
+    "LiF": {
+      "n_models": 4,
+      "pair_energy_by_model_ev": {
+        "chgnet": 0.976776123046875,
+        "mace-mp-medium": 1.3935641610525522,
+        "mace-mp-small": 1.403685790041493,
+        "mace-mpa-0-medium": 1.5302593429683498
+      },
+      "relative_dispersion": 0.39573383115441607,
+      "absolute_spread_ev": 0.5534832199214748
+    },
+    "LiI": {
+      "n_models": 4,
+      "pair_energy_by_model_ev": {
+        "chgnet": -0.08318424224853516,
+        "mace-mp-medium": 0.30770404481947367,
+        "mace-mp-small": 0.5480399915396106,
+        "mace-mpa-0-medium": 0.7103705041400872
+      },
+      "relative_dispersion": 1.8546544589780436,
+      "absolute_spread_ev": 0.7935547463886223
+    },
+    "MgO": {
+      "n_models": 4,
+      "pair_energy_by_model_ev": {
+        "chgnet": 3.705514907836914,
+        "mace-mp-medium": 3.8525280846992587,
+        "mace-mp-small": 4.3713220959194246,
+        "mace-mpa-0-medium": 4.216473410293702
+      },
+      "relative_dispersion": 0.16502839626332014,
+      "absolute_spread_ev": 0.6658071880825105
+    },
+    "NaCl": {
+      "n_models": 4,
+      "pair_energy_by_model_ev": {
+        "chgnet": 0.8872270584106445,
+        "mace-mp-medium": 1.3038901278613366,
+        "mace-mp-small": 1.2993782235983815,
+        "mace-mpa-0-medium": 1.4405137382832436
+      },
+      "relative_dispersion": 0.42507079960646954,
+      "absolute_spread_ev": 0.553286679872599
+    }
+  },
+  "notes": [
+    "Charge-balanced (neutral) Schottky pair: one atom of each species removed, maximally separated under PBC, positions relaxed at fixed cell; E_pair = E_defect - (N-2)/N * E_bulk. No chemical potentials enter (stoichiometry preserved); alignment/charging corrections are out of Tier-1 scope.",
+    "a0 reuse: each (compound, model) cell uses THAT model's relaxed a0 from the halide-panel report rather than re-relaxing, so the defect cell sits at the same lattice the concordance gates were measured at; the source report path + generated_at are recorded per cell.",
+    "Finite-size: a 2x2x2 rocksalt supercell (64 atoms) leaves the vacancy pair within interaction range of its images; pair energies carry an uncorrected finite-size offset that partially cancels in cross-model comparisons at fixed cell size.",
+    "Model non-independence: the MACE variants share architecture and training data; cross-model dispersion is ensemble spread, not independent-error spread."
+  ],
+  "total_wall_time_seconds": 158.5405154
+}

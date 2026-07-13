@@ -1,0 +1,33 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "LiCl",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "E_schottky_pair",
+      "value": 0.6248149871826172,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "E_schottky_per_vacancy",
+      "value": 0.3124074935913086,
+      "unit": "eV",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "571c8c97e121f1c3269f1cd72ca6eecb5218dd030f270a2ca94620290b90edca",
+    "run_label": null,
+    "computed_at": "2026-07-13T16:09:00.217069Z"
+  }
+}
