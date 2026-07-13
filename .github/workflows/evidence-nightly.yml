@@ -1,0 +1,113 @@
+name: Evidence Index Nightly
+
+# Nightly freshness + health for the evidence index:
+#   1. collect live worker evidence + sync the deployed Library + drift +
+#      site guides + Phoenix agent traces (each best-effort, never fails the job)
+#   2. rebuild the index and its vec0/FTS5 sidecars
+#   3. run the retrieval eval and publish the metrics + drift as artifacts
+#
+# The index itself is not committed (it is gitignored and rebuildable). The
+# point is the SIGNAL: retrieval quality as a trend, and publication drift as
+# a monitored value, both surfaced as downloadable artifacts and a job summary.
+# Secrets are optional — steps that need them skip cleanly when absent.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # 08:00 UTC nightly (~midnight US Pacific)
+  workflow_dispatch:
+
+concurrency:
+  group: evidence-nightly
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  refresh-and-eval:
+    name: refresh, reindex, eval
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cocoindex
+    env:
+      COCOINDEX_DB: .cocoindex/db
+      WORKER_URL: https://glim-think-v1.aw-ab5.workers.dev
+      PHOENIX_COLLECTOR_ENDPOINT: ${{ secrets.PHOENIX_COLLECTOR_ENDPOINT }}
+      PHOENIX_API_KEY: ${{ secrets.PHOENIX_API_KEY }}
+      PHOENIX_PROJECT_NAME: ${{ secrets.PHOENIX_PROJECT_NAME }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install CPU-only torch first
+        run: |
+          # sentence-transformers pulls CUDA torch by default; install CPU-only
+          # torch explicitly to stay within the GitHub runner disk quota.
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install pipeline
+        run: pip install -e . pytest
+
+      - name: Unit tests (gate)
+        run: python -m pytest test_pipeline.py -q
+
+      - name: Collect live worker evidence (best-effort)
+        run: python ../scripts/evidence_activation.py collect --worker-url "$WORKER_URL" --out ./data || echo "::warning::worker collect failed; using existing/seed data"
+
+      - name: Seed fallback if no ledger evidence
+        run: test -f ./data/coordination_traces.jsonl || python seed_data.py
+
+      - name: Sync deployed Library + publication drift (best-effort)
+        run: python sync_ledger.py --drift || echo "::warning::ledger sync failed"
+
+      - name: Fetch live site guides (best-effort)
+        run: python fetch_site_content.py || echo "::warning::site-guide fetch failed"
+
+      - name: Fetch Phoenix agent traces (best-effort; skips without secrets)
+        run: python fetch_phoenix_traces.py || echo "::warning::phoenix fetch failed"
+
+      - name: Build index + sidecars
+        run: |
+          mkdir -p .cocoindex
+          python -m cocoindex.cli update main.py
+          python build_vec_index.py
+
+      - name: Retrieval eval
+        run: |
+          python eval_retrieval.py --json > eval_metrics.json
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d = json.load(open("eval_metrics.json"))
+          print(f"### Evidence index eval — {d['gold_queries']} gold queries, "
+                f"real model: {d['real_embedding_model']}\n")
+          print("| mode | hit@1 | hit@3 | hit@5 | MRR |")
+          print("| --- | --- | --- | --- | --- |")
+          for m, s in d["modes"].items():
+              print(f"| {m} | {s['hit@1']:.2f} | {s['hit@3']:.2f} | "
+                    f"{s['hit@5']:.2f} | {s['mrr']:.2f} |")
+          PY
+
+      - name: Publication drift to summary
+        run: |
+          if [ -f ./data/publication_drift.jsonl ]; then
+            echo "### Publication drift" >> "$GITHUB_STEP_SUMMARY"
+            python -c "import json; r=json.load(open('./data/publication_drift.jsonl')); print(r['text'])" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload metrics + drift artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-metrics
+          path: |
+            cocoindex/eval_metrics.json
+            cocoindex/data/publication_drift.jsonl
+          if-no-files-found: warn
+          retention-days: 90

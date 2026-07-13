@@ -39,6 +39,7 @@ import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
 import OpenDistillationFactory.Materials.Validation.ClimateSeries
 import OpenDistillationFactory.Materials.Validation.ClimatePortfolio
+import OpenDistillationFactory.Materials.Validation.NonCO2ClimateConcerns
 import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 namespace OpenDistillationFactory.Materials.Vision
@@ -71,6 +72,7 @@ open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
 open OpenDistillationFactory.Materials.Validation.ClimateSeries
 open OpenDistillationFactory.Materials.Validation.ClimatePortfolio
+open OpenDistillationFactory.Materials.Validation.NonCO2ClimateConcerns
 open OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 -- ═══════════════════════════════════════════════════════════════
@@ -450,6 +452,21 @@ def nistCount := nistScaffoldAlSample.length
 #check ni_bracket_width_comparison
 #check chgnet_Si_inrange_exact
 
+/- T259–T267: Non-CO₂ environmental-concern contract
+    (Validation/NonCO2ClimateConcerns): distinctness and coverage
+    certificates, plus invariant witnesses for methane sorbents, HFC
+    replacements, water/air remediation, critical-mineral circularity, and
+    cement metastability. -/
+#check concerns_distinct_by_mechanism
+#check all_concerns_have_theory
+#check linked_concerns_map_to_portfolio
+#check methane_sorbent_invariant_holds
+#check hfc_replacement_invariant_holds
+#check water_remediation_invariant_holds
+#check air_remediation_invariant_holds
+#check critical_mineral_invariant_holds
+#check cement_metastability_invariant_holds
+
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 3: HYPOTHESIS INVENTORY
 -- ═══════════════════════════════════════════════════════════════
@@ -477,7 +494,9 @@ def computationallyProvenCount : Nat :=
   -- Anchor-identification push: AnchorBracket identification/bracket/
   -- ranking/kinetics laws 54 (incl. the rocksalt single-anchor mirror),
   -- corpus bracket certificates 8
-  262
+  -- Non-CO₂ environmental-concern contract: distinctness/coverage 3,
+  -- invariant witnesses 6
+  271
 
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
