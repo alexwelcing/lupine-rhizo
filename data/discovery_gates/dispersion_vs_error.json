@@ -1,0 +1,532 @@
+{
+  "schema": "lupine.discovery_gates.dispersion_vs_error.v1",
+  "generated_at": "2026-07-13T13:16:34.658051+00:00",
+  "evidence_dir": "C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound",
+  "note": "Descriptive calibration check answering the PROBE critique (arXiv:2605.00640): does cross-model dispersion track true error on the reference-bound corpus? Spearman rank correlation per property between per-material cross-model relative dispersion and per-material median |relative error| vs the bound reference. No thresholds were changed by this analysis. Caveats: N=4 models with two non-independent MACE variants; median-of-models error, not per-model.",
+  "properties": {
+    "B0": {
+      "n_materials": 21,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.16363636363636364,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.1196263942220374,
+          "median_rel_error": 0.25279537861050255
+        },
+        "Al": {
+          "dispersion": 0.38480984386785383,
+          "median_rel_error": 0.11106056571826797
+        },
+        "Au": {
+          "dispersion": 0.08760744977908931,
+          "median_rel_error": 0.2628051555520895
+        },
+        "Ca": {
+          "dispersion": 0.23577558891014797,
+          "median_rel_error": 0.11197543865353071
+        },
+        "Cr": {
+          "dispersion": 0.19573884274891248,
+          "median_rel_error": 0.4518974765257524
+        },
+        "Cu": {
+          "dispersion": 0.1746842670083773,
+          "median_rel_error": 0.04817333284278997
+        },
+        "Fe": {
+          "dispersion": 1.4613125579156678,
+          "median_rel_error": 0.4924671908561835
+        },
+        "MgO": {
+          "dispersion": 0.10725595448725979,
+          "median_rel_error": 0.008794582645834343
+        },
+        "Mo": {
+          "dispersion": 0.27681191892541773,
+          "median_rel_error": 0.10086690327248052
+        },
+        "NaCl": {
+          "dispersion": 0.24902948398685215,
+          "median_rel_error": 0.09585740758284346
+        },
+        "Nb": {
+          "dispersion": 0.22184587562333768,
+          "median_rel_error": 0.09725764853859906
+        },
+        "Ni": {
+          "dispersion": 0.14068061531291579,
+          "median_rel_error": 0.11384580683027959
+        },
+        "Ni3Al": {
+          "dispersion": 0.17965766104562111,
+          "median_rel_error": 0.06718544079470698
+        },
+        "NiAl": {
+          "dispersion": 0.06866311344723969,
+          "median_rel_error": 0.0353521878814674
+        },
+        "Pd": {
+          "dispersion": 0.16917146728725702,
+          "median_rel_error": 0.21319442402306027
+        },
+        "Pt": {
+          "dispersion": 0.0980198085143283,
+          "median_rel_error": 0.14736500690565982
+        },
+        "Si": {
+          "dispersion": 0.19730375122336252,
+          "median_rel_error": 0.1436310964049499
+        },
+        "Sr": {
+          "dispersion": 0.3782242759143122,
+          "median_rel_error": 0.17167225642103323
+        },
+        "Ta": {
+          "dispersion": 0.06170946399920718,
+          "median_rel_error": 0.04168203544574317
+        },
+        "V": {
+          "dispersion": 0.05549473826740082,
+          "median_rel_error": 0.16067131215985764
+        },
+        "W": {
+          "dispersion": 0.38322977589570617,
+          "median_rel_error": 0.13696022436230645
+        }
+      }
+    },
+    "B0_prime": {
+      "n_materials": 12,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.6573426573426573,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.4435910259506042,
+          "median_rel_error": 0.08312365976076223
+        },
+        "Al": {
+          "dispersion": 3.5802503312179685,
+          "median_rel_error": 0.09327589314760068
+        },
+        "Au": {
+          "dispersion": 0.46529689851025546,
+          "median_rel_error": 0.1404068150536313
+        },
+        "Cr": {
+          "dispersion": 1.7404341503181018,
+          "median_rel_error": 0.42768399131387924
+        },
+        "Cu": {
+          "dispersion": 0.37641417226318513,
+          "median_rel_error": 0.12600403112784506
+        },
+        "MgO": {
+          "dispersion": 0.4159551849986684,
+          "median_rel_error": 0.06126285447773716
+        },
+        "Mo": {
+          "dispersion": 0.6214841198127385,
+          "median_rel_error": 0.8286354494643691
+        },
+        "NaCl": {
+          "dispersion": 1.449883042519324,
+          "median_rel_error": 0.16152135446073723
+        },
+        "Ni": {
+          "dispersion": 0.20504531755572314,
+          "median_rel_error": 0.05750796439654318
+        },
+        "Pt": {
+          "dispersion": 0.09810095722517699,
+          "median_rel_error": 0.026586277442627426
+        },
+        "Ta": {
+          "dispersion": 0.5723718043359411,
+          "median_rel_error": 0.6670942913968483
+        },
+        "W": {
+          "dispersion": 1.2846647571313619,
+          "median_rel_error": 0.22450962355817655
+        }
+      }
+    },
+    "a0": {
+      "n_materials": 21,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.5662337662337662,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.0028499083776431346,
+          "median_rel_error": 0.0037735812023658583
+        },
+        "Al": {
+          "dispersion": 0.005397489344956845,
+          "median_rel_error": 0.00179861037839068
+        },
+        "Au": {
+          "dispersion": 0.0023864904501691,
+          "median_rel_error": 0.0028822856611606757
+        },
+        "Ca": {
+          "dispersion": 0.008634564337059012,
+          "median_rel_error": 0.002586438216825277
+        },
+        "Cr": {
+          "dispersion": 0.0023263594448498736,
+          "median_rel_error": 0.0009379522309417647
+        },
+        "Cu": {
+          "dispersion": 0.007477142593143983,
+          "median_rel_error": 0.0032940715342127712
+        },
+        "Fe": {
+          "dispersion": 0.01105952766293657,
+          "median_rel_error": 0.009233555742281671
+        },
+        "MgO": {
+          "dispersion": 0.0007404862421771683,
+          "median_rel_error": 0.0003418285961264368
+        },
+        "Mo": {
+          "dispersion": 0.00600642507929188,
+          "median_rel_error": 0.002569635689684484
+        },
+        "NaCl": {
+          "dispersion": 0.0053268102056820785,
+          "median_rel_error": 0.002058586288669062
+        },
+        "Nb": {
+          "dispersion": 0.004857754664934123,
+          "median_rel_error": 0.002795720169521884
+        },
+        "Ni": {
+          "dispersion": 0.005072291846681757,
+          "median_rel_error": 0.0020096840599051384
+        },
+        "Ni3Al": {
+          "dispersion": 0.0016192263552258868,
+          "median_rel_error": 0.0023399190068742882
+        },
+        "NiAl": {
+          "dispersion": 0.001305570653612221,
+          "median_rel_error": 0.0015036446295753347
+        },
+        "Pd": {
+          "dispersion": 0.0033077696882961773,
+          "median_rel_error": 0.004250994234564872
+        },
+        "Pt": {
+          "dispersion": 0.0019152905554512018,
+          "median_rel_error": 0.0016091210161011233
+        },
+        "Si": {
+          "dispersion": 0.002165406457902203,
+          "median_rel_error": 0.00025715459705588574
+        },
+        "Sr": {
+          "dispersion": 0.0071200139516488705,
+          "median_rel_error": 0.002091162500878133
+        },
+        "Ta": {
+          "dispersion": 0.002939353240703442,
+          "median_rel_error": 0.0009871172486105053
+        },
+        "V": {
+          "dispersion": 0.00742246510780175,
+          "median_rel_error": 0.003284665864355718
+        },
+        "W": {
+          "dispersion": 0.005115517163878921,
+          "median_rel_error": 0.002124180796822363
+        }
+      }
+    },
+    "gamma_100": {
+      "n_materials": 16,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.12058823529411765,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.41399342319558297,
+          "median_rel_error": 0.054003068145688886
+        },
+        "Al": {
+          "dispersion": 0.6291080286420341,
+          "median_rel_error": 0.09776109381620662
+        },
+        "Au": {
+          "dispersion": 0.6216508235835816,
+          "median_rel_error": 0.07159524242974738
+        },
+        "Ca": {
+          "dispersion": 0.2727245038900591,
+          "median_rel_error": 0.05689062022035682
+        },
+        "Cr": {
+          "dispersion": 0.23808125961779963,
+          "median_rel_error": 0.12903411843025359
+        },
+        "Cu": {
+          "dispersion": 0.36498189137750114,
+          "median_rel_error": 0.045206187569414996
+        },
+        "Fe": {
+          "dispersion": 0.47900536976771557,
+          "median_rel_error": 0.11579541487560786
+        },
+        "Mo": {
+          "dispersion": 0.31966200487933943,
+          "median_rel_error": 0.11324791399971444
+        },
+        "Nb": {
+          "dispersion": 0.26236826531388857,
+          "median_rel_error": 0.08021764245069803
+        },
+        "Ni": {
+          "dispersion": 0.597043788232975,
+          "median_rel_error": 0.14859560858022908
+        },
+        "Pd": {
+          "dispersion": 0.37379432496091625,
+          "median_rel_error": 0.08588897311517475
+        },
+        "Pt": {
+          "dispersion": 0.42783321362530713,
+          "median_rel_error": 0.1194046476778685
+        },
+        "Sr": {
+          "dispersion": 0.2349065068304549,
+          "median_rel_error": 0.18331051202783874
+        },
+        "Ta": {
+          "dispersion": 0.28905977086311185,
+          "median_rel_error": 0.03949670198368889
+        },
+        "V": {
+          "dispersion": 0.385601653801382,
+          "median_rel_error": 0.13719415057029927
+        },
+        "W": {
+          "dispersion": 0.5317544326202417,
+          "median_rel_error": 0.18371171578295986
+        }
+      }
+    },
+    "gamma_110": {
+      "n_materials": 16,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.19411764705882353,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.3811049965185682,
+          "median_rel_error": 0.059578796374191015
+        },
+        "Al": {
+          "dispersion": 0.49534067397925996,
+          "median_rel_error": 0.11961142426860333
+        },
+        "Au": {
+          "dispersion": 0.6278711361316396,
+          "median_rel_error": 0.15897124642883229
+        },
+        "Ca": {
+          "dispersion": 0.2505361325645663,
+          "median_rel_error": 0.1310166989038995
+        },
+        "Cr": {
+          "dispersion": 0.33209217211281583,
+          "median_rel_error": 0.06024241071423925
+        },
+        "Cu": {
+          "dispersion": 0.34076137790179517,
+          "median_rel_error": 0.043436923679284506
+        },
+        "Fe": {
+          "dispersion": 0.6610628406985867,
+          "median_rel_error": 0.1184933976136075
+        },
+        "Mo": {
+          "dispersion": 0.3357649251237618,
+          "median_rel_error": 0.12233259579664035
+        },
+        "Nb": {
+          "dispersion": 0.42182345184780956,
+          "median_rel_error": 0.13060210122931934
+        },
+        "Ni": {
+          "dispersion": 0.4823877788552845,
+          "median_rel_error": 0.17015448199019761
+        },
+        "Pd": {
+          "dispersion": 0.377018280235772,
+          "median_rel_error": 0.09230866623341369
+        },
+        "Pt": {
+          "dispersion": 0.5107122688396487,
+          "median_rel_error": 0.21551135389696308
+        },
+        "Sr": {
+          "dispersion": 0.2536204002056811,
+          "median_rel_error": 0.2310680289887901
+        },
+        "Ta": {
+          "dispersion": 0.3594291916038119,
+          "median_rel_error": 0.11520456528453754
+        },
+        "V": {
+          "dispersion": 0.47612283794636406,
+          "median_rel_error": 0.11693795463627879
+        },
+        "W": {
+          "dispersion": 0.442144818106663,
+          "median_rel_error": 0.10027953177187851
+        }
+      }
+    },
+    "gamma_111": {
+      "n_materials": 9,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.19999999999999998,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.3170476023235342,
+          "median_rel_error": 0.10274451979047869
+        },
+        "Al": {
+          "dispersion": 0.6344276461382639,
+          "median_rel_error": 0.18551300180673147
+        },
+        "Au": {
+          "dispersion": 0.5807504864353479,
+          "median_rel_error": 0.07531487122956045
+        },
+        "Ca": {
+          "dispersion": 0.2644948397819747,
+          "median_rel_error": 0.18277396391239792
+        },
+        "Cu": {
+          "dispersion": 0.37964756299513,
+          "median_rel_error": 0.03648403741963892
+        },
+        "Ni": {
+          "dispersion": 0.440211929927456,
+          "median_rel_error": 0.1255672484110465
+        },
+        "Pd": {
+          "dispersion": 0.34545486070786924,
+          "median_rel_error": 0.04138210120674531
+        },
+        "Pt": {
+          "dispersion": 0.41068266731554803,
+          "median_rel_error": 0.14039847092430646
+        },
+        "Sr": {
+          "dispersion": 0.381496570913662,
+          "median_rel_error": 0.3272249794203247
+        }
+      }
+    },
+    "stacking_fault_energy": {
+      "n_materials": 7,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.8928571428571429,
+      "per_material": {
+        "Ag": {
+          "dispersion": 1.9832389386719604,
+          "median_rel_error": 0.48719573827541196
+        },
+        "Al": {
+          "dispersion": 18.916964124243517,
+          "median_rel_error": 0.9572621571077831
+        },
+        "Au": {
+          "dispersion": 1.244146049645329,
+          "median_rel_error": 0.2617626244148374
+        },
+        "Cu": {
+          "dispersion": 4.298392038808178,
+          "median_rel_error": 0.7236155913052336
+        },
+        "Ni": {
+          "dispersion": 5.871682964827131,
+          "median_rel_error": 0.8934830687602499
+        },
+        "Pd": {
+          "dispersion": 2.297823465360084,
+          "median_rel_error": 0.7453438371794241
+        },
+        "Pt": {
+          "dispersion": 3.730759341243375,
+          "median_rel_error": 0.7207141143097147
+        }
+      }
+    },
+    "vacancy_formation_energy": {
+      "n_materials": 17,
+      "spearman_rho_dispersion_vs_median_rel_error": 0.6102941176470589,
+      "per_material": {
+        "Ag": {
+          "dispersion": 0.43344469569476896,
+          "median_rel_error": 0.10981433426259038
+        },
+        "Al": {
+          "dispersion": 1.0146168252168264,
+          "median_rel_error": 0.161404641627137
+        },
+        "Au": {
+          "dispersion": 0.38964924558049513,
+          "median_rel_error": 0.13736897268886133
+        },
+        "Ca": {
+          "dispersion": 0.2745915975724109,
+          "median_rel_error": 0.1307125405972356
+        },
+        "Cr": {
+          "dispersion": 0.823250512268086,
+          "median_rel_error": 0.29438762223986964
+        },
+        "Cu": {
+          "dispersion": 0.34273995710785754,
+          "median_rel_error": 0.03141634324525288
+        },
+        "Fe": {
+          "dispersion": 0.9022174943150821,
+          "median_rel_error": 0.3041097315987315
+        },
+        "Mo": {
+          "dispersion": 0.6590572650585688,
+          "median_rel_error": 0.20128594742446188
+        },
+        "Nb": {
+          "dispersion": 0.5892915845797606,
+          "median_rel_error": 0.12720074699534112
+        },
+        "Ni": {
+          "dispersion": 0.4458133551329297,
+          "median_rel_error": 0.1572626845797569
+        },
+        "Pd": {
+          "dispersion": 0.31364124009091865,
+          "median_rel_error": 0.05651967361352654
+        },
+        "Pt": {
+          "dispersion": 0.5581494447306011,
+          "median_rel_error": 0.331894500210973
+        },
+        "Si": {
+          "dispersion": 0.8489495135591218,
+          "median_rel_error": 0.4641532227296795
+        },
+        "Sr": {
+          "dispersion": 0.5277909585231731,
+          "median_rel_error": 0.2380724917880217
+        },
+        "Ta": {
+          "dispersion": 0.6127971803015428,
+          "median_rel_error": 0.11953403254063895
+        },
+        "V": {
+          "dispersion": 0.39640994988657174,
+          "median_rel_error": 0.23618779979674803
+        },
+        "W": {
+          "dispersion": 0.5247444885897439,
+          "median_rel_error": 0.11735540986097734
+        }
+      }
+    }
+  }
+}

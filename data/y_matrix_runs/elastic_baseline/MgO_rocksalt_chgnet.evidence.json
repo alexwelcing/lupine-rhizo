@@ -1,0 +1,65 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "MgO",
+  "source": {
+    "model_id": "chgnet",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "chgnet 0.4.2"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 4.25356745827014,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 133.47101870430106,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C11",
+      "value": 208.19590590313206,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C12",
+      "value": 78.30341891077533,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C44",
+      "value": 86.3773678299644,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0_from_Cij",
+      "value": 121.60091457489425,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "df28f4cb9cd5f0a50fb160787d10a0d26063345f8f722d98fde7b499204e13fa",
+    "run_label": "elastic-baseline-2026-07-13",
+    "computed_at": "2026-07-13T13:05:08.338739Z"
+  }
+}

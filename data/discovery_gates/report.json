@@ -1,6 +1,7 @@
 {
   "schema": "lupine.discovery_gates.v1",
-  "generated_at": "2026-07-02T18:17:27.899011+00:00",
+  "generated_at": "2026-07-13T13:12:10.415273+00:00",
+  "panel": "li-s",
   "device": "cuda",
   "models": [
     "chgnet",
@@ -12,8 +13,8 @@
   "calculator_versions": {
     "chgnet": "chgnet 0.4.2",
     "mace-mp-small": "mace-torch 0.3.16",
-    "mace-mp-medium": "mace-torch 0.3.16",
-    "mace-mpa-0-medium": "mace-torch 0.3.16"
+    "mace-mpa-0-medium": "mace-torch 0.3.16",
+    "mace-mp-medium": "mace-torch 0.3.16"
   },
   "parameters": {
     "elastic_delta": 0.005,
@@ -22,101 +23,481 @@
     "rattle_seed": 42,
     "dynamic_supercell": 2
   },
+  "thresholds_version": "v2",
+  "gate_order": "early-stop",
   "concordance_thresholds": {
-    "flag": 0.24902948398685215,
-    "refuse": 0.38480984386785383,
-    "flag_percentile": 75.0,
-    "refuse_percentile": 95.0,
-    "n_samples": 21,
-    "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)",
-    "sample_dispersions": [
-      [
-        "Ag",
-        0.1196263942220374
-      ],
-      [
-        "Al",
-        0.38480984386785383
-      ],
-      [
-        "Au",
-        0.08760744977908931
-      ],
-      [
-        "Ca",
-        0.23577558891014797
-      ],
-      [
-        "Cr",
-        0.19573884274891248
-      ],
-      [
-        "Cu",
-        0.1746842670083773
-      ],
-      [
-        "Fe",
-        1.4613125579156678
-      ],
-      [
-        "MgO",
-        0.10725595448725979
-      ],
-      [
-        "Mo",
-        0.27681191892541773
-      ],
-      [
-        "NaCl",
-        0.24902948398685215
-      ],
-      [
-        "Nb",
-        0.22184587562333768
-      ],
-      [
-        "Ni",
-        0.14068061531291579
-      ],
-      [
-        "Ni3Al",
-        0.17965766104562111
-      ],
-      [
-        "NiAl",
-        0.06866311344723969
-      ],
-      [
-        "Pd",
-        0.16917146728725702
-      ],
-      [
-        "Pt",
-        0.0980198085143283
-      ],
-      [
-        "Si",
-        0.19730375122336252
-      ],
-      [
-        "Sr",
-        0.3782242759143122
-      ],
-      [
-        "Ta",
-        0.06170946399920718
-      ],
-      [
-        "V",
-        0.05549473826740082
-      ],
-      [
-        "W",
-        0.38322977589570617
+    "a0": {
+      "flag": 0.006006422888918611,
+      "refuse": 0.008634563966058181,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.0028505273730854773
+        ],
+        [
+          "Al",
+          0.005397494038932501
+        ],
+        [
+          "Au",
+          0.0023864905782498627
+        ],
+        [
+          "Ca",
+          0.008634563966058181
+        ],
+        [
+          "Cr",
+          0.0023270598456338627
+        ],
+        [
+          "Cu",
+          0.007477147373096574
+        ],
+        [
+          "Fe",
+          0.011059527662932682
+        ],
+        [
+          "MgO",
+          0.0007404862719377626
+        ],
+        [
+          "Mo",
+          0.006006422888918611
+        ],
+        [
+          "NaCl",
+          0.005326809606092279
+        ],
+        [
+          "Nb",
+          0.004857515961198356
+        ],
+        [
+          "Ni",
+          0.005071856257715127
+        ],
+        [
+          "Ni3Al",
+          0.0016192263552263866
+        ],
+        [
+          "NiAl",
+          0.0013056691364478996
+        ],
+        [
+          "Pd",
+          0.0033077696882971848
+        ],
+        [
+          "Pt",
+          0.0019150844842449049
+        ],
+        [
+          "Si",
+          0.0021654064917895626
+        ],
+        [
+          "Sr",
+          0.007119903343691245
+        ],
+        [
+          "Ta",
+          0.002939428977556096
+        ],
+        [
+          "V",
+          0.007422464404431322
+        ],
+        [
+          "W",
+          0.0051155163729167084
+        ]
       ]
-    ]
+    },
+    "b0": {
+      "flag": 0.249029206968999,
+      "refuse": 0.3848305703956026,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.11970833212684007
+        ],
+        [
+          "Al",
+          0.3848305703956026
+        ],
+        [
+          "Au",
+          0.08758978865280956
+        ],
+        [
+          "Ca",
+          0.23577054179011758
+        ],
+        [
+          "Cr",
+          0.19572827612037305
+        ],
+        [
+          "Cu",
+          0.1746945336320969
+        ],
+        [
+          "Fe",
+          1.4612815629332583
+        ],
+        [
+          "MgO",
+          0.10756974222384887
+        ],
+        [
+          "Mo",
+          0.2768092075157323
+        ],
+        [
+          "NaCl",
+          0.249029206968999
+        ],
+        [
+          "Nb",
+          0.22183123901945173
+        ],
+        [
+          "Ni",
+          0.1406793497026431
+        ],
+        [
+          "Ni3Al",
+          0.17965847210791158
+        ],
+        [
+          "NiAl",
+          0.0688973580510594
+        ],
+        [
+          "Pd",
+          0.1691720194739778
+        ],
+        [
+          "Pt",
+          0.09802073232771079
+        ],
+        [
+          "Si",
+          0.19730529117506926
+        ],
+        [
+          "Sr",
+          0.3783524075951148
+        ],
+        [
+          "Ta",
+          0.0616987794175035
+        ],
+        [
+          "V",
+          0.05549359409805739
+        ],
+        [
+          "W",
+          0.3832323448165157
+        ]
+      ]
+    },
+    "c11": {
+      "flag": 0.48847912128769794,
+      "refuse": 1.2106858738357664,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.3209175189225219
+        ],
+        [
+          "Al",
+          0.6223238271047399
+        ],
+        [
+          "Au",
+          0.4141587113499058
+        ],
+        [
+          "Ca",
+          0.3003097335031344
+        ],
+        [
+          "Cr",
+          0.9398058207852881
+        ],
+        [
+          "Cu",
+          0.33129104978284935
+        ],
+        [
+          "Fe",
+          2.0287774651809327
+        ],
+        [
+          "MgO",
+          0.226075493840671
+        ],
+        [
+          "Mo",
+          0.6970172254389795
+        ],
+        [
+          "NaCl",
+          0.23448412305576888
+        ],
+        [
+          "Nb",
+          0.48847912128769794
+        ],
+        [
+          "Ni",
+          0.14738419816547066
+        ],
+        [
+          "Ni3Al",
+          0.2841956981535926
+        ],
+        [
+          "NiAl",
+          0.3307648815219072
+        ],
+        [
+          "Pd",
+          0.21165456056028295
+        ],
+        [
+          "Pt",
+          0.1099838754894583
+        ],
+        [
+          "Si",
+          0.28850483332465016
+        ],
+        [
+          "Sr",
+          0.31728350199585
+        ],
+        [
+          "Ta",
+          0.0835323584558712
+        ],
+        [
+          "V",
+          0.29610940325472385
+        ],
+        [
+          "W",
+          1.2106858738357664
+        ]
+      ]
+    },
+    "c12": {
+      "flag": 0.570372974454035,
+      "refuse": 1.0589924824856667,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.3157348879485208
+        ],
+        [
+          "Al",
+          0.4165138735200979
+        ],
+        [
+          "Au",
+          0.38614937267873517
+        ],
+        [
+          "Ca",
+          0.41756950890815836
+        ],
+        [
+          "Cr",
+          1.0589924824856667
+        ],
+        [
+          "Cu",
+          0.4951367313443806
+        ],
+        [
+          "Fe",
+          1.1925411128631542
+        ],
+        [
+          "MgO",
+          0.1801498746476557
+        ],
+        [
+          "Mo",
+          0.15829845968935208
+        ],
+        [
+          "NaCl",
+          0.7740111405616333
+        ],
+        [
+          "Nb",
+          0.570372974454035
+        ],
+        [
+          "Ni",
+          0.1881315799355254
+        ],
+        [
+          "Ni3Al",
+          0.21097143726970574
+        ],
+        [
+          "NiAl",
+          0.08943438665964686
+        ],
+        [
+          "Pd",
+          0.1924725628836372
+        ],
+        [
+          "Pt",
+          0.12279438321707654
+        ],
+        [
+          "Si",
+          0.6534449270375714
+        ],
+        [
+          "Sr",
+          0.31936308863482404
+        ],
+        [
+          "Ta",
+          0.10878764374167155
+        ],
+        [
+          "V",
+          0.5182197460069189
+        ],
+        [
+          "W",
+          0.6359681044415058
+        ]
+      ]
+    },
+    "c44": {
+      "flag": 1.2220930218480712,
+      "refuse": 3.789181745622983,
+      "flag_percentile": 75.0,
+      "refuse_percentile": 95.0,
+      "n_samples": 21,
+      "source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)",
+      "sample_dispersions": [
+        [
+          "Ag",
+          0.5837573298993269
+        ],
+        [
+          "Al",
+          0.9441137546580334
+        ],
+        [
+          "Au",
+          1.0285223684884872
+        ],
+        [
+          "Ca",
+          0.4605133075417642
+        ],
+        [
+          "Cr",
+          3.789181745622983
+        ],
+        [
+          "Cu",
+          0.3695207890998424
+        ],
+        [
+          "Fe",
+          0.37191703527173897
+        ],
+        [
+          "MgO",
+          0.4076943229500604
+        ],
+        [
+          "Mo",
+          1.2220930218480712
+        ],
+        [
+          "NaCl",
+          0.5711533475128872
+        ],
+        [
+          "Nb",
+          3.1224799399436654
+        ],
+        [
+          "Ni",
+          0.37711187376526795
+        ],
+        [
+          "Ni3Al",
+          0.705301207676529
+        ],
+        [
+          "NiAl",
+          0.7516895117077717
+        ],
+        [
+          "Pd",
+          0.3923580013793386
+        ],
+        [
+          "Pt",
+          0.47227469055194227
+        ],
+        [
+          "Si",
+          1.2410614318173612
+        ],
+        [
+          "Sr",
+          0.3412612815079285
+        ],
+        [
+          "Ta",
+          0.5877301056719106
+        ],
+        [
+          "V",
+          237.74120739530366
+        ],
+        [
+          "W",
+          1.2416484255395355
+        ]
+      ]
+    }
   },
-  "threshold_transfer_note": "Threshold transfer: the p75/p95 baseline is measured on B0 dispersions and applied to a0/B0/C11/C12/C44 alike. a0 disperses less than B0 (lenient there); shear constants typically disperse more (strict there). This is a documented proxy, not a per-property calibration.",
+  "threshold_transfer_note": "Per-property thresholds (v2): each of a0/B0/C11/C12/C44 is gated by p75/p95 of its OWN measured cross-model dispersion baseline (the elastic-baseline sweep), replacing the v1 B0-proxy transfer. Within-family coupling (Cauchy relation, stability) remains; per-property calibration fixes the transfer error, it does not decouple the elastic family.",
   "subjects": {
     "Li2S_antifluorite": {
       "role": "known-good reference subject (cubic antifluorite, mp-1153-like)",
@@ -125,24 +506,24 @@
       "per_model": {
         "chgnet": {
           "properties": {
-            "a0": 5.701480907637655,
-            "b0": 29.36641193482542,
-            "c11": 38.96169946694107,
-            "c12": 15.390122211981922,
-            "c44": 16.844612164991798
+            "a0": 5.701477677742581,
+            "b0": 29.36396979715393,
+            "c11": 38.95797656951867,
+            "c12": 15.388740580586308,
+            "c44": 16.845006650364965
           },
-          "b0_from_cij_gpa": 23.247314630301634,
-          "b0_elastic_vs_eos_rel_diff": 0.2083706146363489,
+          "b0_from_cij_gpa": 23.245152576897095,
+          "b0_elastic_vs_eos_rel_diff": 0.20837840600319293,
           "blocks": {
             "lattice": {
               "property": "lattice",
               "values": {
-                "a0_angstrom": 5.701480907637655,
-                "e0_ev_per_atom": -4.1121587380704625,
-                "v0_a3_per_atom": 15.444781797707094,
-                "b0_gpa": 29.36471305508103,
-                "b0_prime": 5.4823410729414555,
-                "cohesive_energy_ev_per_atom": 3.368797900769844,
+                "a0_angstrom": 5.701477677742581,
+                "e0_ev_per_atom": -4.112158629625569,
+                "v0_a3_per_atom": 15.444755549265397,
+                "b0_gpa": 29.36640512020614,
+                "b0_prime": 5.483472839385388,
+                "cohesive_energy_ev_per_atom": 3.3687977923249512,
                 "isolated_atom_energies_ev": [
                   [
                     "Li",
@@ -173,28 +554,28 @@
                 "n_points": 11,
                 "max_recenter": 8
               },
-              "wall_time_seconds": 4.378481400000965
+              "wall_time_seconds": 4.02995420000002
             },
             "eos": {
               "property": "eos",
               "values": {
-                "b0_gpa": 29.36641193482542,
-                "b0_prime": 5.473631952151503,
-                "v0_a3_per_atom": 15.44481611116584,
-                "e0_ev": -49.34590207661545,
-                "rms_residual_ev": 0.0005049809610132586,
+                "b0_gpa": 29.36396979715393,
+                "b0_prime": 5.474674372533941,
+                "v0_a3_per_atom": 15.444817748362915,
+                "e0_ev": -49.34590236192839,
+                "rms_residual_ev": 0.0005049647066126731,
                 "volumes_a3": [
-                  174.21713867813585,
-                  176.44118725700574,
-                  178.66523583587562,
-                  180.88928441474536,
-                  183.1133329936152,
-                  185.33738157248504,
-                  187.56143015135498,
-                  189.78547873022472,
-                  192.00952730909452,
-                  194.23357588796435,
-                  196.45762446683403
+                  174.2168425957136,
+                  176.44088739480787,
+                  178.664932193902,
+                  180.88897699299628,
+                  183.1130217920905,
+                  185.33706659118477,
+                  187.56111139027908,
+                  189.78515618937323,
+                  192.0092009884674,
+                  194.23324578756166,
+                  196.45729058665572
                 ],
                 "energies_ev": [
                   -49.27621078491211,
@@ -205,9 +586,9 @@
                   -49.34523010253906,
                   -49.34313201904297,
                   -49.3372802734375,
-                  -49.32591247558594,
-                  -49.310028076171875,
-                  -49.292076110839844
+                  -49.32592010498047,
+                  -49.310035705566406,
+                  -49.292083740234375
                 ],
                 "n_atoms_cell": 12
               },
@@ -224,19 +605,19 @@
                 "property": "eos",
                 "formula": "Li2S",
                 "structure_type": "antifluorite",
-                "a0_angstrom": 5.701480907637655,
+                "a0_angstrom": 5.701477677742581,
                 "volume_span": 0.06,
                 "n_points": 11
               },
-              "wall_time_seconds": 0.8050332000002527
+              "wall_time_seconds": 0.7044323999999733
             },
             "elastic": {
               "property": "cubic_elastic",
               "values": {
-                "c11_gpa": 38.96169946694107,
-                "c12_gpa": 15.390122211981922,
-                "c44_gpa": 16.844612164991798,
-                "bulk_modulus_from_cij_gpa": 23.247314630301634,
+                "c11_gpa": 38.95797656951867,
+                "c12_gpa": 15.388740580586308,
+                "c44_gpa": 16.845006650364965,
+                "bulk_modulus_from_cij_gpa": 23.245152576897095,
                 "n_atoms_cell": 12,
                 "n_relax_steps_total": 0
               },
@@ -250,7 +631,7 @@
                 "property": "cubic_elastic",
                 "formula": "Li2S",
                 "structure_type": "antifluorite",
-                "a0_angstrom": 5.701480907637655,
+                "a0_angstrom": 5.701477677742581,
                 "delta": 0.005,
                 "relax_internal": true,
                 "fmax": 0.01,
@@ -258,7 +639,7 @@
                 "max_steps": 500,
                 "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
               },
-              "wall_time_seconds": 0.2939862000002904
+              "wall_time_seconds": 0.27369929999997566
             }
           },
           "gates": {
@@ -266,11 +647,11 @@
               "gate": "born_stability_cubic",
               "passed": true,
               "values": {
-                "c11_gpa": 38.96169946694107,
-                "c12_gpa": 15.390122211981922,
-                "c44_gpa": 16.844612164991798,
-                "c11_minus_c12_gpa": 23.57157725495915,
-                "c11_plus_2c12_gpa": 69.7419438909049,
+                "c11_gpa": 38.95797656951867,
+                "c12_gpa": 15.388740580586308,
+                "c44_gpa": 16.845006650364965,
+                "c11_minus_c12_gpa": 23.569235988932363,
+                "c11_plus_2c12_gpa": 69.73545773069128,
                 "checks": {
                   "C11 - C12 > 0": true,
                   "C11 + 2*C12 > 0": true,
@@ -286,36 +667,36 @@
                 "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
               },
               "detail": "all Born stability conditions satisfied",
-              "wall_time_seconds": 9.199999112752266e-06
+              "wall_time_seconds": 9.299999987888441e-06
             }
           },
           "born_passed": true,
           "wall_time_seconds": {
-            "lattice": 4.378481400000965,
-            "eos": 0.8050332000002527,
-            "elastic_plus_born": 0.29399539999940316
+            "lattice": 4.02995420000002,
+            "eos": 0.7044323999999733,
+            "elastic_plus_born": 0.27370859999996355
           }
         },
         "mace-mp-small": {
           "properties": {
-            "a0": 5.721884960188167,
-            "b0": 34.14117455605525,
-            "c11": 64.91273631962396,
-            "c12": 18.899296932548058,
-            "c44": 29.810508733465376
+            "a0": 5.721884960188184,
+            "b0": 34.14117455607704,
+            "c11": 64.91273631962203,
+            "c12": 18.89929693254626,
+            "c44": 29.810508733465568
           },
-          "b0_from_cij_gpa": 34.23711006157336,
-          "b0_elastic_vs_eos_rel_diff": 0.002809964998731962,
+          "b0_from_cij_gpa": 34.237110061571514,
+          "b0_elastic_vs_eos_rel_diff": 0.0028099649980377565,
           "blocks": {
             "lattice": {
               "property": "lattice",
               "values": {
-                "a0_angstrom": 5.721884960188167,
-                "e0_ev_per_atom": -3.967586738086862,
-                "v0_a3_per_atom": 15.61119396847704,
-                "b0_gpa": 34.14116399723012,
-                "b0_prime": 2.2938365124616307,
-                "cohesive_energy_ev_per_atom": 3.0794869740271706,
+                "a0_angstrom": 5.721884960188184,
+                "e0_ev_per_atom": -3.9675867380868617,
+                "v0_a3_per_atom": 15.611193968477187,
+                "b0_gpa": 34.141163997245265,
+                "b0_prime": 2.2938365124389235,
+                "cohesive_energy_ev_per_atom": 3.0794869740271698,
                 "isolated_atom_energies_ev": [
                   [
                     "Li",
@@ -346,41 +727,41 @@
                 "n_points": 11,
                 "max_recenter": 8
               },
-              "wall_time_seconds": 6.3936618000007
+              "wall_time_seconds": 6.652909600000044
             },
             "eos": {
               "property": "eos",
               "values": {
-                "b0_gpa": 34.14117455605525,
-                "b0_prime": 2.293579679210985,
-                "v0_a3_per_atom": 15.61119518245975,
-                "e0_ev": -47.611040858992126,
-                "rms_residual_ev": 2.0861593392656188e-05,
+                "b0_gpa": 34.14117455607704,
+                "b0_prime": 2.2935796792073706,
+                "v0_a3_per_atom": 15.611195182459577,
+                "e0_ev": -47.61104085899212,
+                "rms_residual_ev": 2.0861593393222497e-05,
                 "volumes_a3": [
-                  176.09426796442088,
-                  178.34227989588166,
-                  180.5902918273424,
-                  182.83830375880302,
-                  185.0863156902639,
-                  187.3343276217246,
-                  189.58233955318525,
-                  191.8303514846459,
-                  194.0783634161067,
-                  196.32637534756725,
-                  198.57438727902797
+                  176.0942679644226,
+                  178.34227989588322,
+                  180.590291827344,
+                  182.83830375880464,
+                  185.0863156902655,
+                  187.33432762172612,
+                  189.58233955318676,
+                  191.8303514846476,
+                  194.07836341610843,
+                  196.3263753475688,
+                  198.57438727902974
                 ],
                 "energies_ev": [
-                  -47.53428055253131,
-                  -47.56251978712456,
-                  -47.5841017296519,
-                  -47.599238060502884,
+                  -47.53428055253133,
+                  -47.56251978712457,
+                  -47.58410172965192,
+                  -47.59923806050289,
                   -47.60814979687328,
-                  -47.61106483096696,
-                  -47.60821483752467,
-                  -47.59983197780976,
-                  -47.58614570338227,
-                  -47.567379860127424,
-                  -47.54375021114563
+                  -47.61106483096697,
+                  -47.60821483752466,
+                  -47.59983197780975,
+                  -47.58614570338224,
+                  -47.567379860127396,
+                  -47.54375021114559
                 ],
                 "n_atoms_cell": 12
               },
@@ -397,19 +778,19 @@
                 "property": "eos",
                 "formula": "Li2S",
                 "structure_type": "antifluorite",
-                "a0_angstrom": 5.721884960188167,
+                "a0_angstrom": 5.721884960188184,
                 "volume_span": 0.06,
                 "n_points": 11
               },
-              "wall_time_seconds": 0.49505060000046797
+              "wall_time_seconds": 0.44603159999996933
             },
             "elastic": {
               "property": "cubic_elastic",
               "values": {
-                "c11_gpa": 64.91273631962396,
-                "c12_gpa": 18.899296932548058,
-                "c44_gpa": 29.810508733465376,
-                "bulk_modulus_from_cij_gpa": 34.23711006157336,
+                "c11_gpa": 64.91273631962203,
+                "c12_gpa": 18.89929693254626,
+                "c44_gpa": 29.810508733465568,
+                "bulk_modulus_from_cij_gpa": 34.237110061571514,
                 "n_atoms_cell": 12,
                 "n_relax_steps_total": 6
               },
@@ -423,7 +804,7 @@
                 "property": "cubic_elastic",
                 "formula": "Li2S",
                 "structure_type": "antifluorite",
-                "a0_angstrom": 5.721884960188167,
+                "a0_angstrom": 5.721884960188184,
                 "delta": 0.005,
                 "relax_internal": true,
                 "fmax": 0.01,
@@ -431,7 +812,7 @@
                 "max_steps": 500,
                 "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
               },
-              "wall_time_seconds": 0.5043888999989576
+              "wall_time_seconds": 0.42878189999998995
             }
           },
           "gates": {
@@ -439,11 +820,11 @@
               "gate": "born_stability_cubic",
               "passed": true,
               "values": {
-                "c11_gpa": 64.91273631962396,
-                "c12_gpa": 18.899296932548058,
-                "c44_gpa": 29.810508733465376,
-                "c11_minus_c12_gpa": 46.013439387075906,
-                "c11_plus_2c12_gpa": 102.71133018472008,
+                "c11_gpa": 64.91273631962203,
+                "c12_gpa": 18.89929693254626,
+                "c44_gpa": 29.810508733465568,
+                "c11_minus_c12_gpa": 46.01343938707576,
+                "c11_plus_2c12_gpa": 102.71133018471454,
                 "checks": {
                   "C11 - C12 > 0": true,
                   "C11 + 2*C12 > 0": true,
@@ -459,35 +840,208 @@
                 "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
               },
               "detail": "all Born stability conditions satisfied",
-              "wall_time_seconds": 6.599999323952943e-06
+              "wall_time_seconds": 7.099999947968172e-06
             }
           },
           "born_passed": true,
           "wall_time_seconds": {
-            "lattice": 6.3936618000007,
-            "eos": 0.49505060000046797,
-            "elastic_plus_born": 0.5043954999982816
+            "lattice": 6.652909600000044,
+            "eos": 0.44603159999996933,
+            "elastic_plus_born": 0.4287889999999379
           }
         },
-        "mace-mp-medium": {
+        "mace-mpa-0-medium": {
           "properties": {
-            "a0": 5.722752842034721,
-            "b0": 34.5830188156345,
-            "c11": 67.96664858213958,
-            "c12": 17.7007920328538,
-            "c44": 23.9122235353136
+            "a0": 5.730256229485151,
+            "b0": 38.2303569100492,
+            "c11": 78.0629661716105,
+            "c12": 18.459964267824798,
+            "c44": 34.802698119127655
           },
-          "b0_from_cij_gpa": 34.45607754928239,
-          "b0_elastic_vs_eos_rel_diff": 0.003670624216724653,
+          "b0_from_cij_gpa": 38.3276315690867,
+          "b0_elastic_vs_eos_rel_diff": 0.002544435022314055,
           "blocks": {
             "lattice": {
               "property": "lattice",
               "values": {
-                "a0_angstrom": 5.722752842034721,
+                "a0_angstrom": 5.730256229485151,
+                "e0_ev_per_atom": -3.9868676013749877,
+                "v0_a3_per_atom": 15.679813033315867,
+                "b0_gpa": 38.23035019989927,
+                "b0_prime": 4.478908571551742,
+                "cohesive_energy_ev_per_atom": 3.4913002047083217,
+                "isolated_atom_energies_ev": [
+                  [
+                    "Li",
+                    -0.29754725
+                  ],
+                  [
+                    "S",
+                    -0.89160769
+                  ]
+                ],
+                "n_atoms_cell": 12
+              },
+              "units": {
+                "a0_angstrom": "Angstrom",
+                "e0_ev_per_atom": "eV/atom",
+                "v0_a3_per_atom": "A^3/atom",
+                "b0_gpa": "GPa",
+                "b0_prime": "dimensionless",
+                "cohesive_energy_ev_per_atom": "eV/atom",
+                "isolated_atom_energies_ev": "eV"
+              },
+              "canonical_inputs": {
+                "property": "lattice",
+                "formula": "Li2S",
+                "structure_type": "antifluorite",
+                "initial_a_angstrom": 5.380904508847313,
+                "volume_span": 0.06,
+                "n_points": 11,
+                "max_recenter": 8
+              },
+              "wall_time_seconds": 3.3863777000000255
+            },
+            "eos": {
+              "property": "eos",
+              "values": {
+                "b0_gpa": 38.2303569100492,
+                "b0_prime": 4.478724658333705,
+                "v0_a3_per_atom": 15.679813902260577,
+                "e0_ev": -47.842411219458036,
+                "rms_residual_ev": 1.8571023744476138e-05,
+                "volumes_a3": [
+                  176.86829101580295,
+                  179.12618409260034,
+                  181.3840771693979,
+                  183.64197024619529,
+                  185.89986332299293,
+                  188.1577563997903,
+                  190.4156494765877,
+                  192.67354255338532,
+                  194.93143563018293,
+                  197.18932870698026,
+                  199.4472217837776
+                ],
+                "energies_ev": [
+                  -47.751951209657165,
+                  -47.785804179709544,
+                  -47.81128182678354,
+                  -47.828894576729596,
+                  -47.839125245594374,
+                  -47.842433531363426,
+                  -47.839258670908734,
+                  -47.83001988644877,
+                  -47.81511498848229,
+                  -47.79491801840314,
+                  -47.7697769271482
+                ],
+                "n_atoms_cell": 12
+              },
+              "units": {
+                "b0_gpa": "GPa",
+                "b0_prime": "dimensionless",
+                "v0_a3_per_atom": "A^3/atom",
+                "e0_ev": "eV",
+                "rms_residual_ev": "eV",
+                "volumes_a3": "A^3",
+                "energies_ev": "eV"
+              },
+              "canonical_inputs": {
+                "property": "eos",
+                "formula": "Li2S",
+                "structure_type": "antifluorite",
+                "a0_angstrom": 5.730256229485151,
+                "volume_span": 0.06,
+                "n_points": 11
+              },
+              "wall_time_seconds": 0.670690200000081
+            },
+            "elastic": {
+              "property": "cubic_elastic",
+              "values": {
+                "c11_gpa": 78.0629661716105,
+                "c12_gpa": 18.459964267824798,
+                "c44_gpa": 34.802698119127655,
+                "bulk_modulus_from_cij_gpa": 38.3276315690867,
+                "n_atoms_cell": 12,
+                "n_relax_steps_total": 0
+              },
+              "units": {
+                "c11_gpa": "GPa",
+                "c12_gpa": "GPa",
+                "c44_gpa": "GPa",
+                "bulk_modulus_from_cij_gpa": "GPa"
+              },
+              "canonical_inputs": {
+                "property": "cubic_elastic",
+                "formula": "Li2S",
+                "structure_type": "antifluorite",
+                "a0_angstrom": 5.730256229485151,
+                "delta": 0.005,
+                "relax_internal": true,
+                "fmax": 0.01,
+                "optimizer": "FIRE",
+                "max_steps": 500,
+                "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
+              },
+              "wall_time_seconds": 0.24092859999996108
+            }
+          },
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": true,
+              "values": {
+                "c11_gpa": 78.0629661716105,
+                "c12_gpa": 18.459964267824798,
+                "c44_gpa": 34.802698119127655,
+                "c11_minus_c12_gpa": 59.603001903785696,
+                "c11_plus_2c12_gpa": 114.9828947072601,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": true
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "all Born stability conditions satisfied",
+              "wall_time_seconds": 6.000000098538294e-06
+            }
+          },
+          "born_passed": true,
+          "wall_time_seconds": {
+            "lattice": 3.3863777000000255,
+            "eos": 0.670690200000081,
+            "elastic_plus_born": 0.24093460000005962
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 5.722752842034718,
+            "b0": 34.583018815632364,
+            "c11": 67.96664858213815,
+            "c12": 17.700792032854423,
+            "c44": 23.91222353531351
+          },
+          "b0_from_cij_gpa": 34.456077549282334,
+          "b0_elastic_vs_eos_rel_diff": 0.00367062421666468,
+          "blocks": {
+            "lattice": {
+              "property": "lattice",
+              "values": {
+                "a0_angstrom": 5.722752842034718,
                 "e0_ev_per_atom": -3.9738903246399992,
-                "v0_a3_per_atom": 15.61829865185148,
-                "b0_gpa": 34.58298487705805,
-                "b0_prime": 3.1431836877230195,
+                "v0_a3_per_atom": 15.61829865185146,
+                "b0_gpa": 34.582984877057974,
+                "b0_prime": 3.1431836877251538,
                 "cohesive_energy_ev_per_atom": 2.9684085632882486,
                 "isolated_atom_energies_ev": [
                   [
@@ -519,41 +1073,41 @@
                 "n_points": 11,
                 "max_recenter": 8
               },
-              "wall_time_seconds": 3.48640290000003
+              "wall_time_seconds": 3.1572016000000076
             },
             "eos": {
               "property": "eos",
               "values": {
-                "b0_gpa": 34.5830188156345,
-                "b0_prime": 3.1428571744124465,
-                "v0_a3_per_atom": 15.618300171364021,
-                "e0_ev": -47.686683909199736,
-                "rms_residual_ev": 2.6038953006261577e-05,
+                "b0_gpa": 34.583018815632364,
+                "b0_prime": 3.1428571743844635,
+                "v0_a3_per_atom": 15.61830017136419,
+                "e0_ev": -47.68668390919974,
+                "rms_residual_ev": 2.6038953006671893e-05,
                 "volumes_a3": [
-                  176.17440879288463,
-                  178.42344379875132,
-                  180.6724788046178,
-                  182.92151381048453,
-                  185.17054881635113,
-                  187.41958382221762,
-                  189.66861882808433,
-                  191.91765383395088,
-                  194.16668883981745,
-                  196.41572384568408,
-                  198.66475885155072
+                  176.17440879288432,
+                  178.42344379875098,
+                  180.67247880461767,
+                  182.9215138104842,
+                  185.17054881635096,
+                  187.41958382221745,
+                  189.66861882808416,
+                  191.9176538339507,
+                  194.16668883981728,
+                  196.4157238456839,
+                  198.66475885155037
                 ],
                 "energies_ev": [
-                  -47.607398610014144,
-                  -47.63685625242397,
-                  -47.659143519177405,
-                  -47.67463989350286,
+                  -47.60739861001415,
+                  -47.636856252423954,
+                  -47.6591435191774,
+                  -47.67463989350285,
                   -47.68369984952158,
                   -47.686652456305175,
                   -47.68380014262795,
-                  -47.67541848199169,
+                  -47.6754184819917,
                   -47.66175808431053,
                   -47.64304857279509,
-                  -47.619503720694226
+                  -47.61950372069422
                 ],
                 "n_atoms_cell": 12
               },
@@ -570,19 +1124,19 @@
                 "property": "eos",
                 "formula": "Li2S",
                 "structure_type": "antifluorite",
-                "a0_angstrom": 5.722752842034721,
+                "a0_angstrom": 5.722752842034718,
                 "volume_span": 0.06,
                 "n_points": 11
               },
-              "wall_time_seconds": 0.6127978999993502
+              "wall_time_seconds": 0.5903364000000693
             },
             "elastic": {
               "property": "cubic_elastic",
               "values": {
-                "c11_gpa": 67.96664858213958,
-                "c12_gpa": 17.7007920328538,
-                "c44_gpa": 23.9122235353136,
-                "bulk_modulus_from_cij_gpa": 34.45607754928239,
+                "c11_gpa": 67.96664858213815,
+                "c12_gpa": 17.700792032854423,
+                "c44_gpa": 23.91222353531351,
+                "bulk_modulus_from_cij_gpa": 34.456077549282334,
                 "n_atoms_cell": 12,
                 "n_relax_steps_total": 0
               },
@@ -596,7 +1150,7 @@
                 "property": "cubic_elastic",
                 "formula": "Li2S",
                 "structure_type": "antifluorite",
-                "a0_angstrom": 5.722752842034721,
+                "a0_angstrom": 5.722752842034718,
                 "delta": 0.005,
                 "relax_internal": true,
                 "fmax": 0.01,
@@ -604,7 +1158,7 @@
                 "max_steps": 500,
                 "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
               },
-              "wall_time_seconds": 0.2257359000013821
+              "wall_time_seconds": 0.23686059999999998
             }
           },
           "gates": {
@@ -612,11 +1166,11 @@
               "gate": "born_stability_cubic",
               "passed": true,
               "values": {
-                "c11_gpa": 67.96664858213958,
-                "c12_gpa": 17.7007920328538,
-                "c44_gpa": 23.9122235353136,
-                "c11_minus_c12_gpa": 50.265856549285786,
-                "c11_plus_2c12_gpa": 103.36823264784718,
+                "c11_gpa": 67.96664858213815,
+                "c12_gpa": 17.700792032854423,
+                "c44_gpa": 23.91222353531351,
+                "c11_minus_c12_gpa": 50.265856549283725,
+                "c11_plus_2c12_gpa": 103.368232647847,
                 "checks": {
                   "C11 - C12 > 0": true,
                   "C11 + 2*C12 > 0": true,
@@ -632,187 +1186,14 @@
                 "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
               },
               "detail": "all Born stability conditions satisfied",
-              "wall_time_seconds": 7.0000005507608876e-06
+              "wall_time_seconds": 5.80000005356851e-06
             }
           },
           "born_passed": true,
           "wall_time_seconds": {
-            "lattice": 3.48640290000003,
-            "eos": 0.6127978999993502,
-            "elastic_plus_born": 0.22574290000193287
-          }
-        },
-        "mace-mpa-0-medium": {
-          "properties": {
-            "a0": 5.730256229485155,
-            "b0": 38.230356910028945,
-            "c11": 78.06296617161013,
-            "c12": 18.45996426782391,
-            "c44": 34.802698119126084
-          },
-          "b0_from_cij_gpa": 38.32763156908598,
-          "b0_elastic_vs_eos_rel_diff": 0.0025444350228265135,
-          "blocks": {
-            "lattice": {
-              "property": "lattice",
-              "values": {
-                "a0_angstrom": 5.730256229485155,
-                "e0_ev_per_atom": -3.9868676013749873,
-                "v0_a3_per_atom": 15.6798130333159,
-                "b0_gpa": 38.23035019989579,
-                "b0_prime": 4.478908571568018,
-                "cohesive_energy_ev_per_atom": 3.4913002047083204,
-                "isolated_atom_energies_ev": [
-                  [
-                    "Li",
-                    -0.29754725
-                  ],
-                  [
-                    "S",
-                    -0.89160769
-                  ]
-                ],
-                "n_atoms_cell": 12
-              },
-              "units": {
-                "a0_angstrom": "Angstrom",
-                "e0_ev_per_atom": "eV/atom",
-                "v0_a3_per_atom": "A^3/atom",
-                "b0_gpa": "GPa",
-                "b0_prime": "dimensionless",
-                "cohesive_energy_ev_per_atom": "eV/atom",
-                "isolated_atom_energies_ev": "eV"
-              },
-              "canonical_inputs": {
-                "property": "lattice",
-                "formula": "Li2S",
-                "structure_type": "antifluorite",
-                "initial_a_angstrom": 5.380904508847313,
-                "volume_span": 0.06,
-                "n_points": 11,
-                "max_recenter": 8
-              },
-              "wall_time_seconds": 3.7874088999997184
-            },
-            "eos": {
-              "property": "eos",
-              "values": {
-                "b0_gpa": 38.230356910028945,
-                "b0_prime": 4.478724658337809,
-                "v0_a3_per_atom": 15.679813902260442,
-                "e0_ev": -47.842411219458036,
-                "rms_residual_ev": 1.857102375474836e-05,
-                "volumes_a3": [
-                  176.8682910158034,
-                  179.12618409260082,
-                  181.38407716939838,
-                  183.6419702461958,
-                  185.89986332299327,
-                  188.1577563997908,
-                  190.41564947658821,
-                  192.67354255338566,
-                  194.93143563018327,
-                  197.18932870698077,
-                  199.4472217837783
-                ],
-                "energies_ev": [
-                  -47.75195120965718,
-                  -47.78580417970956,
-                  -47.81128182678354,
-                  -47.82889457672961,
-                  -47.83912524559439,
-                  -47.842433531363426,
-                  -47.83925867090876,
-                  -47.83001988644874,
-                  -47.815114988482264,
-                  -47.79491801840314,
-                  -47.769776927148214
-                ],
-                "n_atoms_cell": 12
-              },
-              "units": {
-                "b0_gpa": "GPa",
-                "b0_prime": "dimensionless",
-                "v0_a3_per_atom": "A^3/atom",
-                "e0_ev": "eV",
-                "rms_residual_ev": "eV",
-                "volumes_a3": "A^3",
-                "energies_ev": "eV"
-              },
-              "canonical_inputs": {
-                "property": "eos",
-                "formula": "Li2S",
-                "structure_type": "antifluorite",
-                "a0_angstrom": 5.730256229485155,
-                "volume_span": 0.06,
-                "n_points": 11
-              },
-              "wall_time_seconds": 0.689980099999957
-            },
-            "elastic": {
-              "property": "cubic_elastic",
-              "values": {
-                "c11_gpa": 78.06296617161013,
-                "c12_gpa": 18.45996426782391,
-                "c44_gpa": 34.802698119126084,
-                "bulk_modulus_from_cij_gpa": 38.32763156908598,
-                "n_atoms_cell": 12,
-                "n_relax_steps_total": 0
-              },
-              "units": {
-                "c11_gpa": "GPa",
-                "c12_gpa": "GPa",
-                "c44_gpa": "GPa",
-                "bulk_modulus_from_cij_gpa": "GPa"
-              },
-              "canonical_inputs": {
-                "property": "cubic_elastic",
-                "formula": "Li2S",
-                "structure_type": "antifluorite",
-                "a0_angstrom": 5.730256229485155,
-                "delta": 0.005,
-                "relax_internal": true,
-                "fmax": 0.01,
-                "optimizer": "FIRE",
-                "max_steps": 500,
-                "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
-              },
-              "wall_time_seconds": 0.2613176000013482
-            }
-          },
-          "gates": {
-            "born": {
-              "gate": "born_stability_cubic",
-              "passed": true,
-              "values": {
-                "c11_gpa": 78.06296617161013,
-                "c12_gpa": 18.45996426782391,
-                "c44_gpa": 34.802698119126084,
-                "c11_minus_c12_gpa": 59.60300190378622,
-                "c11_plus_2c12_gpa": 114.98289470725794,
-                "checks": {
-                  "C11 - C12 > 0": true,
-                  "C11 + 2*C12 > 0": true,
-                  "C44 > 0": true
-                }
-              },
-              "criteria": {
-                "conditions": [
-                  "C11 - C12 > 0",
-                  "C11 + 2*C12 > 0",
-                  "C44 > 0"
-                ],
-                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
-              },
-              "detail": "all Born stability conditions satisfied",
-              "wall_time_seconds": 9.499999578110874e-06
-            }
-          },
-          "born_passed": true,
-          "wall_time_seconds": {
-            "lattice": 3.7874088999997184,
-            "eos": 0.689980099999957,
-            "elastic_plus_born": 0.2613271000009263
+            "lattice": 3.1572016000000076,
+            "eos": 0.5903364000000693,
+            "elastic_plus_born": 0.23686640000005355
           }
         }
       },
@@ -824,22 +1205,22 @@
             "values": {
               "property": "a0",
               "values_by_model": {
-                "chgnet": 5.701480907637655,
-                "mace-mp-small": 5.721884960188167,
-                "mace-mp-medium": 5.722752842034721,
-                "mace-mpa-0-medium": 5.730256229485155
+                "chgnet": 5.701477677742581,
+                "mace-mp-small": 5.721884960188184,
+                "mace-mpa-0-medium": 5.730256229485151,
+                "mace-mp-medium": 5.722752842034718
               },
-              "dispersion": 0.005028612061783411,
+              "dispersion": 0.0050291764999291,
               "level": "pass"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "a0: cross-model dispersion 0.005 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 0.00013450000005832408
+            "detail": "a0: cross-model dispersion 0.005 -> pass (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 9.999999997489795e-05
           },
           "b0": {
             "gate": "concordance",
@@ -847,45 +1228,45 @@
             "values": {
               "property": "b0",
               "values_by_model": {
-                "chgnet": 29.36641193482542,
-                "mace-mp-small": 34.14117455605525,
-                "mace-mp-medium": 34.5830188156345,
-                "mace-mpa-0-medium": 38.230356910028945
+                "chgnet": 29.36396979715393,
+                "mace-mp-small": 34.14117455607704,
+                "mace-mpa-0-medium": 38.2303569100492,
+                "mace-mp-medium": 34.583018815632364
               },
-              "dispersion": 0.25795704657495305,
+              "dispersion": 0.2580281172581985,
               "level": "flag"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
             "detail": "b0: cross-model dispersion 0.258 -> flag (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 6.209999992279336e-05
+            "wall_time_seconds": 4.509999996571423e-05
           },
           "c11": {
             "gate": "concordance",
-            "passed": false,
+            "passed": true,
             "values": {
               "property": "c11",
               "values_by_model": {
-                "chgnet": 38.96169946694107,
-                "mace-mp-small": 64.91273631962396,
-                "mace-mp-medium": 67.96664858213958,
-                "mace-mpa-0-medium": 78.06296617161013
+                "chgnet": 38.95797656951867,
+                "mace-mp-small": 64.91273631962203,
+                "mace-mpa-0-medium": 78.0629661716105,
+                "mace-mp-medium": 67.96664858213815
               },
-              "dispersion": 0.5885226927198112,
-              "level": "refuse"
+              "dispersion": 0.5885787269560702,
+              "level": "flag"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "c11: cross-model dispersion 0.589 -> refuse (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 4.660000013245735e-05
+            "detail": "c11: cross-model dispersion 0.589 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.46000000490676e-05
           },
           "c12": {
             "gate": "concordance",
@@ -893,45 +1274,45 @@
             "values": {
               "property": "c12",
               "values_by_model": {
-                "chgnet": 15.390122211981922,
-                "mace-mp-small": 18.899296932548058,
-                "mace-mp-medium": 17.7007920328538,
-                "mace-mpa-0-medium": 18.45996426782391
+                "chgnet": 15.388740580586308,
+                "mace-mp-small": 18.89929693254626,
+                "mace-mpa-0-medium": 18.459964267824798,
+                "mace-mp-medium": 17.700792032854423
               },
-              "dispersion": 0.19408746273928837,
+              "dispersion": 0.1941638788065952,
               "level": "pass"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "c12: cross-model dispersion 0.194 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 4.309999894758221e-05
+            "detail": "c12: cross-model dispersion 0.194 -> pass (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 4.3500000060703314e-05
           },
           "c44": {
             "gate": "concordance",
-            "passed": false,
+            "passed": true,
             "values": {
               "property": "c44",
               "values_by_model": {
-                "chgnet": 16.844612164991798,
-                "mace-mp-small": 29.810508733465376,
-                "mace-mp-medium": 23.9122235353136,
-                "mace-mpa-0-medium": 34.802698119126084
+                "chgnet": 16.845006650364965,
+                "mace-mp-small": 29.810508733465568,
+                "mace-mpa-0-medium": 34.802698119127655,
+                "mace-mp-medium": 23.91222353531351
               },
-              "dispersion": 0.6685470077839153,
-              "level": "refuse"
+              "dispersion": 0.6685323218081664,
+              "level": "pass"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "c44: cross-model dispersion 0.669 -> refuse (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 4.2800000301213004e-05
+            "detail": "c44: cross-model dispersion 0.669 -> pass (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 5.400000009103678e-05
           }
         },
         "dynamic_return": {
@@ -943,10 +1324,10 @@
             "seed": 42,
             "fmax": 0.02,
             "max_steps": 1000,
-            "e_reference_ev": -381.4932196504412,
-            "e_relaxed_ev": -381.4919540682109,
+            "e_reference_ev": -381.49321965044106,
+            "e_relaxed_ev": -381.49195406821076,
             "energy_delta_ev_per_atom": 1.3183148232324507e-05,
-            "max_displacement_a": 0.02231512884136014,
+            "max_displacement_a": 0.022315128841360134,
             "n_relax_steps": 39
           },
           "criteria": {
@@ -955,11 +1336,11 @@
             "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
           },
           "detail": "rattled structure returned to the original minimum in 39 steps. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
-          "wall_time_seconds": 9.36336080000001
+          "wall_time_seconds": 9.09091890000002
         }
       },
-      "wall_time_seconds": 31.297638500001995,
-      "overall_verdict": "REFUSED"
+      "wall_time_seconds": 29.909151200000224,
+      "overall_verdict": "FLAGGED"
     },
     "LiS_rocksalt": {
       "role": "speculative subject: unproven 1:1 Li-S composition",
@@ -968,24 +1349,24 @@
       "per_model": {
         "chgnet": {
           "properties": {
-            "a0": 4.958751794579244,
-            "b0": 52.989989198611156,
-            "c11": 120.00147502827919,
-            "c12": 64.66381528373026,
-            "c44": -7.062663049783193
+            "a0": 4.958756495893281,
+            "b0": 52.998350998557726,
+            "c11": 119.92055236917679,
+            "c12": 64.58802326595284,
+            "c44": -7.0646310468487306
           },
-          "b0_from_cij_gpa": 83.10970186524656,
-          "b0_elastic_vs_eos_rel_diff": 0.5684038272539379,
+          "b0_from_cij_gpa": 83.03219963369416,
+          "b0_elastic_vs_eos_rel_diff": 0.5666940210263102,
           "blocks": {
             "lattice": {
               "property": "lattice",
               "values": {
-                "a0_angstrom": 4.958751794579244,
-                "e0_ev_per_atom": -3.830210549935377,
-                "v0_a3_per_atom": 15.241479453738384,
-                "b0_gpa": 54.35145624991886,
-                "b0_prime": 21.845984281427008,
-                "cohesive_energy_ev_per_atom": 2.9538556171503427,
+                "a0_angstrom": 4.958756495893281,
+                "e0_ev_per_atom": -3.83021055345197,
+                "v0_a3_per_atom": 15.24152280439529,
+                "b0_gpa": 54.350059551889125,
+                "b0_prime": 21.838846164398564,
+                "cohesive_energy_ev_per_atom": 2.953855620666936,
                 "isolated_atom_energies_ev": [
                   [
                     "Li",
@@ -1016,41 +1397,41 @@
                 "n_points": 11,
                 "max_recenter": 8
               },
-              "wall_time_seconds": 4.156000300001324
+              "wall_time_seconds": 3.6190669999999727
             },
             "eos": {
               "property": "eos",
               "values": {
-                "b0_gpa": 52.989989198611156,
-                "b0_prime": 20.55765880765079,
-                "v0_a3_per_atom": 15.249753481609996,
-                "e0_ev": -30.641407553973092,
-                "rms_residual_ev": 0.002697774242758421,
+                "b0_gpa": 52.998350998557726,
+                "b0_prime": 20.5737441005875,
+                "v0_a3_per_atom": 15.24964667541833,
+                "e0_ev": -30.641409973883682,
+                "rms_residual_ev": 0.0026964000846222674,
                 "volumes_a3": [
-                  114.61592549211261,
-                  116.07910751967152,
-                  117.54228954723035,
-                  119.0054715747893,
-                  120.46865360234807,
-                  121.93183562990698,
-                  123.39501765746593,
-                  124.85819968502477,
-                  126.32138171258363,
-                  127.78456374014253,
-                  129.24774576770142
+                  114.61625148905249,
+                  116.07943767827447,
+                  117.54262386749647,
+                  119.00581005671837,
+                  120.46899624594032,
+                  121.93218243516229,
+                  123.39536862438419,
+                  124.85855481360622,
+                  126.32174100282813,
+                  127.78492719204998,
+                  129.24811338127193
                 ],
                 "energies_ev": [
-                  -30.533611297607422,
-                  -30.5716495513916,
-                  -30.60396385192871,
-                  -30.626840591430664,
+                  -30.53360939025879,
+                  -30.571657180786133,
+                  -30.60397720336914,
+                  -30.62685203552246,
                   -30.642589569091797,
-                  -30.644954681396484,
-                  -30.637317657470703,
-                  -30.62931251525879,
-                  -30.620431900024414,
-                  -30.610692977905273,
-                  -30.597881317138672
+                  -30.64495849609375,
+                  -30.63732147216797,
+                  -30.629314422607422,
+                  -30.62041473388672,
+                  -30.61069107055664,
+                  -30.59788703918457
                 ],
                 "n_atoms_cell": 8
               },
@@ -1067,19 +1448,19 @@
                 "property": "eos",
                 "formula": "LiS",
                 "structure_type": "rocksalt",
-                "a0_angstrom": 4.958751794579244,
+                "a0_angstrom": 4.958756495893281,
                 "volume_span": 0.06,
                 "n_points": 11
               },
-              "wall_time_seconds": 0.8244655000016792
+              "wall_time_seconds": 0.901987399999939
             },
             "elastic": {
               "property": "cubic_elastic",
               "values": {
-                "c11_gpa": 120.00147502827919,
-                "c12_gpa": 64.66381528373026,
-                "c44_gpa": -7.062663049783193,
-                "bulk_modulus_from_cij_gpa": 83.10970186524656,
+                "c11_gpa": 119.92055236917679,
+                "c12_gpa": 64.58802326595284,
+                "c44_gpa": -7.0646310468487306,
+                "bulk_modulus_from_cij_gpa": 83.03219963369416,
                 "n_atoms_cell": 8,
                 "n_relax_steps_total": 0
               },
@@ -1093,7 +1474,7 @@
                 "property": "cubic_elastic",
                 "formula": "LiS",
                 "structure_type": "rocksalt",
-                "a0_angstrom": 4.958751794579244,
+                "a0_angstrom": 4.958756495893281,
                 "delta": 0.005,
                 "relax_internal": true,
                 "fmax": 0.01,
@@ -1101,7 +1482,7 @@
                 "max_steps": 500,
                 "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
               },
-              "wall_time_seconds": 0.29858299999978044
+              "wall_time_seconds": 0.34169889999998304
             }
           },
           "gates": {
@@ -1109,11 +1490,11 @@
               "gate": "born_stability_cubic",
               "passed": false,
               "values": {
-                "c11_gpa": 120.00147502827919,
-                "c12_gpa": 64.66381528373026,
-                "c44_gpa": -7.062663049783193,
-                "c11_minus_c12_gpa": 55.33765974454893,
-                "c11_plus_2c12_gpa": 249.3291055957397,
+                "c11_gpa": 119.92055236917679,
+                "c12_gpa": 64.58802326595284,
+                "c44_gpa": -7.0646310468487306,
+                "c11_minus_c12_gpa": 55.33252910322395,
+                "c11_plus_2c12_gpa": 249.09659890108247,
                 "checks": {
                   "C11 - C12 > 0": true,
                   "C11 + 2*C12 > 0": true,
@@ -1129,35 +1510,35 @@
                 "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
               },
               "detail": "violated: C44 > 0",
-              "wall_time_seconds": 1.089999932446517e-05
+              "wall_time_seconds": 1.0100000054080738e-05
             }
           },
           "born_passed": false,
           "wall_time_seconds": {
-            "lattice": 4.156000300001324,
-            "eos": 0.8244655000016792,
-            "elastic_plus_born": 0.2985938999991049
+            "lattice": 3.6190669999999727,
+            "eos": 0.901987399999939,
+            "elastic_plus_born": 0.3417090000000371
           }
         },
         "mace-mp-small": {
           "properties": {
-            "a0": 5.058154264528567,
-            "b0": 49.21261367717918,
-            "c11": 59.90942425286117,
-            "c12": 44.20898004425697,
-            "c44": -18.24972924196313
+            "a0": 5.058154264528555,
+            "b0": 49.2126136771831,
+            "c11": 59.90942425286782,
+            "c12": 44.208980044262354,
+            "c44": -18.249729241963884
           },
-          "b0_from_cij_gpa": 49.442461447125034,
-          "b0_elastic_vs_eos_rel_diff": 0.004670505237815496,
+          "b0_from_cij_gpa": 49.442461447130846,
+          "b0_elastic_vs_eos_rel_diff": 0.0046705052378535295,
           "blocks": {
             "lattice": {
               "property": "lattice",
               "values": {
-                "a0_angstrom": 5.058154264528567,
+                "a0_angstrom": 5.058154264528555,
                 "e0_ev_per_atom": -3.5652959416163728,
-                "v0_a3_per_atom": 16.176561911233435,
-                "b0_gpa": 49.212502803735816,
-                "b0_prime": 2.560818510562009,
+                "v0_a3_per_atom": 16.17656191123332,
+                "b0_gpa": 49.212502803730565,
+                "b0_prime": 2.5608185105618126,
                 "cohesive_energy_ev_per_atom": 2.6108324983237328,
                 "isolated_atom_energies_ev": [
                   [
@@ -1189,40 +1570,40 @@
                 "n_points": 11,
                 "max_recenter": 8
               },
-              "wall_time_seconds": 2.9552887999998347
+              "wall_time_seconds": 2.813947800000051
             },
             "eos": {
               "property": "eos",
               "values": {
-                "b0_gpa": 49.21261367717918,
-                "b0_prime": 2.560090438907645,
-                "v0_a3_per_atom": 16.17656542556915,
-                "e0_ev": -28.522367561551732,
-                "rms_residual_ev": 3.354726742405774e-05,
+                "b0_gpa": 49.2126136771831,
+                "b0_prime": 2.5600904388965233,
+                "v0_a3_per_atom": 16.176565425569233,
+                "e0_ev": -28.522367561551736,
+                "rms_residual_ev": 3.354726742306485e-05,
                 "volumes_a3": [
-                  121.64774557247542,
-                  123.20069551595387,
-                  124.7536454594322,
-                  126.30659540291069,
-                  127.8595453463891,
-                  129.41249528986742,
-                  130.9654452333459,
-                  132.51839517682427,
-                  134.07134512030277,
-                  135.62429506378106,
-                  137.1772450072595
+                  121.64774557247455,
+                  123.200695515953,
+                  124.75364545943133,
+                  126.30659540290968,
+                  127.85954534638807,
+                  129.41249528986648,
+                  130.96544523334495,
+                  132.51839517682333,
+                  134.0713451203017,
+                  135.6242950637801,
+                  137.1772450072585
                 ],
                 "energies_ev": [
-                  -28.445498441653722,
-                  -28.47382070674823,
-                  -28.495438406434566,
-                  -28.510583967907955,
-                  -28.519493413270638,
+                  -28.44549844165371,
+                  -28.473820706748207,
+                  -28.49543840643455,
+                  -28.510583967907948,
+                  -28.51949341327063,
                   -28.522407009395895,
-                  -28.519569262836782,
+                  -28.51956926283678,
                   -28.51122846551787,
-                  -28.497635958674916,
-                  -28.479045244881224,
+                  -28.497635958674934,
+                  -28.479045244881238,
                   -28.455711044276047
                 ],
                 "n_atoms_cell": 8
@@ -1240,19 +1621,19 @@
                 "property": "eos",
                 "formula": "LiS",
                 "structure_type": "rocksalt",
-                "a0_angstrom": 5.058154264528567,
+                "a0_angstrom": 5.058154264528555,
                 "volume_span": 0.06,
                 "n_points": 11
               },
-              "wall_time_seconds": 0.4273714999999356
+              "wall_time_seconds": 0.4367664999999761
             },
             "elastic": {
               "property": "cubic_elastic",
               "values": {
-                "c11_gpa": 59.90942425286117,
-                "c12_gpa": 44.20898004425697,
-                "c44_gpa": -18.24972924196313,
-                "bulk_modulus_from_cij_gpa": 49.442461447125034,
+                "c11_gpa": 59.90942425286782,
+                "c12_gpa": 44.208980044262354,
+                "c44_gpa": -18.249729241963884,
+                "bulk_modulus_from_cij_gpa": 49.442461447130846,
                 "n_atoms_cell": 8,
                 "n_relax_steps_total": 0
               },
@@ -1266,7 +1647,7 @@
                 "property": "cubic_elastic",
                 "formula": "LiS",
                 "structure_type": "rocksalt",
-                "a0_angstrom": 5.058154264528567,
+                "a0_angstrom": 5.058154264528555,
                 "delta": 0.005,
                 "relax_internal": true,
                 "fmax": 0.01,
@@ -1274,7 +1655,7 @@
                 "max_steps": 500,
                 "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
               },
-              "wall_time_seconds": 0.1570293999993737
+              "wall_time_seconds": 0.15286330000003545
             }
           },
           "gates": {
@@ -1282,11 +1663,11 @@
               "gate": "born_stability_cubic",
               "passed": false,
               "values": {
-                "c11_gpa": 59.90942425286117,
-                "c12_gpa": 44.20898004425697,
-                "c44_gpa": -18.24972924196313,
-                "c11_minus_c12_gpa": 15.700444208604203,
-                "c11_plus_2c12_gpa": 148.3273843413751,
+                "c11_gpa": 59.90942425286782,
+                "c12_gpa": 44.208980044262354,
+                "c44_gpa": -18.249729241963884,
+                "c11_minus_c12_gpa": 15.700444208605468,
+                "c11_plus_2c12_gpa": 148.32738434139253,
                 "checks": {
                   "C11 - C12 > 0": true,
                   "C11 + 2*C12 > 0": true,
@@ -1302,209 +1683,36 @@
                 "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
               },
               "detail": "violated: C44 > 0",
-              "wall_time_seconds": 8.299999535665847e-06
+              "wall_time_seconds": 7.200000027296483e-06
             }
           },
           "born_passed": false,
           "wall_time_seconds": {
-            "lattice": 2.9552887999998347,
-            "eos": 0.4273714999999356,
-            "elastic_plus_born": 0.15703769999890937
-          }
-        },
-        "mace-mp-medium": {
-          "properties": {
-            "a0": 5.022977647037995,
-            "b0": 53.23671937376038,
-            "c11": 91.5372384747592,
-            "c12": 34.46671644286416,
-            "c44": -14.342442040694493
-          },
-          "b0_from_cij_gpa": 53.490223786829176,
-          "b0_elastic_vs_eos_rel_diff": 0.00476183386299617,
-          "blocks": {
-            "lattice": {
-              "property": "lattice",
-              "values": {
-                "a0_angstrom": 5.022977647037995,
-                "e0_ev_per_atom": -3.5519015428152247,
-                "v0_a3_per_atom": 15.841406905420126,
-                "b0_gpa": 53.235608889925395,
-                "b0_prime": 3.5548840081854713,
-                "cohesive_energy_ev_per_atom": 2.504398138815703,
-                "isolated_atom_energies_ev": [
-                  [
-                    "Li",
-                    -0.9214384760562093
-                  ],
-                  [
-                    "S",
-                    -1.1735683319428336
-                  ]
-                ],
-                "n_atoms_cell": 8
-              },
-              "units": {
-                "a0_angstrom": "Angstrom",
-                "e0_ev_per_atom": "eV/atom",
-                "v0_a3_per_atom": "A^3/atom",
-                "b0_gpa": "GPa",
-                "b0_prime": "dimensionless",
-                "cohesive_energy_ev_per_atom": "eV/atom",
-                "isolated_atom_energies_ev": "eV"
-              },
-              "canonical_inputs": {
-                "property": "lattice",
-                "formula": "LiS",
-                "structure_type": "rocksalt",
-                "initial_a_angstrom": 4.66,
-                "volume_span": 0.06,
-                "n_points": 11,
-                "max_recenter": 8
-              },
-              "wall_time_seconds": 2.8391898999998375
-            },
-            "eos": {
-              "property": "eos",
-              "values": {
-                "b0_gpa": 53.23671937376038,
-                "b0_prime": 3.551797351087309,
-                "v0_a3_per_atom": 15.841421046254831,
-                "e0_ev": -28.415212680945697,
-                "rms_residual_ev": 3.505796707020526e-05,
-                "volumes_a3": [
-                  119.12737992875937,
-                  120.64815499167963,
-                  122.1689300545999,
-                  123.68970511752029,
-                  125.21048018044063,
-                  126.73125524336099,
-                  128.25203030628126,
-                  129.77280536920168,
-                  131.29358043212198,
-                  132.81435549504232,
-                  134.33513055796254
-                ],
-                "energies_ev": [
-                  -28.332013326757224,
-                  -28.362933905181315,
-                  -28.386331633272846,
-                  -28.40261353956585,
-                  -28.412142747961376,
-                  -28.415254482555582,
-                  -28.412271088173846,
-                  -28.40351368416775,
-                  -28.389309152301784,
-                  -28.369992496383702,
-                  -28.34590564637677
-                ],
-                "n_atoms_cell": 8
-              },
-              "units": {
-                "b0_gpa": "GPa",
-                "b0_prime": "dimensionless",
-                "v0_a3_per_atom": "A^3/atom",
-                "e0_ev": "eV",
-                "rms_residual_ev": "eV",
-                "volumes_a3": "A^3",
-                "energies_ev": "eV"
-              },
-              "canonical_inputs": {
-                "property": "eos",
-                "formula": "LiS",
-                "structure_type": "rocksalt",
-                "a0_angstrom": 5.022977647037995,
-                "volume_span": 0.06,
-                "n_points": 11
-              },
-              "wall_time_seconds": 0.5513248999995994
-            },
-            "elastic": {
-              "property": "cubic_elastic",
-              "values": {
-                "c11_gpa": 91.5372384747592,
-                "c12_gpa": 34.46671644286416,
-                "c44_gpa": -14.342442040694493,
-                "bulk_modulus_from_cij_gpa": 53.490223786829176,
-                "n_atoms_cell": 8,
-                "n_relax_steps_total": 0
-              },
-              "units": {
-                "c11_gpa": "GPa",
-                "c12_gpa": "GPa",
-                "c44_gpa": "GPa",
-                "bulk_modulus_from_cij_gpa": "GPa"
-              },
-              "canonical_inputs": {
-                "property": "cubic_elastic",
-                "formula": "LiS",
-                "structure_type": "rocksalt",
-                "a0_angstrom": 5.022977647037995,
-                "delta": 0.005,
-                "relax_internal": true,
-                "fmax": 0.01,
-                "optimizer": "FIRE",
-                "max_steps": 500,
-                "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
-              },
-              "wall_time_seconds": 0.21169610000106331
-            }
-          },
-          "gates": {
-            "born": {
-              "gate": "born_stability_cubic",
-              "passed": false,
-              "values": {
-                "c11_gpa": 91.5372384747592,
-                "c12_gpa": 34.46671644286416,
-                "c44_gpa": -14.342442040694493,
-                "c11_minus_c12_gpa": 57.070522031895045,
-                "c11_plus_2c12_gpa": 160.47067136048753,
-                "checks": {
-                  "C11 - C12 > 0": true,
-                  "C11 + 2*C12 > 0": true,
-                  "C44 > 0": false
-                }
-              },
-              "criteria": {
-                "conditions": [
-                  "C11 - C12 > 0",
-                  "C11 + 2*C12 > 0",
-                  "C44 > 0"
-                ],
-                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
-              },
-              "detail": "violated: C44 > 0",
-              "wall_time_seconds": 6.800000846851617e-06
-            }
-          },
-          "born_passed": false,
-          "wall_time_seconds": {
-            "lattice": 2.8391898999998375,
-            "eos": 0.5513248999995994,
-            "elastic_plus_born": 0.21170290000191017
+            "lattice": 2.813947800000051,
+            "eos": 0.4367664999999761,
+            "elastic_plus_born": 0.15287050000006275
           }
         },
         "mace-mpa-0-medium": {
           "properties": {
-            "a0": 4.959014662754608,
-            "b0": 40.11803698620576,
-            "c11": 89.4416324876773,
-            "c12": 15.806401339149469,
-            "c44": -38.4316901227919
+            "a0": 4.959014662754565,
+            "b0": 40.11803698615745,
+            "c11": 89.44163248767735,
+            "c12": 15.806401339141537,
+            "c44": -38.43169012279823
           },
-          "b0_from_cij_gpa": 40.35147838865874,
-          "b0_elastic_vs_eos_rel_diff": 0.005818864031987629,
+          "b0_from_cij_gpa": 40.351478388653476,
+          "b0_elastic_vs_eos_rel_diff": 0.005818864033067587,
           "blocks": {
             "lattice": {
               "property": "lattice",
               "values": {
-                "a0_angstrom": 4.959014662754608,
-                "e0_ev_per_atom": -3.5223737643088855,
-                "v0_a3_per_atom": 15.24390347844378,
-                "b0_gpa": 40.120500480107715,
-                "b0_prime": 4.035691758632465,
-                "cohesive_energy_ev_per_atom": 2.9277962943088855,
+                "a0_angstrom": 4.959014662754565,
+                "e0_ev_per_atom": -3.522373764308888,
+                "v0_a3_per_atom": 15.243903478443379,
+                "b0_gpa": 40.120500480132925,
+                "b0_prime": 4.035691758678416,
+                "cohesive_energy_ev_per_atom": 2.927796294308888,
                 "isolated_atom_energies_ev": [
                   [
                     "Li",
@@ -1535,41 +1743,41 @@
                 "n_points": 11,
                 "max_recenter": 8
               },
-              "wall_time_seconds": 3.4947228000000905
+              "wall_time_seconds": 2.9998615999999174
             },
             "eos": {
               "property": "eos",
               "values": {
-                "b0_gpa": 40.11803698620576,
-                "b0_prime": 4.017957455828957,
-                "v0_a3_per_atom": 15.243986544360407,
-                "e0_ev": -28.178989314661948,
-                "rms_residual_ev": 8.396350728097086e-05,
+                "b0_gpa": 40.11803698615745,
+                "b0_prime": 4.017957455725168,
+                "v0_a3_per_atom": 15.243986544360792,
+                "e0_ev": -28.17898931466193,
+                "rms_residual_ev": 8.39635072943256e-05,
                 "volumes_a3": [
-                  114.63415415789721,
-                  116.09756889182775,
-                  117.5609836257584,
-                  119.02439835968906,
-                  120.48781309361965,
-                  121.95122782755028,
-                  123.41464256148085,
-                  124.87805729541141,
-                  126.3414720293421,
-                  127.80488676327272,
-                  129.26830149720323
+                  114.63415415789426,
+                  116.09756889182476,
+                  117.56098362575537,
+                  119.02439835968588,
+                  120.48781309361644,
+                  121.95122782754703,
+                  123.41464256147766,
+                  124.8780572954082,
+                  126.34147202933873,
+                  127.80488676326931,
+                  129.26830149719976
                 ],
                 "energies_ev": [
-                  -28.118148041680698,
-                  -28.140602026929347,
-                  -28.15789452509044,
-                  -28.169883125945926,
-                  -28.17682659750314,
-                  -28.179047193332494,
-                  -28.1768439159901,
-                  -28.17049847107082,
-                  -28.160277896100084,
-                  -28.146435188893456,
-                  -28.129209446112498
+                  -28.118148041680787,
+                  -28.140602026929354,
+                  -28.15789452509035,
+                  -28.169883125945894,
+                  -28.17682659750313,
+                  -28.1790471933325,
+                  -28.17684391599012,
+                  -28.170498471070832,
+                  -28.1602778961001,
+                  -28.146435188893488,
+                  -28.129209446112554
                 ],
                 "n_atoms_cell": 8
               },
@@ -1586,19 +1794,19 @@
                 "property": "eos",
                 "formula": "LiS",
                 "structure_type": "rocksalt",
-                "a0_angstrom": 4.959014662754608,
+                "a0_angstrom": 4.959014662754565,
                 "volume_span": 0.06,
                 "n_points": 11
               },
-              "wall_time_seconds": 0.6257686999997532
+              "wall_time_seconds": 0.5863924000000225
             },
             "elastic": {
               "property": "cubic_elastic",
               "values": {
-                "c11_gpa": 89.4416324876773,
-                "c12_gpa": 15.806401339149469,
-                "c44_gpa": -38.4316901227919,
-                "bulk_modulus_from_cij_gpa": 40.35147838865874,
+                "c11_gpa": 89.44163248767735,
+                "c12_gpa": 15.806401339141537,
+                "c44_gpa": -38.43169012279823,
+                "bulk_modulus_from_cij_gpa": 40.351478388653476,
                 "n_atoms_cell": 8,
                 "n_relax_steps_total": 0
               },
@@ -1612,7 +1820,7 @@
                 "property": "cubic_elastic",
                 "formula": "LiS",
                 "structure_type": "rocksalt",
-                "a0_angstrom": 4.959014662754608,
+                "a0_angstrom": 4.959014662754565,
                 "delta": 0.005,
                 "relax_internal": true,
                 "fmax": 0.01,
@@ -1620,7 +1828,7 @@
                 "max_steps": 500,
                 "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
               },
-              "wall_time_seconds": 0.24775009999939357
+              "wall_time_seconds": 0.20690200000001369
             }
           },
           "gates": {
@@ -1628,11 +1836,11 @@
               "gate": "born_stability_cubic",
               "passed": false,
               "values": {
-                "c11_gpa": 89.4416324876773,
-                "c12_gpa": 15.806401339149469,
-                "c44_gpa": -38.4316901227919,
-                "c11_minus_c12_gpa": 73.63523114852782,
-                "c11_plus_2c12_gpa": 121.05443516597623,
+                "c11_gpa": 89.44163248767735,
+                "c12_gpa": 15.806401339141537,
+                "c44_gpa": -38.43169012279823,
+                "c11_minus_c12_gpa": 73.63523114853581,
+                "c11_plus_2c12_gpa": 121.05443516596043,
                 "checks": {
                   "C11 - C12 > 0": true,
                   "C11 + 2*C12 > 0": true,
@@ -1648,14 +1856,187 @@
                 "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
               },
               "detail": "violated: C44 > 0",
-              "wall_time_seconds": 9.20000093174167e-06
+              "wall_time_seconds": 6.5000000404324965e-06
             }
           },
           "born_passed": false,
           "wall_time_seconds": {
-            "lattice": 3.4947228000000905,
-            "eos": 0.6257686999997532,
-            "elastic_plus_born": 0.2477593000003253
+            "lattice": 2.9998615999999174,
+            "eos": 0.5863924000000225,
+            "elastic_plus_born": 0.20690850000005412
+          }
+        },
+        "mace-mp-medium": {
+          "properties": {
+            "a0": 5.022977647037994,
+            "b0": 53.23671937374439,
+            "c11": 91.53723847475955,
+            "c12": 34.466716442862484,
+            "c44": -14.342442040694406
+          },
+          "b0_from_cij_gpa": 53.490223786828174,
+          "b0_elastic_vs_eos_rel_diff": 0.004761833863279085,
+          "blocks": {
+            "lattice": {
+              "property": "lattice",
+              "values": {
+                "a0_angstrom": 5.022977647037994,
+                "e0_ev_per_atom": -3.551901542815225,
+                "v0_a3_per_atom": 15.841406905420117,
+                "b0_gpa": 53.23560888992267,
+                "b0_prime": 3.55488400818731,
+                "cohesive_energy_ev_per_atom": 2.504398138815704,
+                "isolated_atom_energies_ev": [
+                  [
+                    "Li",
+                    -0.9214384760562093
+                  ],
+                  [
+                    "S",
+                    -1.1735683319428336
+                  ]
+                ],
+                "n_atoms_cell": 8
+              },
+              "units": {
+                "a0_angstrom": "Angstrom",
+                "e0_ev_per_atom": "eV/atom",
+                "v0_a3_per_atom": "A^3/atom",
+                "b0_gpa": "GPa",
+                "b0_prime": "dimensionless",
+                "cohesive_energy_ev_per_atom": "eV/atom",
+                "isolated_atom_energies_ev": "eV"
+              },
+              "canonical_inputs": {
+                "property": "lattice",
+                "formula": "LiS",
+                "structure_type": "rocksalt",
+                "initial_a_angstrom": 4.66,
+                "volume_span": 0.06,
+                "n_points": 11,
+                "max_recenter": 8
+              },
+              "wall_time_seconds": 2.856979499999966
+            },
+            "eos": {
+              "property": "eos",
+              "values": {
+                "b0_gpa": 53.23671937374439,
+                "b0_prime": 3.5517973511092293,
+                "v0_a3_per_atom": 15.841421046254789,
+                "e0_ev": -28.415212680945704,
+                "rms_residual_ev": 3.505796707398596e-05,
+                "volumes_a3": [
+                  119.12737992875927,
+                  120.64815499167953,
+                  122.1689300545999,
+                  123.68970511752019,
+                  125.21048018044063,
+                  126.73125524336088,
+                  128.25203030628126,
+                  129.77280536920156,
+                  131.29358043212187,
+                  132.8143554950422,
+                  134.33513055796254
+                ],
+                "energies_ev": [
+                  -28.33201332675722,
+                  -28.3629339051813,
+                  -28.386331633272846,
+                  -28.40261353956586,
+                  -28.41214274796139,
+                  -28.41525448255559,
+                  -28.412271088173846,
+                  -28.403513684167745,
+                  -28.38930915230177,
+                  -28.36999249638371,
+                  -28.34590564637678
+                ],
+                "n_atoms_cell": 8
+              },
+              "units": {
+                "b0_gpa": "GPa",
+                "b0_prime": "dimensionless",
+                "v0_a3_per_atom": "A^3/atom",
+                "e0_ev": "eV",
+                "rms_residual_ev": "eV",
+                "volumes_a3": "A^3",
+                "energies_ev": "eV"
+              },
+              "canonical_inputs": {
+                "property": "eos",
+                "formula": "LiS",
+                "structure_type": "rocksalt",
+                "a0_angstrom": 5.022977647037994,
+                "volume_span": 0.06,
+                "n_points": 11
+              },
+              "wall_time_seconds": 0.5419840999999224
+            },
+            "elastic": {
+              "property": "cubic_elastic",
+              "values": {
+                "c11_gpa": 91.53723847475955,
+                "c12_gpa": 34.466716442862484,
+                "c44_gpa": -14.342442040694406,
+                "bulk_modulus_from_cij_gpa": 53.490223786828174,
+                "n_atoms_cell": 8,
+                "n_relax_steps_total": 0
+              },
+              "units": {
+                "c11_gpa": "GPa",
+                "c12_gpa": "GPa",
+                "c44_gpa": "GPa",
+                "bulk_modulus_from_cij_gpa": "GPa"
+              },
+              "canonical_inputs": {
+                "property": "cubic_elastic",
+                "formula": "LiS",
+                "structure_type": "rocksalt",
+                "a0_angstrom": 5.022977647037994,
+                "delta": 0.005,
+                "relax_internal": true,
+                "fmax": 0.01,
+                "optimizer": "FIRE",
+                "max_steps": 500,
+                "voigt_convention": "ase_voigt(xx,yy,zz,yz,xz,xy); tensor strain applied as cell' = cell0 @ (I + eps); sigma_yz = 2*C44*eps_yz (engineering shear)"
+              },
+              "wall_time_seconds": 0.19418450000000576
+            }
+          },
+          "gates": {
+            "born": {
+              "gate": "born_stability_cubic",
+              "passed": false,
+              "values": {
+                "c11_gpa": 91.53723847475955,
+                "c12_gpa": 34.466716442862484,
+                "c44_gpa": -14.342442040694406,
+                "c11_minus_c12_gpa": 57.07052203189706,
+                "c11_plus_2c12_gpa": 160.47067136048452,
+                "checks": {
+                  "C11 - C12 > 0": true,
+                  "C11 + 2*C12 > 0": true,
+                  "C44 > 0": false
+                }
+              },
+              "criteria": {
+                "conditions": [
+                  "C11 - C12 > 0",
+                  "C11 + 2*C12 > 0",
+                  "C44 > 0"
+                ],
+                "provenance": "Necessary mechanical-stability conditions for a cubic lattice under zero external stress: C11 - C12 > 0, C11 + 2*C12 > 0, C44 > 0. M. Born & K. Huang, Dynamical Theory of Crystal Lattices (1954); F. Mouhat & F.-X. Coudert, Phys. Rev. B 90, 224104 (2014)."
+              },
+              "detail": "violated: C44 > 0",
+              "wall_time_seconds": 6.800000051043753e-06
+            }
+          },
+          "born_passed": false,
+          "wall_time_seconds": {
+            "lattice": 2.856979499999966,
+            "eos": 0.5419840999999224,
+            "elastic_plus_born": 0.1941913000000568
           }
         }
       },
@@ -1663,26 +2044,26 @@
         "concordance": {
           "a0": {
             "gate": "concordance",
-            "passed": true,
+            "passed": false,
             "values": {
               "property": "a0",
               "values_by_model": {
-                "chgnet": 4.958751794579244,
-                "mace-mp-small": 5.058154264528567,
-                "mace-mp-medium": 5.022977647037995,
-                "mace-mpa-0-medium": 4.959014662754608
+                "chgnet": 4.958756495893281,
+                "mace-mp-small": 5.058154264528555,
+                "mace-mpa-0-medium": 4.959014662754565,
+                "mace-mp-medium": 5.022977647037994
               },
-              "dispersion": 0.01991635875171071,
-              "level": "pass"
+              "dispersion": 0.019915416792650086,
+              "level": "refuse"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.006006422888918611,
+              "refuse_at": 0.008634563966058181,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of a0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "a0: cross-model dispersion 0.020 -> pass (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 6.0599999414989725e-05
+            "detail": "a0: cross-model dispersion 0.020 -> refuse (flag >= 0.006 = p75, refuse >= 0.009 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.440000000409782e-05
           },
           "b0": {
             "gate": "concordance",
@@ -1690,45 +2071,45 @@
             "values": {
               "property": "b0",
               "values_by_model": {
-                "chgnet": 52.989989198611156,
-                "mace-mp-small": 49.21261367717918,
-                "mace-mp-medium": 53.23671937376038,
-                "mace-mpa-0-medium": 40.11803698620576
+                "chgnet": 52.998350998557726,
+                "mace-mp-small": 49.2126136771831,
+                "mace-mpa-0-medium": 40.11803698615745,
+                "mace-mp-medium": 53.23671937374439
               },
-              "dispersion": 0.25671914449181144,
+              "dispersion": 0.256698142497829,
               "level": "flag"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.249029206968999,
+              "refuse_at": 0.3848305703956026,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
             "detail": "b0: cross-model dispersion 0.257 -> flag (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 5.400000009103678e-05
+            "wall_time_seconds": 4.16000000313943e-05
           },
           "c11": {
             "gate": "concordance",
-            "passed": false,
+            "passed": true,
             "values": {
               "property": "c11",
               "values_by_model": {
-                "chgnet": 120.00147502827919,
-                "mace-mp-small": 59.90942425286117,
-                "mace-mp-medium": 91.5372384747592,
-                "mace-mpa-0-medium": 89.4416324876773
+                "chgnet": 119.92055236917679,
+                "mace-mp-small": 59.90942425286782,
+                "mace-mpa-0-medium": 89.44163248767735,
+                "mace-mp-medium": 91.53723847475955
               },
-              "dispersion": 0.6640780822186758,
-              "level": "refuse"
+              "dispersion": 0.6631838047963575,
+              "level": "flag"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.48847912128769794,
+              "refuse_at": 1.2106858738357664,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C11 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "c11: cross-model dispersion 0.664 -> refuse (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 5.869999949936755e-05
+            "detail": "c11: cross-model dispersion 0.663 -> flag (flag >= 0.488 = p75, refuse >= 1.211 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.6000000022795575e-05
           },
           "c12": {
             "gate": "concordance",
@@ -1736,81 +2117,60 @@
             "values": {
               "property": "c12",
               "values_by_model": {
-                "chgnet": 64.66381528373026,
-                "mace-mp-small": 44.20898004425697,
-                "mace-mp-medium": 34.46671644286416,
-                "mace-mpa-0-medium": 15.806401339149469
+                "chgnet": 64.58802326595284,
+                "mace-mp-small": 44.208980044262354,
+                "mace-mpa-0-medium": 15.806401339141537,
+                "mace-mp-medium": 34.466716442862484
               },
-              "dispersion": 1.2419950791939551,
+              "dispersion": 1.2400683846451703,
               "level": "refuse"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 0.570372974454035,
+              "refuse_at": 1.0589924824856667,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C12 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "c12: cross-model dispersion 1.242 -> refuse (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 6.799999937356915e-05
+            "detail": "c12: cross-model dispersion 1.240 -> refuse (flag >= 0.570 = p75, refuse >= 1.059 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 3.360000005159236e-05
           },
           "c44": {
             "gate": "concordance",
-            "passed": false,
+            "passed": true,
             "values": {
               "property": "c44",
               "values_by_model": {
-                "chgnet": -7.062663049783193,
-                "mace-mp-small": -18.24972924196313,
-                "mace-mp-medium": -14.342442040694493,
-                "mace-mpa-0-medium": -38.4316901227919
+                "chgnet": -7.0646310468487306,
+                "mace-mp-small": -18.249729241963884,
+                "mace-mpa-0-medium": -38.43169012279823,
+                "mace-mp-medium": -14.342442040694406
               },
-              "dispersion": 1.9249424532633237,
-              "level": "refuse"
+              "dispersion": 1.9248216882463027,
+              "level": "flag"
             },
             "criteria": {
               "dispersion_metric": "(max - min) / |median| across models",
-              "flag_at": 0.24902948398685215,
-              "refuse_at": 0.38480984386785383,
-              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of B0 over 21 Y-matrix materials x 4 models in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound (schema lupine.mlip.calc_evidence.v1)"
+              "flag_at": 1.2220930218480712,
+              "refuse_at": 3.789181745622983,
+              "thresholds_source": "p75/p95 of the per-material cross-model relative dispersion (max-min)/|median| of C44 over 21 materials in C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/elastic_baseline (schema lupine.mlip.calc_evidence.v1)"
             },
-            "detail": "c44: cross-model dispersion 1.925 -> refuse (flag >= 0.249 = p75, refuse >= 0.385 = p95 of 21 baseline samples)",
-            "wall_time_seconds": 6.229999962670263e-05
+            "detail": "c44: cross-model dispersion 1.925 -> flag (flag >= 1.222 = p75, refuse >= 3.789 = p95 of 21 baseline samples)",
+            "wall_time_seconds": 2.779999999802385e-05
           }
         },
-        "dynamic_return": {
-          "gate": "dynamic_return",
-          "passed": false,
-          "values": {
-            "n_atoms": 64,
-            "rattle_amplitude_a": 0.05,
-            "seed": 42,
-            "fmax": 0.02,
-            "max_steps": 1000,
-            "e_reference_ev": -227.32203586044471,
-            "e_relaxed_ev": -249.1221992224995,
-            "energy_delta_ev_per_atom": -0.34062755253210586,
-            "max_displacement_a": 2.288999579417601,
-            "n_relax_steps": 271
-          },
-          "criteria": {
-            "abs_energy_return_ev_per_atom_max": 0.002,
-            "max_mic_displacement_a_max": 0.25,
-            "note": "Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability."
-          },
-          "detail": "rattled structure did NOT return: |dE| = 3.406e-01 eV/atom > 2.0e-03 (relaxed BELOW reference: original was not a minimum); max displacement 2.289 A > 0.25. Finite-rattle basin-return probe, NOT a phonon calculation: it can only detect instabilities commensurate with the supplied cell and reachable at the rattle amplitude; passing is necessary-but-not-sufficient evidence of local dynamical stability.",
-          "wall_time_seconds": 46.05531490000067
-        }
+        "dynamic_return_skipped": "early-stop: subject already REFUSED by Born failure (chgnet, mace-mp-small, mace-mpa-0-medium, mace-mp-medium); concordance refusal (a0, c12)"
       },
-      "wall_time_seconds": 62.84454110000297,
+      "wall_time_seconds": 15.652665599999978,
       "overall_verdict": "REFUSED"
     }
   },
   "notes": [
     "Born stability is exact physics (necessary conditions only); concordance thresholds are percentiles of our own measured baseline; no threshold in this report was invented.",
-    "Threshold transfer: the p75/p95 baseline is measured on B0 dispersions and applied to a0/B0/C11/C12/C44 alike. a0 disperses less than B0 (lenient there); shear constants typically disperse more (strict there). This is a documented proxy, not a per-property calibration.",
+    "Per-property thresholds (v2): each of a0/B0/C11/C12/C44 is gated by p75/p95 of its OWN measured cross-model dispersion baseline (the elastic-baseline sweep), replacing the v1 B0-proxy transfer. Within-family coupling (Cauchy relation, stability) remains; per-property calibration fixes the transfer error, it does not decouple the elastic family.",
+    "Gate order (early-stop): the dynamic-return probe (the most expensive gate) ran only for subjects not already REFUSED by measurement/Born/concordance; a refusal is final (no later gate can overturn it), so skipped probes change no verdict. Skips are recorded per subject.",
     "The dynamic-return gate is a finite-rattle basin-return probe, NOT a phonon calculation; instabilities incommensurate with the 2x2x2 supercell are invisible to it.",
-    "Thermodynamic (hull-level) gates are OUT OF SCOPE in this run: rocksalt LiS may be mechanically stable while remaining thermodynamically unstable against decomposition (e.g. to Li2S + S); deciding that requires the formation-energy lane.",
-    "Cubic symmetry of each relaxed subject is assumed by construction (both prototypes are cubic); the elastic probe measures the cubic C11/C12/C44 only."
+    "Thermodynamic (hull-level) gates are OUT OF SCOPE in this run: a mechanically stable subject (e.g. rocksalt LiS) may remain thermodynamically unstable against decomposition; deciding that requires the formation-energy lane.",
+    "Cubic symmetry of each relaxed subject is assumed by construction (all panel prototypes are cubic); the elastic probe measures the cubic C11/C12/C44 only."
   ],
-  "total_wall_time_seconds": 108.86331539999992
+  "total_wall_time_seconds": 55.02140869999994
 }

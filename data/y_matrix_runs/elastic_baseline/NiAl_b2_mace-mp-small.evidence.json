@@ -1,0 +1,65 @@
+{
+  "schema": "lupine.mlip.calc_evidence.v1",
+  "material": "NiAl",
+  "source": {
+    "model_id": "mace-mp-small",
+    "backend": "ase",
+    "device": "cuda",
+    "calculator_version": "mace-torch 0.3.16"
+  },
+  "properties": [
+    {
+      "name": "a0",
+      "value": 2.8840265421266955,
+      "unit": "Angstrom",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0",
+      "value": 176.2892045958677,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C11",
+      "value": 215.54332789083008,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C12",
+      "value": 157.1470559890208,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "C44",
+      "value": 87.78265147597843,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    },
+    {
+      "name": "B0_from_Cij",
+      "value": 176.61247995629057,
+      "unit": "GPa",
+      "reference_value": null,
+      "reference_source": null,
+      "tolerance": null
+    }
+  ],
+  "provenance": {
+    "inputs_sha256": "3249d2eaecd3eb375de5f0f2eaaceafed2b136663245a540aadc868e8cd0dac7",
+    "run_label": "elastic-baseline-2026-07-13",
+    "computed_at": "2026-07-13T13:06:21.600315Z"
+  }
+}
