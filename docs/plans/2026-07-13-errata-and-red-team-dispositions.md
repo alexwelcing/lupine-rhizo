@@ -129,3 +129,18 @@ licenses; the licenses, not the claims, are what Round 3 fixes.*
     the LOO calibration sets (3 cells diverge under the stricter reading;
     no verdict changes either way) — to be disambiguated verbatim in the
     Round-4 registration.
+
+14. **The NaCl Schottky anchor (2.83 eV) was wrong.** Derived as
+    2x(2.10-0.685) from an intrinsic activation no primary supports;
+    Dreyfus & Nowick, Phys. Rev. 126, 1367 (1962) directly publishes
+    h_S = 2.12+-0.07 eV (cation motion 0.796+-0.02, intrinsic 1.86+-0.03).
+    Found by the blinded primary-source audit (four of five anchors
+    verified exact: LiF/KCl/CoCrNi to the decimal, Li2S consistent; the
+    Li-halide chain arithmetic exact but single-lineage, Haven 1950).
+    Disposition: manuscript re-anchored at 2.12+-0.07, deficit range
+    40-105 -> 32-105 percent, "barely 60%" -> "barely two-thirds";
+    Li-halide ordering claim unaffected (never included NaCl); the stored
+    NaCl dH_m band (0.65-0.71, Hooton & Jacobs attributed, paywalled)
+    conflicts with D&N 0.796+-0.02 — recorded as an open convention
+    question for the kinetics file, barrier claims in the manuscript cite
+    LiF only. AUDIT.md in data/verification/reference_audit/.
