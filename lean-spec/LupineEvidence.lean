@@ -22,6 +22,7 @@
 import LupineEvidence.Demo.Ni_EAM
 import LupineEvidence.Shapes.Certificates
 import LupineEvidence.Discovery.Certificates_LiS_Demo
+import LupineEvidence.Discovery.Certificates_LiS_V2
 import LupineEvidence.YMatrix.Ag_chgnet
 import LupineEvidence.YMatrix.Ag_fcc_chgnet
 import LupineEvidence.YMatrix.Ag_fcc_mace_mp_medium

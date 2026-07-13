@@ -56,29 +56,32 @@ deriving Repr, DecidableEq
 def wellFormed (w : ConcordanceWindow) : Prop :=
   w.flagThreshold ≤ w.refuseThreshold
 
-/-- Concordant: dispersion within the flag threshold — the models agree and
-    the ensemble value may be reported as-is. -/
+/-- Concordant: dispersion strictly below the flag threshold — the models
+    agree and the ensemble value may be reported as-is. Boundary convention
+    matches the runtime (`lupine_distill.statics.gates.concordance`):
+    a dispersion AT a threshold takes the more cautious zone. -/
 def concordant (w : ConcordanceWindow) : Prop :=
-  w.dispersionScaled ≤ w.flagThreshold
+  w.dispersionScaled < w.flagThreshold
 
-/-- Flagged: dispersion above flag but within refuse — reportable only with
-    an `AnchorCalibration`-backed correction attached. -/
+/-- Flagged: dispersion at-or-above flag but strictly below refuse —
+    reportable only with an `AnchorCalibration`-backed correction attached.
+    (Runtime convention: `dispersion >= flag` flags, `>= refuse` refuses.) -/
 def flagged (w : ConcordanceWindow) : Prop :=
-  w.flagThreshold < w.dispersionScaled ∧ w.dispersionScaled ≤ w.refuseThreshold
+  w.flagThreshold ≤ w.dispersionScaled ∧ w.dispersionScaled < w.refuseThreshold
 
-/-- Refused: dispersion beyond the refuse threshold — no claim is issued for
-    this cell; a `Refusal` certificate is emitted instead. -/
+/-- Refused: dispersion at-or-beyond the refuse threshold — no claim is
+    issued for this cell; a `Refusal` certificate is emitted instead. -/
 def refused (w : ConcordanceWindow) : Prop :=
-  w.refuseThreshold < w.dispersionScaled
+  w.refuseThreshold ≤ w.dispersionScaled
 
 instance (w : ConcordanceWindow) : Decidable (wellFormed w) :=
   inferInstanceAs (Decidable (_ ≤ _))
 instance (w : ConcordanceWindow) : Decidable (concordant w) :=
-  inferInstanceAs (Decidable (_ ≤ _))
+  inferInstanceAs (Decidable (_ < _))
 instance (w : ConcordanceWindow) : Decidable (flagged w) :=
   inferInstanceAs (Decidable (_ ∧ _))
 instance (w : ConcordanceWindow) : Decidable (refused w) :=
-  inferInstanceAs (Decidable (_ < _))
+  inferInstanceAs (Decidable (_ ≤ _))
 
 /-- The three outcomes are mutually exclusive and exhaustive: every
     well-formed window lands in EXACTLY one zone. The zones are totally
@@ -89,6 +92,110 @@ theorem outcome_trichotomy (w : ConcordanceWindow) (hw : wellFormed w) :
     ∨ (¬ concordant w ∧ ¬ flagged w ∧ refused w) := by
   unfold wellFormed at hw
   unfold concordant flagged refused
+  omega
+
+/-! ## Threshold migration (v1 proxy -> v2 per-property calibration)
+
+    When thresholds are recalibrated on the SAME measured dispersion (the
+    subject's data does not change; only the baseline the percentiles are
+    taken from does), verdict changes are fully characterized by the
+    threshold delta. These laws make a re-verdict a kernel-checked
+    consequence of the calibration change rather than a fresh claim. -/
+
+/-- Two windows measure the same dispersion (the recalibration setting). -/
+def sameDispersion (w w' : ConcordanceWindow) : Prop :=
+  w.dispersionScaled = w'.dispersionScaled
+
+instance (w w' : ConcordanceWindow) : Decidable (sameDispersion w w') :=
+  inferInstanceAs (Decidable (_ = _))
+
+/-- Tightening can only add refusals: under an equal-or-lower refuse
+    threshold, a refused cell stays refused. Migrating to stricter
+    per-property thresholds can never un-refuse a subject. -/
+theorem refused_stable_under_tightening (w w' : ConcordanceWindow)
+    (hd : sameDispersion w w') (ht : w'.refuseThreshold ≤ w.refuseThreshold)
+    (hr : refused w) : refused w' := by
+  unfold sameDispersion at hd
+  unfold refused at *
+  omega
+
+/-- An un-refusal is threshold-driven, never data-driven: if the same
+    measured dispersion is refused under the old window but not under the
+    new one, the new refuse threshold is strictly looser. Every Run-2
+    verdict flip must exhibit this witness. -/
+theorem unrefusal_needs_looser_threshold (w w' : ConcordanceWindow)
+    (hd : sameDispersion w w') (hr : refused w) (hn : ¬ refused w') :
+    w.refuseThreshold < w'.refuseThreshold := by
+  unfold sameDispersion at hd
+  unfold refused at *
+  omega
+
+/-- Dually, a cell concordant under the old window that stops being
+    concordant under the new one certifies a strictly tighter flag
+    threshold. -/
+theorem deconcordance_needs_tighter_threshold (w w' : ConcordanceWindow)
+    (hd : sameDispersion w w') (hc : concordant w) (hn : ¬ concordant w') :
+    w'.flagThreshold < w.flagThreshold := by
+  unfold sameDispersion at hd
+  unfold concordant at *
+  omega
+
+/-! ## Ensemble-hull Born refusal
+
+    Per-model Born failures compose into a single impossibility statement:
+    if the axis-aligned hull of the ensemble's predicted elastic constants
+    already violates one Born inequality at its favourable endpoint, then
+    EVERY tensor inside the hull is Born-unstable — the refusal holds for
+    the whole ensemble range, not just the sampled models. This is the
+    statics analog of the anchor-bracket "refusal for ALL fields" pattern. -/
+
+/-- Axis-aligned interval hull of an ensemble's cubic elastic predictions,
+    GPa x10000 (component-wise min/max over the models). -/
+structure ElasticHull where
+  c11min : Int
+  c11max : Int
+  c12min : Int
+  c12max : Int
+  c44min : Int
+  c44max : Int
+deriving Repr, DecidableEq
+
+/-- Membership: each constant lies inside its interval. -/
+def memHull (e : CubicElastic) (h : ElasticHull) : Prop :=
+  h.c11min ≤ e.c11 ∧ e.c11 ≤ h.c11max
+  ∧ h.c12min ≤ e.c12 ∧ e.c12 ≤ h.c12max
+  ∧ h.c44min ≤ e.c44 ∧ e.c44 ≤ h.c44max
+
+instance (e : CubicElastic) (h : ElasticHull) : Decidable (memHull e h) :=
+  inferInstanceAs (Decidable (_ ∧ _ ∧ _ ∧ _ ∧ _ ∧ _))
+
+/-- Trigonal-shear hull refusal: if even the LARGEST ensemble c44 is
+    nonpositive, every tensor in the hull fails Born. -/
+theorem hull_born_refusal_c44 (h : ElasticHull) (hc : h.c44max ≤ 0) :
+    ∀ e : CubicElastic, memHull e h → ¬ bornStable e := by
+  intro e hm hb
+  unfold memHull at hm
+  unfold bornStable at hb
+  omega
+
+/-- Tetragonal-shear hull refusal: if the most favourable spread
+    (c11max - c12min) is nonpositive, every tensor in the hull fails Born. -/
+theorem hull_born_refusal_shear (h : ElasticHull)
+    (hc : h.c11max - h.c12min ≤ 0) :
+    ∀ e : CubicElastic, memHull e h → ¬ bornStable e := by
+  intro e hm hb
+  unfold memHull at hm
+  unfold bornStable at hb
+  omega
+
+/-- Volumetric hull refusal: if even c11max + 2*c12max is nonpositive,
+    every tensor in the hull fails Born. -/
+theorem hull_born_refusal_volumetric (h : ElasticHull)
+    (hc : h.c11max + 2 * h.c12max ≤ 0) :
+    ∀ e : CubicElastic, memHull e h → ¬ bornStable e := by
+  intro e hm hb
+  unfold memHull at hm
+  unfold bornStable at hb
   omega
 
 /-! ## Anchor calibration -/
