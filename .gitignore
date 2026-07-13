@@ -38,6 +38,9 @@ archive/distiller-kb/runs/pipeline_report.json
 atlas/nist_ipr/files/
 atlas/nist_ipr/mirror.log
 
+# LAMMPS validation run artifacts (generated work directories with trailing-whitespace logs)
+data/lammps_validation/**/work/
+
 # Machine-local LAMMPS potential/result payloads (fetch via tools/fetch_potentials.py).
 # Already-tracked files stay tracked; a top-level README may still be committed.
 atlas-distill/lammps_runs/*

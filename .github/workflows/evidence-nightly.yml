@@ -46,6 +46,12 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      - name: Install CPU-only torch first
+        run: |
+          # sentence-transformers pulls CUDA torch by default; install CPU-only
+          # torch explicitly to stay within the GitHub runner disk quota.
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+
       - name: Install pipeline
         run: pip install -e . pytest
 
