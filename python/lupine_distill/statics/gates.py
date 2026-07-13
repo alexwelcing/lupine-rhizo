@@ -503,15 +503,84 @@ def dispersions_by_material(
     return dispersions
 
 
+#: Concordance property key -> calc-evidence property name. Concordance keys
+#: are the lowercase report keys; evidence files carry the Y-matrix names
+#: (``B0``, ``C11``, ...). The loader silently skips files without the
+#: requested property, so consumers must go through this map — a bare
+#: lowercase lookup would find zero samples without erroring.
+PROPERTY_EVIDENCE_NAMES: Final[Mapping[str, str]] = MappingProxyType(
+    {
+        "a0": "a0",
+        "b0": "B0",
+        "c11": "C11",
+        "c12": "C12",
+        "c44": "C44",
+    }
+)
+
+
+def derive_per_property_thresholds(
+    directory: Path,
+    *,
+    properties: Sequence[str] = tuple(PROPERTY_EVIDENCE_NAMES),
+    flag_percentile: float = 75.0,
+    refuse_percentile: float = 95.0,
+) -> dict[str, ConcordanceThresholds]:
+    """Per-property flag/refuse thresholds from one calc-evidence directory.
+
+    Each concordance property key loads its matching evidence property (see
+    :data:`PROPERTY_EVIDENCE_NAMES`) from ``directory``; that property's own
+    per-material cross-model dispersion distribution supplies its percentile
+    thresholds. This replaces the single-property (B0) proxy transfer with a
+    per-property calibration measured on the same probe that gates subjects.
+
+    A property with zero samples is an :class:`InputValidationError`: the
+    loader skips files without the property, so an empty result almost always
+    means a wrong evidence name or a baseline that lacks the property.
+    """
+    directory = Path(directory)
+    thresholds: dict[str, ConcordanceThresholds] = {}
+    for prop in properties:
+        if prop not in PROPERTY_EVIDENCE_NAMES:
+            raise InputValidationError(
+                f"unknown concordance property {prop!r}; known: "
+                f"{', '.join(sorted(PROPERTY_EVIDENCE_NAMES))}"
+            )
+        evidence_name = PROPERTY_EVIDENCE_NAMES[prop]
+        by_material = load_property_by_material(directory, property_name=evidence_name)
+        if not by_material:
+            raise InputValidationError(
+                f"no {evidence_name!r} samples in {directory}; the baseline "
+                f"lacks this property (or the directory is wrong), so no "
+                f"per-property threshold can be derived for {prop!r}"
+            )
+        dispersions = dispersions_by_material(by_material)
+        thresholds[prop] = derive_concordance_thresholds(
+            dispersions,
+            flag_percentile=flag_percentile,
+            refuse_percentile=refuse_percentile,
+            source=(
+                f"p{flag_percentile:g}/p{refuse_percentile:g} of the "
+                f"per-material cross-model relative dispersion "
+                f"(max-min)/|median| of {evidence_name} over "
+                f"{len(by_material)} materials in {directory.as_posix()} "
+                f"(schema {EVIDENCE_SCHEMA_ID})"
+            ),
+        )
+    return thresholds
+
+
 __all__ = [
     "BORN_PROVENANCE",
     "ConcordanceThresholds",
     "DYNAMIC_RETURN_LIMITS",
     "EVIDENCE_SCHEMA_ID",
     "GateVerdict",
+    "PROPERTY_EVIDENCE_NAMES",
     "born_stability_cubic",
     "concordance",
     "derive_concordance_thresholds",
+    "derive_per_property_thresholds",
     "dispersions_by_material",
     "dynamic_return",
     "facet_ordering",

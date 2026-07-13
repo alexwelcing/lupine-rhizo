@@ -61,6 +61,7 @@ from lupine_distill.statics import (  # noqa: E402
     compute_lattice,
     concordance,
     derive_concordance_thresholds,
+    derive_per_property_thresholds,
     dispersions_by_material,
     dynamic_return,
     load_property_by_material,
@@ -232,6 +233,32 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Calc-evidence directory for the B0 dispersion baseline",
     )
     parser.add_argument(
+        "--thresholds",
+        default="v2",
+        choices=("v1", "v2"),
+        help=(
+            "v2 (default): per-property flag/refuse thresholds from the "
+            "elastic baseline; v1: legacy B0-proxy thresholds transferred "
+            "to all properties (kept reachable for comparison)"
+        ),
+    )
+    parser.add_argument(
+        "--elastic-baseline-dir",
+        default=str(_REPO_ROOT / "data" / "y_matrix_runs" / "elastic_baseline"),
+        help="Calc-evidence directory for the per-property (v2) baseline",
+    )
+    parser.add_argument(
+        "--gate-order",
+        default="early-stop",
+        choices=("early-stop", "legacy"),
+        help=(
+            "early-stop (default): run the expensive dynamic-return gate "
+            "only for subjects not already REFUSED by the cheap gates "
+            "(measurement, Born, concordance); legacy: run it for every "
+            "subject during measurement, before any verdict is known"
+        ),
+    )
+    parser.add_argument(
         "--out-dir",
         default=str(_REPO_ROOT / "data" / "discovery_gates"),
         help="Output directory for report.json / REPORT.md",
@@ -307,6 +334,34 @@ def measure_subject(
     }
 
 
+def provisional_refusal_reasons(subject_report: dict[str, object]) -> list[str]:
+    """Refusal reasons knowable from the cheap gates alone.
+
+    Used by the early-stop gate order to decide whether the expensive
+    dynamic-return probe can change anything: a refusal from measurement
+    errors, Born failures, or concordance refusals is final (no later gate
+    can overturn it), so a non-empty result means the probe is skippable.
+    """
+    reasons: list[str] = []
+    per_model = subject_report["per_model"]
+    errors = [m for m, r in per_model.items() if "error" in r]
+    if errors:
+        reasons.append(f"measurement error ({', '.join(errors)})")
+    born_fails = [
+        m for m, r in per_model.items() if "error" not in r and not r["born_passed"]
+    ]
+    if born_fails:
+        reasons.append(f"Born failure ({', '.join(born_fails)})")
+    refused_props = [
+        prop
+        for prop, gate in subject_report["gates"]["concordance"].items()
+        if gate["values"]["level"] == "refuse"
+    ]
+    if refused_props:
+        reasons.append(f"concordance refusal ({', '.join(refused_props)})")
+    return reasons
+
+
 def overall_verdict(subject_report: dict[str, object]) -> str:
     """REFUSED / FLAGGED / CERTIFIED from the recorded gate outcomes.
 
@@ -348,24 +403,30 @@ def _verdict_word(gate: dict[str, object]) -> str:
 def render_markdown(report: dict[str, object]) -> str:
     thresholds = report["concordance_thresholds"]
     lines: list[str] = [
-        "# Discovery gates - reference-free verdicts on a real Li-S case",
+        f"# Discovery gates - reference-free verdicts ({report['panel']} panel)",
         "",
         f"Generated: {report['generated_at']} | device: {report['device']} | "
-        f"models: {', '.join(report['models'])}",
+        f"models: {', '.join(report['models'])} | thresholds: "
+        f"{report['thresholds_version']} | gate order: {report['gate_order']}",
         "",
-        "Two subjects: **Li2S antifluorite** (known-good) and **LiS rocksalt** "
-        "(speculative 1:1 composition). All gates are reference-free: no "
-        "experimental or DFT value for either subject is consulted.",
+        "All gates are reference-free: no experimental or DFT value for any "
+        "subject is consulted.",
         "",
         "## Concordance thresholds (data-derived, not invented)",
         "",
-        f"- metric: `(max - min) / |median|` across models, per property",
-        f"- flag at >= **{thresholds['flag']:.4f}** "
-        f"(p{thresholds['flag_percentile']:g}), refuse at >= "
-        f"**{thresholds['refuse']:.4f}** (p{thresholds['refuse_percentile']:g})",
-        f"- derivation: {thresholds['source']}",
-        f"- baseline samples: {thresholds['n_samples']} materials; "
-        "per-material dispersions recorded in report.json",
+        "- metric: `(max - min) / |median|` across models, per property",
+        "",
+        "| property | flag (p75) | refuse (p95) | baseline n |",
+        "|---|---|---|---|",
+    ]
+    for prop, t in thresholds.items():
+        lines.append(
+            f"| {prop} | {t['flag']:.4f} | {t['refuse']:.4f} | {t['n_samples']} |"
+        )
+    lines += [
+        "",
+        f"- derivation: {next(iter(thresholds.values()))['source']}",
+        "- per-material dispersions recorded in report.json",
         "",
         report["threshold_transfer_note"],
         "",
@@ -428,6 +489,9 @@ def render_markdown(report: dict[str, object]) -> str:
                 f"| dynamic_return | {_verdict_word(dynamic)} | {key} | "
                 f"{dynamic['wall_time_seconds']:.1f} |"
             )
+        skipped = sub["gates"].get("dynamic_return_skipped")
+        if skipped is not None:
+            lines.append(f"| dynamic_return | SKIPPED | {skipped} | 0.0 |")
         lines += ["", f"Subject wall time: **{sub['wall_time_seconds']:.1f} s**", ""]
     lines += [
         "## Scope and honesty notes",
@@ -457,26 +521,39 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--dynamic-supercell must be >= 1")
     subjects = PANELS[args.panel]
 
-    # 1. Data-derived concordance thresholds from the bound Y-matrix baseline.
-    bound_dir = Path(args.bound_dir)
-    b0_by_material = load_property_by_material(bound_dir, property_name="B0")
-    baseline_dispersions = dispersions_by_material(b0_by_material)
-    thresholds: ConcordanceThresholds = derive_concordance_thresholds(
-        baseline_dispersions,
-        source=(
-            f"p75/p95 of the per-material cross-model relative dispersion "
-            f"(max-min)/|median| of B0 over {len(b0_by_material)} Y-matrix "
-            f"materials x {len(models)} models in {bound_dir.as_posix()} "
-            f"(schema lupine.mlip.calc_evidence.v1)"
-        ),
-    )
-    log.info(
-        "concordance thresholds from %d baseline materials: flag >= %.4f (p75), "
-        "refuse >= %.4f (p95)",
-        thresholds.n_samples,
-        thresholds.flag,
-        thresholds.refuse,
-    )
+    # 1. Data-derived concordance thresholds. v2 (default): each property is
+    # gated by percentiles of its OWN measured dispersion baseline. v1: the
+    # legacy B0-proxy transfer, kept reachable for comparison.
+    thresholds_by_prop: dict[str, ConcordanceThresholds]
+    if args.thresholds == "v2":
+        baseline_dir = Path(args.elastic_baseline_dir)
+        thresholds_by_prop = derive_per_property_thresholds(baseline_dir)
+    else:
+        bound_dir = Path(args.bound_dir)
+        b0_by_material = load_property_by_material(bound_dir, property_name="B0")
+        baseline_dispersions = dispersions_by_material(b0_by_material)
+        proxy = derive_concordance_thresholds(
+            baseline_dispersions,
+            source=(
+                f"p75/p95 of the per-material cross-model relative dispersion "
+                f"(max-min)/|median| of B0 over {len(b0_by_material)} Y-matrix "
+                f"materials x {len(models)} models in {bound_dir.as_posix()} "
+                f"(schema lupine.mlip.calc_evidence.v1); TRANSFERRED to all "
+                f"properties as the v1 proxy"
+            ),
+        )
+        thresholds_by_prop = {prop: proxy for prop in CONCORDANCE_PROPERTIES}
+    for prop in CONCORDANCE_PROPERTIES:
+        t = thresholds_by_prop[prop]
+        log.info(
+            "concordance thresholds (%s) %s: flag >= %.4f (p75), "
+            "refuse >= %.4f (p95), n=%d",
+            args.thresholds,
+            prop,
+            t.flag,
+            t.refuse,
+            t.n_samples,
+        )
 
     # 2. Measurements, model-outer so each calculator loads exactly once.
     per_subject: dict[str, dict[str, object]] = {
@@ -491,8 +568,44 @@ def main(argv: list[str] | None = None) -> int:
     }
     calculator_versions: dict[str, str] = {}
     dynamic_gates: dict[str, dict[str, object]] = {}
+    dynamic_skips: dict[str, str] = {}
+    early_stop = args.gate_order == "early-stop"
+    # Early-stop: measure the dynamic model LAST and keep its calculator
+    # alive, so the dynamic gate can run after the cheap verdicts are known
+    # without paying a second model load.
+    model_order = (
+        [m for m in models if m != args.dynamic_model] + [args.dynamic_model]
+        if early_stop
+        else models
+    )
+    dynamic_calculator: object | None = None
+
+    def _run_dynamic(calculator: object, subject: Subject, a0: float) -> None:
+        n = args.dynamic_supercell
+        supercell = build_structure(
+            subject.formula, subject.structure_type, a0
+        ).repeat((n, n, n))
+        log.info(
+            "  dynamic_return: rattle %.3f A, seed %d, %d atoms ...",
+            args.rattle,
+            args.seed,
+            len(supercell),
+        )
+        verdict = dynamic_return(
+            calculator,
+            supercell,
+            rattle_amplitude=args.rattle,
+            seed=args.seed,
+        )
+        log.info(
+            "  dynamic_return: %s (%.1fs)",
+            "PASS" if verdict.passed else "FAIL",
+            verdict.wall_time_seconds,
+        )
+        dynamic_gates[subject.label] = verdict.to_dict()
+
     t_run0 = time.perf_counter()
-    for model_id in models:
+    for model_id in model_order:
         log.info("loading %s on %s ...", model_id, args.device)
         calculator, version = build_calculator(model_id, args.device)
         calculator_versions[model_id] = version
@@ -505,33 +618,18 @@ def main(argv: list[str] | None = None) -> int:
                 log.info("  MEASUREMENT FAILED: %s", exc)
                 record = {"error": f"{type(exc).__name__}: {exc}"}
             per_subject[subject.label]["per_model"][model_id] = record
-            if model_id == args.dynamic_model and "error" not in record:
-                a0 = record["properties"]["a0"]
-                n = args.dynamic_supercell
-                supercell = build_structure(
-                    subject.formula, subject.structure_type, a0
-                ).repeat((n, n, n))
-                log.info(
-                    "  dynamic_return: rattle %.3f A, seed %d, %d atoms ...",
-                    args.rattle,
-                    args.seed,
-                    len(supercell),
-                )
-                verdict = dynamic_return(
-                    calculator,
-                    supercell,
-                    rattle_amplitude=args.rattle,
-                    seed=args.seed,
-                )
-                log.info(
-                    "  dynamic_return: %s (%.1fs)",
-                    "PASS" if verdict.passed else "FAIL",
-                    verdict.wall_time_seconds,
-                )
-                dynamic_gates[subject.label] = verdict.to_dict()
-        del calculator  # release GPU memory before the next model loads
+            if (
+                not early_stop
+                and model_id == args.dynamic_model
+                and "error" not in record
+            ):
+                _run_dynamic(calculator, subject, record["properties"]["a0"])
+        if early_stop and model_id == args.dynamic_model:
+            dynamic_calculator = calculator  # retained for the dynamic stage
+        else:
+            del calculator  # release GPU memory before the next model loads
 
-    # 3. Cross-model concordance per subject.
+    # 3. Cross-model concordance per subject (cheap: pure arithmetic).
     for subject in subjects:
         sub = per_subject[subject.label]
         ok_models = {
@@ -544,11 +642,47 @@ def main(argv: list[str] | None = None) -> int:
                     m: r["properties"][prop] for m, r in ok_models.items()
                 }
                 concordance_gates[prop] = concordance(
-                    prop, values_by_model, thresholds
+                    prop, values_by_model, thresholds_by_prop[prop]
                 ).to_dict()
         sub["gates"]["concordance"] = concordance_gates
+
+    # 3b. Early-stop dynamic stage: the expensive gate runs only for
+    # subjects the cheap gates did not already refuse. A refusal is final
+    # (Lean Shapes/Refusal: no monotone fix), so spending the costliest
+    # probe on a refused subject buys no verdict change.
+    if early_stop:
+        assert dynamic_calculator is not None
+        for subject in subjects:
+            sub = per_subject[subject.label]
+            record = sub["per_model"].get(args.dynamic_model, {})
+            refusal_reasons = provisional_refusal_reasons(sub)
+            if refusal_reasons:
+                dynamic_skips[subject.label] = (
+                    "early-stop: subject already REFUSED by "
+                    + "; ".join(refusal_reasons)
+                )
+                log.info(
+                    "%s: dynamic_return SKIPPED (%s)",
+                    subject.label,
+                    dynamic_skips[subject.label],
+                )
+            elif "error" not in record:
+                log.info("%s x %s (dynamic stage)", subject.label, args.dynamic_model)
+                _run_dynamic(
+                    dynamic_calculator, subject, record["properties"]["a0"]
+                )
+        del dynamic_calculator
+
+    # 4. Final verdicts.
+    for subject in subjects:
+        sub = per_subject[subject.label]
+        ok_models = {
+            m: r for m, r in sub["per_model"].items() if "error" not in r
+        }
         if subject.label in dynamic_gates:
             sub["gates"]["dynamic_return"] = dynamic_gates[subject.label]
+        if subject.label in dynamic_skips:
+            sub["gates"]["dynamic_return_skipped"] = dynamic_skips[subject.label]
         sub["wall_time_seconds"] = sum(
             sum(r["wall_time_seconds"].values())
             for r in ok_models.values()
@@ -556,15 +690,42 @@ def main(argv: list[str] | None = None) -> int:
         sub["overall_verdict"] = overall_verdict(sub)
         log.info("%s -> %s", subject.label, sub["overall_verdict"])
 
+    if args.thresholds == "v2":
+        threshold_note = (
+            "Per-property thresholds (v2): each of a0/B0/C11/C12/C44 is "
+            "gated by p75/p95 of its OWN measured cross-model dispersion "
+            "baseline (the elastic-baseline sweep), replacing the v1 "
+            "B0-proxy transfer. Within-family coupling (Cauchy relation, "
+            "stability) remains; per-property calibration fixes the "
+            "transfer error, it does not decouple the elastic family."
+        )
+    else:
+        threshold_note = (
+            "Threshold transfer (v1): the p75/p95 baseline is measured on B0 "
+            "dispersions and applied to a0/B0/C11/C12/C44 alike. a0 disperses "
+            "less than B0 (lenient there); shear constants typically disperse "
+            "more (strict there). This is a documented proxy, not a "
+            "per-property calibration."
+        )
+    if early_stop:
+        gate_order_note = (
+            "Gate order (early-stop): the dynamic-return probe (the most "
+            "expensive gate) ran only for subjects not already REFUSED by "
+            "measurement/Born/concordance; a refusal is final (no later "
+            "gate can overturn it), so skipped probes change no verdict. "
+            "Skips are recorded per subject."
+        )
+    else:
+        gate_order_note = (
+            "Gate order (legacy): the dynamic-return probe ran for every "
+            "subject during measurement, before any verdict was known."
+        )
     notes = [
         "Born stability is exact physics (necessary conditions only); "
         "concordance thresholds are percentiles of our own measured baseline; "
         "no threshold in this report was invented.",
-        "Threshold transfer: the p75/p95 baseline is measured on B0 "
-        "dispersions and applied to a0/B0/C11/C12/C44 alike. a0 disperses "
-        "less than B0 (lenient there); shear constants typically disperse "
-        "more (strict there). This is a documented proxy, not a per-property "
-        "calibration.",
+        threshold_note,
+        gate_order_note,
         "The dynamic-return gate is a finite-rattle basin-return probe, NOT "
         "a phonon calculation; instabilities incommensurate with the "
         f"{args.dynamic_supercell}x{args.dynamic_supercell}x"
@@ -593,8 +754,13 @@ def main(argv: list[str] | None = None) -> int:
             "rattle_seed": args.seed,
             "dynamic_supercell": args.dynamic_supercell,
         },
-        "concordance_thresholds": thresholds.to_dict(),
-        "threshold_transfer_note": notes[1],
+        "thresholds_version": args.thresholds,
+        "gate_order": args.gate_order,
+        "concordance_thresholds": {
+            prop: thresholds_by_prop[prop].to_dict()
+            for prop in CONCORDANCE_PROPERTIES
+        },
+        "threshold_transfer_note": threshold_note,
         "subjects": per_subject,
         "notes": notes,
         "total_wall_time_seconds": time.perf_counter() - t_run0,

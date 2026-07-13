@@ -18,6 +18,7 @@ import pytest
 from ase.calculators.emt import EMT
 
 from lupine_distill.statics import (
+    PROPERTY_EVIDENCE_NAMES,
     ConcordanceThresholds,
     GateVerdict,
     InputValidationError,
@@ -26,6 +27,7 @@ from lupine_distill.statics import (
     compute_lattice,
     concordance,
     derive_concordance_thresholds,
+    derive_per_property_thresholds,
     dispersions_by_material,
     dynamic_return,
     facet_ordering,
@@ -337,3 +339,84 @@ class TestDynamicReturn:
                 EMT(), cu_supercell, rattle_amplitude=0.05, seed=42,
                 energy_tol_ev_per_atom=0.0,
             )
+
+
+# --------------------------------------------------------------------------
+# Per-property thresholds (thresholds.v2: no more B0-proxy transfer)
+# --------------------------------------------------------------------------
+
+
+def _write_full_evidence(
+    directory: Path, material: str, model: str, values: dict[str, float]
+) -> None:
+    """Evidence file carrying any subset of the five gate properties."""
+    units = {"a0": "Angstrom", "B0": "GPa", "C11": "GPa", "C12": "GPa", "C44": "GPa"}
+    payload = {
+        "schema": "lupine.mlip.calc_evidence.v1",
+        "material": material,
+        "source": {"model_id": model, "backend": "ase", "device": "cpu"},
+        "properties": [
+            {"name": name, "value": value, "unit": units[name]}
+            for name, value in values.items()
+        ],
+    }
+    path = directory / f"{material}_{model}.evidence.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+class TestDerivePerPropertyThresholds:
+    @staticmethod
+    def _populate(directory: Path, n_materials: int = 6) -> dict[str, list[float]]:
+        """Two models whose disagreement grows with the property index, so
+        each property gets a distinct dispersion distribution."""
+        expected: dict[str, list[float]] = {p: [] for p in PROPERTY_EVIDENCE_NAMES}
+        for i in range(n_materials):
+            material = f"M{i}"
+            base = {"a0": 4.0 + i, "B0": 100.0 + i, "C11": 200.0, "C12": 90.0, "C44": 50.0}
+            spread = 0.01 * (1 + i)
+            m1 = {k: v * (1 - spread * factor) for factor, (k, v) in enumerate(base.items(), start=1)}
+            m2 = {k: v * (1 + spread * factor) for factor, (k, v) in enumerate(base.items(), start=1)}
+            _write_full_evidence(directory, material, "m1", m1)
+            _write_full_evidence(directory, material, "m2", m2)
+            for factor, (prop, evidence_name) in enumerate(
+                PROPERTY_EVIDENCE_NAMES.items(), start=1
+            ):
+                lo = m1[evidence_name]
+                hi = m2[evidence_name]
+                median = float(np.median([lo, hi]))
+                expected[prop].append((hi - lo) / abs(median))
+        return expected
+
+    def test_each_property_gets_its_own_percentiles(self, tmp_path: Path) -> None:
+        expected = self._populate(tmp_path)
+        thresholds = derive_per_property_thresholds(tmp_path)
+        assert set(thresholds) == set(PROPERTY_EVIDENCE_NAMES)
+        for prop, per_material in expected.items():
+            t = thresholds[prop]
+            assert t.n_samples == len(per_material)
+            assert t.flag == pytest.approx(np.percentile(per_material, 75.0))
+            assert t.refuse == pytest.approx(np.percentile(per_material, 95.0))
+            assert PROPERTY_EVIDENCE_NAMES[prop] in t.source
+        # Distinct dispersion distributions -> distinct thresholds.
+        refuses = {prop: t.refuse for prop, t in thresholds.items()}
+        assert len(set(refuses.values())) == len(refuses)
+        # The construction disperses later properties more: c44 > b0 > a0.
+        assert refuses["c44"] > refuses["b0"] > refuses["a0"]
+
+    def test_missing_property_is_an_error_not_silence(self, tmp_path: Path) -> None:
+        # Baseline carries only a0/B0 (like data/y_matrix_runs/bound today).
+        for i in range(6):
+            _write_full_evidence(tmp_path, f"M{i}", "m1", {"a0": 4.0, "B0": 100.0})
+            _write_full_evidence(tmp_path, f"M{i}", "m2", {"a0": 4.1, "B0": 110.0})
+        with pytest.raises(InputValidationError, match="C11"):
+            derive_per_property_thresholds(tmp_path)
+
+    def test_unknown_property_rejected(self, tmp_path: Path) -> None:
+        self._populate(tmp_path)
+        with pytest.raises(InputValidationError, match="unknown concordance property"):
+            derive_per_property_thresholds(tmp_path, properties=("a0", "gamma_100"))
+
+    def test_subset_of_properties(self, tmp_path: Path) -> None:
+        self._populate(tmp_path)
+        thresholds = derive_per_property_thresholds(tmp_path, properties=("b0",))
+        assert set(thresholds) == {"b0"}

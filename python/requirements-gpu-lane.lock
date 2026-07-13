@@ -1,3 +1,4 @@
+-e git+https://github.com/alexwelcing/lupine-rhizo.git@701808d330b57f10bf33a9385b2facc36f0759db#egg=lupine_distill&subdirectory=python
 annotated-types==0.7.0
 ase==3.29.0
 bibtexparser==1.4.4
@@ -17,12 +18,12 @@ gitdb==4.0.12
 GitPython==3.1.50
 h5py==3.16.0
 idna==3.18
+iniconfig==2.3.0
 Jinja2==3.1.6
 joblib==1.5.3
 kiwisolver==1.5.0
 lightning-utilities==0.15.3
 lmdb==2.2.1
--e git+https://github.com/alexwelcing/lupine-rhizo.git@701808d330b57f10bf33a9385b2facc36f0759db#egg=lupine_distill&subdirectory=python
 lxml==6.1.1
 mace-torch==0.3.16
 MarkupSafe==3.0.3
@@ -42,12 +43,15 @@ palettable==3.3.3
 pandas==3.0.3
 pillow==12.3.0
 plotly==6.8.0
+pluggy==1.6.0
 prettytable==3.18.0
 pydantic==2.13.4
 pydantic_core==2.46.4
-pymatgen==2026.5.4
+pygments==2.20.0
 pymatgen-core==2026.5.18
+pymatgen==2026.5.4
 pyparsing==3.3.2
+pytest==9.1.1
 python-dateutil==2.9.0.post0
 python_hostlist==2.3.0
 PyYAML==6.0.3
@@ -60,8 +64,8 @@ smmap==5.0.3
 spglib==2.7.0
 sympy==1.14.0
 tabulate==0.10.0
-torch==2.11.0+cu128
 torch-ema==0.3
+torch==2.11.0+cu128
 torchmetrics==1.9.0
 tqdm==4.68.3
 typing-inspection==0.4.2
