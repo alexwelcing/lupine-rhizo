@@ -1,230 +1,180 @@
+"""Unit tests for the Distill-to-Phoenix OTLP span mapping.
+
+Pure span-mapping contracts (no OTel SDK, no network): the promotion packet's
+gate verdict, metric contract, and Lean field-certificate provenance must land
+in root/child span attributes with the corrected metric semantics preserved
+(promotion deltas positive-is-better, physical error reductions first-class).
+"""
+
 from __future__ import annotations
 
-import math
-
+import pytest
 from mlip_phoenix_trace import (
+    certificate_spans,
     growth_report_to_spans,
     promotion_packet_to_spans,
     sanitize,
 )
 
-SAMPLE_PACKET = {
-    "schema": "lupine.mlip.local_to_cloud_promotion.v1",
-    "created_at": "2026-05-25T00:00:00Z",
-    "local_run_dir": "tmp/mlip-local/run",
-    "cloud_run_id": "mlip-cloud-test",
-    "gate": {
-        "status": "hold_local",
-        "objective": "accuracy",
-        "complete_triplets": 2,
-        "blockers": ["state-coupled hypothesis has downstream regressions: stress:mace-mp-0"],
-        "warnings": [],
-        "mean_distill_accuracy_delta": -0.0792,
-        "mean_accelerate_accuracy_delta": -0.0792,
-        "mean_accelerate_loss_vs_distill": 0.0,
-        "mean_speedup_accelerate_vs_distill": 1.25,
-        "state_hypothesis": {
-            "hypothesis_id": "distill.energy_state_lifts_lattice_observables",
-            "motivation": "Distill first improves the energy state; downstream rows falsify that lift.",
-            "anchor_row_id": "energy_volume",
-            "downstream_rows": ["elastic_constants", "forces", "relaxation_stability", "stress"],
-            "verdict": "refuted_downstream_regression",
-            "energy_anchor_complete": 1,
-            "energy_anchor_mean_delta": 0.2078,
-            "downstream_complete": 1,
-            "downstream_win_count": 0,
-            "downstream_regression_count": 1,
-        },
-    },
-    "thresholds": {
-        "objective": "accuracy",
-        "required_variants": ["baseline", "distill_accuracy"],
-        "require_energy_anchor": True,
-        "block_downstream_regressions": True,
-        "min_accuracy_delta": 0.0,
-        "min_speedup": 1.10,
-        "max_accelerate_loss": 0.02,
-    },
-    "summary": {
-        "cells": 4,
-        "triplets": 2,
-        "complete_triplets": 2,
-        "energy_anchor_triplets": 1,
-        "downstream_regressions": 1,
-    },
-    "triplets": [
-        {
-            "triplet_id": "energy_volume:mace-mp-0",
-            "row_id": "energy_volume",
-            "mlip_id": "mace-mp-0",
-            "row_role": "energy_anchor",
-            "energy_anchor": True,
-            "complete": True,
-            "metric_direction": "lower_error_is_better",
-            "promotion_delta_metric": "primary_error_reduction",
-            "accelerate_promotion_delta_metric": "primary_error_reduction",
-            "promotion_delta_distill": 0.2078,
-            "promotion_delta_accelerate": 0.2078,
-            "primary_error_delta_distill": 0.2078,
-            "primary_error_delta_accelerate": 0.2078,
-            "accuracy_score_delta_distill": -0.2078,
-            "accuracy_score_delta_accelerate": -0.2078,
-            "accuracy_delta_distill": 0.2078,
-            "accuracy_delta_accelerate": 0.2078,
-            "accelerate_loss_vs_distill": 0.0,
-            "speedup_accelerate_vs_baseline": 1.125,
-            "speedup_accelerate_vs_distill": 1.25,
-            "cells": {
-                "baseline": {
-                    "accuracy_score": 0.4116,
-                    "accuracy_error": 0.4116,
-                    "accuracy_metric": "energy_mae_ev_per_atom",
-                    "metric_direction": "lower_error_is_better",
-                    "speed_score": 8.0,
-                },
-                "distill_accuracy": {
-                    "accuracy_score": 0.2038,
-                    "accuracy_error": 0.2038,
-                    "accuracy_metric": "energy_mae_ev_per_atom",
-                    "metric_direction": "lower_error_is_better",
-                    "speed_score": 7.2,
-                    "distill_policy_hash": "sha256:policy",
-                    "support_manifest_hash": "sha256:support",
-                },
-                "distill_accuracy_accelerate": {
-                    "accuracy_score": 0.2038,
-                    "accuracy_error": 0.2038,
-                    "accuracy_metric": "energy_mae_ev_per_atom",
-                    "metric_direction": "lower_error_is_better",
-                    "speed_score": 9.0,
-                    "distill_policy_hash": "sha256:policy",
-                    "support_manifest_hash": "sha256:support",
-                },
+pytestmark = pytest.mark.unit
+
+
+def _packet() -> dict:
+    return {
+        "schema": "lupine.mlip.local_to_cloud_promotion.v1",
+        "cloud_run_id": "mlip-cloud-test",
+        "created_at": "2026-07-10T00:00:00Z",
+        "local_run_dir": "/runs/demo",
+        "gate": {
+            "status": "promote_to_gcp_canary",
+            "objective": "accuracy",
+            "blockers": [],
+            "warnings": [],
+            "complete_triplets": 2,
+            "mean_distill_accuracy_delta": 0.012,
+            "state_hypothesis": {
+                "hypothesis_id": "distill.energy_state_lifts_lattice_observables",
+                "verdict": "confirmed_state_lift",
+                "anchor_row_id": "energy_volume",
+                "energy_anchor_complete": 1,
+                "energy_anchor_mean_delta": 0.012,
+                "downstream_complete": 1,
+                "downstream_regression_count": 0,
             },
         },
-        {
-            "triplet_id": "stress:mace-mp-0",
-            "row_id": "stress",
-            "mlip_id": "mace-mp-0",
-            "row_role": "downstream_observable",
-            "energy_anchor": False,
-            "complete": True,
-            "metric_direction": "lower_error_is_better",
-            "promotion_delta_metric": "primary_error_reduction",
-            "promotion_delta_distill": -0.3662,
-            "primary_error_delta_distill": -0.3662,
-            "accuracy_score_delta_distill": -0.3662,
-            "cells": {
-                "baseline": {
-                    "accuracy_score": 0.10,
-                    "accuracy_error": 0.10,
-                    "accuracy_metric": "stress_mae_gpa",
-                    "metric_direction": "lower_error_is_better",
-                    "speed_score": 4.0,
-                },
-                "distill_accuracy": {
-                    "accuracy_score": 0.4662,
-                    "accuracy_error": 0.4662,
-                    "accuracy_metric": "stress_mae_gpa",
-                    "metric_direction": "lower_error_is_better",
-                    "speed_score": 3.8,
-                },
-            },
+        "odf_gate": {
+            "decision": "promote",
+            "uplift_band": "promote",
+            "formal_fields_present": True,
         },
-    ],
-}
-
-
-def test_sanitize_drops_none_and_nonfinite() -> None:
-    assert sanitize({
-        "keep": 1.0,
-        "drop_none": None,
-        "drop_nan": math.nan,
-        "drop_inf": math.inf,
-        "json": {"b": 2, "a": 1},
-    }) == {
-        "keep": 1.0,
-        "json": '{"a": 1, "b": 2}',
-    }
-
-
-def test_promotion_root_records_energy_hypothesis_contract() -> None:
-    root, children = promotion_packet_to_spans(SAMPLE_PACKET)
-
-    assert len(children) == 2
-    assert root["mlip.metric_contract.energy_anchor_required"] is True
-    assert root["mlip.metric_contract.physical_error_reduction_preferred"] is True
-    assert root["mlip.hypothesis.anchor_row_id"] == "energy_volume"
-    assert root["mlip.hypothesis.verdict"] == "refuted_downstream_regression"
-    assert root["mlip.gate.mean_distill_promotion_delta"] == -0.0792
-    assert root["mlip.summary.downstream_regressions"] == 1
-
-
-def test_promotion_child_separates_error_reduction_from_raw_score_delta() -> None:
-    _, children = promotion_packet_to_spans(SAMPLE_PACKET)
-    energy = next(child for child in children if child["mlip.triplet.row_id"] == "energy_volume")
-
-    assert energy["mlip.triplet.energy_anchor"] is True
-    assert energy["mlip.triplet.row_role"] == "energy_anchor"
-    assert energy["mlip.triplet.promotion_delta_metric"] == "primary_error_reduction"
-    assert energy["mlip.triplet.promotion_delta_distill"] == 0.2078
-    assert energy["mlip.triplet.primary_error_delta_distill"] == 0.2078
-    assert energy["mlip.triplet.accuracy_score_delta_distill"] == -0.2078
-    assert energy["mlip.triplet.baseline.accuracy_error"] == 0.4116
-    assert energy["mlip.triplet.distill_accuracy.distill_policy_hash"] == "sha256:policy"
-
-
-def test_downstream_regression_preserved_as_refutation_evidence() -> None:
-    _, children = promotion_packet_to_spans(SAMPLE_PACKET)
-    stress = next(child for child in children if child["mlip.triplet.row_id"] == "stress")
-
-    assert stress["mlip.triplet.energy_anchor"] is False
-    assert stress["mlip.triplet.row_role"] == "downstream_observable"
-    assert stress["mlip.triplet.promotion_delta_distill"] == -0.3662
-    assert stress["mlip.triplet.primary_error_delta_distill"] == -0.3662
-
-
-def test_growth_spans_carry_energy_anchor_contract() -> None:
-    report = {
-        "schema": "lupine.distill.growth_loop_report.v1",
-        "created_at": "2026-05-25T00:00:00Z",
-        "case_summary": {"count": 8, "row_counts": {"energy_volume": 4}},
-        "search": {"rounds": 3, "beam_width": 4, "report_top_k": 16},
-        "results": [
+        "field_certificates": {
+            "corpus_sha256_12": "0da8d5b67142",
+            "lean_module": (
+                "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/"
+                "EnvFieldInstances.lean"
+            ),
+            "models": ["chgnet"],
+            "n_cells": 2,
+            "n_error_field": 1,
+            "n_measured_field_refusals": 1,
+            "theorem_refs": [
+                "OpenDistillationFactory.Materials.Theory.AnchoredField.mkAnchoredFieldBcc",
+                "OpenDistillationFactory.Materials.Theory.AnchoredField.mkMeasuredField",
+            ],
+            "cells": [
+                {
+                    "kind": "anchor_admissibility",
+                    "material": "Fe",
+                    "model_id": "chgnet",
+                    "structure": "bcc",
+                    "lean_name": "chgnet_Fe",
+                    "tier": "error_field",
+                    "coordinations": [4, 6, 7],
+                    "anchors_scaled": [-4852, -4596, -1697],
+                    "violations": [],
+                    "theorem_ref": (
+                        "OpenDistillationFactory.Materials.Theory.AnchoredField"
+                        ".mkAnchoredFieldBcc"
+                    ),
+                    "reason": "monotone softening holds on the measured anchors",
+                },
+                {
+                    "kind": "anchor_admissibility",
+                    "material": "Pt",
+                    "model_id": "chgnet",
+                    "structure": "fcc",
+                    "lean_name": "chgnet_Pt",
+                    "tier": "measured_field",
+                    "coordinations": [8, 9, 11],
+                    "anchors_scaled": [-2766, -1683, 156],
+                    "violations": ["P(11) = 156e-4 > 0 (softening)"],
+                    "theorem_ref": (
+                        "OpenDistillationFactory.Materials.Theory.AnchoredField"
+                        ".mkMeasuredField"
+                    ),
+                    "reason": "tier-2 refusal",
+                },
+            ],
+        },
+        "summary": {"cells": 6, "triplets": 2},
+        "thresholds": {"objective": "accuracy", "min_accuracy_delta": 0.0},
+        "triplets": [
             {
-                "objective": "accuracy",
-                "promotion_label": "candidate",
-                "best_candidate": {
-                    "accuracy_delta_mean": 0.04,
-                    "refusal_rate": 0.0,
-                    "blocked_correction_rate": 0.2,
-                    "policy_limits_id": "limits:a",
-                    "ribbon_version": "hyperribbon:v1",
+                "triplet_id": "energy_volume:chgnet",
+                "row_id": "energy_volume",
+                "row_role": "energy_anchor",
+                "energy_anchor": True,
+                "mlip_id": "chgnet",
+                "complete": True,
+                "promotion_delta_distill": 0.012,
+                "cells": {
+                    "baseline": {"accuracy_error": 0.030},
+                    "distill_accuracy": {"accuracy_error": 0.018},
                 },
-            }
+            },
         ],
     }
 
-    root, children = growth_report_to_spans(report)
 
+def test_root_span_carries_gate_and_hypothesis():
+    root, children = promotion_packet_to_spans(_packet())
+    assert root["mlip.gate.status"] == "promote_to_gcp_canary"
+    assert root["mlip.hypothesis.verdict"] == "confirmed_state_lift"
     assert root["mlip.metric_contract.promotion_delta_positive_is_better"] is True
-    assert root["mlip.hypothesis.anchor_row_id"] == "energy_volume"
-    assert root["mlip.case_summary.count"] == 8
+    assert len(children) == 1
+    assert children[0]["mlip.triplet.promotion_delta_distill"] == 0.012
+
+
+def test_root_span_carries_certificate_rollup():
+    root, _children = promotion_packet_to_spans(_packet())
+    assert root["mlip.odf_gate.decision"] == "promote"
+    assert root["mlip.field_certificates.corpus_sha256_12"] == "0da8d5b67142"
+    assert root["mlip.field_certificates.n_cells"] == 2
+    assert root["mlip.field_certificates.n_error_field"] == 1
+    assert root["mlip.field_certificates.n_measured_field_refusals"] == 1
+    # Lists are JSON-encoded by sanitize so they survive as span attributes.
+    assert "mkAnchoredFieldBcc" in root["mlip.field_certificates.theorem_refs"]
+
+
+def test_certificate_spans_one_per_bound_cell():
+    spans = certificate_spans(_packet())
+    assert len(spans) == 2
+    fe, pt = spans
+    assert fe["mlip.certificate.lean_name"] == "chgnet_Fe"
+    assert fe["mlip.certificate.tier"] == "error_field"
+    assert fe["mlip.certificate.structure"] == "bcc"
+    assert "mkAnchoredFieldBcc" in fe["mlip.certificate.theorem_ref"]
+    assert pt["mlip.certificate.tier"] == "measured_field"
+    assert "softening" in pt["mlip.certificate.violations"]
+
+
+def test_certificate_spans_absent_block_is_empty():
+    packet = _packet()
+    packet.pop("field_certificates")
+    assert certificate_spans(packet) == []
+    root, _ = promotion_packet_to_spans(packet)
+    assert "mlip.field_certificates.n_cells" not in root
+
+
+def test_sanitize_drops_none_and_encodes_lists():
+    out = sanitize({"a": None, "b": float("nan"), "c": [1, 2], "d": 1.5})
+    assert "a" not in out and "b" not in out
+    assert out["c"] == "[1, 2]"
+    assert out["d"] == 1.5
+
+
+def test_growth_report_spans_still_map():
+    root, children = growth_report_to_spans({
+        "schema": "lupine.mlip.growth_loop.v1",
+        "search": {"rounds": 2, "beam_width": 3},
+        "case_summary": {"count": 4},
+        "results": [
+            {
+                "objective": "accuracy",
+                "promotion_label": "promote",
+                "best_candidate": {"accuracy_delta_mean": 0.01, "refusal_rate": 0.0},
+            }
+        ],
+    })
+    assert root["mlip.search.rounds"] == 2
     assert children[0]["mlip.objective"] == "accuracy"
-    assert children[0]["mlip.best.accuracy_delta_mean"] == 0.04
-
-
-def _run() -> None:
-    tests = [
-        test_sanitize_drops_none_and_nonfinite,
-        test_promotion_root_records_energy_hypothesis_contract,
-        test_promotion_child_separates_error_reduction_from_raw_score_delta,
-        test_downstream_regression_preserved_as_refutation_evidence,
-        test_growth_spans_carry_energy_anchor_contract,
-    ]
-    for test in tests:
-        test()
-
-
-if __name__ == "__main__":
-    _run()

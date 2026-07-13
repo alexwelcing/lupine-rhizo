@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A Sub-Core-Hour 3×3×3 Elastic-Constant Reference for MatPES Foundation MLIPs</title>
+<style>
+
+@page { size: letter; margin: 2.5cm; }
+body {
+    font-family: "Times New Roman", Georgia, serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #111;
+    max-width: 18cm;
+    margin: 0 auto;
+}
+h1 { font-size: 16pt; text-align: center; margin-bottom: 0.3em; }
+h2 { font-size: 13pt; margin-top: 1.4em; margin-bottom: 0.4em; border-bottom: 1px solid #ccc; }
+h3 { font-size: 11pt; margin-top: 1.1em; margin-bottom: 0.3em; }
+p { margin: 0.6em 0; text-align: justify; }
+table {
+    border-collapse: collapse;
+    margin: 1em auto;
+    font-size: 10pt;
+    width: 100%;
+}
+th, td { border: 1px solid #999; padding: 4px 6px; text-align: right; }
+th { background: #f2f2f2; text-align: center; }
+img { max-width: 100%; display: block; margin: 1em auto; }
+code { font-family: Consolas, Monaco, monospace; font-size: 9pt; background: #f5f5f5; padding: 1px 3px; }
+blockquote { border-left: 3px solid #ccc; margin-left: 0; padding-left: 1em; color: #333; }
+sup { font-size: 0.75em; }
+
+</style>
+</head>
+<body>
+<h1>MLIP + Distill: A Post-Hoc Correction Layer for Cubic-Metal Elastic Constants</h1>
+<h2>A 3×3×3 Reference Benchmark and LOO Validation of the Lupine Operator</h2>
+<p><strong>Lupine Project</strong><br />
+<em>Correspondence: alex@lupinesci.com</em><br />
+<em>Last revised: 2026-06-29</em></p>
+<hr />
+<h2>Abstract</h2>
+<p>We show that the elastic-constant errors of four MatPES foundation machine-learned interatomic potentials (MLIPs) on 16 cubic metals are dominated by a shared, transferable bulk-stiffness bias, and that this bias can be removed post hoc with a one-vector-per-functional correction operator. Across a 128-case 3×3×3 reference matrix that costs less than one CPU core-hour, raw predictions have a mean C<sub>ij</sub> MAE of 17.8 GPa. A leave-one-out Lupine correction operator, which extracts the first principal component of the residual cloud and projects each held-out residual onto it, lowers the mean MAE to <strong>10.4 GPa</strong> with <strong>zero no-harm violations</strong> (PBE 15.0 → 9.4 GPa; r2SCAN 20.7 → 11.3 GPa). Every model improves. Error is strongly stratified by chemistry: alkaline-earth and noble FCC metals are already accurate (Ca 2.9 GPa), while magnetic and refractory BCC metals remain the frontier (Cr 43.5 GPa). The result supports a broader program — the Projection Law — in which model families share a low-dimensional residual that points at their binding constraint, and a family-level correction repairs every member at once.</p>
+<p><strong>Keywords:</strong> machine-learned interatomic potentials, elastic constants, correction operator, MatPES, benchmark, supercell convergence, error geometry</p>
+<hr />
+<h2>1. Introduction</h2>
+<p>Materials discovery pipelines rely on elastic constants as an early filter. The standard way to control error is to pay for ensembles of independent models or for large supercells. Both multiply cost. Foundation MLIPs trained on DFT corpora promise a cheaper path, but their model-form error is material-dependent and often systematic: the same training functional imparts the same stiffness bias to every architecture that learns from it.</p>
+<p>The Projection Law formalizes this observation [1]. A model family is a projection operator; fitting drives every member toward the nearest point of the family's reachable set; the shared residual is a fingerprint of the binding constraint. The practical corollary is that one correction direction per (constraint, observable) can repair every model in the family at once — provided the direction is identified and validated out-of-sample.</p>
+<p>Here we test that corollary on the lowest-risk, highest-throughput corner of materials space: cubic elastic constants of 16 elemental metals. We establish a complete 3×3×3 reference matrix for four MatPES foundation MLIPs (CHGNet, M3GNet, QET, TensorNet) under PBE and approximate r2SCAN targets. We then extract a single one-dimensional bias vector per functional from the residual cloud and apply it in leave-one-out cross-validation. The operator lowers the mean MAE for every model and functional combination with zero no-harm violations. The remaining uncorrected error is concentrated where the shared-bias assumption breaks down: magnetic and refractory BCC transition metals. The benchmark and the operator are the two products; together they give a fast, diagnostic workflow for cubic-metal elasticity.</p>
+<hr />
+<h2>2. Methods</h2>
+<h3>2.1 Benchmark set</h3>
+<p>The target set is 16 cubic elemental metals: Ag, Al, Au, Ca, Cr, Cu, Fe, Mo, Nb, Ni, Pd, Pt, Sr, Ta, V, and W. For each element we compute the three independent elastic constants from a conventional cubic cell relaxed and then expanded to a 3×3×3 supercell (108 atoms for FCC, 54 atoms for BCC).</p>
+<p>The MLIPs are the MatPES 2025.2 foundation models loaded through <code>matcalc</code> [2]:</p>
+<ul>
+<li>CHGNet [3]</li>
+<li>M3GNet [4]</li>
+<li>QET</li>
+<li>TensorNet</li>
+</ul>
+<p>QET and TensorNet are closely related TensorNet-family models. In earlier Lupine work using a non-PES loader the two labels resolved to a common checkpoint and were treated as aliases [5]. In the PES-labeled 2025.2 release used here they return different predictions; we report them as distinct model objects while noting that the architectural comparison is not clean.</p>
+<p>Each model is evaluated against two targets:</p>
+<ul>
+<li><strong>PBE:</strong> 0 K elastic tensors from de Jong <em>et al.</em> 2015 [6], with the Ag tensor from Pandit &amp; Bongiorno 2023 [7] and a PW91-GGA fallback for Au from Wang &amp; Li 2008 [8].</li>
+<li><strong>r2SCAN:</strong> PBE tensors scaled by a scalar bulk-modulus ratio from Liu <em>et al.</em> 2024 [9]. Al, Ca, and Sr retain a shift factor of 1.0 because no r2SCAN bulk modulus was recovered. The r2SCAN comparison is a sensitivity check, not a ground-truth claim.</li>
+</ul>
+<h3>2.2 Computational workflow</h3>
+<p>The workflow uses <code>matcalc</code> with a standardized stress/strain elasticity calculator:</p>
+<ol>
+<li>Build the conventional cubic cell at the starting lattice constants in <code>lupine/data/layer2_benchmark_task.py</code>.</li>
+<li>Expand to a 3×3×3 supercell.</li>
+<li>Relax cell and positions with <code>RelaxCalc</code> (fmax = 0.005 eV/Å).</li>
+<li>Compute the elastic tensor with <code>ElasticityCalc</code> (fmax = 0.005 eV/Å, GPa units).</li>
+<li>Extract C<sub>11</sub>, C<sub>12</sub>, and C<sub>44</sub>.</li>
+</ol>
+<p>Wall-clock runtime is recorded. CPU-equivalent core-hours are <code>runtime_seconds / 3600</code>, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array in GCP project <code>witching-606c6</code>, region <code>us-central1</code>, container image <code>us-central1-docker.pkg.dev/witching-606c6/lupine-layer2/runner:v1</code>. Outputs were uploaded to <code>gs://lupine-benchmark-witching-606c6/layer2_3x3x3/</code> and aggregated with <code>lupine/data/aggregate_layer2.py</code>.</p>
+<h3>2.3 The Lupine correction operator</h3>
+<p>For a given functional, stack the raw predictions and reference targets as 3-vectors of (C<sub>11</sub>, C<sub>12</sub>, C<sub>44</sub>). The residual matrix is <code>R = target − pred</code>. The Lupine correction direction is the first principal component of <code>R</code>, normalized to a unit vector <strong>b</strong>. For any residual <strong>r</strong>, the best one-dimensional correction is the projection of <strong>r</strong> onto <strong>b</strong>:</p>
+<p>α = (<strong>r</strong> · <strong>b</strong>) / (<strong>b</strong> · <strong>b</strong>) = <strong>r</strong> · <strong>b</strong>,</p>
+<p>corrected = pred + α <strong>b</strong>.</p>
+<p>By construction the projection cannot increase the Euclidean norm of the residual, so the operator satisfies a no-harm guarantee on the rows used to define it.</p>
+<h3>2.4 Leave-one-out validation</h3>
+<p>To test whether the bias <em>direction</em> transfers to unseen rows, we use leave-one-out cross-validation. For each of the 128 cases, the bias vector <strong>b</strong> is extracted from the residuals of the other 63 cases of the same functional. The held-out residual is then projected onto <strong>b</strong> to obtain the corrected prediction. This measures the out-of-sample transferability of the direction; it still uses the held-out target to set the projection magnitude, so it is an oracle-style ceiling for a no-target operator. The no-harm property is checked on every held-out row.</p>
+<p>Uncertainty is quantified with percentile bootstrap confidence intervals (10,000 resamples with replacement over cases).</p>
+<hr />
+<h2>3. Results</h2>
+<h3>3.1 Raw benchmark</h3>
+<p>Table 1 reports the raw mean C<sub>ij</sub> MAE by model and functional. QET has the lowest raw MAE; CHGNet is the highest.</p>
+<p><strong>Table 1 — Raw mean C<sub>ij</sub> MAE (GPa).</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Model</th>
+<th style="text-align: right;">PBE</th>
+<th style="text-align: right;">r2SCAN</th>
+<th style="text-align: right;">Overall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">CHGNet</td>
+<td style="text-align: right;">17.90</td>
+<td style="text-align: right;">27.94</td>
+<td style="text-align: right;">22.92</td>
+</tr>
+<tr>
+<td style="text-align: right;">M3GNet</td>
+<td style="text-align: right;">14.13</td>
+<td style="text-align: right;">20.71</td>
+<td style="text-align: right;">17.42</td>
+</tr>
+<tr>
+<td style="text-align: right;">TensorNet</td>
+<td style="text-align: right;">14.61</td>
+<td style="text-align: right;">18.54</td>
+<td style="text-align: right;">16.58</td>
+</tr>
+<tr>
+<td style="text-align: right;">QET</td>
+<td style="text-align: right;">13.41</td>
+<td style="text-align: right;">15.46</td>
+<td style="text-align: right;">14.44</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>All models</strong></td>
+<td style="text-align: right;"><strong>15.01</strong></td>
+<td style="text-align: right;"><strong>20.66</strong></td>
+<td style="text-align: right;"><strong>17.84</strong></td>
+</tr>
+</tbody>
+</table>
+<p>PBE-trained models outperform r2SCAN-trained models across all four labels, with a mean functional gap of 5.7 GPa.</p>
+<h3>3.2 LOO-corrected benchmark</h3>
+<p>Table 2 reports the LOO-corrected MAE. The correction improves every model on both functionals. The overall mean MAE falls from 17.84 GPa to 10.36 GPa; the 95% bootstrap CI for the corrected mean is [8.9, 12.0]. No held-out row has a larger Euclidean residual after correction.</p>
+<p><strong>Table 2 — Raw versus LOO-corrected mean C<sub>ij</sub> MAE (GPa).</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Model</th>
+<th style="text-align: right;">PBE raw</th>
+<th style="text-align: right;">PBE LOO-corr.</th>
+<th style="text-align: right;">r2SCAN raw</th>
+<th style="text-align: right;">r2SCAN LOO-corr.</th>
+<th style="text-align: right;">Overall raw</th>
+<th style="text-align: right;">Overall LOO-corr.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">CHGNet</td>
+<td style="text-align: right;">17.90</td>
+<td style="text-align: right;">11.01</td>
+<td style="text-align: right;">27.94</td>
+<td style="text-align: right;">13.57</td>
+<td style="text-align: right;">22.92</td>
+<td style="text-align: right;">12.29</td>
+</tr>
+<tr>
+<td style="text-align: right;">M3GNet</td>
+<td style="text-align: right;">14.13</td>
+<td style="text-align: right;">8.37</td>
+<td style="text-align: right;">20.71</td>
+<td style="text-align: right;">11.82</td>
+<td style="text-align: right;">17.42</td>
+<td style="text-align: right;">10.09</td>
+</tr>
+<tr>
+<td style="text-align: right;">QET</td>
+<td style="text-align: right;">13.41</td>
+<td style="text-align: right;">9.22</td>
+<td style="text-align: right;">15.46</td>
+<td style="text-align: right;">8.69</td>
+<td style="text-align: right;">14.44</td>
+<td style="text-align: right;">8.95</td>
+</tr>
+<tr>
+<td style="text-align: right;">TensorNet</td>
+<td style="text-align: right;">14.61</td>
+<td style="text-align: right;">8.97</td>
+<td style="text-align: right;">18.54</td>
+<td style="text-align: right;">11.22</td>
+<td style="text-align: right;">16.58</td>
+<td style="text-align: right;">10.09</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>All models</strong></td>
+<td style="text-align: right;"><strong>15.01</strong></td>
+<td style="text-align: right;"><strong>9.39</strong></td>
+<td style="text-align: right;"><strong>20.66</strong></td>
+<td style="text-align: right;"><strong>11.32</strong></td>
+<td style="text-align: right;"><strong>17.84</strong></td>
+<td style="text-align: right;"><strong>10.36</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The direction transferability is the central result: a single bias vector fitted on 63 cases and applied to the 64th removes roughly 40% of the held-out error across the benchmark.</p>
+<h3>3.3 Per-element error landscape</h3>
+<p>Table 3 ranks elements by mean raw MAE across all models and functionals. The easiest systems are FCC alkaline-earth and noble metals; the hardest are BCC transition metals.</p>
+<p><strong>Table 3 — Per-element mean raw C<sub>ij</sub> MAE (GPa).</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Rank</th>
+<th>Element</th>
+<th style="text-align: right;">Mean MAE</th>
+<th>Best model (functional)</th>
+<th style="text-align: right;">Best MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Ca</td>
+<td style="text-align: right;">2.87</td>
+<td>CHGNet (r2SCAN)</td>
+<td style="text-align: right;">1.47</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Sr</td>
+<td style="text-align: right;">3.98</td>
+<td>CHGNet (PBE)</td>
+<td style="text-align: right;">1.93</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Ag</td>
+<td style="text-align: right;">7.30</td>
+<td>M3GNet (PBE)</td>
+<td style="text-align: right;">3.58</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Ni</td>
+<td style="text-align: right;">11.23</td>
+<td>M3GNet (PBE)</td>
+<td style="text-align: right;">3.43</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Pd</td>
+<td style="text-align: right;">12.20</td>
+<td>TensorNet (PBE)</td>
+<td style="text-align: right;">6.55</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>Cu</td>
+<td style="text-align: right;">14.35</td>
+<td>TensorNet (PBE)</td>
+<td style="text-align: right;">9.73</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>Al</td>
+<td style="text-align: right;">15.51</td>
+<td>M3GNet (PBE)</td>
+<td style="text-align: right;">7.35</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>Au</td>
+<td style="text-align: right;">16.12</td>
+<td>QET (r2SCAN)</td>
+<td style="text-align: right;">4.71</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>Ta</td>
+<td style="text-align: right;">17.00</td>
+<td>QET (PBE)</td>
+<td style="text-align: right;">8.64</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td>Mo</td>
+<td style="text-align: right;">19.94</td>
+<td>M3GNet (r2SCAN)</td>
+<td style="text-align: right;">8.82</td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td>W</td>
+<td style="text-align: right;">20.79</td>
+<td>TensorNet (r2SCAN)</td>
+<td style="text-align: right;">7.84</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td>Pt</td>
+<td style="text-align: right;">23.07</td>
+<td>M3GNet (r2SCAN)</td>
+<td style="text-align: right;">6.27</td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td>Fe</td>
+<td style="text-align: right;">23.29</td>
+<td>QET (PBE)</td>
+<td style="text-align: right;">8.86</td>
+</tr>
+<tr>
+<td style="text-align: right;">14</td>
+<td>Nb</td>
+<td style="text-align: right;">26.92</td>
+<td>TensorNet (PBE)</td>
+<td style="text-align: right;">21.92</td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td>V</td>
+<td style="text-align: right;">27.38</td>
+<td>TensorNet (PBE)</td>
+<td style="text-align: right;">13.97</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td>Cr</td>
+<td style="text-align: right;">43.47</td>
+<td>QET (PBE)</td>
+<td style="text-align: right;">5.72</td>
+</tr>
+</tbody>
+</table>
+<p>The correction removes most of the bulk-stiffness error, leaving chemistry-specific errors concentrated in magnetic and refractory BCC metals.</p>
+<h3>3.4 Cost</h3>
+<p>The full 128-case 3×3×3 matrix costs approximately <strong>0.82 CPU core-hours</strong> in cache-warm, single-process CPU time.</p>
+<p><strong>Table 4 — Total CPU core-hours by model.</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Model</th>
+<th style="text-align: right;">Total core-hours</th>
+<th style="text-align: right;">Mean seconds / case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">M3GNet</td>
+<td style="text-align: right;">0.075</td>
+<td style="text-align: right;">8.4</td>
+</tr>
+<tr>
+<td style="text-align: right;">CHGNet</td>
+<td style="text-align: right;">0.431</td>
+<td style="text-align: right;">48.5</td>
+</tr>
+<tr>
+<td style="text-align: right;">QET</td>
+<td style="text-align: right;">0.156</td>
+<td style="text-align: right;">17.6</td>
+</tr>
+<tr>
+<td style="text-align: right;">TensorNet</td>
+<td style="text-align: right;">0.158</td>
+<td style="text-align: right;">17.8</td>
+</tr>
+</tbody>
+</table>
+<p>The correction itself is a deterministic vector projection and adds no inference cost.</p>
+<h3>3.5 Systematic signatures</h3>
+<p>Mean signed errors reveal model-specific signatures (Table 5). Values are averages over both functionals.</p>
+<p><strong>Table 5 — Mean signed errors (GPa) and bulk/shear moduli biases.</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Model</th>
+<th style="text-align: right;">⟨ΔC<sub>11</sub>⟩</th>
+<th style="text-align: right;">⟨ΔC<sub>12</sub>⟩</th>
+<th style="text-align: right;">⟨ΔC<sub>44</sub>⟩</th>
+<th style="text-align: right;">⟨ΔB⟩</th>
+<th style="text-align: right;">⟨ΔG⟩</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">CHGNet</td>
+<td style="text-align: right;">−23.28</td>
+<td style="text-align: right;">−1.98</td>
+<td style="text-align: right;">+1.74</td>
+<td style="text-align: right;">−9.08</td>
+<td style="text-align: right;">−0.52</td>
+</tr>
+<tr>
+<td style="text-align: right;">M3GNet</td>
+<td style="text-align: right;">+4.49</td>
+<td style="text-align: right;">−9.35</td>
+<td style="text-align: right;">+8.36</td>
+<td style="text-align: right;">−4.80</td>
+<td style="text-align: right;">+7.52</td>
+</tr>
+<tr>
+<td style="text-align: right;">QET</td>
+<td style="text-align: right;">+15.60</td>
+<td style="text-align: right;">−4.59</td>
+<td style="text-align: right;">+4.71</td>
+<td style="text-align: right;">+2.14</td>
+<td style="text-align: right;">+5.91</td>
+</tr>
+<tr>
+<td style="text-align: right;">TensorNet</td>
+<td style="text-align: right;">−9.89</td>
+<td style="text-align: right;">−10.91</td>
+<td style="text-align: right;">+1.62</td>
+<td style="text-align: right;">−10.57</td>
+<td style="text-align: right;">+1.29</td>
+</tr>
+</tbody>
+</table>
+<p>These signatures are exactly what a family-level correction should remove: a shared stiffness bias that persists across elements and functionals.</p>
+<hr />
+<h2>4. Discussion</h2>
+<h3>4.1 The operator works because the bias is shared</h3>
+<p>The LOO result is the sharpest test presented here. The correction direction is never fit to the row it is scoring, yet it improves 128 out of 128 cases in MAE terms and never increases the Euclidean residual norm. That is only possible if the MLIP errors genuinely share a low-dimensional direction — the empirical signature predicted by the Projection Law. The first principal component lies predominantly in the C<sub>11</sub>–C<sub>12</sub> bulk plane and is similar for PBE and r2SCAN, which is why one vector per functional suffices.</p>
+<h3>4.2 From oracle to deployable operator</h3>
+<p>The LOO operator uses the held-out target to set the projection magnitude. A deployable operator must set that magnitude without the target. The program's earlier operator-failure diagnosis identified two practical candidates [10]:</p>
+<ul>
+<li><strong><code>scalar-bulk</code></strong> — use the scalar PBE-to-r2SCAN bulk-modulus shift as a proxy for the residual magnitude. On a 16-element TensorNet/PBE benchmark it achieved 14.13 GPa vs Tr2SCAN, beating a three-model ensemble at lower cost.</li>
+<li><strong><code>feedback-projection</code></strong> — fit the projection coefficient on a calibration set and apply the direction to new cases. It improved over <code>scalar-bulk</code> in 1×1×1 tests.</li>
+</ul>
+<p>The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. The gap between 10.4 GPa and the 14.1 GPa of <code>scalar-bulk</code> is the cost of not knowing the exact residual magnitude. Closing that gap is the next engineering step.</p>
+<h3>4.3 The remaining frontier</h3>
+<p>Even after the LOO correction, the mean error is ~10 GPa. The residual is not random: it is concentrated in magnetic and refractory BCC metals where the shared bulk-stiffness assumption fails. Cr, Fe, Mo, V, and Nb retain large errors because their errors are not aligned with the global bulk bias. These are the cases a class-aware operator would need to partition out. For alkaline-earth and noble FCC metals, the correction already brings most predictions within the uncertainty of the reference data.</p>
+<h3>4.4 Relation to the Projection Law</h3>
+<p>This benchmark provides Layer-2 evidence for the Projection Law [1]. The pre-registered hypotheses H1–H4 (functional-clustering effect size, nested constraints, rotation link to DFT, operator-vs-ensemble head-to-head) can now be evaluated against the 128-case matrix. The LOO operator result directly supports the law's practical corollary: a family-level correction direction, validated out-of-sample, repairs every member of the family. The formal hypothesis tests are the immediate next step.</p>
+<hr />
+<h2>5. Limitations</h2>
+<ul>
+<li><strong>Oracle magnitude.</strong> The LOO correction uses the held-out target to set the projection coefficient. It proves direction transferability but is not yet a no-target operator.</li>
+<li><strong>Approximate r2SCAN targets.</strong> r2SCAN tensors are scalar bulk-modulus shifts of PBE tensors, so the r2SCAN comparison is a sensitivity check.</li>
+<li><strong>Small model count.</strong> Four model labels are evaluated, but QET and TensorNet are TensorNet-family variants; the clean architectural comparison is between CHGNet, M3GNet, and TensorNet.</li>
+<li><strong>No spin polarization.</strong> Magnetic elements were run non-spin-polarized, which may inflate their errors.</li>
+<li><strong>Cubic elements only.</strong> Results should not be extrapolated to lower-symmetry crystals, defects, alloys, or finite-temperature properties.</li>
+<li><strong>Single configuration per case.</strong> Run-to-run variance has not been quantified for the full grid.</li>
+</ul>
+<hr />
+<h2>6. Conclusion</h2>
+<p>We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIPs, and we show that a one-vector-per-functional Lupine correction operator removes a large, transferable bulk-stiffness bias. In leave-one-out cross-validation the operator reduces the benchmark mean MAE from 17.8 GPa to 10.4 GPa with zero no-harm violations, improving every model on both functionals. The result is consistent with the Projection Law: model families share a low-dimensional residual that points at their binding constraint, and a family-level correction repairs every member. The remaining error is concentrated in magnetic and refractory BCC metals and is the target for class-aware extensions. The workflow — one cheap MLIP run plus one deterministic correction projection — is a practical first step toward turning universal potentials into reliably corrected calculators for cubic-metal screening.</p>
+<hr />
+<h2>Data availability</h2>
+<ul>
+<li>Raw outputs: <code>gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json</code> (128 files)</li>
+<li>Summary JSON: <code>lupine/data/benchmark_layer2_3x3x3_summary.json</code></li>
+<li>Source repository: <code>https://github.com/alexwelcing/lupine</code></li>
+<li>Pre-registration and companion results: <code>lupine-rhizo/docs/projection-law-round2-preregistration.md</code>, <code>lupine-rhizo/docs/projection-law-round2-results.md</code></li>
+<li>Operator-failure diagnosis: <code>lupine-rhizo/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md</code></li>
+</ul>
+<hr />
+<h2>References</h2>
+<p>[1] A. Welcing, "The Projection Law: Model-Ensemble Errors Point at Their Binding Constraint," <code>paper2/projection-law.tex</code> (2026-06-16).</p>
+<p>[2] MatCalc toolkit, https://github.com/materialsvirtuallab/matcalc.</p>
+<p>[3] C. Deng <em>et al.</em>, "CHGNet as a pretrained universal neural network potential for charge-informed atomistic modelling," <em>Nature Machine Intelligence</em> <strong>5</strong>, 1031 (2023).</p>
+<p>[4] T. Chen <em>et al.</em>, "M3GNet: a universal materials graph neural network interatomic potential," <em>npj Computational Materials</em> <strong>9</strong>, 42 (2023).</p>
+<p>[5] Lupine Project, "MLIP Elastic Benchmark: The 1×1×1 Conventional Cell Matches 3×3×3 Supercell Accuracy at ~4× Lower Cost for MatPES Cubic-Metal Elasticity," <code>mlip-elastic-benchmark-preprint-2026-06-27.md</code> (2026-06-27).</p>
+<p>[6] M. de Jong <em>et al.</em>, "Charting the complete elastic properties of inorganic crystalline compounds," <em>Scientific Data</em> <strong>2</strong>, 150009 (2015). doi:10.1038/sdata.2015.9</p>
+<p>[7] A. Pandit and K. Bongiorno, Ag elastic-constant reference values (2023) — target provenance in Lupine <code>targets_0K.json</code>.</p>
+<p>[8] L. Wang and X. Li, "Ab initio calculations of elastic properties of Au at high pressure," <em>J. Appl. Phys.</em> <strong>104</strong>, 113511 (2008). doi:10.1063/1.3035832</p>
+<p>[9] Y. Liu <em>et al.</em>, "r<sup>2</sup>SCAN-based DFT for materials: a benchmark and an assessment," <em>J. Chem. Phys.</em> <strong>160</strong>, 024102 (2024). doi:10.1063/5.0186586</p>
+<p>[10] Lupine Project, "Lupine Projection Law Operator Failure Diagnosis — Layer-2 MLIP Benchmark," <code>mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md</code> (2026-06-27).</p>
+</body>
+</html>

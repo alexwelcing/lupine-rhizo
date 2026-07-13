@@ -1,0 +1,23 @@
+{
+  "schema": "lupine.a6_bridge.manifest.v1",
+  "field": "forces",
+  "description": "Minimal end-to-end A6 bridge manifest using the existing 5-structure canonical-structures-v2 MPtrj pilot set. Each model file contains the same 5 configurations / 107 atoms.",
+  "models": {
+    "chgnet": [
+      "docs/glim-m3-upgrade/runs/live/forces/chgnet__baseline.json"
+    ],
+    "mace-mp-0": [
+      "docs/glim-m3-upgrade/runs/live/forces/mace-mp-0__baseline.json"
+    ],
+    "sevennet": [
+      "docs/glim-m3-upgrade/runs/live/forces/sevennet__baseline.json"
+    ]
+  },
+  "metadata": {
+    "source": "canonical-structures-v2 MPtrj pilot",
+    "n_configs": 5,
+    "n_atoms_total": 107,
+    "reference_provenance": "MPtrj DFT",
+    "models_provided": ["chgnet", "mace-mp-0", "sevennet"]
+  }
+}

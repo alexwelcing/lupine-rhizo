@@ -38,6 +38,12 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip \
 COPY gcp/mlip-cell-runner/mlip_cell_runner.py ./
 COPY python/lupine_distill_runtime ./lupine_distill_runtime
 COPY python/lupine_distill ./lupine_distill
+# Lean env-field certificates: the report backs the run-time CertificateGate
+# (tier-2-refused cells are excluded from correction). Without it in the
+# image, the gate's "auto" default resolves to a nonexistent path and the
+# gate is silently absent in production.
+COPY data/y_matrix_runs/env_field_binding_report.json ./data/y_matrix_runs/env_field_binding_report.json
+ENV MLIP_DISTILL_ENV_FIELD_REPORT=/app/data/y_matrix_runs/env_field_binding_report.json
 COPY --from=atlas_distill_builder /build/atlas-distill/target/release/atlas-distill /usr/local/bin/atlas-distill
 
 RUN /usr/local/bin/atlas-distill distill-policy --help >/dev/null \

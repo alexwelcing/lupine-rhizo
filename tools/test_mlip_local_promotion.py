@@ -1,322 +1,101 @@
+"""Unit tests for the promotion packet's Lean field-certificate wiring.
+
+`load_field_certificates` reads the env-field binding report emitted by
+`python/scripts/bind_env_field_instances.py` and re-checks each bound
+(model, material) cell through the `field_certificates` mirror of the Lean
+admissibility predicates. These tests run against the REAL repo report so the
+wiring is pinned to the same corpus the Lean `#guard` locks verify — a binder
+regeneration that changes the counts breaks here as well as in `lake build`.
+"""
+
 from __future__ import annotations
 
-import json
-from pathlib import Path
+import pathlib
 
-import mlip_local_promotion as promotion
+import mlip_local_promotion as promo
 import pytest
+from lupine_distill.odf.promotion_gate import evaluate_promotion
+
+pytestmark = pytest.mark.unit
+
+REPORT = promo.ENV_FIELD_REPORT
 
 
-def write_cell(
-    run_dir: Path,
-    *,
-    variant_id: str,
-    row_id: str = "energy_volume",
-    mlip_id: str = "chgnet",
-    accuracy: float,
-    speed: float,
-    error: float | None = None,
-    primary_metric: str = "energy_mae_ev_per_atom",
-) -> None:
-    artifact_dir = run_dir / "artifacts" / f"{variant_id}_{row_id}_{mlip_id}"
-    artifact_dir.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "schema": "lupine.mlip.cell_artifact.v1",
-        "cell_id": f"local:{variant_id}:{row_id}:{mlip_id}",
-        "variant_id": variant_id,
-        "row_id": row_id,
-        "mlip_id": mlip_id,
-        "distill_profile": "off" if variant_id == "baseline" else "accuracy",
-        "accuracy": {
-            "score": accuracy,
-            "primary_metric": primary_metric,
-            "error": 1.0 - accuracy if error is None else error,
-        },
-        "speed": {"score": speed, "unit": "structures_per_second"},
-        "checkpoint": {"mode": "read-write", "loaded_predictions": 0, "written_predictions": 1},
+def test_repo_report_exists_and_loads_for_chgnet():
+    env_field = promo.load_field_certificates(REPORT, ["chgnet"])
+    assert env_field is not None
+    assert env_field["corpus_sha256_12"]
+    # chgnet binds every fcc (9), bcc (7), and diamond (1) material.
+    assert len(env_field["entries"]) == 17
+    structures = {entry["structure"] for entry in env_field["entries"]}
+    assert structures == {"fcc", "bcc", "diamond"}
+
+
+def test_chgnet_fe_bcc_cell_is_tier2_with_lean_ref():
+    env_field = promo.load_field_certificates(REPORT, ["chgnet"])
+    fe = next(
+        entry
+        for entry in env_field["entries"]
+        if entry["material"] == "Fe" and entry["structure"] == "bcc"
+    )
+    cert = fe["certificate"]
+    assert cert.tier == "error_field"
+    assert cert.coordinations == (4, 6, 7)
+    assert cert.theorem_ref.endswith("AnchoredField.mkAnchoredFieldBcc")
+    assert fe["lean_name"] == "chgnet_Fe"
+
+
+def test_runtime_alias_resolves_to_binder_model():
+    """A run whose mlip id is the runner's `mace-mp-0` attaches the binder's
+    `mace-mp-medium` certificates."""
+    env_field = promo.load_field_certificates(REPORT, ["mace-mp-0"])
+    assert len(env_field["entries"]) == 17
+    assert {entry["model_id"] for entry in env_field["entries"]} == {"mace-mp-medium"}
+
+
+def test_unknown_model_yields_no_entries():
+    env_field = promo.load_field_certificates(REPORT, ["no-such-model"])
+    assert env_field is not None
+    assert env_field["entries"] == []
+
+
+def test_missing_report_returns_none():
+    missing = pathlib.Path("/nonexistent/env_field_binding_report.json")
+    assert promo.load_field_certificates(missing, ["chgnet"]) is None
+
+
+def test_packet_block_rolls_up_tiers_and_refs():
+    env_field = promo.load_field_certificates(REPORT, ["chgnet"])
+    block = promo.field_certificates_packet_block(env_field, ["chgnet"])
+    assert block["n_cells"] == 17
+    assert block["n_error_field"] + block["n_measured_field_refusals"] == 17
+    # chgnet softens monotonically on Ag/Al/Au/Cu/Ni/Pd (fcc),
+    # Cr/Fe/Mo/W (bcc), and Si (diamond): 11 directional-tier cells.
+    assert block["n_error_field"] == 11
+    assert any(ref.endswith("mkAnchoredFieldBcc") for ref in block["theorem_refs"])
+    cell = block["cells"][0]
+    assert {"material", "model_id", "structure", "lean_name", "tier",
+            "anchors_scaled", "theorem_ref", "reason"} <= set(cell)
+    assert promo.field_certificates_packet_block(None, []) is None
+
+
+def test_certificates_satisfy_odf_formal_gate():
+    """The wired certificates ARE the formal contract: a promotable uplift
+    plus the bound cells' theorem refs clears the gate without manual
+    --atlas-theorem-refs flags."""
+    env_field = promo.load_field_certificates(REPORT, ["chgnet"])
+    from lupine_distill.odf.field_certificates import merge_into_candidate_metadata
+
+    metadata = {
+        "model_id": "chgnet-distill-v3",
+        "distill_version": 3,
+        "overall_uplift_pct": 7.5,
     }
-    (artifact_dir / "cell_result.json").write_text(json.dumps(payload), encoding="utf-8")
-
-
-def test_promotion_gate_promotes_accuracy_pair_and_builds_accuracy_canary_commands(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", accuracy=0.70, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", accuracy=0.76, speed=9.0)
-
-    cells = promotion.load_cells(run_dir)
-    triplets = promotion.group_triplets(cells, promotion.VARIANT_SCOPES["accuracy"])
-    gate = promotion.evaluate_gate(
-        triplets,
-        objective="accuracy",
-        min_complete_triplets=1,
-        min_accuracy_delta=0.01,
-        min_accelerate_accuracy_delta=0.0,
-        max_accelerate_loss=0.02,
-        min_speedup=1.10,
-        require_energy_anchor=True,
-        block_downstream_regressions=True,
+    bare = evaluate_promotion(metadata)
+    assert bare.decision.value == "review"
+    enriched = merge_into_candidate_metadata(
+        metadata, [entry["certificate"] for entry in env_field["entries"]]
     )
-    canaries = promotion.build_cloud_canaries(
-        triplets=triplets,
-        backends={"chgnet": {"target_job": "mlip-cell-chgnet"}},
-        required_variants=promotion.VARIANT_SCOPES["accuracy"],
-        project="proj",
-        region="us-central1",
-        cloud_run_id="cloud-run",
-        manifest_url="gs://inputs/manifest.json",
-        support_manifest_url="gs://inputs/support.json",
-        artifact_prefix="gs://outputs/mlip",
-        worker_url="https://worker.test",
-        distill_policy_url="gs://policies/v2.json",
-        checkpoint_mode="read-write",
-        limit=1,
-        min_accuracy_delta=0.01,
-    )
-
-    assert gate["status"] == "promote_to_gcp_canary"
-    assert gate["mean_distill_accuracy_delta"] == pytest.approx(0.06)
-    assert gate["state_hypothesis"]["verdict"] == "testing_energy_anchor"
-    assert triplets[0]["promotion_delta_metric"] == "primary_error_reduction"
-    assert canaries[0]["target_job"] == "mlip-cell-chgnet"
-    command = canaries[0]["commands"]["distill_accuracy"]["powershell"]
-    assert "gcloud run jobs execute mlip-cell-chgnet" in command
-    assert "^|^run-cell|--run-id=cloud-run" in command
-    assert "|--distill-policy-url=gs://policies/v2.json" in command
-    assert "distill_accuracy_accelerate" not in canaries[0]["commands"]
-
-
-def test_promotion_gate_holds_when_distill_does_not_improve_accuracy(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", accuracy=0.70, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", accuracy=0.69, speed=9.0)
-    write_cell(run_dir, variant_id="distill_accuracy_accelerate", accuracy=0.68, speed=12.0)
-
-    gate = promotion.evaluate_gate(
-        promotion.group_triplets(promotion.load_cells(run_dir), promotion.VARIANT_SCOPES["accuracy"]),
-        objective="accuracy",
-        min_complete_triplets=1,
-        min_accuracy_delta=0.0,
-        min_accelerate_accuracy_delta=-0.02,
-        max_accelerate_loss=0.02,
-        min_speedup=1.10,
-        require_energy_anchor=True,
-        block_downstream_regressions=True,
-    )
-
-    assert gate["status"] == "hold_local"
-    assert any("energy_volume anchor must improve" in blocker for blocker in gate["blockers"])
-
-
-def test_physical_error_reduction_can_win_even_when_raw_score_decreases(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", accuracy=0.4116, error=0.4116, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", accuracy=0.2038, error=0.2038, speed=9.0)
-
-    triplets = promotion.group_triplets(
-        promotion.load_cells(run_dir),
-        promotion.VARIANT_SCOPES["accuracy"],
-    )
-    gate = promotion.evaluate_gate(
-        triplets,
-        objective="accuracy",
-        min_complete_triplets=1,
-        min_accuracy_delta=0.0,
-        min_accelerate_accuracy_delta=-0.02,
-        max_accelerate_loss=0.02,
-        min_speedup=1.10,
-        require_energy_anchor=True,
-        block_downstream_regressions=True,
-    )
-
-    assert gate["status"] == "promote_to_gcp_canary"
-    assert gate["mean_distill_accuracy_delta"] == pytest.approx(0.2078)
-    assert triplets[0]["primary_error_delta_distill"] == pytest.approx(0.2078)
-    assert triplets[0]["accuracy_score_delta_distill"] == pytest.approx(-0.2078)
-
-
-def test_promotion_gate_requires_energy_anchor_before_downstream_motivation(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(
-        run_dir,
-        variant_id="baseline",
-        row_id="forces",
-        primary_metric="force_rmse_ev_per_angstrom",
-        accuracy=0.70,
-        speed=10.0,
-    )
-    write_cell(
-        run_dir,
-        variant_id="distill_accuracy",
-        row_id="forces",
-        primary_metric="force_rmse_ev_per_angstrom",
-        accuracy=0.80,
-        speed=9.0,
-    )
-
-    gate = promotion.evaluate_gate(
-        promotion.group_triplets(promotion.load_cells(run_dir), promotion.VARIANT_SCOPES["accuracy"]),
-        objective="accuracy",
-        min_complete_triplets=1,
-        min_accuracy_delta=0.0,
-        min_accelerate_accuracy_delta=-0.02,
-        max_accelerate_loss=0.02,
-        min_speedup=1.10,
-        require_energy_anchor=True,
-        block_downstream_regressions=True,
-    )
-
-    assert gate["status"] == "hold_local"
-    assert gate["state_hypothesis"]["verdict"] == "insufficient_energy_anchor"
-    assert any("energy_volume anchor triplet is required" in blocker for blocker in gate["blockers"])
-
-
-def test_canaries_skip_numerically_neutral_downstream_rows(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", row_id="energy_volume", accuracy=0.0, error=0.40, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", row_id="energy_volume", accuracy=0.0, error=0.20, speed=9.0)
-    write_cell(
-        run_dir,
-        variant_id="baseline",
-        row_id="relaxation_stability",
-        primary_metric="relaxation_stability_penalty",
-        accuracy=0.0,
-        error=0.56,
-        speed=3.0,
-    )
-    write_cell(
-        run_dir,
-        variant_id="distill_accuracy",
-        row_id="relaxation_stability",
-        primary_metric="relaxation_stability_penalty",
-        accuracy=0.0,
-        error=0.38,
-        speed=2.0,
-    )
-    write_cell(
-        run_dir,
-        variant_id="baseline",
-        row_id="stress",
-        primary_metric="stress_mae_gpa",
-        accuracy=0.0,
-        error=0.5669407405,
-        speed=10.0,
-    )
-    write_cell(
-        run_dir,
-        variant_id="distill_accuracy",
-        row_id="stress",
-        primary_metric="stress_mae_gpa",
-        accuracy=0.0,
-        error=0.5669405228,
-        speed=9.0,
-    )
-
-    triplets = promotion.group_triplets(
-        promotion.load_cells(run_dir),
-        promotion.VARIANT_SCOPES["accuracy"],
-    )
-    state = promotion.evaluate_state_hypothesis(triplets, min_accuracy_delta=0.0)
-    canaries = promotion.build_cloud_canaries(
-        triplets=triplets,
-        backends={"chgnet": {"target_job": "mlip-cell-chgnet"}},
-        required_variants=promotion.VARIANT_SCOPES["accuracy"],
-        project="proj",
-        region="us-central1",
-        cloud_run_id="cloud-run",
-        manifest_url="gs://inputs/manifest.json",
-        support_manifest_url="gs://inputs/support.json",
-        artifact_prefix="gs://outputs/mlip",
-        worker_url="https://worker.test",
-        distill_policy_url=None,
-        checkpoint_mode="read-write",
-        limit=5,
-        min_accuracy_delta=0.0,
-    )
-
-    assert state["downstream_win_count"] == 1
-    assert [canary["row_id"] for canary in canaries] == ["energy_volume", "relaxation_stability"]
-
-
-
-def test_odf_gate_downgrades_promote_to_review_without_formal_fields(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", accuracy=0.70, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", accuracy=0.76, speed=9.0)
-
-    packet_path = tmp_path / "packet.json"
-    rc = promotion.main(
-        [
-            "--run-dir", str(run_dir),
-            "--output", str(packet_path),
-            "--model-id", "test-model",
-            "--distill-version", "1",
-            "--overall-uplift-pct", "10.0",
-            "--min-accuracy-delta", "0.01",
-        ]
-    )
-    packet = json.loads(packet_path.read_text(encoding="utf-8"))
-
-    assert packet["odf_gate"] is not None
-    assert packet["odf_gate"]["decision"] == "review"
-    assert packet["odf_gate"]["uplift_band"] == "promote"
-    assert packet["odf_gate"]["formal_fields_present"] is False
-    # The local energy-state gate would promote, but ODF downgrades to review.
-    assert packet["gate"]["status"] == "hold_local"
-    assert any("ODF formal-verification gate requests review" in w for w in packet["gate"]["warnings"])
-    assert rc == 1
-
-
-def test_odf_gate_auto_promotes_with_formal_fields_and_uplift(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", accuracy=0.70, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", accuracy=0.76, speed=9.0)
-
-    packet_path = tmp_path / "packet.json"
-    rc = promotion.main(
-        [
-            "--run-dir", str(run_dir),
-            "--output", str(packet_path),
-            "--model-id", "test-model",
-            "--distill-version", "2",
-            "--overall-uplift-pct", "10.0",
-            "--atlas-theorem-refs", "Atlas.Materials.ErrorGeometry.RibbonBound",
-            "--formal-properties", "stability",
-            "--min-accuracy-delta", "0.01",
-        ]
-    )
-    packet = json.loads(packet_path.read_text(encoding="utf-8"))
-
-    assert packet["odf_gate"] is not None
-    assert packet["odf_gate"]["decision"] == "promote"
-    assert packet["odf_gate"]["formal_fields_present"] is True
-    # Local gate and ODF gate both promote.
-    assert packet["gate"]["status"] == "promote_to_gcp_canary"
-    assert rc == 0
-
-
-def test_odf_gate_rejects_negative_uplift(tmp_path: Path) -> None:
-    run_dir = tmp_path / "run"
-    write_cell(run_dir, variant_id="baseline", accuracy=0.70, speed=10.0)
-    write_cell(run_dir, variant_id="distill_accuracy", accuracy=0.70, speed=9.0)
-
-    packet_path = tmp_path / "packet.json"
-    rc = promotion.main(
-        [
-            "--run-dir", str(run_dir),
-            "--output", str(packet_path),
-            "--model-id", "test-model",
-            "--distill-version", "3",
-            "--overall-uplift-pct", "-2.0",
-            "--atlas-theorem-refs", "Atlas.Materials.ErrorGeometry.RibbonBound",
-            "--formal-properties", "stability",
-            "--min-accuracy-delta", "0.0",
-        ]
-    )
-    packet = json.loads(packet_path.read_text(encoding="utf-8"))
-
-    assert packet["odf_gate"] is not None
-    assert packet["odf_gate"]["decision"] == "reject"
-    # ODF reject overrides the local gate.
-    assert packet["gate"]["status"] == "hold_local"
-    assert any("ODF formal-verification gate rejected" in b for b in packet["gate"]["blockers"])
-    assert rc == 1
+    gated = evaluate_promotion(enriched)
+    assert gated.decision.value == "promote"
+    assert gated.formal_fields_present

@@ -1,10 +1,10 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-07-02T17:42:32.083Z",
+  "generatedAt": "2026-07-11T10:53:23.610Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "45f0587058c83545f54f940c32387a323593ac0c",
-    "dirty": true,
+    "commit": "13d73e6851a16f9a10fedce2327310add6533ed4",
+    "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
   "catalog": {
@@ -1326,8 +1326,8 @@
     {
       "source": "README.md",
       "bundleSource": "articles/README.md",
-      "bytes": 3959,
-      "sha256": "4ac40c4624b69b4baf638d04a4d94112ba32e3fe392aae90c840a064eae0b0b5"
+      "bytes": 3832,
+      "sha256": "99de890f8e784acea6367d832c82c65a7d0ce89d32c2daba024c2f8ca00aed33"
     },
     {
       "source": "GLOSSARY.md",
@@ -1344,8 +1344,8 @@
     {
       "source": "docs/navigation.md",
       "bundleSource": "articles/docs/navigation.md",
-      "bytes": 10082,
-      "sha256": "e8a0be2d74855dc97ed94cbef540236c718756e1a9f269b4476922fc32725300"
+      "bytes": 9957,
+      "sha256": "a4326ee36f8cdd0e1af6ad9fb4b0215fe314e40f60a6c0a1a6a9d6e0a4c860ee"
     },
     {
       "source": "docs/data-provenance.md",
@@ -1368,8 +1368,8 @@
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 4356,
-      "sha256": "eab13866d4856e3d106be43811389947826a8ab05c8118e4e75024d956b9d8ca"
+      "bytes": 4301,
+      "sha256": "e3811261328f79431ea4ebe6c93fe644118b225e72f9c9f192bb2830e5035df4"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
@@ -1380,8 +1380,8 @@
     {
       "source": "docs/conjectures/hyper-ribbon-mlip-transfer.md",
       "bundleSource": "articles/docs/conjectures/hyper-ribbon-mlip-transfer.md",
-      "bytes": 2617,
-      "sha256": "6f4cb82c14bfabfff1ca439f89c0dc199f9a97923de4f0237e67f07f7d91d451"
+      "bytes": 2563,
+      "sha256": "9a0bc2e01d38ad2bf21a6d75e671260a8be96ef743de55cc979f31fe25894968"
     },
     {
       "source": "docs/conjectures/cross-mlip-orthogonal-errors.md",
@@ -1398,8 +1398,8 @@
     {
       "source": "docs/conjectures/fe-persistent-outlier.md",
       "bundleSource": "articles/docs/conjectures/fe-persistent-outlier.md",
-      "bytes": 2210,
-      "sha256": "c6e82b4d0dd26bd7cdd158a12f56950ca4bde4c5c5d58fc4cba2196013340f34"
+      "bytes": 2165,
+      "sha256": "d69cd3d41e51e2b608f4a5e95ca29d2cd0eb4220a2b46e30b15c1285eb088fad"
     },
     {
       "source": "docs/conjectures/dband-correlation.md",
@@ -1518,14 +1518,14 @@
     {
       "source": "docs/projection-law-round2-preregistration.md",
       "bundleSource": "articles/docs/projection-law-round2-preregistration.md",
-      "bytes": 9334,
-      "sha256": "6322daa47ae92f82ce99024749c02a5f50f02e66cf18ca28b867dc8633ec4e67"
+      "bytes": 9223,
+      "sha256": "9293bde19481b43a1185a1b36022aee6b81d4f0b466240be8a45f8ec54072e00"
     },
     {
       "source": "docs/projection-law-round2-results.md",
       "bundleSource": "articles/docs/projection-law-round2-results.md",
-      "bytes": 30989,
-      "sha256": "c6c8195e26f17aed81414bb976dfa470c60d58ba941ce9e7f1d533b34cf8d255"
+      "bytes": 30616,
+      "sha256": "3229ebd59594dea5bd3bb50014633709968b539134bba72f94408680fd5dc77e"
     },
     {
       "source": "paper/environment-error-field-2026-07-02.md",
@@ -1560,50 +1560,50 @@
     {
       "source": "docs/layer2_supercell_evaluation.md",
       "bundleSource": "articles/docs/layer2_supercell_evaluation.md",
-      "bytes": 17094,
-      "sha256": "1428c4840b3b20630aa10dba413e1f42b2b742663f7ec22e505cd2f27e07aee2"
+      "bytes": 16838,
+      "sha256": "64a7563eb499fc5532700a00bb61c0dea8ebe643f88d6918a6e1be34b3019b3d"
     },
     {
       "source": "docs/layer2_research_paper.md",
       "bundleSource": "articles/docs/layer2_research_paper.md",
-      "bytes": 20177,
-      "sha256": "9945373b5b20a31ea5db73e82e0b03f5e901944bf4391091c5d04d92a084334d"
+      "bytes": 19989,
+      "sha256": "3f31b83b45644b185f97c4988648a318f000590785c5946a2cd28b21755f2ba2"
     },
     {
       "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
-      "bytes": 20398,
-      "sha256": "1e6a1fc7755c74c856d5f5269f740a4e46d536ffdb123f238b747ea3ff2e3a2d"
+      "bytes": 20192,
+      "sha256": "d2452eea61923db9d3cbce26563fa51eda94ae1ed9751466b40fac86e1b93dba"
     },
     {
       "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
-      "bytes": 3299,
-      "sha256": "2d247521aeb466fd422759b9e504d4dc1f6e1e6ebb99e89bd842df4cc80bae13"
+      "bytes": 3242,
+      "sha256": "5c6bfc676bf50809cb9b23bb3b8e47e2f4a635d88a2698fe4ea5c406565ab094"
     },
     {
       "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
-      "bytes": 18345,
-      "sha256": "58f1ba4695c309d36b648ef730c42e683e8a075fa2a8d57d8472252198321f87"
+      "bytes": 18088,
+      "sha256": "d7395d21a613d4f2a03568fc561625f2d3a5391c31367f76d7a490aabc8b612c"
     },
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
-      "bytes": 22802,
-      "sha256": "e0cb2a4d0b62a74bd4082896963105e0f0cd6f9a4105c4a3c7ee1a02483fccfd"
+      "bytes": 17455,
+      "sha256": "a8df0eac902d444b3e41aa7971f8c8860e846c55e131a6f75cba824e064938f6"
     },
     {
       "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
       "bundleSource": "articles/docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
-      "bytes": 7276,
-      "sha256": "c647e996fe9f5bff0b8b8a389335edfd9f6af8006dd1a13d353225b1dd7bd92c"
+      "bytes": 7166,
+      "sha256": "fc97056950d040b416c7f5c266cf2210f24989a3bba4e6e2872e8e752b219d56"
     },
     {
       "source": "docs/formal-vision.md",
       "bundleSource": "articles/docs/formal-vision.md",
-      "bytes": 6945,
-      "sha256": "625927e8661c84d98bc20d915e6d78bdd4d8899cbb35718dcebac53d50322db6"
+      "bytes": 6793,
+      "sha256": "3e1aafc467e6ff565e7db54b9809c47c015c5ca20c3768516aab4398a9760007"
     },
     {
       "source": "docs/formal-methodology.md",
@@ -1632,14 +1632,14 @@
     {
       "source": "CHANGELOG.md",
       "bundleSource": "articles/CHANGELOG.md",
-      "bytes": 49547,
-      "sha256": "3f15cd9ba0a882c9cff86e6fc42502d709dd346e0e14768e02bfe2e36812966d"
+      "bytes": 66404,
+      "sha256": "3addce42ee3724891b9fc26ae7b165cf9f6fe3ef43a28d2d21846cbc9b5b3006"
     },
     {
       "source": "docs/papers-working.md",
       "bundleSource": "articles/docs/papers-working.md",
-      "bytes": 967,
-      "sha256": "d00c5014dd4e53fdb2d0bb771d4063d80eb095d1da61f92d629f78d650282935"
+      "bytes": 951,
+      "sha256": "a74311f230bc5367a2c823e2ec7ba0a485f093bfb5c805fa2f9f5915817e340f"
     },
     {
       "source": "docs/research_evolution_2026_05_05.md",
@@ -1662,14 +1662,14 @@
     {
       "source": "docs/born-screening-re-audit.md",
       "bundleSource": "articles/docs/born-screening-re-audit.md",
-      "bytes": 5083,
-      "sha256": "664d480b6c7d4fb201b69c0a5fb4c2d51a9daa352d3209b00fb9535a1dc9a89c"
+      "bytes": 5018,
+      "sha256": "0b7e8a2239c11a1586c6c4af2bf1afa2e8115ba285cca5350d8086bc47d1dfa3"
     },
     {
       "source": "docs/foundation-model-trust-layers.md",
       "bundleSource": "articles/docs/foundation-model-trust-layers.md",
-      "bytes": 8055,
-      "sha256": "f5f47a837d72b23c4c4e3aa10302ee6078a9c518f2a70f632c32b5869e98f2e6"
+      "bytes": 7938,
+      "sha256": "a0ea62a60f879799956f3708ef4e7d99a2c504a786a5864251efec786c05e815"
     },
     {
       "source": "docs/references.md",
@@ -1704,14 +1704,14 @@
     {
       "source": "docs/operating-system.md",
       "bundleSource": "articles/docs/operating-system.md",
-      "bytes": 1423,
-      "sha256": "c5b6caa239a63eae616419c1526d34c8f6cb443806334367bdc6a3966e15444f"
+      "bytes": 1387,
+      "sha256": "554699b41ef9279f83d11c3079e813e61b9beb4a5cbbc53689aa545c8c74b665"
     },
     {
       "source": "docs/resource-fabric.md",
       "bundleSource": "articles/docs/resource-fabric.md",
-      "bytes": 3181,
-      "sha256": "ba7d292895c3f32d0b26e5a98bda2f419ac60eb4315ba5be57b1d1ef4362086d"
+      "bytes": 3092,
+      "sha256": "fdca88fd312348b7e7667cdd80597d3b802f6c0d968dcc286d668fd11ec581a1"
     },
     {
       "source": "docs/reproduce.md",
@@ -1752,14 +1752,14 @@
     {
       "source": "docs/what-is-an-interatomic-potential.md",
       "bundleSource": "articles/docs/what-is-an-interatomic-potential.md",
-      "bytes": 2819,
-      "sha256": "e06cec00498caeea42945532cf1adc51bbf1292e942dc93935b3688d5b037368"
+      "bytes": 2782,
+      "sha256": "f2af6514039ad935d545f868b47ac1143f94c07540e18e7707991c1d69f61a7a"
     },
     {
       "source": "docs/projection-law-in-plain-language.md",
       "bundleSource": "articles/docs/projection-law-in-plain-language.md",
-      "bytes": 3301,
-      "sha256": "b2cdd20f595c0bb35cb11b8aa476dabbcac9a0e54463475cf8d0ad4bb2517402"
+      "bytes": 3270,
+      "sha256": "2ea5c903e4b45996ee6834421c1eced35dc317f0b7793f314de93d55ab0aab81"
     }
   ]
 }

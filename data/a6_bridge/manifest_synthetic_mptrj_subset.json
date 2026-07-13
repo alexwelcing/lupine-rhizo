@@ -1,0 +1,17 @@
+{
+  "schema": "lupine.a6_bridge.manifest.v1",
+  "field": "forces",
+  "description": "Synthetic small-scale MPtrj train subset for A6 bridge pilot validation. 20 materials, single config each, 544 atoms, 3 models with reference+noise predictions.",
+  "source": "canonical_distill_support_mptrj_train_v1.json",
+  "models": {
+    "mace-mp-0": [
+      "data/a6_bridge/synthetic_mptrj_subset/mace-mp-0__synthetic_mptrj_train.json"
+    ],
+    "sevennet": [
+      "data/a6_bridge/synthetic_mptrj_subset/sevennet__synthetic_mptrj_train.json"
+    ],
+    "chgnet": [
+      "data/a6_bridge/synthetic_mptrj_subset/chgnet__synthetic_mptrj_train.json"
+    ]
+  }
+}

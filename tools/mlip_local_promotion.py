@@ -26,10 +26,16 @@ from collections.abc import Iterable
 from datetime import datetime, timezone
 from typing import Any
 
+from lupine_distill.odf.field_certificates import (
+    certificates_from_binding_report,
+    merge_into_candidate_metadata,
+    theorem_refs,
+)
 from lupine_distill.odf.promotion_gate import evaluate_promotion
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BACKEND_CATALOG = ROOT / "gcp" / "mlip-cell-runner" / "backend_catalog.json"
+ENV_FIELD_REPORT = ROOT / "data" / "y_matrix_runs" / "env_field_binding_report.json"
 DEFAULT_MANIFEST_URL = "gs://shed-489901-atlas-inputs/mlip-baseline/canonical-structures-v2/manifest.json"
 DEFAULT_SUPPORT_MANIFEST_URL = "gs://shed-489901-atlas-inputs/mlip-baseline/canonical-distill-support-mptrj-train-plus-elastic-v1/manifest.json"
 DEFAULT_ARTIFACT_PREFIX = "gs://shed-489901-atlas-outputs/mlip-5x5x3"
@@ -243,6 +249,75 @@ def group_triplets(cells: list[dict[str, Any]], required_variants: Iterable[str]
             "speedup_accelerate_vs_distill": a_speed / d_speed if isinstance(a_speed, float) and isinstance(d_speed, float) and d_speed > 0 else None,
         })
     return triplets
+
+
+def load_field_certificates(
+    report_path: pathlib.Path,
+    model_ids: Iterable[str] | None,
+) -> dict[str, Any] | None:
+    """Anchor-admissibility certificates for the bound Y-matrix cells of this
+    run's models, from the env-field binding report emitted by
+    ``python/scripts/bind_env_field_instances.py``.
+
+    Each (model, material) cell's exact integer-scaled anchors are re-checked
+    through the ``lupine_distill.odf.field_certificates`` mirror of the Lean
+    admissibility predicate, so the promotion packet (and its Phoenix spans)
+    names, per cell, the kernel-checked tier — ``error_field`` (directional
+    softening laws apply) or ``measured_field`` (correction/ranking laws only,
+    with the refusal witness) — and the Lean theorem backing it. Returns
+    ``None`` when the report is missing; model matching is exact on the
+    binder's ``model_id``.
+    """
+    if not report_path.exists():
+        return None
+    report = load_json(report_path)
+    if not isinstance(report, dict):
+        return None
+    entries = certificates_from_binding_report(report, model_ids)
+    return {
+        "report": str(report_path),
+        "report_schema": report.get("schema"),
+        "corpus_sha256_12": report.get("corpus_sha256_12"),
+        "lean_module": report.get("lean_module"),
+        "entries": entries,
+    }
+
+
+def field_certificates_packet_block(
+    env_field: dict[str, Any] | None,
+    models: list[str],
+) -> dict[str, Any] | None:
+    """Serialize the loaded certificates into the promotion packet's
+    ``field_certificates`` block (the shape the Phoenix span emitter reads)."""
+    if env_field is None:
+        return None
+    entries = env_field["entries"]
+    certificates = [entry["certificate"] for entry in entries]
+    return {
+        "report": env_field["report"],
+        "report_schema": env_field["report_schema"],
+        "corpus_sha256_12": env_field["corpus_sha256_12"],
+        "lean_module": env_field["lean_module"],
+        "models": models,
+        "n_cells": len(entries),
+        "n_error_field": sum(
+            1 for c in certificates if c.tier == "error_field"
+        ),
+        "n_measured_field_refusals": sum(
+            1 for c in certificates if c.tier == "measured_field"
+        ),
+        "theorem_refs": theorem_refs(certificates),
+        "cells": [
+            {
+                "material": entry["material"],
+                "model_id": entry["model_id"],
+                "structure": entry["structure"],
+                "lean_name": entry["lean_name"],
+                **entry["certificate"].to_dict(),
+            }
+            for entry in entries
+        ],
+    }
 
 
 def evaluate_state_hypothesis(
@@ -562,6 +637,23 @@ def main(argv: Iterable[str] | None = None) -> int:
         default=None,
         help="proved formal properties required for auto-promote (repeatable)",
     )
+    parser.add_argument(
+        "--env-field-report",
+        type=pathlib.Path,
+        default=ENV_FIELD_REPORT,
+        help="env-field binding report whose Lean anchor certificates enrich the ODF gate and telemetry",
+    )
+    parser.add_argument(
+        "--env-field-models",
+        nargs="*",
+        default=None,
+        help="binder model ids to attach certificates for (default: this run's mlip ids)",
+    )
+    parser.add_argument(
+        "--no-env-field-certificates",
+        action="store_true",
+        help="skip attaching env-field anchor certificates to the gate and packet",
+    )
     parser.add_argument("--phoenix", action="store_true", help="emit the promotion packet to Phoenix via OTLP")
     parser.add_argument("--phoenix-dry-run", action="store_true", help="print Phoenix spans instead of exporting")
     parser.add_argument("--phoenix-endpoint", default=None, help="Phoenix OTLP relay base or .../v1/traces URL")
@@ -589,18 +681,35 @@ def main(argv: Iterable[str] | None = None) -> int:
         block_downstream_regressions=not args.allow_downstream_regressions,
     )
 
+    env_field: dict[str, Any] | None = None
+    env_field_models: list[str] = []
+    if not args.no_env_field_certificates:
+        env_field_models = (
+            [str(m) for m in args.env_field_models]
+            if args.env_field_models is not None
+            else sorted({str(cell["mlip_id"]) for cell in cells})
+        )
+        env_field = load_field_certificates(args.env_field_report, env_field_models)
+
     odf_gate: dict[str, Any] | None = None
     model_id = args.model_id or run_dir.name
     if model_id:
-        odf_gate = evaluate_promotion(
-            {
-                "model_id": model_id,
-                "distill_version": args.distill_version,
-                "overall_uplift_pct": args.overall_uplift_pct,
-                "atlas_theorem_refs": args.atlas_theorem_refs or [],
-                "formal_properties": args.formal_properties or [],
-            }
-        ).to_dict()
+        candidate_metadata: dict[str, Any] = {
+            "model_id": model_id,
+            "distill_version": args.distill_version,
+            "overall_uplift_pct": args.overall_uplift_pct,
+            "atlas_theorem_refs": args.atlas_theorem_refs or [],
+            "formal_properties": args.formal_properties or [],
+        }
+        if env_field and env_field["entries"]:
+            # The bound cells' Lean certificates ARE the formal contract: their
+            # theorem refs and witnessed outcomes satisfy (or refuse) the
+            # gate's formal-spec requirement with machine-checkable provenance.
+            candidate_metadata = merge_into_candidate_metadata(
+                candidate_metadata,
+                [entry["certificate"] for entry in env_field["entries"]],
+            )
+        odf_gate = evaluate_promotion(candidate_metadata).to_dict()
         # The formal gate must promote for auto-promotion to cloud. Anything else
         # keeps the packet local for human review.
         if odf_gate["decision"] == "reject":
@@ -641,6 +750,9 @@ def main(argv: Iterable[str] | None = None) -> int:
         "cloud_run_id": cloud_run_id,
         "gate": gate,
         "odf_gate": odf_gate,
+        "field_certificates": field_certificates_packet_block(
+            env_field, env_field_models
+        ),
         "thresholds": {
             "objective": args.objective,
             "required_variants": list(required_variants),

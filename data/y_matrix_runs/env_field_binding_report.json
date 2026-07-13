@@ -1,0 +1,2586 @@
+{
+ "schema": "lupine.env_field_binding_report.v2",
+ "corpus_sha256_12": "c4393f3e3bcb",
+ "generator": "python/scripts/bind_env_field_instances.py",
+ "lean_module": "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean",
+ "scale": 10000,
+ "structures": {
+  "fcc": {
+   "bulk_coordination": 12,
+   "vacancy_shell_atoms": 12,
+   "anchor_coordination": {
+    "gamma_100": 8,
+    "gamma_111": 9,
+    "vacancy": 11
+   },
+   "measured_ctor": "mkMeasuredField",
+   "anchored_ctor": "mkAnchoredField",
+   "validity_predicate": "scaledAnchorsValid",
+   "n_cells": 36,
+   "n_instances": 8,
+   "n_refusals": 28
+  },
+  "bcc": {
+   "bulk_coordination": 8,
+   "vacancy_shell_atoms": 8,
+   "anchor_coordination": {
+    "gamma_100": 4,
+    "gamma_110": 6,
+    "vacancy": 7
+   },
+   "measured_ctor": "mkMeasuredFieldBcc",
+   "anchored_ctor": "mkAnchoredFieldBcc",
+   "validity_predicate": "scaledAnchorsBccValid",
+   "n_cells": 28,
+   "n_instances": 7,
+   "n_refusals": 21
+  },
+  "diamond": {
+   "bulk_coordination": 4,
+   "vacancy_shell_atoms": 4,
+   "anchor_coordination": {
+    "vacancy": 3
+   },
+   "measured_ctor": "mkMeasuredFieldDiamond",
+   "anchored_ctor": "mkAnchoredFieldDiamond",
+   "validity_predicate": "scaledAnchorDiamondValid",
+   "n_cells": 4,
+   "n_instances": 4,
+   "n_refusals": 0
+  },
+  "rocksalt": {
+   "bulk_coordination": 6,
+   "vacancy_shell_atoms": 5,
+   "anchor_coordination": {
+    "vacancy": 5
+   },
+   "measured_ctor": "mkMeasuredFieldRocksalt",
+   "anchored_ctor": "mkAnchoredFieldRocksalt",
+   "validity_predicate": "scaledAnchorRocksaltValid",
+   "n_cells": 0,
+   "n_instances": 0,
+   "n_refusals": 0
+  }
+ },
+ "unbound_structures": {
+  "layered_oxide": "layered oxide cathodes (e.g., LiCoO2, NMC) require Li-migration barriers and transition-metal redox energetics that are not yet in the Y-matrix statics corpus; add intercalation voltage + Li-diffusion runs to bind them"
+ },
+ "cells": [
+  {
+   "material": "Ag",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.155999945173798,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.5578058654820545,
+     "ref_value": 0.81,
+     "p_ev": -0.13593949697104393,
+     "p_scaled": -1359
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.48277679995029554,
+     "ref_value": 0.773,
+     "p_ev": -0.13547945315732807,
+     "p_scaled": -1355
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.49308550799332806,
+     "ref_value": 0.68,
+     "p_ev": -0.015576207667222666,
+     "p_scaled": -156
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Ag"
+  },
+  {
+   "material": "Al",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.041377246255443,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.4774579542227058,
+     "ref_value": 0.915,
+     "p_ev": -0.22301711203511118,
+     "p_scaled": -2230
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.37319336946219195,
+     "ref_value": 0.795,
+     "p_ev": -0.18619260516972416,
+     "p_scaled": -1862
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.13715588604958384,
+     "ref_value": 0.61,
+     "p_ev": -0.03940367616253468,
+     "p_scaled": -394
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Al"
+  },
+  {
+   "material": "Au",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.169836308335619,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.42381929474299324,
+     "ref_value": 0.861,
+     "p_ev": -0.23722399209870454,
+     "p_scaled": -2372
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.35501447261768965,
+     "ref_value": 0.742,
+     "p_ev": -0.18185405058409915,
+     "p_scaled": -1819
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.3000208536783475,
+     "ref_value": 0.4,
+     "p_ev": -0.008331595526804375,
+     "p_scaled": -83
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Au"
+  },
+  {
+   "material": "Ca",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 5.5262855044407,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.36082394209260027,
+     "ref_value": 0.458,
+     "p_ev": -0.09261589418646696,
+     "p_scaled": -926
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.29591977197449487,
+     "ref_value": 0.461,
+     "p_ev": -0.13625484016592226,
+     "p_scaled": -1363
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.7508121066623232,
+     "ref_value": 1.13,
+     "p_ev": -0.03159899111147305,
+     "p_scaled": -316
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -926e-4 > P(9) = -1363e-4 (mono)"
+   ],
+   "lean_name": "chgnet_Ca"
+  },
+  {
+   "material": "Cu",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.6159135639002162,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.017851865032793,
+     "ref_value": 1.468,
+     "p_ev": -0.18367546437972043,
+     "p_scaled": -1837
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.8358080603432484,
+     "ref_value": 1.314,
+     "p_ev": -0.16897738094915427,
+     "p_scaled": -1690
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.712249755859375,
+     "ref_value": 1.07,
+     "p_ev": -0.02981252034505209,
+     "p_scaled": -298
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Cu"
+  },
+  {
+   "material": "Ni",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.503533152925787,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.9522626099755291,
+     "ref_value": 2.208,
+     "p_ev": -0.09796395318568754,
+     "p_scaled": -980
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.7210503752613058,
+     "ref_value": 1.924,
+     "p_ev": -0.06732726269312259,
+     "p_scaled": -673
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.227378562644617,
+     "ref_value": 1.39,
+     "p_ev": -0.01355178644628191,
+     "p_scaled": -136
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Ni"
+  },
+  {
+   "material": "Pd",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.951312676173653,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.102696567300196,
+     "ref_value": 1.526,
+     "p_ev": -0.20625011357862488,
+     "p_scaled": -2063
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.9560842479827948,
+     "ref_value": 1.338,
+     "p_ev": -0.16115382161520259,
+     "p_scaled": -1612
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.8659447564018592,
+     "ref_value": 1.16,
+     "p_ev": -0.024504603633178395,
+     "p_scaled": -245
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Pd"
+  },
+  {
+   "material": "Pt",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.97441352266014,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.2808074657916866,
+     "ref_value": 1.842,
+     "p_ev": -0.27664167088174263,
+     "p_scaled": -2766
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.0848265496215643,
+     "ref_value": 1.479,
+     "p_ev": -0.16827659468985734,
+     "p_scaled": -1683
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.797585946542199,
+     "ref_value": 0.61,
+     "p_ev": 0.01563216221184992,
+     "p_scaled": 156
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(11) = 156e-4 > 0 (softening)"
+   ],
+   "lean_name": "chgnet_Pt"
+  },
+  {
+   "material": "Sr",
+   "model_id": "chgnet",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 6.035362484885531,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.22508404874436017,
+     "ref_value": 0.347,
+     "p_ev": -0.13858839341785614,
+     "p_scaled": -1386
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.17479827732248218,
+     "ref_value": 0.342,
+     "p_ev": -0.16460298549535268,
+     "p_scaled": -1646
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.5630374484591982,
+     "ref_value": 0.95,
+     "p_ev": -0.03224687929506681,
+     "p_scaled": -322
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -1386e-4 > P(9) = -1646e-4 (mono)"
+   ],
+   "lean_name": "chgnet_Sr"
+  },
+  {
+   "material": "Ag",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.167744299482798,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8059472169990379,
+     "ref_value": 0.81,
+     "p_ev": -0.002196924306007771,
+     "p_scaled": -22
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.6970668478629186,
+     "ref_value": 0.773,
+     "p_ev": -0.03564706707413937,
+     "p_scaled": -356
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.6802304892401594,
+     "ref_value": 0.68,
+     "p_ev": 1.9207436679944772e-05,
+     "p_scaled": 0
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -22e-4 > P(9) = -356e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Ag"
+  },
+  {
+   "material": "Al",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.060446563630187,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8328230238053796,
+     "ref_value": 0.915,
+     "p_ev": -0.04228217957052094,
+     "p_scaled": -423
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.6503221376670413,
+     "ref_value": 0.795,
+     "p_ev": -0.06446736574209815,
+     "p_scaled": -645
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.48119535138027913,
+     "ref_value": 0.61,
+     "p_ev": -0.010733720718310072,
+     "p_scaled": -107
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -423e-4 > P(9) = -645e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Al"
+  },
+  {
+   "material": "Au",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.17646238968032,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8649495088955242,
+     "ref_value": 0.861,
+     "p_ev": 0.0021499079048852058,
+     "p_scaled": 21
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.6857381687776547,
+     "ref_value": 0.742,
+     "p_ev": -0.026522915122301673,
+     "p_scaled": -265
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.4394034040259953,
+     "ref_value": 0.4,
+     "p_ev": 0.0032836170021662745,
+     "p_scaled": 33
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 21e-4 > P(9) = -265e-4 (mono)",
+    "P(11) = 33e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_medium_Au"
+  },
+  {
+   "material": "Ca",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 5.4971863161033045,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.4349085284103533,
+     "ref_value": 0.458,
+     "p_ev": -0.021776703344382264,
+     "p_scaled": -218
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.3599503301414438,
+     "ref_value": 0.461,
+     "p_ev": -0.08252889965538657,
+     "p_scaled": -825
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.9500575686327295,
+     "ref_value": 1.13,
+     "p_ev": -0.014995202613939199,
+     "p_scaled": -150
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -218e-4 > P(9) = -825e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Ca"
+  },
+  {
+   "material": "Cu",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.6256506587464745,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.5000014919990687,
+     "ref_value": 1.468,
+     "p_ev": 0.013128096187666215,
+     "p_scaled": 131
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.3037026831959366,
+     "ref_value": 1.314,
+     "p_ev": -0.003658358225837966,
+     "p_scaled": -37
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.0443062236033143,
+     "ref_value": 1.07,
+     "p_ev": -0.0021411480330571497,
+     "p_scaled": -21
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 131e-4 > P(9) = -37e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Cu"
+  },
+  {
+   "material": "Ni",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.5103719876364687,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.9345200504782836,
+     "ref_value": 2.208,
+     "p_ev": -0.10516988093488651,
+     "p_scaled": -1052
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.8309882444518393,
+     "ref_value": 1.924,
+     "p_ev": -0.03097664398321874,
+     "p_scaled": -310
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.1154311742236587,
+     "ref_value": 1.39,
+     "p_ev": -0.02288073548136177,
+     "p_scaled": -229
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_medium_Ni"
+  },
+  {
+   "material": "Pd",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.9579243152588366,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.4007725106681677,
+     "ref_value": 1.526,
+     "p_ev": -0.06122013100577541,
+     "p_scaled": -612
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.3031560740793393,
+     "ref_value": 1.338,
+     "p_ev": -0.014752047241877652,
+     "p_scaled": -148
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.1821503720946112,
+     "ref_value": 1.16,
+     "p_ev": 0.001845864341217603,
+     "p_scaled": 18
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(11) = 18e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_medium_Pd"
+  },
+  {
+   "material": "Pt",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.9762250867585562,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.6240833793694796,
+     "ref_value": 1.842,
+     "p_ev": -0.10752065170551224,
+     "p_scaled": -1075
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.2739248209509664,
+     "ref_value": 1.479,
+     "p_ev": -0.08762847702448633,
+     "p_scaled": -876
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.4392359882878054,
+     "ref_value": 0.61,
+     "p_ev": -0.014230334309349548,
+     "p_scaled": -142
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_medium_Pt"
+  },
+  {
+   "material": "Sr",
+   "model_id": "mace-mp-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 6.01619368990594,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.2859011426677786,
+     "ref_value": 0.347,
+     "p_ev": -0.06901385998012197,
+     "p_scaled": -690
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.22436073942565082,
+     "ref_value": 0.342,
+     "p_ev": -0.11507636842735189,
+     "p_scaled": -1151
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.6649126892084496,
+     "ref_value": 0.95,
+     "p_ev": -0.023757275899295865,
+     "p_scaled": -238
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -690e-4 > P(9) = -1151e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Sr"
+  },
+  {
+   "material": "Ag",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.167868834875111,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8931905553162133,
+     "ref_value": 0.81,
+     "p_ev": 0.04509846082118066,
+     "p_scaled": 451
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.6900901245410014,
+     "ref_value": 0.773,
+     "p_ev": -0.038924638789411235,
+     "p_scaled": -389
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.6270562689384747,
+     "ref_value": 0.68,
+     "p_ev": -0.004411977588460449,
+     "p_scaled": -44
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 451e-4 > P(9) = -389e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Ag"
+  },
+  {
+   "material": "Al",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.053137903072795,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8182741745109623,
+     "ref_value": 0.915,
+     "p_ev": -0.04958893897884763,
+     "p_scaled": -496
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.6447121894602558,
+     "ref_value": 0.795,
+     "p_ev": -0.06672625648014985,
+     "p_scaled": -667
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.5851246911642534,
+     "ref_value": 0.61,
+     "p_ev": -0.0020729424029788854,
+     "p_scaled": -21
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -496e-4 > P(9) = -667e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Al"
+  },
+  {
+   "material": "Au",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.168127014651271,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.9659788897918653,
+     "ref_value": 0.861,
+     "p_ev": 0.05691719323444435,
+     "p_scaled": 569
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.7534768856607497,
+     "ref_value": 0.742,
+     "p_ev": 0.005388851136088399,
+     "p_scaled": 54
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.43559339055411783,
+     "ref_value": 0.4,
+     "p_ev": 0.0029661158795098175,
+     "p_scaled": 30
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 569e-4 > P(9) = 54e-4 (mono)",
+    "P(9) = 54e-4 > P(11) = 30e-4 (mono)",
+    "P(11) = 30e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_Au"
+  },
+  {
+   "material": "Ca",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 5.5162696545373775,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.478625681365825,
+     "ref_value": 0.458,
+     "p_ev": 0.019586592622311848,
+     "p_scaled": 196
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.3935320751313254,
+     "ref_value": 0.461,
+     "p_ev": -0.055485380757344265,
+     "p_scaled": -555
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.0145320896175178,
+     "ref_value": 1.13,
+     "p_ev": -0.009622325865206838,
+     "p_scaled": -96
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 196e-4 > P(9) = -555e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Ca"
+  },
+  {
+   "material": "Cu",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.6127620072366,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.5502793167512163,
+     "ref_value": 1.468,
+     "p_ev": 0.03351421052897095,
+     "p_scaled": 335
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.3164646443933592,
+     "ref_value": 1.314,
+     "p_ev": 0.0008694071655703604,
+     "p_scaled": 9
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.0284628018518447,
+     "ref_value": 1.07,
+     "p_ev": -0.003461433179012948,
+     "p_scaled": -35
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 335e-4 > P(9) = 9e-4 (mono)",
+    "P(9) = 9e-4 > P(11) = -35e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Cu"
+  },
+  {
+   "material": "Ni",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.5114878753180383,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 2.5907182579685752,
+     "ref_value": 2.208,
+     "p_ev": 0.14727232332547946,
+     "p_scaled": 1473
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 2.2042331471470127,
+     "ref_value": 1.924,
+     "p_ev": 0.09338821894839135,
+     "p_scaled": 934
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.017523102261066,
+     "ref_value": 1.39,
+     "p_ev": -0.031039741478244492,
+     "p_scaled": -310
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 1473e-4 > P(9) = 934e-4 (mono)",
+    "P(9) = 934e-4 > P(11) = -310e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Ni"
+  },
+  {
+   "material": "Pd",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.9644073339684405,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.662905656615681,
+     "ref_value": 1.526,
+     "p_ev": 0.06714869006796426,
+     "p_scaled": 671
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.4138945769085898,
+     "ref_value": 1.338,
+     "p_ev": 0.03223721593721782,
+     "p_scaled": 322
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.2410890063447368,
+     "ref_value": 1.16,
+     "p_ev": 0.006757417195394744,
+     "p_scaled": 68
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 671e-4 > P(9) = 322e-4 (mono)",
+    "P(9) = 322e-4 > P(11) = 68e-4 (mono)",
+    "P(11) = 68e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_Pd"
+  },
+  {
+   "material": "Pt",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.9820294614443914,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 2.063970101414747,
+     "ref_value": 1.842,
+     "p_ev": 0.10984063345140492,
+     "p_scaled": 1098
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.6892234979450649,
+     "ref_value": 1.479,
+     "p_ev": 0.09009079890429661,
+     "p_scaled": 901
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.892707655484628,
+     "ref_value": 0.61,
+     "p_ev": 0.023558971290385672,
+     "p_scaled": 236
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 1098e-4 > P(9) = 901e-4 (mono)",
+    "P(9) = 901e-4 > P(11) = 236e-4 (mono)",
+    "P(11) = 236e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_Pt"
+  },
+  {
+   "material": "Sr",
+   "model_id": "mace-mp-small",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 5.992478609521238,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.2916544978946487,
+     "ref_value": 0.347,
+     "p_ev": -0.06202330826057768,
+     "p_scaled": -620
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.23581737465084715,
+     "ref_value": 0.342,
+     "p_ev": -0.10305206202569948,
+     "p_scaled": -1031
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.7827495763943091,
+     "ref_value": 0.95,
+     "p_ev": -0.013937535300474238,
+     "p_scaled": -139
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -620e-4 > P(9) = -1031e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Sr"
+  },
+  {
+   "material": "Ag",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.161568877334434,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8142944150798028,
+     "ref_value": 0.81,
+     "p_ev": 0.00232101423314188,
+     "p_scaled": 23
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.7026741960238134,
+     "ref_value": 0.773,
+     "p_ev": -0.03291691469532087,
+     "p_scaled": -329
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.7764037635355976,
+     "ref_value": 0.68,
+     "p_ev": 0.008033646961299795,
+     "p_scaled": 80
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 23e-4 > P(9) = -329e-4 (mono)",
+    "P(11) = 80e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Ag"
+  },
+  {
+   "material": "Al",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.038601533994641,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.9968172059872956,
+     "ref_value": 0.915,
+     "p_ev": 0.04164532607696326,
+     "p_scaled": 416
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.7839961593760026,
+     "ref_value": 0.795,
+     "p_ev": -0.0048506120987465064,
+     "p_scaled": -49
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.6781090141653863,
+     "ref_value": 0.61,
+     "p_ev": 0.005675751180448857,
+     "p_scaled": 57
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 416e-4 > P(9) = -49e-4 (mono)",
+    "P(11) = 57e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Al"
+  },
+  {
+   "material": "Au",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 4.166513154758236,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.8793081176721597,
+     "ref_value": 0.861,
+     "p_ev": 0.009918564466544688,
+     "p_scaled": 99
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.6864945623176776,
+     "ref_value": 0.742,
+     "p_ev": -0.02604181735081219,
+     "p_scaled": -260
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.4704917741250938,
+     "ref_value": 0.4,
+     "p_ev": 0.005874314510424482,
+     "p_scaled": 59
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 99e-4 > P(9) = -260e-4 (mono)",
+    "P(11) = 59e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Au"
+  },
+  {
+   "material": "Ca",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 5.544860142586164,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.42897966346779987,
+     "ref_value": 0.458,
+     "p_ev": -0.027844745186391417,
+     "p_scaled": -278
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.39556587600507387,
+     "ref_value": 0.461,
+     "p_ev": -0.054372052535136974,
+     "p_scaled": -544
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.0205420130789093,
+     "ref_value": 1.13,
+     "p_ev": -0.009121498910090878,
+     "p_scaled": -91
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -278e-4 > P(9) = -544e-4 (mono)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Ca"
+  },
+  {
+   "material": "Cu",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.6398351113816694,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.417553950047414,
+     "ref_value": 1.468,
+     "p_ev": -0.02085692100827169,
+     "p_scaled": -209
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.2284172664652524,
+     "ref_value": 1.314,
+     "p_ev": -0.030643602226066147,
+     "p_scaled": -306
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.0674601392988734,
+     "ref_value": 1.07,
+     "p_ev": -0.0002116550584272218,
+     "p_scaled": -2
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -209e-4 > P(9) = -306e-4 (mono)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Cu"
+  },
+  {
+   "material": "Ni",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.52134161419149,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 3.290699304111922,
+     "ref_value": 2.208,
+     "p_ev": 0.4189708293517808,
+     "p_scaled": 4190
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 2.6092266735014484,
+     "ref_value": 1.924,
+     "p_ev": 0.22963644805921898,
+     "p_scaled": 2296
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.539751036876737,
+     "ref_value": 1.39,
+     "p_ev": 0.012479253073061433,
+     "p_scaled": 125
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 4190e-4 > P(9) = 2296e-4 (mono)",
+    "P(9) = 2296e-4 > P(11) = 125e-4 (mono)",
+    "P(11) = 125e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Ni"
+  },
+  {
+   "material": "Pd",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.959590523286473,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 1.5966464007829904,
+     "ref_value": 1.526,
+     "p_ev": 0.0345660858065,
+     "p_scaled": 346
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.3473223588348706,
+     "ref_value": 1.338,
+     "p_ev": 0.003950177494376739,
+     "p_scaled": 40
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 1.2100366364386446,
+     "ref_value": 1.16,
+     "p_ev": 0.004169719703220387,
+     "p_scaled": 42
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 346e-4 > P(9) = 40e-4 (mono)",
+    "P(11) = 42e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Pd"
+  },
+  {
+   "material": "Pt",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 3.976551334109287,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 2.036981777245257,
+     "ref_value": 1.842,
+     "p_ev": 0.0962203254892822,
+     "p_scaled": 962
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 1.6694521288198996,
+     "ref_value": 1.479,
+     "p_ev": 0.08139341307923632,
+     "p_scaled": 814
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.827325343715188,
+     "ref_value": 0.61,
+     "p_ev": 0.018110445309599,
+     "p_scaled": 181
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = 962e-4 > P(9) = 814e-4 (mono)",
+    "P(9) = 814e-4 > P(11) = 181e-4 (mono)",
+    "P(11) = 181e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Pt"
+  },
+  {
+   "material": "Sr",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "fcc",
+   "bulk_coordination": 12,
+   "a0_angstrom": 6.029815111625041,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 8,
+     "model_value": 0.28088136198490127,
+     "ref_value": 0.347,
+     "p_ev": -0.07502249464770579,
+     "p_scaled": -750
+    },
+    {
+     "observable": "gamma_111",
+     "coordination": 9,
+     "model_value": 0.26257646358733217,
+     "ref_value": 0.342,
+     "p_ev": -0.07804542583080436,
+     "p_scaled": -780
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 11,
+     "model_value": 0.9450689758493525,
+     "ref_value": 0.95,
+     "p_ev": -0.00041091867922062503,
+     "p_scaled": -4
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(8) = -750e-4 > P(9) = -780e-4 (mono)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Sr"
+  },
+  {
+   "material": "Cr",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.8597169326521024,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.6927265734058636,
+     "ref_value": 3.632,
+     "p_ev": -0.4794327923860089,
+     "p_scaled": -4794
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.405587587578497,
+     "ref_value": 3.201,
+     "p_ev": -0.28708669528620556,
+     "p_scaled": -2871
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.5982767740885606,
+     "ref_value": 3.0093,
+     "p_ev": -0.17637790323892993,
+     "p_scaled": -1764
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Cr"
+  },
+  {
+   "material": "Fe",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.8451415519086396,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 1.538647696792599,
+     "ref_value": 2.499,
+     "p_ev": -0.4852079915623249,
+     "p_scaled": -4852
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 1.16053785259631,
+     "ref_value": 2.447,
+     "p_ev": -0.4595993198150896,
+     "p_scaled": -4596
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 0.8336905020254903,
+     "ref_value": 2.1914,
+     "p_ev": -0.16971368724681368,
+     "p_scaled": -1697
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Fe"
+  },
+  {
+   "material": "Mo",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.1680266144001203,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.318521184715435,
+     "ref_value": 3.182,
+     "p_ev": -0.5409024344498339,
+     "p_scaled": -5409
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 1.9316282423943627,
+     "ref_value": 2.797,
+     "p_ev": -0.3833142534215958,
+     "p_scaled": -3833
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.668840196397582,
+     "ref_value": 2.7955,
+     "p_ev": -0.14083247545030225,
+     "p_scaled": -1408
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Mo"
+  },
+  {
+   "material": "Nb",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.3295582385270763,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 1.9456673387716936,
+     "ref_value": 2.275,
+     "p_ev": -0.22787550348197486,
+     "p_scaled": -2279
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 1.5629003851300316,
+     "ref_value": 2.074,
+     "p_ev": -0.2500652780932567,
+     "p_scaled": -2501
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.479570176866332,
+     "ref_value": 2.6589,
+     "p_ev": -0.1474162278917085,
+     "p_scaled": -1474
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = -2279e-4 > P(6) = -2501e-4 (mono)"
+   ],
+   "lean_name": "chgnet_Nb"
+  },
+  {
+   "material": "Ta",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.323654151993004,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.316467551918544,
+     "ref_value": 2.471,
+     "p_ev": -0.10654693070070746,
+     "p_scaled": -1065
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 1.9194158180574963,
+     "ref_value": 2.342,
+     "p_ev": -0.20602479828773765,
+     "p_scaled": -2060
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.6703977231626368,
+     "ref_value": 2.8759,
+     "p_ev": -0.15068778460467042,
+     "p_scaled": -1507
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = -1065e-4 > P(6) = -2060e-4 (mono)"
+   ],
+   "lean_name": "chgnet_Ta"
+  },
+  {
+   "material": "V",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.9944586726374003,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.3134479765925686,
+     "ref_value": 2.381,
+     "p_ev": -0.03780633825458356,
+     "p_scaled": -378
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.0004592468601627,
+     "ref_value": 2.421,
+     "p_ev": -0.1664252982248011,
+     "p_scaled": -1664
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.7260533085575958,
+     "ref_value": 2.0422,
+     "p_ev": -0.039518336430300505,
+     "p_scaled": -395
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = -378e-4 > P(6) = -1664e-4 (mono)"
+   ],
+   "lean_name": "chgnet_V"
+  },
+  {
+   "material": "W",
+   "model_id": "chgnet",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.1880324811015512,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.8602759371643804,
+     "ref_value": 3.954,
+     "p_ev": -0.6938136636525365,
+     "p_scaled": -6938
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.309435272232894,
+     "ref_value": 3.228,
+     "p_ev": -0.4120309582561755,
+     "p_scaled": -4120
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.8603967737268476,
+     "ref_value": 3.231,
+     "p_ev": -0.17132540328414403,
+     "p_scaled": -1713
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_W"
+  },
+  {
+   "material": "Cr",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.866379758191815,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.1767431002621023,
+     "ref_value": 3.632,
+     "p_ev": -0.23346060108384817,
+     "p_scaled": -2335
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.458098784794357,
+     "ref_value": 3.201,
+     "p_ev": 0.09322708153248033,
+     "p_scaled": 932
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.4476034763962957,
+     "ref_value": 3.0093,
+     "p_ev": -0.19521206545046305,
+     "p_scaled": -1952
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(6) = 932e-4 > P(7) = -1952e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Cr"
+  },
+  {
+   "material": "Fe",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.8534063424236464,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.049094396480828,
+     "ref_value": 2.499,
+     "p_ev": -0.22863265152419807,
+     "p_scaled": -2286
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.016365461368573,
+     "ref_value": 2.447,
+     "p_ev": -0.1547428930016104,
+     "p_scaled": -1547
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.4357000991662972,
+     "ref_value": 2.1914,
+     "p_ev": -0.09446248760421283,
+     "p_scaled": -945
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_medium_Fe"
+  },
+  {
+   "material": "Mo",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.170218622430065,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.507977568759509,
+     "ref_value": 3.182,
+     "p_ev": -0.4228072072372032,
+     "p_scaled": -4228
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.337410887018424,
+     "ref_value": 2.797,
+     "p_ev": -0.20385565636248115,
+     "p_scaled": -2039
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.2483579207246294,
+     "ref_value": 2.7955,
+     "p_ev": -0.06839275990942134,
+     "p_scaled": -684
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_medium_Mo"
+  },
+  {
+   "material": "Nb",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.313434117732023,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.5432741774949936,
+     "ref_value": 2.275,
+     "p_ev": 0.1838337125120311,
+     "p_scaled": 1838
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.46536586823217,
+     "ref_value": 2.074,
+     "p_ev": 0.18963313956954217,
+     "p_scaled": 1896
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.2305632146625385,
+     "ref_value": 2.6589,
+     "p_ev": -0.053542098167182695,
+     "p_scaled": -535
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(6) = 1896e-4 > P(7) = -535e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Nb"
+  },
+  {
+   "material": "Ta",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.313896816393377,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.4303397468780656,
+     "ref_value": 2.471,
+     "p_ev": -0.027870043581182752,
+     "p_scaled": -279
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.1656487047096658,
+     "ref_value": 2.342,
+     "p_ev": -0.08547344843425508,
+     "p_scaled": -855
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.6369691371842237,
+     "ref_value": 2.8759,
+     "p_ev": -0.02986635785197206,
+     "p_scaled": -299
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = -279e-4 > P(6) = -855e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_Ta"
+  },
+  {
+   "material": "V",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.999068270457148,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.66979357543181,
+     "ref_value": 2.381,
+     "p_ev": 0.16212494361952232,
+     "p_scaled": 1621
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.5666728232090246,
+     "ref_value": 2.421,
+     "p_ev": 0.0578263592255869,
+     "p_scaled": 578
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.6833863509697835,
+     "ref_value": 2.0422,
+     "p_ev": 0.08014829387122296,
+     "p_scaled": 801
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 1621e-4 > P(6) = 578e-4 (mono)",
+    "P(7) = 801e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_medium_V"
+  },
+  {
+   "material": "W",
+   "model_id": "mace-mp-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.18845693838368,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.3890486835525673,
+     "ref_value": 3.954,
+     "p_ev": -0.35847736882799647,
+     "p_scaled": -3585
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.334983548253999,
+     "ref_value": 3.228,
+     "p_ev": 0.04800126892616797,
+     "p_scaled": 480
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.6456085239740332,
+     "ref_value": 3.231,
+     "p_ev": -0.07317393450324583,
+     "p_scaled": -732
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(6) = 480e-4 > P(7) = -732e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_medium_W"
+  },
+  {
+   "material": "Cr",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.863027787895251,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.149953063460536,
+     "ref_value": 3.632,
+     "p_ev": -0.2466210031192741,
+     "p_scaled": -2466
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.2662422427759905,
+     "ref_value": 3.201,
+     "p_ev": 0.023602315793898605,
+     "p_scaled": 236
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.64852188269856,
+     "ref_value": 3.0093,
+     "p_ev": -0.04509726466267999,
+     "p_scaled": -451
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(6) = 236e-4 > P(7) = -451e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Cr"
+  },
+  {
+   "material": "Fe",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.8608740501891523,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.627839880029116,
+     "ref_value": 2.499,
+     "p_ev": 0.06581689573798818,
+     "p_scaled": 658
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.596272149289568,
+     "ref_value": 2.447,
+     "p_ev": 0.0539201226428687,
+     "p_scaled": 539
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 1.6142477691827821,
+     "ref_value": 2.1914,
+     "p_ev": -0.07214402885215221,
+     "p_scaled": -721
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 658e-4 > P(6) = 539e-4 (mono)",
+    "P(6) = 539e-4 > P(7) = -721e-4 (mono)"
+   ],
+   "lean_name": "mace_mp_small_Fe"
+  },
+  {
+   "material": "Mo",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.1569376964540488,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.1865753955930165,
+     "ref_value": 3.182,
+     "p_ev": 0.0028461008026027606,
+     "p_scaled": 28
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.5722605720951703,
+     "ref_value": 2.797,
+     "p_ev": -0.09885210035455122,
+     "p_scaled": -989
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 3.373747652774796,
+     "ref_value": 2.7955,
+     "p_ev": 0.07228095659684947,
+     "p_scaled": 723
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 28e-4 > P(6) = -989e-4 (mono)",
+    "P(7) = 723e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_Mo"
+  },
+  {
+   "material": "Nb",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.3215309961771884,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.371716095655682,
+     "ref_value": 2.275,
+     "p_ev": 0.06659858187344447,
+     "p_scaled": 666
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.2243716476670463,
+     "ref_value": 2.074,
+     "p_ev": 0.07321788609986823,
+     "p_scaled": 732
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.9069913470343636,
+     "ref_value": 2.6589,
+     "p_ev": 0.03101141837929544,
+     "p_scaled": 310
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(6) = 732e-4 > P(7) = 310e-4 (mono)",
+    "P(7) = 310e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_Nb"
+  },
+  {
+   "material": "Ta",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.3204473264551564,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.0214190306454207,
+     "ref_value": 2.471,
+     "p_ev": 0.37877057907239997,
+     "p_scaled": 3788
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.7052668885024396,
+     "ref_value": 2.342,
+     "p_ev": 0.17676391547017734,
+     "p_scaled": 1768
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 3.324504985551471,
+     "ref_value": 2.8759,
+     "p_ev": 0.05607562319393383,
+     "p_scaled": 561
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 3788e-4 > P(6) = 1768e-4 (mono)",
+    "P(6) = 1768e-4 > P(7) = 561e-4 (mono)",
+    "P(7) = 561e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_Ta"
+  },
+  {
+   "material": "V",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.9768979415852894,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.357525870002255,
+     "ref_value": 2.381,
+     "p_ev": 0.5401336704743577,
+     "p_scaled": 5401
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.2065031263897943,
+     "ref_value": 2.421,
+     "p_ev": 0.30722066006641996,
+     "p_scaled": 3072
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.3656990985200537,
+     "ref_value": 2.0422,
+     "p_ev": 0.040437387315006734,
+     "p_scaled": 404
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 5401e-4 > P(6) = 3072e-4 (mono)",
+    "P(6) = 3072e-4 > P(7) = 404e-4 (mono)",
+    "P(7) = 404e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_V"
+  },
+  {
+   "material": "W",
+   "model_id": "mace-mp-small",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.1910655965688908,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 4.841840931964214,
+     "ref_value": 3.954,
+     "p_ev": 0.5642820470630547,
+     "p_scaled": 5643
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.7684211088652493,
+     "ref_value": 3.228,
+     "p_ev": 0.2428725184543693,
+     "p_scaled": 2429
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 3.237492460724866,
+     "ref_value": 3.231,
+     "p_ev": 0.0008115575906082473,
+     "p_scaled": 8
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 5643e-4 > P(6) = 2429e-4 (mono)",
+    "P(6) = 2429e-4 > P(7) = 8e-4 (mono)",
+    "P(7) = 8e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mp_small_W"
+  },
+  {
+   "material": "Cr",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.865085771222013,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.445860469344957,
+     "ref_value": 3.632,
+     "p_ev": -0.09536817600401784,
+     "p_scaled": -954
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.0724268714017975,
+     "ref_value": 3.201,
+     "p_ev": -0.046580063466340804,
+     "p_scaled": -466
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 3.195693061246004,
+     "ref_value": 3.0093,
+     "p_ev": 0.02329913265575051,
+     "p_scaled": 233
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(7) = 233e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Cr"
+  },
+  {
+   "material": "Fe",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.8767401729465782,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.498629917193149,
+     "ref_value": 2.499,
+     "p_ev": -0.00019115681770523612,
+     "p_scaled": -2
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.3273495632908903,
+     "ref_value": 2.447,
+     "p_ev": -0.043700879044998815,
+     "p_scaled": -437
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.2095486638122566,
+     "ref_value": 2.1914,
+     "p_ev": 0.0022685829765320964,
+     "p_scaled": 23
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = -2e-4 > P(6) = -437e-4 (mono)",
+    "P(7) = 23e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Fe"
+  },
+  {
+   "material": "Mo",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.1512234102988947,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 3.228687293453692,
+     "ref_value": 3.182,
+     "p_ev": 0.028936546129980825,
+     "p_scaled": 289
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.755875977320136,
+     "ref_value": 2.797,
+     "p_ev": -0.01802306241764193,
+     "p_scaled": -180
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.925418461895788,
+     "ref_value": 2.7955,
+     "p_ev": 0.016239807736973477,
+     "p_scaled": 162
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 289e-4 > P(6) = -180e-4 (mono)",
+    "P(7) = 162e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Mo"
+  },
+  {
+   "material": "Nb",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.3169766713450466,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.1837650179488404,
+     "ref_value": 2.275,
+     "p_ev": -0.06265212870077017,
+     "p_scaled": -627
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.0545060636070076,
+     "ref_value": 2.074,
+     "p_ev": -0.00946583624925387,
+     "p_scaled": -95
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.613969466678782,
+     "ref_value": 2.6589,
+     "p_ev": -0.005616316665152277,
+     "p_scaled": -56
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mpa_0_medium_Nb"
+  },
+  {
+   "material": "Ta",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.318656449511327,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.447208426788176,
+     "ref_value": 2.471,
+     "p_ev": -0.016354503315198696,
+     "p_scaled": -164
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.207123951503319,
+     "ref_value": 2.342,
+     "p_ev": -0.06555925875153802,
+     "p_scaled": -656
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.7615781001737787,
+     "ref_value": 2.8759,
+     "p_ev": -0.014290237478277679,
+     "p_scaled": -143
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = -164e-4 > P(6) = -656e-4 (mono)"
+   ],
+   "lean_name": "mace_mpa_0_medium_Ta"
+  },
+  {
+   "material": "V",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 2.9793865525979286,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 2.7455249695839545,
+     "ref_value": 2.381,
+     "p_ev": 0.20196243358601434,
+     "p_scaled": 2020
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 2.499431061795098,
+     "ref_value": 2.421,
+     "p_ev": 0.030726734614178856,
+     "p_scaled": 307
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 2.7268071635602382,
+     "ref_value": 2.0422,
+     "p_ev": 0.0855758954450298,
+     "p_scaled": 856
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 2020e-4 > P(6) = 307e-4 (mono)",
+    "P(7) = 856e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_V"
+  },
+  {
+   "material": "W",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "bcc",
+   "bulk_coordination": 8,
+   "a0_angstrom": 3.1747560760335563,
+   "anchors": [
+    {
+     "observable": "gamma_100",
+     "coordination": 4,
+     "model_value": 4.063883998308084,
+     "ref_value": 3.954,
+     "p_ev": 0.0691265346320646,
+     "p_scaled": 691
+    },
+    {
+     "observable": "gamma_110",
+     "coordination": 6,
+     "model_value": 3.2646000129871933,
+     "ref_value": 3.228,
+     "p_ev": 0.01628083121777549,
+     "p_scaled": 163
+    },
+    {
+     "observable": "vacancy",
+     "coordination": 7,
+     "model_value": 3.4039591824956688,
+     "ref_value": 3.231,
+     "p_ev": 0.02161989781195861,
+     "p_scaled": 216
+    }
+   ],
+   "valid": false,
+   "violations": [
+    "P(4) = 691e-4 > P(6) = 163e-4 (mono)",
+    "P(7) = 216e-4 > 0 (softening)"
+   ],
+   "lean_name": "mace_mpa_0_medium_W"
+  },
+  {
+   "material": "Si",
+   "model_id": "chgnet",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.46706176748268,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 0.86761474609375,
+     "ref_value": 3.63,
+     "p_ev": -0.6905963134765625,
+     "p_scaled": -6906
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "chgnet_Si"
+  },
+  {
+   "material": "Si",
+   "model_id": "mace-mp-medium",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.4555668459990025,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 1.8494479183909789,
+     "ref_value": 3.63,
+     "p_ev": -0.44513802040225525,
+     "p_scaled": -4451
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_medium_Si"
+  },
+  {
+   "material": "Si",
+   "model_id": "mace-mp-small",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.464591368091647,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 2.0407996845915477,
+     "ref_value": 3.63,
+     "p_ev": -0.39730007885211305,
+     "p_scaled": -3973
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mp_small_Si"
+  },
+  {
+   "material": "Si",
+   "model_id": "mace-mpa-0-medium",
+   "structure": "diamond",
+   "bulk_coordination": 4,
+   "a0_angstrom": 5.467402582146662,
+   "anchors": [
+    {
+     "observable": "vacancy",
+     "coordination": 3,
+     "model_value": 2.518926651182028,
+     "ref_value": 3.63,
+     "p_ev": -0.277768337204493,
+     "p_scaled": -2778
+    }
+   ],
+   "valid": true,
+   "violations": [],
+   "lean_name": "mace_mpa_0_medium_Si"
+  }
+ ],
+ "n_cells": 68,
+ "n_instances": 19,
+ "n_refusals": 49
+}
