@@ -1,0 +1,332 @@
+% Softening Is Coordination Loss — typeset from manuscript.md (prose verbatim).
+% Mathematics sourced from the program artifacts:
+%   python/lupine_distill/statics/gates.py        (dispersion metrics, Born gate)
+%   python/lupine_distill/statics/licenses.py     (gate-license rule)
+%   python/scripts/run_round3_analysis.py         (frozen rule runtime, exact sign test)
+%   docs/plans/2026-07-13-round3-preregistration.md (frozen correction rule)
+%   lean-spec/LupineEvidence/Shapes/Certificates.lean (kernel-checked theorems)
+% Build: tectonic manuscript.tex
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.15in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Softening Is Coordination Loss: Where Foundation Interatomic Potentials Fail, What Can Be Corrected, and What Must Be Refused}}
+
+\newtheorem{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{rulealg}{Rule}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\artifacts}[1]{\par\smallskip{\noindent\small\raggedright\emph{Artifacts:} #1\par}\medskip}
+\emergencystretch=3em
+
+\begin{document}
+
+% ---------------------------------------------------------------- title page
+\begin{titlepage}
+\centering
+\vspace*{2.2cm}
+{\LARGE\bfseries Softening Is Coordination Loss:\\[0.45em]
+Where Foundation Interatomic Potentials Fail,\\[0.25em]
+What Can Be Corrected, and What Must Be Refused\par}
+\vspace{1.6cm}
+{\large 2026-07-13\par}
+\vspace{2.0cm}
+\begin{minipage}{0.88\textwidth}
+\small
+\textbf{Deck.} Referenced measurements of foundation-MLIP error across bulk, kinetic, and defect observables in five material classes; a correction with confirmatory out-of-sample validation and machine-checked safety conditions; and the license structure that says when cross-model agreement means anything.
+
+\medskip
+\textbf{Summary.} Universal potentials get migration barriers nearly right and defect formation energies wrong by half --- because softening is coordination loss, not saddle-point error --- and we show which of those failures can be provably corrected, which can be refused, and which demand abstention.
+
+\medskip
+\textbf{Status.} Draft for internal review.
+
+\medskip
+\textbf{Typesetting note.} The prose is the manuscript of record, reproduced verbatim. The numbered definitions, rules, and theorems are typeset from the program's artifacts: the runtime (\code{lupine\_distill.statics.gates}, \code{lupine\_distill.statics.licenses}, \code{scripts/run\_round3\_analysis.py}), the registered preregistrations, and the kernel-checked Lean~4 module \code{lean-spec/LupineEvidence/Shapes/Certificates.lean} (zero \code{sorry}; every predicate decidable, checked by \code{decide}).
+\end{minipage}
+\vfill
+\end{titlepage}
+
+% ---------------------------------------------------------------- claim + lead
+\noindent\fbox{\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule}{\textbf{Claim.} The systematic error of universal machine-learning interatomic potentials is not uniform: across referenced measurements on halides, perovskites, and alloys, kinetic barriers survive to within $\sim$10\,\% while defect formation energies collapse by 40--105\,\% --- with cross-material orderings preserved even where magnitudes fail. This structure licenses a narrow, provably-safe correction (class-native lattice constants, validated out-of-sample at 2.4--5$\times$), exact-physics refusals (Born instability of entire ensemble hulls), and honest abstention everywhere else. Which of the three applies is decidable at runtime, and the safety conditions are machine-checked theorems.}}
+
+\bigskip
+\noindent Materials discovery for batteries, solid electrolytes, carbon capture, and lead-free photovoltaics is rate-limited by the same computational bottleneck: the properties that decide whether a candidate works --- vacancy formation, migration barriers, defect-mediated stability --- live exactly where universal machine-learning interatomic potentials (uMLIPs) are least trained and least accurate. The field knows these models soften the potential-energy surface at under-coordinated sites. What has been missing is resolution: \emph{which} observables fail, by \emph{how much} against real references, whether the failure has exploitable structure, and --- most practically --- a decision procedure that tells a screening pipeline when to trust a prediction, when to repair it, and when to throw it away. This paper reports referenced measurements that answer the first three questions and a validated, theorem-guarded procedure for the fourth.
+
+% ---------------------------------------------------------------- instrument
+\section*{The instrument}
+
+All measurements share one probe. A deterministic statics core (lattice relaxation by Birch--Murnaghan energy--volume scan; relaxed-ion stress--strain elastic constants at $\pm 0.5\,\%$ strain; Born stability as exact arithmetic) extends to defect formation (referenced vacancies, charge-balanced Schottky pairs), to kinetics (climbing-image NEB with relaxed endpoints), and to random solid solutions (exact-count, seed-pinned supercells). Four foundation potentials --- CHGNet 0.4.2 and three MACE-MP variants --- run through identical code paths on identical cells; a classical LAMMPS leg (2NN-MEAM, native binary driven through the Python module, verified against the standalone executable to $10^{-9}$~GPa) runs the \emph{same cells through the same probe functions} where classical potentials exist. Calibration baselines (21 metals, 6 ionic rocksalts, 5 perovskites, 4 fcc alloys) are measured by the same instrument that gates subjects, so thresholds never inherit a probe mismatch. Reproducibility: a full independent rerun reproduces every verdict, with worst-case raw-value drift of $8\times 10^{-4}$ (GPU float nondeterminism through finite differences). Every reference value carries a primary citation, a kind (experimental / DFT / derived), and a convention caveat; unfindable values are null, never estimated.
+
+\begin{definition}[Born stability, cubic --- exact physics]\label{def:born}
+A cubic elastic triple $(C_{11}, C_{12}, C_{44})$ is \emph{Born-stable} if and only if
+\begin{equation}\label{eq:born}
+C_{11} - C_{12} > 0, \qquad C_{11} + 2\,C_{12} > 0, \qquad C_{44} > 0,
+\end{equation}
+the necessary mechanical-stability conditions of a cubic lattice under zero external stress --- tetragonal-shear, volumetric, and trigonal-shear stability respectively (M.~Born \& K.~Huang, \emph{Dynamical Theory of Crystal Lattices}, 1954; F.~Mouhat \& F.-X.~Coudert, \emph{Phys.\ Rev.\ B} \textbf{90}, 224104 (2014)). A model whose predicted constants fail \eqref{eq:born} describes a mechanically unstable phase --- grounds for refusal regardless of accuracy elsewhere.
+\end{definition}
+\artifacts{runtime gate \code{lupine\_distill.statics.gates.born\_stability\_cubic}; Lean predicate \code{Lupine.Shapes.bornStable} (decidable; instances kernel-checked by \code{decide}).}
+
+% ---------------------------------------------------------------- result 1
+\section*{Result 1 --- The softening dichotomy}
+
+The sharpest result of this program is a split the softening literature has not resolved. On five rocksalt halides with citation-locked experimental references:
+
+\medskip
+\noindent\textbf{Kinetic saddle points largely survive.} Cation-vacancy migration barriers from CI-NEB land close to both experiment and published DFT. For LiF, the four models span \textbf{0.48--0.68~eV} against an experimental migration enthalpy of \textbf{0.66\,$\pm$\,0.03~eV} (Stoebe \& Huggins 1966) and neutral PBE-NEB values of \textbf{0.66--0.73~eV}; the best MACE variants sit within $\sim$5\,\% at the working supercell and within $\sim$10--14\,\% after finite-size correction (a $3\times3\times3$ convergence study bounds the supercell error at \textbf{12--50~meV} --- three to eight times smaller than the cross-model spread, so model disagreement is the dominant uncertainty, not the cell).
+
+\medskip
+\noindent\textbf{Defect formation energetics collapse.} Schottky pair enthalpies --- referenced against the conductivity-derived experimental values $h_{\mathrm S} = 2(E_{\mathrm{intrinsic}} - \Delta H_{\mathrm m})$ for LiF (2.42~eV), LiCl (2.12), LiBr (1.80), LiI (1.34), and NaCl (2.83) --- are underestimated by \textbf{40--105\,\% by every model}. The best model reaches barely 60\,\% of the experimental value on its best compound; the worst predicts \emph{spontaneous} vacancy-pair formation in LiI ($-0.08$~eV) --- a crystal that disassembles itself. The same pathology recurs in the lead-free perovskite class: one model predicts negative B-site vacancy formation in CsGeI$_3$, and cross-model spreads on neutral vacancy formation run \textbf{0.5--1.8~eV}.
+
+\medskip
+\noindent\textbf{Yet the ordering survives the collapse.} All four models rank the Schottky series LiF $>$ LiCl $>$ LiBr $>$ LiI in the experimental order, even while every magnitude is wrong by half. The size is wrong; the order is right --- now measured on defect thermodynamics with experimental anchors, not inferred.
+
+\medskip
+The mechanistic reading is direct. Along a migration path, coordination is approximately conserved: the hopping ion trades neighbors but the saddle configuration is only mildly under-coordinated relative to the minimum, so the systematic softening largely cancels in the barrier \emph{difference}. Defect formation, by contrast, \emph{is} coordination loss --- its energy is dominated by exactly the under-coordinated environments the training distributions lack --- so the softening appears at full strength. This resolves an apparent tension in screening practice: kinetics-limited screens (conductivity, diffusivity) can tolerate raw uMLIPs far better than stability-limited screens (defect tolerance, degradation), and the difference is not noise but mechanism. At the standard conversion of 100~meV $\approx$ 50$\times$ in rate at room temperature, however, even the surviving barrier spreads of \textbf{0.13--0.20~eV} correspond to two to three orders of magnitude of disagreement in predicted ionic conductivity from model choice alone --- kinetic screening tolerates raw uMLIPs only under cross-model concordance, not on any single model's word.
+
+% ---------------------------------------------------------------- result 2
+\section*{Result 2 --- Disagreement has structure, but it is not a universal uncertainty signal}
+
+Cross-model dispersion is the cheapest reference-free signal a screening pipeline can compute, and an influential critique (PROBE) reports that raw ensemble disagreement often correlates weakly with true error. Our reference-bound corpora let us measure exactly where that critique lands. The dispersion--error rank correlation is strongly property- and class-dependent: stacking-fault energy $\rho = 0.89$, vacancy formation 0.61, lattice constants 0.57 pooled --- but bulk modulus \textbf{0.16} pooled and {\boldmath$-0.63$} within fcc metals: for that class--property pair, \emph{higher} disagreement weakly predicts \emph{lower} error. Dispersion gating is an uncertainty statement for some (class, property) pairs and a normality test for others, and nothing in the signal itself tells you which.
+
+\begin{definition}[Relative cross-model dispersion; metrics unfloored and \code{floored-v1}]\label{def:dispersion}
+For model predictions $v_1,\dots,v_K$ ($K \ge 2$) of one property on one material, the \emph{relative cross-model dispersion} is
+\begin{equation}\label{eq:dispersion}
+d(v_1,\dots,v_K) \;=\; \frac{\displaystyle\max_k v_k \;-\; \min_k v_k}{\bigl|\operatorname{median}_k v_k\bigr|}\,,
+\end{equation}
+undefined (it explodes) when the cross-model median crosses zero. The registered Round-3 instrument fix (metric \code{floored-v1}) floors the denominator at a class-median scale: for materials $i = 1,\dots,N$ of one class, with per-material cross-model median $m_i$ and spread $\mathrm{sp}_i = \max_k v_k^{(i)} - \min_k v_k^{(i)}$,
+\begin{equation}\label{eq:floored}
+d_i^{\mathrm{floored}} \;=\; \frac{\mathrm{sp}_i}{\max\bigl(|m_i|,\; \varphi\, M\bigr)}\,,
+\qquad
+M = \operatorname{median}_i |m_i|,
+\qquad
+\varphi = 0.1 .
+\end{equation}
+Cells with $|m_i| \ge \varphi M$ are unchanged from \eqref{eq:dispersion}; sign-crossing cells become finite and comparable.
+\end{definition}
+
+\begin{remark}[Thresholds are measured, never invented]\label{rem:thresholds}
+Concordance flag/refuse thresholds are the $p75$/$p95$ percentiles of a \emph{measured} baseline distribution of \eqref{eq:dispersion} or \eqref{eq:floored} over at least five calibration materials, with the source recorded in every verdict. A dispersion strictly below the flag threshold is \emph{concordant}, at-or-above flag but strictly below refuse is \emph{flagged}, and at-or-beyond refuse is \emph{refused}; the three zones are mutually exclusive and exhaustive for every well-formed window (Lean \code{outcome\_trichotomy}), and threshold migration is law-governed: tightening can only add refusals, and any un-refusal certifies a strictly looser threshold (Lean \code{refused\_stable\_under\_tightening}, \code{unrefusal\_needs\_looser\_threshold}).
+\end{remark}
+\artifacts{\code{lupine\_distill.statics.gates.relative\_dispersion}, \code{dispersions\_by\_material\_floored} (registered constants \code{DEFAULT\_DISPERSION\_FLOOR\_FRACTION} $= 0.1$, metric id \code{DISPERSION\_METRIC\_FLOORED\_V1}), \code{derive\_concordance\_thresholds}; Lean \code{Lupine.Shapes.ConcordanceWindow} and the threshold-migration laws.}
+
+Our response is architectural rather than rhetorical: every gate in the pipeline now carries a \textbf{license} --- \code{licensed}, \code{descriptive}, or \code{anti-correlated} --- assigned per (class, property) from reference-bound data under a fixed rule, fail-closed, and updated only from calibration corpora, never from gated subjects. Under the current registry exactly one dispersion gate is licensed as an uncertainty signal (bcc lattice constants, $\rho = 0.89$, $n = 7$); bulk-modulus concordance is descriptive program-wide. Refusals that do not depend on any license do the heavy lifting: Born instability is exact physics, and per-model Born failures compose into ensemble statements --- if the axis-aligned hull of all models' elastic predictions violates a Born inequality at its favourable endpoint, \emph{every} tensor in the hull is unstable, a machine-checked impossibility certificate that refuses a candidate for the whole ensemble range at once. In our panels these exact-physics refusals correctly rejected a rocksalt LiS hypothesis (all four models: $C_{44} < 0$) and, defensibly, cubic CsPbI$_3$ at 0~K --- while per-property calibrated thresholds resolved the false refusals that a single-property proxy had inflicted on known-good subjects (Li$_2$S antifluorite and the halide electrolyte panel: from 8/8 refused to 4 certified, 2 flagged, 2 marginal under class-native calibration). Because refusal is cheap and final --- no later gate can overturn it, a theorem --- the pipeline runs its costliest probe only on survivors, cutting panel wall time by 16--42\,\% with verdicts unchanged; the savings concentrate precisely on the worst physics, since dynamically unstable candidates have the most expensive relaxations.
+
+\begin{definition}[Gate-license rule --- fail-closed]\label{def:license}
+For one (class, property) concordance channel with Spearman dispersion--error rank correlation $\rho$ measured on $n$ calibration materials of corpus kind $\kappa$, the license status is
+\begin{equation}\label{eq:license}
+\operatorname{status}(\rho, n, \kappa) \;=\;
+\begin{cases}
+\text{\code{anti-correlated}} & \text{if } \rho \le -0.5,\ n \ge 5,\\
+& \quad \kappa = \text{reference-bound},\\[3pt]
+\text{\code{licensed}} & \text{if } \rho \ge +0.5,\ n \ge 5,\ \kappa = \text{reference-bound},\\
+& \quad \text{and no program \code{license\_ceiling} applies},\\[3pt]
+\text{\code{descriptive}} & \text{otherwise --- the fail-closed default.}
+\end{cases}
+\end{equation}
+A license annotates; it never re-gates. A (class, property) pair absent from the registry --- or an absent registry --- yields \code{descriptive}; a program ceiling caps positive licensing only and can never erase an \code{anti-correlated} warning; \code{licensed} means low dispersion may be read as empirically lower error within the recorded $(\rho, n)$, \code{descriptive} means agreement arithmetic only with no uncertainty claim, and \code{anti-correlated} means low dispersion must \emph{not} be read as low error.
+\end{definition}
+\artifacts{\code{lupine\_distill.statics.licenses.derive\_status} (registered constants \code{LICENSED\_MIN\_RHO} $= +0.5$, \code{ANTI\_CORRELATED\_MAX\_RHO} $= -0.5$, \code{LICENSE\_MIN\_SAMPLES} $= 5$); registry \code{data/discovery\_gates/licenses.v1.json} (schema \code{lupine.discovery\_gates.licenses.v1}); design \code{docs/design/2026-07-13-gate-license-layer.md}.}
+
+\begin{definition}[Ensemble elastic hull]\label{def:hull}
+For an ensemble of models $j = 1,\dots,J$ with cubic elastic predictions $\bigl(C_{11}^{(j)}, C_{12}^{(j)}, C_{44}^{(j)}\bigr)$, the \emph{axis-aligned interval hull} is
+\begin{equation}\label{eq:hull}
+H \;=\; I_{11} \times I_{12} \times I_{44},
+\qquad
+I_{ab} \;=\; \bigl[\,C_{ab}^{\min},\ C_{ab}^{\max}\,\bigr],
+\end{equation}
+with the interval endpoints the component-wise minima and maxima over the models; $e \in H$ means each constant of $e$ lies inside its interval (Lean \code{memHull}).
+\end{definition}
+
+\begin{theorem}[Ensemble-hull Born refusal; Lean \code{hull\_born\_refusal\_c44}, \code{hull\_born\_\allowbreak refusal\_shear}, \code{hull\_born\_\allowbreak refusal\_volumetric}]\label{thm:hull}
+Let $H$ be an ensemble elastic hull. If any one of
+\begin{equation}\label{eq:hullrefusal}
+\mathrm{(i)}\ \ C_{44}^{\max} \le 0,
+\qquad
+\mathrm{(ii)}\ \ C_{11}^{\max} - C_{12}^{\min} \le 0,
+\qquad
+\mathrm{(iii)}\ \ C_{11}^{\max} + 2\,C_{12}^{\max} \le 0
+\end{equation}
+holds --- that is, the hull violates one Born inequality of \eqref{eq:born} at its most favourable endpoint --- then \emph{every} tensor in the hull is Born-unstable:
+\begin{equation}\label{eq:hullconclusion}
+\forall\, e \in H:\quad \neg\,\operatorname{bornStable}(e).
+\end{equation}
+The refusal holds for the whole ensemble range, not just the sampled models.
+\end{theorem}
+
+There is also a hierarchy worth stating plainly: disagreement grows monotonically along bulk $\to$ kinetic $\to$ defect observables, in both relative and absolute terms (defect-energy disagreement runs 2--34$\times$ the bulk-modulus disagreement on the same compounds). The observables that matter most for discovery are the ones the models agree on least --- which is the quantitative case for why screening pipelines need verdicts, not just predictions.
+
+% ---------------------------------------------------------------- result 3
+\section*{Result 3 --- A correction with a validated scope and machine-checked safety}
+
+Can any of this be repaired rather than refused? We tested the simplest defensible repair --- a multiplicative de-bias learned from same-class reference-bound calibration, applied only when direction evidence is unanimous --- through three preregistered stages, and the outcome is a correction whose scope we can state exactly.
+
+Transferring biases \emph{across} chemical classes fails, and fails provably: a bias learned on elemental fcc metals (which underpredict bulk moduli) applied to fcc alloys (which overpredict) \emph{worsened} alloy predictions from 9.1\,\% to 16.9\,\% median error. That failure is now a theorem rather than an anecdote --- a correction applied against the target's true error direction strictly increases error --- and its converse is the safety condition we prove: if all calibration ratios lie strictly on one side of unity, the bias and the target's ratio lie in the calibration hull, and the bias clears a margin cap, then the corrected error is \emph{strictly smaller} than the raw error. The cap is honestly asymmetric: inflation-side corrections are safe when the bias exceeds twice the calibration spread ($2s$); deflation-side corrections require three times the spread \emph{and} a floor on the bias (the mirrored $2s$ condition has a kernel-checked counterexample). These are decidable integer statements, machine-checked, with the one harmful correction our exploratory round produced refused by the theorem on two independent grounds.
+
+\begin{theorem}[Wrong-direction corrections strictly harm; Lean \code{wrong\_direction\_\allowbreak inflation\_worsens}, \code{wrong\_direction\_\allowbreak deflation\_worsens}]\label{thm:direction}
+Let $\mathrm{pred}$, $\mathrm{ref}$, $\mathrm{corrected}$ be integers (predictions and reference in the evidence corpus's fixed-point scaling). Quoting the kernel-checked hypotheses exactly:
+\begin{itemize}
+\item[\textup{(i)}] \textup{(inflation)} if $\mathrm{ref} \le \mathrm{pred}$ \textup{(\code{hover})} and $\mathrm{pred} < \mathrm{corrected}$ \textup{(\code{hinc})}, then
+\begin{equation}\label{eq:wrongdir}
+\bigl|\mathrm{pred} - \mathrm{ref}\bigr| \;<\; \bigl|\mathrm{corrected} - \mathrm{ref}\bigr| ;
+\end{equation}
+\item[\textup{(ii)}] \textup{(deflation)} if $\mathrm{pred} \le \mathrm{ref}$ \textup{(\code{hunder})} and $\mathrm{corrected} < \mathrm{pred}$ \textup{(\code{hdec})}, then likewise
+$\bigl|\mathrm{pred} - \mathrm{ref}\bigr| < \bigl|\mathrm{corrected} - \mathrm{ref}\bigr|$.
+\end{itemize}
+Inflating a prediction already at-or-above its reference, or deflating one already at-or-below it, strictly increases the error. Without an in-class direction witness the correction must abstain ($\mathrm{corrected} := \mathrm{pred}$), which never changes the error (Lean \code{CorrectionAnchor}, \code{directionVerified}).
+\end{theorem}
+
+\begin{rulealg}[Frozen Round-3 correction rule --- registered 2026-07-13, before reference sourcing]\label{rule:frozen}
+For a held-out candidate $X$, model $m$, property $p$, class $C$:
+\begin{enumerate}
+\item \emph{Calibration set} $=$ the other class-$C$ members with a non-null reference (never $X$). Require $\ge 2$ members, else \textsc{abstain}.
+\item \emph{Ratios:}
+\begin{equation}\label{eq:ratios}
+r_i \;=\; \mathrm{pred}_i / \mathrm{ref}_i \quad \text{over calibration members } i .
+\end{equation}
+\item \emph{Direction gate (unanimity):} apply only if all ratios are strictly on one side of unity,
+\begin{equation}\label{eq:unanimity}
+\bigl(\forall i:\ r_i > 1\bigr) \quad\text{or}\quad \bigl(\forall i:\ r_i < 1\bigr),
+\end{equation}
+else \textsc{abstain}.
+\item \emph{Magnitude cap:} with bias and spread
+\begin{equation}\label{eq:biasspread}
+b \;=\; \operatorname{median}_i r_i ,
+\qquad
+s \;=\; \max_i r_i - \min_i r_i ,
+\end{equation}
+\textsc{abstain} unless $|b - 1| > s$ --- the learned bias must exceed the calibration scatter.
+\item \emph{Correction:}
+\begin{equation}\label{eq:corrected}
+\mathrm{corrected} \;=\;
+\begin{cases}
+\mathrm{pred}/b & \text{if every gate above passes},\\[2pt]
+\mathrm{pred} & \text{otherwise (abstention, risk-free).}
+\end{cases}
+\end{equation}
+\end{enumerate}
+\end{rulealg}
+\artifacts{frozen rule quoted from \code{docs/plans/2026-07-13-round3-preregistration.md}; runtime \code{python/scripts/run\_round3\_analysis.py}.}
+
+\begin{theorem}[Capped in-hull correction helps, inflation side; Lean \code{capped\_inhull\_\allowbreak correction\_\allowbreak helps\_inflation}]\label{thm:capinf}
+Let $\ell, h, s, b, r \in \mathbb{Z}$ be the Lean variables \code{lo}, \code{hi}, \code{s}, \code{b}, \code{r}: pred/ref ratios in the corpus scaling ($\times 10^4$, so the integer $10^4$ denotes the ratio $1$), with $[\ell, h]$ the calibration ratio hull, $b$ the bias, and $r$ the target's true ratio. Assume, quoting the kernel-checked hypotheses exactly:
+\begin{align}
+& s = h - \ell, && \text{\small\textup{(\code{hs}: the spread)}} \label{eq:capinf-hyp}\\
+& 10^4 < \ell, \quad \ell \le h, && \text{\small\textup{(\code{\_hlo}, \code{hle}: hull strictly above unity)}} \nonumber\\
+& \ell \le b \le h, && \text{\small\textup{(\code{hb1}, \code{hb2}: bias in-hull)}} \nonumber\\
+& \ell \le r \le h, && \text{\small\textup{(\code{hr1}, \code{hr2}: target ratio in-hull)}} \nonumber\\
+& 2s < b - 10^4 . && \text{\small\textup{(\code{hcap}: the cap $2s < b - 1$)}} \nonumber
+\end{align}
+The in-hull hypothesis on $r$ (\code{hr1}, \code{hr2}) is the formal content of the informal word ``in-class'': the target's true ratio behaves like its classmates'. Then
+\begin{equation}\label{eq:capinf-concl}
+\bigl|r - b\bigr| \cdot 10^4 \;<\; \bigl|r - 10^4\bigr| \cdot b ,
+\end{equation}
+the division-free form of $\bigl|\,r/b - 1\,\bigr| < \bigl|\,r - 1\,\bigr|$ (equivalent for $b > 0$): dividing the prediction by the bias strictly shrinks the target's error.
+\end{theorem}
+
+\begin{theorem}[Capped in-hull correction helps, deflation side; Lean \code{capped\_inhull\_\allowbreak correction\_\allowbreak helps\_deflation}]\label{thm:capdef}
+With the same notation, assume, quoting the kernel-checked hypotheses exactly:
+\begin{align}
+& s = h - \ell, && \text{\small\textup{(\code{hs})}} \label{eq:capdef-hyp}\\
+& 0 < \ell \le h < 10^4, && \text{\small\textup{(\code{\_hlo}, \code{\_hle}, \code{\_hhi}: hull strictly below unity)}} \nonumber\\
+& \ell \le b \le h, \quad \ell \le r \le h, && \text{\small\textup{(\code{hb1}, \code{hb2}, \code{hr1}, \code{hr2}: bias and target in-hull)}} \nonumber\\
+& 5000 \le b, && \text{\small\textup{(\code{hfloor}: the floor $b \ge 1/2$)}} \nonumber\\
+& 3s < 10^4 - b . && \text{\small\textup{(\code{hcap}: the cap $3s < 1 - b$)}} \nonumber
+\end{align}
+Then the same conclusion \eqref{eq:capinf-concl} holds: $\bigl|r - b\bigr| \cdot 10^4 < \bigl|r - 10^4\bigr| \cdot b$, i.e.\ $\bigl|\,r/b - 1\,\bigr| < \bigl|\,r - 1\,\bigr|$. The deflation side is \emph{not} the mirror image of the inflation side: it needs three spreads and the floor.
+\end{theorem}
+
+\begin{remark}[Asymmetry, counterexamples, and the frozen cap]\label{rem:asymmetry}
+(i) In the Lean statements the underscored hypotheses (\code{\_hlo}, \code{\_hle}, \code{\_hhi}) pin the regime for the reader; they are derivable from the cap, the floor, and the memberships, and the proofs never use them. (ii) The asymmetry is derived, not assumed: the corrected error is measured relative to $b$; inflation ($b > 1$) divides by a larger denominator and gains margin, so $b - 1 > 2s$ suffices with no ceiling on $b$, while deflation ($b < 1$) divides by a smaller denominator, amplifying the same $|r - b|$, so the spread multiple rises to three and the floor $b \ge 1/2$ is needed. The mirrored $2s$ cap is insufficient below unity even with the floor in place: hull $[0.50, 0.74]$ ($s = 0.24$), $b = 0.50$, $r = 0.74$ passes the $2s$ cap yet gives corrected error $0.48$ against raw $0.26$ --- strictly worse (kernel-checked counterexample). (iii) The frozen Round-3 runtime cap $|b - 1| > s$ of Rule~\ref{rule:frozen} (one spread) is strictly weaker than the caps proved here: hull $[1.0001, 1.0003]$ ($s = 2\times10^{-4}$), $b = 1.0003$, $r = 1.0001$ passes the one-spread cap while the correction strictly harms (corrected error $\approx 2\times10^{-4}$ against raw $1\times10^{-4}$; kernel-checked). Round-3 results are therefore read under Round-3's own frozen registration, and the proven caps inform a registered Round-4 cap change only. (iv) The Round-2 FeNi $B_0$ cell that demanded these theorems fails \emph{both} license hypotheses: the target ratio $r = 0.810$ lies outside the calibration hull $[1.02, 1.175]$, and that hull cannot clear the inflation cap for any in-hull bias ($s = 0.155$ demands $b > 1.31$ while the hull tops out at $1.175$). The refusal is the theorem working as intended.
+\end{remark}
+
+\begin{definition}[Exact two-sided binomial sign test]\label{def:signtest}
+Over held-out cells where the rule \emph{applied}, a cell counts as improved when the corrected $|$relative error$|$ is strictly below the raw one, worsened when strictly above; ties are dropped. With $n = n_{\mathrm{improved}} + n_{\mathrm{worsened}}$, $k = n_{\mathrm{improved}}$, and $X \sim \operatorname{Bin}\bigl(n, \tfrac12\bigr)$,
+\begin{equation}\label{eq:signtest}
+p \;=\; \min\Bigl\{\, 1,\; 2 \min\bigl( \Pr[X \le k],\ \Pr[X \ge k] \bigr) \Bigr\},
+\end{equation}
+where
+\begin{equation}\label{eq:signtest-tails}
+\Pr[X \le k] \;=\; 2^{-n} \sum_{i=0}^{k} \binom{n}{i},
+\qquad
+\Pr[X \ge k] \;=\; 2^{-n} \sum_{i=k}^{n} \binom{n}{i},
+\end{equation}
+computed exactly from integer binomial coefficients (no normal approximation, no continuity correction) and undefined at $n = 0$. The registered success criterion per group: corrected beats raw on $\ge 2/3$ of evaluable properties with $p < 0.1$.
+\end{definition}
+\artifacts{\code{run\_round3\_analysis.exact\_binomial\_sign\_p} (exact, via \code{math.comb} --- no scipy); criteria in \code{docs/plans/2026-07-13-round3-preregistration.md}.}
+
+The confirmatory test used a rule frozen before its evaluation references were even sourced, on eight candidates never seen by any calibration: four alkali halides with primary-source elastic references and four out-of-sample perovskites. The result draws the scope line cleanly. \textbf{Class-native lattice-constant corrections transfer decisively: 1.60\,\% $\to$ 0.33\,\% median error on the ionics (4.8$\times$) and 1.75\,\% $\to$ 0.74\,\% on the perovskites (2.4$\times$), with the direction gate confident enough to fire on every cell.} Every other property failed the registered criteria --- mostly by \emph{abstention} (the gate correctly found no unanimous direction evidence on 12--16 of 16 cells), and where the frozen margin admitted a few applications on stiffness properties, they did not help, consistent with the proven caps being stronger than the frozen one. The registered consequence executed: the correction layer's validated public scope is \textbf{same-class lattice constants}, with abstention --- provably risk-free --- everywhere else until new evidence.
+
+We regard this as a positive result, and the honest shape of the correction problem: lattice constants are where cross-model error direction is unanimous, biases are stable across a chemical class, and thermal-convention offsets are common-mode --- so a three-line, fully-auditable correction beats a 4-model ensemble at one quarter of its cost \emph{on that property}, while the same machinery declines to manufacture confidence anywhere it cannot prove it. Combined with Result 1, the division of labor for the five target classes is concrete: rankings and lattice geometry can be corrected; stability energetics must be gated and refused; kinetics demands concordance across independent architectures.
+
+\medskip
+\noindent\textbf{Toward an independent-architecture basis.} A first cloud cell of the five-architecture program (SevenNet, on the nine campaign candidates) confirms the pipeline end-to-end: 78/78 elastic predictions with an overall $C_{ij}$ MAE of \textbf{9.0~GPa} against the locked references under a fixed-lattice protocol (wiring-grade by declaration; the alloy is the hard case at 32~GPa, the perovskites sit at 3--7~GPa). The remaining architecture cells are staged and cost cents; the five-architecture dispersions that replace family spread with independent-error spread are the first registered addition to this record.
+
+\medskip
+\noindent\textbf{The correction license cannot yet be checked without references --- measured.} We tested whether the theorems' load-bearing hypothesis (the target's error ratio lying in the calibration hull) has a reference-free proxy: is a model's \emph{prediction} inside its peers' prediction hull? The answer is a clean null --- success rates 73.9\,\% in-hull vs 73.1\,\% out (Fisher $p = 1.0$, 49 confirmatory cells) --- while the unknowable oracle condition itself associates strongly (94.4\,\% vs 61.3\,\%, $p = 0.017$), and every cell that satisfied both the proven cap and the in-hull condition succeeded (\textbf{12/12 across all rounds} --- the theorem's guarantee holding empirically without exception). The theorem picks the right condition; nature declines to reveal it cheaply. Finding a knowable surrogate for hull membership is therefore the registered open problem of the correction program, and until one exists, the fail-closed answer stands: corrections carry the frozen gate, and the license layer reports what that gate cannot see.
+
+% ---------------------------------------------------------------- protection
+\section*{How these results were protected}
+
+Every quantitative claim above survived one of three filters, and the paper contains nothing that did not: preregistration with frozen rules and computed (not narrated) success criteria, including one registered kill condition that fired and was executed; kernel-checked proof (Lean 4, zero \code{sorry}, decidable integer statements over the evidence corpus, with runtime--kernel boundary conventions reconciled); or hostile internal review, whose accepted findings withdrew four earlier claims from this program's record and whose dispositions are public. Exploratory analysis is labeled as such wherever it appears. The registration ledger --- what was frozen when, what failed, what executed --- is Appendix A; the corrected-record errata are part of the evidence trail.
+
+% ---------------------------------------------------------------- related work
+\section*{Related work}
+
+The components of this instrument have prior art; the assembled decision procedure does not, to our knowledge. Ensemble and committee disagreement as an uncertainty proxy is established for bespoke potentials and increasingly for foundation models; PROBE's demonstration that raw disagreement can correlate weakly with error is the direct challenge our license layer answers --- by measuring, per class and property, where the proxy holds, and refusing to issue uncertainty semantics where it does not. Conformal calibration supplies distribution-free per-quantity thresholds; our percentile gates are the same statistical object with measured, same-instrument provenance, plus a refusal-first cost ordering conformal methods do not address. Systematic uMLIP softening on under-coordinated configurations is documented (most directly for MPtrj-trained models); our contribution is its mechanistic resolution into a kinetics/thermodynamics dichotomy with experimental anchors on both sides, and the observation that ordering survives magnitude collapse on defect energetics. Proof-carrying certification of MLIP properties is nascent; our Lean layer differs in scope --- it certifies the \emph{decision procedure} (refusal finality, threshold-migration consequences, ensemble-hull impossibility, correction-safety caps) rather than the potential, which is what lets a screening pipeline inherit guarantees no single model can offer. Benchmark leaderboards (Matbench Discovery; elastic-property benchmarks showing bulk--shear accuracy asymmetry across $\sim 10^4$ materials) corroborate the property-resolved error structure but operate per-model; the object of study here is the ensemble-plus-verdict system.
+
+% ---------------------------------------------------------------- boundaries
+\section*{Boundaries}
+
+Panels of 4--9 compounds per class demonstrate methodology and mechanism, not survey statistics; every $n$ is stated per material, not per cell. Two of four local architectures share lineage, so dispersions understate independent error until the five-architecture basis lands. Neutral-defect conventions against charged-defect experimental references are stated per value; the Schottky comparison is enthalpy-consistent, and the barrier comparison is anchored on convention-consistent neutral DFT-NEB where it exists. Random-solid-solution cells are statistically cubic only; perovskite references for high-temperature phases meet athermal predictions, and part of the corrected lattice gain absorbs that common-mode offset --- the decomposition is registered work. The dispersion metric is undefined at sign-crossing medians and is floored accordingly (one vanadium shear cell in the calibration corpus is a documented pathology, not data). Licenses rest on small-$n$ rank correlations and are treated as fail-closed engineering, not statistics.
+
+% ---------------------------------------------------------------- outlook
+\section*{Outlook}
+
+Three lines follow directly. First, independence: the five-architecture cloud basis converts every dispersion in this paper from family spread toward independent-error spread at a cost of dollars, and its canary is running. Second, a runtime license for corrections: if prediction-hull membership --- knowable without references --- predicts correction success, the same fail-closed logic that licenses gates will license repairs, closing the loop between the safety theorems and deployment. Third, the defect frontier: since softening is coordination loss and the anchor-bracket formalism already identifies corrections exactly from coordination anchors on simple lattices, a defect-anchored field correction that restores Schottky \emph{scale} while provably preserving the (already-correct) \emph{ordering} is the registered next attempt to widen the validated scope beyond lattice constants --- theorem first, then a frozen trial, in that order.
+
+% ---------------------------------------------------------------- appendix A
+\section*{Appendix A --- Registration ledger}
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{@{}p{0.38\textwidth} p{0.18\textwidth} p{0.36\textwidth}@{}}
+\toprule
+Item & Frozen & Outcome \\
+\midrule
+Round 1: cross-class de-bias, 2 groups, criteria = 2/3 properties, sign test $p < 0.1$ & before run & \textbf{FAIL both groups} (alloys: significant in the wrong direction, $p = 3.1\times10^{-5}$) \\
+\addlinespace
+Round 2: direction-gated in-class rule & not frozen & exploratory rule selection, labeled; not evidence \\
+\addlinespace
+Adversarial review & --- & 12 findings accepted; 4 claims withdrawn; dispositions public \\
+\addlinespace
+Round 3: frozen rule + margin cap, out-of-sample sets, exact binomial & before reference sourcing & \textbf{a0 PASS both groups (4.8$\times$ / 2.4$\times$); all else FAIL; kill executed} --- scope narrowed to same-class lattice constants \\
+\addlinespace
+Correction-safety caps ($2s$ inflation / $3s$ + floor deflation) & proven, kernel-checked & registered for Round 4; frozen Round-3 cap shown strictly weaker by counterexample \\
+\addlinespace
+NEB finite-size & registered before kinetics thresholds & bounded at 12--50 meV ($3\times3\times3$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------- appendix B
+\section*{Appendix B --- Data and code}
+
+All evidence artifacts, preregistrations, errata, threshold registries, license tables, and Lean proof modules are versioned in the program repository (statics/kinetics/defect lanes; \code{thresholds.v2/v3} with floored-metric provenance; \code{licenses.v1}; \code{Shapes/Certificates.lean} and instance modules, built by \code{lake build}, zero \code{sorry}), with results written to the public research ledger under provenance-hashed claims.
+
+% ---------------------------------------------------------------- references
+\section*{References}
+
+\sloppy
+Primary experimental anchors: T.~G. Stoebe \& R.~A. Huggins, \emph{J. Mater. Sci.} \textbf{1}, 117 (1966); Y.~Haven, \emph{Recl. Trav. Chim. Pays-Bas} \textbf{69}, 1471 (1950); I.~Hooton \& P.~W.~M. Jacobs, \emph{Can. J. Chem.} \textbf{66}, 830 (1988); C.~V. Briscoe \& C.~F. Squire, \emph{Phys. Rev.} \textbf{106}, 1175 (1957); Y.~Ching, D.~Day \& A.~L. Ruoff, \emph{J. Appl. Phys.} \textbf{44}, 1017 (1973); J.~T. Lewis, A.~Lehoczky \& C.~V. Briscoe, \emph{Phys. Rev.} \textbf{161}, 877 (1967); M.~H. Norwood \& C.~V. Briscoe, \emph{Phys. Rev.} \textbf{112}, 45 (1958); J.~K. Galt, \emph{Phys. Rev.} \textbf{73}, 1460 (1948); G.~Laplanche \emph{et al.}, \emph{Scripta Mater.} \textbf{177}, 44 (2020); Z.~Wu \emph{et al.}, \emph{Acta Mater.} \textbf{81} (2014); S.~Deng \emph{et al.}, \emph{J. Electrochem. Soc.} \textbf{163}, A67 (2016). Methods context: PROBE, arXiv:2605.00640; conformal MLIP calibration, arXiv:2510.00721; shallow-ensemble and committee UQ, arXiv:2402.16621, arXiv:2508.09907; uMLIP elastic benchmarking, arXiv:2510.22999; uMLIP softening and single-point corrections, arXiv:2405.07105; Proof-Carrying Materials, arXiv:2603.12183; Matbench Discovery, arXiv:2308.14920.
+
+\end{document}
