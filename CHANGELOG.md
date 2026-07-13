@@ -16,6 +16,60 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-13 - CI unblock: disk-quota fix for evidence-index workflows + diff-hygiene guard for LAMMPS work dirs
+
+- **Why.** Two recurring CI failures were blocking the research pipeline:
+  the `Evidence Index` and `Evidence Index Nightly` workflows were exceeding
+  the GitHub runner disk quota because `sentence-transformers` pulled the
+  full CUDA `torch` distribution; and the `Verify` diff-whitespace check was
+  failing on generated LAMMPS log files inside `data/lammps_validation/**/work/`.
+- **What.**
+  - Added an explicit CPU-only `torch` install step to
+    `.github/workflows/evidence-index.yml` and
+    `.github/workflows/evidence-nightly.yml` before `pip install -e .`, so
+    `sentence-transformers` reuses the CPU wheel instead of downloading
+    several gigabytes of NVIDIA CUDA packages.
+  - Added `data/lammps_validation/**/work/` to `.gitignore` so generated
+    LAMMPS run artifacts (which contain trailing whitespace by design) are
+    excluded from the diff-hygiene gate.
+- **Results.** Local reproduction of the evidence-index unit tests now passes
+  after installing CPU torch; the diff-hygiene rule now ignores LAMMPS work
+  directories. The PR branch `wip/statics-discovery-gates` still needs its
+  committed `work/` directory removed and rebased to pick up the `.gitignore`
+  change.
+- **Next.** Clean the committed `data/lammps_validation/2026-07-13-ni-eam-elastic/work/`
+  directory from `wip/statics-discovery-gates` and re-run `Verify`.
+
+---
+
+## 2026-07-13 - Non-CO₂ environmental-concern contract module
+
+- **Why.** The climate-series proof pack and the Lupine Science articles now
+  cover methane, HFC refrigerants, water remediation, air remediation,
+  critical-mineral/PFAS circularity, and embodied carbon in cement. The formal
+  evidence plane had no build-locked contract that maps these concerns to the
+  existing theory modules and material classes.
+- **What.**
+  - Added `Validation/NonCO2ClimateConcerns.lean` (9 theorems, T259–T267):
+    an inductive `EnvironmentalConcern` for the six non-CO₂ concerns;
+    per-concern strings for mechanism, governing theory, correction path, and
+    data status; linkage back to `ClimatePortfolio.MaterialClass` for the
+    five concerns that map to the existing portfolio; and invariant witnesses
+    that restate existing theorems from `SorptionStability`,
+    `BarrierArrhenius`, `RankingIntegrity`, `ScalingVolcano`, and
+    `DefectStability`.
+  - Wired the module into `Vision.lean` with `#check` locks and bumped the
+    theorem-inventory count from 262 to 271.
+- **Results.** `lake build` green (3665 jobs, 0 `sorry`). Python unit tests
+  (67) and Rust check pass. The status board now prints 271 formally proven
+  theorems.
+- **Next.** Add quantitative abatement envelopes for the non-CO₂ concerns once
+  the underlying statics and lifecycle data are available; bind the first
+  rocksalt/halide and sorbent cells to turn the `layoutReadyPending` concerns
+  into bound portfolio witnesses.
+
+---
+
 ## 2026-07-11 - The anchor-identification laws: what three anchors determine — certified brackets, margin-certified ranking, and refusal completeness
 
 - **Why.** The measured-fields rung binds anchors into per-cell field
