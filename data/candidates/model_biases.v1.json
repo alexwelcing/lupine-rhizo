@@ -1,0 +1,134 @@
+{
+  "schema": "lupine.model_biases.v1",
+  "generated_at": "2026-07-13T13:56:42.424143+00:00",
+  "provenance": {
+    "evidence_dir": "C:/Users/alexw/Downloads/lupine-rhizo/data/y_matrix_runs/bound",
+    "evidence_schema": "lupine.mlip.calc_evidence.v1",
+    "formula": "bias[model][property][class] = median(predicted_value / reference_value) over the class's calibration materials; de-bias with corrected = raw / bias",
+    "class_definitions": {
+      "fcc-metals": [
+        "Ag",
+        "Al",
+        "Au",
+        "Ca",
+        "Cu",
+        "Ni",
+        "Pd",
+        "Pt",
+        "Sr"
+      ],
+      "all-21": [
+        "Ag",
+        "Al",
+        "Au",
+        "Ca",
+        "Cr",
+        "Cu",
+        "Fe",
+        "MgO",
+        "Mo",
+        "NaCl",
+        "Nb",
+        "Ni",
+        "Ni3Al",
+        "NiAl",
+        "Pd",
+        "Pt",
+        "Si",
+        "Sr",
+        "Ta",
+        "V",
+        "W"
+      ]
+    },
+    "sample_counts": {
+      "chgnet": {
+        "a0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        },
+        "b0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        }
+      },
+      "mace-mp-medium": {
+        "a0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        },
+        "b0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        }
+      },
+      "mace-mp-small": {
+        "a0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        },
+        "b0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        }
+      },
+      "mace-mpa-0-medium": {
+        "a0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        },
+        "b0": {
+          "fcc-metals": 9,
+          "all-21": 21
+        }
+      }
+    }
+  },
+  "biases": {
+    "chgnet": {
+      "a0": {
+        "fcc-metals": 1.0011117185541913,
+        "all-21": 1.0011117185541913
+      },
+      "b0": {
+        "fcc-metals": 0.8564474108845512,
+        "all-21": 0.9233949501123105
+      }
+    },
+    "mace-mp-medium": {
+      "a0": {
+        "fcc-metals": 1.0015680319291074,
+        "all-21": 1.0010241223154699
+      },
+      "b0": {
+        "fcc-metals": 0.8525857677325762,
+        "all-21": 1.0116224133178842
+      }
+    },
+    "mace-mp-small": {
+      "a0": {
+        "fcc-metals": 1.0026766934450975,
+        "all-21": 1.0003591152673832
+      },
+      "b0": {
+        "fcc-metals": 0.9945623153801584,
+        "all-21": 1.0008654310377536
+      }
+    },
+    "mace-mpa-0-medium": {
+      "a0": {
+        "fcc-metals": 1.0022884663839875,
+        "all-21": 1.0016091843540478
+      },
+      "b0": {
+        "fcc-metals": 0.9020698545455373,
+        "all-21": 0.9940893088272983
+      }
+    }
+  },
+  "cij": {
+    "available": false,
+    "inspected": "C:/Users/alexw/Downloads/lupine-rhizo/mlip-elastic-benchmark/direction-shift-validation-2026-07-13/results.json",
+    "reason": "single-model study (TensorNet direction-shift validation): arms[*].predictions are keyed by material only, with no per-model predictions for any local model id ['chgnet', 'mace-mp-small', 'mace-mp-medium', 'mace-mpa-0-medium']; per-local-model C11/C12/C44 calibration is not derivable from it, so the campaign leaves Cij raw (uncorrected)"
+  }
+}
