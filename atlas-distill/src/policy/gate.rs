@@ -26,16 +26,16 @@ UniversalCorrection.correctionAllowed_indeterminate";
 /// A deserialized certificate failed semantic revalidation.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CertificateValidationError {
-    SchemaMismatch {
+    Schema {
         expected: String,
         actual: String,
     },
-    ResultMismatch,
-    CorrectionAllowedMismatch {
+    Result,
+    CorrectionAllowed {
         expected: bool,
         actual: bool,
     },
-    TheoremReferencesMismatch {
+    TheoremReferences {
         expected: Vec<String>,
         actual: Vec<String>,
     },
@@ -44,18 +44,18 @@ pub enum CertificateValidationError {
 impl fmt::Display for CertificateValidationError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::SchemaMismatch { expected, actual } => {
+            Self::Schema { expected, actual } => {
                 write!(
                     formatter,
                     "certificate schema mismatch: expected {expected}, got {actual}"
                 )
             }
-            Self::ResultMismatch => write!(formatter, "certificate result does not match checker"),
-            Self::CorrectionAllowedMismatch { expected, actual } => write!(
+            Self::Result => write!(formatter, "certificate result does not match checker"),
+            Self::CorrectionAllowed { expected, actual } => write!(
                 formatter,
                 "certificate correction_allowed mismatch: expected {expected}, got {actual}"
             ),
-            Self::TheoremReferencesMismatch { .. } => {
+            Self::TheoremReferences { .. } => {
                 write!(
                     formatter,
                     "certificate theorem references do not match checker"
@@ -149,7 +149,7 @@ impl FixedEnvelopeCertificate {
     /// Re-run the exact checker and validate every derived certificate field.
     pub fn validate(&self) -> Result<(), CertificateValidationError> {
         if self.schema != FIXED_ENVELOPE_CERTIFICATE_SCHEMA {
-            return Err(CertificateValidationError::SchemaMismatch {
+            return Err(CertificateValidationError::Schema {
                 expected: FIXED_ENVELOPE_CERTIFICATE_SCHEMA.to_owned(),
                 actual: self.schema.clone(),
             });
@@ -157,12 +157,12 @@ impl FixedEnvelopeCertificate {
 
         let expected_result = check_fixed_envelope(self.tolerance, self.envelope);
         if self.result != expected_result {
-            return Err(CertificateValidationError::ResultMismatch);
+            return Err(CertificateValidationError::Result);
         }
 
         let expected_allowed = expected_result.correction_allowed();
         if self.correction_allowed != expected_allowed {
-            return Err(CertificateValidationError::CorrectionAllowedMismatch {
+            return Err(CertificateValidationError::CorrectionAllowed {
                 expected: expected_allowed,
                 actual: self.correction_allowed,
             });
@@ -174,7 +174,7 @@ impl FixedEnvelopeCertificate {
             .map(str::to_owned)
             .collect::<Vec<_>>();
         if self.theorem_references != expected_references {
-            return Err(CertificateValidationError::TheoremReferencesMismatch {
+            return Err(CertificateValidationError::TheoremReferences {
                 expected: expected_references,
                 actual: self.theorem_references.clone(),
             });
@@ -310,21 +310,21 @@ mod tests {
         forged_schema.schema = "lupine.forged.v1".to_owned();
         assert!(matches!(
             forged_schema.verify(),
-            Err(CertificateValidationError::SchemaMismatch { .. })
+            Err(CertificateValidationError::Schema { .. })
         ));
 
         let mut forged_result = certificate.clone();
         forged_result.result = GateDecision::Admit;
         assert_eq!(
             forged_result.verify(),
-            Err(CertificateValidationError::ResultMismatch)
+            Err(CertificateValidationError::Result)
         );
 
         let mut forged_authorization = certificate.clone();
         forged_authorization.correction_allowed = true;
         assert_eq!(
             forged_authorization.verify(),
-            Err(CertificateValidationError::CorrectionAllowedMismatch {
+            Err(CertificateValidationError::CorrectionAllowed {
                 expected: false,
                 actual: true,
             })
@@ -334,7 +334,7 @@ mod tests {
         forged_reference.theorem_references[0] = "Forged.theorem".to_owned();
         assert!(matches!(
             forged_reference.verify(),
-            Err(CertificateValidationError::TheoremReferencesMismatch { .. })
+            Err(CertificateValidationError::TheoremReferences { .. })
         ));
     }
 

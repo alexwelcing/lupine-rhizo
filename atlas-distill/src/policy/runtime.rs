@@ -208,7 +208,7 @@ impl RuntimeContractCertificate {
     /// Re-run the composite checker and validate every derived field.
     pub fn validate(&self) -> Result<(), CertificateValidationError> {
         if self.schema != RUNTIME_CONTRACT_CERTIFICATE_SCHEMA {
-            return Err(CertificateValidationError::SchemaMismatch {
+            return Err(CertificateValidationError::Schema {
                 expected: RUNTIME_CONTRACT_CERTIFICATE_SCHEMA.to_owned(),
                 actual: self.schema.clone(),
             });
@@ -216,12 +216,12 @@ impl RuntimeContractCertificate {
 
         let expected_result = check_runtime_contract(&self.policy, &self.evidence);
         if self.result != expected_result {
-            return Err(CertificateValidationError::ResultMismatch);
+            return Err(CertificateValidationError::Result);
         }
 
         let expected_allowed = expected_result.correction_allowed();
         if self.correction_allowed != expected_allowed {
-            return Err(CertificateValidationError::CorrectionAllowedMismatch {
+            return Err(CertificateValidationError::CorrectionAllowed {
                 expected: expected_allowed,
                 actual: self.correction_allowed,
             });
@@ -233,7 +233,7 @@ impl RuntimeContractCertificate {
             .map(str::to_owned)
             .collect::<Vec<_>>();
         if self.theorem_references != expected_references {
-            return Err(CertificateValidationError::TheoremReferencesMismatch {
+            return Err(CertificateValidationError::TheoremReferences {
                 expected: expected_references,
                 actual: self.theorem_references.clone(),
             });
@@ -655,14 +655,14 @@ mod tests {
         forged_schema.schema = "lupine.forged.v1".to_owned();
         assert!(matches!(
             forged_schema.verify(),
-            Err(CertificateValidationError::SchemaMismatch { .. })
+            Err(CertificateValidationError::Schema { .. })
         ));
 
         let mut forged_input = certificate.clone();
         forged_input.evidence.scope.model.digest = "sha256:forged-model".to_owned();
         assert_eq!(
             forged_input.verify(),
-            Err(CertificateValidationError::ResultMismatch)
+            Err(CertificateValidationError::Result)
         );
 
         let mut forged_result = certificate.clone();
@@ -671,14 +671,14 @@ mod tests {
         };
         assert_eq!(
             forged_result.verify(),
-            Err(CertificateValidationError::ResultMismatch)
+            Err(CertificateValidationError::Result)
         );
 
         let mut forged_authorization = certificate.clone();
         forged_authorization.correction_allowed = false;
         assert_eq!(
             forged_authorization.verify(),
-            Err(CertificateValidationError::CorrectionAllowedMismatch {
+            Err(CertificateValidationError::CorrectionAllowed {
                 expected: true,
                 actual: false,
             })
@@ -688,7 +688,7 @@ mod tests {
         forged_reference.theorem_references[0] = "Forged.theorem".to_owned();
         assert!(matches!(
             forged_reference.verify(),
-            Err(CertificateValidationError::TheoremReferencesMismatch { .. })
+            Err(CertificateValidationError::TheoremReferences { .. })
         ));
     }
 
