@@ -85,7 +85,6 @@ async fn run_gpu_experiment() {
         module: &shader,
         entry_point: "main",
         compilation_options: Default::default(),
-        cache: None,
     });
 
     let bind_group_layout = compute_pipeline.get_bind_group_layout(0);

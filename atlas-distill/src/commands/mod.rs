@@ -12,3 +12,5 @@ pub mod emit_beat;
 pub mod equilibrium_solve;
 pub mod model_geometry;
 pub mod nist_equilibrium_catalog;
+pub mod validate_envelope;
+pub mod validate_runtime_contract;

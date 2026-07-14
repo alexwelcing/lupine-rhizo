@@ -7,6 +7,7 @@ mod fitting;
 mod ingest;
 mod literature;
 mod observables;
+mod policy;
 mod report;
 mod stats;
 
@@ -140,6 +141,10 @@ enum Commands {
     EquilibriumSolve(commands::equilibrium_solve::EquilibriumSolveArgs),
     /// Build viewer-ready NIST equilibrium targets from benchmark rows.
     NistEquilibriumCatalog(commands::nist_equilibrium_catalog::NistEquilibriumCatalogArgs),
+    /// Evaluate the raw structural fixed-point envelope gate and emit JSON.
+    ValidateEnvelope(commands::validate_envelope::ValidateEnvelopeArgs),
+    /// Validate the complete structural scope/numeric runtime contract.
+    ValidateRuntimeContract(commands::validate_runtime_contract::ValidateRuntimeContractArgs),
 }
 
 #[derive(Subcommand)]
@@ -225,6 +230,8 @@ fn main() -> Result<()> {
         Commands::DistillHillClimb(args) => commands::distill_hill_climb::run(args),
         Commands::EquilibriumSolve(args) => commands::equilibrium_solve::run(args),
         Commands::NistEquilibriumCatalog(args) => commands::nist_equilibrium_catalog::run(args),
+        Commands::ValidateEnvelope(args) => commands::validate_envelope::run(args),
+        Commands::ValidateRuntimeContract(args) => commands::validate_runtime_contract::run(args),
     }
 }
 

@@ -1,0 +1,83 @@
+{
+  "policy": {
+    "scope": {
+      "model": {
+        "name": "fixture-model",
+        "version": "1",
+        "digest": "sha256:model-fixture"
+      },
+      "reference": {
+        "name": "fixture-reference",
+        "version": "1",
+        "digest": "sha256:reference-fixture"
+      },
+      "observable": "total-energy",
+      "context": {
+        "species": ["H", "H"],
+        "charge": 0,
+        "spin_convention": "singlet",
+        "boundary_conditions": "isolated"
+      },
+      "descriptor": {
+        "artifact": {
+          "name": "fixture-descriptor",
+          "version": "1",
+          "digest": "sha256:descriptor-fixture"
+        },
+        "metric_convention": "discrete-v1"
+      },
+      "units": "eV",
+      "numeric_semantics": "exact-fixed-point-v1"
+    },
+    "numeric": {
+      "schema_version": 1,
+      "scale": 1000,
+      "units": "eV",
+      "semantics": "exact-fixed-point-v1",
+      "rounding": "outward"
+    },
+    "tolerance": 5
+  },
+  "evidence": {
+    "scope": {
+      "model": {
+        "name": "fixture-model",
+        "version": "1",
+        "digest": "sha256:model-fixture"
+      },
+      "reference": {
+        "name": "fixture-reference",
+        "version": "1",
+        "digest": "sha256:reference-fixture"
+      },
+      "observable": "total-energy",
+      "context": {
+        "species": ["H", "H"],
+        "charge": 0,
+        "spin_convention": "singlet",
+        "boundary_conditions": "isolated"
+      },
+      "descriptor": {
+        "artifact": {
+          "name": "fixture-descriptor",
+          "version": "1",
+          "digest": "sha256:descriptor-fixture"
+        },
+        "metric_convention": "discrete-v1"
+      },
+      "units": "eV",
+      "numeric_semantics": "exact-fixed-point-v1"
+    },
+    "numeric": {
+      "schema_version": 1,
+      "scale": 1000,
+      "units": "eV",
+      "semantics": "exact-fixed-point-v1",
+      "rounding": "outward"
+    },
+    "envelope": {
+      "lower": 100,
+      "upper": 104
+    }
+  }
+}

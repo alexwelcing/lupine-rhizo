@@ -1,0 +1,30 @@
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Scope
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Residual
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Descriptor
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Anchor
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Smoothness
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.ScalarEnvelope
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.NormedObservable
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.ColdStart
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Gate
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.NumericContract
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Attestation
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.FixedSampledLipschitz
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.TrajectoryValidation
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.RobustRanking
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Aggregation
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.CoordinationBridge
+
+/-!
+# Universal correction assurance spine
+
+This module is the stable import surface for Lupine's representation-agnostic
+correction theory.  The implementation keeps empirical premises explicit:
+semantic scope, residual definition, descriptor adequacy, interval anchors,
+Lipschitz smoothness, finite scalar and normed-observable envelopes,
+cold-start limitations, versioned exact numeric ingestion, fail-closed runtime
+decisions, explicit scientific attestation, finite-sample diagnostics,
+between-validation trajectory bounds, robust ranking, and deterministic
+distributed aggregation.
+-/

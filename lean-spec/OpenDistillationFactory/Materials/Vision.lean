@@ -34,6 +34,7 @@ import OpenDistillationFactory.Materials.Theory.DefectStability
 import OpenDistillationFactory.Materials.Theory.SorptionStability
 import OpenDistillationFactory.Materials.Theory.AnchoredField
 import OpenDistillationFactory.Materials.Theory.AnchorBracket
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection
 import OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
@@ -41,6 +42,8 @@ import OpenDistillationFactory.Materials.Validation.ClimateSeries
 import OpenDistillationFactory.Materials.Validation.ClimatePortfolio
 import OpenDistillationFactory.Materials.Validation.NonCO2ClimateConcerns
 import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
+import OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates
+import OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates
 
 namespace OpenDistillationFactory.Materials.Vision
 
@@ -67,6 +70,7 @@ open OpenDistillationFactory.Materials.Theory.DefectStability
 open OpenDistillationFactory.Materials.Theory.SorptionStability
 open OpenDistillationFactory.Materials.Theory.AnchoredField
 open OpenDistillationFactory.Materials.Theory.AnchorBracket
+open OpenDistillationFactory.Materials.Theory.UniversalCorrection
 open OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
 open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
@@ -74,6 +78,8 @@ open OpenDistillationFactory.Materials.Validation.ClimateSeries
 open OpenDistillationFactory.Materials.Validation.ClimatePortfolio
 open OpenDistillationFactory.Materials.Validation.NonCO2ClimateConcerns
 open OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
+open OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates
+open OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates
 
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 1: DATA AUDIT
@@ -467,6 +473,87 @@ def nistCount := nistScaffoldAlSample.length
 #check critical_mineral_invariant_holds
 #check cement_metastability_invariant_holds
 
+/- Universal-correction assurance spine — representation-agnostic semantics,
+    sound finite-anchor envelopes, explicit cold-start limits, exact tri-state
+    runtime decisions, robust ranking, deterministic distributed reduction,
+    and the specialization bridge to the existing coordination fields. -/
+#check compatible_iff_eq
+#check residual_add_reference
+#check Descriptor.collision_obstructs_factorization
+#check Descriptor.collision_obstructs_lipschitz
+#check Anchor.distance_to_midpoint_le_half_width
+#check residual_mem_envelope
+#check corrected_error_le_radius
+#check AnchorCorpus.radius_add_le_radius
+#check no_anchor_upper_bound
+#check no_anchor_lower_bound
+#check checkFixedEnvelope_admit_iff
+#check checkFixedEnvelope_refuse_iff
+#check checkFixedEnvelope_indeterminate_iff
+#check correctionAllowed_indeterminate
+#check ScoreInterval.robustlyPrecedes_sound
+#check Severity.join_comm
+#check Severity.join_assoc
+#check Severity.join_idem
+#check Severity.aggregate_eq_admit_iff
+#check Severity.aggregate_eq_of_perm
+#check ErrorField.fieldSum_factorsThrough
+#check MeasuredField.fieldSum_factorsThrough
+#check ErrorField.fieldSum_eq_of_descriptor_collision
+#check FixedEnvelope.encloses_iff_decode_bounds
+#check FixedEnvelope.encloses_of_outward
+#check FixedEnvelope.width_le_of_refines
+#check checkRuntimeContract_admit_iff
+#check checkRuntimeContract_incompatible_iff
+#check checkRuntimeContract_inconsistent_iff
+#check checkRuntimeContract_unsupportedSchema_iff
+#check checkRuntimeContract_unsupportedRounding_iff
+#check checkRuntimeContract_widthTooLarge_iff
+#check correctionAllowed_checkRuntimeContract_iff
+#check admissible_of_refinement
+#check FixedMeasurement.error_to_decodedMidpoint_le_radius
+#check checkRuntimeContract_admit_and_attests_iff
+#check scientificAdmission_of_outward
+#check corrected_value_error_le_decodedRadius
+#check FixedPairObservation.zero_distance_collision_rejected
+#check checkFixedSampledLipschitz_eq_true_iff
+#check checkFixedSampledLipschitz_eq_false_iff
+#check singleton_sample_does_not_imply_global
+#check PerStepDriftBound.distance_from_checkpoint_le
+#check checkpoint_midpoint_error_within_period_le
+#check ResidualBall.residual_mem_propagated_ball
+#check ResidualBall.corrected_observable_error_le
+
+/- Synthetic executable certificates.  These fixtures make no empirical
+    materials claims; they lock the exact semantics production evidence must
+    instantiate. -/
+#check exact_gate_admits
+#check exact_gate_refuses
+#check exact_gate_is_indeterminate
+#check indeterminate_correction_is_blocked
+#check robust_ranking_true_scores
+#check collision_blocks_factorization
+#check distributed_reordering_stable
+#check distributed_gate_results_fail_closed
+#check scalar_midpoint_error_certificate
+#check scalar_envelope_collapses
+#check runtime_contract_admits
+#check runtime_contract_refuses_scope_mismatch
+#check runtime_contract_refuses_zero_scale
+#check runtime_contract_refuses_inverted_interval
+#check runtime_contract_indeterminate_schema
+#check runtime_contract_indeterminate_rounding
+#check runtime_contract_indeterminate_width
+#check runtime_contract_is_fail_closed
+#check outward_enclosure_contains_midpoint
+#check outward_measurement_is_scientifically_admitted
+#check outward_measurement_correction_is_bounded
+#check refined_measurement_remains_admissible
+#check sampled_collision_rejected_for_every_factor
+#check sampled_list_reports_counterexample
+#check scheduled_validation_covers_intermediate_step
+#check normed_observable_is_enclosed
+
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 3: HYPOTHESIS INVENTORY
 -- ═══════════════════════════════════════════════════════════════
@@ -498,6 +585,14 @@ def computationallyProvenCount : Nat :=
   -- invariant witnesses 6
   271
 
+/-- Public theorems in the representation-agnostic correction spine and its
+    executable certificate packs.  This is tracked separately so the legacy
+    271-theorem inventory remains historically stable. -/
+def universalCorrectionProvenCount : Nat :=
+  -- Theory: 119; synthetic certificates: 20; empirical-boundary
+  -- certificates: 25.
+  164
+
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
 def epistemicGapCount : Nat :=
@@ -517,7 +612,8 @@ def epistemicGapCount : Nat :=
 #guard (nistScaffoldPredictionsMissing nistScaffoldAlSample == true)
 
 #guard (hypothesisCount >= 6)
-#guard (computationallyProvenCount >= 10)
+#guard (computationallyProvenCount == 271)
+#guard (universalCorrectionProvenCount == 164)
 #guard (epistemicGapCount >= 1)
 
 #guard (empiricalParadox.simpsonsDetected == false)
@@ -568,6 +664,45 @@ def epistemicGapCount : Nat :=
 #guard (-229 : Int) - (-310) = 81
 #guard 6 * 81 < 537
 
+-- Universal-correction runtime locks: all three exact gate outcomes are
+-- reachable, and only admission authorizes correction.  A definite refusal
+-- dominates a distributed reduction regardless of the other worker results.
+#guard decide (checkFixedEnvelope 5 admittedEnvelope = .admit)
+#guard decide
+  (checkFixedEnvelope 5 refusedEnvelope = .refuse .inconsistent)
+#guard decide
+  (checkFixedEnvelope 5 indeterminateEnvelope =
+    .indeterminate .widthTooLarge)
+#guard correctionAllowed (checkFixedEnvelope 5 admittedEnvelope)
+#guard !(correctionAllowed (checkFixedEnvelope 5 refusedEnvelope))
+#guard !(correctionAllowed (checkFixedEnvelope 5 indeterminateEnvelope))
+#guard decide
+  (Severity.aggregate [.admit, .indeterminate, .refuse, .admit] = .refuse)
+
+-- Empirical-boundary locks: the composite monitor reaches every result class
+-- with deterministic precedence, remains fail-closed, and the exact sampled
+-- Lipschitz checker reports a witnessed counterexample.
+#guard decide
+  (checkRuntimeContract runtimePolicy admittedMeasurement = .admit)
+#guard decide
+  (checkRuntimeContract runtimePolicy mismatchedMeasurement =
+    .refuse .incompatibleContract)
+#guard decide
+  (checkRuntimeContract runtimePolicy inconsistentMeasurement =
+    .refuse .inconsistentEnvelope)
+#guard decide
+  (checkRuntimeContract schemaTwoPolicy schemaTwoMeasurement =
+    .indeterminate .unsupportedSchema)
+#guard decide
+  (checkRuntimeContract nearestPolicy nearestMeasurement =
+    .indeterminate .unsupportedRounding)
+#guard decide
+  (checkRuntimeContract runtimePolicy wideMeasurement =
+    .indeterminate .widthTooLarge)
+#guard !(correctionAllowed (checkRuntimeContract runtimePolicy wideMeasurement))
+#guard decide
+  (checkFixedSampledLipschitz 2 [acceptedPair, rejectedPair] = false)
+
 /-- The complete status board as a computed string. -/
 def visionReport : String :=
   "╔══════════════════════════════════════════════════════════════╗\n" ++
@@ -585,6 +720,8 @@ def visionReport : String :=
   "╠══════════════════════════════════════════════════════════════╣\n" ++
   "║  THEOREM INVENTORY                                           ║\n" ++
   "║    Formally proven          : " ++ toString computationallyProvenCount ++
+  "                             ║\n" ++
+  "║    Universal correction    : " ++ toString universalCorrectionProvenCount ++
   "                             ║\n" ++
   "║    Documented epistemic gaps: " ++ toString epistemicGapCount ++
   "                             ║\n" ++
