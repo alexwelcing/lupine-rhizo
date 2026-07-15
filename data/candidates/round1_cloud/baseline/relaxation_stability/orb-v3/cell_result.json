@@ -1,0 +1,3496 @@
+{
+  "accuracy": {
+    "convergence_rate": 1.0,
+    "error": 0.0,
+    "error_unit": "relaxation_penalty",
+    "primary_metric": "relaxation_stability_penalty",
+    "score": 1.0,
+    "score_tolerance": 0.1,
+    "thermodynamic_condition_coverage": {
+      "coverage_score": 0.0,
+      "has_high_pressure": false,
+      "has_high_temperature": false,
+      "has_low_pressure": false,
+      "has_low_temperature": false,
+      "high_pressure_gpa_min": 10.0,
+      "high_temperature_k_min": 1200.0,
+      "low_pressure_gpa_max": 1.0,
+      "low_temperature_k_max": 500.0,
+      "phase_count": 0,
+      "phases": [],
+      "pressure_count": 0,
+      "pressures_gpa": [],
+      "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+      "temperature_count": 0,
+      "temperatures_k": []
+    },
+    "unit": "row_native_physical_score"
+  },
+  "campaign_id": "mlip-cloud-20260713-cand-r1",
+  "cell_id": "mlip-cloud-20260713-cand-r1:baseline:relaxation_stability:orb-v3",
+  "checkpoint": {
+    "cache_misses": 9,
+    "flush_count": 1,
+    "ignored_reason": null,
+    "loaded_predictions": 0,
+    "mode": "read-write",
+    "pending_flush_predictions": 0,
+    "schema": "lupine.mlip.cell_checkpoint.summary.v1",
+    "stored_predictions": 9,
+    "url": "gs://shed-489901-atlas-outputs/mlip-campaigns/mlip-cloud-20260713-cand-r1/baseline/relaxation_stability/orb-v3/cell_checkpoint.json",
+    "written_predictions": 9
+  },
+  "distill_policy_engine": "auto",
+  "distill_policy_hash": null,
+  "distill_policy_url": null,
+  "distill_profile": "off",
+  "duration_s": 6.160822875000008,
+  "execution": {
+    "cloud_run_job": "mlip-cell-orb",
+    "cloud_run_revision": null,
+    "cold_total_seconds": 6.372609185999977,
+    "model_load_seconds": 22.25546366100002,
+    "model_preloaded": true,
+    "runner_image_digest": null,
+    "warm_inference_seconds": 6.160822875000008
+  },
+  "fixture_contract": {
+    "blockers": [],
+    "fixture_id": "round1-candidates-v1",
+    "manifest_hash": "sha256:3ef7bb057c93591bc4b60567c2ac82c89cd0da06c26b2cd9994baf14711671bb",
+    "reference_provenance": {
+      "builder": {
+        "packet": "docs/promotion/2026-07-13-six-model-promotion-packet.md",
+        "protocol_deviation": "elastic_constants cases strain a FIXED builder-supplied lattice (reference/guess a0), not each model's own relaxed cell as the local run_candidate_campaign.py does. Cells are labeled protocol=fixed_lattice and stay out of headline Cij claims until the candidate_statics runner row lands (packet GAP-1).",
+        "relaxation_perturbation": {
+          "distribution": "normal",
+          "seed_root": 20260713,
+          "stdev_angstrom": 0.05
+        },
+        "rss": {
+          "seed": 20260713,
+          "supercell": 3
+        },
+        "strain_delta": 0.005,
+        "tool": "tools/build_candidate_manifest.py"
+      },
+      "round1_targets": {
+        "generated_at": "2026-07-13",
+        "notes": "Round-1 candidate targets for the unbiased raw-MLIP vs Lupine-enhanced-MLIP accuracy campaign. All reference values web-verified 2026-07-13 (see per-value source/caveat). kind is one of: exp | DFT-PBE | other. null = genuinely unfindable/unverifiable this session (do not invent). Companion prereg: docs/plans/2026-07-13-unbiased-accuracy-campaign.md.",
+        "path": "data/candidates/round1_targets.json",
+        "per_candidate": {
+          "hea-cocrfeni": {
+            "cij_null_reason": "No published EXPERIMENTAL single-crystal C11/C12/C44 for equiatomic CoCrFeNi found (searched 2026-07-13: Schreuer/Laplanche RUB group published single-crystal constants only for CrCoNi; Kobe group only for quinary CrMnFeCoNi, Teramoto et al., J. Alloys Compd. 777 (2019)). DFT-CPA values exist in Tian, Varga, Chen, Delczeg, Vitos, Phys. Rev. B 87 (2013) 075144 but the numeric table is paywalled and was not transcribed. If located before the run freeze, add as kind DFT-PBE; otherwise CoCrFeNi participates in a0/B0 legs only.",
+            "references": {
+              "a0": {
+                "caveat": "No single canonical bulk-XRD citation pinned this session; treat as 3.57 +/- 0.01 A. Sufficient for a0 relative-error scoring at the ~0.3% level; tighten before any claim finer than that.",
+                "kind": "exp",
+                "source": "Consensus of bulk XRD reports for equiatomic fcc CoCrFeNi, room temperature; reported range 3.559-3.575 A across e.g. 'Microstructure evolution and thermal stability of equiatomic CoCrFeNi films' (Acta Mater. 2020, doi:10.1016/j.actamat.2020.09.023 region) and arXiv:2102.05325",
+                "unit": "Angstrom",
+                "value": 3.57
+              },
+              "b0": {
+                "caveat": "DERIVED via isotropic relations: E = 2G(1+nu) = 215 GPa, B = E/(3(1-2nu)) = 163 GPa. Polycrystal-derived, not a direct EOS measurement.",
+                "kind": "exp",
+                "source": "Derived from polycrystal G = 84 GPa and nu = 0.28 at 293 K for FeNiCoCr: Z. Wu, H. Bei, G.M. Pharr, E.P. George, Acta Mater. 81 (2014) 428-441, Table II, doi:10.1016/j.actamat.2014.08.026 (values verified from OSTI accepted manuscript, osti.gov/pages/servlets/purl/1162079)",
+                "unit": "GPa",
+                "value": 163.0
+              },
+              "c11": null,
+              "c12": null,
+              "c44": null
+            }
+          },
+          "hea-cocrni": {
+            "references": {
+              "a0": {
+                "caveat": "Room-temperature value. Verified 2026-07-13 via secondary quotation in arXiv:2603.25616 (NEP CrCoNi potential paper, Table 2) which cites this reference; primary PDF is paywalled. DFT-PBE comparison: a = 3.54 A (arXiv:2603.25616, their own DFT).",
+                "kind": "exp",
+                "source": "G. Laplanche, M. Schneider, F. Scholz, J. Frenzel, G. Eggeler, J. Schreuer, 'Processing of a single-crystalline CrCoNi medium-entropy alloy and evolution of its thermal expansion and elastic stiffness coefficients with temperature', Scripta Mater. 177 (2020) 44-48, doi:10.1016/j.scriptamat.2019.09.020",
+                "unit": "Angstrom",
+                "value": 3.56
+              },
+              "b0": {
+                "caveat": "DERIVED, not directly quoted: (249+2*159)/3 = 189 GPa. Cross-check: polycrystal G=87 GPa, nu=0.30 at 293 K (Wu, Bei, Pharr, George, Acta Mater. 81 (2014) 428-441, Table II, verified from OSTI accepted manuscript purl 1162079) gives B = 2G(1+nu)/(3(1-2nu)) = 188.5 GPa. Consistent.",
+                "kind": "exp",
+                "source": "Derived as (C11+2*C12)/3 from the room-temperature single-crystal constants of Laplanche et al., Scripta Mater. 177 (2020) 44-48",
+                "unit": "GPa",
+                "value": 189.0
+              },
+              "c11": {
+                "caveat": "Room temperature. Verified via secondary quotation in arXiv:2603.25616 Table 2. DFT-PBE comparison from same arXiv paper: C11 = 295 GPa.",
+                "kind": "exp",
+                "source": "Laplanche et al., Scripta Mater. 177 (2020) 44-48 (resonant ultrasound spectroscopy on Bridgman-grown CrCoNi single crystal), doi:10.1016/j.scriptamat.2019.09.020",
+                "unit": "GPa",
+                "value": 249.0
+              },
+              "c12": {
+                "caveat": "Room temperature. Verified via arXiv:2603.25616 Table 2. DFT-PBE comparison: C12 = 185 GPa.",
+                "kind": "exp",
+                "source": "Laplanche et al., Scripta Mater. 177 (2020) 44-48, doi:10.1016/j.scriptamat.2019.09.020",
+                "unit": "GPa",
+                "value": 159.0
+              },
+              "c44": {
+                "caveat": "Room temperature. Verified via arXiv:2603.25616 Table 2. DFT-PBE comparison: C44 = 142 GPa.",
+                "kind": "exp",
+                "source": "Laplanche et al., Scripta Mater. 177 (2020) 44-48, doi:10.1016/j.scriptamat.2019.09.020",
+                "unit": "GPa",
+                "value": 138.0
+              }
+            }
+          },
+          "hea-coni": {
+            "cij_null_reason": "No room-temperature single-crystal C11/C12/C44 measurement for equiatomic Co-50Ni located this session (older Ni-Co single-crystal literature exists for other compositions; not verified). a0/B0 legs only unless filled before freeze.",
+            "references": {
+              "a0": {
+                "caveat": "ESTIMATE: no dedicated equiatomic-CoNi bulk XRD citation pinned this session. Ni-Co is fcc and near-ideal Vegard over 0-65 at.% Co, so uncertainty ~0.005 A, but score a0 for CoNi as secondary evidence only.",
+                "kind": "other",
+                "source": "Vegard interpolation between fcc Ni (3.524 A) and fcc Co (3.5447 A); electrodeposited Ni-Co XRD across composition agrees with Vegard and with bulk metallurgical data (arXiv:1607.01960 and refs therein)",
+                "unit": "Angstrom",
+                "value": 3.535
+              },
+              "b0": {
+                "caveat": "DERIVED via isotropic relations: E = 2G(1+nu) = 216.7 GPa, B = E/(3(1-2nu)) = 172 GPa.",
+                "kind": "exp",
+                "source": "Derived from polycrystal G = 84 GPa and nu = 0.29 at 293 K for NiCo: Wu, Bei, Pharr, George, Acta Mater. 81 (2014) 428-441, Table II (verified from OSTI purl 1162079)",
+                "unit": "GPa",
+                "value": 172.0
+              },
+              "c11": null,
+              "c12": null,
+              "c44": null
+            }
+          },
+          "hea-feni": {
+            "cij_null_reason": "Single-crystal C11/C12/C44 for Fe-50Ni WERE measured in Singh & Guruswamy, AIP Advances 13 (2023) 115112, but the numeric values sit behind a fetch-blocked PDF and were not retrievable this session (abstract exposes only E=99.1, G=73.4, B=176.7 GPa, anisotropy 3.29). Fill from the paper before freeze to include FeNi in the Cij leg; do NOT back-solve Cij from the abstract moduli.",
+            "references": {
+              "a0": {
+                "caveat": "Ordered L10 tetrataenite is tetragonal (a=3.582, c=3.607); the DISORDERED fcc solid solution simulated here has a cubic parameter in the 3.58-3.60 A range. We score against a=3.582 A with +/-0.01 A convention uncertainty flagged.",
+                "kind": "exp",
+                "source": "Taenite/tetrataenite (Fe-Ni 50:50) meteorite XRD: 'Tetragonal Lattice of Tetrataenite (Ordered Fe-Ni, 50-50) from 4 Meteorites', Phys. Scr. 23 (1981) 301 (Albertsen), a = b = 3.582 A, c = 3.607 A",
+                "unit": "Angstrom",
+                "value": 3.582
+              },
+              "b0": {
+                "caveat": "Verified from the article abstract/record (OUCI mirror). Cross-check: Wu et al. Acta Mater. 81 (2014) Table II gives G=62 GPa, nu=0.34 for FeNi -> B = 173 GPa. Consistent. Note Fe-Ni near 50:50 has Invar-adjacent magnetoelastic softness; temperature/field convention matters.",
+                "kind": "exp",
+                "source": "R.S. Singh, S. Guruswamy, 'Elastic constants of equiatomic Fe-Ni Invar alloy single crystal', AIP Advances 13 (2023) 115112, doi:10.1063/5.0174535 (bulk modulus from RUS on [001] Fe-50Ni single crystal, no applied field)",
+                "unit": "GPa",
+                "value": 176.7
+              },
+              "c11": null,
+              "c12": null,
+              "c44": null
+            }
+          },
+          "hp-csgei3": {
+            "a0_null_reason": "Cubic (Pm-3m) CsGeI3 exists only above ~550 K (transition confirmed in multiple sources incl. arXiv:2603.11844 context; RT phase is R3m per Thiele et al. 1987). A numeric experimental HIGH-T cubic lattice parameter could not be verified this session (DFT cubic a ~ 6.0 A is reported but attribution unpinned). lattice_guess 6.05 A is an unreferenced initialization value only; a0 scoring for CsGeI3 is DEFERRED unless a Thiele 1987 (Z. anorg. allg. Chem. 545, 148) value is pinned before freeze.",
+            "mp_id": "mp-28377",
+            "mp_id_caveat": "mp-28377 is the trigonal R3m room-temperature ground state, not the cubic phase; a verified MP id for the cubic polymorph was not found this session.",
+            "references": {
+              "a0": null,
+              "b0": {
+                "caveat": "Athermal 0 K cubic cell; internal consistency (C11+2C12)/3 = 18.9 GPa = their B. Note RT ground state is rhombohedral R3m (Ge off-centering ~0.17 A along [111]); cubic is a >550 K phase.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 18.89
+              },
+              "c11": {
+                "caveat": "Athermal 0 K cubic cell; cubic phase is dynamically-adjacent to the R3m distortion, so MLIP relaxations may fall into the rhombohedral well - record which minimum was scored.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 40.32
+              },
+              "c12": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 8.18
+              },
+              "c44": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 8.87
+              }
+            }
+          },
+          "hp-cspbi3-control": {
+            "mp_id": null,
+            "mp_id_caveat": "Cubic CsPbI3 is commonly referenced as mp-1069538 but that id could not be verified against Materials Project this session; orthorhombic and other polymorph entries exist. Set before freeze if the cubic entry is confirmed.",
+            "references": {
+              "a0": {
+                "caveat": "CONVENTION MISMATCH: alpha cubic phase measured at 634 K; RT black phases are gamma-orthorhombic and RT equilibrium is the yellow delta non-perovskite phase. Athermal cubic relaxation vs 634 K measurement; thermal expansion makes the exp value an upper bound.",
+                "kind": "exp",
+                "source": "D.M. Trots, S.V. Myagkota, 'High-temperature structural evolution of caesium and rubidium triiodoplumbates', J. Phys. Chem. Solids 69 (2008) 2520-2526 (in-situ powder diffraction; alpha-CsPbI3, cubic Pm-3m, 634 K)",
+                "unit": "Angstrom",
+                "value": 6.2894
+              },
+              "b0": {
+                "caveat": "Athermal 0 K cubic cell; internal consistency (C11+2C12)/3 = 14.77 GPa. Experimental elastic moduli for CsPbI3 exist (Rakita et al.) and reportedly agree with simulation; not transcribed this session.",
+                "kind": "DFT-PBE",
+                "source": "'Pressure-induced modifications in the electronic, mechanical, optical, and thermodynamic properties of CsPbI3 for advanced optoelectronic applications: A DFT study' (2025), ScienceDirect PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+                "unit": "GPa",
+                "value": 14.76
+              },
+              "c11": {
+                "caveat": "Athermal 0 K cubic cell; known-good control candidate - MLIPs have abundant CsPbI3-adjacent training data.",
+                "kind": "DFT-PBE",
+                "source": "CsPbI3 pressure DFT study (2025), PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+                "unit": "GPa",
+                "value": 34.84
+              },
+              "c12": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "CsPbI3 pressure DFT study (2025), PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+                "unit": "GPa",
+                "value": 4.73
+              },
+              "c44": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "CsPbI3 pressure DFT study (2025), PII S2211379725000440, alpha-CsPbI3 at 0 GPa",
+                "unit": "GPa",
+                "value": 3.66
+              }
+            }
+          },
+          "hp-cssnbr3": {
+            "mp_id": "mp-27214",
+            "references": {
+              "a0": {
+                "caveat": "CsSnBr3 is cubic AT room temperature (best-conditioned perovskite candidate in this set). Provenance chain runs through a secondary tabulation; primary-source pinning recommended before publication-grade claims.",
+                "kind": "exp",
+                "source": "Experimental cubic lattice constant as tabulated in Hayatullah et al., Acta Phys. Pol. A 124 (2013) 102, Table I 'experiment' row (their ref [17]: J.C. Zheng, A.C.H. Huan, A.T.S. Wee, M.H. Kuok); primary measurement commonly attributed to Donaldson et al. Moessbauer/XRD work showing cubic perovskite at room temperature",
+                "unit": "Angstrom",
+                "value": 5.804
+              },
+              "b0": {
+                "caveat": "Athermal 0 K cubic cell. Alternative FP-LAPW GGA EOS: B = 25.19 GPa (Hayatullah 2013). Method spread noted.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 19.09
+              },
+              "c11": {
+                "caveat": "Athermal 0 K cubic cell; internal consistency (C11+2C12)/3 = 19.09 GPa = their B.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 43.89
+              },
+              "c12": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 6.69
+              },
+              "c44": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 5.21
+              }
+            }
+          },
+          "hp-cssncl3": {
+            "mp_id": "mp-1070375",
+            "references": {
+              "a0": {
+                "caveat": "CONVENTION MISMATCH: cubic phase is stable only above ~379-391 K; room-temperature CsSnCl3 is monoclinic. Athermal DFT/MLIP relaxations of the 5-atom cubic cell are compared to a 403 K measurement.",
+                "kind": "exp",
+                "source": "Rietveld-refined cubic Pm-3m cell at 403 K, a = 5.579(3) A: Ben Bechir et al., 'Study of charge transfer mechanism and dielectric relaxation of all-inorganic perovskite CsSnCl3' (open access, PMC9034151); consistent with Poulsen & Rasmussen (1970)",
+                "unit": "Angstrom",
+                "value": 5.579
+              },
+              "b0": {
+                "caveat": "Voigt bulk modulus from elastic constants, athermal 0 K cubic cell. Alternative FP-LAPW GGA EOS value: B = 27.68 GPa (Hayatullah et al., Acta Phys. Pol. A 124 (2013) 102). Spread ~20% indicates method sensitivity.",
+                "kind": "DFT-PBE",
+                "source": "M. Roknuzzaman, K. Ostrikov, H. Wang, A. Du, T. Tesfamichael, 'Towards lead-free perovskite photovoltaics and optoelectronics by ab-initio simulations', Sci. Rep. 7 (2017) 14025, doi:10.1038/s41598-017-13172-y (GGA-PBE), verified from PMC5656601 Table 1",
+                "unit": "GPa",
+                "value": 22.7
+              },
+              "c11": {
+                "caveat": "Athermal 0 K cubic cell; no experimental Cij known. Internal consistency: (C11+2C12)/3 = 22.7 GPa = their B.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 50.66
+              },
+              "c12": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 8.71
+              },
+              "c44": {
+                "caveat": "Athermal 0 K cubic cell.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 6.01
+              }
+            }
+          },
+          "hp-cssni3": {
+            "mp_id": "mp-614013",
+            "references": {
+              "a0": {
+                "caveat": "CONVENTION MISMATCH: this is the B-alpha CUBIC phase, stable only above ~426 K (value ~500 K); room-temperature black CsSnI3 is orthorhombic B-gamma, and a separate yellow non-perovskite phase also exists at RT. Athermal cubic relaxation vs high-T measurement.",
+                "kind": "exp",
+                "source": "K. Yamada, S. Funabiki, H. Horimoto, T. Matsui et al. (structural phase transitions of CsSnI3 polymorphs, 1991), as tabulated in Hayatullah et al., Acta Phys. Pol. A 124 (2013) 102, Table I ref [23]",
+                "unit": "Angstrom",
+                "value": 6.219
+              },
+              "b0": {
+                "caveat": "EOS-derived. Roknuzzaman 2017 (GGA-PBE) gives a much softer B = 6.30 GPa with an overestimated lattice constant - CsSnI3 DFT elasticity is strongly method/volume sensitive. This b0 reference is WEAK; interpret CsSnI3 B0 errors qualitatively.",
+                "kind": "DFT-PBE",
+                "source": "Hayatullah, G. Murtaza, S. Muhammad, S. Naeem, M.N. Khalid, A. Manzar, Acta Phys. Pol. A 124 (2013) 102, Table I (FP-LAPW, Wien2k, GGA; Birch-Murnaghan EOS)",
+                "unit": "GPa",
+                "value": 17.59
+              },
+              "c11": {
+                "caveat": "WEAK REFERENCE: computed at their overestimated GGA-PBE equilibrium volume; (C11+2C12)/3 = 7.9 GPa, far below the EOS b0 above. Flagged pre-run: CsSnI3 Cij errors are reported but excluded from headline success criteria.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 21.34
+              },
+              "c12": {
+                "caveat": "WEAK REFERENCE - see c11 caveat.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 1.22
+              },
+              "c44": {
+                "caveat": "WEAK REFERENCE - see c11 caveat.",
+                "kind": "DFT-PBE",
+                "source": "Roknuzzaman et al., Sci. Rep. 7 (2017) 14025, Table 1 (verified from PMC5656601)",
+                "unit": "GPa",
+                "value": 5.74
+              }
+            }
+          }
+        },
+        "schema": "lupine.campaign_targets.v1"
+      }
+    },
+    "release_ready": true,
+    "row_blockers": {
+      "elastic_constants": [],
+      "energy_volume": [],
+      "forces": [],
+      "relaxation_stability": [],
+      "stress": []
+    },
+    "row_counts": {
+      "elastic_constants": 78,
+      "energy_volume": 0,
+      "forces": 0,
+      "relaxation_stability": 9,
+      "stress": 0
+    },
+    "schema": "lupine.mlip.fixture_manifest.v2"
+  },
+  "manifest_hash": "sha256:ca9896a25c53aac19dc26969a06902c24b17b9cfe24d661175bd93e302e2572f",
+  "manifest_url": "gs://shed-489901-atlas-inputs/mlip-campaigns/round1-candidates-v1/manifest.json",
+  "mlip_id": "orb-v3",
+  "operation_name": null,
+  "predictions": [
+    {
+      "chemical_system": "Co-Cr-Ni",
+      "material_id": "hea-cocrni",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.04114257521500233,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          10.68,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          10.68,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          10.68
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -7.259803489402488,
+      "relaxed_positions": [
+        [
+          -0.03930584145975853,
+          -0.026155330723999087,
+          0.02654636226514738
+        ],
+        [
+          -0.031286679074675354,
+          1.8305072766680381,
+          1.850557535770187
+        ],
+        [
+          1.7910134638176933,
+          -0.02415840141441951,
+          1.7252556068214546
+        ],
+        [
+          1.7588460157978985,
+          1.7837094171109031,
+          0.021643593450648493
+        ],
+        [
+          0.014365347120749652,
+          0.01591145616397005,
+          3.5490760157386063
+        ],
+        [
+          -0.012001717910144535,
+          1.7725529875693065,
+          5.3381256482380115
+        ],
+        [
+          1.7744727121581456,
+          -0.013393691984046819,
+          5.372891829456104
+        ],
+        [
+          1.7845379487797863,
+          1.719807233698764,
+          3.643560401798197
+        ],
+        [
+          0.0034859638963883393,
+          0.022389193100326877,
+          7.143259368850172
+        ],
+        [
+          0.021787283468796315,
+          1.7722891014875557,
+          8.898212446086745
+        ],
+        [
+          1.7861714270155298,
+          -0.05259321866808908,
+          8.922282301798639
+        ],
+        [
+          1.7841963664911205,
+          1.7661582491639214,
+          7.081810262524062
+        ],
+        [
+          0.008415268187610563,
+          3.568790769025351,
+          -0.014032860609618671
+        ],
+        [
+          0.03862192979747227,
+          5.348605485116093,
+          1.805530577042914
+        ],
+        [
+          1.7548646294927466,
+          3.5919598222339455,
+          1.8131036872867394
+        ],
+        [
+          1.7971347992199045,
+          5.331909214804439,
+          0.021979398944300083
+        ],
+        [
+          0.0055869908774221246,
+          3.553645098801567,
+          3.5817350464221693
+        ],
+        [
+          -0.012940789560459123,
+          5.340096306781798,
+          5.359426397325449
+        ],
+        [
+          1.7560601182551812,
+          3.580270521514128,
+          5.308131472990552
+        ],
+        [
+          1.7711463658354967,
+          5.358525501518262,
+          3.56270708749778
+        ],
+        [
+          0.0003771957554448409,
+          3.5560792545061397,
+          7.132463728179074
+        ],
+        [
+          -0.008546876988467584,
+          5.341707887510685,
+          8.90986536971994
+        ],
+        [
+          1.8175457640305066,
+          3.5449912950006177,
+          8.910900949259585
+        ],
+        [
+          1.7979409104912871,
+          5.32386826733211,
+          7.12658216257494
+        ],
+        [
+          -0.014756806862059291,
+          7.125192744780733,
+          0.03548411435948746
+        ],
+        [
+          0.00703728488205515,
+          8.911661151321468,
+          1.7962452333333088
+        ],
+        [
+          1.7967642992280783,
+          7.131818740413746,
+          1.738376762322489
+        ],
+        [
+          1.7684141278944645,
+          8.92971466988728,
+          0.038487878084611966
+        ],
+        [
+          -0.035762245358092554,
+          7.12913111406113,
+          3.564009677065159
+        ],
+        [
+          0.0016162098003003767,
+          8.905106363916955,
+          5.381027785253902
+        ],
+        [
+          1.8008572005570367,
+          7.11786391919626,
+          5.337427563471527
+        ],
+        [
+          1.7557814747816218,
+          8.902762698348468,
+          3.59254283627778
+        ],
+        [
+          -0.016419102471554446,
+          7.1113234366873295,
+          7.138372899947486
+        ],
+        [
+          0.014318330561728258,
+          8.876687293862814,
+          8.886179406405228
+        ],
+        [
+          1.78228656416919,
+          7.136572104251559,
+          8.926861213312558
+        ],
+        [
+          1.808058221669306,
+          8.903903198138623,
+          7.126405867648339
+        ],
+        [
+          3.551687587005558,
+          0.007970322352727429,
+          -0.03193523449005239
+        ],
+        [
+          3.5284346756438287,
+          1.7896138852994756,
+          1.786533799080991
+        ],
+        [
+          5.3253604554519525,
+          0.022501803667231788,
+          1.7752654893455462
+        ],
+        [
+          5.334829005864487,
+          1.7806259094510184,
+          0.013649997394318353
+        ],
+        [
+          3.506143454082915,
+          -0.014908286060538303,
+          3.589762769301493
+        ],
+        [
+          3.5483100897873774,
+          1.7424200094948263,
+          5.341957202297953
+        ],
+        [
+          5.280924787817461,
+          -0.05212069585112537,
+          5.329186743182624
+        ],
+        [
+          5.3185831666500745,
+          1.7669784043264127,
+          3.5845771210445307
+        ],
+        [
+          3.5540160523796547,
+          -0.007651519700008432,
+          7.1532145694520715
+        ],
+        [
+          3.566668228947542,
+          1.7539745618754612,
+          8.905806820671378
+        ],
+        [
+          5.326369609707665,
+          0.05385659977176279,
+          8.874417403813915
+        ],
+        [
+          5.335418676545931,
+          1.7922497811056333,
+          7.1022409685345105
+        ],
+        [
+          3.542403103762935,
+          3.528483375317235,
+          -0.002805928441669719
+        ],
+        [
+          3.5619110668924026,
+          5.333031481858345,
+          1.7988355578796313
+        ],
+        [
+          5.3212490994812605,
+          3.543977819610787,
+          1.7852049947474908
+        ],
+        [
+          5.316843616207432,
+          5.359649451620407,
+          0.006059974573146694
+        ],
+        [
+          3.6019291999586103,
+          3.5546393512512724,
+          3.599495910017529
+        ],
+        [
+          3.56164864185242,
+          5.351411333634209,
+          5.329601014997406
+        ],
+        [
+          5.3229779000988895,
+          3.585871615291234,
+          5.335802044941801
+        ],
+        [
+          5.340724271089841,
+          5.339598012001355,
+          3.5891357484183124
+        ],
+        [
+          3.5405143754368185,
+          3.545316728379851,
+          7.112069683884834
+        ],
+        [
+          3.550317552611693,
+          5.332942337048106,
+          8.92322740596841
+        ],
+        [
+          5.345023611303539,
+          3.54476418778687,
+          8.924075721952335
+        ],
+        [
+          5.3280923447810675,
+          5.334909957473365,
+          7.110760680081356
+        ],
+        [
+          3.5683695639581643,
+          7.124270314485529,
+          -0.012088523512479214
+        ],
+        [
+          3.575785102739659,
+          8.90897832652425,
+          1.7950741844996412
+        ],
+        [
+          5.32959634314565,
+          7.123779951317338,
+          1.8065771297040396
+        ],
+        [
+          5.298319574918426,
+          8.898661519975382,
+          -0.007000550111747144
+        ],
+        [
+          3.5862210458313553,
+          7.1178059987202245,
+          3.5878500025401454
+        ],
+        [
+          3.5566995102841723,
+          8.904863071735546,
+          5.3446640094579445
+        ],
+        [
+          5.283163077791083,
+          7.1416276968966566,
+          5.352938364917914
+        ],
+        [
+          5.338835703380833,
+          8.910425150177996,
+          3.5955490512955026
+        ],
+        [
+          3.5484785685329494,
+          7.141471827963962,
+          7.1262206070598415
+        ],
+        [
+          3.5396839407449407,
+          8.910378092934272,
+          8.917339249935551
+        ],
+        [
+          5.359801541573723,
+          7.12177622563682,
+          8.8986299881054
+        ],
+        [
+          5.340593438788444,
+          8.903753814281025,
+          7.132341703098044
+        ],
+        [
+          7.104495692386245,
+          0.0057205662030278175,
+          0.01882572057995466
+        ],
+        [
+          7.126393849812297,
+          1.7701540592474456,
+          1.804698690323156
+        ],
+        [
+          8.95884734702641,
+          -0.007850475880256634,
+          1.863063275120495
+        ],
+        [
+          8.884141781309204,
+          1.830229186975177,
+          -0.02926564396979679
+        ],
+        [
+          7.137974632128656,
+          -0.007885016140913473,
+          3.582738209735443
+        ],
+        [
+          7.114275770836994,
+          1.7867485718328313,
+          5.34577905931077
+        ],
+        [
+          8.918747127638202,
+          0.03167357100480663,
+          5.33938482044289
+        ],
+        [
+          8.906060636344394,
+          1.8044270413421812,
+          3.5858266050202197
+        ],
+        [
+          7.107089365095644,
+          0.008214177657467722,
+          7.126892951339787
+        ],
+        [
+          7.134182285404357,
+          1.7661204879330312,
+          8.912670972298605
+        ],
+        [
+          8.921779368231261,
+          -0.010814828537550792,
+          8.838291405083247
+        ],
+        [
+          8.88453114150294,
+          1.7923072691798259,
+          7.144847899813309
+        ],
+        [
+          7.09548740084937,
+          3.5262740594966884,
+          -0.00019120921003283874
+        ],
+        [
+          7.102715861310597,
+          5.363003412283019,
+          1.8322567313616296
+        ],
+        [
+          8.876998979619659,
+          3.553911649464753,
+          1.8107873527148135
+        ],
+        [
+          8.88229361220359,
+          5.342091341855673,
+          0.041557296327191656
+        ],
+        [
+          7.091985054432798,
+          3.566352555178915,
+          3.60169619920049
+        ],
+        [
+          7.089039696178812,
+          5.337139093417255,
+          5.391856942867018
+        ],
+        [
+          8.939837695118579,
+          3.5514700582622774,
+          5.353417845092103
+        ],
+        [
+          8.997044073239403,
+          5.35143011052465,
+          3.5390829537677013
+        ],
+        [
+          7.140288480397887,
+          3.5613294144694994,
+          7.119231712132572
+        ],
+        [
+          7.158944586061832,
+          5.347861063699548,
+          8.821491289328485
+        ],
+        [
+          8.857546519903387,
+          3.572940187998242,
+          8.893678152363213
+        ],
+        [
+          8.880700417575646,
+          5.347360209077978,
+          7.089557508152933
+        ],
+        [
+          7.111526819064817,
+          7.115692483937999,
+          0.028848169893049794
+        ],
+        [
+          7.114356823081727,
+          8.90468632771576,
+          1.8446035683388253
+        ],
+        [
+          8.87498235391892,
+          7.132771382726072,
+          1.8201016818310212
+        ],
+        [
+          8.885754720881256,
+          8.889379677597072,
+          0.02183779229784079
+        ],
+        [
+          7.118894019378577,
+          7.130944993629919,
+          3.5935219691118085
+        ],
+        [
+          7.11967715526994,
+          8.901568041294603,
+          5.341534069833708
+        ],
+        [
+          8.882678138540662,
+          7.090705463614739,
+          5.358134003310506
+        ],
+        [
+          8.915885891141087,
+          8.881626342096043,
+          3.5947956522218876
+        ],
+        [
+          7.117559086430168,
+          7.107731870422776,
+          7.104201924679005
+        ],
+        [
+          7.161713490042343,
+          8.856294791896056,
+          8.852740223758234
+        ],
+        [
+          8.87902923610373,
+          7.1198919863721,
+          8.911013454228634
+        ],
+        [
+          8.873939579279307,
+          8.892994353028502,
+          7.130704838391407
+        ]
+      ],
+      "structure_id": "round1-hea-cocrni-relax-perturbed",
+      "symbols": [
+        "Cr",
+        "Cr",
+        "Cr",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Cr",
+        "Co",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Ni",
+        "Co",
+        "Cr",
+        "Co",
+        "Co",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Cr",
+        "Co",
+        "Cr",
+        "Ni",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Cr",
+        "Ni",
+        "Co",
+        "Cr",
+        "Cr",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Co",
+        "Cr",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Cr",
+        "Co",
+        "Cr",
+        "Cr",
+        "Ni",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Cr",
+        "Cr",
+        "Co",
+        "Cr",
+        "Co",
+        "Co",
+        "Ni",
+        "Cr",
+        "Co",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Cr",
+        "Cr",
+        "Co"
+      ]
+    },
+    {
+      "chemical_system": "Co-Cr-Fe-Ni",
+      "material_id": "hea-cocrfeni",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.048652572506972726,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          10.709999999999999,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          10.709999999999999,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          10.709999999999999
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -7.505425912362558,
+      "relaxed_positions": [
+        [
+          -0.0055836795659748775,
+          0.0002554488709514439,
+          -0.0016775454525278287
+        ],
+        [
+          0.008329927812810264,
+          1.7929208433981108,
+          1.8233365432587012
+        ],
+        [
+          1.801742342205128,
+          0.010674085952087166,
+          1.755483384054086
+        ],
+        [
+          1.7877203659483434,
+          1.7973321879655138,
+          -0.00030393185160975696
+        ],
+        [
+          -0.012724760622131123,
+          0.003991805107027062,
+          3.578980562488306
+        ],
+        [
+          -0.017047815573867496,
+          1.7665582189148452,
+          5.330243054243751
+        ],
+        [
+          1.7994928666105252,
+          -0.0059428414289783285,
+          5.364323574228709
+        ],
+        [
+          1.7476073917479835,
+          1.6901257093400566,
+          3.6122868021463344
+        ],
+        [
+          0.007861592007141413,
+          0.006127067056647507,
+          7.137852563452143
+        ],
+        [
+          0.020520039809521398,
+          1.798480223988104,
+          8.918009966479111
+        ],
+        [
+          1.816957300886507,
+          -0.004114809902864259,
+          8.920649246064071
+        ],
+        [
+          1.756935856653926,
+          1.7989672633338942,
+          7.085246474317037
+        ],
+        [
+          0.042322645707775615,
+          3.5619557891924933,
+          -0.0014398740940711923
+        ],
+        [
+          0.02233360146923624,
+          5.351380240518637,
+          1.7882761227801227
+        ],
+        [
+          1.7746731504152018,
+          3.594714889633367,
+          1.8422672378929426
+        ],
+        [
+          1.786251605310052,
+          5.339283537573099,
+          -0.027201586738613566
+        ],
+        [
+          -0.020448875183264482,
+          3.601638325691613,
+          3.568952650775476
+        ],
+        [
+          -0.015219216519282694,
+          5.3598760414838305,
+          5.361905957268842
+        ],
+        [
+          1.7626668557719314,
+          3.6165743148719693,
+          5.356140854239274
+        ],
+        [
+          1.7769795146352874,
+          5.363181953886957,
+          3.577542989949485
+        ],
+        [
+          -0.00048814222557089275,
+          3.583277347033308,
+          7.135764959738938
+        ],
+        [
+          0.012462711238367006,
+          5.3548588365035235,
+          8.892301125226899
+        ],
+        [
+          1.8101818273950228,
+          3.563588780273329,
+          8.91686082296621
+        ],
+        [
+          1.8019596592019793,
+          5.349169749526068,
+          7.138346606645277
+        ],
+        [
+          0.01306107854420857,
+          7.150566299637287,
+          0.006067852662361009
+        ],
+        [
+          -0.0012505428782009853,
+          8.929814346397285,
+          1.792418964131107
+        ],
+        [
+          1.7943595584291976,
+          7.138050510114229,
+          1.788378215314717
+        ],
+        [
+          1.7907583071329327,
+          8.931430328677859,
+          -0.0010085755315580977
+        ],
+        [
+          -0.0014497019366127447,
+          7.1206519001024,
+          3.580464854371499
+        ],
+        [
+          -0.025732913158339334,
+          8.949169481878435,
+          5.408845312476152
+        ],
+        [
+          1.811288603422725,
+          7.148969138065669,
+          5.357844883556415
+        ],
+        [
+          1.802264949305272,
+          8.960673724743161,
+          3.582098556718392
+        ],
+        [
+          0.010740885442135422,
+          7.128914725086409,
+          7.130204706911532
+        ],
+        [
+          0.024106607471434578,
+          8.877226936585728,
+          8.88426485519135
+        ],
+        [
+          1.816099602541435,
+          7.1510379158288275,
+          8.925944903472299
+        ],
+        [
+          1.8387328229207984,
+          8.92604236364729,
+          7.125085133265755
+        ],
+        [
+          3.5949877953288247,
+          0.006623263070139161,
+          -0.003424441988923242
+        ],
+        [
+          3.5925279789867473,
+          1.7552317602878267,
+          1.7991397374690892
+        ],
+        [
+          5.367694875556582,
+          0.03875239696860096,
+          1.8001027406238979
+        ],
+        [
+          5.353016897453104,
+          1.7909626120990192,
+          0.012188920620722526
+        ],
+        [
+          3.5804281618005906,
+          0.011756436730244136,
+          3.5725083361175938
+        ],
+        [
+          3.6169915108532673,
+          1.7819050733538486,
+          5.352646393257413
+        ],
+        [
+          5.349465531334792,
+          -0.0045606334261323375,
+          5.341817399651128
+        ],
+        [
+          5.3593875885529965,
+          1.8002356601274654,
+          3.5872451781843746
+        ],
+        [
+          3.561106807781502,
+          0.014440431679897047,
+          7.125614299316864
+        ],
+        [
+          3.5822169699975213,
+          1.8134195801665494,
+          8.909194434408061
+        ],
+        [
+          5.342896955802186,
+          0.08002806123842564,
+          8.89471151225893
+        ],
+        [
+          5.38192978434597,
+          1.8197032994498088,
+          7.1222665365744655
+        ],
+        [
+          3.57167596091313,
+          3.5548645005113415,
+          0.01788264147152861
+        ],
+        [
+          3.5973697576347377,
+          5.374183092939365,
+          1.78294932522061
+        ],
+        [
+          5.352266585549766,
+          3.559751673135096,
+          1.7987767184342769
+        ],
+        [
+          5.299727070684858,
+          5.363264272591452,
+          0.01641705065472226
+        ],
+        [
+          3.589389681247692,
+          3.6167557380862236,
+          3.5792268675076024
+        ],
+        [
+          3.5807824242067396,
+          5.3373578922394,
+          5.344665420919124
+        ],
+        [
+          5.377960934425456,
+          3.5938303032320063,
+          5.339796639271274
+        ],
+        [
+          5.359632928172946,
+          5.369097164837567,
+          3.591488814576316
+        ],
+        [
+          3.5668855029772626,
+          3.5688194406686398,
+          7.109662697992156
+        ],
+        [
+          3.5644104472974303,
+          5.349934427245332,
+          8.934628895558067
+        ],
+        [
+          5.350151158603528,
+          3.565601149133482,
+          8.936438718788427
+        ],
+        [
+          5.3569263295684015,
+          5.325827537450232,
+          7.121664247936224
+        ],
+        [
+          3.5797359600163476,
+          7.134220658972449,
+          -0.006629371609678625
+        ],
+        [
+          3.594612918115684,
+          8.923797935837381,
+          1.7407575376029045
+        ],
+        [
+          5.365829030122287,
+          7.136211646929911,
+          1.7853629038410594
+        ],
+        [
+          5.354012999576428,
+          8.903011681898722,
+          -0.007057274526894957
+        ],
+        [
+          3.5761207295654054,
+          7.106734644260327,
+          3.5938722102484166
+        ],
+        [
+          3.5579871421632414,
+          8.9368375854296,
+          5.373899942575358
+        ],
+        [
+          5.372288104866745,
+          7.124588382273831,
+          5.402584302564293
+        ],
+        [
+          5.312052615300673,
+          8.889639478614553,
+          3.606155926006862
+        ],
+        [
+          3.567472396598253,
+          7.148776186250063,
+          7.130598761313342
+        ],
+        [
+          3.570235860798831,
+          8.916212752440503,
+          8.939166158059585
+        ],
+        [
+          5.352589582103129,
+          7.114943710644504,
+          8.908190805339894
+        ],
+        [
+          5.345839176095394,
+          8.923373317917095,
+          7.15254641783758
+        ],
+        [
+          7.137124218516346,
+          0.024398751133215858,
+          -0.014662290776338835
+        ],
+        [
+          7.147876237860217,
+          1.7761166036486773,
+          1.792707354236061
+        ],
+        [
+          8.971120565107334,
+          0.02884651661422375,
+          1.7913235147846662
+        ],
+        [
+          8.92555243569321,
+          1.823765787127042,
+          -0.011740653556537773
+        ],
+        [
+          7.179381260577398,
+          0.021899713791450334,
+          3.586141987438992
+        ],
+        [
+          7.146696996354742,
+          1.7929082677908916,
+          5.357543384450379
+        ],
+        [
+          8.945432337970926,
+          0.03823344151807734,
+          5.358709260447007
+        ],
+        [
+          8.927617146941477,
+          1.7949669484100281,
+          3.5921203054509845
+        ],
+        [
+          7.177138073115922,
+          0.016492813450882993,
+          7.138292619919907
+        ],
+        [
+          7.160429236628237,
+          1.8013268510952778,
+          8.932160458321384
+        ],
+        [
+          8.947741759020351,
+          -0.022860518512355765,
+          8.937227901857705
+        ],
+        [
+          8.942600652999435,
+          1.8255919815670743,
+          7.133642950958663
+        ],
+        [
+          7.115988238733356,
+          3.5776528666067917,
+          -0.017340618519913423
+        ],
+        [
+          7.142424992888265,
+          5.340634149374394,
+          1.781572459043663
+        ],
+        [
+          8.924776621538108,
+          3.5642954856172735,
+          1.811759195445323
+        ],
+        [
+          8.94846427512251,
+          5.339708412744922,
+          0.021839637289736306
+        ],
+        [
+          7.160001464499227,
+          3.512168492066405,
+          3.5910786698749537
+        ],
+        [
+          7.178072509583823,
+          5.3538247584711245,
+          5.431359714294987
+        ],
+        [
+          8.956567775110384,
+          3.55987662810832,
+          5.357751487675006
+        ],
+        [
+          8.923730441639828,
+          5.368131886414224,
+          3.5664982664635545
+        ],
+        [
+          7.164608542676094,
+          3.5617122970435786,
+          7.152316767107027
+        ],
+        [
+          7.150893094083291,
+          5.300870357868797,
+          8.864177546952362
+        ],
+        [
+          8.930317113075121,
+          3.5921702898645544,
+          8.922494240810497
+        ],
+        [
+          8.914670047144185,
+          5.3432300919088265,
+          7.139717625900244
+        ],
+        [
+          7.133460739668616,
+          7.113696159948972,
+          -0.0014677366389194268
+        ],
+        [
+          7.136418503188562,
+          8.926753856276772,
+          1.774255740091259
+        ],
+        [
+          8.970352202305728,
+          7.135297805131365,
+          1.7845474933083507
+        ],
+        [
+          8.920298260898887,
+          8.913688661627091,
+          0.010634909452613502
+        ],
+        [
+          7.162348310507396,
+          7.147624297086387,
+          3.5796508129494735
+        ],
+        [
+          7.178128327396256,
+          8.925224103185508,
+          5.353076646677471
+        ],
+        [
+          8.90176960999424,
+          7.119307967640416,
+          5.370407604688143
+        ],
+        [
+          8.93419301367553,
+          8.91613500926301,
+          3.579677390996295
+        ],
+        [
+          7.167097982149879,
+          7.131047449213245,
+          7.150458765590417
+        ],
+        [
+          7.145347714157694,
+          8.899219368981617,
+          8.926615119849156
+        ],
+        [
+          8.933610208454976,
+          7.1295173510836065,
+          8.925165335481676
+        ],
+        [
+          8.905999254501609,
+          8.923020562958033,
+          7.124047267098447
+        ]
+      ],
+      "structure_id": "round1-hea-cocrfeni-relax-perturbed",
+      "symbols": [
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Cr",
+        "Co",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Co",
+        "Cr",
+        "Cr",
+        "Cr",
+        "Ni",
+        "Cr",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Cr",
+        "Co",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Co",
+        "Co",
+        "Cr",
+        "Fe",
+        "Co",
+        "Co",
+        "Cr",
+        "Fe",
+        "Ni",
+        "Co",
+        "Fe",
+        "Cr",
+        "Ni",
+        "Cr",
+        "Fe",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Co",
+        "Co",
+        "Cr",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Fe",
+        "Ni",
+        "Cr",
+        "Fe",
+        "Co",
+        "Fe",
+        "Cr",
+        "Co",
+        "Co",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Cr",
+        "Fe",
+        "Cr",
+        "Ni",
+        "Co",
+        "Co",
+        "Fe",
+        "Co",
+        "Cr",
+        "Cr",
+        "Fe",
+        "Cr",
+        "Ni",
+        "Fe",
+        "Cr",
+        "Cr",
+        "Cr",
+        "Fe",
+        "Co",
+        "Cr",
+        "Co",
+        "Co",
+        "Ni",
+        "Cr",
+        "Cr",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Fe",
+        "Cr",
+        "Co"
+      ]
+    },
+    {
+      "chemical_system": "Co-Ni",
+      "material_id": "hea-coni",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.04150579068805468,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          10.605,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          10.605,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          10.605
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -6.263569019458912,
+      "relaxed_positions": [
+        [
+          -0.011656550974347573,
+          -0.003055408177790741,
+          -0.00731604163783119
+        ],
+        [
+          0.010956122909972353,
+          1.7748662796879344,
+          1.7815198387406708
+        ],
+        [
+          1.7815619956485103,
+          0.0084484371222718,
+          1.7740148155654063
+        ],
+        [
+          1.7757981843557622,
+          1.7874775967427294,
+          0.0017768535240730826
+        ],
+        [
+          -0.01171195688681275,
+          0.012282762122563254,
+          3.5387834426202214
+        ],
+        [
+          -0.006743421655208336,
+          1.770315600844854,
+          5.30825725131567
+        ],
+        [
+          1.775485824583996,
+          0.01553739867491471,
+          5.308832074043468
+        ],
+        [
+          1.7674827748100215,
+          1.7839119571206206,
+          3.543541664662548
+        ],
+        [
+          -0.01975093970446148,
+          0.01627519598771809,
+          7.080149764958401
+        ],
+        [
+          -0.005029249522212904,
+          1.7838660442432799,
+          8.83301093058145
+        ],
+        [
+          1.7852784450210153,
+          -0.002473950934820097,
+          8.828604143322856
+        ],
+        [
+          1.7790711872602085,
+          1.7793259395405838,
+          7.064697661698787
+        ],
+        [
+          -0.001516953313706419,
+          3.5522209994320617,
+          -0.004517413279213711
+        ],
+        [
+          0.026765125801268032,
+          5.319527710094189,
+          1.767351361205364
+        ],
+        [
+          1.7875965102374793,
+          3.5429096759596304,
+          1.7797925026377435
+        ],
+        [
+          1.759737883349516,
+          5.30276335117873,
+          0.015375879813156074
+        ],
+        [
+          0.01581784698112797,
+          3.5450729435536603,
+          3.5470158652832677
+        ],
+        [
+          -0.005835492639957661,
+          5.304602044029113,
+          5.316010627766847
+        ],
+        [
+          1.7873501593762187,
+          3.5246412927541892,
+          5.285434534940561
+        ],
+        [
+          1.7656633875420495,
+          5.306875287510041,
+          3.5382172645166388
+        ],
+        [
+          -0.008369112626530539,
+          3.5384844044184387,
+          7.077689941401539
+        ],
+        [
+          -0.008011762219426273,
+          5.30113292477149,
+          8.83658740589112
+        ],
+        [
+          1.789099839226009,
+          3.553373211128797,
+          8.859845293720419
+        ],
+        [
+          1.7739829674775047,
+          5.299190904890916,
+          7.065802766326383
+        ],
+        [
+          -0.0092306431241493,
+          7.0770118783373555,
+          0.004169679080280059
+        ],
+        [
+          -0.004375847602705883,
+          8.843255203878172,
+          1.7623108841851878
+        ],
+        [
+          1.7798869655133622,
+          7.092569361207951,
+          1.757694430561036
+        ],
+        [
+          1.7684117234139467,
+          8.842778693952965,
+          0.0037883179599882966
+        ],
+        [
+          -0.0027564409536838487,
+          7.081733103390976,
+          3.5287618042632287
+        ],
+        [
+          -0.0078071332712860006,
+          8.860565602531306,
+          5.328133317016732
+        ],
+        [
+          1.7853034268635133,
+          7.094048911820166,
+          5.309954943855702
+        ],
+        [
+          1.7642380897671388,
+          8.859679017932233,
+          3.5403669772633166
+        ],
+        [
+          -0.016282977813060855,
+          7.082743130010202,
+          7.078434595355379
+        ],
+        [
+          0.009040997800326677,
+          8.845303245051518,
+          8.826417257345678
+        ],
+        [
+          1.7796724722406296,
+          7.082860177619928,
+          8.84332359537115
+        ],
+        [
+          1.7925251551816799,
+          8.857515625288501,
+          7.065674941355758
+        ],
+        [
+          3.5451100833316516,
+          0.0011993885908545042,
+          -0.0031764667276312146
+        ],
+        [
+          3.5382864003194494,
+          1.7901501376185862,
+          1.7608416637055002
+        ],
+        [
+          5.292921500268383,
+          0.009696586837483017,
+          1.7675224613271954
+        ],
+        [
+          5.296970631292059,
+          1.7739612340541222,
+          -0.008282175642831993
+        ],
+        [
+          3.5366252310584927,
+          0.02295416498659314,
+          3.5410849241247333
+        ],
+        [
+          3.5392250335427593,
+          1.7844437374336446,
+          5.285916043076322
+        ],
+        [
+          5.290965666900383,
+          0.013548640120889993,
+          5.296222120992519
+        ],
+        [
+          5.30739763811056,
+          1.783999710700482,
+          3.5341344895486886
+        ],
+        [
+          3.538477047228538,
+          -0.002642305991444698,
+          7.074772251477892
+        ],
+        [
+          3.536453552092898,
+          1.7749513585623011,
+          8.856428187755853
+        ],
+        [
+          5.272760650145764,
+          -0.006457255331177181,
+          8.852466332911087
+        ],
+        [
+          5.301735796642776,
+          1.7834580539971223,
+          7.079518114438654
+        ],
+        [
+          3.5333279526740866,
+          3.557961881777804,
+          0.0061497414015557516
+        ],
+        [
+          3.536418040977117,
+          5.304461733249282,
+          1.7660938301947058
+        ],
+        [
+          5.3052469842312515,
+          3.551439960288977,
+          1.7736663107020436
+        ],
+        [
+          5.309852540622601,
+          5.311989219957176,
+          -0.0003276015773745545
+        ],
+        [
+          3.5324003872015863,
+          3.5515867984998386,
+          3.541714144320474
+        ],
+        [
+          3.5359182447235478,
+          5.298939745013007,
+          5.30361757573972
+        ],
+        [
+          5.311446068048277,
+          3.5504774324996324,
+          5.290793180558814
+        ],
+        [
+          5.31769298864681,
+          5.2985005083563195,
+          3.563823841498405
+        ],
+        [
+          3.538590178193916,
+          3.5493142483754525,
+          7.064979408786917
+        ],
+        [
+          3.531049836150209,
+          5.326863215218231,
+          8.848254011765182
+        ],
+        [
+          5.316759568624181,
+          3.5515896442040975,
+          8.85272202560013
+        ],
+        [
+          5.321905141834652,
+          5.309232480133238,
+          7.059595901313337
+        ],
+        [
+          3.527014553746709,
+          7.077635492303981,
+          0.007703759200198986
+        ],
+        [
+          3.5408607521399444,
+          8.857594762792683,
+          1.7622221947008254
+        ],
+        [
+          5.301560417866955,
+          7.078035154719498,
+          1.7778982580101028
+        ],
+        [
+          5.289895974060858,
+          8.847894654289888,
+          -0.001493573081046381
+        ],
+        [
+          3.5391889850141802,
+          7.078727580487113,
+          3.546423711178538
+        ],
+        [
+          3.540735832224719,
+          8.860249413499659,
+          5.317114592373984
+        ],
+        [
+          5.303078525275631,
+          7.073572216353047,
+          5.305953007156103
+        ],
+        [
+          5.309740311142883,
+          8.863591404600028,
+          3.5475574457941326
+        ],
+        [
+          3.5299159329412273,
+          7.0856872881483906,
+          7.058966426931978
+        ],
+        [
+          3.524520064906587,
+          8.831773344579078,
+          8.841333586104145
+        ],
+        [
+          5.295956899916647,
+          7.0714522165165485,
+          8.837681931635458
+        ],
+        [
+          5.29167061099371,
+          8.836959215587441,
+          7.067553238452056
+        ],
+        [
+          7.068342840668202,
+          -0.0028644872393640154,
+          0.00310869861400826
+        ],
+        [
+          7.0739949643872535,
+          1.7696889942746736,
+          1.775068168528751
+        ],
+        [
+          8.839512770598368,
+          0.0018484439364939383,
+          1.792074770016815
+        ],
+        [
+          8.836230403631731,
+          1.7650803266758406,
+          0.0017392657827420667
+        ],
+        [
+          7.090550034170382,
+          -0.002674212656866894,
+          3.521318717688983
+        ],
+        [
+          7.085272161796398,
+          1.7771801985301854,
+          5.304130673229349
+        ],
+        [
+          8.847761157666293,
+          0.018265275517364916,
+          5.30036908774588
+        ],
+        [
+          8.855502199151536,
+          1.7694089285252508,
+          3.5400884899718776
+        ],
+        [
+          7.073501706703766,
+          0.010658453909098085,
+          7.087312870855768
+        ],
+        [
+          7.074614593544098,
+          1.7616345733651555,
+          8.841181302676222
+        ],
+        [
+          8.833272781530095,
+          0.010867700113739427,
+          8.82254642536246
+        ],
+        [
+          8.831342382662234,
+          1.7782380241103783,
+          7.0727531158490615
+        ],
+        [
+          7.079604148035088,
+          3.5516065540826967,
+          -0.0001029098193215069
+        ],
+        [
+          7.064743695563319,
+          5.3174461842203495,
+          1.7853772891582986
+        ],
+        [
+          8.843048547914561,
+          3.548342438688767,
+          1.7842777479853191
+        ],
+        [
+          8.838803194552222,
+          5.317295738672274,
+          0.008495851502347855
+        ],
+        [
+          7.084822075121976,
+          3.5600857252236806,
+          3.545676324066804
+        ],
+        [
+          7.090117739662799,
+          5.296082448063528,
+          5.317306749153855
+        ],
+        [
+          8.831635760434255,
+          3.5293112186750717,
+          5.299335378274844
+        ],
+        [
+          8.850036187681939,
+          5.321660145954494,
+          3.543601314525804
+        ],
+        [
+          7.087350167319549,
+          3.5432567910127752,
+          7.075126987703215
+        ],
+        [
+          7.085871343526822,
+          5.309484599906789,
+          8.824758287997948
+        ],
+        [
+          8.806377450077973,
+          3.5409083552958887,
+          8.83050112911201
+        ],
+        [
+          8.831297110678369,
+          5.297772742376021,
+          7.066863948408618
+        ],
+        [
+          7.075889070848818,
+          7.078887144771126,
+          0.010644868207607931
+        ],
+        [
+          7.070596163676767,
+          8.853997952936655,
+          1.7792817462501962
+        ],
+        [
+          8.834651228721759,
+          7.085067940167216,
+          1.7746700191784284
+        ],
+        [
+          8.836264600939833,
+          8.843887018438249,
+          0.004485225124419643
+        ],
+        [
+          7.075432733848072,
+          7.077612733299308,
+          3.5381629095717053
+        ],
+        [
+          7.077415549204914,
+          8.857458963130332,
+          5.305434017230407
+        ],
+        [
+          8.820686451723704,
+          7.08103504253828,
+          5.332697168305766
+        ],
+        [
+          8.844370628567725,
+          8.84395552863311,
+          3.5413871519690634
+        ],
+        [
+          7.093865972043716,
+          7.065381528242138,
+          7.076144809026648
+        ],
+        [
+          7.062422702876123,
+          8.850040341015328,
+          8.83829074013784
+        ],
+        [
+          8.820654781893989,
+          7.070100564115947,
+          8.817341886352033
+        ],
+        [
+          8.829000208001911,
+          8.851638590997094,
+          7.075687888884712
+        ]
+      ],
+      "structure_id": "round1-hea-coni-relax-perturbed",
+      "symbols": [
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Co",
+        "Co",
+        "Ni",
+        "Co",
+        "Co",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Ni",
+        "Co",
+        "Co"
+      ]
+    },
+    {
+      "chemical_system": "Fe-Ni",
+      "material_id": "hea-feni",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.04424639217121435,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          10.745999999999999,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          10.745999999999999,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          10.745999999999999
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -6.891355161313657,
+      "relaxed_positions": [
+        [
+          0.0028940679381986257,
+          0.004287306630836266,
+          -0.02002998628857551
+        ],
+        [
+          0.018055244511758356,
+          1.77697030518206,
+          1.754900322158132
+        ],
+        [
+          1.7658207055052773,
+          -0.018078484225157294,
+          1.7826697835996024
+        ],
+        [
+          1.7901841653925126,
+          1.8029463716387832,
+          -0.003010434380339804
+        ],
+        [
+          0.017523433985623345,
+          -0.03668761658470701,
+          3.6041537765979608
+        ],
+        [
+          0.052581654609147675,
+          1.8021392587541987,
+          5.411967363097485
+        ],
+        [
+          1.7869514065279635,
+          -0.004624593161926772,
+          5.387920507114513
+        ],
+        [
+          1.7479774175975593,
+          1.7887520221747084,
+          3.5521458537416657
+        ],
+        [
+          0.0316872665500168,
+          0.013888944977608474,
+          7.181092470573286
+        ],
+        [
+          -0.015032526513833628,
+          1.7937077172172389,
+          8.959667708063275
+        ],
+        [
+          1.791679103063621,
+          0.012765207624834376,
+          8.951367614926767
+        ],
+        [
+          1.7905112279923776,
+          1.7997271326416964,
+          7.181002590709004
+        ],
+        [
+          0.014634370205630009,
+          3.5912233846347656,
+          0.0008308360051416928
+        ],
+        [
+          -0.054713041367084485,
+          5.398566553436007,
+          1.767766190708207
+        ],
+        [
+          1.7594384522797446,
+          3.6218897488998514,
+          1.763773127892045
+        ],
+        [
+          1.7768913819281746,
+          5.418724040379908,
+          -0.018344374175470912
+        ],
+        [
+          -0.010624493840012239,
+          3.6114853184674955,
+          3.5660122467085333
+        ],
+        [
+          0.013264546364715772,
+          5.376810746942057,
+          5.373349555378568
+        ],
+        [
+          1.788128759591314,
+          3.6212601161835987,
+          5.424967412408348
+        ],
+        [
+          1.7806593610784545,
+          5.378681632432694,
+          3.568537582348302
+        ],
+        [
+          -0.0037295406647994346,
+          3.5968789152619305,
+          7.164776022813337
+        ],
+        [
+          -0.0008111637752522044,
+          5.374334560034477,
+          8.95420895420708
+        ],
+        [
+          1.7721493731249587,
+          3.5743433150825052,
+          8.928561439999315
+        ],
+        [
+          1.7872346582799188,
+          5.387164251364362,
+          7.16888481200788
+        ],
+        [
+          0.0003032660227345304,
+          7.166247843056409,
+          -0.00526512477441933
+        ],
+        [
+          -0.00930686581150745,
+          8.944104447169119,
+          1.7791374003731908
+        ],
+        [
+          1.8223797863785385,
+          7.164859333280839,
+          1.8386479261332247
+        ],
+        [
+          1.7638282147376794,
+          8.938347607753943,
+          -0.04297569791774175
+        ],
+        [
+          0.009905004949978848,
+          7.158665653465257,
+          3.5729552847110178
+        ],
+        [
+          0.014695623910501993,
+          8.948542851182996,
+          5.371999541750873
+        ],
+        [
+          1.804444820835558,
+          7.170101404598626,
+          5.3697807764187
+        ],
+        [
+          1.7860973580129311,
+          8.961590695379337,
+          3.5865551799246016
+        ],
+        [
+          -0.0034492309997675476,
+          7.155432214926109,
+          7.166068363437579
+        ],
+        [
+          0.005567990281347642,
+          8.960012380774089,
+          8.946054072454388
+        ],
+        [
+          1.786228750382693,
+          7.157309263718551,
+          8.953224597490431
+        ],
+        [
+          1.7397213932975268,
+          8.911687273479144,
+          7.1756318486939366
+        ],
+        [
+          3.5573765046597443,
+          0.03412944706522061,
+          -0.0117302585555548
+        ],
+        [
+          3.581675246162825,
+          1.780070702745538,
+          1.804009470108475
+        ],
+        [
+          5.3900149938809445,
+          -0.004709220783826641,
+          1.8007874322058461
+        ],
+        [
+          5.395269870539667,
+          1.8089817307478129,
+          0.023796491838246194
+        ],
+        [
+          3.567498187786074,
+          -0.015885381027050754,
+          3.5672279161991174
+        ],
+        [
+          3.562363540979482,
+          1.7821669261289408,
+          5.3769569453833705
+        ],
+        [
+          5.357691454291783,
+          0.0042695772158316755,
+          5.369913354607939
+        ],
+        [
+          5.370907886756099,
+          1.78211420924273,
+          3.574045492545364
+        ],
+        [
+          3.545979329875121,
+          0.01975168568245139,
+          7.189797682166258
+        ],
+        [
+          3.5892151861992736,
+          1.7893101899934054,
+          8.966221996097696
+        ],
+        [
+          5.421829889097811,
+          -0.007199340722642275,
+          8.939556583677899
+        ],
+        [
+          5.361410085575744,
+          1.7819219665697343,
+          7.179384674703741
+        ],
+        [
+          3.557540965961816,
+          3.577459777843971,
+          0.02894833515030398
+        ],
+        [
+          3.5882215301551317,
+          5.38678063530597,
+          1.8099307448847712
+        ],
+        [
+          5.379474043658835,
+          3.593125791014623,
+          1.818315322692196
+        ],
+        [
+          5.34484843059843,
+          5.36668417458486,
+          0.015060731172163454
+        ],
+        [
+          3.5853398577773397,
+          3.5929891626181587,
+          3.565492633600268
+        ],
+        [
+          3.567597511469133,
+          5.4105440773257705,
+          5.379490966879289
+        ],
+        [
+          5.355000675906186,
+          3.5773631178846705,
+          5.378329864901284
+        ],
+        [
+          5.365252264609193,
+          5.442218091624672,
+          3.5556283574990886
+        ],
+        [
+          3.5897089936295044,
+          3.582798347824649,
+          7.158530660142934
+        ],
+        [
+          3.575323630542423,
+          5.369634172740526,
+          8.966211234635269
+        ],
+        [
+          5.354329337952795,
+          3.578263056641733,
+          8.960099556094338
+        ],
+        [
+          5.354571022680526,
+          5.374539026586487,
+          7.181817825524772
+        ],
+        [
+          3.5723586901596236,
+          7.165737876322909,
+          -0.014851515704529968
+        ],
+        [
+          3.56488694434467,
+          8.98266795352316,
+          1.7817363625206244
+        ],
+        [
+          5.363051940706054,
+          7.184346490828513,
+          1.7836444955290707
+        ],
+        [
+          5.378143705712741,
+          8.951795512811609,
+          0.02594845553180608
+        ],
+        [
+          3.5807250511153668,
+          7.187105509406302,
+          3.597308344909931
+        ],
+        [
+          3.568414751609893,
+          8.941484743854943,
+          5.401030837718414
+        ],
+        [
+          5.361568029266911,
+          7.164503374554497,
+          5.399907829997046
+        ],
+        [
+          5.370724078656747,
+          8.911626560970026,
+          3.5891141882552047
+        ],
+        [
+          3.597402448242233,
+          7.1586028423711126,
+          7.214759522720069
+        ],
+        [
+          3.5988691397412227,
+          8.966874554623411,
+          8.935715880896472
+        ],
+        [
+          5.387969006723225,
+          7.172318432369113,
+          8.964431665464668
+        ],
+        [
+          5.378252406275636,
+          8.981195444302369,
+          7.156625403502595
+        ],
+        [
+          7.154163951019224,
+          -0.004024794107409004,
+          0.010983093000822581
+        ],
+        [
+          7.174028641483494,
+          1.785145737912216,
+          1.7839286820459819
+        ],
+        [
+          8.973255666611788,
+          0.028950051479339146,
+          1.7344015983813348
+        ],
+        [
+          8.953449226685583,
+          1.811858270248667,
+          -0.014469244991242025
+        ],
+        [
+          7.1424735669085715,
+          0.04025340370425501,
+          3.5826333352117796
+        ],
+        [
+          7.122852196418181,
+          1.7876714096231616,
+          5.393788991758566
+        ],
+        [
+          8.935208102386017,
+          -0.01248438874268149,
+          5.396801149726892
+        ],
+        [
+          8.99531747531594,
+          1.7833700891688504,
+          3.5788182014533136
+        ],
+        [
+          7.162262073079905,
+          -0.004080582236579828,
+          7.1657065886663345
+        ],
+        [
+          7.158945956927722,
+          1.825518769720702,
+          8.966708150052744
+        ],
+        [
+          8.930385085135235,
+          -0.021658989863475104,
+          8.99918702214178
+        ],
+        [
+          8.94291379198949,
+          1.7746234837888508,
+          7.166726965102845
+        ],
+        [
+          7.1571663032959245,
+          3.6099879392883905,
+          -0.0007914036425748115
+        ],
+        [
+          7.219697488077489,
+          5.406032284833896,
+          1.7844217449071158
+        ],
+        [
+          8.956782873937511,
+          3.5705055792619387,
+          1.7949941903245468
+        ],
+        [
+          8.954811022136003,
+          5.377229747798728,
+          -0.02007399307668764
+        ],
+        [
+          7.154751832046062,
+          3.541329696228943,
+          3.566510178698041
+        ],
+        [
+          7.121827344814648,
+          5.392409118734387,
+          5.366847840030961
+        ],
+        [
+          8.963877731662498,
+          3.5904741173343817,
+          5.387874989781355
+        ],
+        [
+          8.94973524950507,
+          5.375608827033275,
+          3.5942447363019268
+        ],
+        [
+          7.134381821659451,
+          3.584704902947717,
+          7.172696394549456
+        ],
+        [
+          7.1446853803184345,
+          5.360373644622639,
+          8.95632981829413
+        ],
+        [
+          9.002215174347581,
+          3.5882684912917817,
+          8.975267291081412
+        ],
+        [
+          8.987857244582074,
+          5.402229657989177,
+          7.161333981465547
+        ],
+        [
+          7.159256179275469,
+          7.164178670622189,
+          -0.0006003816583792527
+        ],
+        [
+          7.197714290651911,
+          8.935677687913099,
+          1.8000901670040133
+        ],
+        [
+          8.971881598307741,
+          7.188189301983431,
+          1.7936400590862995
+        ],
+        [
+          8.954226136041958,
+          8.956922632187538,
+          -0.0008912362157014924
+        ],
+        [
+          7.162471654937082,
+          7.174059179037547,
+          3.5920808958431385
+        ],
+        [
+          7.154200596016003,
+          8.953777859014332,
+          5.365356720920448
+        ],
+        [
+          8.97866123250126,
+          7.183482635463099,
+          5.3319033570909875
+        ],
+        [
+          8.943916650699231,
+          8.974403861121885,
+          3.5941953268821507
+        ],
+        [
+          7.123460912902438,
+          7.191850775731722,
+          7.169954434201052
+        ],
+        [
+          7.1541073588812525,
+          8.95092133152548,
+          8.962026788925439
+        ],
+        [
+          8.977508933914814,
+          7.180438285808582,
+          8.993112141752253
+        ],
+        [
+          8.965208033839268,
+          8.94641918411917,
+          7.159466816572664
+        ]
+      ],
+      "structure_id": "round1-hea-feni-relax-perturbed",
+      "symbols": [
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe",
+        "Ni",
+        "Ni",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Ni",
+        "Fe",
+        "Fe"
+      ]
+    },
+    {
+      "chemical_system": "Cl-Cs-Sn",
+      "material_id": "hp-cssncl3",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.03663750398281999,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          5.58,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          5.58,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.58
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -3.4895645141601563,
+      "relaxed_positions": [
+        [
+          0.03656575343037975,
+          0.018301839991825792,
+          -0.05690388430023513
+        ],
+        [
+          2.7820880107873647,
+          2.7789041727538826,
+          2.7803611791612877
+        ],
+        [
+          0.023772275295115546,
+          2.7145561307553967,
+          2.816925283498087
+        ],
+        [
+          2.8912119897311106,
+          -0.04165639664200121,
+          2.7762013834654398
+        ],
+        [
+          2.73155106977838,
+          2.829214454542129,
+          -0.06357699249314704
+        ]
+      ],
+      "structure_id": "round1-hp-cssncl3-relax-perturbed",
+      "symbols": [
+        "Cs",
+        "Sn",
+        "Cl",
+        "Cl",
+        "Cl"
+      ]
+    },
+    {
+      "chemical_system": "Br-Cs-Sn",
+      "material_id": "hp-cssnbr3",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.045662532461611414,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          5.8,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          5.8,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.8
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -3.155546760559082,
+      "relaxed_positions": [
+        [
+          -0.02360764659381924,
+          -0.025079124837380427,
+          -0.022504175235020372
+        ],
+        [
+          2.8723844857849476,
+          2.889745236515665,
+          2.908646149153765
+        ],
+        [
+          0.0004679060768629194,
+          2.9183754539562066,
+          2.8400850954878982
+        ],
+        [
+          2.85031359520631,
+          -0.02508357211900728,
+          2.8831880801090017
+        ],
+        [
+          2.8742303632685458,
+          2.9923094861782102,
+          -0.027786935868395143
+        ]
+      ],
+      "structure_id": "round1-hp-cssnbr3-relax-perturbed",
+      "symbols": [
+        "Cs",
+        "Sn",
+        "Br",
+        "Br",
+        "Br"
+      ]
+    },
+    {
+      "chemical_system": "Cs-I-Sn",
+      "material_id": "hp-cssni3",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.04865312128989459,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          6.22,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          6.22,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.22
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -2.798505973815918,
+      "relaxed_positions": [
+        [
+          -0.0291663406552552,
+          -0.07296014339908422,
+          0.10943359902322831
+        ],
+        [
+          3.0808384057990237,
+          3.121701960556008,
+          3.063727305650059
+        ],
+        [
+          -0.010945518571144609,
+          3.196675339973645,
+          3.0617948248485187
+        ],
+        [
+          3.091976000572638,
+          0.014006485924298212,
+          3.12196552008731
+        ],
+        [
+          3.1016296486236703,
+          3.106317614599572,
+          0.018404925314153678
+        ]
+      ],
+      "structure_id": "round1-hp-cssni3-relax-perturbed",
+      "symbols": [
+        "Cs",
+        "Sn",
+        "I",
+        "I",
+        "I"
+      ]
+    },
+    {
+      "chemical_system": "Cs-Ge-I",
+      "material_id": "hp-csgei3",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.04662439307393381,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          6.05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          6.05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.05
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -2.8285633087158204,
+      "relaxed_positions": [
+        [
+          0.05041366699847898,
+          -0.041618360629479004,
+          -0.02684273172428413
+        ],
+        [
+          2.895045744601707,
+          2.8639638109307075,
+          3.136175116097936
+        ],
+        [
+          0.11836625969385764,
+          3.032038807085483,
+          2.9571539233082613
+        ],
+        [
+          3.102000158511146,
+          0.09592362751951694,
+          2.941881721325669
+        ],
+        [
+          3.090261671075039,
+          3.042818035429666,
+          -0.12127043591067939
+        ]
+      ],
+      "structure_id": "round1-hp-csgei3-relax-perturbed",
+      "symbols": [
+        "Cs",
+        "Ge",
+        "I",
+        "I",
+        "I"
+      ]
+    },
+    {
+      "chemical_system": "Cs-I-Pb",
+      "material_id": "hp-cspbi3-control",
+      "reference": {
+        "relaxation_force_threshold": 0.05
+      },
+      "relaxation_converged": true,
+      "relaxation_force_threshold": 0.05,
+      "relaxation_max_force_ev_per_angstrom": 0.02863198211645527,
+      "relaxation_steps_limit": 200,
+      "relaxed_cell": [
+        [
+          6.29,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          6.29,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.29
+        ]
+      ],
+      "relaxed_energy_ev_per_atom": -2.8028282165527343,
+      "relaxed_positions": [
+        [
+          0.03435635822453827,
+          -0.03135651277289701,
+          -0.04229071854066187
+        ],
+        [
+          3.1623288565876444,
+          3.137616923551294,
+          3.197600772187659
+        ],
+        [
+          -0.0053376693943146284,
+          3.0968003089869502,
+          3.214727695040055
+        ],
+        [
+          3.064285149759798,
+          -0.00829136850500426,
+          3.121958444717529
+        ],
+        [
+          3.113282859361947,
+          3.0993055663191815,
+          0.0525071899415466
+        ]
+      ],
+      "structure_id": "round1-hp-cspbi3-control-relax-perturbed",
+      "symbols": [
+        "Cs",
+        "Pb",
+        "I",
+        "I",
+        "I"
+      ]
+    }
+  ],
+  "ribbon_version": "hyperribbon-v1",
+  "row_id": "relaxation_stability",
+  "row_spec": {
+    "error_tolerance": 0.1,
+    "error_unit": "relaxation_penalty",
+    "force_threshold": 0.05,
+    "max_steps": 200,
+    "min_cases": 3,
+    "reference_keys": [
+      "relaxation_force_threshold",
+      "relaxed_energy_ev_per_atom"
+    ]
+  },
+  "run_id": "mlip-cloud-20260713-cand-r1",
+  "schema": "lupine.mlip.cell_artifact.v1",
+  "speed": {
+    "score": 1.4608438162572541,
+    "unit": "structures_per_second"
+  },
+  "support_manifest_url": null,
+  "variant_id": "baseline",
+  "versions": {
+    "ase": "3.28.0",
+    "chgnet": null,
+    "cuda_available": true,
+    "cuda_device": "NVIDIA L4",
+    "fairchem-core": null,
+    "mace-torch": null,
+    "matgl": null,
+    "numpy": "1.26.4",
+    "orb-models": "0.5.5",
+    "python": "3.10.12",
+    "sevenn": null,
+    "torch": "2.6.0+cu118",
+    "uma_model_name": null,
+    "uma_task_name": null
+  }
+}

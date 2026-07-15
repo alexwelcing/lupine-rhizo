@@ -440,15 +440,15 @@
   "distill_policy_hash": null,
   "distill_policy_url": null,
   "distill_profile": "off",
-  "duration_s": 0.21226276300001246,
+  "duration_s": 0.2232071210000015,
   "execution": {
     "cloud_run_job": "mlip-cell-sevennet",
     "cloud_run_revision": null,
-    "cold_total_seconds": 20.434266476999937,
-    "model_load_seconds": 19.894634255000028,
+    "cold_total_seconds": 36.473965878,
+    "model_load_seconds": 35.954189545999995,
     "model_preloaded": false,
     "runner_image_digest": null,
-    "warm_inference_seconds": 0.21226276300001246
+    "warm_inference_seconds": 0.2232071210000015
   },
   "fixture_contract": {
     "blockers": [],
@@ -13921,7 +13921,7 @@
   "run_id": "mlip-cloud-20260713-cand-r1",
   "schema": "lupine.mlip.cell_artifact.v1",
   "speed": {
-    "score": 367.4690694570645,
+    "score": 349.4512166571938,
     "unit": "structures_per_second"
   },
   "support_manifest_url": null,
