@@ -15,7 +15,6 @@ import re
 from pathlib import Path
 
 import pytest
-
 from lupine_distill.odf.field_certificates import (
     GAP_COORDINATIONS,
     THEOREM_REFS,
@@ -263,51 +262,91 @@ def test_refused_cell_has_no_bracket_but_carries_impossibility():
     assert "identification impossibility" in cert.reason
 
 
-# ── Bracket separation: mirrors certified_order_of_separation_fcc/_bcc ─────
+# ── Exact endpoint ranking: mirrors certified_order_iff_endpoint_margins ────
 
 
 def test_separation_certifies_strict_margin():
-    """corrected_a < corrected_b − count·width ⇒ certified for every
-    consistent field (fcc rule)."""
+    """Both envelope margins are strict, so every consistent field agrees."""
     cert = check_bracket_separation(
         corrected_a=-1.00,
         corrected_b=-0.50,
-        gap_count_b=4,
+        coordinations_a=[12, 12],
+        coordinations_b=[10, 10, 10, 10],
         bracket_width_scaled=537,
     )
     assert cert.certified
     assert cert.theorem_ref == THEOREM_REFS["bracket_separation"]
-    assert cert.margin == pytest.approx(0.5 - 4 * 537e-4)
+    assert cert.gap_count_a == 0
+    assert cert.gap_count_b == 4
+    assert cert.deep_margin == pytest.approx(0.5)
+    assert cert.shallow_margin == pytest.approx(0.5 - 4 * 537e-4)
 
 
-def test_separation_zero_margin_not_certified():
-    """Strictness mirror: the Lean rule is a strict `<`; a pair sitting
-    exactly at the budget boundary is NOT certified."""
+def test_equal_gap_counts_avoid_old_one_sided_false_refusal():
+    """Equal gap populations shift both endpoints equally.
+
+    The old sufficient rule budgeted candidate B only and refused this pair.
+    The exact two-envelope criterion correctly certifies it.
+    """
+    cert = check_bracket_separation(
+        corrected_a=0.0,
+        corrected_b=0.5,
+        coordinations_a=[10],
+        coordinations_b=[10],
+        bracket_width_scaled=10000,
+    )
+    assert cert.certified
+    assert cert.deep_margin == pytest.approx(0.5)
+    assert cert.shallow_margin == pytest.approx(0.5)
+
+
+def test_shallow_endpoint_zero_margin_not_certified():
+    """Strictness mirror: a tie at either envelope is not certified."""
     cert = check_bracket_separation(
         corrected_a=0.0,
         corrected_b=4 * 537e-4,
-        gap_count_b=4,
+        coordinations_a=[12],
+        coordinations_b=[10, 10, 10, 10],
         bracket_width_scaled=537,
     )
     assert not cert.certified
-    assert "budget" in cert.reason
+    assert cert.deep_margin > 0
+    assert cert.shallow_margin == pytest.approx(0.0)
+    assert "shallow envelope" in cert.reason
 
 
-def test_separation_overlap_not_certified():
+def test_deep_endpoint_failure_not_certified():
     cert = check_bracket_separation(
-        corrected_a=-0.52,
+        corrected_a=-0.49,
         corrected_b=-0.50,
-        gap_count_b=1,
+        coordinations_a=[10],
+        coordinations_b=[10],
         bracket_width_scaled=537,
     )
     assert not cert.certified
+    assert cert.deep_margin < 0
+    assert "deep envelope" in cert.reason
+
+
+def test_unequal_gap_counts_can_fail_only_at_shallow_endpoint():
+    cert = check_bracket_separation(
+        corrected_a=0.0,
+        corrected_b=0.5,
+        coordinations_a=[12],
+        coordinations_b=[10],
+        bracket_width_scaled=10000,
+    )
+    assert not cert.certified
+    assert cert.deep_margin == pytest.approx(0.5)
+    assert cert.shallow_margin == pytest.approx(-0.5)
 
 
 def test_separation_bcc_uses_bcc_theorem():
     cert = check_bracket_separation(
         corrected_a=-2.0,
         corrected_b=-1.0,
-        gap_count_b=2,
+        coordinations_a=[8, 8],
+        coordinations_b=[5, 5],
         bracket_width_scaled=256,
         structure="bcc",
     )
@@ -321,7 +360,8 @@ def test_separation_diamond_degenerates_to_exact_comparison():
     cert = check_bracket_separation(
         corrected_a=-1.0001,
         corrected_b=-1.0,
-        gap_count_b=7,
+        coordinations_a=[3, 4],
+        coordinations_b=[3, 3, 4],
         bracket_width_scaled=0,
         structure="diamond",
     )
@@ -329,16 +369,41 @@ def test_separation_diamond_degenerates_to_exact_comparison():
     assert cert.theorem_ref == THEOREM_REFS["corrected_exact_diamond"]
 
 
-def test_separation_rejects_negative_count():
-    with pytest.raises(ValueError, match="nonnegative"):
-        check_bracket_separation(0.0, 1.0, -1, 537)
+def test_separation_rocksalt_degenerates_to_exact_comparison():
+    cert = check_bracket_separation(
+        corrected_a=-1.0001,
+        corrected_b=-1.0,
+        coordinations_a=[5, 6],
+        coordinations_b=[5, 5, 6],
+        bracket_width_scaled=0,
+        structure="rocksalt",
+    )
+    assert cert.certified
+    assert cert.theorem_ref == THEOREM_REFS["corrected_exact_rocksalt"]
+
+
+def test_separation_rejects_configuration_below_layout_range():
+    with pytest.raises(ValueError, match="below the fcc anchor floor"):
+        check_bracket_separation(0.0, 1.0, [7], [10], 537)
+
+
+def test_separation_rejects_invalid_numeric_contract():
+    with pytest.raises(ValueError, match="bracket_width_scaled"):
+        check_bracket_separation(0.0, 1.0, [10], [10], -1)
+    with pytest.raises(ValueError, match="scale"):
+        check_bracket_separation(0.0, 1.0, [10], [10], 537, scale=0)
 
 
 def test_separation_certificate_serializes():
-    payload = check_bracket_separation(-1.0, -0.5, 4, 537).to_dict()
+    payload = check_bracket_separation(
+        -1.0, -0.5, [12], [10, 10, 10, 10], 537
+    ).to_dict()
     assert payload["kind"] == "bracket_separation"
     assert payload["certified"] is True
+    assert payload["gap_count_a"] == 0
     assert payload["gap_count_b"] == 4
+    assert payload["deep_margin"] == pytest.approx(0.5)
+    assert payload["shallow_margin"] == pytest.approx(0.5 - 4 * 537e-4)
 
 
 # ── Metadata enrichment: integration with the promotion gate ───────────────

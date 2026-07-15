@@ -30,9 +30,9 @@ symbol-for-symbol:
   an admissible cell's correction uncertainty is one scalar per atom at the
   unanchored coordination, bounded by the anchor gap; a refused cell admits
   *no* consistent softening field at all;
-- :func:`check_bracket_separation` mirrors
-  ``AnchorBracket.certified_order_of_separation_fcc`` (bcc mirror
-  ``certified_order_of_separation_bcc``; diamond degenerate case
+- :func:`check_bracket_separation` mirrors the exact two-envelope laws
+  ``AnchorBracket.certified_order_iff_endpoint_margins_fcc`` (bcc mirror
+  ``certified_order_iff_endpoint_margins_bcc``; diamond degenerate case
   ``corrected_exact_diamond``): interval separation certifies the corrected
   order against every field consistent with the anchors.
 
@@ -45,8 +45,9 @@ declaration in the Lean sources.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 _THEORY = "OpenDistillationFactory.Materials.Theory"
 
@@ -87,10 +88,10 @@ THEOREM_REFS: dict[str, str] = {
     "corrected_bracket_bcc": f"{_THEORY}.AnchorBracket.corrected_bracket_bcc",
     "corrected_exact_diamond": f"{_THEORY}.AnchorBracket.corrected_exact_diamond",
     "bracket_separation": (
-        f"{_THEORY}.AnchorBracket.certified_order_of_separation_fcc"
+        f"{_THEORY}.AnchorBracket.certified_order_iff_endpoint_margins_fcc"
     ),
     "bracket_separation_bcc": (
-        f"{_THEORY}.AnchorBracket.certified_order_of_separation_bcc"
+        f"{_THEORY}.AnchorBracket.certified_order_iff_endpoint_margins_bcc"
     ),
     "anchored_field_rocksalt": (
         f"{_THEORY}.AnchoredField.mkAnchoredFieldRocksalt"
@@ -328,7 +329,9 @@ def check_anchor_admissibility(
     gap_coordination = GAP_COORDINATIONS[structure]
     violations: list[str] = []
     for (c_lo, p_lo), (c_hi, p_hi) in zip(
-        zip(coordinations, anchors_scaled), zip(coordinations[1:], anchors_scaled[1:])
+        zip(coordinations, anchors_scaled, strict=True),
+        zip(coordinations[1:], anchors_scaled[1:], strict=True),
+        strict=False,
     ):
         if not p_lo <= p_hi:
             violations.append(f"P({c_lo}) = {p_lo}e-4 > P({c_hi}) = {p_hi}e-4 (mono)")
@@ -443,31 +446,30 @@ def check_ranking_pair(
 
 @dataclass(frozen=True)
 class BracketSeparationCertificate:
-    """Margin-certified corrected ranking of one candidate pair in one cell.
+    """Exact two-envelope corrected ranking of one candidate pair in one cell.
 
-    Mirrors ``AnchorBracket.certified_order_of_separation_fcc`` (bcc mirror
-    ``certified_order_of_separation_bcc``; diamond degenerate case
-    ``corrected_exact_diamond``): candidate A ranks strictly below candidate
-    B against **every** softening field consistent with the cell's anchors
-    when A's corrected energy sits strictly below B's corrected energy minus
-    B's gap budget (B's count of gap-coordination atoms times the certified
-    per-atom bracket width). ``certified = False`` does not mean the order
-    is wrong — only that the measured anchors cannot exclude a flip.
+    Mirrors ``AnchorBracket.certified_order_iff_endpoint_margins_fcc`` (bcc
+    mirror ``certified_order_iff_endpoint_margins_bcc``; diamond/rocksalt
+    exact cases). Candidate A ranks strictly below candidate B against every
+    softening field consistent with the cell's anchors exactly when both the
+    deep and shallow envelope margins are positive. ``certified = False``
+    means one concrete envelope fails to preserve strict order; it does not
+    assert that the physical reference order is reversed.
     """
 
     certified: bool
     corrected_a: float
     corrected_b: float
-    #: Number of gap-coordination atoms in candidate B's configuration (the
-    #: budget side of the separation rule). Candidate A needs no budget: its
-    #: corrected value is already its certified upper bound.
+    #: Number of gap-coordination atoms in each configuration. The exact rule
+    #: budgets both sides; equal populations cancel.
+    gap_count_a: int
     gap_count_b: int
     #: Certified per-atom bracket width, x1e-4 eV/atom (0 for diamond).
     bracket_width_scaled: int
     structure: str
-    #: Certified slack in eV: ``corrected_b − budget − corrected_a``;
-    #: certification holds iff this is strictly positive.
-    margin: float
+    #: Strict-order margins at the concrete deep and shallow envelopes.
+    deep_margin: float
+    shallow_margin: float
     theorem_ref: str
     reason: str
 
@@ -477,10 +479,12 @@ class BracketSeparationCertificate:
             "certified": self.certified,
             "corrected_a": self.corrected_a,
             "corrected_b": self.corrected_b,
+            "gap_count_a": self.gap_count_a,
             "gap_count_b": self.gap_count_b,
             "bracket_width_scaled": self.bracket_width_scaled,
             "structure": self.structure,
-            "margin": self.margin,
+            "deep_margin": self.deep_margin,
+            "shallow_margin": self.shallow_margin,
             "theorem_ref": self.theorem_ref,
             "reason": self.reason,
         }
@@ -489,22 +493,29 @@ class BracketSeparationCertificate:
 def check_bracket_separation(
     corrected_a: float,
     corrected_b: float,
-    gap_count_b: int,
+    coordinations_a: Sequence[int],
+    coordinations_b: Sequence[int],
     bracket_width_scaled: int,
     structure: str = "fcc",
     scale: int = 10000,
 ) -> BracketSeparationCertificate:
-    """Mirror of ``certified_order_of_separation_fcc`` / ``…_bcc``: certify
-    ``corrected_a < corrected_b − gap_count_b · width`` (width in eV =
-    ``bracket_width_scaled / scale``), which by the Lean theorem forces
-    A's reference energy strictly below B's for every field consistent with
-    the anchors. Inputs are the *step-field corrected* energies of the two
-    candidates in the SAME (model, material) cell, and ``gap_count_b`` is
-    candidate B's population of the layout's unanchored coordination
-    (``GAP_COORDINATIONS``); for the diamond layout the width is zero and
-    the rule degenerates to the exact-correction comparison
-    (``corrected_exact_diamond``). Strictness matters: a zero margin is NOT
-    certified, exactly as in Lean.
+    """Run the exact two-envelope ranking criterion for one anchor layout.
+
+    The supplied energies are the measured step-field corrections. This
+    function derives each candidate's gap population from its coordination
+    list, checks the layout-specific in-range precondition, and tests strict
+    order at both concrete envelopes::
+
+        deep:    corrected_a < corrected_b
+        shallow: corrected_a - count_a*width
+                   < corrected_b - count_b*width
+
+    The two inequalities are equivalent in Lean to strict corrected order for
+    every softening field consistent with the anchors. A statement about the
+    *reference* order additionally requires exact field-decomposition for both
+    model errors; this runtime certificate does not assert that empirical
+    hypothesis. ``bracket_width_scaled`` should come from an admissible
+    :class:`AnchorCertificate` for the same cell.
 
     Two honesty caveats. (1) The Lean theorem governs the coordination-
     resolved *step-field* correction; the runtime policy engine's live
@@ -518,34 +529,80 @@ def check_bracket_separation(
             f"unknown anchor structure {structure!r}; "
             f"expected one of {sorted(_BRACKET_REF_KEYS)}"
         )
-    if gap_count_b < 0:
-        raise ValueError(f"gap_count_b must be nonnegative; got {gap_count_b}")
+    if bracket_width_scaled < 0:
+        raise ValueError(
+            "bracket_width_scaled must be nonnegative; "
+            f"got {bracket_width_scaled}"
+        )
+    if scale <= 0:
+        raise ValueError(f"scale must be positive; got {scale}")
+    floor = min(ANCHOR_COORDINATIONS[structure])
+    for label, coordinations in (
+        ("candidate A", coordinations_a),
+        ("candidate B", coordinations_b),
+    ):
+        below = [(i, c) for i, c in enumerate(coordinations) if c < floor]
+        if below:
+            witnesses = ", ".join(f"atom {i} (c={c})" for i, c in below)
+            raise ValueError(
+                f"{label} is below the {structure} anchor floor c={floor}: "
+                f"{witnesses}"
+            )
     _identification_key, _bracket_key, separation_key = _BRACKET_REF_KEYS[structure]
-    budget = gap_count_b * bracket_width_scaled / scale
-    margin = corrected_b - budget - corrected_a
-    certified = margin > 0
+    gap_coordination = GAP_COORDINATIONS[structure]
+    gap_count_a = (
+        sum(1 for c in coordinations_a if c == gap_coordination)
+        if gap_coordination is not None
+        else 0
+    )
+    gap_count_b = (
+        sum(1 for c in coordinations_b if c == gap_coordination)
+        if gap_coordination is not None
+        else 0
+    )
+    if gap_coordination is None and bracket_width_scaled != 0:
+        raise ValueError(
+            f"{structure} has no unanchored in-range coordination; "
+            "bracket_width_scaled must be 0"
+        )
+    width = bracket_width_scaled / scale
+    deep_margin = corrected_b - corrected_a
+    shallow_a = corrected_a - gap_count_a * width
+    shallow_b = corrected_b - gap_count_b * width
+    shallow_margin = shallow_b - shallow_a
+    certified = deep_margin > 0 and shallow_margin > 0
     ref = THEOREM_REFS[separation_key]
     if certified:
         reason = (
-            f"corrected order certified against every consistent field: "
-            f"corrected_a = {corrected_a} < {corrected_b} − "
-            f"{gap_count_b}·{bracket_width_scaled}e-4 (margin {margin:.6g} eV)"
+            "corrected order certified against every consistent field: "
+            f"deep margin {deep_margin:.6g} eV and shallow margin "
+            f"{shallow_margin:.6g} eV are both strict; reference-order use "
+            "still requires exact field-decomposable errors"
         )
     else:
+        failed = []
+        if deep_margin <= 0:
+            failed.append(f"deep envelope margin {deep_margin:.6g} eV is not strict")
+        if shallow_margin <= 0:
+            failed.append(
+                f"shallow envelope margin {shallow_margin:.6g} eV is not strict"
+            )
         reason = (
-            f"anchor-gap budget can flip this pair: corrected separation "
-            f"{corrected_b - corrected_a:.6g} eV does not exceed the gap "
-            f"budget {budget:.6g} eV — rank only after tightening the "
-            "anchors or escalate to the oracle"
+            "measured anchors do not certify strict order: "
+            + "; ".join(failed)
+            + " — the named envelope is a concrete consistent field where "
+            "the strict comparison fails; tighten anchors or abstain"
         )
     return BracketSeparationCertificate(
         certified=certified,
         corrected_a=corrected_a,
         corrected_b=corrected_b,
+        gap_count_a=gap_count_a,
         gap_count_b=gap_count_b,
         bracket_width_scaled=bracket_width_scaled,
         structure=structure,
-        margin=margin,
+        deep_margin=deep_margin,
+        shallow_margin=shallow_margin,
         theorem_ref=ref,
         reason=reason,
     )
@@ -631,7 +688,8 @@ def check_barrier_conservatism(
         )
 
     ordering_holds = all(
-        ts <= init for ts, init in zip(ts_coordination, init_coordination)
+        ts <= init
+        for ts, init in zip(ts_coordination, init_coordination, strict=True)
     )
 
     if not ordering_holds:

@@ -211,6 +211,25 @@ theorem decomposition (T : E) (p : ↥(F.carrier : Set E)) :
   unfold bias withinFamily
   abel
 
+/-- **Shared bias cancels under centering.** The difference between any two
+    residuals from the same affine family lies in the family's direction. This
+    is the exact affine premise needed by the parameter-bound program: once a
+    reference residual (in particular an ensemble mean that remains in the
+    affine carrier) is subtracted, no orthogonal shared-bias mode remains. -/
+theorem residual_difference_in_direction (T : E)
+    (p q : ↥(F.carrier : Set E)) :
+    (T - (p : E)) - (T - (q : E)) ∈ F.carrier.direction := by
+  have hp := F.withinFamily_in_direction T p
+  have hq := F.withinFamily_in_direction T q
+  have hdecompP := (F.decomposition T p).1
+  have hdecompQ := (F.decomposition T q).1
+  have heq : (T - (p : E)) - (T - (q : E)) =
+      F.withinFamily T p - F.withinFamily T q := by
+    rw [hdecompP, hdecompQ]
+    abel
+  rw [heq]
+  exact F.carrier.direction.sub_mem hp hq
+
 end AffineFamily
 
 end OpenDistillationFactory.Materials.Theory.AffineDecomposition
