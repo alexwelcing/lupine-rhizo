@@ -30,7 +30,7 @@ PROOF_REPOSITORY = "lupine-science/open-distillation-factory"
 # ATLAS_PROOF_REVISION environment variable, nor an explicit --proof-revision
 # override supplies one. The registry pin is the single source of truth:
 # re-pinning after a rebase or squash-merge is a one-file, reviewable change.
-FORMAL_PROOF_REVISION = "8c0ccf7b31ad54d6beb3363698750d9a081cb796"
+FORMAL_PROOF_REVISION = "bad604c13d9f4977bd2505362ec327b103fafe60"
 LEAN_VERSION = "4.29.0"
 MATHLIB_REVISION = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
 ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"

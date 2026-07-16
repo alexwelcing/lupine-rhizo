@@ -9,7 +9,7 @@
   ],
   "authority": {
     "proof_repository": "lupine-science/open-distillation-factory",
-    "proof_revision": "8c0ccf7b31ad54d6beb3363698750d9a081cb796",
+    "proof_revision": "bad604c13d9f4977bd2505362ec327b103fafe60",
     "lean_version": "4.29.0",
     "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
     "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
