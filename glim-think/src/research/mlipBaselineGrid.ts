@@ -5,7 +5,11 @@ import { registerResource } from "../resource-fabric";
 import { traceHypothesisStage } from "../telemetry/hypothesisTrace";
 import type { Env } from "../types";
 import { dispatchAtlasJob, type TaskPayload } from "./dispatch";
-import { DEFAULT_ACCURACY_ROWS, DEFAULT_MLIP_COLUMNS } from "./mlipCampaign";
+import {
+  DEFAULT_ACCURACY_ROWS,
+  DEFAULT_MLIP_COLUMNS,
+  ensureMlipCampaignSchema,
+} from "./mlipCampaign";
 import {
   classifyMlipFixtureTarget,
   mlipBaselineReleaseGate,
@@ -17,7 +21,7 @@ import { annotateMlipBaselineCellForPhoenix, MLIP_PHOENIX_EVALUATOR_SPECS } from
 export const MLIP_BASELINE_WORKFLOW_ID = "mlip-baseline-grid";
 export const MLIP_BASELINE_FIXTURE_ID = MLIP_BASELINE_RELEASE_FIXTURE_ID;
 
-export type MlipBaselineProfile = "smoke" | "lab-gcp-gpu" | "lab-gcp-cpu";
+export type MlipBaselineProfile = "smoke" | "lab-gcp-gpu" | "lab-gcp-cpu" | "recovered-ingress";
 export type MlipBaselineRunStatus =
   | "created"
   | "queued"
@@ -278,6 +282,12 @@ const LAB_CPU_SHAPE = {
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function normalizedObservedAt(observedAt?: string): string {
+  if (!observedAt) return nowIso();
+  const parsed = Date.parse(observedAt);
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : nowIso();
 }
 
 function compactStamp(): string {
@@ -811,9 +821,10 @@ export async function dispatchQueuedMlipBaselineCells(
 export async function recordMlipBaselineCellResult(
   env: Env,
   input: MlipBaselineCellResultInput,
+  observedAt?: string,
 ): Promise<{ updated: string; status: MlipBaselineCellStatus }> {
   await ensureMlipBaselineSchema(env);
-  const stamp = nowIso();
+  const stamp = normalizedObservedAt(observedAt);
   const status = input.status ?? (input.error ? "failed" : "completed");
   const metrics = input.metrics ? JSON.stringify(input.metrics) : null;
   const span = trace.getActiveSpan();
@@ -821,7 +832,69 @@ export async function recordMlipBaselineCellResult(
   const traceId = input.trace_id ?? ctx?.traceId ?? "mlip-baseline-no-trace";
   const spanId = input.span_id ?? ctx?.spanId ?? null;
 
-  await env.LEDGER.prepare(
+  const marker = ":baseline:";
+  const markerIndex = input.cell_id.indexOf(marker);
+  const cellParts = markerIndex >= 0
+    ? input.cell_id.slice(markerIndex + marker.length).split(":")
+    : [];
+  const rowId = input.row_id?.trim() || cellParts[0] || "";
+  const mlipId = input.mlip_id?.trim() || cellParts[1] || "";
+  if (rowId && mlipId) {
+    // Direct runners can bypass orchestration; keep any synthesized parent unmistakably recovered.
+    const recovery = {
+      profile: "recovered-ingress",
+      active_cells: 0,
+      per_cell_hourly_usd: 0,
+      estimated_hourly_usd: 0,
+      max_dollars_per_hour: 0,
+      capped_by_budget: false,
+      rates: COST_RATES,
+      assumptions: { region: "unknown", cpu: 0, memory_gib: 0, gpu_l4: 0 },
+      recovery: {
+        source_schema: input.metrics?.schema ?? "direct-cell-result",
+        recovered_at: stamp,
+        first_observed_cell_id: input.cell_id,
+        observed_profile: input.metrics?.profile ?? null,
+        observed_fixture_id: input.metrics?.fixture_id ?? null,
+        observed_manifest_url: input.metrics?.manifest_url ?? null,
+        original_run_configuration_available: false,
+      },
+    };
+    const provenance =
+      `Recovered from ${String(input.metrics?.schema ?? "direct cell result")} ingress at ${stamp}; ` +
+      `original run configuration unavailable; first observed cell=${input.cell_id}`;
+    await env.LEDGER.prepare(
+      `INSERT OR IGNORE INTO mlip_baseline_runs
+        (run_id, workflow_instance_id, hypothesis_id, title, status, profile, fixture_id,
+         manifest_url, artifact_prefix, max_dollars_per_hour, requested_max_active_gpu_cells,
+         max_active_gpu_cells, max_poll_waves, rows_json, mlips_json, cost_estimate_json,
+         report_r2_key, error, created_at, updated_at, started_at, finished_at)
+       VALUES (?1, NULL, ?2, ?3, 'awaiting_results', 'recovered-ingress', 'recovered-ingress',
+         '', '', 0, 0, 0, 0, '[]', '[]', ?4, NULL, ?5, ?6, ?6, NULL, NULL)`,
+    ).bind(
+      input.run_id,
+      `recovered-ingress:${input.run_id}`,
+      `Recovered MLIP ingress run ${input.run_id}`,
+      JSON.stringify(recovery),
+      provenance,
+      stamp,
+    ).run();
+    await env.LEDGER.prepare(
+      `INSERT OR IGNORE INTO mlip_baseline_cells
+        (cell_id, run_id, row_id, mlip_id, status, target_job, manifest_url,
+         created_at, updated_at, retry_count)
+       VALUES (?1, ?2, ?3, ?4, 'queued', NULL, ?5, ?6, ?6, 0)`,
+    ).bind(
+      input.cell_id,
+      input.run_id,
+      rowId,
+      mlipId,
+      typeof input.metrics?.manifest_url === "string" ? input.metrics.manifest_url : null,
+      stamp,
+    ).run();
+  }
+
+  const write = await env.LEDGER.prepare(
     `UPDATE mlip_baseline_cells
        SET status = ?3,
            accuracy_score = COALESCE(?4, accuracy_score),
@@ -836,7 +909,17 @@ export async function recordMlipBaselineCellResult(
            span_id = COALESCE(?13, span_id),
            completed_at = CASE WHEN ?3 IN ('completed', 'failed') THEN ?14 ELSE completed_at END,
            updated_at = ?14
-     WHERE run_id = ?1 AND cell_id = ?2`,
+     WHERE run_id = ?1 AND cell_id = ?2
+       AND (
+         ?14 > updated_at
+         OR (?14 = updated_at AND status = 'queued' AND ?3 <> 'queued')
+       )
+       AND (
+         status NOT IN ('completed', 'failed', 'retired')
+         OR (status = 'completed' AND ?3 = 'completed')
+         OR (status = 'failed' AND ?3 IN ('failed', 'completed'))
+         OR (status = 'retired' AND ?3 = 'retired')
+       )`,
   ).bind(
     input.run_id,
     input.cell_id,
@@ -853,6 +936,52 @@ export async function recordMlipBaselineCellResult(
     spanId,
     stamp,
   ).run();
+
+  await env.LEDGER.prepare(
+    `UPDATE mlip_baseline_runs
+        SET status = CASE
+              WHEN NOT EXISTS (
+                SELECT 1 FROM mlip_baseline_cells
+                 WHERE run_id = ?1 AND status NOT IN ('completed', 'failed', 'retired')
+              ) THEN CASE
+                WHEN NOT EXISTS (
+                  SELECT 1 FROM mlip_baseline_cells WHERE run_id = ?1 AND status <> 'completed'
+                ) THEN 'completed'
+                WHEN NOT EXISTS (
+                  SELECT 1 FROM mlip_baseline_cells WHERE run_id = ?1 AND status <> 'failed'
+                ) THEN 'failed'
+                WHEN NOT EXISTS (
+                  SELECT 1 FROM mlip_baseline_cells WHERE run_id = ?1 AND status <> 'retired'
+                ) THEN 'retired'
+                ELSE 'partial'
+              END
+              ELSE status
+            END,
+            finished_at = CASE
+              WHEN NOT EXISTS (
+                SELECT 1 FROM mlip_baseline_cells
+                 WHERE run_id = ?1 AND status NOT IN ('completed', 'failed', 'retired')
+              ) THEN CASE
+                WHEN finished_at IS NULL OR finished_at < (
+                  SELECT MAX(updated_at) FROM mlip_baseline_cells WHERE run_id = ?1
+                ) THEN (SELECT MAX(updated_at) FROM mlip_baseline_cells WHERE run_id = ?1)
+                ELSE finished_at
+              END
+              ELSE finished_at
+            END,
+            updated_at = CASE
+              WHEN NOT EXISTS (
+                SELECT 1 FROM mlip_baseline_cells
+                 WHERE run_id = ?1 AND status NOT IN ('completed', 'failed', 'retired')
+              ) AND updated_at < (SELECT MAX(updated_at) FROM mlip_baseline_cells WHERE run_id = ?1)
+                THEN (SELECT MAX(updated_at) FROM mlip_baseline_cells WHERE run_id = ?1)
+              ELSE updated_at
+            END
+      WHERE run_id = ?1
+        AND EXISTS (SELECT 1 FROM mlip_baseline_cells WHERE run_id = ?1)`,
+  ).bind(input.run_id).run();
+
+  if (write.meta.changes === 0) return { updated: input.cell_id, status };
 
   const score = status === "completed" ? input.accuracy_score ?? 1 : 0;
   await insertEval(env, {
@@ -902,12 +1031,24 @@ export async function recordMlipBaselineCellResult(
 export async function recordMlipBaselineBeat(
   env: Env,
   metrics: Record<string, unknown> | undefined,
+  observedAt?: string,
 ): Promise<void> {
   if (!metrics) return;
   if (metrics.schema !== "lupine.mlip.cell_result.v1") return;
   const runId = typeof metrics.run_id === "string" ? metrics.run_id : "";
   const cellId = typeof metrics.cell_id === "string" ? metrics.cell_id : "";
   if (!runId || !cellId) return;
+  await ensureMlipBaselineSchema(env);
+  const existingRun = await env.LEDGER.prepare(
+    `SELECT run_id FROM mlip_baseline_runs WHERE run_id = ?1`,
+  ).bind(runId).first<{ run_id: string }>();
+  if (!existingRun && typeof metrics.campaign_id === "string" && metrics.campaign_id) {
+    await ensureMlipCampaignSchema(env);
+    const campaign = await env.LEDGER.prepare(
+      `SELECT campaign_id FROM mlip_campaigns WHERE campaign_id = ?1`,
+    ).bind(metrics.campaign_id).first<{ campaign_id: string }>();
+    if (campaign) return;
+  }
   const accuracy = metrics.accuracy as Record<string, unknown> | undefined;
   const speed = metrics.speed as Record<string, unknown> | undefined;
   await recordMlipBaselineCellResult(env, {
@@ -937,7 +1078,7 @@ export async function recordMlipBaselineBeat(
     artifact_uri: typeof metrics.artifact_uri === "string" ? metrics.artifact_uri : undefined,
     operation_name: typeof metrics.operation_name === "string" ? metrics.operation_name : undefined,
     error: typeof metrics.error === "string" ? metrics.error : undefined,
-  });
+  }, observedAt);
 }
 
 export async function retireStaleMlipBaselineCells(
@@ -1059,6 +1200,8 @@ export function publicMlipBaselineReport(state: MlipBaselineState) {
     caveat:
       state.run.profile === "smoke"
         ? "Smoke profile uses deterministic canonical values to verify control-plane wiring."
+        : state.run.profile === "recovered-ingress"
+          ? "Recovered from authenticated cell-result ingress; the original orchestrated run configuration is unavailable, so this record is not a normal baseline-grid registration."
         : releaseGate.ready
           ? "Lab profile dispatches real MLIP inference over V2 release fixtures and row-native physical metrics."
           : "Lab profile dispatches real MLIP inference, but release claims remain blocked until every cell has V2 fixture and row-native metric evidence.",

@@ -29,7 +29,6 @@ from typing import Any
 from lupine_distill.odf.field_certificates import (
     certificates_from_binding_report,
     merge_into_candidate_metadata,
-    theorem_refs,
 )
 from lupine_distill.odf.promotion_gate import evaluate_promotion
 
@@ -254,7 +253,7 @@ def group_triplets(cells: list[dict[str, Any]], required_variants: Iterable[str]
 def load_field_certificates(
     report_path: pathlib.Path,
     model_ids: Iterable[str] | None,
-) -> dict[str, Any] | None:
+) -> dict[str, Any]:
     """Anchor-admissibility certificates for the bound Y-matrix cells of this
     run's models, from the env-field binding report emitted by
     ``python/scripts/bind_env_field_instances.py``.
@@ -264,16 +263,18 @@ def load_field_certificates(
     admissibility predicate, so the promotion packet (and its Phoenix spans)
     names, per cell, the kernel-checked tier — ``error_field`` (directional
     softening laws apply) or ``measured_field`` (correction/ranking laws only,
-    with the refusal witness) — and the Lean theorem backing it. Returns
-    ``None`` when the report is missing; model matching is exact on the
-    binder's ``model_id``.
+    with the refusal witness) — and the Lean theorem backing it. An expected
+    missing or malformed report is an error; only the CLI's explicit
+    ``--no-env-field-certificates`` option disables this protection.
     """
     if not report_path.exists():
-        return None
+        raise FileNotFoundError(f"expected binding report not found: {report_path}")
     report = load_json(report_path)
     if not isinstance(report, dict):
-        return None
-    entries = certificates_from_binding_report(report, model_ids)
+        raise ValueError(f"binding report must be a JSON object: {report_path}")
+    entries = certificates_from_binding_report(
+        report, model_ids, report_path=report_path
+    )
     return {
         "report": str(report_path),
         "report_schema": report.get("schema"),
@@ -306,7 +307,9 @@ def field_certificates_packet_block(
         "n_measured_field_refusals": sum(
             1 for c in certificates if c.tier == "measured_field"
         ),
-        "theorem_refs": theorem_refs(certificates),
+        "theorem_refs": list(
+            dict.fromkeys(entry["outcome_theorem_ref"] for entry in entries)
+        ),
         "cells": [
             {
                 "material": entry["material"],
@@ -314,6 +317,7 @@ def field_certificates_packet_block(
                 "structure": entry["structure"],
                 "lean_name": entry["lean_name"],
                 **entry["certificate"].to_dict(),
+                "theorem_ref": entry["outcome_theorem_ref"],
             }
             for entry in entries
         ],

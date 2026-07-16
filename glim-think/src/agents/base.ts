@@ -25,15 +25,16 @@ import { runHeuristics } from "../evals/heuristics";
 import { insertEval, getAgentQualityTrend } from "../evals/store";
 import { traceEnv } from "../telemetry/storage";
 import {
+  groundableFormalBasis,
   loadFacetState,
   loadFacetTheorems,
   summarizeInventory,
-  toFormalBasis,
   type AtlasFacetState,
   type AtlasTheoremRef,
   type FormalBasis,
   type TheoremInventory,
 } from "../atlas/theorems";
+import { canonicalFacetForAgentClass } from "../atlas/facetRegistry";
 
 export abstract class GlimThinkAgent extends Think<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
@@ -124,44 +125,61 @@ export abstract class GlimThinkAgent extends Think<Env> {
   // + revision + status) — never proof bodies — so DO state stays bounded.
 
   /**
-   * The ATLAS facet this agent maps to. Defaults to the agent's class name
-   * (the same key used everywhere else for prompts/evals). Override only if a
-   * facet's theorem inventory is keyed differently from the class name.
+   * The canonical ATLAS facet this agent maps to. Theorem inventory rows are
+   * keyed by canonical lowercase facets (`causal`, `experiment`, `manifold`,
+   * `theorist`) — NOT by agent class name — so this resolves through the
+   * explicit registry mapping (`canonicalFacetForAgentClass`) instead of
+   * returning `constructor.name`. Unmanaged agents fall back to lowercase
+   * normalization and simply resolve to an empty inventory. Override only if
+   * a facet's theorem inventory is keyed differently from the registry map.
    */
   getFacet(): string {
-    return this.constructor.name;
+    return canonicalFacetForAgentClass(this.constructor.name);
   }
 
   /**
    * Bounded in-memory cache of this facet's theorem REFERENCES. Populated by
    * loadAtlasContext(); intentionally references only (no proofs) so the DO's
    * heap footprint is bounded by the inventory cap, not by proof size.
+   * `loadError` is non-null when the inventory READ failed — kept separate
+   * from an empty inventory so a failed load is never mistaken for "this
+   * facet has no theorems".
    */
   private atlasContext: {
     readonly state: AtlasFacetState | null;
     readonly theorems: ReadonlyArray<AtlasTheoremRef>;
     readonly inventory: TheoremInventory;
+    readonly loadError: string | null;
   } | null = null;
 
   /**
    * Load (and cache) the ATLAS theorem references + per-facet reference state
    * for this agent's facet from the shared ledger. Idempotent: pass
    * `{ refresh: true }` to re-read after the inventory changes. Never throws —
-   * an unprovisioned facet resolves to an empty inventory.
+   * an unprovisioned facet resolves to an empty inventory, and a failed read
+   * resolves to an empty inventory with `loadError` set.
+   *
+   * Only groundable rows are loaded (`verified` + policy-approved `extended`,
+   * active lifecycle, SQL-bounded) — `imported` / `failed` rows are never
+   * held in agent memory.
    */
   async loadAtlasContext(opts?: { refresh?: boolean }): Promise<{
     readonly state: AtlasFacetState | null;
     readonly theorems: ReadonlyArray<AtlasTheoremRef>;
     readonly inventory: TheoremInventory;
+    readonly loadError: string | null;
   }> {
     if (this.atlasContext && !opts?.refresh) return this.atlasContext;
     const facet = this.getFacet();
-    const [theorems, state] = await Promise.all([
+    const [load, state] = await Promise.all([
       loadFacetTheorems(this.env, facet),
       loadFacetState(this.env, facet),
     ]);
-    const inventory = summarizeInventory(facet, theorems);
-    this.atlasContext = { state, theorems, inventory };
+    const inventory: TheoremInventory = {
+      ...summarizeInventory(facet, load.rows),
+      load_error: load.error,
+    };
+    this.atlasContext = { state, theorems: load.rows, inventory, loadError: load.error };
     return this.atlasContext;
   }
 
@@ -175,25 +193,34 @@ export abstract class GlimThinkAgent extends Think<Env> {
   }
 
   /**
+   * The inventory-load error from the last loadAtlasContext() run, or null
+   * when the read succeeded (or context has not been loaded yet). Use this to
+   * distinguish "inventory read failed" from "inventory is genuinely empty".
+   */
+  getAtlasLoadError(): string | null {
+    return this.atlasContext?.loadError ?? null;
+  }
+
+  /**
    * Build the `formal_basis[]` array for a facet-to-facet RPC payload (§8.4):
    * compact theorem references (+ optional helper) drawn from this facet's
    * loaded inventory. Loads context on demand if not already cached.
    *
+   * Only groundable theorems are attached — `verified` rows and
+   * registry-approved `extended` rows. `failed` / `imported` rows never
+   * ground an agent, even if they somehow reached the loaded inventory.
+   *
    * Pass `theoremNames` to scope the basis to the theorems actually relied on
    * for a given dispatch (recommended — keeps payloads minimal); omit to attach
-   * the whole facet inventory. `helpers` maps a theorem name to its grounding
-   * note.
+   * the whole groundable facet inventory. `helpers` maps a theorem name to its
+   * grounding note.
    */
   async buildFormalBasis(opts?: {
     theoremNames?: ReadonlyArray<string>;
     helpers?: Readonly<Record<string, string>>;
   }): Promise<FormalBasis[]> {
     const { theorems } = await this.loadAtlasContext();
-    const wanted = opts?.theoremNames ? new Set(opts.theoremNames) : null;
-    const helpers = opts?.helpers ?? {};
-    return theorems
-      .filter((t) => (wanted ? wanted.has(t.theorem_name) : true))
-      .map((t) => toFormalBasis(t, helpers[t.theorem_name]));
+    return groundableFormalBasis(theorems, opts);
   }
 
   /**

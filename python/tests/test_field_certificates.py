@@ -11,6 +11,7 @@ shipping dangling provenance.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -18,6 +19,7 @@ import pytest
 from lupine_distill.odf.field_certificates import (
     GAP_COORDINATIONS,
     THEOREM_REFS,
+    certificates_from_binding_report,
     check_anchor_admissibility,
     check_barrier_conservatism,
     check_bracket_separation,
@@ -432,8 +434,9 @@ def test_merge_enriches_without_mutation():
     certs = _sample_certificates()
     enriched = merge_into_candidate_metadata(metadata, certs)
     assert "atlas_theorem_refs" not in metadata  # input untouched
-    assert set(theorem_refs(certs)).issubset(set(enriched["atlas_theorem_refs"]))
-    assert len(enriched["formal_properties"]) == 3
+    assert enriched["atlas_theorem_refs"] == [certs[1].theorem_ref]
+    assert len(enriched["formal_properties"]) == 1
+    assert len(enriched["certificate_evidence"]) == 3
 
 
 def test_certificates_flow_through_promotion_gate():
@@ -453,12 +456,43 @@ def test_certificates_flow_through_promotion_gate():
     assert gated.formal_fields_present
 
 
-def test_refusal_witness_lands_in_formal_properties():
+def test_refusal_witness_is_evidence_but_does_not_authorize_promotion():
     enriched = merge_into_candidate_metadata(
-        {"model_id": "m", "distill_version": 0},
+        {
+            "model_id": "m",
+            "distill_version": 0,
+            "overall_uplift_pct": 7.5,
+        },
         [check_field_domain([8, 8, 3, 8])],
     )
-    assert any("atom 2 (c=3)" in p for p in enriched["formal_properties"])
+    assert enriched["atlas_theorem_refs"] == []
+    assert enriched["formal_properties"] == []
+    assert any(
+        "atom 2 (c=3)" in item["reason"]
+        for item in enriched["certificate_evidence"]
+    )
+    assert evaluate_promotion(enriched).decision.value == "review"
+
+
+def test_binding_report_digest_is_recomputed_when_sources_are_available(tmp_path):
+    report_path = _REPO_ROOT / "data" / "y_matrix_runs" / "env_field_binding_report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    runs_dir = tmp_path / "y_matrix_runs"
+    targets_dir = tmp_path / "y_matrix_targets"
+    runs_dir.mkdir()
+    targets_dir.mkdir()
+    for cell in report["cells"]:
+        name = f"{cell['material']}_{cell['structure']}_{cell['model_id']}.json"
+        (runs_dir / name).write_bytes((report_path.parent / name).read_bytes())
+    for name in ("surface_energies.json", "vacancy_formation.json", "beyond_metals.json"):
+        source = _REPO_ROOT / "data" / "y_matrix_targets" / name
+        (targets_dir / name).write_bytes(source.read_bytes())
+    report["corpus_sha256_12"] = "000000000000"
+
+    with pytest.raises(ValueError, match="digest mismatch"):
+        certificates_from_binding_report(
+            report, report_path=runs_dir / "env_field_binding_report.json"
+        )
 
 
 # ── Barrier conservatism: mirrors softened_barrier_underestimates ─────────

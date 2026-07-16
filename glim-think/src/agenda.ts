@@ -8,13 +8,69 @@ interface SeedOptions {
   summary?: string;
 }
 
+/**
+ * A completion edge declared by a task template: when a task from this
+ * template is seeded, an edge is written into `task_edges` pointing at the
+ * sibling task (same element + horizon) from template `toDomain`. Edge kinds
+ * are free-form (`formalizes`, `blocks`, …) — the lean-formalization lane
+ * uses `formalizes` to record that the proof task discharges the generic
+ * verification gate.
+ */
+interface AgendaEdgeSpec {
+  toDomain: string;
+  kind: string;
+}
+
 interface AgendaTaskTemplate {
   domain: string;
   specialty: string;
   title: (element: string, horizon: string) => string;
   payload: (element: string, horizon: string) => Record<string, unknown>;
   resources: string[];
+  edges?: (element: string, horizon: string) => AgendaEdgeSpec[];
 }
+
+export function agendaTaskId(domain: string, element: string, horizon: string): string {
+  return ["agenda", domain, element.toLowerCase(), horizon].join(":");
+}
+
+/**
+ * The theorem/module identity behind each lean-formalization gate, mirrored
+ * from config/atlas_theorem_registry.v1.json. Agenda tasks for the
+ * lean-formalization domain carry these so the task is anchored to a concrete
+ * theorem + module + owning facet — not a generic "prepare Lean" reminder.
+ */
+export const LEAN_GATE_THEOREM_TARGETS: ReadonlyArray<{
+  readonly gate: string;
+  readonly theorem: string;
+  readonly module: string;
+  readonly facet: string;
+}> = [
+  {
+    gate: "low_pr_compression",
+    theorem: "OpenDistillationFactory.Materials.Theory.HyperRibbon.hyper_ribbon_bound_4d",
+    module: "OpenDistillationFactory.Materials.Theory.HyperRibbon",
+    facet: "manifold",
+  },
+  {
+    gate: "insufficient_rank_guard",
+    theorem: "OpenDistillationFactory.Materials.Theory.affineScatter_participationRatio_le_parameterBound",
+    module: "OpenDistillationFactory.Materials.Theory.ParameterBound",
+    facet: "theorist",
+  },
+  {
+    gate: "trace_required",
+    theorem: "OpenDistillationFactory.Materials.Computation.allPredictionsHaveTraces_empty",
+    module: "OpenDistillationFactory.Materials.Computation.LammpsTrace",
+    facet: "experiment",
+  },
+  {
+    gate: "causal_claim_status",
+    theorem: "OpenDistillationFactory.Materials.Analysis.Causal.simpsonsDetectedEmpirical",
+    module: "OpenDistillationFactory.Materials.Analysis.Causal",
+    facet: "causal",
+  },
+];
 
 const ELEMENTS = ["Al", "Cu", "Ni", "Ag", "Au", "Pt", "Pd", "Pb", "Fe", "Cr", "Mo", "W", "V", "Nb", "Ta"];
 const HORIZONS = [
@@ -131,9 +187,16 @@ const TASK_TEMPLATES: AgendaTaskTemplate[] = [
     payload: (element, horizon) => ({
       element,
       horizon,
-      gates: ["low_pr_compression", "insufficient_rank_guard", "trace_required", "causal_claim_status"],
+      gates: LEAN_GATE_THEOREM_TARGETS.map((target) => target.gate),
+      // Theorem/module identity anchoring each gate to a concrete Lean
+      // theorem, its module, and its owning facet (registry-mirrored).
+      theorem_targets: LEAN_GATE_THEOREM_TARGETS,
+      // Completion edge: a proof task from this template discharges the
+      // generic verification gate for the same element + horizon.
+      completion_edge: { kind: "formalizes", to_domain: "verification" },
     }),
     resources: ["lean-proof", "artifact-storage"],
+    edges: () => [{ toDomain: "verification", kind: "formalizes" }],
   },
   {
     domain: "broadcast",
@@ -266,6 +329,13 @@ export async function bootstrapAgenda(env: Env, opts: SeedOptions = {}) {
             insertedResources += resourceResult.meta.changes;
           }
         }
+
+        // Completion edges are idempotent (PK on from/to/kind) so they are
+        // written regardless of whether the task row was freshly inserted —
+        // a re-seed must repair edges for tasks that already existed.
+        for (const edge of template.edges?.(element, horizon.key) ?? []) {
+          await addTaskEdge(env, taskId, agendaTaskId(edge.toDomain, element, horizon.key), edge.kind);
+        }
       }
     }
   }
@@ -284,6 +354,20 @@ export async function bootstrapAgenda(env: Env, opts: SeedOptions = {}) {
   ).run();
 
   return { cycleId, insertedTasks, insertedResources, targetTaskCount };
+}
+
+/**
+ * Write a completion/dependency edge between two agenda tasks. Idempotent via
+ * the (from, to, kind) primary key — safe to call on every re-seed or on
+ * every proof promotion.
+ */
+export async function addTaskEdge(env: Env, fromTaskId: string, toTaskId: string, edgeKind: string) {
+  await ensureAgendaSchema(env);
+  await env.LEDGER.prepare(`
+    INSERT OR IGNORE INTO task_edges (from_task_id, to_task_id, edge_kind)
+    VALUES (?1, ?2, ?3)
+  `).bind(fromTaskId, toTaskId, edgeKind).run();
+  return { from_task_id: fromTaskId, to_task_id: toTaskId, edge_kind: edgeKind };
 }
 
 export async function agendaStatus(env: Env) {

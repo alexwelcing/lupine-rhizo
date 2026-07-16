@@ -112,10 +112,17 @@ engine-test:
 live-build:
     npm --prefix glim-think run lint:fast
 
-# Initialize the local glim-think D1 ledger used by wrangler dev
-think-d1-init:
-    cd glim-think && npx wrangler d1 execute LEDGER --local --file schema.sql
-    cd glim-think && npx wrangler d1 migrations apply LEDGER --local
+# Initialize or upgrade the local glim-think D1 ledger through migration history.
+# schema.bootstrap.sql is the immutable pre-0001 base; never replace it with the
+# latest-state schema.sql. persist_to is used by isolated contract tests.
+think-d1-init persist_to='':
+    cd glim-think && npx wrangler d1 execute LEDGER --local {{ if persist_to == "" { "" } else { "--persist-to \"" + persist_to + "\"" } }} --file schema.bootstrap.sql
+    cd glim-think && npx wrangler d1 migrations apply LEDGER --local {{ if persist_to == "" { "" } else { "--persist-to \"" + persist_to + "\"" } }}
+
+# Create a fresh ledger directly at the latest schema without migration history.
+# This is a schema-only alternative; do not run historical migrations afterward.
+think-d1-schema-init persist_to='':
+    cd glim-think && npx wrangler d1 execute LEDGER --local {{ if persist_to == "" { "" } else { "--persist-to \"" + persist_to + "\"" } }} --file schema.sql
 
 # Run the glim-think Worker locally from the root checkout.
 # DEV_MODE only applies to this local command and bypasses Access for write-route smoke tests.

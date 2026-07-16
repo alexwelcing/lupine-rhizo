@@ -14,6 +14,11 @@ import { trace, SpanStatusCode } from "@opentelemetry/api";
 import type { Claim } from "../types";
 import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
 import { cleanRecordSqlPredicate } from "../research/recordValidation";
+import {
+  canonicalRecurringClaimId,
+  latestEvidenceRecordTimestamp,
+  upsertRecurringClaim,
+} from "../research/recurringClaims";
 
 export class Manifold extends GlimThinkAgent {
   getSystemPrompt(): string {
@@ -329,11 +334,11 @@ Be quantitative. Cite specific numbers.`;
     // (ΔH_f, stacking-fault energy, B0′) must stay in the matrix.
     const CLEAN = cleanRecordSqlPredicate();
     const sql = family === "all"
-      ? `SELECT record_id, potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
-      : `SELECT record_id, potential_label, property, reference, predicted, pair_style FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;
+      ? `SELECT record_id, potential_label, property, reference, predicted, pair_style, timestamp FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
+      : `SELECT record_id, potential_label, property, reference, predicted, pair_style, timestamp FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;
     const records = family === "all"
-      ? await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string }>(sql, opts.element)
-      : await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string }>(sql, opts.element, family);
+      ? await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string; timestamp: string | null }>(sql, opts.element)
+      : await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string; timestamp: string | null }>(sql, opts.element, family);
 
     const potentials = [...new Set(records.map(r => r.potential_label))];
     const properties = [...new Set(records.map(r => r.property))];
@@ -380,7 +385,8 @@ Be quantitative. Cite specific numbers.`;
     const hyperRibbon = pr < 2.0;
 
     // Persist DO-local + emit claim to env.LEDGER.
-    const claimId = `manifold_${opts.element}_${family}_${Date.now()}`;
+    const dimensions = { element: opts.element, family };
+    const claimId = canonicalRecurringClaimId("ManifoldAnalysis", dimensions);
     const claimData = {
       element: opts.element,
       family,
@@ -401,17 +407,19 @@ Be quantitative. Cite specific numbers.`;
     const now = new Date().toISOString();
 
     try {
-      await this.env.LEDGER
-        .prepare(
-          `INSERT INTO claims
-            (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-          VALUES (?1, 'agent_alpha_manifold', 'ManifoldAnalysis', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
-          ON CONFLICT(claim_id) DO NOTHING`,
-        )
-        .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), hyperRibbon ? 0.85 : 0.6, description, now)
-        .run();
+      await upsertRecurringClaim(this.env.LEDGER, {
+        agentId: "agent_alpha_manifold",
+        claimType: "ManifoldAnalysis",
+        dimensions,
+        claimData,
+        evidenceIds,
+        confidence: hyperRibbon ? 0.85 : 0.6,
+        description,
+        evidenceRecordTimestamp: latestEvidenceRecordTimestamp(records.map((record) => record.timestamp)),
+        recomputedAt: now,
+      });
     } catch (e) {
-      console.error("Manifold.runAnalysis: claim insert failed:", e);
+      console.error("Manifold.runAnalysis: current claim upsert failed:", e);
     }
 
     await this.sql`

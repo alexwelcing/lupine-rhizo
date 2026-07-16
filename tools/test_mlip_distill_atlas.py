@@ -1,9 +1,9 @@
-"""Seed-SQL integrity tests for tools/mlip_distill_atlas.py.
+"""Theorem observation integrity tests for tools/mlip_distill_atlas.py.
 
 The atlas_theorems seed feeds glim-think/src/atlas/theorems.ts, which projects
-`status` into agents' FormalBasis. A theorem row may say 'verified' ONLY if its
-generated Lean module actually compiled — anything else lets never-checked
-claims enter the live system as machine-checked.
+`status` into agents' FormalBasis. A local generated module may be recorded as
+`imported`, but promotion to `verified` requires the separate immutable build
+manifest consumed by tools/atlas_theorem_sync.py.
 
 D1 schema (glim-think/migrations/0010_atlas_theorems.sql) accepts:
     status IN ('imported','verified','extended','failed')
@@ -16,11 +16,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import mlip_distill_atlas as atlas
 import pytest
 
-import mlip_distill_atlas as atlas
-
 _D1_STATUS_VOCAB = {"imported", "verified", "extended", "failed"}
+_REAL_REPO = Path(__file__).resolve().parents[1]
 
 
 def _write_cell(root: Path, variant: str, row: str, mlip: str, error: float) -> None:
@@ -35,7 +35,9 @@ def _write_cell(root: Path, variant: str, row: str, mlip: str, error: float) -> 
     (d / "cell_result.json").write_text(json.dumps(payload), encoding="utf-8")
 
 
-def _make_material(root: Path, name: str, *, base_err: float = 0.010, dist_err: float = 0.005) -> str:
+def _make_material(
+    root: Path, name: str, *, base_err: float = 0.010, dist_err: float = 0.005
+) -> str:
     """One improving (baseline -> distill_accuracy) pairing => one theorem."""
     mat_root = root / name.lower()
     _write_cell(mat_root, "baseline", "energy_volume", "mace", base_err)
@@ -50,17 +52,31 @@ def atlas_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(atlas, "LEAN_OUT", tmp_path / "lean_out")
     monkeypatch.setattr(atlas, "LEAN_SPEC", tmp_path / "lean_spec")
     monkeypatch.setattr(atlas, "SEED", tmp_path / "seed.sql")
+    monkeypatch.setattr(atlas, "EXTENSION", tmp_path / "extension.json")
     monkeypatch.setattr(atlas, "REPORT", tmp_path / "report.md")
     return tmp_path
 
 
-def _seed_lines(tmp_path: Path) -> list[str]:
-    text = (tmp_path / "seed.sql").read_text(encoding="utf-8")
-    return [ln for ln in text.splitlines() if ln.strip()]
+def _seed_rows(tmp_path: Path) -> list[dict[str, object]]:
+    import sqlite3
+
+    db = sqlite3.connect(":memory:")
+    db.row_factory = sqlite3.Row
+    db.execute("PRAGMA foreign_keys = ON")
+    db.executescript((_REAL_REPO / "glim-think" / "schema.sql").read_text(encoding="utf-8"))
+    db.executescript((tmp_path / "seed.sql").read_text(encoding="utf-8"))
+    return [
+        dict(row)
+        for row in db.execute(
+            "SELECT theorem_name, module, revision, proof_revision, atlas_revision, "
+            "mathlib_revision, statement_hash, source_hash, build_manifest_hash, status "
+            "FROM atlas_theorems ORDER BY theorem_name"
+        )
+    ]
 
 
 @pytest.mark.unit
-def test_all_modules_verified_marks_verified_and_exits_zero(
+def test_all_modules_compile_as_imported_and_exit_zero(
     atlas_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(atlas, "_verify_lean_module", lambda lean_file: True)
@@ -72,11 +88,11 @@ def test_all_modules_verified_marks_verified_and_exits_zero(
     rc = atlas.main(args)
 
     assert rc == 0
-    lines = _seed_lines(atlas_env)
-    assert len(lines) == 2  # one theorem per material
-    for ln in lines:
-        assert "'verified'" in ln
-        assert "'failed'" not in ln
+    rows = _seed_rows(atlas_env)
+    assert len(rows) == 2  # one theorem per material
+    assert {row["status"] for row in rows} == {"imported"}
+    assert all(row["proof_revision"] is None for row in rows)
+    assert all(row["build_manifest_hash"] is None for row in rows)
 
 
 @pytest.mark.unit
@@ -95,13 +111,12 @@ def test_failed_module_theorems_marked_failed_and_exit_nonzero(
     rc = atlas.main(args)
 
     assert rc != 0
-    lines = _seed_lines(atlas_env)
-    assert len(lines) == 2
-    (mat_a_line,) = [ln for ln in lines if "Lupine.DistillAtlas.MatA" in ln]
-    (mat_b_line,) = [ln for ln in lines if "Lupine.DistillAtlas.MatB" in ln]
-    assert "'verified'" in mat_a_line
-    assert "'failed'" in mat_b_line
-    assert "'verified'" not in mat_b_line
+    rows = _seed_rows(atlas_env)
+    assert len(rows) == 2
+    (mat_a,) = [row for row in rows if "Lupine.DistillAtlas.MatA" in row["theorem_name"]]
+    (mat_b,) = [row for row in rows if "Lupine.DistillAtlas.MatB" in row["theorem_name"]]
+    assert mat_a["status"] == "imported"
+    assert mat_b["status"] == "failed"
 
 
 @pytest.mark.unit
@@ -118,18 +133,16 @@ def test_lean_missing_marks_nothing_verified_and_exits_nonzero(
     rc = atlas.main(args)
 
     assert rc != 0
-    lines = _seed_lines(atlas_env)
-    assert lines, "seed must still be written so the failure is inspectable"
-    for ln in lines:
-        assert "'verified'" not in ln
-        assert "'failed'" in ln
+    rows = _seed_rows(atlas_env)
+    assert rows, "seed must still be written so the failure is inspectable"
+    assert {row["status"] for row in rows} == {"failed"}
 
 
 @pytest.mark.unit
 def test_seed_format_and_status_vocabulary(
     atlas_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # Mixed outcome: keep the upsert format identical, statuses in D1 vocab.
+    # Mixed outcome: shared full-column upserts and statuses in D1 vocabulary.
     monkeypatch.setattr(
         atlas, "_verify_lean_module", lambda lean_file: "MatA" in Path(lean_file).name
     )
@@ -140,16 +153,17 @@ def test_seed_format_and_status_vocabulary(
 
     atlas.main(args)
 
-    for ln in _seed_lines(atlas_env):
-        assert ln.startswith(
-            "INSERT OR IGNORE INTO atlas_theorems "
-            "(facet, theorem_name, module, revision, status, used_in_hypotheses) "
-            "VALUES ('experiment', "
-        )
-        assert ln.endswith(", 1);")
-        assert f"'{atlas.ATLAS_REV}'" in ln
-        status = ln.rsplit("', '", 1)[-1].split("'", 1)[0]
-        assert status in _D1_STATUS_VOCAB
+    sql = (atlas_env / "seed.sql").read_text(encoding="utf-8")
+    assert "INSERT OR IGNORE" not in sql
+    assert "ON CONFLICT(facet, theorem_name, module, revision) DO UPDATE" in sql
+    assert "proof_repository, proof_revision" in sql
+    assert "statement_hash, source_hash" in sql
+    rows = _seed_rows(atlas_env)
+    assert {row["status"] for row in rows} == {"imported", "failed"}
+    assert all(row["status"] in _D1_STATUS_VOCAB for row in rows)
+    assert all(row["revision"] == "uncommitted-generated-evidence" for row in rows)
+    assert all(row["atlas_revision"] == atlas.ATLAS_REV for row in rows)
+    assert all(row["statement_hash"] and row["source_hash"] for row in rows)
 
 
 @pytest.mark.unit

@@ -1,6 +1,7 @@
 import { mlipWorkflowAdapter } from "./mlipWorkflow";
 import { mlipBaselineWorkflowAdapter } from "./mlipBaselineWorkflow";
 import { mlipDiscoveryWorkflowAdapter } from "./mlipDiscoveryWorkflow";
+import { leanProofPromotionAdapter } from "./leanProofWorkflow";
 import type {
   ResearchWorkflowAdapter,
   ResearchWorkflowDescriptor,
@@ -10,6 +11,7 @@ const adapters: ResearchWorkflowAdapter[] = [
   mlipBaselineWorkflowAdapter,
   mlipDiscoveryWorkflowAdapter,
   mlipWorkflowAdapter,
+  leanProofPromotionAdapter,
 ];
 
 const adapterById = new Map(adapters.map((adapter) => [adapter.workflow_id, adapter]));

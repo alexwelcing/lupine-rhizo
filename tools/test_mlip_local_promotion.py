@@ -10,6 +10,7 @@ regeneration that changes the counts breaks here as well as in `lake build`.
 
 from __future__ import annotations
 
+import json
 import pathlib
 
 import mlip_local_promotion as promo
@@ -59,9 +60,20 @@ def test_unknown_model_yields_no_entries():
     assert env_field["entries"] == []
 
 
-def test_missing_report_returns_none():
+def test_missing_expected_report_fails_closed():
     missing = pathlib.Path("/nonexistent/env_field_binding_report.json")
-    assert promo.load_field_certificates(missing, ["chgnet"]) is None
+    with pytest.raises(FileNotFoundError, match="binding report not found"):
+        promo.load_field_certificates(missing, ["chgnet"])
+
+
+def test_malformed_expected_report_fails_closed(tmp_path):
+    report = json.loads(REPORT.read_text(encoding="utf-8"))
+    report["schema"] = "lupine.env_field_binding_report.v999"
+    malformed = tmp_path / "env_field_binding_report.json"
+    malformed.write_text(json.dumps(report), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsupported binding report schema"):
+        promo.load_field_certificates(malformed, ["chgnet"])
 
 
 def test_packet_block_rolls_up_tiers_and_refs():
@@ -73,6 +85,11 @@ def test_packet_block_rolls_up_tiers_and_refs():
     # Cr/Fe/Mo/W (bcc), and Si (diamond): 11 directional-tier cells.
     assert block["n_error_field"] == 11
     assert any(ref.endswith("mkAnchoredFieldBcc") for ref in block["theorem_refs"])
+    pt = next(cell for cell in block["cells"] if cell["material"] == "Pt")
+    assert pt["theorem_ref"] == (
+        "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances."
+        "field_refused_chgnet_Pt"
+    )
     cell = block["cells"][0]
     assert {"material", "model_id", "structure", "lean_name", "tier",
             "anchors_scaled", "theorem_ref", "reason"} <= set(cell)
@@ -99,3 +116,24 @@ def test_certificates_satisfy_odf_formal_gate():
     gated = evaluate_promotion(enriched)
     assert gated.decision.value == "promote"
     assert gated.formal_fields_present
+
+
+def test_refusal_certificate_alone_does_not_satisfy_odf_gate():
+    env_field = promo.load_field_certificates(REPORT, ["chgnet"])
+    refused = next(
+        entry
+        for entry in env_field["entries"]
+        if entry["certificate"].tier == "measured_field"
+    )
+    from lupine_distill.odf.field_certificates import merge_into_candidate_metadata
+
+    metadata = merge_into_candidate_metadata(
+        {
+            "model_id": "chgnet-distill-v3",
+            "distill_version": 3,
+            "overall_uplift_pct": 7.5,
+        },
+        [refused["certificate"]],
+    )
+
+    assert evaluate_promotion(metadata).decision.value == "review"

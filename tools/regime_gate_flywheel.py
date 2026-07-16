@@ -30,6 +30,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+from atlas_theorem_sync import build_ad_hoc_rows, render_ad_hoc_sql, write_extension_manifest
+
 _HERE = Path(__file__).resolve()
 _REPO = _HERE.parents[1]
 # The gate library lives in the python/ Distill package root; make it importable.
@@ -47,7 +49,7 @@ LEAN_OUT = _REPO / "lean-spec" / "OpenDistillationFactory" / "Materials" / "Regi
 LEAN_SPEC = _REPO / "lean-spec"
 REPORT = _REPO / "docs" / "regime_gate_dominance.md"
 SEED = _REPO / "tmp" / "mlip-evidence" / "regime_gate_theorems_seed.sql"
-ATLAS_REV = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
+EXTENSION = SEED.with_suffix(".json")
 
 # The v1 ribbon's DECLARED design envelope. Reference family + the rows it
 # demonstrably corrects (per the atlas: distill helped energy_volume and
@@ -163,23 +165,33 @@ def main(argv: list[str]) -> int:
     print(f"[{'OK' if verified else '!!'}] lean {lf.relative_to(_REPO)} "
           f"({len(thms)} lines, dominance {'PROVED' if verified else 'NOT proved'})")
 
-    # 4) seed for glim-think.
-    SEED.parent.mkdir(parents=True, exist_ok=True)
-    SEED.write_text(
-        "\n".join(
-            f"INSERT OR IGNORE INTO atlas_theorems (facet, theorem_name, module, revision, status, used_in_hypotheses) "
-            f"VALUES ('experiment', '{ns}.{n}', '{ns}', '{ATLAS_REV}', "
-            f"'{'verified' if verified else 'pending'}', 1);"
-            for n in (
-                "gate_admits_less_harm",
-                "gate_preserves_every_win",
-                "gate_no_missed_harm",
-                "gate_no_false_refusal",
-                "gated_policy_dominates_ungated",
-            )
-        ) + "\n",
-        encoding="utf-8",
+    # 4) uncommitted observations + generic extension request for glim-think.
+    theorem_names = (
+        "gate_admits_less_harm",
+        "gate_preserves_every_win",
+        "gate_no_missed_harm",
+        "gate_no_false_refusal",
+        "gated_policy_dominates_ungated",
     )
+    module = "OpenDistillationFactory.Materials.RegimeGate.Dominance"
+    theorem_inputs = [
+        {
+            "facet": "experiment",
+            "theorem_name": f"{ns}.{name}",
+            "module": module,
+            "statement": next(line for line in thms if line.startswith(f"theorem {name}")),
+            "used_in_hypotheses": 1,
+        }
+        for name in theorem_names
+    ]
+    theorem_rows = build_ad_hoc_rows(
+        theorem_inputs,
+        module_sources={module: src},
+        module_results={module: verified},
+    )
+    SEED.parent.mkdir(parents=True, exist_ok=True)
+    SEED.write_text(render_ad_hoc_sql(theorem_rows), encoding="utf-8")
+    write_extension_manifest(EXTENSION, theorem_rows)
 
     # 5) the before/after report.
     def _line(c: ScoredCell) -> str:

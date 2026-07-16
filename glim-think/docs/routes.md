@@ -34,6 +34,8 @@ The single source of truth lives at `src/openapi.ts` and is served live at
 | GET | `/research/causal-geometry` | research | deployed | Snapshot of the active research agenda + ledger stats |
 | GET | `/feed` | feed | deployed | Real-time swarm activity stream |
 | OPTIONS | `/feed` | feed | deployed | CORS preflight |
+| GET | `/claims` | claims | deployed | Full claim history, including preserved legacy recurring rows |
+| GET | `/claims/current` | claims | deployed | Canonical current state for recurring claim keys |
 | GET | `/openapi.json` | spec | deployed | This OpenAPI spec |
 | POST | `/agents/{class}/{name}` | analysis | deployed | Think agent chat (auto-routed via @cloudflare/think) |
 | GET | `/hypotheses` | hypotheses | planned-unit-1 | List hypotheses |
@@ -61,6 +63,7 @@ The single source of truth lives at `src/openapi.ts` and is served live at
 - **ops** — Deployment observability
 - **research** — Live research-state snapshot
 - **feed** — Real-time swarm activity stream
+- **claims** — Full claim history and canonical recurring current state
 - **spec** — Self-describing API spec
 - **hypotheses** — Persisted hypothesis tracker (planned, unit 1)
 - **critiques** — Peer-review critique queue (planned, unit 2)

@@ -10,13 +10,18 @@ pinned to the same corpus the Lean `#guard` locks verify.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from types import SimpleNamespace
 
+import lupine_distill_runtime.policy_engine as policy_engine_module
 import pytest
 from lupine_distill_runtime.policy_engine import (
+    AutoPolicyEngine,
     CertificateGate,
     CertificateGatedPolicyEngine,
     PythonPolicyEngine,
+    RustPolicyEngine,
     build_policy_engine,
 )
 from lupine_distill_runtime.session import DistillSession
@@ -59,8 +64,19 @@ def test_gate_indexes_repo_refusals():
     )
 
 
-def test_gate_missing_report_is_disabled():
-    assert CertificateGate.load("/nonexistent/report.json") is None
+def test_gate_missing_expected_report_fails_closed():
+    with pytest.raises(FileNotFoundError, match="binding report not found"):
+        CertificateGate.load("/nonexistent/report.json")
+
+
+def test_gate_malformed_expected_cell_fails_closed(tmp_path):
+    report = json.loads(REPORT.read_text(encoding="utf-8"))
+    report["cells"][0]["anchors"][0]["p_scaled"] = "not-an-integer"
+    malformed = tmp_path / "env_field_binding_report.json"
+    malformed.write_text(json.dumps(report), encoding="utf-8")
+
+    with pytest.raises(ValueError, match=r"cells\[0\].*p_scaled"):
+        CertificateGate.load(malformed)
 
 
 def test_refused_cell_is_excluded_from_correction():
@@ -75,7 +91,10 @@ def test_refused_cell_is_excluded_from_correction():
     assert decision.corrected_prediction["energy_ev_per_atom"] == -6.0
     skip = [a for a in decision.actions if a.get("action") == "skip_correction"]
     assert len(skip) == 1
-    assert skip[0]["theorem_ref"].endswith("AnchoredField.mkMeasuredField")
+    assert skip[0]["theorem_ref"] == (
+        "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances."
+        "field_refused_chgnet_Pt"
+    )
     assert skip[0]["lean_name"] == "chgnet_Pt"
     assert decision.theorem_hooks["env_field_certificate"]["structure"] == "fcc"
     # the prediction itself is NOT refused; only its correction is skipped
@@ -105,7 +124,7 @@ def test_single_species_symbols_match_bcc_refusal():
     skip = [a for a in decision.actions if a.get("action") == "skip_correction"]
     assert len(skip) == 1
     assert skip[0]["structure"] == "bcc"
-    assert skip[0]["theorem_ref"].endswith("AnchoredField.mkMeasuredFieldBcc")
+    assert skip[0]["theorem_ref"].endswith("field_refused_chgnet_Ta")
 
 
 def test_decide_many_preserves_order_with_mixed_batch():
@@ -204,6 +223,51 @@ def test_in_domain_coordination_allows_correction():
     )
     assert decision.corrected_prediction["energy_ev_per_atom"] == pytest.approx(-4.9)
     assert not any(a.get("kind") == "field_domain" for a in decision.actions)
+
+
+def test_rust_and_auto_engines_apply_the_same_domain_gate(monkeypatch, tmp_path):
+    atlas_bin = tmp_path / "atlas-distill"
+    atlas_bin.write_text("test double", encoding="utf-8")
+
+    def fake_run(argv, **_kwargs):
+        request_path = Path(argv[argv.index("--request") + 1])
+        request = json.loads(request_path.read_text(encoding="utf-8"))
+        assert request["support"] is None
+        return SimpleNamespace(
+            returncode=0,
+            stderr="",
+            stdout=json.dumps(
+                {
+                    "corrected_prediction": request["prediction"],
+                    "actions": [{"action": "accept", "reason": "runtime_guards_passed"}],
+                    "decision": "accept",
+                    "refused": False,
+                }
+            ),
+        )
+
+    monkeypatch.setattr(policy_engine_module.subprocess, "run", fake_run)
+    engines = [
+        RustPolicyEngine(atlas_distill_bin=atlas_bin),
+        AutoPolicyEngine(profile="accuracy", atlas_distill_bin=atlas_bin),
+    ]
+    for engine in engines:
+        decision = engine.decide(
+            row_id="energy_volume",
+            mlip_id="chgnet",
+            prediction={
+                "material_id": "Ni-fcc",
+                "energy_ev_per_atom": -5.0,
+                "first_shell_coordinations": [8, 3, 8],
+            },
+            support_model=_BiasSupportModel(),
+        )
+        assert decision.corrected_prediction["energy_ev_per_atom"] == -5.0
+        domain = [a for a in decision.actions if a.get("kind") == "field_domain"]
+        assert len(domain) == 1
+        assert domain[0]["theorem_ref"].endswith(
+            "FieldDomain.refusal_has_witness"
+        )
 
 
 def test_session_summary_carries_gate_provenance():

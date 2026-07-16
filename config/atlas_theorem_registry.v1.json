@@ -1,0 +1,291 @@
+{
+  "schema": "lupine.atlas-theorem-registry.v1",
+  "schema_version": 1,
+  "managed_facets": [
+    "causal",
+    "experiment",
+    "manifold",
+    "theorist"
+  ],
+  "authority": {
+    "proof_repository": "lupine-science/open-distillation-factory",
+    "proof_revision": "8c0ccf7b31ad54d6beb3363698750d9a081cb796",
+    "lean_version": "4.29.0",
+    "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
+    "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
+    "vision_legacy_count": 284,
+    "vision_universal_correction_count": 164,
+    "vision_epistemic_gap_count": 5
+  },
+  "extension_policy": {
+    "facets": [
+      "experiment"
+    ],
+    "module_prefixes": [
+      "OpenDistillationFactory.Materials.DistillAtlas.",
+      "OpenDistillationFactory.Materials.RegimeGate."
+    ]
+  },
+  "theorems": [
+    {
+      "facet": "causal",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Causal.simpsonsDetectedEmpirical",
+      "module": "OpenDistillationFactory.Materials.Analysis.Causal"
+    },
+    {
+      "facet": "causal",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Causal.ecologicalFallacyEmpirical",
+      "module": "OpenDistillationFactory.Materials.Analysis.Causal"
+    },
+    {
+      "facet": "causal",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Causal.empiricalPointsNonEmpty",
+      "module": "OpenDistillationFactory.Materials.Analysis.Causal"
+    },
+    {
+      "facet": "causal",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Causal.empiricalReversalMagnitudeAbove01",
+      "module": "OpenDistillationFactory.Materials.Analysis.Causal"
+    },
+    {
+      "facet": "manifold",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Manifold.fccEamPRBounded",
+      "module": "OpenDistillationFactory.Materials.Analysis.Manifold"
+    },
+    {
+      "facet": "manifold",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Manifold.fccAllPRBounded",
+      "module": "OpenDistillationFactory.Materials.Analysis.Manifold"
+    },
+    {
+      "facet": "manifold",
+      "theorem_name": "OpenDistillationFactory.Materials.Analysis.Manifold.paperClaimHolds",
+      "module": "OpenDistillationFactory.Materials.Analysis.Manifold"
+    },
+    {
+      "facet": "manifold",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.HyperRibbon.PRfin_scale_invariant",
+      "module": "OpenDistillationFactory.Materials.Theory.HyperRibbon"
+    },
+    {
+      "facet": "manifold",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.HyperRibbon.hyper_ribbon_bound_4d",
+      "module": "OpenDistillationFactory.Materials.Theory.HyperRibbon"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Computation.allPredictionsHaveTraces_empty",
+      "module": "OpenDistillationFactory.Materials.Computation.LammpsTrace"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Computation.allPredictionsHaveTraces_nil_traces",
+      "module": "OpenDistillationFactory.Materials.Computation.LammpsTrace"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Computation.syntheticEntryNeedsNoTrace",
+      "module": "OpenDistillationFactory.Materials.Computation.LammpsTrace"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.actualExperimentIsNotNistBacked",
+      "module": "OpenDistillationFactory.Materials.Validation.Experiment"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.actualExperimentUsesSyntheticData",
+      "module": "OpenDistillationFactory.Materials.Validation.Experiment"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.actualExperimentNotPreRegistered",
+      "module": "OpenDistillationFactory.Materials.Validation.Experiment"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AccuracyCommitment.mace_mp0_ni_energy_beats_baseline",
+      "module": "OpenDistillationFactory.Materials.Theory.AccuracyCommitment"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AccuracyCommitment.mace_mp0_ni_energy_reduction_is_material",
+      "module": "OpenDistillationFactory.Materials.Theory.AccuracyCommitment"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.exact_gate_admits",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.exact_gate_refuses",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.exact_gate_is_indeterminate",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.indeterminate_correction_is_blocked",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.robust_ranking_true_scores",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.distributed_reordering_stable",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates.distributed_gate_results_fail_closed",
+      "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.runtime_contract_admits",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.runtime_contract_refuses_scope_mismatch",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.runtime_contract_indeterminate_width",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.runtime_contract_is_fail_closed",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.sampled_list_reports_counterexample",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.scheduled_validation_covers_intermediate_step",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "experiment",
+      "theorem_name": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates.normed_observable_is_enclosed",
+      "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.parameter_bound_of_linearized_certificate",
+      "module": "OpenDistillationFactory.Materials.Theory.ParameterBound"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.parameter_bound_of_spectral_jacobian_certificate",
+      "module": "OpenDistillationFactory.Materials.Theory.ParameterBound"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.affineScatter_rank_le_jacobian",
+      "module": "OpenDistillationFactory.Materials.Theory.ParameterBound"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.affineScatter_participationRatio_le_parameterBound",
+      "module": "OpenDistillationFactory.Materials.Theory.ParameterBound"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AffineDecomposition.AffineFamily.decomposition",
+      "module": "OpenDistillationFactory.Materials.Theory.AffineDecomposition"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AffineDecomposition.AffineFamily.residual_difference_in_direction",
+      "module": "OpenDistillationFactory.Materials.Theory.AffineDecomposition"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AnchorBracket.certified_order_iff_endpoint_margins_fcc",
+      "module": "OpenDistillationFactory.Materials.Theory.AnchorBracket"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AnchorBracket.certified_reference_order_of_endpoint_margins_fcc",
+      "module": "OpenDistillationFactory.Materials.Theory.AnchorBracket"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AnchorBracket.certified_order_iff_endpoint_margins_bcc",
+      "module": "OpenDistillationFactory.Materials.Theory.AnchorBracket"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.AnchorBracket.certified_reference_order_of_endpoint_margins_bcc",
+      "module": "OpenDistillationFactory.Materials.Theory.AnchorBracket"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality.exact_tubular_universality_pointCore",
+      "module": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality.boundary_diffeomorphic_unitNormalBundle",
+      "module": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality.boundary_pairwise_diffeomorphic_general",
+      "module": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality.exact_tubular_universality_of_A0ToA5",
+      "module": "OpenDistillationFactory.Materials.Theory.ExactTubularUniversality"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.checkRuntimeContract_admit_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.checkRuntimeContract_incompatible_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.checkRuntimeContract_inconsistent_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.checkRuntimeContract_unsupportedSchema_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.checkRuntimeContract_unsupportedRounding_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.checkRuntimeContract_widthTooLarge_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.correctionAllowed_checkRuntimeContract_iff",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    }
+  ]
+}

@@ -45,11 +45,26 @@ declaration in the Lean sources.
 
 from __future__ import annotations
 
+import hashlib
+import pathlib
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
 _THEORY = "OpenDistillationFactory.Materials.Theory"
+_BINDING_REPORT_SCHEMA = "lupine.env_field_binding_report.v2"
+_BINDING_LEAN_MODULE = (
+    "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean"
+)
+_BINDING_NAMESPACE = (
+    "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances"
+)
+_BINDING_TARGET_FILES = (
+    "surface_energies.json",
+    "vacancy_formation.json",
+    "beyond_metals.json",
+)
 
 #: Fully-qualified Lean names for every certificate this module can issue.
 THEOREM_REFS: dict[str, str] = {
@@ -775,58 +790,242 @@ def resolve_binder_model_id(mlip_id: str) -> str:
     return RUNTIME_MLIP_ALIASES.get(mlip_id, mlip_id)
 
 
+def _binding_source_digest(
+    report: Mapping[str, Any], report_path: pathlib.Path | None
+) -> str | None:
+    """Recompute the binder's corpus digest when its source files are adjacent."""
+    if report_path is None:
+        return None
+    runs_dir = report_path.parent
+    targets_dir = runs_dir.parent / "y_matrix_targets"
+    run_paths = [
+        runs_dir
+        / f"{cell['material']}_{cell['structure']}_{cell['model_id']}.json"
+        for cell in report["cells"]
+    ]
+    target_paths = [targets_dir / name for name in _BINDING_TARGET_FILES]
+    if not all(path.is_file() for path in run_paths + target_paths):
+        return None
+    adjacent_sources = {
+        path
+        for structure in report["structures"]
+        for path in runs_dir.glob(f"*_{structure}_*.json")
+        if not path.name.endswith(".evidence.json") and path != report_path
+    }
+    if adjacent_sources != set(run_paths):
+        # v2 does not carry a source manifest. Extra source runs may have been
+        # hashed even when binding failed, so the exact digest is unknowable.
+        return None
+    sha = hashlib.sha256()
+    for path in sorted(run_paths) + sorted(target_paths):
+        sha.update(path.name.encode())
+        sha.update(path.read_bytes())
+    return sha.hexdigest()[:12]
+
+
+def _report_integer(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _lean_name(value: str) -> str:
+    return "".join(char if char.isalnum() else "_" for char in value).strip("_")
+
+
 def certificates_from_binding_report(
     report: Mapping[str, Any],
     model_ids: Iterable[str] | None = None,
+    *,
+    report_path: str | pathlib.Path | None = None,
 ) -> list[dict[str, Any]]:
     """Re-check every bound cell of an env-field binding report
     (``lupine.env_field_binding_report.v2``, emitted by
     ``python/scripts/bind_env_field_instances.py``) through the Lean-mirror
     admissibility predicate.
 
-    Returns one entry per cell — ``material``, ``model_id``, ``structure``,
-    ``lean_name``, and the :class:`AnchorCertificate` — optionally filtered to
-    the given model ids (runtime backend ids are resolved through
-    :data:`RUNTIME_MLIP_ALIASES` before matching). Cells with unknown
-    structures or malformed anchors are skipped rather than guessed at.
-    Shared by the promotion packet builder (``tools/mlip_local_promotion.py``)
-    and the run-time certificate gate
-    (``lupine_distill_runtime.policy_engine``)."""
+    The complete v2 report is validated before model filtering. Malformed cells
+    are errors, never silently omitted. When ``report_path`` sits next to the
+    source Y-matrix corpus, the binder's declared digest is recomputed too.
+    """
+    if not isinstance(report, Mapping):
+        raise ValueError("binding report must be a JSON object")
+    schema = report.get("schema")
+    if schema != _BINDING_REPORT_SCHEMA:
+        raise ValueError(
+            f"unsupported binding report schema {schema!r}; "
+            f"expected {_BINDING_REPORT_SCHEMA!r}"
+        )
+    if report.get("generator") != "python/scripts/bind_env_field_instances.py":
+        raise ValueError("binding report has an unexpected generator")
+    lean_module = report.get("lean_module")
+    # The binder may legitimately write the Lean module outside the repo
+    # (``--lean-out`` to a scratch dir records an absolute path). Fail closed
+    # on a *different module*, not on a different output location: accept the
+    # canonical repo-relative path or any path whose final component is the
+    # EnvFieldInstances module file. The theorem namespace used below is
+    # derived per-cell from ``lean_name``, independent of this provenance.
+    normalized_module = lean_module.replace("\\", "/") if isinstance(lean_module, str) else ""
+    if not (
+        normalized_module == _BINDING_LEAN_MODULE
+        or normalized_module == "EnvFieldInstances.lean"
+        or normalized_module.endswith("/EnvFieldInstances.lean")
+    ):
+        raise ValueError("binding report has an unexpected lean_module")
+    if report.get("scale") != 10000:
+        raise ValueError("binding report scale must be 10000")
+    digest = report.get("corpus_sha256_12")
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{12}", digest) is None:
+        raise ValueError("binding report corpus_sha256_12 must be 12 lowercase hex digits")
+    cells = report.get("cells")
+    if not isinstance(cells, list):
+        raise ValueError("binding report cells must be a list")
+
     wanted = (
         {resolve_binder_model_id(str(m)) for m in model_ids}
         if model_ids is not None
         else None
     )
     entries: list[dict[str, Any]] = []
-    for cell in report.get("cells", []):
+    seen: set[tuple[str, str, str]] = set()
+    instance_count = 0
+    structure_counts = {
+        structure: {"cells": 0, "instances": 0, "refusals": 0}
+        for structure in ANCHOR_COORDINATIONS
+    }
+    for index, cell in enumerate(cells):
         if not isinstance(cell, Mapping):
-            continue
+            raise ValueError(f"binding report cells[{index}] must be an object")
+        material = cell.get("material")
         model_id = cell.get("model_id")
-        if wanted is not None and model_id not in wanted:
-            continue
-        structure = str(cell.get("structure", "fcc"))
+        structure = cell.get("structure")
+        lean_name = cell.get("lean_name")
+        for field_name, value in (
+            ("material", material),
+            ("model_id", model_id),
+            ("structure", structure),
+            ("lean_name", lean_name),
+        ):
+            if not isinstance(value, str) or not value:
+                raise ValueError(
+                    f"binding report cells[{index}].{field_name} must be a non-empty string"
+                )
+        for field_name, value in (("material", material), ("model_id", model_id)):
+            if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._+-]*", value) is None:
+                raise ValueError(
+                    f"binding report cells[{index}].{field_name} contains unsafe characters"
+                )
         expected = ANCHOR_COORDINATIONS.get(structure)
         if expected is None:
-            continue
-        anchors = [
-            anchor.get("p_scaled")
-            for anchor in cell.get("anchors", [])
-            if isinstance(anchor, Mapping)
-        ]
-        if len(anchors) != len(expected) or not all(
-            isinstance(a, int) for a in anchors
+            raise ValueError(
+                f"binding report cells[{index}].structure is unsupported: {structure!r}"
+            )
+        expected_lean_name = f"{_lean_name(model_id)}_{_lean_name(material)}"
+        if lean_name != expected_lean_name:
+            raise ValueError(
+                f"binding report cells[{index}].lean_name is {lean_name!r}; "
+                f"expected {expected_lean_name!r}"
+            )
+        key = (model_id, material, structure)
+        if key in seen:
+            raise ValueError(f"binding report contains duplicate cell {key!r}")
+        seen.add(key)
+        cell_anchors = cell.get("anchors")
+        if not isinstance(cell_anchors, list) or len(cell_anchors) != len(expected):
+            raise ValueError(
+                f"binding report cells[{index}].anchors must contain "
+                f"{len(expected)} entries"
+            )
+        anchors: list[int] = []
+        for anchor_index, (anchor, coordination) in enumerate(
+            zip(cell_anchors, expected, strict=True)
         ):
+            if not isinstance(anchor, Mapping):
+                raise ValueError(
+                    f"binding report cells[{index}].anchors[{anchor_index}] must be an object"
+                )
+            if anchor.get("coordination") != coordination:
+                raise ValueError(
+                    f"binding report cells[{index}].anchors[{anchor_index}].coordination "
+                    f"must be {coordination}"
+                )
+            p_scaled = anchor.get("p_scaled")
+            if not _report_integer(p_scaled):
+                raise ValueError(
+                    f"binding report cells[{index}].anchors[{anchor_index}].p_scaled "
+                    "must be an integer"
+                )
+            anchors.append(p_scaled)
+        certificate = check_anchor_admissibility(*anchors, structure=structure)
+        valid = cell.get("valid")
+        violations = cell.get("violations")
+        if not isinstance(valid, bool):
+            raise ValueError(f"binding report cells[{index}].valid must be a boolean")
+        if not isinstance(violations, list) or not all(
+            isinstance(item, str) for item in violations
+        ):
+            raise ValueError(f"binding report cells[{index}].violations must be strings")
+        certificate_valid = certificate.tier == "error_field"
+        if valid != certificate_valid or tuple(violations) != certificate.violations:
+            raise ValueError(
+                f"binding report cells[{index}] declared outcome does not match anchors"
+            )
+        structure_counts[structure]["cells"] += 1
+        structure_counts[structure]["instances" if valid else "refusals"] += 1
+        instance_count += int(valid)
+        if wanted is not None and model_id not in wanted:
             continue
+        outcome_theorem_ref = (
+            certificate.theorem_ref
+            if valid
+            else f"{_BINDING_NAMESPACE}.field_refused_{lean_name}"
+        )
         entries.append(
             {
-                "material": cell.get("material"),
+                "material": material,
                 "model_id": model_id,
                 "structure": structure,
-                "lean_name": cell.get("lean_name"),
-                "certificate": check_anchor_admissibility(
-                    *anchors, structure=structure
-                ),
+                "lean_name": lean_name,
+                "outcome_theorem_ref": outcome_theorem_ref,
+                "certificate": certificate,
             }
+        )
+
+    expected_counts = {
+        "n_cells": len(cells),
+        "n_instances": instance_count,
+        "n_refusals": len(cells) - instance_count,
+    }
+    for field_name, expected_count in expected_counts.items():
+        value = report.get(field_name)
+        if not _report_integer(value) or value != expected_count:
+            raise ValueError(
+                f"binding report {field_name} is {value!r}; expected {expected_count}"
+            )
+    structures = report.get("structures")
+    if not isinstance(structures, Mapping):
+        raise ValueError("binding report structures must be an object")
+    if set(structures) != set(ANCHOR_COORDINATIONS):
+        raise ValueError(
+            "binding report structures must exactly match the supported layouts"
+        )
+    for structure, counts in structure_counts.items():
+        summary = structures.get(structure)
+        if not isinstance(summary, Mapping):
+            raise ValueError(f"binding report structures.{structure} must be an object")
+        for report_field, count_key in (
+            ("n_cells", "cells"),
+            ("n_instances", "instances"),
+            ("n_refusals", "refusals"),
+        ):
+            if summary.get(report_field) != counts[count_key]:
+                raise ValueError(
+                    f"binding report structures.{structure}.{report_field} mismatch"
+                )
+    source_digest = _binding_source_digest(
+        report, pathlib.Path(report_path) if report_path is not None else None
+    )
+    if source_digest is not None and source_digest != digest:
+        raise ValueError(
+            f"binding report digest mismatch: declared {digest}, recomputed {source_digest}"
         )
     return entries
 
@@ -844,23 +1043,36 @@ def merge_into_candidate_metadata(
 ) -> dict[str, Any]:
     """Enrich promotion-candidate metadata with certificate provenance.
 
-    Appends each certificate's Lean theorem reference to
-    ``atlas_theorem_refs`` and its structured outcome to
-    ``formal_properties`` (both deduplicated, order preserved), so
-    :func:`lupine_distill.odf.promotion_gate.evaluate_promotion` sees the
-    formal contract and the gate's telemetry carries the witnesses. The input
-    mapping is not mutated."""
+    Every outcome is retained in ``certificate_evidence`` for telemetry, but
+    only affirmative outcomes populate the promotion-authorizing formal
+    fields. Refusals and indeterminate/non-applicable results therefore cannot
+    satisfy the formal gate merely by existing. The input is not mutated."""
     enriched = dict(metadata)
     refs = list(enriched.get("atlas_theorem_refs", []) or [])
     props = list(enriched.get("formal_properties", []) or [])
+    evidence = list(enriched.get("certificate_evidence", []) or [])
     for cert in certificates:
+        payload = cert.to_dict()
+        authorizes = (
+            payload.get("admitted") is True
+            or payload.get("tier") == "error_field"
+            or payload.get("monotone_rescuable") is True
+            or payload.get("conservative") is True
+            or payload.get("certified") is True
+        )
+        evidence_item = {**payload, "authorizes_promotion": authorizes}
+        if evidence_item not in evidence:
+            evidence.append(evidence_item)
+        if not authorizes:
+            continue
         if cert.theorem_ref not in refs:
             refs.append(cert.theorem_ref)
-        stamp = f"{cert.to_dict()['kind']}: {cert.reason}"
+        stamp = f"{payload['kind']}: {cert.reason}"
         if stamp not in props:
             props.append(stamp)
     enriched["atlas_theorem_refs"] = refs
     enriched["formal_properties"] = props
+    enriched["certificate_evidence"] = evidence
     return enriched
 
 
