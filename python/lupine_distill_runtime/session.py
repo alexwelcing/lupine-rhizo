@@ -753,8 +753,8 @@ class DistillSession:
     ribbon_version: str = "hyperribbon-v1"
     policy_limits_path: str | None = None
     #: Env-field binding report backing the Lean certificate gate: "auto"
-    #: uses the repo report when present, an explicit path loads that report,
-    #: None disables the gate.
+    #: requires the validated repo report, an explicit path requires that
+    #: report, and None disables the gate.
     env_field_report_path: str | None = "auto"
     event_log: RuntimeEventLog = field(default_factory=RuntimeEventLog)
     support_model: DistillSupportModel | None = None

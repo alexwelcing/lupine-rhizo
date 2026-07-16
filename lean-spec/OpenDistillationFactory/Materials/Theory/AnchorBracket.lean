@@ -466,6 +466,85 @@ theorem certified_order_iff_fcc {p8 p9 p11 : ℝ}
     · nlinarith [mul_le_mul_of_nonpos_left hug hk]
     · nlinarith [mul_nonneg hk hu0]
 
+/-- **The executable two-envelope criterion, fcc.** The universal corrected
+order is equivalent to two inequalities over the measured step correction:
+the deep-envelope order itself, and the shallow-envelope order obtained by
+subtracting each candidate's own c = 10 population times the anchor width.
+
+Unlike the one-sided separation rule below, this criterion is exact. In
+particular, equal gap populations cancel rather than charging candidate B for
+an uncertainty that candidate A shares. -/
+theorem certified_order_iff_endpoint_margins_fcc {p8 p9 p11 : ℝ}
+    (h89 : p8 ≤ p9) (h911 : p9 ≤ p11) (h110 : p11 ≤ 0)
+    {cfgA cfgB : Config} (hA : InRangeFcc cfgA) (hB : InRangeFcc cfgB)
+    (eA eB : ℝ) :
+    (∀ F : ErrorField 12, InterpolatesFcc F p8 p9 p11 →
+        F.corrected eA cfgA < F.corrected eB cfgB) ↔
+      ((mkMeasuredField p8 p9 p11).corrected eA cfgA <
+          (mkMeasuredField p8 p9 p11).corrected eB cfgB ∧
+        (mkMeasuredField p8 p9 p11).corrected eA cfgA
+            - (cfgA.count 10 : ℝ) * (p11 - p9) <
+          (mkMeasuredField p8 p9 p11).corrected eB cfgB
+            - (cfgB.count 10 : ℝ) * (p11 - p9)) := by
+  have hdeepA :
+      (mkAnchoredField p8 p9 p11 h89 h911 h110).corrected eA cfgA =
+        (mkMeasuredField p8 p9 p11).corrected eA cfgA := by
+    unfold ErrorField.corrected MeasuredField.corrected
+    rw [mkAnchoredField_fieldSum_eq]
+  have hdeepB :
+      (mkAnchoredField p8 p9 p11 h89 h911 h110).corrected eB cfgB =
+        (mkMeasuredField p8 p9 p11).corrected eB cfgB := by
+    unfold ErrorField.corrected MeasuredField.corrected
+    rw [mkAnchoredField_fieldSum_eq]
+  have hredA := interpolant_fieldSum_reduction_fcc
+    (mkAnchoredFieldSup_interpolates p8 p9 p11 h89 h911 h110) hA
+  have hredB := interpolant_fieldSum_reduction_fcc
+    (mkAnchoredFieldSup_interpolates p8 p9 p11 h89 h911 h110) hB
+  rw [mkAnchoredFieldSup_at_gap p8 p9 p11 h89 h911 h110] at hredA hredB
+  have hshallowA :
+      (mkAnchoredFieldSup p8 p9 p11 h89 h911 h110).corrected eA cfgA =
+        (mkMeasuredField p8 p9 p11).corrected eA cfgA
+          - (cfgA.count 10 : ℝ) * (p11 - p9) := by
+    unfold ErrorField.corrected MeasuredField.corrected
+    rw [hredA]
+    ring
+  have hshallowB :
+      (mkAnchoredFieldSup p8 p9 p11 h89 h911 h110).corrected eB cfgB =
+        (mkMeasuredField p8 p9 p11).corrected eB cfgB
+          - (cfgB.count 10 : ℝ) * (p11 - p9) := by
+    unfold ErrorField.corrected MeasuredField.corrected
+    rw [hredB]
+    ring
+  rw [certified_order_iff_fcc h89 h911 h110 hA hB]
+  rw [hdeepA, hdeepB, hshallowA, hshallowB]
+
+/-- If both exact endpoint margins pass and the two model errors are exactly
+decomposed by one consistent field, the reference energies have the same
+strict order. This corollary keeps the empirical field-decomposition
+hypotheses explicit rather than attributing reference truth to the endpoint
+test alone. -/
+theorem certified_reference_order_of_endpoint_margins_fcc
+    {F : ErrorField 12} {p8 p9 p11 : ℝ}
+    (h89 : p8 ≤ p9) (h911 : p9 ≤ p11) (h110 : p11 ≤ 0)
+    (hF : InterpolatesFcc F p8 p9 p11)
+    {cfgA cfgB : Config} (hA : InRangeFcc cfgA) (hB : InRangeFcc cfgB)
+    {eA eB refA refB : ℝ}
+    (hDecompA : eA = refA + F.fieldSum cfgA)
+    (hDecompB : eB = refB + F.fieldSum cfgB)
+    (hdeep : (mkMeasuredField p8 p9 p11).corrected eA cfgA <
+      (mkMeasuredField p8 p9 p11).corrected eB cfgB)
+    (hshallow : (mkMeasuredField p8 p9 p11).corrected eA cfgA
+        - (cfgA.count 10 : ℝ) * (p11 - p9) <
+      (mkMeasuredField p8 p9 p11).corrected eB cfgB
+        - (cfgB.count 10 : ℝ) * (p11 - p9)) :
+    refA < refB := by
+  have hall := (certified_order_iff_endpoint_margins_fcc
+    h89 h911 h110 hA hB eA eB).2 ⟨hdeep, hshallow⟩
+  have horder := hall F hF
+  rw [F.corrected_exact eA refA cfgA hDecompA,
+    F.corrected_exact eB refB cfgB hDecompB] at horder
+  exact horder
+
 /-- **Interval separation certifies order.** If candidate A's certified
 upper bound (its corrected value) sits strictly below candidate B's
 certified lower bound (its corrected value minus B's gap budget), then
@@ -890,6 +969,74 @@ theorem certified_order_iff_bcc {p4 p6 p7 : ℝ}
     rcases le_total ((cfgA.count 5 : ℝ) - (cfgB.count 5 : ℝ)) 0 with hk | hk
     · nlinarith [mul_le_mul_of_nonpos_left hug hk]
     · nlinarith [mul_nonneg hk hu0]
+
+/-- **The executable two-envelope criterion, bcc.** The bcc universal
+corrected order is equivalent to strict order at the measured deep envelope
+and at the shallow envelope formed by subtracting each candidate's own c = 5
+population times `p6 - p4`. -/
+theorem certified_order_iff_endpoint_margins_bcc {p4 p6 p7 : ℝ}
+    (h46 : p4 ≤ p6) (h67 : p6 ≤ p7) (h70 : p7 ≤ 0)
+    {cfgA cfgB : Config} (hA : InRangeBcc cfgA) (hB : InRangeBcc cfgB)
+    (eA eB : ℝ) :
+    (∀ F : ErrorField 8, InterpolatesBcc F p4 p6 p7 →
+        F.corrected eA cfgA < F.corrected eB cfgB) ↔
+      ((mkMeasuredFieldBcc p4 p6 p7).corrected eA cfgA <
+          (mkMeasuredFieldBcc p4 p6 p7).corrected eB cfgB ∧
+        (mkMeasuredFieldBcc p4 p6 p7).corrected eA cfgA
+            - (cfgA.count 5 : ℝ) * (p6 - p4) <
+          (mkMeasuredFieldBcc p4 p6 p7).corrected eB cfgB
+            - (cfgB.count 5 : ℝ) * (p6 - p4)) := by
+  have hdeepA :
+      (mkAnchoredFieldBcc p4 p6 p7 h46 h67 h70).corrected eA cfgA =
+        (mkMeasuredFieldBcc p4 p6 p7).corrected eA cfgA := rfl
+  have hdeepB :
+      (mkAnchoredFieldBcc p4 p6 p7 h46 h67 h70).corrected eB cfgB =
+        (mkMeasuredFieldBcc p4 p6 p7).corrected eB cfgB := rfl
+  have hredA := interpolant_fieldSum_reduction_bcc
+    (mkAnchoredFieldBccSup_interpolates p4 p6 p7 h46 h67 h70) hA
+  have hredB := interpolant_fieldSum_reduction_bcc
+    (mkAnchoredFieldBccSup_interpolates p4 p6 p7 h46 h67 h70) hB
+  rw [mkAnchoredFieldBccSup_at_gap p4 p6 p7 h46 h67 h70] at hredA hredB
+  have hshallowA :
+      (mkAnchoredFieldBccSup p4 p6 p7 h46 h67 h70).corrected eA cfgA =
+        (mkMeasuredFieldBcc p4 p6 p7).corrected eA cfgA
+          - (cfgA.count 5 : ℝ) * (p6 - p4) := by
+    unfold ErrorField.corrected MeasuredField.corrected
+    rw [hredA]
+    ring
+  have hshallowB :
+      (mkAnchoredFieldBccSup p4 p6 p7 h46 h67 h70).corrected eB cfgB =
+        (mkMeasuredFieldBcc p4 p6 p7).corrected eB cfgB
+          - (cfgB.count 5 : ℝ) * (p6 - p4) := by
+    unfold ErrorField.corrected MeasuredField.corrected
+    rw [hredB]
+    ring
+  rw [certified_order_iff_bcc h46 h67 h70 hA hB]
+  rw [hdeepA, hdeepB, hshallowA, hshallowB]
+
+/-- The reference-order closure of the exact bcc endpoint criterion under
+explicit exact field-decomposition hypotheses. -/
+theorem certified_reference_order_of_endpoint_margins_bcc
+    {F : ErrorField 8} {p4 p6 p7 : ℝ}
+    (h46 : p4 ≤ p6) (h67 : p6 ≤ p7) (h70 : p7 ≤ 0)
+    (hF : InterpolatesBcc F p4 p6 p7)
+    {cfgA cfgB : Config} (hA : InRangeBcc cfgA) (hB : InRangeBcc cfgB)
+    {eA eB refA refB : ℝ}
+    (hDecompA : eA = refA + F.fieldSum cfgA)
+    (hDecompB : eB = refB + F.fieldSum cfgB)
+    (hdeep : (mkMeasuredFieldBcc p4 p6 p7).corrected eA cfgA <
+      (mkMeasuredFieldBcc p4 p6 p7).corrected eB cfgB)
+    (hshallow : (mkMeasuredFieldBcc p4 p6 p7).corrected eA cfgA
+        - (cfgA.count 5 : ℝ) * (p6 - p4) <
+      (mkMeasuredFieldBcc p4 p6 p7).corrected eB cfgB
+        - (cfgB.count 5 : ℝ) * (p6 - p4)) :
+    refA < refB := by
+  have hall := (certified_order_iff_endpoint_margins_bcc
+    h46 h67 h70 hA hB eA eB).2 ⟨hdeep, hshallow⟩
+  have horder := hall F hF
+  rw [F.corrected_exact eA refA cfgA hDecompA,
+    F.corrected_exact eB refB cfgB hDecompB] at horder
+  exact horder
 
 /-- **Interval separation certifies order, bcc.** The bcc mirror of
 `certified_order_of_separation_fcc`: if A's corrected value sits strictly

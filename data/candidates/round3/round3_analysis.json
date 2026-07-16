@@ -1,14 +1,19 @@
 {
   "schema": "lupine.round3_analysis.v1",
-  "generated_at": "2026-07-13T17:07:41.984979+00:00",
+  "generated_at": "2026-07-13T19:10:32.477859+00:00",
   "report": "data/candidates/round3/report.json",
   "preregistration": "docs/plans/2026-07-13-round3-preregistration.md",
   "frozen_rule": "For a held-out candidate X, model m, property p, class C: (1) calibration set = other class-C members with a non-null reference (never X), require >= 2 members else ABSTAIN; (2) ratios_i = pred_i / ref_i over calibration members; (3) direction gate: apply only if ALL ratios are strictly on one side of 1, else ABSTAIN; (4) magnitude cap: b = median(ratios), s = max(ratios) - min(ratios), ABSTAIN unless |b - 1| > s; (5) corrected = pred / b; else corrected = pred (abstention, risk-free).",
   "alpha": 0.1,
   "min_calibration_members": 2,
   "exclusions": {
-    "file": null,
-    "entries": []
+    "file": "C:/Users/alexw/AppData/Local/Temp/claude/C--Users-alexw-Downloads-shed/5ab8403c-c87a-473e-84b9-03c507dcddf0/scratchpad/round3_exclusions.json",
+    "entries": [
+      {
+        "candidate": "pv-cspbbr3",
+        "property": "c12"
+      }
+    ]
   },
   "groups": {
     "ionics-rocksalt-oos": {
@@ -246,20 +251,20 @@
           "verdict": "NO-CHANGE"
         },
         "c12": {
-          "n_materials": 4,
-          "n_cells": 16,
+          "n_materials": 3,
+          "n_cells": 12,
           "n_applied": 0,
-          "n_abstained": 16,
+          "n_abstained": 12,
           "abstain_reasons": {
             "insufficient_calibration": 0,
-            "direction": 10,
-            "magnitude_cap": 6
+            "direction": 8,
+            "magnitude_cap": 4
           },
           "unit": "GPa",
-          "median_abs_rel_err_raw": 0.28454840945566284,
-          "median_abs_rel_err_corrected": 0.28454840945566284,
-          "median_abs_err_raw": 3.1948299705317993,
-          "median_abs_err_corrected": 3.1948299705317993,
+          "median_abs_rel_err_raw": 0.17526161443140204,
+          "median_abs_rel_err_corrected": 0.17526161443140204,
+          "median_abs_err_raw": 5.031717785603422,
+          "median_abs_err_corrected": 5.031717785603422,
           "sign_test": {
             "n_applied": 0,
             "n_improved": 0,
@@ -2448,82 +2453,6 @@
       "corrected_abs_rel_err": 0.1881168237996459,
       "raw_abs_err": 10.398157435525427,
       "corrected_abs_err": 10.398157435525427
-    },
-    {
-      "group": "perovskite-oos",
-      "candidate": "pv-cspbbr3",
-      "model": "chgnet",
-      "prop": "c12",
-      "unit": "GPa",
-      "reference": 6.217,
-      "raw": 13.20164512642621,
-      "corrected": 13.20164512642621,
-      "applied": false,
-      "abstain_reason": "direction",
-      "b": 0.6332101983816881,
-      "s": 0.4633876394762878,
-      "n_calibration": 3,
-      "raw_abs_rel_err": 1.1234751691211533,
-      "corrected_abs_rel_err": 1.1234751691211533,
-      "raw_abs_err": 6.9846451264262095,
-      "corrected_abs_err": 6.9846451264262095
-    },
-    {
-      "group": "perovskite-oos",
-      "candidate": "pv-cspbbr3",
-      "model": "mace-mp-small",
-      "prop": "c12",
-      "unit": "GPa",
-      "reference": 6.217,
-      "raw": 4.584145621284871,
-      "corrected": 4.584145621284871,
-      "applied": false,
-      "abstain_reason": "magnitude_cap",
-      "b": 0.9314962437687291,
-      "s": 0.6171856339352979,
-      "n_calibration": 3,
-      "raw_abs_rel_err": 0.2626434580529401,
-      "corrected_abs_rel_err": 0.2626434580529401,
-      "raw_abs_err": 1.6328543787151286,
-      "corrected_abs_err": 1.6328543787151286
-    },
-    {
-      "group": "perovskite-oos",
-      "candidate": "pv-cspbbr3",
-      "model": "mace-mp-medium",
-      "prop": "c12",
-      "unit": "GPa",
-      "reference": 6.217,
-      "raw": 4.336638661470857,
-      "corrected": 4.336638661470857,
-      "applied": false,
-      "abstain_reason": "direction",
-      "b": 0.921951922720638,
-      "s": 0.594938922802759,
-      "n_calibration": 3,
-      "raw_abs_rel_err": 0.3024547753786621,
-      "corrected_abs_rel_err": 0.3024547753786621,
-      "raw_abs_err": 1.8803613385291422,
-      "corrected_abs_err": 1.8803613385291422
-    },
-    {
-      "group": "perovskite-oos",
-      "candidate": "pv-cspbbr3",
-      "model": "mace-mpa-0-medium",
-      "prop": "c12",
-      "unit": "GPa",
-      "reference": 6.217,
-      "raw": 8.964261931113255,
-      "corrected": 8.964261931113255,
-      "applied": false,
-      "abstain_reason": "magnitude_cap",
-      "b": 0.7333579564673364,
-      "s": 0.33240252728402564,
-      "n_calibration": 3,
-      "raw_abs_rel_err": 0.4418951151863045,
-      "corrected_abs_rel_err": 0.4418951151863045,
-      "raw_abs_err": 2.747261931113255,
-      "corrected_abs_err": 2.747261931113255
     },
     {
       "group": "perovskite-oos",

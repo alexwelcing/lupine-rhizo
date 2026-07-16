@@ -281,6 +281,10 @@ export async function handleBeatsPost(
   }
   const beat = validated;
   const ts = beat.ts ?? Math.floor(Date.now() / 1000);
+  const observedDate = new Date(ts * 1000);
+  const observedAt = Number.isFinite(observedDate.getTime())
+    ? observedDate.toISOString()
+    : new Date().toISOString();
   const metricsJson = beat.metrics ? JSON.stringify(beat.metrics) : null;
 
   // ─── Insert ───
@@ -288,29 +292,34 @@ export async function handleBeatsPost(
     await env.LEDGER
       .prepare(
         `INSERT INTO lab_beats (beat_id, agent, summary, metrics, ts)
-           VALUES (?1, ?2, ?3, ?4, ?5)`,
+           VALUES (?1, ?2, ?3, ?4, ?5)
+         ON CONFLICT(beat_id) DO NOTHING`,
       )
       .bind(beat.beat_id, beat.agent, beat.summary, metricsJson, ts)
       .run();
   } catch (e) {
-    const msg = String(e);
-    // SQLite raises "UNIQUE constraint failed" on duplicate beat_id.
-    // Treat that as a 409 so the producer can dedupe idempotently.
-    if (msg.includes("UNIQUE constraint failed")) {
-      return jsonResponse({ error: "duplicate beat_id", beat_id: beat.beat_id }, 409);
-    }
-    return jsonResponse({ error: `d1 insert failed: ${msg}` }, 500);
+    return jsonResponse({ error: `d1 insert failed: ${String(e)}` }, 500);
   }
 
+  const projectionErrors: string[] = [];
   try {
-    await recordMlipCampaignBeat(env, beat.metrics);
+    await recordMlipCampaignBeat(env, beat.metrics, observedAt);
   } catch (e) {
     console.error("mlip campaign beat projection failed:", e);
+    projectionErrors.push(`campaign: ${String(e)}`);
   }
   try {
-    await recordMlipBaselineBeat(env, beat.metrics);
+    await recordMlipBaselineBeat(env, beat.metrics, observedAt);
   } catch (e) {
     console.error("mlip baseline beat projection failed:", e);
+    projectionErrors.push(`baseline: ${String(e)}`);
+  }
+  if (projectionErrors.length > 0) {
+    return jsonResponse({
+      error: "beat stored but MLIP projection failed; retry this beat_id",
+      beat_id: beat.beat_id,
+      details: projectionErrors,
+    }, 500);
   }
 
   return jsonResponse({ ok: true, beat_id: beat.beat_id });

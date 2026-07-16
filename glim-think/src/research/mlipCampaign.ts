@@ -783,10 +783,15 @@ export async function markMlipCampaignCellEnqueued(
 export async function recordMlipCampaignResult(
   env: Env,
   input: MlipCampaignResultInput,
+  observedAt?: string,
 ): Promise<{ updated: string }> {
   await ensureMlipCampaignSchema(env);
   const status = input.status ?? "completed";
-  await env.LEDGER.prepare(
+  const parsedObservedAt = observedAt ? Date.parse(observedAt) : NaN;
+  const stamp = Number.isFinite(parsedObservedAt)
+    ? new Date(parsedObservedAt).toISOString()
+    : new Date().toISOString();
+  const write = await env.LEDGER.prepare(
     `UPDATE mlip_campaign_cells
        SET status = ?3,
            accuracy_score = COALESCE(?4, accuracy_score),
@@ -795,7 +800,14 @@ export async function recordMlipCampaignResult(
            speed_unit = COALESCE(?7, speed_unit),
            metrics_json = COALESCE(?8, metrics_json),
            updated_at = ?9
-     WHERE campaign_id = ?1 AND cell_id = ?2`,
+     WHERE campaign_id = ?1 AND cell_id = ?2
+       AND ?9 > updated_at
+       AND (
+         status NOT IN ('completed', 'failed', 'retired')
+         OR (status = 'completed' AND ?3 = 'completed')
+         OR (status = 'failed' AND ?3 IN ('failed', 'completed'))
+         OR (status = 'retired' AND ?3 = 'retired')
+       )`,
   ).bind(
     input.campaign_id,
     input.cell_id,
@@ -805,8 +817,37 @@ export async function recordMlipCampaignResult(
     input.speed_score ?? null,
     input.speed_unit ?? null,
     input.metrics ? JSON.stringify(input.metrics) : null,
-    new Date().toISOString(),
+    stamp,
   ).run();
+  await env.LEDGER.prepare(
+    `UPDATE mlip_campaigns
+        SET status = CASE
+              WHEN NOT EXISTS (
+                SELECT 1 FROM mlip_campaign_cells
+                 WHERE campaign_id = ?1 AND status NOT IN ('completed', 'failed', 'retired')
+              ) THEN CASE
+                WHEN NOT EXISTS (
+                  SELECT 1 FROM mlip_campaign_cells WHERE campaign_id = ?1 AND status <> 'completed'
+                ) THEN 'completed'
+                WHEN NOT EXISTS (
+                  SELECT 1 FROM mlip_campaign_cells WHERE campaign_id = ?1 AND status <> 'retired'
+                ) THEN 'retired'
+                ELSE 'failed'
+              END
+              ELSE status
+            END,
+            updated_at = CASE
+              WHEN NOT EXISTS (
+                SELECT 1 FROM mlip_campaign_cells
+                 WHERE campaign_id = ?1 AND status NOT IN ('completed', 'failed', 'retired')
+              ) AND updated_at < (SELECT MAX(updated_at) FROM mlip_campaign_cells WHERE campaign_id = ?1)
+                THEN (SELECT MAX(updated_at) FROM mlip_campaign_cells WHERE campaign_id = ?1)
+              ELSE updated_at
+            END
+      WHERE campaign_id = ?1
+        AND EXISTS (SELECT 1 FROM mlip_campaign_cells WHERE campaign_id = ?1)`,
+  ).bind(input.campaign_id).run();
+  if (write.meta.changes === 0) return { updated: input.cell_id };
   await evaluateCompletedTripletForCell(env, input.campaign_id, input.cell_id, input.source ?? "manual");
   return { updated: input.cell_id };
 }
@@ -1011,6 +1052,7 @@ async function evaluateCompletedTripletForCell(
 export async function recordMlipCampaignBeat(
   env: Env,
   metrics: Record<string, unknown> | undefined,
+  observedAt?: string,
 ): Promise<void> {
   if (!metrics) return;
   const campaignId = typeof metrics.campaign_id === "string" ? metrics.campaign_id : "";
@@ -1042,5 +1084,5 @@ export async function recordMlipCampaignBeat(
     status: metrics.status === "failed" ? "failed" : metrics.status === "running" ? "running" : "completed",
     metrics,
     source: "auto",
-  });
+  }, observedAt);
 }

@@ -13,6 +13,11 @@ import type { ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
 import { corruptRecordSqlPredicate, isContaminatedRecord, RANGE_GATE_CRITERION } from "../research/recordValidation";
+import {
+  canonicalRecurringClaimId,
+  latestEvidenceRecordTimestamp,
+  upsertRecurringClaim,
+} from "../research/recurringClaims";
 
 const GROUPINGS = ["element", "pair_style", "potential_label", "structure"] as const;
 
@@ -390,15 +395,22 @@ export class Causal extends GlimThinkAgent {
           Pd: 3.891, Pb: 4.951, Fe: 2.866, Cr: 2.884, Mo: 3.147, W: 3.165,
           V: 3.024, Nb: 3.301, Ta: 3.306,
         };
-        const rows = await this.queryLedger<{
-          element: string; potential_label: string; potential_id: string;
-          pair_style: string; a0pred: number;
-        }>(
-          `SELECT DISTINCT element, potential_label, potential_id, pair_style,
-                  CAST(json_extract(provenance, '$.a0_optimized') AS REAL) as a0pred
-             FROM records
-            WHERE json_extract(provenance, '$.a0_optimized') IS NOT NULL`,
-        );
+        const [rows, evidenceTimestampRows] = await Promise.all([
+          this.queryLedger<{
+            element: string; potential_label: string; potential_id: string;
+            pair_style: string; a0pred: number;
+          }>(
+            `SELECT DISTINCT element, potential_label, potential_id, pair_style,
+                    CAST(json_extract(provenance, '$.a0_optimized') AS REAL) as a0pred
+               FROM records
+              WHERE json_extract(provenance, '$.a0_optimized') IS NOT NULL`,
+          ),
+          this.queryLedger<{ evidence_record_timestamp: string | null }>(
+            `SELECT MAX(timestamp) AS evidence_record_timestamp
+               FROM records
+              WHERE json_extract(provenance, '$.a0_optimized') IS NOT NULL`,
+          ),
+        ]);
 
         let inserted = 0, skipped = 0;
         const byElement: Record<string, number> = {};
@@ -434,7 +446,7 @@ export class Causal extends GlimThinkAgent {
           }
         }
 
-        const claimId = `multiproperty_seed_${Date.now()}`;
+        const claimId = canonicalRecurringClaimId("MultiPropertySeed");
         const claimData = {
           analysis: "multiproperty_seed", new_property: "a0",
           candidates: rows.length, inserted, skipped, by_element: byElement,
@@ -443,17 +455,18 @@ export class Causal extends GlimThinkAgent {
         const description = `Multi-property seed — recovered ${inserted} real a0 records (lattice constant) across ${Object.keys(byElement).length} elements from MLIP provenance; ${skipped} skipped. Joint error manifold now spans Cij + a0.`;
         const now = new Date().toISOString();
         try {
-          await this.env.LEDGER
-            .prepare(
-              `INSERT INTO claims
-                (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'MultiPropertySeed', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
-              ON CONFLICT(claim_id) DO NOTHING`,
-            )
-            .bind(claimId, JSON.stringify(claimData), 0.8, description, now)
-            .run();
+          await upsertRecurringClaim(this.env.LEDGER, {
+            agentId: "agent_delta_causal",
+            claimType: "MultiPropertySeed",
+            claimData,
+            evidenceIds: [],
+            confidence: 0.8,
+            description,
+            evidenceRecordTimestamp: evidenceTimestampRows[0]?.evidence_record_timestamp ?? null,
+            recomputedAt: now,
+          });
         } catch (e) {
-          console.error("Causal.runMultiPropertySeed: claim insert failed:", e);
+          console.error("Causal.runMultiPropertySeed: current claim upsert failed:", e);
         }
         span.setAttribute("causal.multiseed.inserted", inserted);
         span.setAttribute("output.value", JSON.stringify(claimData));
@@ -496,8 +509,8 @@ export class Causal extends GlimThinkAgent {
           const m = Math.floor(s.length / 2);
           return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
         };
-        const rows = await this.queryLedger<{ property: string; reference: number; predicted: number }>(
-          `SELECT property, reference, predicted FROM records`,
+        const rows = await this.queryLedger<{ property: string; reference: number; predicted: number; timestamp: string | null }>(
+          `SELECT property, reference, predicted, timestamp FROM records`,
         );
         const byProp: Record<string, { ref: number[]; pred: number[]; rel: number[] }> = {};
         for (const x of rows) {
@@ -535,22 +548,23 @@ export class Causal extends GlimThinkAgent {
             ? ` SIGN-CONVENTION RISK on [${signRisky.join(", ")}] — the blanket predicted<=0 purge term must be removed/scoped (it can delete legitimate negative values like binding energies).`
             : "");
 
-        const claimId = `corpus_audit_${Date.now()}`;
+        const claimId = canonicalRecurringClaimId("CorpusAudit");
         const claimData = { analysis: "corpus_audit", total_records: rows.length, total_scalefree_outliers: totalOutliers, sign_convention_risk_properties: signRisky, properties, verdict };
         const description = `Corpus audit — ${rows.length} records, ${properties.length} properties, ${totalOutliers} >500%-error outliers remaining. ${verdict}`;
         const now = new Date().toISOString();
         try {
-          await this.env.LEDGER
-            .prepare(
-              `INSERT INTO claims
-                (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'CorpusAudit', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
-              ON CONFLICT(claim_id) DO NOTHING`,
-            )
-            .bind(claimId, JSON.stringify(claimData), totalOutliers === 0 ? 0.9 : 0.6, description, now)
-            .run();
+          await upsertRecurringClaim(this.env.LEDGER, {
+            agentId: "agent_delta_causal",
+            claimType: "CorpusAudit",
+            claimData,
+            evidenceIds: [],
+            confidence: totalOutliers === 0 ? 0.9 : 0.6,
+            description,
+            evidenceRecordTimestamp: latestEvidenceRecordTimestamp(rows.map((row) => row.timestamp)),
+            recomputedAt: now,
+          });
         } catch (e) {
-          console.error("Causal.runCorpusAudit: claim insert failed:", e);
+          console.error("Causal.runCorpusAudit: current claim upsert failed:", e);
         }
         span.setAttribute("causal.audit.outliers", totalOutliers);
         span.setAttribute("output.value", JSON.stringify(claimData));
@@ -607,7 +621,9 @@ export class Causal extends GlimThinkAgent {
         // predicate (idempotent re-runs still delete nothing).
         const CORRUPT = corruptRecordSqlPredicate();
 
-        const before = await this.queryLedger<{ n: number }>(`SELECT COUNT(*) as n FROM records`);
+        const before = await this.queryLedger<{ n: number; evidence_record_timestamp: string | null }>(
+          `SELECT COUNT(*) as n, MAX(timestamp) AS evidence_record_timestamp FROM records`,
+        );
         const totalBefore = Number(before[0]?.n ?? 0);
 
         const corruptRows = await this.queryLedger<{
@@ -646,7 +662,7 @@ export class Causal extends GlimThinkAgent {
 
         const topSources = Object.entries(bySource).sort((a, b) => b[1] - a[1]).slice(0, 10)
           .map(([source, n]) => ({ source, count: n }));
-        const claimId = `data_purge_${Date.now()}`;
+        const claimId = canonicalRecurringClaimId("DataPurge");
         const claimData = {
           analysis: "data_purge",
           criterion: RANGE_GATE_CRITERION,
@@ -662,17 +678,18 @@ export class Causal extends GlimThinkAgent {
           `verified_clean=${verifiedClean}.`;
         const now = new Date().toISOString();
         try {
-          await this.env.LEDGER
-            .prepare(
-              `INSERT INTO claims
-                (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'DataPurge', ?2, '[]', ?3, 'proposed', ?4, ?5, ?5)
-              ON CONFLICT(claim_id) DO NOTHING`,
-            )
-            .bind(claimId, JSON.stringify(claimData), verifiedClean ? 0.95 : 0.5, description, now)
-            .run();
+          await upsertRecurringClaim(this.env.LEDGER, {
+            agentId: "agent_delta_causal",
+            claimType: "DataPurge",
+            claimData,
+            evidenceIds: [],
+            confidence: verifiedClean ? 0.95 : 0.5,
+            description,
+            evidenceRecordTimestamp: before[0]?.evidence_record_timestamp ?? null,
+            recomputedAt: now,
+          });
         } catch (e) {
-          console.error("Causal.runDataPurge: claim insert failed:", e);
+          console.error("Causal.runDataPurge: current claim upsert failed:", e);
         }
 
         span.setAttribute("causal.purge.deleted", deleted);
@@ -716,15 +733,19 @@ export class Causal extends GlimThinkAgent {
         const perProp: Array<Record<string, unknown>> = [];
         const sources: Record<string, number> = {};
         const evidenceSourceIds = new Set<string>();
+        const evidenceRecordTimestamps: Array<string | null> = [];
 
         for (const p of props) {
           const rows = await this.queryLedger<{
-            record_id: string; struct: string; reference: number; predicted: number; provenance: string; potential_label: string;
+            record_id: string; struct: string; reference: number; predicted: number; provenance: string; potential_label: string; timestamp: string | null;
           }>(
-            `SELECT record_id, ${structExpr} as struct, reference, predicted, provenance, potential_label FROM records WHERE property = '${p}'`,
+            `SELECT record_id, ${structExpr} as struct, reference, predicted, provenance, potential_label, timestamp FROM records WHERE property = '${p}'`,
           );
+          for (const row of rows) {
+            evidenceSourceIds.add(row.record_id);
+            evidenceRecordTimestamps.push(row.timestamp);
+          }
           const stat = (sel: typeof rows) => {
-            for (const row of sel) evidenceSourceIds.add(row.record_id);
             const clean = sel.filter((x) => Math.abs(x.predicted) <= BOUND);
             const cont = sel.filter((x) => Math.abs(x.predicted) > BOUND);
             for (const c of cont) {
@@ -769,7 +790,7 @@ export class Causal extends GlimThinkAgent {
 
         const topSources = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 8)
           .map(([k, v]) => ({ source: k, contaminated: v }));
-        const claimId = `causal_dataintegrity_${Date.now()}`;
+        const claimId = canonicalRecurringClaimId("DataIntegrityScreen");
         const claimData = {
           analysis: "data_integrity_remediation", bound_gpa: BOUND,
           per_property: perProp,
@@ -789,17 +810,18 @@ export class Causal extends GlimThinkAgent {
           `after quarantine |pred|>${BOUND}GPa: FCC clean r=${r4(fccCleanR)}, BCC clean r=${r4(bccCleanR)}. ${verdict}`;
         const now = new Date().toISOString();
         try {
-          await this.env.LEDGER
-            .prepare(
-              `INSERT INTO claims
-                (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'DataIntegrityScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
-              ON CONFLICT(claim_id) DO NOTHING`,
-            )
-            .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), 0.85, description, now)
-            .run();
+          await upsertRecurringClaim(this.env.LEDGER, {
+            agentId: "agent_delta_causal",
+            claimType: "DataIntegrityScreen",
+            claimData,
+            evidenceIds,
+            confidence: 0.85,
+            description,
+            evidenceRecordTimestamp: latestEvidenceRecordTimestamp(evidenceRecordTimestamps),
+            recomputedAt: now,
+          });
         } catch (e) {
-          console.error("Causal.runDataIntegrityScreen: claim insert failed:", e);
+          console.error("Causal.runDataIntegrityScreen: current claim upsert failed:", e);
         }
 
         span.setAttribute("causal.dataintegrity.fcc_contam_rate", Number(r4(fccContam) ?? 0));
@@ -841,12 +863,16 @@ export class Causal extends GlimThinkAgent {
         const props = ["C11", "C12", "C44"];
         const cells: Array<Record<string, unknown>> = [];
         const evidenceSourceIds = new Set<string>();
+        const evidenceRecordTimestamps: Array<string | null> = [];
 
         for (const p of props) {
-          const rows = await this.queryLedger<{ record_id: string; struct: string; reference: number; predicted: number }>(
-            `SELECT record_id, ${structExpr} as struct, reference, predicted FROM records WHERE property = '${p}'`,
+          const rows = await this.queryLedger<{ record_id: string; struct: string; reference: number; predicted: number; timestamp: string | null }>(
+            `SELECT record_id, ${structExpr} as struct, reference, predicted, timestamp FROM records WHERE property = '${p}'`,
           );
-          for (const row of rows) evidenceSourceIds.add(row.record_id);
+          for (const row of rows) {
+            evidenceSourceIds.add(row.record_id);
+            evidenceRecordTimestamps.push(row.timestamp);
+          }
           const byS: Record<string, { ref: number[]; pred: number[] }> = {};
           for (const x of rows) {
             (byS[x.struct] ||= { ref: [], pred: [] }).ref.push(x.reference);
@@ -891,7 +917,7 @@ export class Causal extends GlimThinkAgent {
           ? "RANGE-RESTRICTION CONFIRMED: FCC potentials are absolutely accurate (low relative error) over a narrow reference range; near-zero Pearson r is a variance-normalized-metric artifact. Aggregate correlation/RMSE leaderboards are DOUBLY misleading for close-packed metals (masked by aggregation AND by metric choice)."
           : "RANGE-RESTRICTION NOT SUPPORTED: FCC shows genuinely large relative error — potentials really do under-predict close-packed elastic constants; aggregation still masks a real differential-accuracy failure.";
 
-        const claimId = `causal_scalefree_${Date.now()}`;
+        const claimId = canonicalRecurringClaimId("ScaleFreeStructureScreen");
         const evidenceIds = compactEvidenceIds(
           [...evidenceSourceIds].map((id) => recordEvidenceId(id)),
           240,
@@ -903,17 +929,18 @@ export class Causal extends GlimThinkAgent {
           `BCC rel_MAE=${r4(bccRelMae)} (ref_std=${r4(bccStd)}). ${verdict}`;
         const now = new Date().toISOString();
         try {
-          await this.env.LEDGER
-            .prepare(
-              `INSERT INTO claims
-                (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'ScaleFreeStructureScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
-              ON CONFLICT(claim_id) DO NOTHING`,
-            )
-            .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), rangeRestricted ? 0.8 : 0.6, description, now)
-            .run();
+          await upsertRecurringClaim(this.env.LEDGER, {
+            agentId: "agent_delta_causal",
+            claimType: "ScaleFreeStructureScreen",
+            claimData,
+            evidenceIds,
+            confidence: rangeRestricted ? 0.8 : 0.6,
+            description,
+            evidenceRecordTimestamp: latestEvidenceRecordTimestamp(evidenceRecordTimestamps),
+            recomputedAt: now,
+          });
         } catch (e) {
-          console.error("Causal.runStructureScaleFreeScreen: claim insert failed:", e);
+          console.error("Causal.runStructureScaleFreeScreen: current claim upsert failed:", e);
         }
 
         span.setAttribute("causal.scalefree.range_restricted", rangeRestricted);
@@ -953,12 +980,16 @@ export class Causal extends GlimThinkAgent {
         const props = ["C11", "C12", "C44"];
         const perProperty: Array<Record<string, unknown>> = [];
         const evidenceSourceIds = new Set<string>();
+        const evidenceRecordTimestamps: Array<string | null> = [];
 
         for (const p of props) {
-          const rows = await this.queryLedger<{ record_id: string; struct: string; reference: number; predicted: number }>(
-            `SELECT record_id, ${structExpr} as struct, reference, predicted FROM records WHERE property = '${p}'`,
+          const rows = await this.queryLedger<{ record_id: string; struct: string; reference: number; predicted: number; timestamp: string | null }>(
+            `SELECT record_id, ${structExpr} as struct, reference, predicted, timestamp FROM records WHERE property = '${p}'`,
           );
-          for (const row of rows) evidenceSourceIds.add(row.record_id);
+          for (const row of rows) {
+            evidenceSourceIds.add(row.record_id);
+            evidenceRecordTimestamps.push(row.timestamp);
+          }
           if (rows.length < 4) {
             perProperty.push({ property: p, error: "insufficient", n: rows.length });
             continue;
@@ -997,7 +1028,7 @@ export class Causal extends GlimThinkAgent {
           ? "SUPPORTS C2: within-FCC predictive collapse is concentrated in the Cauchy pair (C12/C44); C11 retains skill — consistent with the EAM Cauchy-relation limitation."
           : "OPEN/REFUTES C2: within-FCC skill is not specifically localized to C12/C44 — Cauchy-relation mechanism not confirmed by this stratification.";
 
-        const claimId = `causal_structprop_${Date.now()}`;
+        const claimId = canonicalRecurringClaimId("StructurePropertyScreen");
         const evidenceIds = compactEvidenceIds(
           [...evidenceSourceIds].map((id) => recordEvidenceId(id)),
           240,
@@ -1009,17 +1040,18 @@ export class Causal extends GlimThinkAgent {
           `vs BCC r [C11=${byP.C11?.bcc_r}, C12=${byP.C12?.bcc_r}, C44=${byP.C44?.bcc_r}]. ${verdict}`;
         const now = new Date().toISOString();
         try {
-          await this.env.LEDGER
-            .prepare(
-              `INSERT INTO claims
-                (claim_id, agent_id, claim_type, claim_data, evidence_ids, confidence, status, description, created_at, timestamp)
-              VALUES (?1, 'agent_delta_causal', 'StructurePropertyScreen', ?2, ?3, ?4, 'proposed', ?5, ?6, ?6)
-              ON CONFLICT(claim_id) DO NOTHING`,
-            )
-            .bind(claimId, JSON.stringify(claimData), JSON.stringify(evidenceIds), cauchyLocalized ? 0.8 : 0.5, description, now)
-            .run();
+          await upsertRecurringClaim(this.env.LEDGER, {
+            agentId: "agent_delta_causal",
+            claimType: "StructurePropertyScreen",
+            claimData,
+            evidenceIds,
+            confidence: cauchyLocalized ? 0.8 : 0.5,
+            description,
+            evidenceRecordTimestamp: latestEvidenceRecordTimestamp(evidenceRecordTimestamps),
+            recomputedAt: now,
+          });
         } catch (e) {
-          console.error("Causal.runStructurePropertyScreen: claim insert failed:", e);
+          console.error("Causal.runStructurePropertyScreen: current claim upsert failed:", e);
         }
 
         span.setAttribute("causal.structprop.cauchy_localized", cauchyLocalized);

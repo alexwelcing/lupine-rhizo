@@ -61,6 +61,7 @@ import { handleResearchWorkflowRoute } from "./research/workflows";
 import { MLIP_PHOENIX_DATASET_NAME } from "./research/mlipPhoenix";
 import { normalizeBenchmarkRecord } from "./research/benchmarkRecords";
 import { isContaminatedRecord } from "./research/recordValidation";
+import { listRecurringCurrentClaims } from "./research/recurringClaims";
 import { MlipBaselineGridWorkflow as MlipBaselineGridWorkflowBase } from "./research/mlipBaselineCloudflareWorkflow";
 import { runOrchestratorTick } from "./research/orchestrator";
 import { handleFeedRoute } from "./feed/split";
@@ -1940,6 +1941,25 @@ ${narrative}
         return Response.json(
           { ingested: inserted, total: claims.length, errors },
           { headers: JSON_CORS_HEADERS }
+        );
+      }
+
+      if (url.pathname === "/claims/current" && request.method === "GET") {
+        const status = url.searchParams.get("status");
+        const claimType = url.searchParams.get("claim_type");
+        const agentId = url.searchParams.get("agent_id");
+        const limitRaw = parseInt(url.searchParams.get("limit") ?? "50", 10);
+        const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 500) : 50;
+        const claims = await listRecurringCurrentClaims(env.LEDGER, {
+          status,
+          claimType,
+          agentId,
+          limit,
+        });
+
+        return Response.json(
+          { claims, count: claims.length, limit, status, claim_type: claimType, agent_id: agentId },
+          { headers: JSON_CORS_HEADERS },
         );
       }
 

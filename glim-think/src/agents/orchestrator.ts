@@ -23,9 +23,17 @@ import { Experiment } from "./experiment";
 import { tool } from "ai";
 import { z } from "zod";
 import type { ToolSet } from "ai";
-import { traceAgentCycle } from "../telemetry/rpc";
-import { trace } from "@opentelemetry/api";
-import type { FormalBasis } from "../atlas/theorems";
+import { dispatchGroundedChild } from "./groundedDispatch";
+
+// Re-export so existing importers of the orchestrator module keep working;
+// the definitions live in the Worker-runtime-free leaf module so plain-node
+// tests can pin them (see groundedDispatch.ts header).
+export {
+  dispatchGroundedChild,
+  resolveChildFormalBasis,
+  formalGroundingPreamble,
+} from "./groundedDispatch";
+export type { GroundedChild } from "./groundedDispatch";
 
 export class Orchestrator extends GlimThinkAgent {
   /**
@@ -56,7 +64,7 @@ export class Orchestrator extends GlimThinkAgent {
           const prompt = instruction
             ? `Analyze the error manifold for element: ${element}. ${instruction}`
             : `Analyze the error manifold for element: ${element}. Query the ledger for all potential families, compute eigenvalue spectra, participation ratios, and check for hyper-ribbon geometry. Report your findings with numbers.`;
-          const response = await this.runChildChat(child, prompt, "manifold");
+          const response = await dispatchGroundedChild(child, prompt, "manifold");
           return { agent: "manifold", element, response };
         },
       }),
@@ -71,7 +79,7 @@ export class Orchestrator extends GlimThinkAgent {
           const prompt = instruction
             ? `Screen for aggregation bias (classify: strict reversal / ecological fallacy / suppression). ${instruction}`
             : `Screen all grouping variables (element, pair_style, potential_label) for Simpson's Paradox. For each, compute pooled and within-group correlations and report any reversals.`;
-          const response = await this.runChildChat(child, prompt, "causal");
+          const response = await dispatchGroundedChild(child, prompt, "causal");
           return { agent: "causal", response };
         },
       }),
@@ -87,7 +95,7 @@ export class Orchestrator extends GlimThinkAgent {
           const prompt = instruction
             ? `Generate competing hypotheses for: ${claimsDescription}. ${instruction}`
             : `Generate 2-3 competing, falsifiable physical hypotheses for the following observations: ${claimsDescription}. For each, specify the discriminative property and test strategy.`;
-          const response = await this.runChildChat(child, prompt, "theorist");
+          const response = await dispatchGroundedChild(child, prompt, "theorist");
           return { agent: "theorist", response };
         },
       }),
@@ -104,7 +112,7 @@ export class Orchestrator extends GlimThinkAgent {
           const prompt = instruction
             ? `Design experiments for: ${hypothesesDescription}. Max ${maxExperiments ?? 3} experiments. ${instruction}`
             : `Design and queue up to ${maxExperiments ?? 3} discriminative LAMMPS experiments to test these hypotheses: ${hypothesesDescription}. Select element-potential combinations that maximize information gain.`;
-          const response = await this.runChildChat(child, prompt, "experiment");
+          const response = await dispatchGroundedChild(child, prompt, "experiment");
           return { agent: "experiment", response };
         },
       }),
@@ -119,7 +127,7 @@ export class Orchestrator extends GlimThinkAgent {
             elements.map(async (element) => {
               try {
                 const child = await this.subAgent(Manifold, `manifold-${element}`);
-                const response = await this.runChildChat(child,
+                const response = await dispatchGroundedChild(child,
                   `Analyze the error manifold for ${element}. Report eigenvalues, participation ratio, and hyper-ribbon status.`,
                   "manifold"
                 );
@@ -189,60 +197,4 @@ export class Orchestrator extends GlimThinkAgent {
       return { orchestrator_state: 0 };
     }
   }
-
-  private async runChildChat(
-    child: { chat: (prompt: string, relay: { onEvent(json: string): void; onDone(): void; onError?(error: string): void }) => Promise<void> },
-    prompt: string,
-    agentLabel = "subagent",
-    // §8.4: facet-to-facet RPC payloads may carry a formal_basis[] — the ATLAS
-    // theorem references that ground this dispatch. Optional + additive; existing
-    // call sites pass none and are unaffected.
-    formalBasis?: ReadonlyArray<FormalBasis>,
-  ): Promise<string> {
-    // When a formal basis is attached, prepend a compact grounding preamble so
-    // the receiving facet reasons within the proven theorems, and surface the
-    // basis on the span for Phoenix.
-    const groundedPrompt =
-      formalBasis && formalBasis.length > 0
-        ? `${formalGroundingPreamble(formalBasis)}\n\n${prompt}`
-        : prompt;
-    // Wrap every sub-agent dispatch in an OpenInference AGENT span so the
-    // hypothesis-generation cycle (not just its LLM calls) is visible in Phoenix.
-    return traceAgentCycle(agentLabel, groundedPrompt, async () => {
-      if (formalBasis && formalBasis.length > 0) {
-        const span = trace.getActiveSpan();
-        span?.setAttribute("lupine.formal_basis.count", formalBasis.length);
-        span?.setAttribute(
-          "lupine.formal_basis.theorems",
-          formalBasis.map((b) => b.theorem).join(","),
-        );
-      }
-      const events: string[] = [];
-      await child.chat(groundedPrompt, {
-        onEvent: (json: string) => {
-          events.push(json);
-        },
-        onDone: () => {},
-        onError: (error: string) => {
-          events.push(JSON.stringify({ type: "error", error }));
-        },
-      });
-      return events.slice(-8).join("\n");
-    });
-  }
-}
-
-/**
- * Render a `formal_basis[]` into a compact natural-language grounding preamble
- * for a facet-to-facet dispatch. Pure + immutable.
- */
-function formalGroundingPreamble(basis: ReadonlyArray<FormalBasis>): string {
-  const lines = basis.map((b) => {
-    const helper = b.helper ? ` — ${b.helper}` : "";
-    return `- ${b.theorem} (${b.module} @ ${b.revision}, ${b.status})${helper}`;
-  });
-  return [
-    "Formal basis (ATLAS-Lean theorems underwriting this task; reason within them):",
-    ...lines,
-  ].join("\n");
 }

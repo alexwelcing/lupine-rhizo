@@ -16,6 +16,7 @@ import OpenDistillationFactory.Materials.Analysis.Causal
 import OpenDistillationFactory.Materials.Analysis.Manifold
 import OpenDistillationFactory.Materials.Computation.LammpsTrace
 import OpenDistillationFactory.Materials.Theory.ParameterBound
+import OpenDistillationFactory.Materials.Theory.ExactTubularUniversality
 import OpenDistillationFactory.Materials.Theory.MetaScience
 import OpenDistillationFactory.Materials.Theory.HyperRibbon
 import OpenDistillationFactory.Materials.Theory.HyperRibbonEmpirical
@@ -473,6 +474,31 @@ def nistCount := nistScaffoldAlSample.length
 #check critical_mineral_invariant_holds
 #check cement_metastability_invariant_holds
 
+/- Wave 2 reconciliation: five centered-local parameter-bound locks. These
+    certify explicit linearized/spectral packets or exact affine families with
+    Jacobian-image coverage; they do not establish unconditional parameter
+    universality. -/
+#check AffineFamily.residual_difference_in_direction
+#check parameter_bound_of_linearized_certificate
+#check affineScatter_rank_le_jacobian
+#check parameter_bound_of_spectral_jacobian_certificate
+#check affineScatter_participationRatio_le_parameterBound
+
+/- Endpoint additions: exact fcc/bcc two-envelope criteria plus reference-order
+    closure only under the stated field-decomposition hypotheses. -/
+#check AnchorBracket.certified_order_iff_endpoint_margins_fcc
+#check AnchorBracket.certified_reference_order_of_endpoint_margins_fcc
+#check AnchorBracket.certified_order_iff_endpoint_margins_bcc
+#check AnchorBracket.certified_reference_order_of_endpoint_margins_bcc
+
+/- Exact-tubular additions: the point-core result and the general A0-A5 route.
+    The general locks retain their explicit small-tube, reach, and tubular-map
+    assumptions; they are not an unconditional tubular-universality claim. -/
+#check ExactTubularUniversality.exact_tubular_universality_pointCore
+#check ExactTubularUniversality.boundary_diffeomorphic_unitNormalBundle
+#check ExactTubularUniversality.boundary_pairwise_diffeomorphic_general
+#check ExactTubularUniversality.exact_tubular_universality_of_A0ToA5
+
 /- Universal-correction assurance spine — representation-agnostic semantics,
     sound finite-anchor envelopes, explicit cold-start limits, exact tri-state
     runtime decisions, robust ranking, deterministic distributed reduction,
@@ -583,11 +609,13 @@ def computationallyProvenCount : Nat :=
   -- corpus bracket certificates 8
   -- Non-CO₂ environmental-concern contract: distinctness/coverage 3,
   -- invariant witnesses 6
-  271
+  -- Wave 2 reconciliation: existing board 271 + centered-local/affine
+  -- parameter-bound locks 5 + endpoint-margin locks 4 + exact-tubular locks 4.
+  271 + 5 + 4 + 4
 
 /-- Public theorems in the representation-agnostic correction spine and its
-    executable certificate packs.  This is tracked separately so the legacy
-    271-theorem inventory remains historically stable. -/
+    executable certificate packs. This inventory remains tracked separately
+    from the computational board above. -/
 def universalCorrectionProvenCount : Nat :=
   -- Theory: 119; synthetic certificates: 20; empirical-boundary
   -- certificates: 25.
@@ -612,7 +640,7 @@ def epistemicGapCount : Nat :=
 #guard (nistScaffoldPredictionsMissing nistScaffoldAlSample == true)
 
 #guard (hypothesisCount >= 6)
-#guard (computationallyProvenCount == 271)
+#guard (computationallyProvenCount == 284)
 #guard (universalCorrectionProvenCount == 164)
 #guard (epistemicGapCount >= 1)
 

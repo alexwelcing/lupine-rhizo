@@ -143,6 +143,24 @@ def _decision_from_payload(payload: dict[str, Any], *, policy_engine: str) -> Di
     )
 
 
+def _annotate_domain_action(
+    decision: DistillDecision, action: dict[str, Any] | None
+) -> DistillDecision:
+    if action is None:
+        return decision
+    existing = next(
+        (item for item in decision.actions if item.get("kind") == "field_domain"),
+        None,
+    )
+    effective = existing or action
+    if existing is None:
+        decision.actions = list(decision.actions) + [action]
+    hooks = dict(decision.theorem_hooks or {})
+    hooks["field_domain_certificate"] = effective
+    decision.theorem_hooks = hooks
+    return decision
+
+
 class PythonPolicyEngine:
     name = "python"
 
@@ -236,11 +254,12 @@ class RustPolicyEngine:
     ) -> DistillDecision:
         if not self.available:
             raise FileNotFoundError(f"atlas-distill binary not found: {self.atlas_distill_bin}")
+        domain_action = _domain_action(prediction, context)
         request = self._request(
             row_id=row_id,
             mlip_id=mlip_id,
             prediction=prediction,
-            support_model=support_model,
+            support_model=None if domain_action is not None else support_model,
             context=context,
         )
         with tempfile.TemporaryDirectory(prefix="lupine-distill-policy-") as tmp:
@@ -266,7 +285,8 @@ class RustPolicyEngine:
                 "atlas-distill distill-policy failed "
                 f"(exit {proc.returncode}): {(proc.stderr or proc.stdout).strip()}"
             )
-        return _decision_from_payload(json.loads(proc.stdout), policy_engine=self.name)
+        decision = _decision_from_payload(json.loads(proc.stdout), policy_engine=self.name)
+        return _annotate_domain_action(decision, domain_action)
 
     def decide_many(
         self,
@@ -282,12 +302,16 @@ class RustPolicyEngine:
         if not self.available:
             raise FileNotFoundError(f"atlas-distill binary not found: {self.atlas_distill_bin}")
         contexts = contexts or [{} for _ in predictions]
+        domain_actions = [
+            _domain_action(prediction, contexts[idx] if idx < len(contexts) else {})
+            for idx, prediction in enumerate(predictions)
+        ]
         requests = [
             self._request(
                 row_id=row_id,
                 mlip_id=mlip_id,
                 prediction=prediction,
-                support_model=support_model,
+                support_model=None if domain_actions[idx] is not None else support_model,
                 context=contexts[idx] if idx < len(contexts) else {},
             )
             for idx, prediction in enumerate(predictions)
@@ -333,7 +357,10 @@ class RustPolicyEngine:
                 "distill-policy batch returned "
                 f"{len(decisions)} decisions for {len(predictions)} predictions"
             )
-        return decisions
+        return [
+            _annotate_domain_action(decision, domain_actions[idx])
+            for idx, decision in enumerate(decisions)
+        ]
 
     def _request(
         self,
@@ -414,26 +441,26 @@ class CertificateGate:
     @classmethod
     def load(
         cls, report_path: str | os.PathLike[str] | None
-    ) -> CertificateGate | None:
-        """Build the gate from a binding report; ``None`` (gate disabled)
-        when the report is missing or unreadable — an absent corpus must
-        never break the flywheel."""
+    ) -> CertificateGate:
+        """Build the gate from a validated expected binding report."""
         path = pathlib.Path(report_path) if report_path else _default_env_field_report()
         if not path.exists():
-            return None
+            raise FileNotFoundError(f"expected binding report not found: {path}")
         try:
             report = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            return None
+        except OSError as exc:
+            raise ValueError(f"cannot read expected binding report {path}: {exc}") from exc
+        except ValueError as exc:
+            raise ValueError(f"malformed binding report JSON {path}: {exc}") from exc
         if not isinstance(report, dict):
-            return None
+            raise ValueError(f"binding report must be a JSON object: {path}")
         from lupine_distill.odf.field_certificates import (
             RUNTIME_MLIP_ALIASES,
             certificates_from_binding_report,
         )
 
         refusals: dict[tuple[str, str], dict[str, Any]] = {}
-        for entry in certificates_from_binding_report(report):
+        for entry in certificates_from_binding_report(report, report_path=path):
             if entry["certificate"].tier != "measured_field":
                 continue
             model_id = str(entry["model_id"])
@@ -470,7 +497,7 @@ class CertificateGate:
             "material": entry["material"],
             "structure": entry["structure"],
             "lean_name": entry["lean_name"],
-            "theorem_ref": certificate.theorem_ref,
+            "theorem_ref": entry["outcome_theorem_ref"],
             "anchors_scaled": list(certificate.anchors_scaled),
             "corpus_sha256_12": self.corpus_sha256_12,
         }
@@ -559,6 +586,7 @@ class CertificateGatedPolicyEngine:
                     support_model=support_model,
                     contexts=[contexts[idx] for idx in allowed],
                 ),
+                strict=True,
             ):
                 decisions[idx] = decision
         for idx, decision in zip(
@@ -570,6 +598,7 @@ class CertificateGatedPolicyEngine:
                 support_model=None,
                 contexts=[contexts[idx] for idx in gated],
             ),
+            strict=True,
         ):
             decisions[idx] = self._annotate(decision, entries[idx])
         return [decision for decision in decisions if decision is not None]
@@ -638,9 +667,9 @@ def build_policy_engine(
     """Build the requested engine, wrapped in the Lean certificate gate.
 
     ``env_field_report_path`` selects the env-field binding report backing
-    the gate: the default ``"auto"`` uses the repo's report when it exists
-    (inert otherwise), an explicit path loads that report, and ``None``
-    disables the gate entirely.
+    the gate: the default ``"auto"`` requires the repo's validated report,
+    an explicit path requires that report, and ``None`` is the only way to
+    disable the gate.
     """
     engine: DistillPolicyEngine
     if name == "python":
@@ -664,6 +693,5 @@ def build_policy_engine(
         gate = CertificateGate.load(
             None if env_field_report_path == "auto" else env_field_report_path
         )
-        if gate is not None and gate.refusals:
-            engine = CertificateGatedPolicyEngine(engine, gate)
+        engine = CertificateGatedPolicyEngine(engine, gate)
     return engine

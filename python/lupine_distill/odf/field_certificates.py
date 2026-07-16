@@ -30,9 +30,9 @@ symbol-for-symbol:
   an admissible cell's correction uncertainty is one scalar per atom at the
   unanchored coordination, bounded by the anchor gap; a refused cell admits
   *no* consistent softening field at all;
-- :func:`check_bracket_separation` mirrors
-  ``AnchorBracket.certified_order_of_separation_fcc`` (bcc mirror
-  ``certified_order_of_separation_bcc``; diamond degenerate case
+- :func:`check_bracket_separation` mirrors the exact two-envelope laws
+  ``AnchorBracket.certified_order_iff_endpoint_margins_fcc`` (bcc mirror
+  ``certified_order_iff_endpoint_margins_bcc``; diamond degenerate case
   ``corrected_exact_diamond``): interval separation certifies the corrected
   order against every field consistent with the anchors.
 
@@ -45,10 +45,26 @@ declaration in the Lean sources.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence
+import hashlib
+import pathlib
+import re
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 _THEORY = "OpenDistillationFactory.Materials.Theory"
+_BINDING_REPORT_SCHEMA = "lupine.env_field_binding_report.v2"
+_BINDING_LEAN_MODULE = (
+    "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean"
+)
+_BINDING_NAMESPACE = (
+    "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances"
+)
+_BINDING_TARGET_FILES = (
+    "surface_energies.json",
+    "vacancy_formation.json",
+    "beyond_metals.json",
+)
 
 #: Fully-qualified Lean names for every certificate this module can issue.
 THEOREM_REFS: dict[str, str] = {
@@ -87,10 +103,10 @@ THEOREM_REFS: dict[str, str] = {
     "corrected_bracket_bcc": f"{_THEORY}.AnchorBracket.corrected_bracket_bcc",
     "corrected_exact_diamond": f"{_THEORY}.AnchorBracket.corrected_exact_diamond",
     "bracket_separation": (
-        f"{_THEORY}.AnchorBracket.certified_order_of_separation_fcc"
+        f"{_THEORY}.AnchorBracket.certified_order_iff_endpoint_margins_fcc"
     ),
     "bracket_separation_bcc": (
-        f"{_THEORY}.AnchorBracket.certified_order_of_separation_bcc"
+        f"{_THEORY}.AnchorBracket.certified_order_iff_endpoint_margins_bcc"
     ),
     "anchored_field_rocksalt": (
         f"{_THEORY}.AnchoredField.mkAnchoredFieldRocksalt"
@@ -328,7 +344,9 @@ def check_anchor_admissibility(
     gap_coordination = GAP_COORDINATIONS[structure]
     violations: list[str] = []
     for (c_lo, p_lo), (c_hi, p_hi) in zip(
-        zip(coordinations, anchors_scaled), zip(coordinations[1:], anchors_scaled[1:])
+        zip(coordinations, anchors_scaled, strict=True),
+        zip(coordinations[1:], anchors_scaled[1:], strict=True),
+        strict=False,
     ):
         if not p_lo <= p_hi:
             violations.append(f"P({c_lo}) = {p_lo}e-4 > P({c_hi}) = {p_hi}e-4 (mono)")
@@ -443,31 +461,30 @@ def check_ranking_pair(
 
 @dataclass(frozen=True)
 class BracketSeparationCertificate:
-    """Margin-certified corrected ranking of one candidate pair in one cell.
+    """Exact two-envelope corrected ranking of one candidate pair in one cell.
 
-    Mirrors ``AnchorBracket.certified_order_of_separation_fcc`` (bcc mirror
-    ``certified_order_of_separation_bcc``; diamond degenerate case
-    ``corrected_exact_diamond``): candidate A ranks strictly below candidate
-    B against **every** softening field consistent with the cell's anchors
-    when A's corrected energy sits strictly below B's corrected energy minus
-    B's gap budget (B's count of gap-coordination atoms times the certified
-    per-atom bracket width). ``certified = False`` does not mean the order
-    is wrong — only that the measured anchors cannot exclude a flip.
+    Mirrors ``AnchorBracket.certified_order_iff_endpoint_margins_fcc`` (bcc
+    mirror ``certified_order_iff_endpoint_margins_bcc``; diamond/rocksalt
+    exact cases). Candidate A ranks strictly below candidate B against every
+    softening field consistent with the cell's anchors exactly when both the
+    deep and shallow envelope margins are positive. ``certified = False``
+    means one concrete envelope fails to preserve strict order; it does not
+    assert that the physical reference order is reversed.
     """
 
     certified: bool
     corrected_a: float
     corrected_b: float
-    #: Number of gap-coordination atoms in candidate B's configuration (the
-    #: budget side of the separation rule). Candidate A needs no budget: its
-    #: corrected value is already its certified upper bound.
+    #: Number of gap-coordination atoms in each configuration. The exact rule
+    #: budgets both sides; equal populations cancel.
+    gap_count_a: int
     gap_count_b: int
     #: Certified per-atom bracket width, x1e-4 eV/atom (0 for diamond).
     bracket_width_scaled: int
     structure: str
-    #: Certified slack in eV: ``corrected_b − budget − corrected_a``;
-    #: certification holds iff this is strictly positive.
-    margin: float
+    #: Strict-order margins at the concrete deep and shallow envelopes.
+    deep_margin: float
+    shallow_margin: float
     theorem_ref: str
     reason: str
 
@@ -477,10 +494,12 @@ class BracketSeparationCertificate:
             "certified": self.certified,
             "corrected_a": self.corrected_a,
             "corrected_b": self.corrected_b,
+            "gap_count_a": self.gap_count_a,
             "gap_count_b": self.gap_count_b,
             "bracket_width_scaled": self.bracket_width_scaled,
             "structure": self.structure,
-            "margin": self.margin,
+            "deep_margin": self.deep_margin,
+            "shallow_margin": self.shallow_margin,
             "theorem_ref": self.theorem_ref,
             "reason": self.reason,
         }
@@ -489,22 +508,29 @@ class BracketSeparationCertificate:
 def check_bracket_separation(
     corrected_a: float,
     corrected_b: float,
-    gap_count_b: int,
+    coordinations_a: Sequence[int],
+    coordinations_b: Sequence[int],
     bracket_width_scaled: int,
     structure: str = "fcc",
     scale: int = 10000,
 ) -> BracketSeparationCertificate:
-    """Mirror of ``certified_order_of_separation_fcc`` / ``…_bcc``: certify
-    ``corrected_a < corrected_b − gap_count_b · width`` (width in eV =
-    ``bracket_width_scaled / scale``), which by the Lean theorem forces
-    A's reference energy strictly below B's for every field consistent with
-    the anchors. Inputs are the *step-field corrected* energies of the two
-    candidates in the SAME (model, material) cell, and ``gap_count_b`` is
-    candidate B's population of the layout's unanchored coordination
-    (``GAP_COORDINATIONS``); for the diamond layout the width is zero and
-    the rule degenerates to the exact-correction comparison
-    (``corrected_exact_diamond``). Strictness matters: a zero margin is NOT
-    certified, exactly as in Lean.
+    """Run the exact two-envelope ranking criterion for one anchor layout.
+
+    The supplied energies are the measured step-field corrections. This
+    function derives each candidate's gap population from its coordination
+    list, checks the layout-specific in-range precondition, and tests strict
+    order at both concrete envelopes::
+
+        deep:    corrected_a < corrected_b
+        shallow: corrected_a - count_a*width
+                   < corrected_b - count_b*width
+
+    The two inequalities are equivalent in Lean to strict corrected order for
+    every softening field consistent with the anchors. A statement about the
+    *reference* order additionally requires exact field-decomposition for both
+    model errors; this runtime certificate does not assert that empirical
+    hypothesis. ``bracket_width_scaled`` should come from an admissible
+    :class:`AnchorCertificate` for the same cell.
 
     Two honesty caveats. (1) The Lean theorem governs the coordination-
     resolved *step-field* correction; the runtime policy engine's live
@@ -518,34 +544,80 @@ def check_bracket_separation(
             f"unknown anchor structure {structure!r}; "
             f"expected one of {sorted(_BRACKET_REF_KEYS)}"
         )
-    if gap_count_b < 0:
-        raise ValueError(f"gap_count_b must be nonnegative; got {gap_count_b}")
+    if bracket_width_scaled < 0:
+        raise ValueError(
+            "bracket_width_scaled must be nonnegative; "
+            f"got {bracket_width_scaled}"
+        )
+    if scale <= 0:
+        raise ValueError(f"scale must be positive; got {scale}")
+    floor = min(ANCHOR_COORDINATIONS[structure])
+    for label, coordinations in (
+        ("candidate A", coordinations_a),
+        ("candidate B", coordinations_b),
+    ):
+        below = [(i, c) for i, c in enumerate(coordinations) if c < floor]
+        if below:
+            witnesses = ", ".join(f"atom {i} (c={c})" for i, c in below)
+            raise ValueError(
+                f"{label} is below the {structure} anchor floor c={floor}: "
+                f"{witnesses}"
+            )
     _identification_key, _bracket_key, separation_key = _BRACKET_REF_KEYS[structure]
-    budget = gap_count_b * bracket_width_scaled / scale
-    margin = corrected_b - budget - corrected_a
-    certified = margin > 0
+    gap_coordination = GAP_COORDINATIONS[structure]
+    gap_count_a = (
+        sum(1 for c in coordinations_a if c == gap_coordination)
+        if gap_coordination is not None
+        else 0
+    )
+    gap_count_b = (
+        sum(1 for c in coordinations_b if c == gap_coordination)
+        if gap_coordination is not None
+        else 0
+    )
+    if gap_coordination is None and bracket_width_scaled != 0:
+        raise ValueError(
+            f"{structure} has no unanchored in-range coordination; "
+            "bracket_width_scaled must be 0"
+        )
+    width = bracket_width_scaled / scale
+    deep_margin = corrected_b - corrected_a
+    shallow_a = corrected_a - gap_count_a * width
+    shallow_b = corrected_b - gap_count_b * width
+    shallow_margin = shallow_b - shallow_a
+    certified = deep_margin > 0 and shallow_margin > 0
     ref = THEOREM_REFS[separation_key]
     if certified:
         reason = (
-            f"corrected order certified against every consistent field: "
-            f"corrected_a = {corrected_a} < {corrected_b} − "
-            f"{gap_count_b}·{bracket_width_scaled}e-4 (margin {margin:.6g} eV)"
+            "corrected order certified against every consistent field: "
+            f"deep margin {deep_margin:.6g} eV and shallow margin "
+            f"{shallow_margin:.6g} eV are both strict; reference-order use "
+            "still requires exact field-decomposable errors"
         )
     else:
+        failed = []
+        if deep_margin <= 0:
+            failed.append(f"deep envelope margin {deep_margin:.6g} eV is not strict")
+        if shallow_margin <= 0:
+            failed.append(
+                f"shallow envelope margin {shallow_margin:.6g} eV is not strict"
+            )
         reason = (
-            f"anchor-gap budget can flip this pair: corrected separation "
-            f"{corrected_b - corrected_a:.6g} eV does not exceed the gap "
-            f"budget {budget:.6g} eV — rank only after tightening the "
-            "anchors or escalate to the oracle"
+            "measured anchors do not certify strict order: "
+            + "; ".join(failed)
+            + " — the named envelope is a concrete consistent field where "
+            "the strict comparison fails; tighten anchors or abstain"
         )
     return BracketSeparationCertificate(
         certified=certified,
         corrected_a=corrected_a,
         corrected_b=corrected_b,
+        gap_count_a=gap_count_a,
         gap_count_b=gap_count_b,
         bracket_width_scaled=bracket_width_scaled,
         structure=structure,
-        margin=margin,
+        deep_margin=deep_margin,
+        shallow_margin=shallow_margin,
         theorem_ref=ref,
         reason=reason,
     )
@@ -631,7 +703,8 @@ def check_barrier_conservatism(
         )
 
     ordering_holds = all(
-        ts <= init for ts, init in zip(ts_coordination, init_coordination)
+        ts <= init
+        for ts, init in zip(ts_coordination, init_coordination, strict=True)
     )
 
     if not ordering_holds:
@@ -717,58 +790,242 @@ def resolve_binder_model_id(mlip_id: str) -> str:
     return RUNTIME_MLIP_ALIASES.get(mlip_id, mlip_id)
 
 
+def _binding_source_digest(
+    report: Mapping[str, Any], report_path: pathlib.Path | None
+) -> str | None:
+    """Recompute the binder's corpus digest when its source files are adjacent."""
+    if report_path is None:
+        return None
+    runs_dir = report_path.parent
+    targets_dir = runs_dir.parent / "y_matrix_targets"
+    run_paths = [
+        runs_dir
+        / f"{cell['material']}_{cell['structure']}_{cell['model_id']}.json"
+        for cell in report["cells"]
+    ]
+    target_paths = [targets_dir / name for name in _BINDING_TARGET_FILES]
+    if not all(path.is_file() for path in run_paths + target_paths):
+        return None
+    adjacent_sources = {
+        path
+        for structure in report["structures"]
+        for path in runs_dir.glob(f"*_{structure}_*.json")
+        if not path.name.endswith(".evidence.json") and path != report_path
+    }
+    if adjacent_sources != set(run_paths):
+        # v2 does not carry a source manifest. Extra source runs may have been
+        # hashed even when binding failed, so the exact digest is unknowable.
+        return None
+    sha = hashlib.sha256()
+    for path in sorted(run_paths) + sorted(target_paths):
+        sha.update(path.name.encode())
+        sha.update(path.read_bytes())
+    return sha.hexdigest()[:12]
+
+
+def _report_integer(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _lean_name(value: str) -> str:
+    return "".join(char if char.isalnum() else "_" for char in value).strip("_")
+
+
 def certificates_from_binding_report(
     report: Mapping[str, Any],
     model_ids: Iterable[str] | None = None,
+    *,
+    report_path: str | pathlib.Path | None = None,
 ) -> list[dict[str, Any]]:
     """Re-check every bound cell of an env-field binding report
     (``lupine.env_field_binding_report.v2``, emitted by
     ``python/scripts/bind_env_field_instances.py``) through the Lean-mirror
     admissibility predicate.
 
-    Returns one entry per cell — ``material``, ``model_id``, ``structure``,
-    ``lean_name``, and the :class:`AnchorCertificate` — optionally filtered to
-    the given model ids (runtime backend ids are resolved through
-    :data:`RUNTIME_MLIP_ALIASES` before matching). Cells with unknown
-    structures or malformed anchors are skipped rather than guessed at.
-    Shared by the promotion packet builder (``tools/mlip_local_promotion.py``)
-    and the run-time certificate gate
-    (``lupine_distill_runtime.policy_engine``)."""
+    The complete v2 report is validated before model filtering. Malformed cells
+    are errors, never silently omitted. When ``report_path`` sits next to the
+    source Y-matrix corpus, the binder's declared digest is recomputed too.
+    """
+    if not isinstance(report, Mapping):
+        raise ValueError("binding report must be a JSON object")
+    schema = report.get("schema")
+    if schema != _BINDING_REPORT_SCHEMA:
+        raise ValueError(
+            f"unsupported binding report schema {schema!r}; "
+            f"expected {_BINDING_REPORT_SCHEMA!r}"
+        )
+    if report.get("generator") != "python/scripts/bind_env_field_instances.py":
+        raise ValueError("binding report has an unexpected generator")
+    lean_module = report.get("lean_module")
+    # The binder may legitimately write the Lean module outside the repo
+    # (``--lean-out`` to a scratch dir records an absolute path). Fail closed
+    # on a *different module*, not on a different output location: accept the
+    # canonical repo-relative path or any path whose final component is the
+    # EnvFieldInstances module file. The theorem namespace used below is
+    # derived per-cell from ``lean_name``, independent of this provenance.
+    normalized_module = lean_module.replace("\\", "/") if isinstance(lean_module, str) else ""
+    if not (
+        normalized_module == _BINDING_LEAN_MODULE
+        or normalized_module == "EnvFieldInstances.lean"
+        or normalized_module.endswith("/EnvFieldInstances.lean")
+    ):
+        raise ValueError("binding report has an unexpected lean_module")
+    if report.get("scale") != 10000:
+        raise ValueError("binding report scale must be 10000")
+    digest = report.get("corpus_sha256_12")
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{12}", digest) is None:
+        raise ValueError("binding report corpus_sha256_12 must be 12 lowercase hex digits")
+    cells = report.get("cells")
+    if not isinstance(cells, list):
+        raise ValueError("binding report cells must be a list")
+
     wanted = (
         {resolve_binder_model_id(str(m)) for m in model_ids}
         if model_ids is not None
         else None
     )
     entries: list[dict[str, Any]] = []
-    for cell in report.get("cells", []):
+    seen: set[tuple[str, str, str]] = set()
+    instance_count = 0
+    structure_counts = {
+        structure: {"cells": 0, "instances": 0, "refusals": 0}
+        for structure in ANCHOR_COORDINATIONS
+    }
+    for index, cell in enumerate(cells):
         if not isinstance(cell, Mapping):
-            continue
+            raise ValueError(f"binding report cells[{index}] must be an object")
+        material = cell.get("material")
         model_id = cell.get("model_id")
-        if wanted is not None and model_id not in wanted:
-            continue
-        structure = str(cell.get("structure", "fcc"))
+        structure = cell.get("structure")
+        lean_name = cell.get("lean_name")
+        for field_name, value in (
+            ("material", material),
+            ("model_id", model_id),
+            ("structure", structure),
+            ("lean_name", lean_name),
+        ):
+            if not isinstance(value, str) or not value:
+                raise ValueError(
+                    f"binding report cells[{index}].{field_name} must be a non-empty string"
+                )
+        for field_name, value in (("material", material), ("model_id", model_id)):
+            if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._+-]*", value) is None:
+                raise ValueError(
+                    f"binding report cells[{index}].{field_name} contains unsafe characters"
+                )
         expected = ANCHOR_COORDINATIONS.get(structure)
         if expected is None:
-            continue
-        anchors = [
-            anchor.get("p_scaled")
-            for anchor in cell.get("anchors", [])
-            if isinstance(anchor, Mapping)
-        ]
-        if len(anchors) != len(expected) or not all(
-            isinstance(a, int) for a in anchors
+            raise ValueError(
+                f"binding report cells[{index}].structure is unsupported: {structure!r}"
+            )
+        expected_lean_name = f"{_lean_name(model_id)}_{_lean_name(material)}"
+        if lean_name != expected_lean_name:
+            raise ValueError(
+                f"binding report cells[{index}].lean_name is {lean_name!r}; "
+                f"expected {expected_lean_name!r}"
+            )
+        key = (model_id, material, structure)
+        if key in seen:
+            raise ValueError(f"binding report contains duplicate cell {key!r}")
+        seen.add(key)
+        cell_anchors = cell.get("anchors")
+        if not isinstance(cell_anchors, list) or len(cell_anchors) != len(expected):
+            raise ValueError(
+                f"binding report cells[{index}].anchors must contain "
+                f"{len(expected)} entries"
+            )
+        anchors: list[int] = []
+        for anchor_index, (anchor, coordination) in enumerate(
+            zip(cell_anchors, expected, strict=True)
         ):
+            if not isinstance(anchor, Mapping):
+                raise ValueError(
+                    f"binding report cells[{index}].anchors[{anchor_index}] must be an object"
+                )
+            if anchor.get("coordination") != coordination:
+                raise ValueError(
+                    f"binding report cells[{index}].anchors[{anchor_index}].coordination "
+                    f"must be {coordination}"
+                )
+            p_scaled = anchor.get("p_scaled")
+            if not _report_integer(p_scaled):
+                raise ValueError(
+                    f"binding report cells[{index}].anchors[{anchor_index}].p_scaled "
+                    "must be an integer"
+                )
+            anchors.append(p_scaled)
+        certificate = check_anchor_admissibility(*anchors, structure=structure)
+        valid = cell.get("valid")
+        violations = cell.get("violations")
+        if not isinstance(valid, bool):
+            raise ValueError(f"binding report cells[{index}].valid must be a boolean")
+        if not isinstance(violations, list) or not all(
+            isinstance(item, str) for item in violations
+        ):
+            raise ValueError(f"binding report cells[{index}].violations must be strings")
+        certificate_valid = certificate.tier == "error_field"
+        if valid != certificate_valid or tuple(violations) != certificate.violations:
+            raise ValueError(
+                f"binding report cells[{index}] declared outcome does not match anchors"
+            )
+        structure_counts[structure]["cells"] += 1
+        structure_counts[structure]["instances" if valid else "refusals"] += 1
+        instance_count += int(valid)
+        if wanted is not None and model_id not in wanted:
             continue
+        outcome_theorem_ref = (
+            certificate.theorem_ref
+            if valid
+            else f"{_BINDING_NAMESPACE}.field_refused_{lean_name}"
+        )
         entries.append(
             {
-                "material": cell.get("material"),
+                "material": material,
                 "model_id": model_id,
                 "structure": structure,
-                "lean_name": cell.get("lean_name"),
-                "certificate": check_anchor_admissibility(
-                    *anchors, structure=structure
-                ),
+                "lean_name": lean_name,
+                "outcome_theorem_ref": outcome_theorem_ref,
+                "certificate": certificate,
             }
+        )
+
+    expected_counts = {
+        "n_cells": len(cells),
+        "n_instances": instance_count,
+        "n_refusals": len(cells) - instance_count,
+    }
+    for field_name, expected_count in expected_counts.items():
+        value = report.get(field_name)
+        if not _report_integer(value) or value != expected_count:
+            raise ValueError(
+                f"binding report {field_name} is {value!r}; expected {expected_count}"
+            )
+    structures = report.get("structures")
+    if not isinstance(structures, Mapping):
+        raise ValueError("binding report structures must be an object")
+    if set(structures) != set(ANCHOR_COORDINATIONS):
+        raise ValueError(
+            "binding report structures must exactly match the supported layouts"
+        )
+    for structure, counts in structure_counts.items():
+        summary = structures.get(structure)
+        if not isinstance(summary, Mapping):
+            raise ValueError(f"binding report structures.{structure} must be an object")
+        for report_field, count_key in (
+            ("n_cells", "cells"),
+            ("n_instances", "instances"),
+            ("n_refusals", "refusals"),
+        ):
+            if summary.get(report_field) != counts[count_key]:
+                raise ValueError(
+                    f"binding report structures.{structure}.{report_field} mismatch"
+                )
+    source_digest = _binding_source_digest(
+        report, pathlib.Path(report_path) if report_path is not None else None
+    )
+    if source_digest is not None and source_digest != digest:
+        raise ValueError(
+            f"binding report digest mismatch: declared {digest}, recomputed {source_digest}"
         )
     return entries
 
@@ -786,23 +1043,36 @@ def merge_into_candidate_metadata(
 ) -> dict[str, Any]:
     """Enrich promotion-candidate metadata with certificate provenance.
 
-    Appends each certificate's Lean theorem reference to
-    ``atlas_theorem_refs`` and its structured outcome to
-    ``formal_properties`` (both deduplicated, order preserved), so
-    :func:`lupine_distill.odf.promotion_gate.evaluate_promotion` sees the
-    formal contract and the gate's telemetry carries the witnesses. The input
-    mapping is not mutated."""
+    Every outcome is retained in ``certificate_evidence`` for telemetry, but
+    only affirmative outcomes populate the promotion-authorizing formal
+    fields. Refusals and indeterminate/non-applicable results therefore cannot
+    satisfy the formal gate merely by existing. The input is not mutated."""
     enriched = dict(metadata)
     refs = list(enriched.get("atlas_theorem_refs", []) or [])
     props = list(enriched.get("formal_properties", []) or [])
+    evidence = list(enriched.get("certificate_evidence", []) or [])
     for cert in certificates:
+        payload = cert.to_dict()
+        authorizes = (
+            payload.get("admitted") is True
+            or payload.get("tier") == "error_field"
+            or payload.get("monotone_rescuable") is True
+            or payload.get("conservative") is True
+            or payload.get("certified") is True
+        )
+        evidence_item = {**payload, "authorizes_promotion": authorizes}
+        if evidence_item not in evidence:
+            evidence.append(evidence_item)
+        if not authorizes:
+            continue
         if cert.theorem_ref not in refs:
             refs.append(cert.theorem_ref)
-        stamp = f"{cert.to_dict()['kind']}: {cert.reason}"
+        stamp = f"{payload['kind']}: {cert.reason}"
         if stamp not in props:
             props.append(stamp)
     enriched["atlas_theorem_refs"] = refs
     enriched["formal_properties"] = props
+    enriched["certificate_evidence"] = evidence
     return enriched
 
 

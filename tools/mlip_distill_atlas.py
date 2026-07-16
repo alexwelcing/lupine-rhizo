@@ -26,13 +26,21 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
+from atlas_theorem_sync import (
+    ATLAS_REVISION,
+    build_ad_hoc_rows,
+    render_ad_hoc_sql,
+    write_extension_manifest,
+)
+
 _HERE = Path(__file__).resolve()
 _REPO = _HERE.parents[1]
 LEAN_OUT = _REPO / "lean-spec" / "OpenDistillationFactory" / "Materials" / "DistillAtlas"
 LEAN_SPEC = _REPO / "lean-spec"
 REPORT = _REPO / "docs" / "distill_improvement_atlas.md"
 SEED = _REPO / "tmp" / "mlip-evidence" / "distill_atlas_theorems_seed.sql"
-ATLAS_REV = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
+EXTENSION = SEED.with_suffix(".json")
+ATLAS_REV = ATLAS_REVISION
 
 
 @dataclass(frozen=True)
@@ -155,7 +163,7 @@ def main(argv: list[str]) -> int:
 
     # ---- Lean atlas: one decidable theorem per pairing (verdict) + accelerate wins ----
     LEAN_OUT.mkdir(parents=True, exist_ok=True)
-    theorem_names: list[tuple[str, str]] = []  # (full_name, module)
+    theorem_inputs: list[dict[str, object]] = []
     by_mat: dict[str, list[str]] = defaultdict(list)
     for r in rows_out:
         if r["gain_pct"] is None:
@@ -175,7 +183,17 @@ def main(argv: list[str]) -> int:
             doc = f"distill HARMS error {r['base_err']:.4f} -> {r['dist_err']:.4f} ({r['gain_pct']:+.1f}%) — wrong-regime correction"
         thm = f"/-- {doc}. Machine-checked from GCP cell evidence (error x1000). -/\ntheorem {name} : {prop} := by decide\n"
         by_mat[r["material"]].append(thm)
-        theorem_names.append((f"Lupine.DistillAtlas.{_safe(r['material'])}.{name}", f"Lupine.DistillAtlas.{_safe(r['material'])}"))
+        theorem_inputs.append(
+            {
+                "facet": "experiment",
+                "theorem_name": f"Lupine.DistillAtlas.{_safe(r['material'])}.{name}",
+                "module": (
+                    f"OpenDistillationFactory.Materials.DistillAtlas.{_safe(r['material'])}"
+                ),
+                "statement": thm,
+                "used_in_hypotheses": 1,
+            }
+        )
         if r["accel_win"]:
             ae = int(round(r["accel_err"] * 1000))
             asp = int(round((r["accel_speedup"] or 0) * 100))
@@ -184,12 +202,24 @@ def main(argv: list[str]) -> int:
             aprop = f"{ae} ≤ {be} ∧ {asp} > 100"
             athm = f"/-- accelerate: error {r['accel_err']:.4f} ≤ baseline {r['base_err']:.4f} AND {r['accel_speedup']:.1f}x throughput. -/\ntheorem {aname} : {aprop} := by decide\n"
             by_mat[r["material"]].append(athm)
-            theorem_names.append((f"Lupine.DistillAtlas.{_safe(r['material'])}.{aname}", f"Lupine.DistillAtlas.{_safe(r['material'])}"))
+            theorem_inputs.append(
+                {
+                    "facet": "experiment",
+                    "theorem_name": f"Lupine.DistillAtlas.{_safe(r['material'])}.{aname}",
+                    "module": (
+                        f"OpenDistillationFactory.Materials.DistillAtlas.{_safe(r['material'])}"
+                    ),
+                    "statement": athm,
+                    "used_in_hypotheses": 1,
+                }
+            )
 
     verified = 0
-    module_ok: dict[str, bool] = {}  # lean module namespace -> actually compiled?
+    module_ok: dict[str, bool] = {}
+    module_sources: dict[str, str] = {}
     for mat, thms in by_mat.items():
         ns = f"Lupine.DistillAtlas.{_safe(mat)}"
+        module = f"OpenDistillationFactory.Materials.DistillAtlas.{_safe(mat)}"
         src = (
             f"/- AUTHORED by tools/mlip_distill_atlas.py from GCP TorchSim+distill evidence.\n"
             f"   Material lane: {mat}. Decidable Nat facts (error x1000) — 0 sorry. -/\n\n"
@@ -198,24 +228,22 @@ def main(argv: list[str]) -> int:
         lf = LEAN_OUT / f"{_safe(mat)}.lean"
         lf.write_text(src, encoding="utf-8")
         ok = _verify_lean_module(lf)
-        module_ok[ns] = ok
+        module_ok[module] = ok
+        module_sources[module] = src
         verified += 1 if ok else 0
         print(f"[{'OK' if ok else '!!'}] lean {lf.relative_to(_REPO)} ({len(thms)} theorems)")
 
-    # ---- seed ----
-    # Per-theorem status mirrors the ACTUAL lean result of its module:
-    # 'verified' iff that module compiled, 'failed' otherwise (both in the D1
-    # CHECK vocabulary of glim-think/migrations/0010_atlas_theorems.sql).
+    # A one-file local compile is not immutable build evidence. Emit imported or
+    # failed observations, plus an extension request that the shared synchronizer
+    # can promote only after a committed successful build manifest names it.
     SEED.parent.mkdir(parents=True, exist_ok=True)
-    SEED.write_text(
-        "\n".join(
-            f"INSERT OR IGNORE INTO atlas_theorems (facet, theorem_name, module, revision, status, used_in_hypotheses) "
-            f"VALUES ('experiment', '{n}', '{m}', '{ATLAS_REV}', "
-            f"'{'verified' if module_ok.get(m, False) else 'failed'}', 1);"
-            for n, m in theorem_names
-        ) + "\n",
-        encoding="utf-8",
+    theorem_rows = build_ad_hoc_rows(
+        theorem_inputs,
+        module_sources=module_sources,
+        module_results=module_ok,
     )
+    SEED.write_text(render_ad_hoc_sql(theorem_rows), encoding="utf-8")
+    write_extension_manifest(EXTENSION, theorem_rows)
 
     # ---- markdown report ----
     lines = ["# Distill Improvement Atlas", "",
@@ -243,7 +271,7 @@ def main(argv: list[str]) -> int:
     for r in sorted([x for x in rows_out if x["dist_err"] is not None], key=lambda x: -x["dist_err"])[:6]:
         lines.append(f"- {r['material']} / {r['row']} / {r['mlip']}: residual {r['dist_err']:.4f} {r['error_unit']}")
     lines += ["", "## 3. Lean atlas (machine-checked verdicts, 0 sorry)", "",
-              f"Authored {len(theorem_names)} decidable theorems under `lean-spec/.../DistillAtlas/`, "
+              f"Authored {len(theorem_inputs)} decidable theorems under `lean-spec/.../DistillAtlas/`, "
               f"{verified}/{len(by_mat)} lane modules `lean`-verified; seed → `{SEED.relative_to(_REPO)}`. "
               "Each encodes a verdict (distill improves / regresses; accelerate faster-and-accurate) as a decidable "
               "Nat fact from the GCP evidence — the neural→symbolic bridge applied to the production run.", ""]

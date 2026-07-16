@@ -356,7 +356,8 @@ export const openApiSpec = {
     "/claims": {
       get: {
         tags: ["claims"],
-        summary: "List claims (filter by status, claim_type, agent_id)",
+        summary: "List claim history (filter by status, claim_type, agent_id)",
+        description: "Returns the append-only claim history, including preserved legacy recurring rows and canonical current-state rows.",
         parameters: [
           { name: "status", in: "query", schema: { type: "string", enum: ["proposed", "confirmed", "refuted", "formally_proven", "insufficient"] } },
           { name: "claim_type", in: "query", schema: { type: "string" } },
@@ -367,6 +368,27 @@ export const openApiSpec = {
           type: "object",
           properties: {
             claims: { type: "array", items: { $ref: "#/components/schemas/ClaimRow" } },
+            count: { type: "integer" },
+          },
+        } } } } },
+      },
+    },
+    "/claims/current": {
+      get: {
+        tags: ["claims"],
+        summary: "List canonical current state for recurring claims",
+        description:
+          "Returns one deterministic canonical row per recurring claim key. `evidence_record_timestamp` is the newest source-record timestamp used by the computation; `recomputed_at` is when that current state was recalculated. Full history remains available from GET /claims.",
+        parameters: [
+          { name: "status", in: "query", schema: { type: "string", enum: ["proposed", "confirmed", "refuted", "formally_proven", "insufficient"] } },
+          { name: "claim_type", in: "query", schema: { type: "string" } },
+          { name: "agent_id", in: "query", schema: { type: "string" } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 50, maximum: 500 } },
+        ],
+        responses: { "200": { description: "Recurring claim current state", content: { "application/json": { schema: {
+          type: "object",
+          properties: {
+            claims: { type: "array", items: { $ref: "#/components/schemas/CurrentClaimRow" } },
             count: { type: "integer" },
           },
         } } } } },
@@ -608,8 +630,30 @@ export const openApiSpec = {
           confidence: { type: "number", minimum: 0, maximum: 1 },
           status: { type: "string", enum: ["proposed", "confirmed", "refuted", "formally_proven", "insufficient"] },
           description: { type: "string" },
-          created_at: { type: "string", format: "date-time" },
+          created_at: { type: "string", format: "date-time", description: "Initial insertion time; immutable across recurring current-state updates" },
         },
+      },
+      CurrentClaimRow: {
+        allOf: [
+          { $ref: "#/components/schemas/ClaimRow" },
+          {
+            type: "object",
+            required: ["recurring_key", "evidence_record_timestamp", "recomputed_at"],
+            properties: {
+              recurring_key: { type: "string", description: "Stable dimensions within the claim type, or global" },
+              evidence_record_timestamp: {
+                type: ["string", "null"],
+                format: "date-time",
+                description: "Newest timestamp among source evidence records used by the computation",
+              },
+              recomputed_at: {
+                type: "string",
+                format: "date-time",
+                description: "Time this canonical row was last recomputed and upserted",
+              },
+            },
+          },
+        ],
       },
       ErrorResponse: {
         type: "object",

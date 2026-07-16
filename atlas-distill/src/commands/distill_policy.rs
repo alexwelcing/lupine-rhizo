@@ -14,7 +14,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 
+use crate::policy::RuntimeContractCertificate;
+
 pub(crate) const DEFAULT_RIBBON_VERSION: &str = "hyperribbon-v1";
+const FIELD_DOMAIN_REFUSAL_THEOREM: &str = "OpenDistillationFactory.Materials.Theory.\
+SorptionStability.FieldDomain.refusal_has_witness";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub(crate) struct PolicyLimits {
@@ -453,6 +457,10 @@ pub(crate) struct PolicyAction {
     pub(crate) action: String,
     pub(crate) reason: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) kind: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) theorem_ref: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) field: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) value: Option<Value>,
@@ -463,6 +471,8 @@ impl PolicyAction {
         Self {
             action: "accept".to_string(),
             reason: reason.to_string(),
+            kind: None,
+            theorem_ref: None,
             field: None,
             value: None,
         }
@@ -472,6 +482,8 @@ impl PolicyAction {
         Self {
             action: "refuse".to_string(),
             reason: reason.to_string(),
+            kind: None,
+            theorem_ref: None,
             field: Some(field.to_string()),
             value: None,
         }
@@ -481,6 +493,8 @@ impl PolicyAction {
         Self {
             action: "tighten".to_string(),
             reason: reason.to_string(),
+            kind: None,
+            theorem_ref: None,
             field: Some(field.to_string()),
             value: None,
         }
@@ -490,6 +504,8 @@ impl PolicyAction {
         Self {
             action: "delta_correct".to_string(),
             reason: "support_gate_passed".to_string(),
+            kind: None,
+            theorem_ref: None,
             field: Some(field.to_string()),
             value: Some(value),
         }
@@ -499,7 +515,20 @@ impl PolicyAction {
         Self {
             action: "delta_correct_blocked".to_string(),
             reason: reason.to_string(),
+            kind: None,
+            theorem_ref: None,
             field: Some(field.to_string()),
+            value: Some(value),
+        }
+    }
+
+    fn skip_correction(kind: &str, reason: &str, theorem_ref: Option<&str>, value: Value) -> Self {
+        Self {
+            action: "skip_correction".to_string(),
+            reason: reason.to_string(),
+            kind: Some(kind.to_string()),
+            theorem_ref: theorem_ref.map(str::to_owned),
+            field: None,
             value: Some(value),
         }
     }
@@ -614,14 +643,21 @@ pub(crate) fn decide_with_limits(
     let mut actions = Vec::new();
     let mut applied = Map::new();
     let row_limits = limits.for_row(&request.row_id)?;
+    let domain_action = field_domain_action(request);
+    let (runtime_contract_action, runtime_contract_hook) = runtime_contract_authorization(request);
+    let correction_blocked = domain_action.is_some() || runtime_contract_action.is_some();
+    actions.extend(domain_action.clone());
+    actions.extend(runtime_contract_action);
 
-    apply_support_corrections(
-        request,
-        &mut corrected,
-        &mut actions,
-        &mut applied,
-        &row_limits,
-    )?;
+    if !correction_blocked {
+        apply_support_corrections(
+            request,
+            &mut corrected,
+            &mut actions,
+            &mut applied,
+            &row_limits,
+        )?;
+    }
     actions.extend(guard_prediction(&request.row_id, &corrected, &row_limits));
     if !actions.iter().any(|action| action.action == "accept")
         && !actions.iter().any(|action| action.action == "refuse")
@@ -656,6 +692,8 @@ pub(crate) fn decide_with_limits(
         "layerwise_exact": false,
         "support_diagnostics_present": request.support.as_ref().and_then(|s| s.diagnostics.as_ref()).is_some(),
         "policy_engine": "atlas-distill",
+        "field_domain_certificate": domain_action,
+        "runtime_contract_certificate": runtime_contract_hook,
         "theorem_development_lanes": [
             {
                 "lane": "stiff_axis_preservation",
@@ -701,6 +739,114 @@ pub(crate) fn decide_with_limits(
         refused,
         theorem_hooks,
     })
+}
+
+fn field_domain_action(request: &PolicyRequest) -> Option<PolicyAction> {
+    let coordinates = request
+        .prediction
+        .get("first_shell_coordinations")
+        .or_else(|| {
+            request
+                .context
+                .as_ref()
+                .and_then(|context| context.get("first_shell_coordinations"))
+        })?
+        .as_array()?;
+    let values = coordinates
+        .iter()
+        .map(Value::as_i64)
+        .collect::<Option<Vec<_>>>()?;
+    if values.is_empty() {
+        return None;
+    }
+    let witnesses = values
+        .iter()
+        .enumerate()
+        .filter(|&(_, coordination)| !(4..=12).contains(coordination))
+        .map(|(index, coordination)| json!([index, coordination]))
+        .collect::<Vec<_>>();
+    if witnesses.is_empty() {
+        return None;
+    }
+    let listed = witnesses
+        .iter()
+        .map(|witness| {
+            format!(
+                "atom {} (c={})",
+                witness[0].as_u64().unwrap_or_default(),
+                witness[1].as_i64().unwrap_or_default()
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+    Some(PolicyAction::skip_correction(
+        "field_domain",
+        &format!(
+            "lean_certificate_refusal: out of measured domain [4, 12]: {listed} - \
+escalate to explicit electronic-structure treatment"
+        ),
+        Some(FIELD_DOMAIN_REFUSAL_THEOREM),
+        json!({
+            "cmin": 4,
+            "cmax": 12,
+            "witnesses": witnesses,
+        }),
+    ))
+}
+
+fn runtime_contract_authorization(
+    request: &PolicyRequest,
+) -> (Option<PolicyAction>, Option<Value>) {
+    let Some(raw) = request
+        .context
+        .as_ref()
+        .and_then(|context| context.get("runtime_contract_certificate"))
+    else {
+        return (None, None);
+    };
+    let certificate: RuntimeContractCertificate = match serde_json::from_value(raw.clone()) {
+        Ok(certificate) => certificate,
+        Err(error) => {
+            return (
+                Some(PolicyAction::skip_correction(
+                    "runtime_contract",
+                    "invalid_runtime_contract_certificate",
+                    None,
+                    json!({"validation_error": error.to_string()}),
+                )),
+                Some(json!({"valid": false, "authorized": false})),
+            )
+        }
+    };
+    if let Err(error) = certificate.verify() {
+        return (
+            Some(PolicyAction::skip_correction(
+                "runtime_contract",
+                "invalid_runtime_contract_certificate",
+                None,
+                json!({"validation_error": error.to_string()}),
+            )),
+            Some(json!({"valid": false, "authorized": false})),
+        );
+    }
+    let hook = json!({
+        "valid": true,
+        "authorized": certificate.correction_allowed,
+        "certificate": certificate,
+    });
+    if certificate.correction_allowed {
+        (None, Some(hook))
+    } else {
+        (
+            Some(PolicyAction::skip_correction(
+                "runtime_contract",
+                "runtime_contract_not_authorized",
+                certificate.theorem_references.first().map(String::as_str),
+                json!({"theorem_references": certificate.theorem_references}),
+            )),
+            Some(hook),
+        )
+    }
 }
 
 fn apply_support_corrections(
@@ -1195,6 +1341,8 @@ fn try_apply_projected_ribbon_residual_correction(
     Some(PolicyAction {
         action: "handled".to_string(),
         reason: String::new(),
+        kind: None,
+        theorem_ref: None,
         field: Some(model.field),
         value: None,
     })
@@ -1356,6 +1504,8 @@ fn try_apply_ribbon_residual_correction(
     Some(PolicyAction {
         action: "handled".to_string(),
         reason: String::new(),
+        kind: None,
+        theorem_ref: None,
         field: Some(model.field),
         value: None,
     })
@@ -2187,6 +2337,103 @@ mod tests {
             .actions
             .iter()
             .any(|action| action.action == "delta_correct"));
+    }
+
+    #[test]
+    fn first_shell_domain_refusal_blocks_correction() {
+        let mut req = request(
+            "energy_volume",
+            json!({
+                "energy_ev_per_atom": 1.0,
+                "first_shell_coordinations": [8, 3, 8]
+            }),
+            json!({"energy_bias_ev_per_atom": -0.1}),
+        );
+        req.context = Some(json!({"first_shell_coordinations": [8, 3, 8]}));
+
+        let decision = decide(&req, DEFAULT_RIBBON_VERSION).unwrap();
+        let actions = serde_json::to_value(&decision.actions).unwrap();
+
+        assert_eq!(
+            decision.corrected_prediction["energy_ev_per_atom"],
+            json!(1.0)
+        );
+        assert!(actions.as_array().unwrap().iter().any(|action| {
+            action["action"] == "skip_correction"
+                && action["kind"] == "field_domain"
+                && action["theorem_ref"]
+                    == "OpenDistillationFactory.Materials.Theory.SorptionStability.\
+FieldDomain.refusal_has_witness"
+        }));
+    }
+
+    #[test]
+    fn non_admit_runtime_contract_certificate_blocks_correction() {
+        use crate::policy::{
+            certify_runtime_contract, ArtifactId, DescriptorId, FixedEnvelope, FixedMeasurement,
+            MolecularContext, NumericContract, RoundingConvention, RuntimePolicy, ScopeIdentity,
+        };
+
+        let artifact = |name: &str| ArtifactId {
+            name: name.to_owned(),
+            version: "1".to_owned(),
+            digest: format!("sha256:{name}"),
+        };
+        let scope = ScopeIdentity {
+            model: artifact("model"),
+            reference: artifact("reference"),
+            observable: "total-energy".to_owned(),
+            context: MolecularContext {
+                species: vec!["Ni".to_owned()],
+                charge: 0,
+                spin_convention: "nonmagnetic".to_owned(),
+                boundary_conditions: "periodic".to_owned(),
+            },
+            descriptor: DescriptorId {
+                artifact: artifact("descriptor"),
+                metric_convention: "discrete-v1".to_owned(),
+            },
+            units: "eV".to_owned(),
+            numeric_semantics: "exact-fixed-point-v1".to_owned(),
+        };
+        let numeric = NumericContract {
+            schema_version: 1,
+            scale: 1000,
+            units: "eV".to_owned(),
+            semantics: "exact-fixed-point-v1".to_owned(),
+            rounding: RoundingConvention::Outward,
+        };
+        let certificate = certify_runtime_contract(
+            RuntimePolicy {
+                scope: scope.clone(),
+                numeric: numeric.clone(),
+                tolerance: 5,
+            },
+            FixedMeasurement {
+                scope,
+                numeric,
+                envelope: FixedEnvelope {
+                    lower: 100,
+                    upper: 110,
+                },
+            },
+        );
+        let mut req = request(
+            "energy_volume",
+            json!({"energy_ev_per_atom": 1.0}),
+            json!({"energy_bias_ev_per_atom": -0.1}),
+        );
+        req.context = Some(json!({"runtime_contract_certificate": certificate}));
+
+        let decision = decide(&req, DEFAULT_RIBBON_VERSION).unwrap();
+
+        assert_eq!(
+            decision.corrected_prediction["energy_ev_per_atom"],
+            json!(1.0)
+        );
+        assert!(decision.actions.iter().any(|action| {
+            action.action == "skip_correction" && action.reason == "runtime_contract_not_authorized"
+        }));
     }
 
     #[test]

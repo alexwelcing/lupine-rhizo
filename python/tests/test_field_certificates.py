@@ -11,14 +11,15 @@ shipping dangling provenance.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
 import pytest
-
 from lupine_distill.odf.field_certificates import (
     GAP_COORDINATIONS,
     THEOREM_REFS,
+    certificates_from_binding_report,
     check_anchor_admissibility,
     check_barrier_conservatism,
     check_bracket_separation,
@@ -263,51 +264,91 @@ def test_refused_cell_has_no_bracket_but_carries_impossibility():
     assert "identification impossibility" in cert.reason
 
 
-# ── Bracket separation: mirrors certified_order_of_separation_fcc/_bcc ─────
+# ── Exact endpoint ranking: mirrors certified_order_iff_endpoint_margins ────
 
 
 def test_separation_certifies_strict_margin():
-    """corrected_a < corrected_b − count·width ⇒ certified for every
-    consistent field (fcc rule)."""
+    """Both envelope margins are strict, so every consistent field agrees."""
     cert = check_bracket_separation(
         corrected_a=-1.00,
         corrected_b=-0.50,
-        gap_count_b=4,
+        coordinations_a=[12, 12],
+        coordinations_b=[10, 10, 10, 10],
         bracket_width_scaled=537,
     )
     assert cert.certified
     assert cert.theorem_ref == THEOREM_REFS["bracket_separation"]
-    assert cert.margin == pytest.approx(0.5 - 4 * 537e-4)
+    assert cert.gap_count_a == 0
+    assert cert.gap_count_b == 4
+    assert cert.deep_margin == pytest.approx(0.5)
+    assert cert.shallow_margin == pytest.approx(0.5 - 4 * 537e-4)
 
 
-def test_separation_zero_margin_not_certified():
-    """Strictness mirror: the Lean rule is a strict `<`; a pair sitting
-    exactly at the budget boundary is NOT certified."""
+def test_equal_gap_counts_avoid_old_one_sided_false_refusal():
+    """Equal gap populations shift both endpoints equally.
+
+    The old sufficient rule budgeted candidate B only and refused this pair.
+    The exact two-envelope criterion correctly certifies it.
+    """
+    cert = check_bracket_separation(
+        corrected_a=0.0,
+        corrected_b=0.5,
+        coordinations_a=[10],
+        coordinations_b=[10],
+        bracket_width_scaled=10000,
+    )
+    assert cert.certified
+    assert cert.deep_margin == pytest.approx(0.5)
+    assert cert.shallow_margin == pytest.approx(0.5)
+
+
+def test_shallow_endpoint_zero_margin_not_certified():
+    """Strictness mirror: a tie at either envelope is not certified."""
     cert = check_bracket_separation(
         corrected_a=0.0,
         corrected_b=4 * 537e-4,
-        gap_count_b=4,
+        coordinations_a=[12],
+        coordinations_b=[10, 10, 10, 10],
         bracket_width_scaled=537,
     )
     assert not cert.certified
-    assert "budget" in cert.reason
+    assert cert.deep_margin > 0
+    assert cert.shallow_margin == pytest.approx(0.0)
+    assert "shallow envelope" in cert.reason
 
 
-def test_separation_overlap_not_certified():
+def test_deep_endpoint_failure_not_certified():
     cert = check_bracket_separation(
-        corrected_a=-0.52,
+        corrected_a=-0.49,
         corrected_b=-0.50,
-        gap_count_b=1,
+        coordinations_a=[10],
+        coordinations_b=[10],
         bracket_width_scaled=537,
     )
     assert not cert.certified
+    assert cert.deep_margin < 0
+    assert "deep envelope" in cert.reason
+
+
+def test_unequal_gap_counts_can_fail_only_at_shallow_endpoint():
+    cert = check_bracket_separation(
+        corrected_a=0.0,
+        corrected_b=0.5,
+        coordinations_a=[12],
+        coordinations_b=[10],
+        bracket_width_scaled=10000,
+    )
+    assert not cert.certified
+    assert cert.deep_margin == pytest.approx(0.5)
+    assert cert.shallow_margin == pytest.approx(-0.5)
 
 
 def test_separation_bcc_uses_bcc_theorem():
     cert = check_bracket_separation(
         corrected_a=-2.0,
         corrected_b=-1.0,
-        gap_count_b=2,
+        coordinations_a=[8, 8],
+        coordinations_b=[5, 5],
         bracket_width_scaled=256,
         structure="bcc",
     )
@@ -321,7 +362,8 @@ def test_separation_diamond_degenerates_to_exact_comparison():
     cert = check_bracket_separation(
         corrected_a=-1.0001,
         corrected_b=-1.0,
-        gap_count_b=7,
+        coordinations_a=[3, 4],
+        coordinations_b=[3, 3, 4],
         bracket_width_scaled=0,
         structure="diamond",
     )
@@ -329,16 +371,41 @@ def test_separation_diamond_degenerates_to_exact_comparison():
     assert cert.theorem_ref == THEOREM_REFS["corrected_exact_diamond"]
 
 
-def test_separation_rejects_negative_count():
-    with pytest.raises(ValueError, match="nonnegative"):
-        check_bracket_separation(0.0, 1.0, -1, 537)
+def test_separation_rocksalt_degenerates_to_exact_comparison():
+    cert = check_bracket_separation(
+        corrected_a=-1.0001,
+        corrected_b=-1.0,
+        coordinations_a=[5, 6],
+        coordinations_b=[5, 5, 6],
+        bracket_width_scaled=0,
+        structure="rocksalt",
+    )
+    assert cert.certified
+    assert cert.theorem_ref == THEOREM_REFS["corrected_exact_rocksalt"]
+
+
+def test_separation_rejects_configuration_below_layout_range():
+    with pytest.raises(ValueError, match="below the fcc anchor floor"):
+        check_bracket_separation(0.0, 1.0, [7], [10], 537)
+
+
+def test_separation_rejects_invalid_numeric_contract():
+    with pytest.raises(ValueError, match="bracket_width_scaled"):
+        check_bracket_separation(0.0, 1.0, [10], [10], -1)
+    with pytest.raises(ValueError, match="scale"):
+        check_bracket_separation(0.0, 1.0, [10], [10], 537, scale=0)
 
 
 def test_separation_certificate_serializes():
-    payload = check_bracket_separation(-1.0, -0.5, 4, 537).to_dict()
+    payload = check_bracket_separation(
+        -1.0, -0.5, [12], [10, 10, 10, 10], 537
+    ).to_dict()
     assert payload["kind"] == "bracket_separation"
     assert payload["certified"] is True
+    assert payload["gap_count_a"] == 0
     assert payload["gap_count_b"] == 4
+    assert payload["deep_margin"] == pytest.approx(0.5)
+    assert payload["shallow_margin"] == pytest.approx(0.5 - 4 * 537e-4)
 
 
 # ── Metadata enrichment: integration with the promotion gate ───────────────
@@ -367,8 +434,9 @@ def test_merge_enriches_without_mutation():
     certs = _sample_certificates()
     enriched = merge_into_candidate_metadata(metadata, certs)
     assert "atlas_theorem_refs" not in metadata  # input untouched
-    assert set(theorem_refs(certs)).issubset(set(enriched["atlas_theorem_refs"]))
-    assert len(enriched["formal_properties"]) == 3
+    assert enriched["atlas_theorem_refs"] == [certs[1].theorem_ref]
+    assert len(enriched["formal_properties"]) == 1
+    assert len(enriched["certificate_evidence"]) == 3
 
 
 def test_certificates_flow_through_promotion_gate():
@@ -388,12 +456,43 @@ def test_certificates_flow_through_promotion_gate():
     assert gated.formal_fields_present
 
 
-def test_refusal_witness_lands_in_formal_properties():
+def test_refusal_witness_is_evidence_but_does_not_authorize_promotion():
     enriched = merge_into_candidate_metadata(
-        {"model_id": "m", "distill_version": 0},
+        {
+            "model_id": "m",
+            "distill_version": 0,
+            "overall_uplift_pct": 7.5,
+        },
         [check_field_domain([8, 8, 3, 8])],
     )
-    assert any("atom 2 (c=3)" in p for p in enriched["formal_properties"])
+    assert enriched["atlas_theorem_refs"] == []
+    assert enriched["formal_properties"] == []
+    assert any(
+        "atom 2 (c=3)" in item["reason"]
+        for item in enriched["certificate_evidence"]
+    )
+    assert evaluate_promotion(enriched).decision.value == "review"
+
+
+def test_binding_report_digest_is_recomputed_when_sources_are_available(tmp_path):
+    report_path = _REPO_ROOT / "data" / "y_matrix_runs" / "env_field_binding_report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    runs_dir = tmp_path / "y_matrix_runs"
+    targets_dir = tmp_path / "y_matrix_targets"
+    runs_dir.mkdir()
+    targets_dir.mkdir()
+    for cell in report["cells"]:
+        name = f"{cell['material']}_{cell['structure']}_{cell['model_id']}.json"
+        (runs_dir / name).write_bytes((report_path.parent / name).read_bytes())
+    for name in ("surface_energies.json", "vacancy_formation.json", "beyond_metals.json"):
+        source = _REPO_ROOT / "data" / "y_matrix_targets" / name
+        (targets_dir / name).write_bytes(source.read_bytes())
+    report["corpus_sha256_12"] = "000000000000"
+
+    with pytest.raises(ValueError, match="digest mismatch"):
+        certificates_from_binding_report(
+            report, report_path=runs_dir / "env_field_binding_report.json"
+        )
 
 
 # ── Barrier conservatism: mirrors softened_barrier_underestimates ─────────
