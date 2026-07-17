@@ -1,9 +1,14 @@
-"""Validated ATLAS theorem manifest construction and D1 synchronization.
+"""Validated ATLAS theorem synchronization and runtime contract compilation.
 
 The synchronizer consumes build evidence. It never treats a source filename or
 the presence of a theorem declaration as proof that Lean accepted the theorem.
 It can apply parameterized statements to a DB-API SQLite connection or render a
 reviewable, safely escaped D1 SQL script; it never opens a remote database.
+
+The contract compiler consumes the locked derived assumption registry and emits
+scope-specific runtime decisions with theorem, premise, evidence, and hash
+provenance. Missing or stale records, unsupported required dependencies, and
+contradictory evidence fail closed.
 """
 
 from __future__ import annotations
@@ -41,13 +46,23 @@ VISION_EPISTEMIC_GAP_COUNT = 5
 BUILD_EVIDENCE_SCHEMA = "lupine.lean-build-evidence.v1"
 REGISTRY_SCHEMA = "lupine.atlas-theorem-registry.v1"
 SYNC_SCHEMA = "lupine.atlas-theorem-sync.v1"
+GATE_MANIFEST_SCHEMA = "lupine.runtime-gate-manifest.v1"
 STATE_SCHEMA_VERSION = 2
 INVENTORY_SCHEMA_VERSION = 2
 
 _REPO = Path(__file__).resolve().parents[1]
 DEFAULT_REGISTRY_PATH = _REPO / "config" / "atlas_theorem_registry.v1.json"
+DEFAULT_ASSUMPTIONS_PATH = _REPO / "registry" / "assumptions.v1.json"
+DEFAULT_ASSUMPTIONS_LOCK_PATH = _REPO / "registry" / "snapshots" / "current.lock.json"
+DEFAULT_CLAIMS_PATH = _REPO / "registry" / "claims"
+DEFAULT_EVIDENCE_PATH = _REPO / "evidence" / "v1" / "examples"
+DEFAULT_THEOREM_BUILD_EVIDENCE_PATH = _REPO / "config" / "atlas_theorem_sync.bad604c.json"
 _HEX_64 = re.compile(r"^[0-9a-f]{64}$")
+_CONTENT_HASH = re.compile(r"^sha256:[0-9a-f]{64}$")
 _GIT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
+_CONTRACT_IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._-]{2,159}$")
+_EVIDENCE_LEVEL = {"exploratory": 1, "descriptive": 2, "confirmatory": 3}
+_PREMISE_STATUS = ("unsupported", "provisional", "eligible", "active")
 
 
 def _require_git_commit(value: Any, label: str) -> str:
@@ -123,6 +138,29 @@ def canonical_manifest_hash(manifest: Mapping[str, Any]) -> str:
     return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
 
 
+def _content_hash(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _load_json_object(path: Path, label: str) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ManifestError(f"cannot load {label} from {path}: {error}") from error
+    if not isinstance(value, dict):
+        raise ManifestError(f"{label} must be a JSON object")
+    return value
+
+
+def _require_content_hash(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not _CONTENT_HASH.fullmatch(value):
+        raise ManifestError(f"{label} must be a sha256: content hash")
+    return value
+
+
 def _require_hash(value: Any, label: str) -> str:
     if not isinstance(value, str) or not _HEX_64.fullmatch(value):
         raise ManifestError(f"{label} must be a lowercase SHA-256 hash")
@@ -151,6 +189,424 @@ def _authority_values(proof_revision: str) -> dict[str, Any]:
         "vision_legacy_count": VISION_LEGACY_COUNT,
         "vision_universal_correction_count": VISION_UNIVERSAL_CORRECTION_COUNT,
         "vision_epistemic_gap_count": VISION_EPISTEMIC_GAP_COUNT,
+    }
+
+
+def _scope_intersection(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> dict[str, Any]:
+    """Return the common structured scope, rejecting disjoint premise evidence."""
+
+    if not scopes:
+        raise ManifestError(f"claim {claim_id} has no evidence scope")
+    merged: dict[str, Any] = {}
+    for axis in ("chemistries", "properties", "structures"):
+        values: list[set[str]] = []
+        for scope in scopes:
+            raw = scope.get(axis)
+            if (
+                not isinstance(raw, list)
+                or not raw
+                or any(not isinstance(item, str) or not item for item in raw)
+            ):
+                raise ManifestError(f"claim {claim_id} evidence scope has invalid {axis}")
+            values.append(set(raw))
+        common = set.intersection(*values)
+        if not common:
+            raise ManifestError(f"claim {claim_id} has scope-incompatible premise evidence")
+        merged[axis] = sorted(common)
+    conditions: dict[str, Any] = {}
+    for scope in scopes:
+        current = _require_mapping(scope.get("conditions"), "scope.conditions")
+        for key, value in current.items():
+            if key in conditions and conditions[key] != value:
+                raise ManifestError(
+                    f"claim {claim_id} has scope-incompatible evidence conditions"
+                )
+            conditions[key] = value
+    merged["conditions"] = conditions
+    return merged
+
+
+def _theorem_dependency(
+    claim: Mapping[str, Any],
+    claim_id: str,
+    theorem_registry: set[tuple[str, str]],
+    verified_theorems: set[tuple[str, str]],
+) -> dict[str, Any]:
+    bindings = _require_mapping(claim.get("bindings"), f"claim {claim_id} bindings")
+    theorem = _require_mapping(bindings.get("lean_theorem"), f"claim {claim_id} lean theorem")
+    status = theorem.get("status")
+    if status == "unsupported":
+        reason = theorem.get("reason")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ManifestError(f"claim {claim_id} unsupported theorem needs a reason")
+        return {"status": "unsupported", "reason": reason}
+    if status != "bound":
+        raise ManifestError(f"claim {claim_id} has unsupported theorem binding status {status!r}")
+    module = theorem.get("module")
+    name = theorem.get("theorem")
+    if not isinstance(module, str) or not module or not isinstance(name, str) or not name:
+        raise ManifestError(f"claim {claim_id} bound theorem is incomplete")
+    full_name = name if name.startswith(f"{module}.") else f"{module}.{name}"
+    if (module, full_name) not in theorem_registry:
+        raise ManifestError(f"claim {claim_id} has unresolved bound theorem {full_name}")
+    if (module, full_name) not in verified_theorems:
+        raise ManifestError(
+            f"claim {claim_id} theorem {full_name} is not active verified build evidence"
+        )
+    return {"status": "bound", "module": module, "theorem": full_name}
+
+
+def _provenance_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(_REPO).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _compile_claim_gate(
+    assumption: Mapping[str, Any],
+    claim: Mapping[str, Any],
+    evidence_bundles: Mapping[str, Mapping[str, Any]],
+    theorem_registry: set[tuple[str, str]],
+    verified_theorems: set[tuple[str, str]],
+) -> dict[str, Any] | None:
+    claim_id = str(assumption["claim_id"])
+    bindings = _require_mapping(claim.get("bindings"), f"claim {claim_id} bindings")
+    runtime = _require_mapping(bindings.get("runtime_gate"), f"claim {claim_id} runtime gate")
+    runtime_status = runtime.get("status")
+    if runtime_status == "unsupported":
+        if not isinstance(runtime.get("reason"), str) or not str(runtime["reason"]).strip():
+            raise ManifestError(f"claim {claim_id} unsupported runtime gate needs a reason")
+        return None
+    if runtime_status != "bound" or not isinstance(runtime.get("gate_id"), str):
+        raise ManifestError(f"claim {claim_id} has unsupported runtime gate binding")
+
+    evidence_raw = _require_sequence(assumption.get("evidence"), f"claim {claim_id} evidence")
+    evidence_by_id: dict[str, Mapping[str, Any]] = {}
+    for raw in evidence_raw:
+        evidence = _require_mapping(raw, f"claim {claim_id} evidence entry")
+        bundle_id = _require_content_hash(evidence.get("bundle_id"), "evidence bundle_id")
+        if bundle_id in evidence_by_id:
+            raise ManifestError(f"claim {claim_id} duplicates evidence {bundle_id}")
+        if bundle_id not in evidence_bundles:
+            raise ManifestError(f"claim {claim_id} references unlocked evidence {bundle_id}")
+        status = evidence.get("epistemic_status")
+        if status not in {"exploratory", "descriptive", "confirmatory", "negative"}:
+            raise ManifestError(f"claim {claim_id} has unsupported evidence status {status!r}")
+        source_evidence = evidence_bundles[bundle_id]
+        if evidence.get("epistemic_status") != source_evidence.get(
+            "epistemic_status"
+        ) or evidence.get("scope") != source_evidence.get("scope"):
+            raise ManifestError(f"claim {claim_id} has stale evidence {bundle_id}")
+        evidence_by_id[bundle_id] = evidence
+
+    premise_rows: list[dict[str, Any]] = []
+    referenced: set[str] = set()
+    for raw in _require_sequence(claim.get("premises"), f"claim {claim_id} premises"):
+        premise = _require_mapping(raw, f"claim {claim_id} premise")
+        premise_id = premise.get("premise_id")
+        if not isinstance(premise_id, str) or not premise_id:
+            raise ManifestError(f"claim {claim_id} premise is missing premise_id")
+        references = _require_sequence(
+            premise.get("bundle_references"), f"claim {claim_id} premise references"
+        )
+        bundle_ids: list[str] = []
+        seen_premise_references: set[str] = set()
+        for raw_reference in references:
+            reference = _require_mapping(raw_reference, f"claim {claim_id} premise reference")
+            bundle_id = _require_content_hash(reference.get("bundle_id"), "premise bundle_id")
+            if bundle_id not in evidence_by_id:
+                raise ManifestError(
+                    f"claim {claim_id} premise {premise_id} has missing evidence {bundle_id}"
+                )
+            if bundle_id in seen_premise_references:
+                raise ManifestError(
+                    f"claim {claim_id} premise {premise_id} duplicates evidence {bundle_id}"
+                )
+            seen_premise_references.add(bundle_id)
+            referenced.add(bundle_id)
+            bundle_ids.append(bundle_id)
+        statuses = [str(evidence_by_id[bundle_id]["epistemic_status"]) for bundle_id in bundle_ids]
+        policy = _require_mapping(
+            premise.get("support_policy"), f"claim {claim_id} premise support policy"
+        )
+        mode = policy.get("mode")
+        if mode not in {"all", "any", "at_least"} or not bundle_ids:
+            raise ManifestError(f"claim {claim_id} premise {premise_id} is unsupported")
+        contradicted = "negative" in statuses
+        levels = [_EVIDENCE_LEVEL[status] for status in statuses if status != "negative"]
+        minimum = policy.get("minimum")
+        if mode == "at_least" and (
+            not isinstance(minimum, int) or isinstance(minimum, bool) or minimum < 1
+        ):
+            raise ManifestError(f"claim {claim_id} premise {premise_id} has invalid minimum")
+        minimum_count = minimum if isinstance(minimum, int) else 0
+        if contradicted:
+            premise_status = "contradicted"
+        elif mode == "all":
+            premise_status = _PREMISE_STATUS[min(levels)]
+        elif mode == "any":
+            premise_status = _PREMISE_STATUS[max(levels)]
+        elif minimum_count > len(levels):
+            premise_status = "unsupported"
+        else:
+            premise_status = _PREMISE_STATUS[
+                sorted(levels, reverse=True)[minimum_count - 1]
+            ]
+        premise_rows.append(
+            {
+                "premise_id": premise_id,
+                "status": premise_status,
+                "support_policy": dict(policy),
+                "evidence": bundle_ids,
+            }
+        )
+    if referenced != set(evidence_by_id):
+        raise ManifestError(f"claim {claim_id} assumption evidence is stale or unreferenced")
+
+    scopes = [
+        _require_mapping(evidence["scope"], f"claim {claim_id} evidence scope")
+        for evidence in evidence_by_id.values()
+    ]
+    scope = _scope_intersection(scopes, claim_id)
+    contradiction = any(
+        evidence["epistemic_status"] == "negative" for evidence in evidence_by_id.values()
+    )
+    status = assumption.get("status")
+    disposition = assumption.get("disposition")
+    if contradiction:
+        decision, reason = "deny", "contradicting_evidence"
+    elif status == "active" and disposition == "supported" and all(
+        premise["status"] == "active" for premise in premise_rows
+    ):
+        properties = scope["properties"]
+        conditions = scope["conditions"]
+        calibration = (
+            conditions.get("calibration", "")
+            if isinstance(conditions, Mapping)
+            else " ".join(str(item.get("calibration", "")) for item in conditions)
+        )
+        if len(properties) == 1 and "class" in str(calibration).lower():
+            reason = f"scope_matched_same_class_{properties[0].lower()}"
+        else:
+            reason = "active_scope_supported"
+        decision = "allow"
+    elif status == "unsupported" or disposition == "unsupported":
+        decision, reason = "deny", "unsupported_record"
+    else:
+        decision, reason = "deny", "inactive_claim"
+
+    return {
+        "gate_id": runtime["gate_id"],
+        "gate_key": f"{runtime['gate_id']}@{_content_hash(scope)}",
+        "decision": decision,
+        "reason": reason,
+        "claim_contract": {
+            "claim_id": claim_id,
+            "version": claim["version"],
+            "content_hash": claim["content_hash"],
+            "status": status,
+            "disposition": disposition,
+        },
+        "theorem": _theorem_dependency(
+            claim, claim_id, theorem_registry, verified_theorems
+        ),
+        "premises": premise_rows,
+        "evidence": [dict(evidence_by_id[key]) for key in sorted(evidence_by_id)],
+        "scope": scope,
+    }
+
+
+def compile_gate_manifest(
+    assumptions_path: Path = DEFAULT_ASSUMPTIONS_PATH,
+    lock_path: Path = DEFAULT_ASSUMPTIONS_LOCK_PATH,
+    claims_path: Path = DEFAULT_CLAIMS_PATH,
+    evidence_path: Path = DEFAULT_EVIDENCE_PATH,
+    theorem_registry_path: Path = DEFAULT_REGISTRY_PATH,
+    theorem_build_evidence_path: Path = DEFAULT_THEOREM_BUILD_EVIDENCE_PATH,
+) -> dict[str, Any]:
+    """Compile locked ClaimContracts into a fail-closed runtime gate manifest."""
+
+    assumptions = _load_json_object(assumptions_path, "assumption registry")
+    lock = _load_json_object(lock_path, "assumption snapshot lock")
+    if assumptions.get("version") != 1 or lock.get("version") != 1:
+        raise ManifestError("unsupported assumption registry or lock version")
+
+    theorem_document = _load_json_object(theorem_registry_path, "theorem registry")
+    if theorem_document.get("schema") != REGISTRY_SCHEMA:
+        raise ManifestError("unsupported theorem registry")
+    theorem_registry: set[tuple[str, str]] = set()
+    for raw in _require_sequence(theorem_document.get("theorems"), "theorem registry entries"):
+        theorem = _require_mapping(raw, "theorem registry entry")
+        module = theorem.get("module")
+        name = theorem.get("theorem_name")
+        if not isinstance(module, str) or not isinstance(name, str):
+            raise ManifestError("theorem registry has an invalid entry")
+        theorem_registry.add((module, name))
+
+    theorem_evidence = _load_json_object(
+        theorem_build_evidence_path, "theorem build evidence"
+    )
+    authority = _require_mapping(theorem_document.get("authority"), "theorem authority")
+    if (
+        theorem_evidence.get("schema") != SYNC_SCHEMA
+        or theorem_evidence.get("build_gates_passed") is not True
+        or theorem_evidence.get("proof_revision") != authority.get("proof_revision")
+    ):
+        raise ManifestError("stale or unsupported theorem build evidence")
+    build_manifest_hash = theorem_evidence.get("build_manifest_hash")
+    if build_manifest_hash is not None and not _HEX_64.fullmatch(str(build_manifest_hash)):
+        raise ManifestError("theorem build evidence has invalid build_manifest_hash")
+    verified_theorems: set[tuple[str, str]] = set()
+    seen_theorem_rows: set[tuple[str, str]] = set()
+    for raw in _require_sequence(theorem_evidence.get("theorems"), "verified theorems"):
+        theorem = _require_mapping(raw, "verified theorem")
+        module = theorem.get("module")
+        name = theorem.get("theorem_name")
+        if not isinstance(module, str) or not isinstance(name, str):
+            raise ManifestError("verified theorem has invalid module or name")
+        row_key = (module, name)
+        if row_key in seen_theorem_rows:
+            raise ManifestError(f"duplicate verified theorem row for {module}.{name}")
+        seen_theorem_rows.add(row_key)
+        if theorem.get("status") == "verified" and theorem.get("lifecycle_status") == "active":
+            for hash_field in ("statement_hash", "source_hash", "build_manifest_hash"):
+                value = theorem.get(hash_field)
+                if value is not None and not _HEX_64.fullmatch(str(value)):
+                    raise ManifestError(
+                        f"verified theorem {module}.{name} has invalid {hash_field}"
+                    )
+            verified_theorems.add((module, name))
+
+    artifacts = _require_mapping(lock.get("artifacts"), "snapshot artifacts")
+    registry_lock = _require_mapping(
+        artifacts.get("registry/assumptions.v1.json"), "assumption registry lock"
+    )
+    expected_registry_hash = _require_content_hash(
+        registry_lock.get("content_hash"), "assumption registry lock hash"
+    )
+    registry_hash = _content_hash(assumptions)
+    if registry_hash != expected_registry_hash:
+        raise ManifestError("assumption registry content hash mismatch")
+
+    inputs = _require_mapping(lock.get("inputs"), "snapshot inputs")
+    locked_claims: dict[str, str] = {}
+    for raw in _require_sequence(inputs.get("claim_contracts"), "locked claim contracts"):
+        item = _require_mapping(raw, "locked claim contract")
+        claim_id = item.get("claim_id")
+        if (
+            not isinstance(claim_id, str)
+            or not _CONTRACT_IDENTIFIER.fullmatch(claim_id)
+            or claim_id in locked_claims
+        ):
+            raise ManifestError("snapshot has an invalid or duplicate claim contract")
+        locked_claims[claim_id] = _require_content_hash(
+            item.get("content_hash"), f"claim {claim_id} lock hash"
+        )
+    locked_evidence_list = _require_sequence(
+        inputs.get("evidence_bundles"), "locked evidence bundles"
+    )
+    locked_evidence = {
+        _require_content_hash(bundle_id, "locked evidence bundle")
+        for bundle_id in locked_evidence_list
+    }
+    if len(locked_evidence) != len(locked_evidence_list):
+        raise ManifestError("snapshot duplicates an evidence bundle")
+
+    evidence_bundles: dict[str, Mapping[str, Any]] = {}
+    for path in sorted(evidence_path.glob("*.json")):
+        bundle = _load_json_object(path, "EvidenceBundle")
+        bundle_id = _require_content_hash(bundle.get("bundle_id"), "EvidenceBundle bundle_id")
+        if bundle_id in evidence_bundles:
+            raise ManifestError(f"duplicate EvidenceBundle {bundle_id}")
+        actual_bundle_id = _content_hash(
+            {key: value for key, value in bundle.items() if key != "bundle_id"}
+        )
+        if bundle_id != actual_bundle_id:
+            raise ManifestError(f"EvidenceBundle content hash mismatch in {path}")
+        evidence_bundles[bundle_id] = bundle
+    missing_evidence = locked_evidence - evidence_bundles.keys()
+    if missing_evidence:
+        raise ManifestError(
+            f"missing locked EvidenceBundle {sorted(missing_evidence)[0]}"
+        )
+    unlocked_evidence = evidence_bundles.keys() - locked_evidence
+    if unlocked_evidence:
+        raise ManifestError(f"unlocked EvidenceBundle {sorted(unlocked_evidence)[0]}")
+
+    assumption_rows = _require_sequence(assumptions.get("assumptions"), "assumptions")
+    assumption_by_id: dict[str, Mapping[str, Any]] = {}
+    for raw in assumption_rows:
+        assumption = _require_mapping(raw, "assumption")
+        claim_id = assumption.get("claim_id")
+        if (
+            not isinstance(claim_id, str)
+            or not _CONTRACT_IDENTIFIER.fullmatch(claim_id)
+            or claim_id in assumption_by_id
+        ):
+            raise ManifestError("assumption registry has an invalid or duplicate claim_id")
+        assumption_by_id[claim_id] = assumption
+    if set(assumption_by_id) != set(locked_claims):
+        raise ManifestError("assumption registry and snapshot claim sets do not match")
+
+    gates: list[dict[str, Any]] = []
+    for claim_id in sorted(assumption_by_id):
+        assumption = assumption_by_id[claim_id]
+        assumption_hash = _require_content_hash(
+            assumption.get("claim_content_hash"), f"assumption {claim_id} claim hash"
+        )
+        if assumption_hash != locked_claims[claim_id]:
+            raise ManifestError(f"claim {claim_id} assumption and lock hashes do not match")
+        claim = _load_json_object(claims_path / f"{claim_id}.json", f"claim {claim_id}")
+        supplied_hash = _require_content_hash(claim.get("content_hash"), f"claim {claim_id} hash")
+        actual_hash = _content_hash(
+            {key: value for key, value in claim.items() if key != "content_hash"}
+        )
+        if supplied_hash != actual_hash or supplied_hash != assumption_hash:
+            raise ManifestError(f"claim {claim_id} content hash mismatch")
+        if claim.get("claim_id") != claim_id or claim.get("version") != assumption.get(
+            "claim_version"
+        ):
+            raise ManifestError(f"claim {claim_id} identity or version is stale")
+        classification = _require_mapping(
+            claim.get("classification"), f"claim {claim_id} classification"
+        )
+        if classification.get("assurance") != assumption.get("status"):
+            raise ManifestError(f"claim {claim_id} assurance and assumption status are stale")
+        expected_disposition = (
+            "supported" if classification.get("outcome") == "supported" else "refuted"
+        )
+        if assumption.get("disposition") not in {expected_disposition, "unsupported"}:
+            raise ManifestError(f"claim {claim_id} disposition is stale")
+        gate = _compile_claim_gate(
+            assumption,
+            claim,
+            evidence_bundles,
+            theorem_registry,
+            verified_theorems,
+        )
+        if gate is not None:
+            gates.append(gate)
+
+    gate_keys = [gate["gate_key"] for gate in gates]
+    if len(gate_keys) != len(set(gate_keys)):
+        raise ManifestError("runtime manifest has duplicate gate scope keys")
+
+    return {
+        "schema": GATE_MANIFEST_SCHEMA,
+        "schema_version": 1,
+        "provenance": {
+            "assumptions": _provenance_path(assumptions_path),
+            "assumptions_content_hash": registry_hash,
+            "snapshot_lock": _provenance_path(lock_path),
+            "snapshot_lock_content_hash": _content_hash(lock),
+            "evidence_directory": _provenance_path(evidence_path),
+            "theorem_registry": _provenance_path(theorem_registry_path),
+            "theorem_registry_content_hash": _content_hash(theorem_document),
+            "theorem_build_evidence": _provenance_path(theorem_build_evidence_path),
+            "theorem_build_evidence_content_hash": _content_hash(theorem_evidence),
+        },
+        "gates": gates,
     }
 
 
@@ -867,11 +1323,22 @@ def _load_extension_paths(paths: Sequence[Path]) -> list[Mapping[str, Any]]:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--build-manifest", type=Path, required=True)
+    parser.add_argument("--compile-gates", action="store_true")
+    parser.add_argument("--assumptions", type=Path, default=DEFAULT_ASSUMPTIONS_PATH)
+    parser.add_argument("--snapshot-lock", type=Path, default=DEFAULT_ASSUMPTIONS_LOCK_PATH)
+    parser.add_argument("--claims-dir", type=Path, default=DEFAULT_CLAIMS_PATH)
+    parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_EVIDENCE_PATH)
+    parser.add_argument(
+        "--theorem-build-evidence",
+        type=Path,
+        default=DEFAULT_THEOREM_BUILD_EVIDENCE_PATH,
+    )
+    parser.add_argument("--out-gates", type=Path)
+    parser.add_argument("--build-manifest", type=Path)
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY_PATH)
     parser.add_argument("--extension-manifest", type=Path, action="append", default=[])
-    parser.add_argument("--out-manifest", type=Path, required=True)
-    parser.add_argument("--out-sql", type=Path, required=True)
+    parser.add_argument("--out-manifest", type=Path)
+    parser.add_argument("--out-sql", type=Path)
     parser.add_argument(
         "--proof-revision",
         default=None,
@@ -882,6 +1349,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         ),
     )
     args = parser.parse_args(argv)
+
+    if args.compile_gates:
+        if args.out_gates is None:
+            parser.error("--compile-gates requires --out-gates")
+        manifest = compile_gate_manifest(
+            args.assumptions,
+            args.snapshot_lock,
+            args.claims_dir,
+            args.evidence_dir,
+            args.registry,
+            args.theorem_build_evidence,
+        )
+        args.out_gates.parent.mkdir(parents=True, exist_ok=True)
+        args.out_gates.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        print(f"compiled {len(manifest['gates'])} runtime gate(s) -> {args.out_gates}")
+        return 0
+
+    if args.build_manifest is None or args.out_manifest is None or args.out_sql is None:
+        parser.error("the theorem sync path requires --build-manifest, --out-manifest, and --out-sql")
 
     requested_revision = None
     if args.proof_revision is not None or os.environ.get("ATLAS_PROOF_REVISION"):
