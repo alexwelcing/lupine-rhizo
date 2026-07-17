@@ -2,6 +2,8 @@ import OpenDistillationFactory.Materials.Elasticity.FCC
 import OpenDistillationFactory.Materials.Distillation.Operator
 import OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator
 import OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme
+import OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme
+import OpenDistillationFactory.Materials.Distillation.UniversalCorrectionScheme
 import OpenDistillationFactory.Materials.Distillation.Extracted
 import OpenDistillationFactory.Materials.Mechanics.HallPetch
 import OpenDistillationFactory.Materials.Scope.Validity
@@ -35,6 +37,7 @@ import OpenDistillationFactory.Materials.Theory.ProjectionLaw
 import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.ConvexProjection
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration
+import OpenDistillationFactory.Materials.Theory.ActiveSampling
 
 -- Climate-series physics layer: the environment error field and the
 -- defect-kinetics laws for the five material classes (LMR cathodes, halide
@@ -69,3 +72,6 @@ import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 
 -- Executable vision: the build-locking epistemic contract
 import OpenDistillationFactory.Materials.Vision
+
+-- Empirical-formal bridge: registry of ClaimContracts and theorem epistemic grades
+import OpenDistillationFactory.UniversalCorrection.Empirical.Registry

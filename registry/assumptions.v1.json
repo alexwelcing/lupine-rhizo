@@ -1,0 +1,109 @@
+{
+  "assumptions": [
+    {
+      "claim_content_hash": "sha256:c6696b4a372b53934d6345d9f76ea3323d0c1013f397547d862f98a63f982171",
+      "claim_id": "correction.b0.v1",
+      "claim_version": 1,
+      "disposition": "refuted",
+      "evidence": [
+        {
+          "bundle_id": "sha256:4a31ae007b43ce9ad5d39c2fe0b542a3108d8a4871e795e8b951f85b3285a554",
+          "epistemic_status": "negative",
+          "scope": {
+            "chemistries": [
+              "ionic-rocksalt",
+              "halide-perovskite"
+            ],
+            "conditions": {
+              "calibration": "leave-one-out within structure class",
+              "evaluation": "Round-3 out-of-sample candidates",
+              "minimum_calibration_members": 2,
+              "outcome": "correction worsened median absolute relative error in both groups",
+              "perovskite_median_abs_rel_err_corrected": 0.15076159478272094,
+              "perovskite_median_abs_rel_err_raw": 0.09276100666097158,
+              "rocksalt_median_abs_rel_err_corrected": 0.1402306433005352,
+              "rocksalt_median_abs_rel_err_raw": 0.11299247743299821
+            },
+            "properties": [
+              "B0"
+            ],
+            "structures": [
+              "rocksalt",
+              "perovskite"
+            ]
+          }
+        }
+      ],
+      "statement": "The frozen same-class multiplicative correction improves B0 prediction error across the Round-3 out-of-sample rocksalt and perovskite groups.",
+      "status": "withdrawn"
+    },
+    {
+      "claim_content_hash": "sha256:63dabd11bb2936a01b1607e4b62ce83f54880dc7e69c90703e1eff0959bdc498",
+      "claim_id": "correction.same_class.a0.v1",
+      "claim_version": 1,
+      "disposition": "supported",
+      "evidence": [
+        {
+          "bundle_id": "sha256:2420d5f743e98bdcbb0286d9996d0724d1f09326d74740b3336eb92402ead6ec",
+          "epistemic_status": "confirmatory",
+          "scope": {
+            "chemistries": [
+              "ionic-rocksalt",
+              "halide-perovskite"
+            ],
+            "conditions": {
+              "calibration": "leave-one-out within structure class",
+              "cells_evaluated_per_group": 16,
+              "evaluation": "Round-3 out-of-sample candidates",
+              "minimum_calibration_members": 2,
+              "perovskite_cells_improved": 16,
+              "rocksalt_cells_improved": 16,
+              "sign_test_p_two_sided": 3.0517578125e-05
+            },
+            "properties": [
+              "a0"
+            ],
+            "structures": [
+              "rocksalt",
+              "perovskite"
+            ]
+          }
+        }
+      ],
+      "statement": "Within the preregistered Round-3 same-class rocksalt and perovskite scope, the frozen multiplicative correction improves a0 median absolute relative error; this is the active public correction scope.",
+      "status": "active"
+    },
+    {
+      "claim_content_hash": "sha256:83d5812783915d5c502ecf47aabc1fc182b9d834212c2103f081635be160eef9",
+      "claim_id": "fcc.b0.anticorrelation.v1",
+      "claim_version": 1,
+      "disposition": "refuted",
+      "evidence": [
+        {
+          "bundle_id": "sha256:3841fb153a282b8f149c884b7b6ccc74b8c427f747a2881bff6b6176e4ebd935",
+          "epistemic_status": "negative",
+          "scope": {
+            "chemistries": [
+              "elemental-metals"
+            ],
+            "conditions": {
+              "analysis": "class-stratified Spearman rank correlation",
+              "interpretation": "anti-correlation contradicts reading cross-model agreement as an accuracy or uncertainty license",
+              "n_materials": 9,
+              "spearman_rho": -0.6333333333333333
+            },
+            "properties": [
+              "B0"
+            ],
+            "structures": [
+              "fcc"
+            ]
+          }
+        }
+      ],
+      "statement": "Within elemental fcc metals, cross-model B0 dispersion predicts median B0 error well enough to license cross-class B0 correction or uncertainty semantics.",
+      "status": "withdrawn"
+    }
+  ],
+  "version": 1
+}

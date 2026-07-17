@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lupine.dev/schemas/campaign-manifest.v1.schema.json",
+  "title": "CampaignManifest v1",
+  "description": "A frozen, preregistered research campaign with explicit model scope and stopping rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "campaign_id",
+    "version",
+    "preregistration_id",
+    "frozen_hypotheses",
+    "available_models",
+    "exclusions",
+    "target_premises",
+    "kill_conditions",
+    "demotion_conditions",
+    "content_hash"
+  ],
+  "properties": {
+    "campaign_id": { "$ref": "#/$defs/identifier" },
+    "version": { "const": 1 },
+    "preregistration_id": { "$ref": "#/$defs/identifier" },
+    "frozen_hypotheses": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/frozen_hypothesis" }
+    },
+    "available_models": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/model" }
+    },
+    "exclusions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/exclusion" }
+    },
+    "target_premises": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/premise_target" }
+    },
+    "kill_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/decision_condition" }
+    },
+    "demotion_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/decision_condition" }
+    },
+    "content_hash": {
+      "description": "SHA-256 of the RFC 8785 canonical JSON document with this content_hash member omitted.",
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "frozen_hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hypothesis_id", "statement", "frozen"],
+      "properties": {
+        "hypothesis_id": { "$ref": "#/$defs/identifier" },
+        "statement": { "$ref": "#/$defs/non_empty_string" },
+        "frozen": { "const": true }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_id", "version", "artifact_hash"],
+      "properties": {
+        "model_id": { "$ref": "#/$defs/identifier" },
+        "version": { "$ref": "#/$defs/non_empty_string" },
+        "artifact_hash": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "exclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "disposition", "rationale"],
+      "properties": {
+        "subject": { "$ref": "#/$defs/non_empty_string" },
+        "disposition": { "enum": ["excluded", "deprioritized"] },
+        "rationale": { "$ref": "#/$defs/non_empty_string" }
+      }
+    },
+    "premise_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "premise_id"],
+      "properties": {
+        "claim_id": { "$ref": "#/$defs/identifier" },
+        "premise_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "decision_condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition_id", "metric", "operator", "threshold", "action"],
+      "properties": {
+        "condition_id": { "$ref": "#/$defs/identifier" },
+        "metric": { "$ref": "#/$defs/non_empty_string" },
+        "operator": { "enum": ["lt", "lte", "eq", "gte", "gt"] },
+        "threshold": { "type": "number" },
+        "unit": { "$ref": "#/$defs/non_empty_string" },
+        "action": { "enum": ["kill", "demote"] }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "kill_conditions": {
+          "items": { "properties": { "action": { "const": "kill" } } }
+        },
+        "demotion_conditions": {
+          "items": { "properties": { "action": { "const": "demote" } } }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "campaign_id": "correction.round-4.v1",
+  "version": 1,
+  "preregistration_id": "prereg.correction.round-4.2026-07",
+  "frozen_hypotheses": [
+    {
+      "hypothesis_id": "h.a0.same_class",
+      "statement": "The a0 correction clears the preregistered same-class improvement threshold.",
+      "frozen": true
+    }
+  ],
+  "available_models": [
+    {
+      "model_id": "chgnet",
+      "version": "0.4.0",
+      "artifact_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "model_id": "m3gnet",
+      "version": "0.2.4",
+      "artifact_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  ],
+  "exclusions": [
+    {
+      "subject": "UMA",
+      "disposition": "deprioritized",
+      "rationale": "UMA is explicitly outside the Round-4 compute allocation and is not used to adjudicate frozen hypotheses."
+    }
+  ],
+  "target_premises": [
+    {
+      "claim_id": "correction.same_class.a0.v1",
+      "premise_id": "same_class_scope"
+    }
+  ],
+  "kill_conditions": [
+    {
+      "condition_id": "kill.no_harm_failure_rate",
+      "metric": "no_harm_failure_rate",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "fraction",
+      "action": "kill"
+    }
+  ],
+  "demotion_conditions": [
+    {
+      "condition_id": "demote.median_improvement",
+      "metric": "median_relative_error_improvement",
+      "operator": "lt",
+      "threshold": 0.05,
+      "unit": "fraction",
+      "action": "demote"
+    }
+  ],
+  "content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

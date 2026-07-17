@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lupine.science/schemas/evidence-bundle.v1.schema.json",
+  "title": "EvidenceBundle v1",
+  "description": "An immutable receipt for an epistemic claim and its exact scope. A bundle is never edited after publication; a replacement names the prior bundle in supersedes. bundle_id is both the external reference used by ClaimContract bundle_references and the sha256:<lowercase hex> content address computed over the RFC 8785-compatible canonical JSON object with bundle_id omitted (UTF-8, object keys sorted, no insignificant whitespace).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bundle_id",
+    "claim_predicate",
+    "epistemic_status",
+    "scope",
+    "evidence_refs",
+    "provenance",
+    "supersedes"
+  ],
+  "properties": {
+    "bundle_id": {
+      "$ref": "#/$defs/contentHash",
+      "description": "Content address of this bundle's canonical payload with bundle_id omitted; ClaimContract premises reference this value directly."
+    },
+    "claim_predicate": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable, machine-readable predicate evaluated by the cited evidence."
+    },
+    "epistemic_status": {
+      "type": "string",
+      "enum": [
+        "confirmatory",
+        "exploratory",
+        "descriptive",
+        "negative",
+        "unsupported"
+      ]
+    },
+    "scope": {
+      "$ref": "#/$defs/scope"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/evidenceRef"
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "supersedes": {
+      "type": "array",
+      "description": "Bundle IDs replaced by this receipt. Empty for an original receipt.",
+      "items": {
+        "$ref": "#/$defs/contentHash"
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "nonEmptyUniqueStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "conditionValue": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "structures",
+        "chemistries",
+        "properties",
+        "conditions"
+      ],
+      "properties": {
+        "structures": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "chemistries": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "properties": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "conditions": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/conditionValue"
+          }
+        }
+      }
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "campaign",
+        "campaign_manifest",
+        "campaign_manifest_hash",
+        "run_id",
+        "artifact",
+        "artifact_hash",
+        "thresholds_version"
+      ],
+      "properties": {
+        "campaign": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable campaign identifier."
+        },
+        "campaign_manifest": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository-relative path of the immutable campaign manifest."
+        },
+        "campaign_manifest_hash": {
+          "$ref": "#/$defs/contentHash",
+          "description": "SHA-256 of the campaign manifest bytes."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository-relative path of the cited artifact."
+        },
+        "artifact_hash": {
+          "$ref": "#/$defs/contentHash"
+        },
+        "thresholds_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent",
+        "human",
+        "timestamp",
+        "preregistration_id"
+      ],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Agent, executable, or workflow that emitted the receipt."
+        },
+        "human": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Accountable human author or reviewer."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "preregistration_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "claim_id": "fcc.b0.anticorrelation.v1",
+  "version": 1,
+  "statement": "Within elemental fcc metals, cross-model B0 dispersion predicts median B0 error well enough to license cross-class B0 correction or uncertainty semantics.",
+  "classification": {
+    "intent": "descriptive",
+    "outcome": "contradicted",
+    "assurance": "withdrawn",
+    "strength": "association"
+  },
+  "premises": [
+    {
+      "premise_id": "fcc_b0_dispersion_license",
+      "statement": "The class-stratified fcc B0 dispersion-error relationship is positive enough to support an uncertainty or cross-class correction license.",
+      "support_policy": { "mode": "all" },
+      "bundle_references": [
+        { "bundle_id": "sha256:3841fb153a282b8f149c884b7b6ccc74b8c427f747a2881bff6b6176e4ebd935" }
+      ]
+    }
+  ],
+  "bindings": {
+    "lean_theorem": {
+      "status": "unsupported",
+      "reason": "The observed Spearman anti-correlation is statistical evidence, not a formally proved theorem."
+    },
+    "runtime_gate": {
+      "status": "unsupported",
+      "reason": "No runtime correction or uncertainty gate is licensed for fcc B0; the anti-correlation requires fail-closed descriptive treatment."
+    },
+    "publication": {
+      "status": "bound",
+      "publication_id": "gates.licenses.paper.v1",
+      "recurring_claim": "result2.fcc.b0.anticorrelation"
+    }
+  },
+  "excluded_scope": [
+    "bcc a0, which has a separate empirical dispersion-error license",
+    "Exact-physics Born stability refusals",
+    "Material classes other than elemental fcc metals"
+  ],
+  "supersedes": [],
+  "content_hash": "sha256:83d5812783915d5c502ecf47aabc1fc182b9d834212c2103f081635be160eef9"
+}

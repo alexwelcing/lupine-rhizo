@@ -1,0 +1,33 @@
+name: anti-laundering
+
+on:
+  pull_request:
+    paths:
+      - "registry/**"
+      - "snapshots/**"
+      - "evidence/**"
+      - "tools/check_status_evidence.py"
+      - "tests/test_check_status_evidence.py"
+      - ".github/workflows/anti-laundering.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  status-requires-new-evidence:
+    name: status changes require new EvidenceBundle hashes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run checker tests
+        run: python3 -m unittest tests/test_check_status_evidence.py -v
+      - name: Compare PR registry and D1 status snapshots
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          python3 tools/check_status_evidence.py
+          --base-ref "$BASE_SHA"
+          --head-ref "$HEAD_SHA"

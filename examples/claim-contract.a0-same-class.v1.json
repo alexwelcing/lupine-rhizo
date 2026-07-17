@@ -1,0 +1,45 @@
+{
+  "claim_id": "correction.same_class.a0.v1",
+  "version": 1,
+  "statement": "Within the preregistered same-class scope, the a0 correction improves the target error without violating the no-harm gate.",
+  "classification": {
+    "intent": "confirmatory",
+    "outcome": "supported",
+    "assurance": "active",
+    "strength": "predictive"
+  },
+  "premises": [
+    {
+      "premise_id": "same_class_scope",
+      "statement": "Training and evaluation materials belong to the same preregistered material class.",
+      "support_policy": { "mode": "all" },
+      "bundle_references": [
+        {
+          "bundle_id": "sha256:2420d5f743e98bdcbb0286d9996d0724d1f09326d74740b3336eb92402ead6ec"
+        }
+      ]
+    }
+  ],
+  "bindings": {
+    "lean_theorem": {
+      "status": "bound",
+      "module": "Lupine.Correction.NoHarm",
+      "theorem": "sameClassA0NoHarm"
+    },
+    "runtime_gate": {
+      "status": "bound",
+      "gate_id": "correction.same_class.a0.no_harm"
+    },
+    "publication": {
+      "status": "bound",
+      "publication_id": "lupine.correction.report.v1",
+      "recurring_claim": "a0_same_class_improvement"
+    }
+  },
+  "excluded_scope": [
+    "Cross-class transfer",
+    "Materials outside the preregistered class"
+  ],
+  "supersedes": [],
+  "content_hash": "sha256:85425f3cfb877dc195340150367ba60a486a09e8b531ecc792e53f415bf2d800"
+}

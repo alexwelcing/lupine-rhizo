@@ -1,0 +1,43 @@
+{
+  "claim_id": "correction.same_class.a0.v1",
+  "version": 1,
+  "statement": "Within the preregistered Round-3 same-class rocksalt and perovskite scope, the frozen multiplicative correction improves a0 median absolute relative error; this is the active public correction scope.",
+  "classification": {
+    "intent": "confirmatory",
+    "outcome": "supported",
+    "assurance": "active",
+    "strength": "predictive"
+  },
+  "premises": [
+    {
+      "premise_id": "round3_same_class_a0",
+      "statement": "The confirmatory Round-3 out-of-sample evidence covers a0 corrections calibrated leave-one-out within the same structure class.",
+      "support_policy": { "mode": "all" },
+      "bundle_references": [
+        { "bundle_id": "sha256:2420d5f743e98bdcbb0286d9996d0724d1f09326d74740b3336eb92402ead6ec" }
+      ]
+    }
+  ],
+  "bindings": {
+    "lean_theorem": {
+      "status": "unsupported",
+      "reason": "No Lean theorem proves the empirical Round-3 a0 improvement; the available capped in-hull theorems require stronger Round-4 caps and explicitly do not retroactively license the frozen Round-3 rule."
+    },
+    "runtime_gate": {
+      "status": "bound",
+      "gate_id": "python.scripts.run_round3_analysis.apply_frozen_rule"
+    },
+    "publication": {
+      "status": "bound",
+      "publication_id": "gates.licenses.paper.v1",
+      "recurring_claim": "result3.same_class.a0.active"
+    }
+  },
+  "excluded_scope": [
+    "Cross-class transfer",
+    "Properties other than a0",
+    "Structures and chemistries outside the Round-3 rocksalt and perovskite evaluation sets"
+  ],
+  "supersedes": [],
+  "content_hash": "sha256:63dabd11bb2936a01b1607e4b62ce83f54880dc7e69c90703e1eff0959bdc498"
+}
