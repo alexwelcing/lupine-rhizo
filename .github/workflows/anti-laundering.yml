@@ -7,7 +7,7 @@ on:
       - "snapshots/**"
       - "evidence/**"
       - "tools/check_status_evidence.py"
-      - "tests/test_check_status_evidence.py"
+      - "python/tests/test_check_status_evidence.py"
       - ".github/workflows/anti-laundering.yml"
 
 permissions:
@@ -21,8 +21,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install package and pytest
+        run: pip install ./python pytest
       - name: Run checker tests
-        run: python3 -m unittest tests/test_check_status_evidence.py -v
+        run: python3 -m pytest python/tests/test_check_status_evidence.py -v
       - name: Compare PR registry and D1 status snapshots
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
