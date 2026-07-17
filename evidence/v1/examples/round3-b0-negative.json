@@ -1,0 +1,38 @@
+{
+  "bundle_id": "sha256:4a31ae007b43ce9ad5d39c2fe0b542a3108d8a4871e795e8b951f85b3285a554",
+  "claim_predicate": "same_class_correction_improves_median_absolute_relative_error(property=B0)",
+  "epistemic_status": "negative",
+  "scope": {
+    "structures": ["rocksalt", "perovskite"],
+    "chemistries": ["ionic-rocksalt", "halide-perovskite"],
+    "properties": ["B0"],
+    "conditions": {
+      "calibration": "leave-one-out within structure class",
+      "evaluation": "Round-3 out-of-sample candidates",
+      "minimum_calibration_members": 2,
+      "rocksalt_median_abs_rel_err_raw": 0.11299247743299821,
+      "rocksalt_median_abs_rel_err_corrected": 0.1402306433005352,
+      "perovskite_median_abs_rel_err_raw": 0.09276100666097158,
+      "perovskite_median_abs_rel_err_corrected": 0.15076159478272094,
+      "outcome": "correction worsened median absolute relative error in both groups"
+    }
+  },
+  "evidence_refs": [
+    {
+      "campaign": "round-3-licensed-corrections-oos",
+      "campaign_manifest": "data/candidates/round3/report.json",
+      "campaign_manifest_hash": "sha256:eaa2e15d25fc8534ea6a526584d52f7a6d67f0e9f48dee549f667c11e6ceed77",
+      "run_id": "round3-analysis-2026-07-13T17:07:41.984979Z",
+      "artifact": "data/candidates/round3/round3_analysis.json",
+      "artifact_hash": "sha256:23a04277bb7d2148a23d68c5ea331ff063a1ebcfda74ca2489a19b91006b36ad",
+      "thresholds_version": "v3"
+    }
+  ],
+  "provenance": {
+    "agent": "lupine-rhizo/python/scripts/run_round3_analysis.py",
+    "human": "Round-3 preregistration registrant",
+    "timestamp": "2026-07-13T17:07:41.984979Z",
+    "preregistration_id": "docs/plans/2026-07-13-round3-preregistration.md"
+  },
+  "supersedes": []
+}

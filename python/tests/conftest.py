@@ -11,5 +11,8 @@ import sys
 from pathlib import Path
 
 _PYTHON_DIR = Path(__file__).resolve().parents[1]
-if str(_PYTHON_DIR) not in sys.path:
-    sys.path.insert(0, str(_PYTHON_DIR))
+_REPO_ROOT = _PYTHON_DIR.parent
+
+for _path in (_REPO_ROOT, _PYTHON_DIR):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))

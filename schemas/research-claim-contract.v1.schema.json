@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lupine.dev/schemas/research-claim-contract.v1.schema.json",
+  "title": "Research ClaimContract v1",
+  "description": "A versioned, content-addressed research claim and its evidence and enforcement bindings. Premises reference immutable EvidenceBundles directly by their bundle_id content addresses.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "claim_id",
+    "version",
+    "statement",
+    "classification",
+    "premises",
+    "bindings",
+    "excluded_scope",
+    "supersedes",
+    "content_hash"
+  ],
+  "properties": {
+    "claim_id": { "$ref": "#/$defs/identifier" },
+    "version": { "const": 1 },
+    "statement": { "$ref": "#/$defs/non_empty_string" },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "outcome", "assurance", "strength"],
+      "properties": {
+        "intent": {
+          "enum": ["confirmatory", "exploratory", "descriptive", "methodological"]
+        },
+        "outcome": {
+          "enum": ["pending", "supported", "partially_supported", "inconclusive", "contradicted", "withdrawn"]
+        },
+        "assurance": {
+          "enum": ["unsupported", "provisional", "eligible", "active", "withdrawn"]
+        },
+        "strength": {
+          "enum": ["observation", "association", "predictive", "causal", "formal"]
+        }
+      }
+    },
+    "premises": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/premise" }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lean_theorem", "runtime_gate", "publication"],
+      "properties": {
+        "lean_theorem": { "$ref": "#/$defs/lean_binding" },
+        "runtime_gate": { "$ref": "#/$defs/runtime_binding" },
+        "publication": { "$ref": "#/$defs/publication_binding" }
+      }
+    },
+    "excluded_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/non_empty_string" },
+      "uniqueItems": true
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/claim_reference" },
+      "uniqueItems": true
+    },
+    "content_hash": {
+      "description": "SHA-256 of the RFC 8785 canonical JSON document with this content_hash member omitted.",
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "bundle_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_id"],
+      "properties": {
+        "bundle_id": {
+          "description": "The EvidenceBundle.bundle_id content address.",
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "support_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["all", "any", "at_least", "unsupported"] },
+        "minimum": { "type": "integer", "minimum": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "at_least" } }, "required": ["mode"] },
+          "then": { "required": ["minimum"] },
+          "else": { "not": { "required": ["minimum"] } }
+        }
+      ]
+    },
+    "premise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["premise_id", "statement", "support_policy", "bundle_references"],
+      "properties": {
+        "premise_id": { "$ref": "#/$defs/identifier" },
+        "statement": { "$ref": "#/$defs/non_empty_string" },
+        "support_policy": { "$ref": "#/$defs/support_policy" },
+        "bundle_references": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bundle_reference" },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "support_policy": {
+                "properties": { "mode": { "const": "unsupported" } },
+                "required": ["mode"]
+              }
+            },
+            "required": ["support_policy"]
+          },
+          "then": { "properties": { "bundle_references": { "maxItems": 0 } } },
+          "else": { "properties": { "bundle_references": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "lean_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["bound", "unsupported"] },
+        "module": { "$ref": "#/$defs/non_empty_string" },
+        "theorem": { "$ref": "#/$defs/non_empty_string" },
+        "reason": { "$ref": "#/$defs/non_empty_string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "bound" } }, "required": ["status"] },
+          "then": { "required": ["module", "theorem"], "not": { "required": ["reason"] } },
+          "else": { "required": ["reason"], "not": { "anyOf": [{ "required": ["module"] }, { "required": ["theorem"] }] } }
+        }
+      ]
+    },
+    "runtime_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["bound", "unsupported"] },
+        "gate_id": { "$ref": "#/$defs/identifier" },
+        "reason": { "$ref": "#/$defs/non_empty_string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "bound" } }, "required": ["status"] },
+          "then": { "required": ["gate_id"], "not": { "required": ["reason"] } },
+          "else": { "required": ["reason"], "not": { "required": ["gate_id"] } }
+        }
+      ]
+    },
+    "publication_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["bound", "unsupported"] },
+        "publication_id": { "$ref": "#/$defs/identifier" },
+        "recurring_claim": { "$ref": "#/$defs/identifier" },
+        "reason": { "$ref": "#/$defs/non_empty_string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "bound" } }, "required": ["status"] },
+          "then": { "required": ["publication_id", "recurring_claim"], "not": { "required": ["reason"] } },
+          "else": { "required": ["reason"], "not": { "anyOf": [{ "required": ["publication_id"] }, { "required": ["recurring_claim"] }] } }
+        }
+      ]
+    },
+    "claim_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "version", "content_hash"],
+      "properties": {
+        "claim_id": { "$ref": "#/$defs/identifier" },
+        "version": { "type": "integer", "minimum": 1 },
+        "content_hash": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

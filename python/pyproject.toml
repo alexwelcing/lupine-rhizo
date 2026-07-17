@@ -12,6 +12,7 @@ dependencies = [
     "numpy>=1.26",
     "ase>=3.28",
     "requests>=2.32",
+    "jsonschema>=4.0",
 ]
 
 [project.optional-dependencies]

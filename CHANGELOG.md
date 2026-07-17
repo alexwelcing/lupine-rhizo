@@ -16,6 +16,42 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-16 - Empirical-formal bridge integration wave: contracts, evidence bundles, anti-laundering CI, and UniversalCorrection registry
+
+- **Why.** The Round-3 empirical results (B0 refuted, a0 confirmed) were not yet
+  locked into the formal evidence plane. There was no machine-readable registry
+  linking Lean theorems to their empirical scope, no CI guard preventing
+  assumption laundering (status upgrades without new evidence), and no D1
+  schema for versioned claim/evidence contracts.
+- **What.**
+  - Added versioned schemas for EvidenceBundle, ClaimContract, and
+    CampaignManifest; backfilled the three Round-3 claim contracts and their
+    content-addressed evidence bundles.
+  - Added `tools/generate_assumptions.py` to derive
+    `registry/assumptions.v1.json` and `registry/snapshots/current.lock.json`
+    from the contracts/bundles.
+  - Added D1 migration `0011_claim_evidence_contracts.sql` with append-only
+    `status_event` and `evidence_bundle_id` FK so D1 status changes can be
+    tied to receipts.
+  - Hardened legacy migration `0004_claims.sql` so it applies cleanly on both
+    fresh and production-shaped databases.
+  - Added anti-laundering CI (`tools/check_status_evidence.py` +
+    `.github/workflows/anti-laundering.yml`) that rejects status/assurance
+    changes unless a new EvidenceBundle hash appears.
+  - Added `OpenDistillationFactory.UniversalCorrection.Empirical.Registry`
+    (172 theorem inventory entries across 17 active correction modules) plus
+    `ActiveSampling.lean`, `SubspaceCorrectionScheme.lean`, and
+    `UniversalCorrectionScheme.lean`. Excluded quarantined
+    `AlloyResidualTransfer` from the registry.
+- **Results.** `lake build` green (3675 jobs, 0 `sorry`). Python contract tests
+  (40) pass, `tools/generate_assumptions.py --check` passes, and the
+  anti-laundering checker accepts/rejects as expected.
+- **Next.** Finish the three running kanban tasks (`t_9d49164c`,
+  `t_223ee397`, `t_64d423d6`) and then run the end-to-end QA integration test
+  (`t_163d358b`) to prove Round-3 propagates with zero manual touches.
+
+---
+
 ## 2026-07-13 - CI unblock: disk-quota fix for evidence-index workflows + diff-hygiene guard for LAMMPS work dirs
 
 - **Why.** Two recurring CI failures were blocking the research pipeline:

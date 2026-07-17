@@ -1,0 +1,43 @@
+{
+  "claim_id": "correction.b0.v1",
+  "version": 1,
+  "statement": "The frozen same-class multiplicative correction improves B0 prediction error across the Round-3 out-of-sample rocksalt and perovskite groups.",
+  "classification": {
+    "intent": "descriptive",
+    "outcome": "withdrawn",
+    "assurance": "withdrawn",
+    "strength": "observation"
+  },
+  "premises": [
+    {
+      "premise_id": "round3_same_class_b0",
+      "statement": "Round-3 B0 outcomes are evaluated within the preregistered same-class rocksalt and perovskite scope.",
+      "support_policy": { "mode": "all" },
+      "bundle_references": [
+        { "bundle_id": "sha256:4a31ae007b43ce9ad5d39c2fe0b542a3108d8a4871e795e8b951f85b3285a554" }
+      ]
+    }
+  ],
+  "bindings": {
+    "lean_theorem": {
+      "status": "unsupported",
+      "reason": "The B0 withdrawal is an empirical Round-3 outcome; existing wrong-direction theorems describe sufficient harm conditions but do not prove the aggregate Round-3 B0 statistic."
+    },
+    "runtime_gate": {
+      "status": "bound",
+      "gate_id": "python.scripts.run_round3_analysis.apply_frozen_rule"
+    },
+    "publication": {
+      "status": "bound",
+      "publication_id": "gates.licenses.paper.v1",
+      "recurring_claim": "result3.b0.withdrawn"
+    }
+  },
+  "excluded_scope": [
+    "a0, which remains active in the scope-matched contract",
+    "Claims that abstention itself causes harm",
+    "B0 evidence outside the Round-3 rocksalt and perovskite groups"
+  ],
+  "supersedes": [],
+  "content_hash": "sha256:c6696b4a372b53934d6345d9f76ea3323d0c1013f397547d862f98a63f982171"
+}

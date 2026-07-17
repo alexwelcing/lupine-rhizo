@@ -116,6 +116,34 @@ jobs:
           python -m pytest gcp/mlip-cell-runner/test_openinference_patcher.py -q
           python -m pytest gcp/mlip-cell-runner/test_runner_observability.py -q
 
+  evidence-formal-bridge:
+    name: Empirical-formal bridge artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install package and pytest
+        run: pip install ./python pytest
+
+      - name: Run evidence / claim / manifest / assumptions tests
+        run: |
+          python -m pytest \
+            python/tests/test_evidence_bundle_schema.py \
+            python/tests/test_claim_contract_schema.py \
+            python/tests/test_campaign_manifest_schema.py \
+            python/tests/test_assumptions_generator.py \
+            -q
+
+      - name: Check generated assumption registry is up to date
+        run: python tools/generate_assumptions.py --check
+
   archive-boundary:
     name: Archive / active root boundary
     runs-on: ubuntu-latest
