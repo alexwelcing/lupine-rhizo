@@ -95,13 +95,19 @@ class D1MigrationContractTests(unittest.TestCase):
             """
         )
         apply_migrations(connection)
-        apply_migrations(connection)
         self.assertEqual(
             connection.execute("SELECT payload FROM records").fetchone(), ("{}",)
         )
         self.assertEqual(
             connection.execute("SELECT status FROM claims").fetchone(), ("verified",)
         )
+
+    def test_atlas_reconciliation_rejects_manual_reapplication(self) -> None:
+        connection = self.connect()
+        apply_migrations(connection)
+        reconciliation = MIGRATIONS / "0011_atlas_schema_reconciliation.sql"
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "UNIQUE constraint failed"):
+            connection.executescript(reconciliation.read_text(encoding="utf-8"))
 
     def test_bootstrap_supports_full_contract_graph(self) -> None:
         connection = self.connect()
