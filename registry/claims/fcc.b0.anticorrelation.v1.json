@@ -1,7 +1,7 @@
 {
   "claim_id": "fcc.b0.anticorrelation.v1",
   "version": 1,
-  "statement": "Within elemental fcc metals, cross-model B0 dispersion predicts median B0 error well enough to license cross-class B0 correction or uncertainty semantics.",
+  "statement": "Elemental-fcc B0 dispersion is anti-correlated with median B0 error and cannot license B0 correction, cross-class transfer, or uncertainty semantics.",
   "classification": {
     "intent": "descriptive",
     "outcome": "contradicted",
@@ -11,7 +11,7 @@
   "premises": [
     {
       "premise_id": "fcc_b0_dispersion_license",
-      "statement": "The class-stratified fcc B0 dispersion-error relationship is positive enough to support an uncertainty or cross-class correction license.",
+      "statement": "The class-stratified fcc B0 dispersion-error relationship is negative and contradicts an uncertainty or cross-class correction license.",
       "support_policy": { "mode": "all" },
       "bundle_references": [
         { "bundle_id": "sha256:3841fb153a282b8f149c884b7b6ccc74b8c427f747a2881bff6b6176e4ebd935" }
@@ -24,8 +24,8 @@
       "reason": "The observed Spearman anti-correlation is statistical evidence, not a formally proved theorem."
     },
     "runtime_gate": {
-      "status": "unsupported",
-      "reason": "No runtime correction or uncertainty gate is licensed for fcc B0; the anti-correlation requires fail-closed descriptive treatment."
+      "status": "bound",
+      "gate_id": "python.scripts.run_round3_analysis.correction_gate"
     },
     "publication": {
       "status": "bound",
@@ -39,5 +39,5 @@
     "Material classes other than elemental fcc metals"
   ],
   "supersedes": [],
-  "content_hash": "sha256:83d5812783915d5c502ecf47aabc1fc182b9d834212c2103f081635be160eef9"
+  "content_hash": "sha256:97ece774c809e6dd8e8b97354c157fe8c359c00cb4769dca5be272d901ac6978"
 }

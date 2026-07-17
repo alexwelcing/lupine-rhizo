@@ -16,6 +16,38 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-17 - Round-3 consequence wave: B0 correction gate denial + assumption-link CI + contract compiler
+
+- **Why.** Round-3 produced a kill-condition verdict for B0 correction (both
+  rocksalt and perovskite worsened under the frozen rule) and a confirmed
+  scope for a0. The formal plane needed to encode that disposition as a
+  fail-closed gate, and the CI plane needed to verify every theorem and
+  premise has a receipt.
+- **What.**
+  - Lean `UniversalCorrection/Empirical/Registry.lean` gains
+    `CorrectionGatePolicy` with `B0 -> deny/contradicting_evidence` and
+    `a0 -> allow/scope_matched_same_class_a0`.
+  - `registry/claims/correction.b0.v1.json` and
+    `registry/claims/fcc.b0.anticorrelation.v1.json` rewritten to describe
+    contradicting evidence rather than licensed improvement.
+  - `data/discovery_gates/licenses.v1.json` gains a `correction_gate` deny
+    for B0.
+  - `tools/check_assumption_links.py` + `assumption-links` verify job:
+    assurance-exported theorems must have `@[requires(contract_id)]`,
+    premises must have valid bundle references or explicit unsupported tags.
+  - `tools/atlas_theorem_sync.py --compile-gates` compiles locked
+    ClaimContracts into a provenance-bearing runtime gate manifest.
+  - `python/tests/test_d1_migrations.py` updated to expect the intentional
+    `0011_atlas_schema_reconciliation.sql` reapplication guard.
+- **Results.** `lake build` green (3732 jobs). 115 focused B0/license/Round-3
+  Python tests pass; 14 assumption-link tests pass; 56 evidence-formal bridge
+  tests pass.
+- **Next.** Finish `t_64d423d6` atlas-sync contract compiler (EvidenceBundle
+  resolution, duplicate gate-ID guard, premise-policy semantics), then run
+  the end-to-end QA replay (`t_163d358b`).
+
+---
+
 ## 2026-07-16 - Empirical-formal bridge integration wave: contracts, evidence bundles, anti-laundering CI, and UniversalCorrection registry
 
 - **Why.** The Round-3 empirical results (B0 refuted, a0 confirmed) were not yet

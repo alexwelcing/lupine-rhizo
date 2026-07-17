@@ -95,6 +95,14 @@ def _failing_group(group: str) -> dict[str, dict]:
 
 
 class TestFrozenRule:
+    def test_b0_correction_gate_denies_contradicting_evidence(self):
+        out = r3.apply_frozen_rule(150.0, (1.5, 1.5), property_name="b0")
+
+        assert out["decision"] == "deny"
+        assert out["reason"] == "contradicting_evidence"
+        assert out["applied"] is False
+        assert out["corrected"] == 150.0
+
     def test_cap_abstention_when_bias_below_scatter(self):
         # b = 1.15, s = 0.20, |b-1| = 0.15 <= s -> ABSTAIN (magnitude_cap)
         out = r3.apply_frozen_rule(200.0, (1.05, 1.25))
@@ -276,14 +284,25 @@ class TestSummaries:
 
 
 class TestEvaluateCells:
+    def test_only_a0_corrections_are_enabled(self):
+        cells = r3.evaluate_cells(_passing_report(), ())
+
+        assert all(c["applied"] for c in cells if c["prop"] == "a0")
+        assert all(not c["applied"] for c in cells if c["prop"] != "a0")
+        assert {
+            (c["decision"], c["reason"])
+            for c in cells
+            if c["prop"] == "b0"
+        } == {("deny", "contradicting_evidence")}
+
     def test_application_improving_and_worsening(self):
         # A is exact (ratio 1.0), B and C inflated (1.5, 1.6).
         # Held-out A: ratios (1.5, 1.6) -> applied, corrected worsens.
         # Held-out B/C: a ratio of exactly 1.0 -> direction abstention.
         cands = {
-            "A": _candidate("g", {"b0": 100.0}, {m: {"b0": 100.0} for m in MODELS}),
-            "B": _candidate("g", {"b0": 100.0}, {m: {"b0": 150.0} for m in MODELS}),
-            "C": _candidate("g", {"b0": 100.0}, {m: {"b0": 160.0} for m in MODELS}),
+            "A": _candidate("g", {"a0": 100.0}, {m: {"a0": 100.0} for m in MODELS}),
+            "B": _candidate("g", {"a0": 100.0}, {m: {"a0": 150.0} for m in MODELS}),
+            "C": _candidate("g", {"a0": 100.0}, {m: {"a0": 160.0} for m in MODELS}),
         }
         cells = r3.evaluate_cells(_report(cands), ())
         by_cand = {}
@@ -300,10 +319,9 @@ class TestEvaluateCells:
 
         # Improving case: uniform inflation, held-out corrected to exact.
         cells2 = r3.evaluate_cells(_passing_report(), ())
-        assert all(c["applied"] for c in cells2)
-        assert all(
-            c["corrected_abs_rel_err"] < c["raw_abs_rel_err"] for c in cells2
-        )
+        a0_cells = [c for c in cells2 if c["prop"] == "a0"]
+        assert all(c["applied"] for c in a0_cells)
+        assert all(c["corrected_abs_rel_err"] == pytest.approx(0.0) for c in a0_cells)
 
     def test_calibration_never_includes_held_out_candidate(self):
         # Held-out member predicts 0.5x; others 1.5x. If X leaked into its own
@@ -373,16 +391,17 @@ class TestCriteria:
         analysis = r3.build_analysis(_passing_report(), (), "synthetic", None)
         g = analysis["groups"]["gp"]
         assert g["verdict"] == "PASS"
-        assert g["n_evaluable_properties"] == 2 and g["n_wins"] == 2
-        for prop in ("a0", "b0"):
-            e = g["properties"][prop]
-            assert e["n_materials"] == 3
-            assert e["n_cells"] == 6 and e["n_applied"] == 6
-            assert e["median_abs_rel_err_raw"] == 0.5
-            assert e["median_abs_rel_err_corrected"] == 0.0
-            # n=6, k=6: 2 * (1/64) = 0.03125
-            assert e["sign_test"]["p_two_sided"] == 0.03125
-            assert e["verdict"] == "WIN"
+        assert g["n_evaluable_properties"] == 1 and g["n_wins"] == 1
+        a0 = g["properties"]["a0"]
+        assert a0["n_materials"] == 3
+        assert a0["n_cells"] == 6 and a0["n_applied"] == 6
+        assert a0["sign_test"]["p_two_sided"] == pytest.approx(0.03125)
+        assert a0["verdict"] == "WIN"
+        b0 = g["properties"]["b0"]
+        assert b0["n_materials"] == 3
+        assert b0["n_cells"] == 6 and b0["n_applied"] == 0
+        assert b0["decision"] == "deny"
+        assert b0["reason"] == "contradicting_evidence"
         assert analysis["kill_condition"]["triggered"] is False
 
     def test_kill_triggered_when_both_groups_fail(self):

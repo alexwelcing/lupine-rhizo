@@ -203,18 +203,16 @@ licenses it does NOT have with the same prominence as the ones it does.
   a theorem-forbidden deflation (classmate consensus ≠ target side) — motivates the
   registered magnitude cap (abstain unless |b−1| > ratio spread). `[errata #2; REGISTERED — R3]`
 
-### 3.5 Round 3: out-of-sample confirmatory trial `[OPEN — pending R3 verdict]`
+### 3.5 Round 3: out-of-sample confirmatory trial — scope narrowed
 
-- This section is a SLOT. It cites the frozen registration only:
+- Report the frozen registration and executed disposition:
   `docs/plans/2026-07-13-round3-preregistration.md` — frozen rule (direction gate + magnitude
   cap + abstention), evaluation set (perovskites CsPbBr3/CsPbCl3/RbSnBr3/KSnCl3 with
   fluoroperovskite fallbacks; rocksalts KCl/KBr/RbCl/NaF), primary statistic (per group ×
   property median |rel err| raw vs corrected + exact sign test), SUCCESS/FAILURE criteria,
-  and the KILL condition (scope narrows to "same-class lattice constants only" in all public
-  material if the rule fails both groups).
-- House rule: whatever the verdict, it is reported verbatim; the paper's correction-layer
-  scope claim is written twice (success text / kill text) only AFTER the artifact exists.
-  DO NOT pre-draft outcome language.
+  and the KILL condition. Round-3 supports only same-class a0 in the preregistered rocksalt
+  and perovskite groups. B0 improvement was contradicted, so its runtime gate returns
+  `deny` / `contradicting_evidence`; cross-class and universal correction remain unsupported.
 
 ## 4. Theorems: what the formal layer actually licenses
 

@@ -63,6 +63,8 @@ _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
 
 PROPS: tuple[str, ...] = ("a0", "b0", "c11", "c12", "c44")
+CORRECTION_PROPERTY: str = "a0"
+B0_CONTRADICTING_EVIDENCE_REASON: str = "contradicting_evidence"
 PROPERTY_UNITS: dict[str, str] = {
     "a0": "Angstrom",
     "b0": "GPa",
@@ -258,18 +260,52 @@ def calibration_ratios(
     return tuple(ratios)
 
 
+def correction_gate(property_name: str) -> dict[str, str]:
+    """Return the fail-closed correction policy for one property.
+
+    Round-3 confirmed only same-class lattice-constant correction.  Its B0
+    evidence contradicted improvement, so B0 is denied independently of the
+    calibration ratios.  Other properties remain outside the supported scope.
+    """
+    prop = property_name.lower()
+    if prop == CORRECTION_PROPERTY:
+        return {"decision": "allow", "reason": "scope_matched_same_class_a0"}
+    if prop == "b0":
+        return {"decision": "deny", "reason": B0_CONTRADICTING_EVIDENCE_REASON}
+    return {"decision": "deny", "reason": "unsupported_scope"}
+
+
 def apply_frozen_rule(
-    pred: float, ratios: Sequence[float]
+    pred: float,
+    ratios: Sequence[float],
+    *,
+    property_name: str = CORRECTION_PROPERTY,
 ) -> dict[str, object]:
     """Apply the frozen registered rule to one held-out cell.
 
-    Returns an immutable-per-call dict:
+    Returns an immutable-per-call dict.  The property policy is checked before
+    the historical frozen ratio rule, so unsupported properties cannot be
+    corrected even when their calibration ratios would pass:
     corrected, applied, abstain_reason (None | 'insufficient_calibration' |
     'direction' | 'magnitude_cap'), b, s, n_calibration.
     """
     n = len(ratios)
+    policy = correction_gate(property_name)
+    if policy["decision"] == "deny":
+        return {
+            "decision": policy["decision"],
+            "reason": policy["reason"],
+            "corrected": pred,
+            "applied": False,
+            "abstain_reason": policy["reason"],
+            "b": None,
+            "s": None,
+            "n_calibration": n,
+        }
     if n < MIN_CALIBRATION_MEMBERS:
         return {
+            "decision": policy["decision"],
+            "reason": policy["reason"],
             "corrected": pred,
             "applied": False,
             "abstain_reason": "insufficient_calibration",
@@ -287,6 +323,8 @@ def apply_frozen_rule(
     else:
         reason = None
     return {
+        "decision": policy["decision"],
+        "reason": policy["reason"],
         "corrected": pred / b if reason is None else pred,
         "applied": reason is None,
         "abstain_reason": reason,
@@ -354,7 +392,7 @@ def evaluate_cells(
                     if pred is None:
                         continue
                     ratios = calibration_ratios(candidates, members, cid, model, prop)
-                    outcome = apply_frozen_rule(pred, ratios)
+                    outcome = apply_frozen_rule(pred, ratios, property_name=prop)
                     corrected = float(outcome["corrected"])  # type: ignore[arg-type]
                     raw_rel = abs(pred - ref) / abs(ref)
                     corr_rel = abs(corrected - ref) / abs(ref)
@@ -368,6 +406,8 @@ def evaluate_cells(
                             "reference": ref,
                             "raw": pred,
                             "corrected": corrected,
+                            "decision": outcome["decision"],
+                            "reason": outcome["reason"],
                             "applied": outcome["applied"],
                             "abstain_reason": outcome["abstain_reason"],
                             "b": outcome["b"],
@@ -413,8 +453,12 @@ def summarize_group_property(
     reasons = {"insufficient_calibration": 0, "direction": 0, "magnitude_cap": 0}
     for c in sel:
         if c["abstain_reason"] is not None:
-            reasons[str(c["abstain_reason"])] += 1
+            reason = str(c["abstain_reason"])
+            reasons[reason] = reasons.get(reason, 0) + 1
+    policy = correction_gate(prop)
     return {
+        "decision": sel[0].get("decision", policy["decision"]),
+        "reason": sel[0].get("reason", policy["reason"]),
         "n_materials": len({c["candidate"] for c in sel}),
         "n_cells": len(sel),
         "n_applied": len(applied),
@@ -505,9 +549,14 @@ def build_analysis(
             entry = summarize_group_property(cells, group, prop)
             if entry is not None:
                 properties[prop] = entry
+        eligible_properties = {
+            prop: entry
+            for prop, entry in properties.items()
+            if entry["decision"] == "allow"
+        }
         groups[group] = {
             "properties": properties,
-            **group_success(properties),
+            **group_success(eligible_properties),
             "risk_coverage": group_risk_coverage(report["candidates"], group),
         }
     all_fail = bool(groups) and all(g["verdict"] == "FAIL" for g in groups.values())

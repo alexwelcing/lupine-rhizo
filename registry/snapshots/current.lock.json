@@ -1,14 +1,14 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:9ecdd1285076a83914b9eb1f50011f66e6e8295ec45d4562f3c3bb90201af76a"
+      "content_hash": "sha256:cfd43afeab5a1c15163c5d338ae03a0b1f1541c94e34749d0e9d2b5c4a521379"
     }
   },
   "inputs": {
     "claim_contracts": [
       {
         "claim_id": "correction.b0.v1",
-        "content_hash": "sha256:c6696b4a372b53934d6345d9f76ea3323d0c1013f397547d862f98a63f982171"
+        "content_hash": "sha256:4423122d623dce1c0c23fa796043559d81db097dc83a47f33d1b23a05a24c1f2"
       },
       {
         "claim_id": "correction.same_class.a0.v1",
@@ -16,7 +16,7 @@
       },
       {
         "claim_id": "fcc.b0.anticorrelation.v1",
-        "content_hash": "sha256:83d5812783915d5c502ecf47aabc1fc182b9d834212c2103f081635be160eef9"
+        "content_hash": "sha256:97ece774c809e6dd8e8b97354c157fe8c359c00cb4769dca5be272d901ac6978"
       }
     ],
     "evidence_bundles": [
