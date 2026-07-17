@@ -139,10 +139,36 @@ jobs:
             python/tests/test_claim_contract_schema.py \
             python/tests/test_campaign_manifest_schema.py \
             python/tests/test_assumptions_generator.py \
+            python/tests/test_check_assumption_links.py \
             -q
 
       - name: Check generated assumption registry is up to date
         run: python tools/generate_assumptions.py --check
+
+  assumption-links:
+    name: Assumption and theorem receipt links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check assumption links when formal or registry inputs change
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+            if git diff --quiet "${base}"...HEAD -- lean-spec/ registry/; then
+              echo "No lean-spec/ or registry/ changes; assumption-link check not needed"
+              exit 0
+            fi
+          fi
+          python tools/check_assumption_links.py
 
   archive-boundary:
     name: Archive / active root boundary

@@ -36,6 +36,7 @@ from lupine_distill.statics.licenses import (
 )
 
 pytestmark = pytest.mark.unit
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _entry(
@@ -207,6 +208,17 @@ class TestGateLicense:
 
 
 class TestLoadLicenseRegistry:
+    def test_checked_in_b0_override_denies_contradicting_evidence(self) -> None:
+        registry = load_license_registry(ROOT / "data/discovery_gates/licenses.v1.json")
+        override = next(
+            item for item in registry.program_overrides if item["property"] == "b0"
+        )
+
+        assert override["correction_gate"] == {
+            "decision": "deny",
+            "reason": "contradicting_evidence",
+        }
+
     def test_loads_and_types_entries(self, registry, registry_file: Path) -> None:
         assert registry.path == registry_file.as_posix()
         assert registry.schema == LICENSES_SCHEMA_ID

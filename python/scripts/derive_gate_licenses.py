@@ -90,9 +90,13 @@ IN_SAMPLE_CAVEAT: Final[str] = (
 )
 
 #: Errata finding 4 / Round-3 prereg fix 6, verbatim from the design.
-B0_PROGRAM_OVERRIDE: Final[Mapping[str, str]] = {
+B0_PROGRAM_OVERRIDE: Final[Mapping[str, object]] = {
     "property": "b0",
     "license_ceiling": STATUS_DESCRIPTIVE,
+    "correction_gate": {
+        "decision": "deny",
+        "reason": "contradicting_evidence",
+    },
     "provenance": (
         "2026-07-13 errata finding 4; Round-3 prereg fix 6 (fcc B0 "
         "rho=-0.63): B0 concordance descriptive program-wide"

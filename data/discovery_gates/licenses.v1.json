@@ -29,6 +29,10 @@
     {
       "property": "b0",
       "license_ceiling": "descriptive",
+      "correction_gate": {
+        "decision": "deny",
+        "reason": "contradicting_evidence"
+      },
       "provenance": "2026-07-13 errata finding 4; Round-3 prereg fix 6 (fcc B0 rho=-0.63): B0 concordance descriptive program-wide",
       "lift_requires": "registered decision citing new reference-bound evidence"
     }
