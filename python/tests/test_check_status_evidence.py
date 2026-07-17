@@ -209,6 +209,60 @@ class AntiLaunderingTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("no new EvidenceBundle hash", result.stderr)
 
+    def test_cli_allows_first_registry_introduction(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            registry_path = root / "registry" / "assumptions.v1.json"
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "config", "user.email", "ci@example.test"],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(root), "config", "user.name", "CI"], check=True
+            )
+            (root / "README.md").write_text("base")
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-qm", "base"], check=True
+            )
+            base = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            registry_path.parent.mkdir(parents=True)
+            registry_path.write_text(json.dumps(registry("active", [OLD_HASH])))
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-qm", "head"], check=True
+            )
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(CHECKER),
+                    "--git-root",
+                    str(root),
+                    "--base-ref",
+                    base,
+                    "--head-ref",
+                    head,
+                ],
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("anti-laundering check passed", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

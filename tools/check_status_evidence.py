@@ -169,21 +169,30 @@ def _load_git(root: Path, revision: str, path: str, *, required: bool) -> Any | 
 
 def _git_pairs(root: Path, base_ref: str, head_ref: str) -> list[str]:
     registry_path = "registry/assumptions.v1.json"
-    before_registry = _load_git(root, base_ref, registry_path, required=True)
-    after_registry = _load_git(root, head_ref, registry_path, required=True)
-    violations = find_unbacked_status_changes(
-        before_registry, after_registry, source=registry_path
-    )
+    before_registry = _load_git(root, base_ref, registry_path, required=False)
+    after_registry = _load_git(root, head_ref, registry_path, required=False)
+    if before_registry is not None and after_registry is None:
+        raise CheckError(
+            f"{registry_path} was deleted in this change; removing the tracked "
+            "registry is not allowed without new evidence"
+        )
+    violations = []
+    if before_registry is not None and after_registry is not None:
+        violations.extend(
+            find_unbacked_status_changes(
+                before_registry, after_registry, source=registry_path
+            )
+        )
 
     events_path = "snapshots/status-events.v1.json"
     before_events = _load_git(root, base_ref, events_path, required=False)
     after_events = _load_git(root, head_ref, events_path, required=False)
-    if (before_events is None) != (after_events is None):
+    if before_events is not None and after_events is None:
         raise CheckError(
-            f"{events_path} must exist at both revisions so D1 status changes "
-            "cannot bypass comparison"
+            f"{events_path} was deleted in this change; removing the tracked "
+            "status-event snapshot is not allowed without new evidence"
         )
-    if before_events is not None:
+    if before_events is not None and after_events is not None:
         violations.extend(
             find_unbacked_status_changes(
                 before_events, after_events, source="D1 status_event"
