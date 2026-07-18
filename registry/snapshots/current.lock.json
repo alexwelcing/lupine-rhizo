@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:21484967be410dfc8ebf32491b96cfeccd9ac95020295c92278dfa45c03348da"
+      "content_hash": "sha256:8af50b6d6dc03a65ccc07c67276f517253d72435b7fb0c9eef219c721462e3ff"
     },
     "registry/campaigns.v1.json": {
       "content_hash": "sha256:f7ac0502ea21ba3b588c0ddd1e7d5b95a6d03d251276a331359c818a6a1bf91a"
@@ -34,6 +34,10 @@
       {
         "claim_id": "correction.same_class.a0.v1",
         "content_hash": "sha256:63dabd11bb2936a01b1607e4b62ce83f54880dc7e69c90703e1eff0959bdc498"
+      },
+      {
+        "claim_id": "discovery.z3.adsorption-accuracy.v1",
+        "content_hash": "sha256:d90ddbe01b5bc8dc61895178696f147e35c3687d546af699a09a705fb9a03888"
       },
       {
         "claim_id": "fcc.b0.anticorrelation.v1",

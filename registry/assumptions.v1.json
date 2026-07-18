@@ -118,6 +118,15 @@
       "status": "active"
     },
     {
+      "claim_content_hash": "sha256:d90ddbe01b5bc8dc61895178696f147e35c3687d546af699a09a705fb9a03888",
+      "claim_id": "discovery.z3.adsorption-accuracy.v1",
+      "claim_version": 1,
+      "disposition": "unsupported",
+      "evidence": [],
+      "statement": "The Z3 Δ-learned hybrid-accuracy screening panel satisfies the Hard Materials Z3 adsorption-energy acceptance test (MAE <= 0.1 eV) on a held-out benchmark.",
+      "status": "unsupported"
+    },
+    {
       "claim_content_hash": "sha256:97ece774c809e6dd8e8b97354c157fe8c359c00cb4769dca5be272d901ac6978",
       "claim_id": "fcc.b0.anticorrelation.v1",
       "claim_version": 1,
