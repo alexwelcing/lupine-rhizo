@@ -80,6 +80,7 @@ class AssumptionsGeneratorTests(unittest.TestCase):
         self.assertEqual(
             statuses,
             {
+                "barrier.accuracy.z1.v1": ("withdrawn", "refuted"),
                 "correction.b0.v1": ("withdrawn", "refuted"),
                 "correction.same_class.a0.v1": ("active", "supported"),
                 "fcc.b0.anticorrelation.v1": ("withdrawn", "refuted"),

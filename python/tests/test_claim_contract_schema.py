@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator, ValidationError
 ROOT = Path(__file__).resolve().parents[2]
 
 CLAIM_PATHS = {
+    "barrier.accuracy.z1.v1": ROOT / "registry" / "claims" / "barrier.accuracy.z1.v1.json",
     "correction.same_class.a0.v1": ROOT / "registry" / "claims" / "correction.same_class.a0.v1.json",
     "correction.b0.v1": ROOT / "registry" / "claims" / "correction.b0.v1.json",
     "fcc.b0.anticorrelation.v1": ROOT / "registry" / "claims" / "fcc.b0.anticorrelation.v1.json",
@@ -92,6 +93,43 @@ class ClaimContractSchemaTests(unittest.TestCase):
                 }
                 self.assertTrue(referenced)
                 self.assertLessEqual(referenced, evidence_by_id.keys())
+
+    def test_z1_barrier_bundle_records_typed_mae_acceptance_measurement(self) -> None:
+        evidence = load("evidence/v1/examples/hard-materials-z1-barrier-accuracy.json")
+
+        self.evidence_validator.validate(evidence)
+
+        self.assertEqual(evidence["claim_predicate"], "barrier_mae_mev<=40")
+        self.assertEqual(
+            evidence["measurements"],
+            [
+                {
+                    "metric": "barrier_mae",
+                    "value": 77.12788034654477,
+                    "unit": "meV",
+                    "acceptance_test": {
+                        "comparator": "less_than_or_equal",
+                        "threshold": 40,
+                        "outcome": "fail",
+                    },
+                    "sample_count": 5,
+                }
+            ],
+        )
+        self.assertEqual(
+            evidence["bundle_id"], canonical_content_hash(evidence, "bundle_id")
+        )
+
+    def test_z1_contract_states_the_tested_accuracy_claim_and_its_refutation(self) -> None:
+        claim = load(CLAIM_PATHS["barrier.accuracy.z1.v1"])
+
+        self.assertEqual(
+            claim["statement"],
+            "The five-compound 3x3x3 MACE barrier panel satisfies the Hard "
+            "Materials Z1 barrier-accuracy acceptance test (MAE <= 40 meV).",
+        )
+        self.assertEqual(claim["classification"]["outcome"], "contradicted")
+        self.assertEqual(claim["classification"]["assurance"], "withdrawn")
 
     def test_backfilled_claim_statuses_match_round3_dispositions(self) -> None:
         a0 = load(CLAIM_PATHS["correction.same_class.a0.v1"])

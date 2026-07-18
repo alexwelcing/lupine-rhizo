@@ -1,0 +1,44 @@
+{
+  "claim_id": "barrier.accuracy.z1.v1",
+  "version": 1,
+  "statement": "The five-compound 3x3x3 MACE barrier panel satisfies the Hard Materials Z1 barrier-accuracy acceptance test (MAE <= 40 meV).",
+  "classification": {
+    "intent": "confirmatory",
+    "outcome": "contradicted",
+    "assurance": "withdrawn",
+    "strength": "predictive"
+  },
+  "premises": [
+    {
+      "premise_id": "hard_materials_z1_barrier_mae",
+      "statement": "The content-addressed five-compound 3x3x3 barrier panel reports a 77.12788034654477 meV MAE against the cited experimental references, above the 40 meV Z1 ceiling.",
+      "support_policy": { "mode": "all" },
+      "bundle_references": [
+        { "bundle_id": "sha256:d24af382da6650cd6e4d2ab69be90d733befe227c2f19defbf30fdace097dc46" }
+      ]
+    }
+  ],
+  "bindings": {
+    "lean_theorem": {
+      "status": "unsupported",
+      "reason": "BarrierArrhenius theorems formalize consequences of barrier error; they do not prove the empirical five-compound aggregate MAE."
+    },
+    "runtime_gate": {
+      "status": "unsupported",
+      "reason": "No deployed runtime gate consumes the Hard Materials Z1 aggregate barrier-accuracy measurement."
+    },
+    "publication": {
+      "status": "bound",
+      "publication_id": "gates.licenses.paper.v1",
+      "recurring_claim": "result1.barrier.accuracy.z1"
+    }
+  },
+  "excluded_scope": [
+    "Barrier accuracy for models other than mace-mp-medium",
+    "Structures or chemistries outside the five rocksalt halides",
+    "Charged-defect corrections, finite-temperature prefactors, diffusivities, and Arrhenius rates",
+    "Convention-consistent neutral DFT-NEB accuracy claims"
+  ],
+  "supersedes": [],
+  "content_hash": "sha256:20b60dec4ff63995e254f718195ce09a2f10ad1b655dd8270608488a9f900e33"
+}

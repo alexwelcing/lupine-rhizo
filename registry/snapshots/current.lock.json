@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:cfd43afeab5a1c15163c5d338ae03a0b1f1541c94e34749d0e9d2b5c4a521379"
+      "content_hash": "sha256:21484967be410dfc8ebf32491b96cfeccd9ac95020295c92278dfa45c03348da"
     },
     "registry/campaigns.v1.json": {
       "content_hash": "sha256:f7ac0502ea21ba3b588c0ddd1e7d5b95a6d03d251276a331359c818a6a1bf91a"
@@ -24,6 +24,10 @@
     ],
     "claim_contracts": [
       {
+        "claim_id": "barrier.accuracy.z1.v1",
+        "content_hash": "sha256:20b60dec4ff63995e254f718195ce09a2f10ad1b655dd8270608488a9f900e33"
+      },
+      {
         "claim_id": "correction.b0.v1",
         "content_hash": "sha256:4423122d623dce1c0c23fa796043559d81db097dc83a47f33d1b23a05a24c1f2"
       },
@@ -40,7 +44,8 @@
       "sha256:2420d5f743e98bdcbb0286d9996d0724d1f09326d74740b3336eb92402ead6ec",
       "sha256:3841fb153a282b8f149c884b7b6ccc74b8c427f747a2881bff6b6176e4ebd935",
       "sha256:4a31ae007b43ce9ad5d39c2fe0b542a3108d8a4871e795e8b951f85b3285a554",
-      "sha256:54fd5b2a796386ebca206cc3892db50fd967184feee1f3d2767f6f3da1e7726b"
+      "sha256:54fd5b2a796386ebca206cc3892db50fd967184feee1f3d2767f6f3da1e7726b",
+      "sha256:d24af382da6650cd6e4d2ab69be90d733befe227c2f19defbf30fdace097dc46"
     ]
   },
   "version": 1

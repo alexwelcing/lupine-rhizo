@@ -76,6 +76,22 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
         bundle["epistemic_status"] = "proven"
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_barrier_mae_predicate_requires_typed_measurement(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "hard-materials-z1-barrier-accuracy.json"
+        )
+        del bundle["measurements"]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+    def test_barrier_measurement_rejects_non_mev_units(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "hard-materials-z1-barrier-accuracy.json"
+        )
+        bundle["measurements"][0]["unit"] = "eV"
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()

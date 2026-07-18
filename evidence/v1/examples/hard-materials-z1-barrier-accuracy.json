@@ -1,0 +1,53 @@
+{
+  "bundle_id": "sha256:d24af382da6650cd6e4d2ab69be90d733befe227c2f19defbf30fdace097dc46",
+  "claim_predicate": "barrier_mae_mev<=40",
+  "epistemic_status": "negative",
+  "scope": {
+    "structures": ["rocksalt"],
+    "chemistries": ["lithium-halide", "sodium-halide"],
+    "properties": ["cation_vacancy_migration_barrier"],
+    "conditions": {
+      "acceptance_test": "Hard Materials Z1",
+      "model": "mace-mp-medium",
+      "supercell": "3x3x3",
+      "method": "neutral-cell climbing-image NEB",
+      "reference_kind": "experimental charged-vacancy migration enthalpy",
+      "reference_convention_caveat": "The neutral-cell CI-NEB predictions and charged-vacancy experimental references do not share a defect-charge convention.",
+      "compounds": ["LiF", "LiCl", "LiBr", "LiI", "NaCl"],
+      "barrier_mae_mev": 77.12788034654477,
+      "acceptance_threshold_mev": 40,
+      "outcome": "fail"
+    }
+  },
+  "evidence_refs": [
+    {
+      "campaign": "hard-materials-z1-barrier-accuracy",
+      "campaign_manifest": "data/kinetics/barrier_panel_3x3x3/report.json",
+      "campaign_manifest_hash": "sha256:9db1d5ffc4331f05c638cc3a491c52602ea600961a631efd27bcfa977b55c073",
+      "run_id": "barrier-panel-2026-07-13T17:04:36.589281Z",
+      "artifact": "data/kinetics/barrier_panel_3x3x3/REPORT.md",
+      "artifact_hash": "sha256:0aa7eb63fca102ba5accb7e6ab7d85463e761d6e72d3cb681f86c8e82625c52d",
+      "thresholds_version": "hard-materials-z1.v1"
+    }
+  ],
+  "provenance": {
+    "agent": "lupine-rhizo/python/scripts/run_barrier_panel.py",
+    "human": "Hard Materials report author",
+    "timestamp": "2026-07-13T17:04:36.589281Z",
+    "preregistration_id": "hard-materials-report.z1"
+  },
+  "measurements": [
+    {
+      "metric": "barrier_mae",
+      "value": 77.12788034654477,
+      "unit": "meV",
+      "acceptance_test": {
+        "comparator": "less_than_or_equal",
+        "threshold": 40,
+        "outcome": "fail"
+      },
+      "sample_count": 5
+    }
+  ],
+  "supersedes": []
+}

@@ -1,6 +1,50 @@
 {
   "assumptions": [
     {
+      "claim_content_hash": "sha256:20b60dec4ff63995e254f718195ce09a2f10ad1b655dd8270608488a9f900e33",
+      "claim_id": "barrier.accuracy.z1.v1",
+      "claim_version": 1,
+      "disposition": "refuted",
+      "evidence": [
+        {
+          "bundle_id": "sha256:d24af382da6650cd6e4d2ab69be90d733befe227c2f19defbf30fdace097dc46",
+          "epistemic_status": "negative",
+          "scope": {
+            "chemistries": [
+              "lithium-halide",
+              "sodium-halide"
+            ],
+            "conditions": {
+              "acceptance_test": "Hard Materials Z1",
+              "acceptance_threshold_mev": 40,
+              "barrier_mae_mev": 77.12788034654477,
+              "compounds": [
+                "LiF",
+                "LiCl",
+                "LiBr",
+                "LiI",
+                "NaCl"
+              ],
+              "method": "neutral-cell climbing-image NEB",
+              "model": "mace-mp-medium",
+              "outcome": "fail",
+              "reference_convention_caveat": "The neutral-cell CI-NEB predictions and charged-vacancy experimental references do not share a defect-charge convention.",
+              "reference_kind": "experimental charged-vacancy migration enthalpy",
+              "supercell": "3x3x3"
+            },
+            "properties": [
+              "cation_vacancy_migration_barrier"
+            ],
+            "structures": [
+              "rocksalt"
+            ]
+          }
+        }
+      ],
+      "statement": "The five-compound 3x3x3 MACE barrier panel satisfies the Hard Materials Z1 barrier-accuracy acceptance test (MAE <= 40 meV).",
+      "status": "withdrawn"
+    },
+    {
       "claim_content_hash": "sha256:4423122d623dce1c0c23fa796043559d81db097dc83a47f33d1b23a05a24c1f2",
       "claim_id": "correction.b0.v1",
       "claim_version": 1,

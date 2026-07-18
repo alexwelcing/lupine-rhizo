@@ -78,8 +78,9 @@ structure CorrectionGatePolicy where
   reason : String
   deriving BEq, DecidableEq, Repr
 
-/-- Materialized scope/status view of the three Round-3 ClaimContracts. -/
+/-- Materialized scope/status view of the empirical ClaimContracts. -/
 def claimContracts : List ClaimContractEntry := [
+  { contractId := "barrier.accuracy.z1.v1", status := .withdrawn, epistemicGrade := .unsupportedOverScoped, scope := { structures := ["rocksalt"], properties := ["migration_barrier"], conditions := ["Hard Materials Z1", "barrier MAE ≤ 40 meV", "five-compound 3x3x3 MACE panel", "charged-reference versus neutral-CI-NEB convention caveat"] }, leanBindingSupported := false },
   { contractId := "correction.same_class.a0.v1", status := .active, epistemicGrade := .assuranceExported, scope := { structures := ["rocksalt", "perovskite"], properties := ["a0"], conditions := ["Round-3 out-of-sample", "leave-one-out within structure class"] }, leanBindingSupported := false },
   { contractId := "correction.b0.v1", status := .withdrawn, epistemicGrade := .unsupportedOverScoped, scope := { structures := ["rocksalt", "perovskite"], properties := ["B0"], conditions := ["Round-3 contradicting evidence", "correction gate deny for every class"] }, leanBindingSupported := false },
   { contractId := "fcc.b0.anticorrelation.v1", status := .withdrawn, epistemicGrade := .unsupportedOverScoped, scope := { structures := ["fcc"], properties := ["B0"], conditions := ["elemental metals", "negative Spearman association"] }, leanBindingSupported := false }
@@ -295,6 +296,8 @@ def b0AssuranceBindings : List TheoremInventoryEntry :=
 #guard (theoremInventory.map (·.moduleName) |>.eraseDups |>.length) == 17
 #guard allAssuranceExportsBound
 #guard activeLeanBindings.isEmpty
+#guard claimContracts.any (fun contract =>
+  contract.contractId == "barrier.accuracy.z1.v1" && contract.status == .withdrawn)
 #guard correctionGatePolicies.any (fun policy =>
   policy.property == "B0" && policy.decision == .deny &&
     policy.reason == "contradicting_evidence")
