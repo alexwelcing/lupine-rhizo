@@ -102,12 +102,76 @@ class D1MigrationContractTests(unittest.TestCase):
             connection.execute("SELECT status FROM claims").fetchone(), ("verified",)
         )
 
-    def test_atlas_reconciliation_rejects_manual_reapplication(self) -> None:
+    def test_atlas_reconciliation_reapplication_preserves_canonical_state(self) -> None:
         connection = self.connect()
         apply_migrations(connection)
+        connection.execute(
+            """
+            INSERT INTO atlas_theorems (
+              id, facet, theorem_name, module, revision, proof_repository,
+              proof_revision, atlas_revision, mathlib_revision, statement_hash,
+              source_hash, build_manifest_hash, status, lifecycle_status,
+              superseded_by_id, used_in_hypotheses, created_at, updated_at
+            ) VALUES (
+              101, 'causal', 'replacement', 'Lupine.Causal', 'identity-r2',
+              'example/proofs', 'proof-r2', 'atlas-r2', 'mathlib-r2', ?, ?, ?,
+              'verified', 'active', NULL, 7,
+              '2026-07-17T01:02:03Z', '2026-07-18T04:05:06Z'
+            )
+            """,
+            ("a" * 64, "b" * 64, "c" * 64),
+        )
+        connection.execute(
+            """
+            INSERT INTO atlas_theorems (
+              id, facet, theorem_name, module, revision, proof_repository,
+              proof_revision, atlas_revision, mathlib_revision, statement_hash,
+              source_hash, build_manifest_hash, status, lifecycle_status,
+              superseded_by_id, used_in_hypotheses, created_at, updated_at
+            ) VALUES (
+              100, 'causal', 'original', 'Lupine.Causal', 'identity-r1',
+              'example/proofs', 'proof-r1', 'atlas-r1', 'mathlib-r1', ?, ?, ?,
+              'extended', 'superseded', 101, 3,
+              '2026-07-16T01:02:03Z', '2026-07-18T03:04:05Z'
+            )
+            """,
+            ("d" * 64, "e" * 64, "f" * 64),
+        )
+        connection.execute(
+            """
+            INSERT INTO atlas_facet_state (
+              facet, proof_repository, proof_revision, atlas_revision,
+              mathlib_revision, theorem_inventory, build_manifest_hash,
+              state_schema_version, inventory_schema_version, updated_at
+            ) VALUES (
+              'causal', 'example/proofs', 'proof-r2', 'atlas-r2', 'mathlib-r2',
+              '{"theorems":["original","replacement"]}', ?, 4, 5,
+              '2026-07-18T06:07:08Z'
+            )
+            """,
+            ("9" * 64,),
+        )
+        theorems_before = connection.execute(
+            "SELECT * FROM atlas_theorems ORDER BY id"
+        ).fetchall()
+        facet_state_before = connection.execute(
+            "SELECT * FROM atlas_facet_state ORDER BY facet"
+        ).fetchall()
+
         reconciliation = MIGRATIONS / "0011_atlas_schema_reconciliation.sql"
-        with self.assertRaisesRegex(sqlite3.IntegrityError, "UNIQUE constraint failed"):
-            connection.executescript(reconciliation.read_text(encoding="utf-8"))
+        connection.executescript(reconciliation.read_text(encoding="utf-8"))
+
+        self.assertEqual(
+            connection.execute("SELECT * FROM atlas_theorems ORDER BY id").fetchall(),
+            theorems_before,
+        )
+        self.assertEqual(
+            connection.execute(
+                "SELECT * FROM atlas_facet_state ORDER BY facet"
+            ).fetchall(),
+            facet_state_before,
+        )
+        self.assertEqual(connection.execute("PRAGMA foreign_key_check").fetchall(), [])
 
     def test_bootstrap_supports_full_contract_graph(self) -> None:
         connection = self.connect()
