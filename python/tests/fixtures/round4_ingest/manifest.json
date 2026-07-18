@@ -1,0 +1,47 @@
+{
+  "available_models": [
+    {
+      "artifact_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "model_id": "synthetic-mlip",
+      "version": "1.0.0"
+    }
+  ],
+  "campaign_id": "correction.round-4.synthetic.v1",
+  "content_hash": "sha256:7463492159f87e34a158b68b8472b3ea0f5ba7201cb86a7bd6357855122691da",
+  "demotion_conditions": [
+    {
+      "action": "demote",
+      "condition_id": "demote.median_improvement",
+      "metric": "median_relative_error_improvement",
+      "operator": "lt",
+      "threshold": 0.05,
+      "unit": "fraction"
+    }
+  ],
+  "exclusions": [],
+  "frozen_hypotheses": [
+    {
+      "frozen": true,
+      "hypothesis_id": "h.a0.same_class",
+      "statement": "Synthetic Round-4 a0 evidence clears the same-class threshold."
+    }
+  ],
+  "kill_conditions": [
+    {
+      "action": "kill",
+      "condition_id": "kill.no_harm_failure_rate",
+      "metric": "no_harm_failure_rate",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "fraction"
+    }
+  ],
+  "preregistration_id": "prereg.correction.round-4.synthetic",
+  "target_premises": [
+    {
+      "claim_id": "correction.same_class.a0.v1",
+      "premise_id": "round3_same_class_a0"
+    }
+  ],
+  "version": 1
+}
