@@ -1,0 +1,39 @@
+{
+  "schema": "lupine.execution-environment.v1",
+  "schema_version": 1,
+  "environment_id": "z1-cloud-execution-v1",
+  "description": "Reproducibility manifest for Z1 Cloud Run/GCP execution environment.",
+  "access_method": "gcloud run jobs execute",
+  "project": "shed-489901",
+  "region": "us-central1",
+  "service_account": "atlas-distill-runner@shed-489901.iam.gserviceaccount.com",
+  "jobs": {
+    "chgnet": {
+      "job_name": "mlip-cell-chgnet",
+      "image": "mlip-cell-chgnet-round4:latest"
+    },
+    "mace-mp-small": {
+      "job_name": "mlip-cell-mace-mp-small",
+      "image": "mlip-cell-mace-round4:round4-b7562637c860"
+    },
+    "mace-mp-medium": {
+      "job_name": "mlip-cell-mace-mp-medium",
+      "image": "mlip-cell-mace-round4:round4-b7562637c860"
+    },
+    "mace-mpa-0-medium": {
+      "job_name": "mlip-cell-mace-mpa-0-medium",
+      "image": "mlip-cell-mace-round4:round4-b7562637c860"
+    }
+  },
+  "resources": {
+    "memory": "16Gi",
+    "cpu": "4",
+    "gpu": "1",
+    "gpu_type": "nvidia-l4",
+    "timeout_seconds": 3600,
+    "max_retries": 1
+  },
+  "input_bucket": "gs://shed-489901-atlas-inputs",
+  "output_bucket": "gs://shed-489901-atlas-outputs",
+  "verified_at": "2026-07-18T19:38:16Z"
+}
