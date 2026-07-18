@@ -45,7 +45,7 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       - name: Install pipeline and pytest
-        run: pip install -e . pytest
+        run: pip install -e . pytest sqlite-vec
 
       - name: Seed sample data
         run: python seed_data.py
