@@ -1,0 +1,53 @@
+{
+  "schema": "lupine.candidate_lock.v1",
+  "round": 4,
+  "locked_at": "2026-07-17T08:52:20-04:00",
+  "preregistration": "docs/plans/2026-07-14-round4-preregistration.md",
+  "reference_blind": true,
+  "reference_fields_present": false,
+  "calibration_exclusion": {
+    "rule": "No locked candidate appears in any pre-Round-4 thresholds.v3 calibration corpus or Round-1/Round-3 candidate panel.",
+    "audited_against": [
+      "data/discovery_gates/thresholds.v3.json",
+      "data/candidates/round1_targets.json",
+      "data/candidates/round3_targets.json"
+    ]
+  },
+  "classes": [
+    {
+      "id": "ionics-rocksalt",
+      "structure_type": "rocksalt",
+      "candidates": [
+        {"id": "r4-rs-nabr", "formula": "NaBr", "composition": {"Na": 1, "Br": 1}},
+        {"id": "r4-rs-nai", "formula": "NaI", "composition": {"Na": 1, "I": 1}},
+        {"id": "r4-rs-rbbr", "formula": "RbBr", "composition": {"Rb": 1, "Br": 1}},
+        {"id": "r4-rs-rbi", "formula": "RbI", "composition": {"Rb": 1, "I": 1}}
+      ]
+    },
+    {
+      "id": "perovskites",
+      "structure_type": "perovskite",
+      "candidates": [
+        {"id": "r4-pv-kcaf3", "formula": "KCaF3", "composition": {"K": 1, "Ca": 1, "F": 3}},
+        {"id": "r4-pv-rbcaf3", "formula": "RbCaF3", "composition": {"Rb": 1, "Ca": 1, "F": 3}},
+        {"id": "r4-pv-rbmgf3", "formula": "RbMgF3", "composition": {"Rb": 1, "Mg": 1, "F": 3}},
+        {"id": "r4-pv-csmgf3", "formula": "CsMgF3", "composition": {"Cs": 1, "Mg": 1, "F": 3}}
+      ]
+    }
+  ],
+  "intended_properties": ["a0", "b0", "c11", "c12", "c44"],
+  "model_set": ["chgnet", "mace-mp-small", "mace-mp-medium", "mace-mpa-0-medium"],
+  "analysis_design": {
+    "unit": "material",
+    "within_class_rule": "leave-one-material-out",
+    "threshold_statistics": ["p75", "p95"],
+    "baseline_comparison": "thresholds.v3",
+    "reference_sourcing_starts_after_lock": true,
+    "unfindable_reference_value": null
+  },
+  "notes": [
+    "This artifact intentionally contains no measured or DFT reference values, citations, lattice guesses, or model outputs.",
+    "Candidate identities were frozen before Round-4 reference sourcing and before Round-4 model execution.",
+    "A full-file SHA-256 digest is recorded in round4_targets.lock.json.sha256 and in the dated preregistration addendum."
+  ]
+}

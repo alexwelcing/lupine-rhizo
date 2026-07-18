@@ -40,3 +40,33 @@ def test_load_uma_uses_fairchem_calculator_contract(monkeypatch) -> None:
         "predictor": {"predictor": "uma-s-1p2"},
         "task_name": "omat",
     }
+
+
+def test_load_mace_checkpoint_by_registered_id(monkeypatch) -> None:
+    calls = []
+
+    def fake_mace_mp(**kwargs):
+        calls.append(kwargs)
+        return {"calculator": kwargs["model"]}
+
+    mace = types.ModuleType("mace")
+    calculators = types.ModuleType("mace.calculators")
+    calculators.__dict__["mace_mp"] = fake_mace_mp
+    mace.__dict__["calculators"] = calculators
+    monkeypatch.setitem(sys.modules, "mace", mace)
+    monkeypatch.setitem(sys.modules, "mace.calculators", calculators)
+    monkeypatch.setattr(runner, "device", lambda: "cuda")
+    monkeypatch.setattr(runner, "patch_torch_load_for_trusted_checkpoints", lambda: None)
+
+    expected = {
+        "mace-mp-0": "medium",
+        "mace-mp-small": "small",
+        "mace-mp-medium": "medium",
+        "mace-mpa-0-medium": "medium-mpa-0",
+    }
+    for mlip_id, checkpoint in expected.items():
+        assert runner.load_calculator(mlip_id) == {"calculator": checkpoint}
+    assert calls == [
+        {"model": checkpoint, "device": "cuda", "default_dtype": "float32"}
+        for checkpoint in expected.values()
+    ]

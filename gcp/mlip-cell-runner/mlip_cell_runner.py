@@ -578,6 +578,15 @@ def patch_torch_load_for_trusted_checkpoints() -> None:
     torch.load = load_trusted_checkpoint
 
 
+MACE_CHECKPOINTS = {
+    # Backward-compatible runtime id retained for existing campaign manifests.
+    "mace-mp-0": "medium",
+    "mace-mp-small": "small",
+    "mace-mp-medium": "medium",
+    "mace-mpa-0-medium": "medium-mpa-0",
+}
+
+
 def load_calculator(mlip_id: str):
     dev = device()
     if mlip_id == "chgnet":
@@ -585,11 +594,15 @@ def load_calculator(mlip_id: str):
         from chgnet.model.dynamics import CHGNetCalculator
 
         return CHGNetCalculator(CHGNet.load(), use_device=dev)
-    if mlip_id == "mace-mp-0":
+    if mlip_id in MACE_CHECKPOINTS:
         patch_torch_load_for_trusted_checkpoints()
         from mace.calculators import mace_mp
 
-        return mace_mp(model="medium", device=dev, default_dtype="float32")
+        return mace_mp(
+            model=MACE_CHECKPOINTS[mlip_id],
+            device=dev,
+            default_dtype="float32",
+        )
     if mlip_id == "m3gnet":
         import matgl
 

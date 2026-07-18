@@ -158,3 +158,34 @@ general efficacy claim. The exploratory analysis in §4 used no new
 measurements but did read Round-3 outcomes; it therefore cannot license any
 Round-3-tuned instrument beyond the theorem caps, whose form comes from the
 machine-checked proofs, not from the data.
+
+## Dated addendum — candidate lock (2026-07-17)
+
+The Round-4 evaluation set is now frozen in the reference-blind,
+content-addressed artifact:
+
+- `data/candidates/round4_targets.lock.json`
+- full-file SHA-256:
+  `b7562637c860b15b92f64659f0b063bc6d2b6c0c12899e21f370359cccb914f1`
+- lock time: `2026-07-17T08:52:20-04:00`
+
+The lock contains 8 candidates in 2 classes and no reference values,
+citations, lattice guesses, or model outputs:
+
+- **ionics-rocksalt:** NaBr, NaI, RbBr, RbI
+- **perovskites:** KCaF3, RbCaF3, RbMgF3, CsMgF3
+
+The list was audited against the material identities in
+`thresholds.v3.json`, `round1_targets.json`, and `round3_targets.json`; there
+is no overlap. Reference sourcing begins only after this addendum. Missing or
+weak references remain null/excluded under the preregistered Round-3
+discipline. Round-4 execution uses the unchanged four-model set: CHGNet,
+MACE-MP small, MACE-MP medium, and MACE-MPA-0 medium.
+
+The reproducible GCP execution receipt is frozen at
+`gcp/mlip-cell-runner/round4_endpoints.lock.json` (SHA-256
+`7eeddc4b09258c120e7994820944fb2e8394b345b9bd662c9c580cb964fd3e34`).
+It records the project, region, immutable image digests, successful Cloud Build
+ID, the four Ready Cloud Run Job names, and one successful execution receipt per
+job for the execution worker. UMA is explicitly `excluded_unavailable` and is
+not part of the registered Round-4 model set.

@@ -1,0 +1,65 @@
+{
+  "schema": "lupine.round4.execution_endpoints.v1",
+  "verified_at": "2026-07-18T15:40:08-04:00",
+  "candidate_lock": {
+    "path": "data/candidates/round4_targets.lock.json",
+    "sha256": "b7562637c860b15b92f64659f0b063bc6d2b6c0c12899e21f370359cccb914f1"
+  },
+  "gcp": {
+    "project": "shed-489901",
+    "region": "us-central1",
+    "service_account": "atlas-distill-runner@shed-489901.iam.gserviceaccount.com"
+  },
+  "build": {
+    "config": "gcp/mlip-cell-runner/cloudbuild.round4-mace.yaml",
+    "id": "a95d475c-301e-4403-9551-ee9d2d80cb43",
+    "status": "SUCCESS",
+    "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53"
+  },
+  "endpoints": [
+    {
+      "mlip_id": "chgnet",
+      "job": "mlip-cell-chgnet",
+      "generation": 14,
+      "ready": true,
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-chgnet@sha256:6a443b3817f9c2e580e1eeefddc1a032efb00fd785b377fa526039b3f4130617",
+      "latest_execution": "mlip-cell-chgnet-jd948",
+      "latest_execution_status": "EXECUTION_SUCCEEDED"
+    },
+    {
+      "mlip_id": "mace-mp-small",
+      "job": "mlip-cell-mace-mp-small",
+      "generation": 1,
+      "ready": true,
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53",
+      "latest_execution": "mlip-cell-mace-mp-small-mzj5b",
+      "latest_execution_status": "EXECUTION_SUCCEEDED"
+    },
+    {
+      "mlip_id": "mace-mp-medium",
+      "job": "mlip-cell-mace-mp-medium",
+      "generation": 1,
+      "ready": true,
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53",
+      "latest_execution": "mlip-cell-mace-mp-medium-qcsp4",
+      "latest_execution_status": "EXECUTION_SUCCEEDED"
+    },
+    {
+      "mlip_id": "mace-mpa-0-medium",
+      "job": "mlip-cell-mace-mpa-0-medium",
+      "generation": 1,
+      "ready": true,
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53",
+      "latest_execution": "mlip-cell-mace-mpa-0-medium-84f8p",
+      "latest_execution_status": "EXECUTION_SUCCEEDED"
+    }
+  ],
+  "excluded": [
+    {
+      "mlip_id": "uma",
+      "status": "excluded_unavailable",
+      "reason": "The registered Round-4 model set excludes UMA; gated model access remains unavailable."
+    }
+  ],
+  "execution_template": "gcloud run jobs execute JOB --project=shed-489901 --region=us-central1 --wait --args=run-cell,..."
+}
