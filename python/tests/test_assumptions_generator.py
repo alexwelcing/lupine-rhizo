@@ -18,7 +18,11 @@ GENERATOR = ROOT / "tools" / "generate_assumptions.py"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.generate_assumptions import derive_assumption
+from tools.generate_assumptions import (  # noqa: E402
+    content_hash,
+    derive_assumption,
+    load_campaign_registry,
+)
 
 
 class AssumptionsGeneratorTests(unittest.TestCase):
@@ -152,6 +156,59 @@ class AssumptionsGeneratorTests(unittest.TestCase):
             lock["artifacts"]["registry/assumptions.v1.json"]["content_hash"],
             expected_hash,
         )
+
+        campaigns = json.loads(
+            (ROOT / "registry" / "campaigns.v1.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            [campaign["campaign_id"] for campaign in campaigns["campaigns"]],
+            [
+                "discovery.round-4.z1-barriers.v1",
+                "discovery.round-4.z2-magnetic-anisotropy.v1",
+                "discovery.round-4.z3-adsorption.v1",
+            ],
+        )
+        self.assertEqual(len(lock["inputs"]["campaign_manifests"]), 3)
+        self.assertIn("registry/campaigns.v1.json", lock["artifacts"])
+
+    def test_campaign_loader_rejects_a_stale_content_hash(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            campaign_directory = root / "campaigns" / "v1"
+            campaign_directory.mkdir(parents=True)
+            manifest = json.loads(
+                (ROOT / "campaigns" / "v1" / "z1.campaign-manifest.v1.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            manifest["acceptance_test"]["threshold"] = 41
+            (campaign_directory / "z1.json").write_text(
+                json.dumps(manifest), encoding="utf-8"
+            )
+
+            with self.assertRaisesRegex(ValueError, "non-canonical CampaignManifest"):
+                load_campaign_registry(root)
+
+    def test_campaign_loader_rejects_an_included_and_excluded_model(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            campaign_directory = root / "campaigns" / "v1"
+            campaign_directory.mkdir(parents=True)
+            manifest = json.loads(
+                (ROOT / "campaigns" / "v1" / "z1.campaign-manifest.v1.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            manifest["available_models"][0]["model_id"] = "uma-family"
+            manifest["content_hash"] = content_hash(
+                {key: value for key, value in manifest.items() if key != "content_hash"}
+            )
+            (campaign_directory / "z1.json").write_text(
+                json.dumps(manifest), encoding="utf-8"
+            )
+
+            with self.assertRaisesRegex(ValueError, "both includes and excludes"):
+                load_campaign_registry(root)
 
 
 if __name__ == "__main__":

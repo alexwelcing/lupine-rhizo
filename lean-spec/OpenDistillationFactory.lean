@@ -8,6 +8,9 @@ import OpenDistillationFactory.Materials.Distillation.Extracted
 import OpenDistillationFactory.Materials.Mechanics.HallPetch
 import OpenDistillationFactory.Materials.Scope.Validity
 
+-- Typed error landscape: Chapter 3 emblems and Chapter 13 master matrix
+import OpenDistillationFactory.ErrorLandscape
+
 -- Data layer: provenance, benchmark entries, embedded datasets
 import OpenDistillationFactory.Materials.Data.Provenance
 import OpenDistillationFactory.Materials.Data.Benchmark
@@ -82,3 +85,6 @@ import OpenDistillationFactory.Materials.Vision
 
 -- Empirical-formal bridge: registry of ClaimContracts and theorem epistemic grades
 import OpenDistillationFactory.UniversalCorrection.Empirical.Registry
+
+-- Chapter 15: typed contracts for the eleven discovery chains
+import OpenDistillationFactory.DiscoveryChains

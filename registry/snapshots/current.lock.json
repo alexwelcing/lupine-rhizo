@@ -2,9 +2,26 @@
   "artifacts": {
     "registry/assumptions.v1.json": {
       "content_hash": "sha256:cfd43afeab5a1c15163c5d338ae03a0b1f1541c94e34749d0e9d2b5c4a521379"
+    },
+    "registry/campaigns.v1.json": {
+      "content_hash": "sha256:f7ac0502ea21ba3b588c0ddd1e7d5b95a6d03d251276a331359c818a6a1bf91a"
     }
   },
   "inputs": {
+    "campaign_manifests": [
+      {
+        "campaign_id": "discovery.round-4.z1-barriers.v1",
+        "content_hash": "sha256:3de39fb3878a11f61ac3c290d9cd0a8690ee942169a569671424a1510237607e"
+      },
+      {
+        "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
+        "content_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a"
+      },
+      {
+        "campaign_id": "discovery.round-4.z3-adsorption.v1",
+        "content_hash": "sha256:a88cfcd43ba6a738a2e58988cace5c9c88eca44b66cfb847d4ed7473aedd0dfa"
+      }
+    ],
     "claim_contracts": [
       {
         "claim_id": "correction.b0.v1",

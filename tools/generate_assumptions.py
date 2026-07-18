@@ -10,7 +10,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 STATUS_LEVELS = {
     "unsupported": 0,
     "exploratory": 1,
@@ -116,6 +115,40 @@ def derive_assumption(
     }
 
 
+def load_campaign_registry(root: Path) -> dict[str, Any]:
+    """Load frozen campaign manifests and enforce content/execution invariants."""
+    campaigns = []
+    seen_campaign_ids = set()
+    for path in sorted((root / "campaigns" / "v1").glob("*.json")):
+        campaign = load_json(path)
+        campaign_id = campaign["campaign_id"]
+        if campaign_id in seen_campaign_ids:
+            raise ValueError(f"duplicate CampaignManifest ID {campaign_id}")
+        seen_campaign_ids.add(campaign_id)
+        expected_hash = content_hash(
+            {key: value for key, value in campaign.items() if key != "content_hash"}
+        )
+        if campaign["content_hash"] != expected_hash:
+            raise ValueError(f"non-canonical CampaignManifest content_hash in {path}")
+        available = {model["model_id"] for model in campaign["available_models"]}
+        excluded = {item["subject"] for item in campaign["exclusions"]}
+        if not available:
+            raise ValueError(f"CampaignManifest {campaign_id} has no available models")
+        if available & excluded:
+            raise ValueError(
+                f"CampaignManifest {campaign_id} both includes and excludes a model"
+            )
+        if campaign["execution"]["excluded_models_block_execution"]:
+            raise ValueError(
+                f"CampaignManifest {campaign_id} lets exclusions block execution"
+            )
+        campaigns.append(campaign)
+    return {
+        "version": 1,
+        "campaigns": sorted(campaigns, key=lambda item: item["campaign_id"]),
+    }
+
+
 def build_documents(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     claim_paths = sorted((root / "registry" / "claims").glob("*.json"))
     evidence_paths = sorted((root / "evidence" / "v1" / "examples").glob("*.json"))
@@ -155,10 +188,14 @@ def build_documents(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
             for claim in sorted(claims, key=lambda item: item["claim_id"])
         ],
     }
+    campaign_registry = load_campaign_registry(root)
     lock = {
         "version": 1,
         "artifacts": {
-            "registry/assumptions.v1.json": {"content_hash": content_hash(registry)}
+            "registry/assumptions.v1.json": {"content_hash": content_hash(registry)},
+            "registry/campaigns.v1.json": {
+                "content_hash": content_hash(campaign_registry)
+            },
         },
         "inputs": {
             "claim_contracts": [
@@ -169,6 +206,13 @@ def build_documents(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
                 for claim in sorted(claims, key=lambda item: item["claim_id"])
             ],
             "evidence_bundles": sorted(evidence_by_id),
+            "campaign_manifests": [
+                {
+                    "campaign_id": campaign["campaign_id"],
+                    "content_hash": campaign["content_hash"],
+                }
+                for campaign in campaign_registry["campaigns"]
+            ],
         },
     }
     return registry, lock
@@ -180,8 +224,10 @@ def rendered(document: dict[str, Any]) -> str:
 
 def materialize(root: Path, output_root: Path, check: bool) -> bool:
     registry, lock = build_documents(root)
+    campaign_registry = load_campaign_registry(root)
     outputs = {
         output_root / "registry" / "assumptions.v1.json": rendered(registry),
+        output_root / "registry" / "campaigns.v1.json": rendered(campaign_registry),
         output_root / "registry" / "snapshots" / "current.lock.json": rendered(lock),
     }
     stale = []

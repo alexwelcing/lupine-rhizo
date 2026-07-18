@@ -7,7 +7,7 @@
     }
   ],
   "campaign_id": "correction.round-4.synthetic.v1",
-  "content_hash": "sha256:7463492159f87e34a158b68b8472b3ea0f5ba7201cb86a7bd6357855122691da",
+  "content_hash": "sha256:81e292e8914cd77b67bc7ab96355a8cf820268ebd79bb8f3a0fff39ceee38aa4",
   "demotion_conditions": [
     {
       "action": "demote",
@@ -26,6 +26,25 @@
       "statement": "Synthetic Round-4 a0 evidence clears the same-class threshold."
     }
   ],
+  "acceptance_test": {
+    "metric": "barrier_mae",
+    "operator": "lte",
+    "threshold": 40,
+    "unit": "meV"
+  },
+  "evidence_requirements": [
+    {
+      "artifact_type": "results",
+      "description": "Round-4 out-of-sample measurement rows",
+      "minimum_count": 1,
+      "requirement_id": "req.round4.results"
+    }
+  ],
+  "execution": {
+    "excluded_models_block_execution": false,
+    "lane": "local-synthetic",
+    "model_selection": "available_models"
+  },
   "kill_conditions": [
     {
       "action": "kill",
@@ -36,6 +55,11 @@
       "unit": "fraction"
     }
   ],
+  "preregistration": {
+    "frozen_before_execution": true,
+    "registered_at": "2026-07-14T00:00:00Z",
+    "source": "docs/plans/2026-07-14-round4-preregistration.md"
+  },
   "preregistration_id": "prereg.correction.round-4.synthetic",
   "target_premises": [
     {
