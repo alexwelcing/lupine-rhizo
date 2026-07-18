@@ -112,3 +112,4 @@ tools/hermes-hive/data/
 lupi-studio-pr/
 archive/kimi-workspace-export/
 .venv-mlip312/
+.worktrees/
