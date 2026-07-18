@@ -5,7 +5,7 @@
   "classification": {
     "intent": "confirmatory",
     "outcome": "pending",
-    "assurance": "provisional",
+    "assurance": "unsupported",
     "strength": "predictive"
   },
   "premises": [
@@ -13,7 +13,7 @@
       "premise_id": "hard_materials_z3_adsorption_mae",
       "statement": "The content-addressed adsorption reference panel reports MAE against experimental references on a held-out benchmark, below the 0.1 eV Z3 ceiling.",
       "support_policy": {
-        "mode": "all"
+        "mode": "unsupported"
       },
       "bundle_references": []
     }
@@ -40,5 +40,5 @@
     "Catalyst screening hit-rate claims beyond the accuracy acceptance test"
   ],
   "supersedes": [],
-  "content_hash": "sha256:d90ddbe01b5bc8dc61895178696f147e35c3687d546af699a09a705fb9a03888"
+  "content_hash": "sha256:2a5bc1c222ecfbff7537e03dbdbd94ef90156c7d3cdc7a453fd0ca1726415d87"
 }

@@ -19,6 +19,7 @@ inductive ErrorAxis where
 
 inductive Metric where
   | migrationBarrierMAE
+  | magnetocrystallineRankCorrelation
   | adsorptionEnergyMUE
   | energyMAEPerAtom
   | densityMAPE
