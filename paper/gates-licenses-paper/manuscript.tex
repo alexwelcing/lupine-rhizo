@@ -56,9 +56,11 @@ What Can Be Corrected, and What Must Be Refused\par}
 \end{titlepage}
 
 % ---------------------------------------------------------------- claim + lead
+% ClaimContract: correction.same_class.a0.v1
 \noindent\fbox{\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule}{\textbf{Claim.} The systematic error of universal machine-learning interatomic potentials is not uniform: across referenced measurements on halides, perovskites, and alloys, kinetic barriers survive to within $\sim$10\,\% while defect formation energies collapse by 32--105\,\% --- with cross-material orderings preserved even where magnitudes fail. This structure licenses a narrow, provably-safe correction (class-native lattice constants, validated out-of-sample at 2.4--5$\times$), exact-physics refusals (Born instability of entire ensemble hulls), and honest abstention everywhere else. Which of the three applies is decidable at runtime, and the safety conditions are machine-checked theorems.}}
 
 \bigskip
+% ClaimContract: correction.same_class.a0.v1
 \noindent Materials discovery for batteries, solid electrolytes, carbon capture, and lead-free photovoltaics is rate-limited by the same computational bottleneck: the properties that decide whether a candidate works --- vacancy formation, migration barriers, defect-mediated stability --- live exactly where universal machine-learning interatomic potentials (uMLIPs) are least trained and least accurate. The field knows these models soften the potential-energy surface at under-coordinated sites. What has been missing is resolution: \emph{which} observables fail, by \emph{how much} against real references, whether the failure has exploitable structure, and --- most practically --- a decision procedure that tells a screening pipeline when to trust a prediction, when to repair it, and when to throw it away. This paper reports referenced measurements that answer the first three questions and a validated, theorem-guarded procedure for the fourth.
 
 % ---------------------------------------------------------------- instrument
@@ -165,12 +167,16 @@ The refusal holds for the whole ensemble range, not just the sampled models.
 There is also a hierarchy worth stating plainly: disagreement grows monotonically along bulk $\to$ kinetic $\to$ defect observables, in both relative and absolute terms (defect-energy disagreement runs 2--34$\times$ the bulk-modulus disagreement on the same compounds). The observables that matter most for discovery are the ones the models agree on least --- which is the quantitative case for why screening pipelines need verdicts, not just predictions.
 
 % ---------------------------------------------------------------- result 3
+% ClaimContract: correction.same_class.a0.v1
 \section*{Result 3 --- A correction with a validated scope and machine-checked safety}
 
+% ClaimContract: correction.same_class.a0.v1
 Can any of this be repaired rather than refused? We tested the simplest defensible repair --- a multiplicative de-bias learned from same-class reference-bound calibration, applied only when direction evidence is unanimous --- through three preregistered stages, and the outcome is a correction whose scope we can state exactly.
 
+% ClaimStatus: withdrawn
 Transferring biases \emph{across} chemical classes failed in the measured trial: a bias learned on elemental fcc metals (which underpredict bulk moduli) applied to fcc alloys (which overpredict) \emph{worsened} alloy predictions from 9.1\,\% to 16.9\,\% median error. The formal result proves the sufficient wrong-direction harm mechanism, not universal cross-class behavior. Its conditional converse requires the target's true ratio to lie in the calibration hull: if that unsupported-at-runtime assumption holds and the bias clears a margin cap, then the corrected error is \emph{strictly smaller} than the raw error. The cap is honestly asymmetric: inflation-side corrections are safe when the bias exceeds twice the calibration spread ($2s$); deflation-side corrections require three times the spread \emph{and} a floor on the bias (the mirrored $2s$ condition has a kernel-checked counterexample). These are decidable integer statements, machine-checked, but they confer no B0, cross-class, or universal correction license.
 
+% ClaimContract: correction.same_class.a0.v1
 \begin{theorem}[Wrong-direction corrections strictly harm; Lean \code{wrong\_direction\_\allowbreak inflation\_worsens}, \code{wrong\_direction\_\allowbreak deflation\_worsens}]\label{thm:direction}
 Let $\mathrm{pred}$, $\mathrm{ref}$, $\mathrm{corrected}$ be integers (predictions and reference in the evidence corpus's fixed-point scaling). Quoting the kernel-checked hypotheses exactly:
 \begin{itemize}
@@ -184,6 +190,7 @@ $\bigl|\mathrm{pred} - \mathrm{ref}\bigr| < \bigl|\mathrm{corrected} - \mathrm{r
 Inflating a prediction already at-or-above its reference, or deflating one already at-or-below it, strictly increases the error. The theorem requires the target's true error side, which the runtime does not generally know; therefore it is a conditional harm theorem rather than an empirical correction license. The runtime allows only scope-matched same-class $a_0$, denies $B_0$ with reason \code{contradicting\_evidence}, and denies every other property as unsupported.
 \end{theorem}
 
+% ClaimContract: correction.same_class.a0.v1
 \begin{rulealg}[Frozen Round-3 correction rule --- registered 2026-07-13, before reference sourcing]\label{rule:frozen}
 For a held-out candidate $X$, model $m$, property $p$, class $C$:
 \begin{enumerate}
@@ -245,10 +252,12 @@ With the same notation, assume, quoting the kernel-checked hypotheses exactly:
 Then the same conclusion \eqref{eq:capinf-concl} holds: $\bigl|r - b\bigr| \cdot 10^4 < \bigl|r - 10^4\bigr| \cdot b$, i.e.\ $\bigl|\,r/b - 1\,\bigr| < \bigl|\,r - 1\,\bigr|$. The deflation side is \emph{not} the mirror image of the inflation side: it needs three spreads and the floor.
 \end{theorem}
 
+% ClaimStatus: withdrawn
 \begin{remark}[Asymmetry, counterexamples, and the frozen cap]\label{rem:asymmetry}
 (i) In the Lean statements the underscored hypotheses (\code{\_hlo}, \code{\_hle}, \code{\_hhi}) pin the regime for the reader; they are derivable from the cap, the floor, and the memberships, and the proofs never use them. (ii) The asymmetry is derived, not assumed: the corrected error is measured relative to $b$; inflation ($b > 1$) divides by a larger denominator and gains margin, so $b - 1 > 2s$ suffices with no ceiling on $b$, while deflation ($b < 1$) divides by a smaller denominator, amplifying the same $|r - b|$, so the spread multiple rises to three and the floor $b \ge 1/2$ is needed. The mirrored $2s$ cap is insufficient below unity even with the floor in place: hull $[0.50, 0.74]$ ($s = 0.24$), $b = 0.50$, $r = 0.74$ passes the $2s$ cap yet gives corrected error $0.48$ against raw $0.26$ --- strictly worse (kernel-checked counterexample). (iii) The frozen Round-3 runtime cap $|b - 1| > s$ of Rule~\ref{rule:frozen} (one spread) is strictly weaker than the caps proved here: hull $[1.0001, 1.0003]$ ($s = 2\times10^{-4}$), $b = 1.0003$, $r = 1.0001$ passes the one-spread cap while the correction strictly harms (corrected error $\approx 2\times10^{-4}$ against raw $1\times10^{-4}$; kernel-checked). Round-3 results are therefore read under Round-3's own frozen registration, and the proven caps inform a registered Round-4 cap change only. (iv) The Round-2 FeNi $B_0$ cell that demanded these theorems fails \emph{both} license hypotheses: the target ratio $r = 0.810$ lies outside the calibration hull $[1.02, 1.175]$, and that hull cannot clear the inflation cap for any in-hull bias ($s = 0.155$ demands $b > 1.31$ while the hull tops out at $1.175$). The refusal is the theorem working as intended.
 \end{remark}
 
+% ClaimContract: correction.same_class.a0.v1
 \begin{definition}[Exact two-sided binomial sign test]\label{def:signtest}
 Over held-out cells where the rule \emph{applied}, a cell counts as improved when the corrected $|$relative error$|$ is strictly below the raw one, worsened when strictly above; ties are dropped. With $n = n_{\mathrm{improved}} + n_{\mathrm{worsened}}$, $k = n_{\mathrm{improved}}$, and $X \sim \operatorname{Bin}\bigl(n, \tfrac12\bigr)$,
 \begin{equation}\label{eq:signtest}
@@ -264,14 +273,17 @@ computed exactly from integer binomial coefficients (no normal approximation, no
 \end{definition}
 \artifacts{\code{run\_round3\_analysis.exact\_binomial\_sign\_p} (exact, via \code{math.comb} --- no scipy); criteria in \code{docs/plans/2026-07-13-round3-preregistration.md}.}
 
+% ClaimContract: correction.same_class.a0.v1
 The confirmatory test used a rule frozen before its evaluation references were even sourced, on eight candidates never seen by any calibration: four alkali halides with primary-source elastic references and four out-of-sample perovskites. The result draws the scope line cleanly. \textbf{Class-native lattice-constant corrections transfer decisively: 1.60\,\% $\to$ 0.33\,\% median error on the ionics (4.8$\times$) and 1.75\,\% $\to$ 0.74\,\% on the perovskites (2.4$\times$), with the direction gate confident enough to fire on every cell.} Every other property failed the registered criteria --- mostly by \emph{abstention} (the gate correctly found no unanimous direction evidence on 12--16 of 16 cells), and where the frozen margin admitted a few applications on stiffness properties, they did not help, consistent with the proven caps being stronger than the frozen one. The registered consequence executed: the correction layer's validated public scope is \textbf{same-class lattice constants}, with abstention --- provably risk-free --- everywhere else until new evidence.
 
+% ClaimContract: correction.same_class.a0.v1
 We regard this as a positive result, and the honest shape of the correction problem: in the preregistered rocksalt and perovskite groups, same-class $a_0$ error direction is unanimous and the measured biases transfer --- so a three-line, fully-auditable correction beats a 4-model ensemble at one quarter of its cost \emph{on that property}. No correction claim is made for rankings, $B_0$, stiffness, cross-class transfer, or universal transfer; those gates deny or abstain.
 
 \medskip
 \noindent\textbf{Independence, measured.} The multi-architecture cloud basis (SevenNet and Orb-v3 joining CHGNet and the MACE family; a sixth architecture awaits gated-checkpoint authorization) answers the redundancy question quantitatively. Pipeline first: 78/78 elastic predictions per architecture against the locked references, overall $C_{ij}$ MAE \textbf{9.0~GPa} (SevenNet) under a declared fixed-lattice protocol, total cloud cost \$0.23. The dispersion answer: \textbf{11 of 18} elastic rows widen when independent architectures join (median ratio 1.06$\times$), and the widening concentrates exactly where the local family looked most concordant --- the alloy's $C_{11}$ and $C_{12}$ dispersions grow \textbf{2.7--3.0$\times$} (the independent architectures place CoCrNi $C_{11}$ at 193--203~GPa against the family's 238--265) --- while $C_{44}$ rows, where CHGNet and MACE already spanned the extremes, are unchanged. Family agreement is not evidence of correctness; it is evidence of shared ancestry, and the license layer now has the measurement that says so.
 
 \medskip
+% ClaimStatus: exploratory
 \noindent\textbf{The correction license cannot yet be checked without references --- measured.} We tested whether the theorems' load-bearing hypothesis (the target's error ratio lying in the calibration hull) has a reference-free proxy: is a model's \emph{prediction} inside its peers' prediction hull? The answer is a clean null --- success rates 70.8\,\% in-hull vs 71.4\,\% out (Fisher $p = 1.0$, 52 confirmatory cells, exclusion-corrected by independent blind re-derivation) --- while the unknowable oracle condition itself associates strongly (94.4\,\% vs 58.8\,\%, $p = 0.009$), and every cell that satisfied both the proven cap and the in-hull condition succeeded (\textbf{12/12 across all rounds}). This supports the conditional theorem but supplies no observable universal license. Until a knowable surrogate exists, the fail-closed answer stands: only same-class $a_0$ is enabled, $B_0$ is denied by contradicting evidence, and all broader correction assumptions remain unsupported.
 
 % ---------------------------------------------------------------- protection
@@ -282,6 +294,7 @@ Every quantitative claim above survived one of three filters, and the paper cont
 % ---------------------------------------------------------------- related work
 \section*{Related work}
 
+% ClaimContract: correction.same_class.a0.v1
 The components of this instrument have prior art; the assembled decision procedure does not, to our knowledge. Ensemble and committee disagreement as an uncertainty proxy is established for bespoke potentials and increasingly for foundation models; PROBE's demonstration that raw disagreement can correlate weakly with error is the direct challenge our license layer answers --- by measuring, per class and property, where the proxy holds, and refusing to issue uncertainty semantics where it does not. Conformal calibration supplies distribution-free per-quantity thresholds; our percentile gates are the same statistical object with measured, same-instrument provenance, plus a refusal-first cost ordering conformal methods do not address. Systematic uMLIP softening on under-coordinated configurations is documented (most directly for MPtrj-trained models); our contribution is its mechanistic resolution into a kinetics/thermodynamics dichotomy with experimental anchors on both sides, and the observation that ordering survives magnitude collapse on defect energetics. Proof-carrying certification of MLIP properties is nascent; our Lean layer differs in scope --- it certifies the \emph{decision procedure} (refusal finality, threshold-migration consequences, ensemble-hull impossibility, correction-safety caps) rather than the potential, which is what lets a screening pipeline inherit guarantees no single model can offer. Benchmark leaderboards (Matbench Discovery; elastic-property benchmarks showing bulk--shear accuracy asymmetry across $\sim 10^4$ materials) corroborate the property-resolved error structure but operate per-model; the object of study here is the ensemble-plus-verdict system.
 
 % ---------------------------------------------------------------- boundaries
@@ -292,11 +305,13 @@ Panels of 4--9 compounds per class demonstrate methodology and mechanism, not su
 % ---------------------------------------------------------------- outlook
 \section*{Outlook}
 
+% ClaimStatus: exploratory
 Three lines follow directly. First, independence: the five-architecture cloud basis converts every dispersion in this paper from family spread toward independent-error spread at a cost of dollars, and its canary is running. Second, a runtime license for corrections: if prediction-hull membership --- knowable without references --- predicts correction success, the same fail-closed logic that licenses gates will license repairs, closing the loop between the safety theorems and deployment. Third, the defect frontier: since softening is coordination loss and the anchor-bracket formalism already identifies corrections exactly from coordination anchors on simple lattices, a defect-anchored field correction that restores Schottky \emph{scale} while provably preserving the (already-correct) \emph{ordering} is the registered next attempt to widen the validated scope beyond lattice constants --- theorem first, then a frozen trial, in that order.
 
 % ---------------------------------------------------------------- appendix A
 \section*{Appendix A --- Registration ledger}
 
+% ClaimContract: correction.same_class.a0.v1
 \begin{table}[h!]
 \centering
 \small

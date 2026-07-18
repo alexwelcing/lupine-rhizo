@@ -140,10 +140,15 @@ jobs:
             python/tests/test_campaign_manifest_schema.py \
             python/tests/test_assumptions_generator.py \
             python/tests/test_check_assumption_links.py \
+            python/tests/test_ingest_campaign_results.py \
+            python/tests/test_check_publication_claims.py \
             -q
 
       - name: Check generated assumption registry is up to date
         run: python tools/generate_assumptions.py --check
+
+      - name: Check publication claims against active contracts
+        run: python tools/check_publication_claims.py
 
   assumption-links:
     name: Assumption and theorem receipt links

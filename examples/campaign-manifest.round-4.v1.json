@@ -2,6 +2,11 @@
   "campaign_id": "correction.round-4.v1",
   "version": 1,
   "preregistration_id": "prereg.correction.round-4.2026-07",
+  "preregistration": {
+    "registered_at": "2026-07-14T00:00:00Z",
+    "source": "docs/plans/2026-07-14-round4-preregistration.md",
+    "frozen_before_execution": true
+  },
   "frozen_hypotheses": [
     {
       "hypothesis_id": "h.a0.same_class",
@@ -34,6 +39,25 @@
       "premise_id": "same_class_scope"
     }
   ],
+  "acceptance_test": {
+    "metric": "median_relative_error_improvement",
+    "operator": "gte",
+    "threshold": 0.05,
+    "unit": "fraction"
+  },
+  "evidence_requirements": [
+    {
+      "requirement_id": "e.round4.held-out-results",
+      "artifact_type": "model-measurements",
+      "description": "Held-out model measurements with reference provenance.",
+      "minimum_count": 1
+    }
+  ],
+  "execution": {
+    "lane": "round4.available-models",
+    "model_selection": "available_models",
+    "excluded_models_block_execution": false
+  },
   "kill_conditions": [
     {
       "condition_id": "kill.no_harm_failure_rate",

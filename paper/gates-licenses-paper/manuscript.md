@@ -1,5 +1,6 @@
 # Softening Is Coordination Loss: Where Foundation Interatomic Potentials Fail, What Can Be Corrected, and What Must Be Refused
 
+> <!-- ClaimContract: correction.same_class.a0.v1 -->
 > **Date:** 2026-07-13
 > **Deck:** Referenced measurements of foundation-MLIP error across bulk, kinetic, and defect observables in five material classes; a correction with confirmatory out-of-sample validation and machine-checked safety conditions; and the license structure that says when cross-model agreement means anything.
 > **Summary:** Universal potentials get migration barriers nearly right and defect formation energies wrong by half — because softening is coordination loss, not saddle-point error — and we show which of those failures can be provably corrected, which can be refused, and which demand abstention.
@@ -7,8 +8,10 @@
 
 ---
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 <div class="callout claim"><strong>Claim.</strong> The systematic error of universal machine-learning interatomic potentials is not uniform: across referenced measurements on halides, perovskites, and alloys, kinetic barriers survive to within ~10 % while defect formation energies collapse by 32–105 % — with cross-material orderings preserved even where magnitudes fail. This structure licenses a narrow, provably-safe correction (class-native lattice constants, validated out-of-sample at 2.4–5×), exact-physics refusals (Born instability of entire ensemble hulls), and honest abstention everywhere else. Which of the three applies is decidable at runtime, and the safety conditions are machine-checked theorems.</div>
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 <p class="lead">Materials discovery for batteries, solid electrolytes, carbon capture, and lead-free photovoltaics is rate-limited by the same computational bottleneck: the properties that decide whether a candidate works — vacancy formation, migration barriers, defect-mediated stability — live exactly where universal machine-learning interatomic potentials (uMLIPs) are least trained and least accurate. The field knows these models soften the potential-energy surface at under-coordinated sites. What has been missing is resolution: <em>which</em> observables fail, by <em>how much</em> against real references, whether the failure has exploitable structure, and — most practically — a decision procedure that tells a screening pipeline when to trust a prediction, when to repair it, and when to throw it away. This paper reports referenced measurements that answer the first three questions and a validated, theorem-guarded procedure for the fourth.</p>
 
 ## The instrument
@@ -35,12 +38,16 @@ Our response is architectural rather than rhetorical: every gate in the pipeline
 
 There is also a hierarchy worth stating plainly: disagreement grows monotonically along bulk → kinetic → defect observables, in both relative and absolute terms (defect-energy disagreement runs 2–34× the bulk-modulus disagreement on the same compounds). The observables that matter most for discovery are the ones the models agree on least — which is the quantitative case for why screening pipelines need verdicts, not just predictions.
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 ## Result 3 — A correction with a validated scope and machine-checked safety
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 Can any of this be repaired rather than refused? We tested the simplest defensible repair — a multiplicative de-bias learned from same-class reference-bound calibration, applied only when direction evidence is unanimous — through three preregistered stages, and the outcome is a correction whose scope we can state exactly.
 
+<!-- ClaimStatus: withdrawn -->
 Transferring biases *across* chemical classes fails, and fails provably: a bias learned on elemental fcc metals (which underpredict bulk moduli) applied to fcc alloys (which overpredict) *worsened* alloy predictions from 9.1 % to 16.9 % median error. That failure is now a theorem rather than an anecdote — a correction applied against the target's true error direction strictly increases error — and its converse is the safety condition we prove: if all calibration ratios lie strictly on one side of unity, the bias and the target's ratio lie in the calibration hull, and the bias clears a margin cap, then the corrected error is *strictly smaller* than the raw error. The cap is honestly asymmetric: inflation-side corrections are safe when the bias exceeds twice the calibration spread (2s); deflation-side corrections require three times the spread *and* a floor on the bias (the mirrored 2s condition has a kernel-checked counterexample). These are decidable integer statements, machine-checked, with the one harmful correction our exploratory round produced refused by the theorem on two independent grounds.
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 The confirmatory test used a rule frozen before its evaluation references were even sourced, on eight candidates never seen by any calibration: four alkali halides with primary-source elastic references and four out-of-sample perovskites. The result draws the scope line cleanly. **Class-native lattice-constant corrections transfer decisively: 1.60 % → 0.33 % median error on the ionics (4.8×) and 1.75 % → 0.74 % on the perovskites (2.4×), with the direction gate confident enough to fire on every cell.** Every other property failed the registered criteria — mostly by *abstention* (the gate correctly found no unanimous direction evidence on 12–16 of 16 cells), and where the frozen margin admitted a few applications on stiffness properties, they did not help, consistent with the proven caps being stronger than the frozen one. The registered consequence executed: the correction layer's validated public scope is **same-class lattice constants**, with abstention — provably risk-free — everywhere else until new evidence.
 
 We regard this as a positive result, and the honest shape of the correction problem: lattice constants are where cross-model error direction is unanimous, biases are stable across a chemical class, and thermal-convention offsets are common-mode — so a three-line, fully-auditable correction beats a 4-model ensemble at one quarter of its cost *on that property*, while the same machinery declines to manufacture confidence anywhere it cannot prove it. Combined with Result 1, the division of labor for the five target classes is concrete: rankings and lattice geometry can be corrected; stability energetics must be gated and refused; kinetics demands concordance across independent architectures.
@@ -55,6 +62,7 @@ Every quantitative claim above survived one of three filters, and the paper cont
 
 ## Related work
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 The components of this instrument have prior art; the assembled decision procedure does not, to our knowledge. Ensemble and committee disagreement as an uncertainty proxy is established for bespoke potentials and increasingly for foundation models; PROBE's demonstration that raw disagreement can correlate weakly with error is the direct challenge our license layer answers — by measuring, per class and property, where the proxy holds, and refusing to issue uncertainty semantics where it does not. Conformal calibration supplies distribution-free per-quantity thresholds; our percentile gates are the same statistical object with measured, same-instrument provenance, plus a refusal-first cost ordering conformal methods do not address. Systematic uMLIP softening on under-coordinated configurations is documented (most directly for MPtrj-trained models); our contribution is its mechanistic resolution into a kinetics/thermodynamics dichotomy with experimental anchors on both sides, and the observation that ordering survives magnitude collapse on defect energetics. Proof-carrying certification of MLIP properties is nascent; our Lean layer differs in scope — it certifies the *decision procedure* (refusal finality, threshold-migration consequences, ensemble-hull impossibility, correction-safety caps) rather than the potential, which is what lets a screening pipeline inherit guarantees no single model can offer. Benchmark leaderboards (Matbench Discovery; elastic-property benchmarks showing bulk–shear accuracy asymmetry across ~10⁴ materials) corroborate the property-resolved error structure but operate per-model; the object of study here is the ensemble-plus-verdict system.
 
 ## Boundaries
@@ -63,12 +71,14 @@ Panels of 4–9 compounds per class demonstrate methodology and mechanism, not s
 
 ## Outlook
 
+<!-- ClaimStatus: exploratory -->
 Three lines follow directly. First, independence: the five-architecture cloud basis converts every dispersion in this paper from family spread toward independent-error spread at a cost of dollars, and its canary is running. Second, a runtime license for corrections: if prediction-hull membership — knowable without references — predicts correction success, the same fail-closed logic that licenses gates will license repairs, closing the loop between the safety theorems and deployment. Third, the defect frontier: since softening is coordination loss and the anchor-bracket formalism already identifies corrections exactly from coordination anchors on simple lattices, a defect-anchored field correction that restores Schottky *scale* while provably preserving the (already-correct) *ordering* is the registered next attempt to widen the validated scope beyond lattice constants — theorem first, then a frozen trial, in that order.
 
 ---
 
 ### Appendix A — Registration ledger
 
+<!-- ClaimContract: correction.same_class.a0.v1 -->
 | Item | Frozen | Outcome |
 |---|---|---|
 | Round 1: cross-class de-bias, 2 groups, criteria = 2/3 properties, sign test p<0.1 | before run | **FAIL both groups** (alloys: significant in the wrong direction, p = 3.1×10⁻⁵) |

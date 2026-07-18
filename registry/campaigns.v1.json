@@ -1,0 +1,328 @@
+{
+  "campaigns": [
+    {
+      "acceptance_test": {
+        "metric": "barrier_mae",
+        "operator": "lte",
+        "threshold": 40,
+        "unit": "meV"
+      },
+      "available_models": [
+        {
+          "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+          "model_id": "chgnet",
+          "version": "chgnet 0.4.2"
+        },
+        {
+          "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+          "model_id": "mace-mp-small",
+          "version": "mace-torch 0.3.16 / small"
+        },
+        {
+          "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+          "model_id": "mace-mp-medium",
+          "version": "mace-torch 0.3.16 / medium"
+        },
+        {
+          "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+          "model_id": "mace-mpa-0-medium",
+          "version": "mace-torch 0.3.16 / mpa-0 medium"
+        }
+      ],
+      "campaign_id": "discovery.round-4.z1-barriers.v1",
+      "content_hash": "sha256:3de39fb3878a11f61ac3c290d9cd0a8690ee942169a569671424a1510237607e",
+      "demotion_conditions": [
+        {
+          "action": "demote",
+          "condition_id": "demote.z1.barrier-mae",
+          "metric": "barrier_mae",
+          "operator": "gt",
+          "threshold": 40,
+          "unit": "meV"
+        }
+      ],
+      "evidence_requirements": [
+        {
+          "artifact_type": "neb-path-set",
+          "description": "Fresh held-out paths with endpoint and saddle energies, convergence metadata, and reference provenance.",
+          "minimum_count": 30,
+          "requirement_id": "e.z1.held-out-paths"
+        },
+        {
+          "artifact_type": "model-measurements",
+          "description": "Per-path predictions from every available model, including signed errors and failures without imputation.",
+          "minimum_count": 1,
+          "requirement_id": "e.z1.model-results"
+        }
+      ],
+      "exclusions": [
+        {
+          "disposition": "excluded",
+          "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models.",
+          "subject": "uma-family"
+        },
+        {
+          "disposition": "excluded",
+          "rationale": "Exclude comparisons mixing neutral and charged defects, different hop mechanisms, or unmatched reference paths.",
+          "subject": "mechanism-or-charge-mismatch"
+        }
+      ],
+      "execution": {
+        "excluded_models_block_execution": false,
+        "lane": "round4.available-models",
+        "model_selection": "available_models"
+      },
+      "frozen_hypotheses": [
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z1.barrier-accuracy",
+          "statement": "Barrier-targeted training attains migration-barrier MAE at or below 40 meV on a chemistry-held-out DFT-NEB set."
+        },
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z1.no-optimistic-bias",
+          "statement": "The accepted model does not retain a majority one-directional barrier underestimate on the held-out set."
+        }
+      ],
+      "kill_conditions": [
+        {
+          "action": "kill",
+          "condition_id": "kill.z1.reference-leakage",
+          "metric": "reference_paths_seen_during_training",
+          "operator": "gt",
+          "threshold": 0
+        }
+      ],
+      "preregistration": {
+        "frozen_before_execution": true,
+        "registered_at": "2026-07-18T00:00:00Z",
+        "source": "https://github.com/alexwelcing/hard-materials-honest-errors/blob/f81b9161e74f54b226984439e2bab446de5eadcb/src/content/bodies/ch15.ts"
+      },
+      "preregistration_id": "prereg.discovery.round-4.z1.2026-07-18",
+      "target_premises": [
+        {
+          "claim_id": "discovery.z1.barrier-accuracy.v1",
+          "premise_id": "chemistry-held-out-neb"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "acceptance_test": {
+        "metric": "magnetocrystalline_anisotropy_rank_correlation",
+        "operator": "eq",
+        "threshold": 1,
+        "unit": "spearman_rho"
+      },
+      "available_models": [
+        {
+          "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+          "model_id": "chgnet",
+          "version": "chgnet 0.4.2"
+        },
+        {
+          "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+          "model_id": "mace-mp-small",
+          "version": "mace-torch 0.3.16 / small"
+        },
+        {
+          "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+          "model_id": "mace-mp-medium",
+          "version": "mace-torch 0.3.16 / medium"
+        },
+        {
+          "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+          "model_id": "mace-mpa-0-medium",
+          "version": "mace-torch 0.3.16 / mpa-0 medium"
+        }
+      ],
+      "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
+      "content_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a",
+      "demotion_conditions": [
+        {
+          "action": "demote",
+          "condition_id": "demote.z2.ranking",
+          "metric": "magnetocrystalline_anisotropy_rank_correlation",
+          "operator": "lt",
+          "threshold": 1,
+          "unit": "spearman_rho"
+        }
+      ],
+      "evidence_requirements": [
+        {
+          "artifact_type": "soc-reference-set",
+          "description": "Held-out spin-polarized SOC references with easy axes, anisotropy energies, convergence settings, and identities.",
+          "minimum_count": 5,
+          "requirement_id": "e.z2.reference-order"
+        },
+        {
+          "artifact_type": "ranking-measurements",
+          "description": "Predicted ordering, signed anisotropy energies, tie policy, abstentions, and Spearman statistic.",
+          "minimum_count": 1,
+          "requirement_id": "e.z2.ranking-results"
+        }
+      ],
+      "exclusions": [
+        {
+          "disposition": "excluded",
+          "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models.",
+          "subject": "uma-family"
+        },
+        {
+          "disposition": "excluded",
+          "rationale": "A scalar result without a frozen spin/SOC companion calculation abstains from anisotropy adjudication.",
+          "subject": "spin-orbit-unresolved-row"
+        }
+      ],
+      "execution": {
+        "excluded_models_block_execution": false,
+        "lane": "round4.available-models",
+        "model_selection": "available_models"
+      },
+      "frozen_hypotheses": [
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z2.anisotropy-ranking",
+          "statement": "The spin-aware multi-fidelity stack reproduces the complete held-out magnetocrystalline-anisotropy ordering, including easy-axis sign."
+        },
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z2.scalar-abstention",
+          "statement": "Scalar-energy rows without spin-orbit-resolved evidence abstain and cannot count as ranking successes."
+        }
+      ],
+      "kill_conditions": [
+        {
+          "action": "kill",
+          "condition_id": "kill.z2.sign-error",
+          "metric": "easy_axis_sign_errors",
+          "operator": "gt",
+          "threshold": 0,
+          "unit": "materials"
+        }
+      ],
+      "preregistration": {
+        "frozen_before_execution": true,
+        "registered_at": "2026-07-18T00:00:00Z",
+        "source": "https://github.com/alexwelcing/hard-materials-honest-errors/blob/f81b9161e74f54b226984439e2bab446de5eadcb/src/content/bodies/ch15.ts"
+      },
+      "preregistration_id": "prereg.discovery.round-4.z2.2026-07-18",
+      "target_premises": [
+        {
+          "claim_id": "discovery.z2.magnetic-anisotropy.v1",
+          "premise_id": "spin-orbit-resolved-held-out-ranking"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "acceptance_test": {
+        "metric": "adsorption_energy_mae",
+        "operator": "lte",
+        "threshold": 0.1,
+        "unit": "eV"
+      },
+      "available_models": [
+        {
+          "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+          "model_id": "chgnet",
+          "version": "chgnet 0.4.2"
+        },
+        {
+          "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+          "model_id": "mace-mp-small",
+          "version": "mace-torch 0.3.16 / small"
+        },
+        {
+          "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+          "model_id": "mace-mp-medium",
+          "version": "mace-torch 0.3.16 / medium"
+        },
+        {
+          "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+          "model_id": "mace-mpa-0-medium",
+          "version": "mace-torch 0.3.16 / mpa-0 medium"
+        }
+      ],
+      "campaign_id": "discovery.round-4.z3-adsorption.v1",
+      "content_hash": "sha256:a88cfcd43ba6a738a2e58988cace5c9c88eca44b66cfb847d4ed7473aedd0dfa",
+      "demotion_conditions": [
+        {
+          "action": "demote",
+          "condition_id": "demote.z3.adsorption-mae",
+          "metric": "adsorption_energy_mae",
+          "operator": "gt",
+          "threshold": 0.1,
+          "unit": "eV"
+        }
+      ],
+      "evidence_requirements": [
+        {
+          "artifact_type": "adsorption-reference-set",
+          "description": "Held-out experimental adsorption energies with uncertainty, facet, coverage, temperature, reconstruction, and provenance.",
+          "minimum_count": 20,
+          "requirement_id": "e.z3.experimental-anchors"
+        },
+        {
+          "artifact_type": "model-measurements",
+          "description": "Baseline and delta-learned predictions for every available model, with signed errors and failures without imputation.",
+          "minimum_count": 1,
+          "requirement_id": "e.z3.delta-results"
+        }
+      ],
+      "exclusions": [
+        {
+          "disposition": "excluded",
+          "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models.",
+          "subject": "uma-family"
+        },
+        {
+          "disposition": "excluded",
+          "rationale": "Exclude unmatched facets, coverages, reconstructions, reference states, and non-experimental anchors.",
+          "subject": "adsorption-convention-mismatch"
+        }
+      ],
+      "execution": {
+        "excluded_models_block_execution": false,
+        "lane": "round4.available-models",
+        "model_selection": "available_models"
+      },
+      "frozen_hypotheses": [
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z3.adsorption-accuracy",
+          "statement": "Delta-learned hybrid screening attains adsorption-energy MAE at or below 0.1 eV on held-out adsorbate-surface pairs."
+        },
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z3.operando-scope",
+          "statement": "Only rows with matched adsorbate, facet, coverage, and surface-state conventions contribute to the confirmatory statistic."
+        }
+      ],
+      "kill_conditions": [
+        {
+          "action": "kill",
+          "condition_id": "kill.z3.reference-leakage",
+          "metric": "held_out_pairs_seen_during_training",
+          "operator": "gt",
+          "threshold": 0,
+          "unit": "pairs"
+        }
+      ],
+      "preregistration": {
+        "frozen_before_execution": true,
+        "registered_at": "2026-07-18T00:00:00Z",
+        "source": "https://github.com/alexwelcing/hard-materials-honest-errors/blob/f81b9161e74f54b226984439e2bab446de5eadcb/src/content/bodies/ch15.ts"
+      },
+      "preregistration_id": "prereg.discovery.round-4.z3.2026-07-18",
+      "target_premises": [
+        {
+          "claim_id": "discovery.z3.adsorption-accuracy.v1",
+          "premise_id": "chemically-held-out-experiment-anchored"
+        }
+      ],
+      "version": 1
+    }
+  ],
+  "version": 1
+}
