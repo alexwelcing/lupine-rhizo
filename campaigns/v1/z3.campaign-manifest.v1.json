@@ -19,16 +19,24 @@
   ],
   "exclusions": [
     {"subject": "uma-family", "disposition": "excluded", "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models."},
-    {"subject": "adsorption-convention-mismatch", "disposition": "excluded", "rationale": "Exclude unmatched facets, coverages, reconstructions, reference states, and non-experimental anchors."}
+    {"subject": "adsorption-convention-mismatch", "disposition": "excluded", "rationale": "Exclude unmatched facets, coverages, reconstructions, reference states, and references outside the locked published-DFT basis."}
   ],
-  "target_premises": [{"claim_id": "discovery.z3.adsorption-accuracy.v1", "premise_id": "chemically-held-out-experiment-anchored"}],
+  "target_premises": [{"claim_id": "discovery.z3.adsorption-accuracy.v1", "premise_id": "hard_materials_z3_adsorption_mae"}],
   "acceptance_test": {"metric": "adsorption_energy_mae", "operator": "lte", "threshold": 0.1, "unit": "eV"},
   "evidence_requirements": [
-    {"requirement_id": "e.z3.experimental-anchors", "artifact_type": "adsorption-reference-set", "description": "Held-out experimental adsorption energies with uncertainty, facet, coverage, temperature, reconstruction, and provenance.", "minimum_count": 20},
+    {"requirement_id": "e.z3.published-dft-references", "artifact_type": "adsorption-reference-set", "description": "Held-out published DFT adsorption energies with a per-row uncertainty proxy, facet, coverage, temperature convention, surface-state scope, executable structures, and provenance.", "minimum_count": 20},
     {"requirement_id": "e.z3.delta-results", "artifact_type": "model-measurements", "description": "Baseline and delta-learned predictions for every available model, with signed errors and failures without imputation.", "minimum_count": 1}
   ],
-  "execution": {"lane": "round4.available-models", "model_selection": "available_models", "excluded_models_block_execution": false},
+  "execution": {
+    "lane": "round4.available-models",
+    "model_selection": "available_models",
+    "excluded_models_block_execution": false,
+    "candidate_panel": {
+      "path": "data/candidates/z3_catbench_bm_adsorption.lock.json",
+      "sha256": "sha256:b434de005e5da46e33e3275ffc8bec2d251b8a52438c1cfe7d6f4f3d8dbb41f4"
+    }
+  },
   "kill_conditions": [{"condition_id": "kill.z3.reference-leakage", "metric": "held_out_pairs_seen_during_training", "operator": "gt", "threshold": 0, "unit": "pairs", "action": "kill"}],
   "demotion_conditions": [{"condition_id": "demote.z3.adsorption-mae", "metric": "adsorption_energy_mae", "operator": "gt", "threshold": 0.1, "unit": "eV", "action": "demote"}],
-  "content_hash": "sha256:a88cfcd43ba6a738a2e58988cace5c9c88eca44b66cfb847d4ed7473aedd0dfa"
+  "content_hash": "sha256:49f5f20e41450697b63b9ff079fe25b5490ba684956c5d68bb37a5d2cd02c494"
 }
