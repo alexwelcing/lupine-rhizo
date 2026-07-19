@@ -18,7 +18,23 @@ Four cloud models, content-addressed:
 ## Measurement Set
 
 - **Legacy anchors:** five charged-vacancy experimental references (LiF, LiCl, LiBr, LiI, NaCl) from the Round-3 corpus.
-- **Campaign set:** >=30 chemistry-held-out DFT-NEB paths (not yet locked; blocked on candidate panel addendum).
+- **Campaign set:** 30 chemistry-held-out DFT-NEB paths locked at
+  `data/candidates/z1_nebdft2k_barriers.lock.json` (SHA-256
+  `192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68`).
+  The panel takes one deterministic path from each of 30 distinct chemical
+  systems in LiTraj's official nebDFT2k test split. Those systems and every NEB
+  image are excluded from Z1 barrier-targeted fitting, calibration, model
+  selection, and threshold tuning.
+
+Each path includes the complete BVSE-preconditioned input image sequence, the
+DFT-relaxed initial endpoint, saddle, and final endpoint, the full DFT energy
+profile, reference barrier, and the frozen CI-NEB convergence protocol. Rebuild
+from the source archive with:
+
+```bash
+uv run --with ase python tools/build_z1_barrier_panel.py \
+  --source /path/to/nebDFT2k.zip
+```
 
 ## Row Schema (JSONL)
 
@@ -53,5 +69,6 @@ Run `tools/ingest_campaign_results.py` with the manifest and measurement rows. T
 
 ## Blockers
 
-- Candidate panel addendum for >=30 DFT-NEB paths is not yet locked (t_e01722f8).
-- Cloud Run NEB row support is not yet implemented in deployed images.
+- Cloud Run NEB optimization support is not yet implemented in deployed images;
+  the locked panel is now directly resolvable from the Z1 CampaignManifest, so
+  runner work no longer needs to source or choose candidates.
