@@ -10,12 +10,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-csmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:c523f2f0c436963d87e76166a46bcedff38c364152b09f9ba6a4dfb154d83c52",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-csmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-csmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:43aa6ff09538db210ad15134a824669a825d79ed9b8053ff2446d7647e4c33cf",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-csmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "CsMgF3",
@@ -47,12 +47,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-csmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:90152cf2f1c75238e4d9509c320a35f287069afe080580c1923a787dd86b62c9",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-csmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-csmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:9e98bb0ebf5a5678568f29ac57b48ed6283bfa23db69f6f4b79b5b9658427f93",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-csmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "CsMgF3",
@@ -84,12 +84,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-csmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:86f835ddfc91b2dc9042325fd57a82588d9ad5c58af2849a243ec0e80a50fc21",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-csmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-csmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:f07d9237f130b3ba83347ef18873a78d976203e9c4a77faa2502e01891e30622",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-csmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "CsMgF3",
@@ -121,12 +121,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-csmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:9e85ecc0a9660b84a791cf998161f2a6bbdf8f2e83f327b0b93e61263ad2c127",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-csmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-csmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:b8c4ec3cdf1f3cefdb43907af9f239d0502cdf0ef0b37e66a008928694e5f52a",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-csmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "CsMgF3",
@@ -158,12 +158,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-kcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:883304ead7fb902b0d2c5502eff6b5947ab09dc968b877f9e31c642074561c9e",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-kcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-kcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:24af9b639ecb692a0fd7409e91f7fbcf1251e1659557090009ecfb4e3a3a9ac9",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-kcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "KCaF3",
@@ -195,12 +195,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-kcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:d879d353e03a153de8eead1cdc1df61157522013b8121d4e8b8004005d825b08",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-kcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-kcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:0e4c20b6a11bd5c85accbccf772319ca99f0e9b2df3067fd35aeceedca4bf445",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-kcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "KCaF3",
@@ -232,12 +232,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-kcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:c9f1324dd28e962fa2d74ef0f857c242da865c4d9c977cad90a8e766bfa9cb18",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-kcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-kcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:cc37ba9099e924296f59f3612b9c64b5e2dac2fb755b084e67ddcf89566f8c9e",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-kcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "KCaF3",
@@ -269,12 +269,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-kcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:d47bdda6879c7f5aed87281403402ebbb010c39b6e36340369123885167f458c",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-kcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-kcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:5b7f5ea7945474d62c7e84dd4e5f6488fc4ee30dd8801120e51a856e1d85c91e",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-kcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "KCaF3",
@@ -306,12 +306,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-rbcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:24218ed4f433f7d15d8df7be848353786dfc521bb4dc83038e9a77b2fcd18ca1",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-rbcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:b1b87ae53564d531cbf05d82d9e785c08081737f4bd963ab0708c60e5c692a9b",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbCaF3",
@@ -343,12 +343,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-rbcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:16aa030814d2b48e0faff15736c76b925b3581ae01eb48084ba9bd0ddfdb14d7",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-rbcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-rbcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:b6c5787d215ccb2109100daa6da72c3d4e353763b1cb72aa04982218187390ae",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-rbcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbCaF3",
@@ -380,12 +380,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-rbcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:4ac53628a99d79bcd6db0dcc1891ae6eb3dd86b0f08af04a6d9058618c36fa4a",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-rbcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:89d063b39dc240a925287b9752db8714699708f51337ee1ad611845fa27b7a49",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbCaF3",
@@ -417,12 +417,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-rbcaf3/elastic_constants/cell_result.json",
           "sha256": "sha256:8e0e31354e262d5848ec13a1c966604d7b36c86bd383b863eb783e9d945a8ceb",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-rbcaf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-rbcaf3/energy_volume/cell_result.json",
           "sha256": "sha256:182d9111532a34946731f17f335c051bddb6a263a307126ef57abc63ad5f2a1c",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-rbcaf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbCaF3",
@@ -454,12 +454,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-rbmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:38aca16c45ed5c66ea405e46c6fe3e0607b0d6bec4fb1c61fe60feb2b6759d2a",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-pv-rbmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:0e2b77f1a23679c2a98c38e247c06ef58f4b59429d5a06cc1385764fe7aaa972",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbMgF3",
@@ -491,12 +491,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-rbmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:c11210a41832dadcc6e289b9ee4a86fed009b343065e97367a9b4671672891e9",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-rbmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-pv-rbmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:fe74b5abac3d652e293fb728706d234be19e64b879cb7b2c701f23a6217197b2",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-rbmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbMgF3",
@@ -528,12 +528,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-rbmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:1eef72fe9ecb83034b00aba4acd55ba9588c61ce3da88931ec96c3ffcea4625b",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-pv-rbmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:f6a690da78e7f02f46b821b05c7f293f686c9069fbd236adb97f6741cb4be7db",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbMgF3",
@@ -565,12 +565,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-rbmgf3/elastic_constants/cell_result.json",
           "sha256": "sha256:dd47b4fa9217e2ff3ad0ddae5ba7db29f47826d9f4d0501c79b0a44563b13144",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-rbmgf3/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-pv-rbmgf3/energy_volume/cell_result.json",
           "sha256": "sha256:30f9296779dd3afe29a602fe4b902d6fb0f853330371954dae120dd42c590fc5",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-pv-rbmgf3/energy_volume/cell_result.json"
         }
       },
       "formula": "RbMgF3",
@@ -602,12 +602,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-nabr/elastic_constants/cell_result.json",
           "sha256": "sha256:a03519f7ed2f1edb74344ae747fa6d9850eb1b5849e470c412343d51cfa7b8fe",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nabr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-nabr/energy_volume/cell_result.json",
           "sha256": "sha256:6a50e29fcbddfc389a5d75585edbe1df5680c173fbcac092867f4a7fef41eae4",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nabr/energy_volume/cell_result.json"
         }
       },
       "formula": "NaBr",
@@ -639,12 +639,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-nabr/elastic_constants/cell_result.json",
           "sha256": "sha256:99d40cececae642cf17431512d68ec9caf733b2b988b874575940f3ea96ec0c9",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-nabr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-nabr/energy_volume/cell_result.json",
           "sha256": "sha256:6df4005dba0c6b9e682cf815cc0ea86a4635b7e95a2186bf0e9358a39216ac4f",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-nabr/energy_volume/cell_result.json"
         }
       },
       "formula": "NaBr",
@@ -676,12 +676,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-nabr/elastic_constants/cell_result.json",
           "sha256": "sha256:7069a8aa378ddc868cb964e3f3e9ed0ba3a70542e8395acf2adeea0d0eb3760f",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nabr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-nabr/energy_volume/cell_result.json",
           "sha256": "sha256:2f249ee48a3c1c30f130d6f35120307293078be493bd06020c42199c63e63108",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nabr/energy_volume/cell_result.json"
         }
       },
       "formula": "NaBr",
@@ -713,12 +713,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-nabr/elastic_constants/cell_result.json",
           "sha256": "sha256:cc1ee9998327e659f567b14856dc3986b8d5dc21f5a0a9657a0e280cd1989ad1",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-nabr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-nabr/energy_volume/cell_result.json",
           "sha256": "sha256:b5b4bbc2f752b0e052852c8c95fc91e1b3b072ffdb2330041bca8af9b2d2e9bb",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-nabr/energy_volume/cell_result.json"
         }
       },
       "formula": "NaBr",
@@ -750,12 +750,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-nai/elastic_constants/cell_result.json",
           "sha256": "sha256:7b486fe96e5ee6fbeec50447e300ad84e0e36e4a5fc4f70225f1a9cffed338ad",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nai/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-nai/energy_volume/cell_result.json",
           "sha256": "sha256:f7c08b4171057499dea2c348ff424cf41cc3c6e41793a4a41a471fda302b3227",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nai/energy_volume/cell_result.json"
         }
       },
       "formula": "NaI",
@@ -787,12 +787,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-nai/elastic_constants/cell_result.json",
           "sha256": "sha256:d0070d66c0db207eba40e7638c00cf40b2fa411220c867eda48b08050b728ae0",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-nai/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-nai/energy_volume/cell_result.json",
           "sha256": "sha256:8e6ae883314352eb608d6142a9c675a930a7edf0f43eea149d2475da97555eda",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-nai/energy_volume/cell_result.json"
         }
       },
       "formula": "NaI",
@@ -824,12 +824,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-nai/elastic_constants/cell_result.json",
           "sha256": "sha256:94c2891e1d88d9af8ec0c5f0ab67c733b1f1b00c47ceee6e17de0e7099b9fd9a",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nai/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-nai/energy_volume/cell_result.json",
           "sha256": "sha256:b093c3e11030e41f447841165c31195d3e9588302f3d56e67b3db8c46ccc9f3f",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nai/energy_volume/cell_result.json"
         }
       },
       "formula": "NaI",
@@ -861,12 +861,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-nai/elastic_constants/cell_result.json",
           "sha256": "sha256:9f8c940a1ad1ccd40a49c7136a2f4b9b99a86cac793437bcf85b65565a8847f4",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-nai/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-nai/energy_volume/cell_result.json",
           "sha256": "sha256:9216944aba148ac29da48e695d670799c736dd84502640fe8dd094c007b44b69",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-nai/energy_volume/cell_result.json"
         }
       },
       "formula": "NaI",
@@ -898,12 +898,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-rbbr/elastic_constants/cell_result.json",
           "sha256": "sha256:f3a0f1708ac373580d17aca0e80eaf1b31012130145640a8a88926f8e543d3d5",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbbr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-rbbr/energy_volume/cell_result.json",
           "sha256": "sha256:1daab82179fa9a39b51021e375b2be05795d09a0564b2e99e00927ddf38bfaee",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbbr/energy_volume/cell_result.json"
         }
       },
       "formula": "RbBr",
@@ -935,12 +935,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-rbbr/elastic_constants/cell_result.json",
           "sha256": "sha256:02f65170132efa9884348567f51d43d507fe2202d7004877c5e83faf6d75f2c7",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-rbbr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-rbbr/energy_volume/cell_result.json",
           "sha256": "sha256:b48f8ff7dca21499019c5c4a752abd0508cca3b892f1aec7b75dbd744e80bcbe",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-rbbr/energy_volume/cell_result.json"
         }
       },
       "formula": "RbBr",
@@ -972,12 +972,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-rbbr/elastic_constants/cell_result.json",
           "sha256": "sha256:c9fede2ca5908273c08f5f3d12b5d804df34fc01d5a79e6388635d2eeba47fc4",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbbr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-rbbr/energy_volume/cell_result.json",
           "sha256": "sha256:2f294337d9449b662da21032d43f9aef43eae96efabd90ddce1affda58d2697b",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbbr/energy_volume/cell_result.json"
         }
       },
       "formula": "RbBr",
@@ -1009,12 +1009,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-rbbr/elastic_constants/cell_result.json",
           "sha256": "sha256:b9cc2b99d6fe7a34300de8fadc7fe95bd15130e17e907811cff7a90a9e0a6e3c",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-rbbr/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-rbbr/energy_volume/cell_result.json",
           "sha256": "sha256:f0291075ca66cd2f4649ff1a197a08f4d63e30d7e7430c06d0c1df47431e833e",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-rbbr/energy_volume/cell_result.json"
         }
       },
       "formula": "RbBr",
@@ -1046,12 +1046,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-rbi/elastic_constants/cell_result.json",
           "sha256": "sha256:1465fb0877988db49367aa58a857ff4a5b4387684f67dacdae953b04b083cec8",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbi/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/chgnet/r4-rs-rbi/energy_volume/cell_result.json",
           "sha256": "sha256:88ff375d82e17a82a4b00dceaea189cc9eddb5b618e1d88e45d7202a5a8cf273",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbi/energy_volume/cell_result.json"
         }
       },
       "formula": "RbI",
@@ -1083,12 +1083,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-rbi/elastic_constants/cell_result.json",
           "sha256": "sha256:7582d7a5a3e5cb9e2ad454a8dbdb00586eae4c79d256481adfbd4d4c5d1870bd",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-rbi/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-medium/r4-rs-rbi/energy_volume/cell_result.json",
           "sha256": "sha256:a6f43d85ebe3f9850067fbc6109815e565b692e2a0ed13953852c4b3446d0d90",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-rs-rbi/energy_volume/cell_result.json"
         }
       },
       "formula": "RbI",
@@ -1120,12 +1120,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-rbi/elastic_constants/cell_result.json",
           "sha256": "sha256:a446121e9c406b17a870fe9503495dee1c7f9662faacd13d0f5acfa5cb2726d0",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbi/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mp-small/r4-rs-rbi/energy_volume/cell_result.json",
           "sha256": "sha256:3f6ce63c46fb122fd75ed048fa38ab83fe6236ffa8eca55c1baa269eb2011b36",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbi/energy_volume/cell_result.json"
         }
       },
       "formula": "RbI",
@@ -1157,12 +1157,12 @@
         "elastic_constants": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-rbi/elastic_constants/cell_result.json",
           "sha256": "sha256:b02c3d3f5c0cb05613e400adb9049f2e24fdc47caa2a7b5b462ac497cedb747e",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-rbi/elastic_constants/cell_result.json"
         },
         "energy_volume": {
           "path": "data/candidates/round4/cloud_artifacts/mace-mpa-0-medium/r4-rs-rbi/energy_volume/cell_result.json",
           "sha256": "sha256:51ac44aea2680b6f8cf36ca93482adb9294522fb8a90c473ebb6cc240ccacc38",
-          "uri": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json"
+          "uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mpa-0-medium/r4-rs-rbi/energy_volume/cell_result.json"
         }
       },
       "formula": "RbI",
@@ -4149,7 +4149,7 @@
     "run_id": "correction-round4-20260719",
     "schema": "lupine.round4.execution_receipt.v1"
   },
-  "generated_at": "2026-07-19T20:53:06.080428+00:00",
+  "generated_at": "2026-07-19T23:22:11.767281+00:00",
   "group_property_summaries": {
     "ionics-rocksalt": {
       "a0": {
