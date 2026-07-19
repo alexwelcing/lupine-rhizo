@@ -1,0 +1,48 @@
+{
+  "fit_exclusion": "Confirmatory-test reference energies may not be used for delta fitting, model selection, correction selection, threshold tuning, or checkpoint construction.",
+  "locked_at": "2026-07-19T00:00:00Z",
+  "panel_id": "z3-catbench-bm-published-dft-v1",
+  "schema": "lupine.z3.delta_split.v1",
+  "selection_rule": "Within each application family, order candidate IDs by SHA-256(ID), assign the first two to delta_train, next two to delta_validation, and all remaining rows to confirmatory_test.",
+  "split_id": "z3-catbench-bm-family-stratified-v1",
+  "splits": {
+    "confirmatory_test": [
+      "biomass_ni_mol1",
+      "biomass_ni_mol2",
+      "biomass_ni_mol3",
+      "biomass_ni_mol4",
+      "biomass_ru_mol1",
+      "biomass_ru_mol4",
+      "plastics_pt_PE",
+      "plastics_pt_PET",
+      "plastics_pt_PPit",
+      "polyurethanes_ag_mol16",
+      "polyurethanes_ag_mol17",
+      "polyurethanes_ag_mol18",
+      "polyurethanes_ag_mol19",
+      "polyurethanes_ag_mol41",
+      "polyurethanes_au_mol16",
+      "polyurethanes_au_mol17",
+      "polyurethanes_cu_mol16",
+      "polyurethanes_cu_mol18",
+      "polyurethanes_cu_mol19",
+      "polyurethanes_cu_mol41"
+    ],
+    "delta_train": [
+      "biomass_ni_mol5",
+      "biomass_ru_mol5",
+      "plastics_pt_PPst",
+      "plastics_ru_PET",
+      "polyurethanes_au_mol18",
+      "polyurethanes_cu_mol17"
+    ],
+    "delta_validation": [
+      "biomass_ru_mol2",
+      "biomass_ru_mol3",
+      "plastics_pt_PS",
+      "plastics_ru_PS",
+      "polyurethanes_au_mol19",
+      "polyurethanes_au_mol41"
+    ]
+  }
+}

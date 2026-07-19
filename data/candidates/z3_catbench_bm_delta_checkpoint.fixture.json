@@ -1,0 +1,69 @@
+{
+  "checkpoint_fixture_id": "z3-catbench-bm-raw-and-delta-v1",
+  "panel_id": "z3-catbench-bm-published-dft-v1",
+  "registered_model_ids": [
+    "chgnet",
+    "mace-mp-small",
+    "mace-mp-medium",
+    "mace-mpa-0-medium"
+  ],
+  "required_payload": {
+    "candidate_panel_sha256": null,
+    "confirmatory_candidate_ids": [
+      "biomass_ni_mol1",
+      "biomass_ni_mol2",
+      "biomass_ni_mol3",
+      "biomass_ni_mol4",
+      "biomass_ru_mol1",
+      "biomass_ru_mol4",
+      "plastics_pt_PE",
+      "plastics_pt_PET",
+      "plastics_pt_PPit",
+      "polyurethanes_ag_mol16",
+      "polyurethanes_ag_mol17",
+      "polyurethanes_ag_mol18",
+      "polyurethanes_ag_mol19",
+      "polyurethanes_ag_mol41",
+      "polyurethanes_au_mol16",
+      "polyurethanes_au_mol17",
+      "polyurethanes_cu_mol16",
+      "polyurethanes_cu_mol18",
+      "polyurethanes_cu_mol19",
+      "polyurethanes_cu_mol41"
+    ],
+    "correction_model": null,
+    "created_at": null,
+    "fit_candidate_ids": [
+      "biomass_ni_mol5",
+      "biomass_ru_mol5",
+      "plastics_pt_PPst",
+      "plastics_ru_PET",
+      "polyurethanes_au_mol18",
+      "polyurethanes_cu_mol17"
+    ],
+    "fit_metrics": null,
+    "model_id": null,
+    "raw_prediction_checkpoint_sha256": null,
+    "schema": "lupine.z3.delta_checkpoint.v1",
+    "split_lock_sha256": null,
+    "validation_candidate_ids": [
+      "biomass_ru_mol2",
+      "biomass_ru_mol3",
+      "plastics_pt_PS",
+      "plastics_ru_PS",
+      "polyurethanes_au_mol19",
+      "polyurethanes_au_mol41"
+    ],
+    "validation_metrics": null
+  },
+  "rules": [
+    "Write raw per-system energies before fitting any correction.",
+    "Fit only on delta_train candidate references.",
+    "Use delta_validation only for frozen correction selection.",
+    "Do not read confirmatory_test reference energies until the checkpoint is finalized.",
+    "Record failed candidates without imputation."
+  ],
+  "schema": "lupine.z3.delta_checkpoint_fixture.v1",
+  "split_id": "z3-catbench-bm-family-stratified-v1",
+  "state": "unfitted_fixture"
+}
