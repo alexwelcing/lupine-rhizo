@@ -118,7 +118,7 @@
       "status": "active"
     },
     {
-      "claim_content_hash": "sha256:2a5bc1c222ecfbff7537e03dbdbd94ef90156c7d3cdc7a453fd0ca1726415d87",
+      "claim_content_hash": "sha256:87f35a1c916b6af633c2ea02fce1f667fc8c70422e8b8032a9af3bb83a48bf51",
       "claim_id": "discovery.z3.adsorption-accuracy.v1",
       "claim_version": 1,
       "disposition": "unsupported",
