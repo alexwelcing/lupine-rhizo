@@ -55,14 +55,14 @@ jobs:
       - name: Install pipeline
         run: pip install -e . pytest sqlite-vec
 
-      - name: Unit tests (gate)
-        run: python -m pytest test_pipeline.py -q
-
       - name: Collect live worker evidence (best-effort)
         run: python ../scripts/evidence_activation.py collect --worker-url "$WORKER_URL" --out ./data || echo "::warning::worker collect failed; using existing/seed data"
 
       - name: Seed fallback if no ledger evidence
         run: test -f ./data/coordination_traces.jsonl || python seed_data.py
+
+      - name: Unit tests (gate)
+        run: python -m pytest test_pipeline.py -q
 
       - name: Sync deployed Library + publication drift (best-effort)
         run: python sync_ledger.py --drift || echo "::warning::ledger sync failed"
