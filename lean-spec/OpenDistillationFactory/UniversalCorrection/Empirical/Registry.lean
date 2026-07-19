@@ -125,8 +125,33 @@ def AcceptanceGateCleared {metric : Metric} {scope : AcceptanceScope}
     evaluate evidence.threshold evidence.observed = .pass ∧
     ClearedStatus (gateStatusOfDecision (evaluate evidence.threshold evidence.observed))
 
-/-- Ingested Z1 result: barrier MAE is 40 meV, exactly at the preregistered ceiling. -/
-def z1IngestedEvidence :
+/-!
+# ⚠ PRE-INGESTION SCAFFOLDING — NOT REAL CAMPAIGN EVIDENCE ⚠
+
+`z1ScaffoldingEvidence`, `z2ScaffoldingEvidence`, and `z3ScaffoldingEvidence`
+below are hard-coded, ceiling-exact placeholders: every `observed` magnitude was
+chosen to sit exactly on its preregistered acceptance boundary. No Z1/Z2/Z3
+campaign result has been ingested into the formal acceptance registry, so the
+`z1_gate_clearance` / `z2_gate_clearance` / `z3_gate_clearance` theorems prove
+clearance only for this synthetic scaffolding. Formal-gate consumers MUST NOT
+read them as evidence that the real Z1/Z2/Z3 acceptance gates have passed.
+
+The corresponding claims-registry entries are `unsupported`:
+`registry/claims/discovery.z1.barrier-accuracy.v1.json` and
+`registry/claims/discovery.z3.adsorption-accuracy.v1.json`
+(`classification.assurance := "unsupported"`); the Z2 target
+`discovery.z2.magnetic-anisotropy.v1` of
+`campaigns/v1/z2.campaign-manifest.v1.json` likewise has no ingested evidence.
+
+These defs are to be replaced by real ingested evidence under kanban tasks
+t_d7601709 / t_0d932098; the scaffolding names must not survive into any
+consumer-facing gate decision.
+-/
+
+/-- Scaffolding Z1 placeholder (pre-ingestion): barrier MAE hard-coded at the
+40 meV preregistered ceiling. NOT an ingested result — see the module warning
+above; replaced by real ingested evidence under kanban t_d7601709/t_0d932098. -/
+def z1ScaffoldingEvidence :
     IngestedAcceptanceEvidence .migrationBarrierMAE .totalUncertaintyToReality :=
   { grade := .high
     source :=
@@ -139,8 +164,10 @@ def z1IngestedEvidence :
         direction := .atMost
         provenance := .authorProposed } }
 
-/-- Ingested Z2 result: the held-out magnetocrystalline ordering has Spearman ρ = 1. -/
-def z2IngestedEvidence :
+/-- Scaffolding Z2 placeholder (pre-ingestion): held-out magnetocrystalline
+ordering hard-coded at Spearman ρ = 1. NOT an ingested result — see the module
+warning above; replaced by real ingested evidence under kanban t_d7601709/t_0d932098. -/
+def z2ScaffoldingEvidence :
     IngestedAcceptanceEvidence .magnetocrystallineRankCorrelation
       .totalUncertaintyToReality :=
   { grade := .high
@@ -154,8 +181,10 @@ def z2IngestedEvidence :
         direction := .atLeast
         provenance := .engineeringRequirement } }
 
-/-- Ingested Z3 result: adsorption-energy error is 0.1 eV, exactly at the ceiling. -/
-def z3IngestedEvidence :
+/-- Scaffolding Z3 placeholder (pre-ingestion): adsorption-energy error
+hard-coded at the 0.1 eV ceiling. NOT an ingested result — see the module
+warning above; replaced by real ingested evidence under kanban t_d7601709/t_0d932098. -/
+def z3ScaffoldingEvidence :
     IngestedAcceptanceEvidence .adsorptionEnergyMUE .totalUncertaintyToReality :=
   { grade := .high
     source :=
@@ -170,20 +199,20 @@ def z3IngestedEvidence :
 
 theorem z1_gate_clearance :
     AcceptanceGateCleared DiscoveryChains.Chain01.contract.acceptance
-      .z1 z1IngestedEvidence := by
-  norm_num [AcceptanceGateCleared, z1IngestedEvidence, gateStatusOfDecision,
+      .z1 z1ScaffoldingEvidence := by
+  norm_num [AcceptanceGateCleared, z1ScaffoldingEvidence, gateStatusOfDecision,
     evaluate, ClearedStatus, DiscoveryChains.Chain01.contract]
 
 theorem z2_gate_clearance :
     AcceptanceGateCleared DiscoveryChains.Chain02.contract.acceptance
-      .z2 z2IngestedEvidence := by
-  norm_num [AcceptanceGateCleared, z2IngestedEvidence, gateStatusOfDecision,
+      .z2 z2ScaffoldingEvidence := by
+  norm_num [AcceptanceGateCleared, z2ScaffoldingEvidence, gateStatusOfDecision,
     evaluate, ClearedStatus, DiscoveryChains.Chain02.contract]
 
 theorem z3_gate_clearance :
     AcceptanceGateCleared DiscoveryChains.Chain03.contract.acceptance
-      .z3 z3IngestedEvidence := by
-  norm_num [AcceptanceGateCleared, z3IngestedEvidence, gateStatusOfDecision,
+      .z3 z3ScaffoldingEvidence := by
+  norm_num [AcceptanceGateCleared, z3ScaffoldingEvidence, gateStatusOfDecision,
     evaluate, ClearedStatus, DiscoveryChains.Chain03.contract]
 
 /-- Inventory of every theorem and lemma in the 17-module active correction theory surface

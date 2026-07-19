@@ -415,11 +415,32 @@ def measurement_binding(execution_receipt: dict[str, Any], endpoint_lock: dict[s
     }
 
 
+def output_artifact_uris(model: str) -> dict[tuple[str, str], str]:
+    """Measured output artifact URIs from the model's immutable batch receipt.
+
+    ``cell_result.json`` carries ``manifest_url`` — the INPUT fixture URL — so
+    report URIs must come from the batch receipt's per-cell ``artifact_uri``
+    (``gs://.../<model>/<candidate>/<row>/cell_result.json``) instead.
+    """
+    receipt = load(RESULTS / model / "batch_result.json")
+    uris: dict[tuple[str, str], str] = {}
+    for entry in receipt["completed"]:
+        run_id, candidate_id, row_id, cell_model = entry["cell_id"].split(":")
+        if run_id != RUN_ID or cell_model != model:
+            raise ValueError(f"batch receipt cell {entry['cell_id']!r} does not belong to {model}")
+        expected = f"{GCS_OUTPUT}/{model}/{candidate_id}/{row_id}/cell_result.json"
+        if entry["artifact_uri"] != expected:
+            raise ValueError(f"batch receipt uri {entry['artifact_uri']!r} does not match {expected!r}")
+        uris[(candidate_id, row_id)] = entry["artifact_uri"]
+    return uris
+
+
 def assemble(download: bool) -> None:
     if download: copy_results()
     panel = candidates(); cells: dict[str, Any] = {}
     endpoint = load(ENDPOINT_LOCK)
     for model in MODELS:
+        uris = output_artifact_uris(model)
         for candidate in panel:
             base = RESULTS / model / candidate["id"]
             eos_artifact = load(base / "energy_volume/cell_result.json")
@@ -433,8 +454,8 @@ def assemble(download: bool) -> None:
                 "structure_type": candidate["structure_type"], "model_id": model, "properties": props,
                 "references": {p: (v["value"] if v is not None else None) for p, v in candidate["references"].items()},
                 "cloud_artifacts": {
-                    "energy_volume": {"path": str((base / "energy_volume/cell_result.json").relative_to(ROOT)), "sha256": file_hash(base / "energy_volume/cell_result.json"), "uri": eos_artifact.get("manifest_url")},
-                    "elastic_constants": {"path": str((base / "elastic_constants/cell_result.json").relative_to(ROOT)), "sha256": file_hash(base / "elastic_constants/cell_result.json"), "uri": elastic_artifact.get("manifest_url")},
+                    "energy_volume": {"path": str((base / "energy_volume/cell_result.json").relative_to(ROOT)), "sha256": file_hash(base / "energy_volume/cell_result.json"), "uri": uris[(candidate["id"], "energy_volume")]},
+                    "elastic_constants": {"path": str((base / "elastic_constants/cell_result.json").relative_to(ROOT)), "sha256": file_hash(base / "elastic_constants/cell_result.json"), "uri": uris[(candidate["id"], "elastic_constants")]},
                 },
             }
     decisions = []

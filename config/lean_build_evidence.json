@@ -20,6 +20,7 @@
       "passed": true,
       "legacy_theorems": 284,
       "universal_correction_theorems": 164,
+      "honest_errors_theorems": 49,
       "epistemic_gaps": 5
     }
   },
@@ -4329,5 +4330,5 @@
       "theorems": []
     }
   ],
-  "manifest_hash": "30bb3f2c5de6cb62a67948d0ca9dcc04c927f57c7bce153b64405a4b9bc5efb5"
+  "manifest_hash": "05e77e7ce6b5f3a3d93f35479cc59595f82010dc34ede0c1b316e8686c8a835d"
 }
