@@ -45,7 +45,7 @@ def offline(monkeypatch):
     def refuse_network(*_args, **_kwargs):
         raise AssertionError("offline run attempted a network call")
 
-    monkeypatch.setattr(runner, "load_calculator", lambda mlip_id: ConstantEnergyCalculator())
+    monkeypatch.setattr(runner, "load_calculator", lambda mlip_id, **_kwargs: ConstantEnergyCalculator())
     monkeypatch.setattr(runner.requests, "request", refuse_network)
     monkeypatch.setattr(runner.requests, "get", refuse_network)
     monkeypatch.setattr(runner.requests, "post", refuse_network)

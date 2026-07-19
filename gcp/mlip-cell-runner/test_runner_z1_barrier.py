@@ -137,6 +137,47 @@ def test_registered_z1_models_run_locked_barrier_panel(
     assert prediction["neb_converged"] is True
 
 
+def test_barrier_row_loads_calculator_with_float64(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """MACE vendor guidance: float64 for geometry optimization (CI-NEB).
+
+    The barrier row must request float64 from load_calculator; every other
+    row keeps the float32 default. Regression pin for the Z1 re-run.
+    """
+    import inspect
+
+    real_default = inspect.signature(runner.load_calculator).parameters[
+        "default_dtype"
+    ].default
+    manifest_path = _write_locked_campaign(tmp_path)
+    captured: list[str] = []
+
+    def fake_load_calculator(mlip_id: str, default_dtype: str = "float32"):
+        captured.append(default_dtype)
+        return FrozenProfileCalculator()
+
+    monkeypatch.setattr(runner, "load_calculator", fake_load_calculator)
+    monkeypatch.setattr(runner, "runtime_versions", lambda: {})
+    args = runner.parse_args(
+        [
+            "run-cell",
+            "--run-id", "unit-run",
+            "--cell-id", "unit-run:barrier:dtype",
+            "--row-id", "barrier",
+            "--mlip-id", "mace-mp-small",
+            "--manifest-url", str(manifest_path),
+            "--artifact-prefix", str(tmp_path / "artifacts"),
+            "--checkpoint-mode", "off",
+        ]
+    )
+
+    runner.run_cell(args)
+
+    assert captured == ["float64"]
+    assert real_default == "float32"
+
+
 def test_campaign_manifest_content_hash_mismatch_fails_closed(tmp_path: Path) -> None:
     manifest_path = _write_locked_campaign(tmp_path)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

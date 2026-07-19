@@ -36,7 +36,7 @@ class MockCalculator(Calculator):
 
 
 def main() -> int:
-    runner.load_calculator = lambda mlip_id: MockCalculator()
+    runner.load_calculator = lambda mlip_id, **_kwargs: MockCalculator()
     return runner.main()
 
 
