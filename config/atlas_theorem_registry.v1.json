@@ -15,6 +15,7 @@
     "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
     "vision_legacy_count": 284,
     "vision_universal_correction_count": 164,
+    "vision_honest_errors_count": 49,
     "vision_epistemic_gap_count": 5
   },
   "extension_policy": {

@@ -29,6 +29,7 @@ ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
 EXPECTED_VISION = {
     "legacy_theorems": 284,
     "universal_correction_theorems": 164,
+    "honest_errors_theorems": 49,
     "epistemic_gaps": 5,
 }
 
@@ -203,6 +204,7 @@ def _vision_counts() -> dict[str, int]:
     return {
         "legacy_theorems": eval_def("computationallyProvenCount"),
         "universal_correction_theorems": eval_def("universalCorrectionProvenCount"),
+        "honest_errors_theorems": eval_def("honestErrorsProvenCount"),
         "epistemic_gaps": eval_def("epistemicGapCount"),
     }
 

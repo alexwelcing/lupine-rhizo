@@ -51,4 +51,32 @@ theorem evaluate_atLeast_iff {metric : Metric} {scope : AcceptanceScope}
         { magnitude := observed } = .pass ↔ boundary.value ≤ observed.value := by
   simp [evaluate]
 
+theorem atMost_improvement_preserves_pass
+    {metric : Metric} {scope : AcceptanceScope}
+    (boundary oldValue newValue : MetricValue metric)
+    (provenance : TargetProvenance)
+    (himproves : newValue.value ≤ oldValue.value)
+    (hold : evaluate (scope := scope)
+        { boundary := boundary, direction := .atMost, provenance := provenance }
+        { magnitude := oldValue } = .pass) :
+    evaluate (scope := scope)
+        { boundary := boundary, direction := .atMost, provenance := provenance }
+        { magnitude := newValue } = .pass := by
+  rw [evaluate_atMost_iff (scope := scope)] at hold ⊢
+  exact le_trans (α := ℚ) himproves hold
+
+theorem tighter_atMost_pass_implies_looser_pass
+    {metric : Metric} {scope : AcceptanceScope}
+    (tight loose observed : MetricValue metric)
+    (provenance : TargetProvenance)
+    (htight : tight.value ≤ loose.value)
+    (hpass : evaluate (scope := scope)
+        { boundary := tight, direction := .atMost, provenance := provenance }
+        { magnitude := observed } = .pass) :
+    evaluate (scope := scope)
+        { boundary := loose, direction := .atMost, provenance := provenance }
+        { magnitude := observed } = .pass := by
+  rw [evaluate_atMost_iff (scope := scope)] at hpass ⊢
+  exact le_trans (α := ℚ) hpass htight
+
 end OpenDistillationFactory.HonestErrors
