@@ -9,8 +9,8 @@ instead of fabricating accuracy.
 from __future__ import annotations
 
 import argparse
-import copy
 import contextlib
+import copy
 import hashlib
 import importlib.metadata
 import json
@@ -27,6 +27,7 @@ from typing import Any
 import numpy as np
 import requests
 from lupine_distill.fixture_contract import run_row, validate_manifest
+from z1_barrier import BARRIER_ROW_ID, load_campaign_panel, run_barrier_row
 
 try:
     from lupine_distill_runtime import DistillSession, LeakageGuard
@@ -715,8 +716,17 @@ def run_cell(
     if args.distill_profile != "off" and DistillSession is None:
         raise RuntimeError("lupine_distill_runtime is not importable in this runner image")
     cold_started = time.perf_counter()
-    manifest = load_manifest(manifest_url)
-    manifest_hash = "sha256:" + sha256_hex(manifest)
+    barrier_panel = None
+    barrier_contract = None
+    if args.row_id == BARRIER_ROW_ID:
+        if args.distill_profile != "off":
+            raise ValueError("barrier row does not support distill profiles")
+        manifest, barrier_panel, manifest_hash, barrier_contract = load_campaign_panel(
+            manifest_url, args.mlip_id, read_url
+        )
+    else:
+        manifest = load_manifest(manifest_url)
+        manifest_hash = "sha256:" + sha256_hex(manifest)
     support_manifest = (
         load_manifest(args.support_manifest_url, require_release=False)
         if args.support_manifest_url and args.distill_profile != "off"
@@ -781,13 +791,22 @@ def run_cell(
                 calc=calc,
             )
         run_calc = distill_session.wrap_calculator(calc)
-    row_result = run_row(
-        args.row_id,
-        manifest,
-        run_calc,
-        runtime_session=distill_session,
-        checkpoint=checkpoint,
-    )
+    if barrier_panel is not None and barrier_contract is not None:
+        row_result = run_barrier_row(
+            manifest,
+            barrier_panel,
+            run_calc,
+            barrier_contract,
+            checkpoint=checkpoint,
+        )
+    else:
+        row_result = run_row(
+            args.row_id,
+            manifest,
+            run_calc,
+            runtime_session=distill_session,
+            checkpoint=checkpoint,
+        )
     if checkpoint is not None:
         checkpoint.flush(force=True)
     warm_duration_s = max(time.perf_counter() - warm_started, 1e-9)
