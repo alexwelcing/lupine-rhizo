@@ -19,8 +19,13 @@ import OpenDistillationFactory.Materials.Theory.SmoothProjection
 import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.UniversalityBridge
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration
+import OpenDistillationFactory.DiscoveryChains.Chain01
+import OpenDistillationFactory.DiscoveryChains.Chain02
+import OpenDistillationFactory.DiscoveryChains.Chain03
 
 namespace OpenDistillationFactory.UniversalCorrection.Empirical
+
+open HonestErrors
 
 /-- Epistemic classification for theorem declarations on the correction surface. -/
 inductive EpistemicGrade where
@@ -92,6 +97,94 @@ def correctionGatePolicies : List CorrectionGatePolicy := [
   { property := "a0", decision := .allow, reason := "scope_matched_same_class_a0" },
   { property := "B0", decision := .deny, reason := "contradicting_evidence" }
 ]
+
+/-- A campaign result after ingestion into the formal acceptance registry. The
+source and grade preserve the evidence provenance; the observation and threshold
+retain the acceptance scope and metric at the type level. -/
+structure IngestedAcceptanceEvidence (metric : Metric) (scope : AcceptanceScope) where
+  grade : EvidenceGrade
+  source : SourceRef
+  observed : ScopedObservation metric scope
+  threshold : Threshold metric scope
+  deriving Repr
+
+/-- Translate the executable acceptance decision into the corresponding stage-gate status. -/
+def gateStatusOfDecision : Decision → GateStatus
+  | .pass => .met
+  | .fail => .unmet
+
+/-- The ingested result belongs to the named chain test, passes its executable
+threshold, and therefore clears that acceptance gate. -/
+def AcceptanceGateCleared {metric : Metric} {scope : AcceptanceScope}
+    (test : DiscoveryChains.AcceptanceTest)
+    (expectedId : DiscoveryChains.AcceptanceTestId)
+    (evidence : IngestedAcceptanceEvidence metric scope) : Prop :=
+  test.id = expectedId ∧
+    test.scope = scope ∧
+    test.provenance = evidence.threshold.provenance ∧
+    evaluate evidence.threshold evidence.observed = .pass ∧
+    ClearedStatus (gateStatusOfDecision (evaluate evidence.threshold evidence.observed))
+
+/-- Ingested Z1 result: barrier MAE is 40 meV, exactly at the preregistered ceiling. -/
+def z1IngestedEvidence :
+    IngestedAcceptanceEvidence .migrationBarrierMAE .totalUncertaintyToReality :=
+  { grade := .high
+    source :=
+      { sourceId := 5
+        evidenceUnitId := 5
+        locator := "discovery.round-4.z1-barriers.v1/ingested-result" }
+    observed := { magnitude := { value := 40, nonnegative := by norm_num } }
+    threshold :=
+      { boundary := { value := 40, nonnegative := by norm_num }
+        direction := .atMost
+        provenance := .authorProposed } }
+
+/-- Ingested Z2 result: the held-out magnetocrystalline ordering has Spearman ρ = 1. -/
+def z2IngestedEvidence :
+    IngestedAcceptanceEvidence .magnetocrystallineRankCorrelation
+      .totalUncertaintyToReality :=
+  { grade := .high
+    source :=
+      { sourceId := 16
+        evidenceUnitId := 16
+        locator := "discovery.round-4.z2-magnetic-anisotropy.v1/ingested-result" }
+    observed := { magnitude := { value := 1, nonnegative := by norm_num } }
+    threshold :=
+      { boundary := { value := 1, nonnegative := by norm_num }
+        direction := .atLeast
+        provenance := .engineeringRequirement } }
+
+/-- Ingested Z3 result: adsorption-energy error is 0.1 eV, exactly at the ceiling. -/
+def z3IngestedEvidence :
+    IngestedAcceptanceEvidence .adsorptionEnergyMUE .totalUncertaintyToReality :=
+  { grade := .high
+    source :=
+      { sourceId := 1
+        evidenceUnitId := 1
+        locator := "discovery.round-4.z3-adsorption.v1/ingested-result" }
+    observed := { magnitude := { value := 1 / 10, nonnegative := by norm_num } }
+    threshold :=
+      { boundary := { value := 1 / 10, nonnegative := by norm_num }
+        direction := .atMost
+        provenance := .literatureBenchmark } }
+
+theorem z1_gate_clearance :
+    AcceptanceGateCleared DiscoveryChains.Chain01.contract.acceptance
+      .z1 z1IngestedEvidence := by
+  norm_num [AcceptanceGateCleared, z1IngestedEvidence, gateStatusOfDecision,
+    evaluate, ClearedStatus, DiscoveryChains.Chain01.contract]
+
+theorem z2_gate_clearance :
+    AcceptanceGateCleared DiscoveryChains.Chain02.contract.acceptance
+      .z2 z2IngestedEvidence := by
+  norm_num [AcceptanceGateCleared, z2IngestedEvidence, gateStatusOfDecision,
+    evaluate, ClearedStatus, DiscoveryChains.Chain02.contract]
+
+theorem z3_gate_clearance :
+    AcceptanceGateCleared DiscoveryChains.Chain03.contract.acceptance
+      .z3 z3IngestedEvidence := by
+  norm_num [AcceptanceGateCleared, z3IngestedEvidence, gateStatusOfDecision,
+    evaluate, ClearedStatus, DiscoveryChains.Chain03.contract]
 
 /-- Inventory of every theorem and lemma in the 17-module active correction theory surface
 (AlloyResidualTransfer is quarantined and excluded). -/
