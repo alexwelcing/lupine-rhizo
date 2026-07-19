@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import mlip_cell_runner as runner
@@ -221,6 +222,43 @@ def test_repository_z1_campaign_lock_is_consumable_by_registered_job(mlip_id: st
         "mlip-cell-mace-mp-medium",
         "mlip-cell-mace-mpa-0-medium",
     }
+
+
+def test_nan_energies_fail_the_path_never_score_perfect(tmp_path: Path) -> None:
+    """Codex PR#29 P1: non-finite calculator output must be a path failure,
+    not a completed NaN that min(1.0, NaN) turns into a perfect score."""
+
+    class NanCalculator(Calculator):
+        implemented_properties = ["energy", "forces"]
+
+        def calculate(self, atoms=None, properties=("energy",), system_changes=all_changes):
+            super().calculate(atoms, properties, system_changes)
+            # Converged-looking forces with a non-finite energy: the exact
+            # "completed NaN" case that must become a path failure.
+            self.results = {
+                "energy": float("nan"),
+                "forces": np.zeros((len(atoms), 3)),
+            }
+
+    manifest_path = _write_locked_campaign(tmp_path)
+    manifest, panel, _, contract = load_campaign_panel(
+        str(manifest_path), "chgnet", runner.read_url
+    )
+    # Trivially "converging" protocol so execution reaches the energy
+    # finiteness gate with NaN calculator output intact.
+    result = run_barrier_row(manifest, panel, NanCalculator(), contract)
+
+    assert result["score"] == 0.0
+    assert result["metrics"]["completed_path_count"] == 0
+    assert result["metrics"]["failed_path_count"] == 1
+    assert result["metrics"]["measurement_complete"] is False
+    failure = result["predictions"][0]
+    assert failure["status"] == "failed"
+    # Fail-closed either way: non-converged NEB or the non-finite energy gate.
+    assert failure["error"]
+    assert "predicted_barrier_ev" not in failure
+    assert "signed_error_mev" not in failure
+    assert not math.isnan(result["score"])
 
 
 def test_failed_path_is_reported_without_imputation(tmp_path: Path) -> None:

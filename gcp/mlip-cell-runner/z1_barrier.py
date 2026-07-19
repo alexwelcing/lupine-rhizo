@@ -264,9 +264,13 @@ def run_barrier_path(
     if not neb_converged:
         raise RuntimeError("CI-NEB did not converge under the frozen protocol")
     energies = [float(image.get_potential_energy()) for image in images]
+    if not all(math.isfinite(energy) for energy in energies):
+        raise RuntimeError("CI-NEB produced non-finite image energies")
     predicted_barrier = max(energies) - min(energies)
     reference_barrier = float(path["reference_barrier_ev"])
     signed_error_mev = (predicted_barrier - reference_barrier) * 1000.0
+    if not math.isfinite(signed_error_mev):
+        raise RuntimeError("barrier signed error is non-finite")
     return {
         "path_id": path["path_id"],
         "material_id": path.get("material_id"),
@@ -324,10 +328,12 @@ def run_barrier_row(
     minimum_path_count = int(panel["measurement"]["minimum_path_count"])
     measurement_complete = len(completed) >= minimum_path_count and failed_count == 0
     mae_mev = (
-        float(np.mean([prediction["absolute_error_mev"] for prediction in completed]))
+        float(math.fsum([prediction["absolute_error_mev"] for prediction in completed]) / len(completed))
         if completed
         else None
     )
+    if mae_mev is not None and not math.isfinite(mae_mev):
+        mae_mev = None
     threshold_mev = float(manifest["acceptance_test"]["threshold"])
     score = (
         max(0.0, min(1.0, 1.0 - mae_mev / max(threshold_mev, 1e-12)))

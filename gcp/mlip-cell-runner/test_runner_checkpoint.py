@@ -39,6 +39,28 @@ def test_cell_checkpoint_round_trips_completed_predictions(tmp_path) -> None:
     assert second.summary()["stored_predictions"] == 1
 
 
+def test_cell_checkpoint_rejects_dtype_mismatch(tmp_path) -> None:
+    """A checkpoint written under one calculator dtype must not serve a
+    re-run under another (float32 Z1 results must not leak into float64)."""
+    path = tmp_path / "cell_checkpoint.json"
+    case = {"structure_id": "Al-1", "symbols": ["Al"], "positions": [[0.0, 0.0, 0.0]]}
+    prediction = {"structure_id": "Al-1", "energy_ev_per_atom": -3.5}
+
+    first = CellCheckpoint(str(path), "read-write", **context(calculator_dtype="float32"))
+    first.record_prediction("forces", 0, case, prediction)
+
+    same = CellCheckpoint(str(path), "read-write", **context(calculator_dtype="float32"))
+    assert same.get_prediction("forces", 0, case) == prediction
+
+    changed = CellCheckpoint(str(path), "read-write", **context(calculator_dtype="float64"))
+    assert changed.get_prediction("forces", 0, case) is None
+    assert changed.summary()["ignored_reason"] == "checkpoint_context_mismatch"
+
+    legacy = CellCheckpoint(str(path), "read-write", **context())
+    assert legacy.get_prediction("forces", 0, case) is None
+    assert legacy.summary()["ignored_reason"] == "checkpoint_context_mismatch"
+
+
 def test_cell_checkpoint_ignores_stale_context(tmp_path) -> None:
     path = tmp_path / "cell_checkpoint.json"
     case = {"structure_id": "Al-1", "symbols": ["Al"], "positions": [[0.0, 0.0, 0.0]]}

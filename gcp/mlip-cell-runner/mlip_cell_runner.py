@@ -146,14 +146,21 @@ def checkpoint_url_from_prefix(prefix: str) -> str:
     return str(pathlib.Path(normalize_file_url(prefix)) / "cell_checkpoint.json")
 
 
-def raw_prediction_checkpoint_context(row_id: str, mlip_id: str, manifest_hash: str) -> dict[str, str]:
-    return {
+def raw_prediction_checkpoint_context(
+    row_id: str, mlip_id: str, manifest_hash: str, calculator_dtype: str | None = None
+) -> dict[str, str]:
+    context = {
         "schema": "lupine.mlip.cell_checkpoint.context.v2",
         "checkpoint_scope": "raw_predictions",
         "row_id": row_id,
         "mlip_id": mlip_id,
         "manifest_hash": manifest_hash,
     }
+    if calculator_dtype is not None:
+        # Calculator precision changes prediction semantics; a checkpoint
+        # written under a different dtype must fail closed to recompute.
+        context["calculator_dtype"] = calculator_dtype
+    return context
 
 
 def normalize_checkpoint_context(context: Any) -> dict[str, str] | None:
@@ -164,7 +171,10 @@ def normalize_checkpoint_context(context: Any) -> dict[str, str] | None:
     manifest_hash = context.get("manifest_hash")
     if not all(isinstance(value, str) and value for value in (row_id, mlip_id, manifest_hash)):
         return None
-    return raw_prediction_checkpoint_context(row_id, mlip_id, manifest_hash)
+    calculator_dtype = context.get("calculator_dtype")
+    if calculator_dtype is not None and not isinstance(calculator_dtype, str):
+        return None
+    return raw_prediction_checkpoint_context(row_id, mlip_id, manifest_hash, calculator_dtype)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -364,10 +374,11 @@ class CellCheckpoint:
         variant_id: str,
         distill_profile: str,
         manifest_hash: str,
+        calculator_dtype: str | None = None,
     ) -> None:
         self.url = url
         self.mode = mode
-        self.context = raw_prediction_checkpoint_context(row_id, mlip_id, manifest_hash)
+        self.context = raw_prediction_checkpoint_context(row_id, mlip_id, manifest_hash, calculator_dtype)
         self.producer_context = {
             "run_id": run_id,
             "cell_id": cell_id,
@@ -716,6 +727,11 @@ def run_cell(
     if args.distill_profile != "off" and DistillSession is None:
         raise RuntimeError("lupine_distill_runtime is not importable in this runner image")
     cold_started = time.perf_counter()
+    # Barrier geometry optimization (CI-NEB saddle search) follows the
+    # MACE vendor guidance: float64 for geometry optimization, float32
+    # only for MD-style rows. Scoped to the single-cell barrier path;
+    # run-batch shares one calculator and keeps the row default.
+    calc_dtype = "float64" if args.row_id == BARRIER_ROW_ID else "float32"
     barrier_panel = None
     barrier_contract = None
     if args.row_id == BARRIER_ROW_ID:
@@ -744,6 +760,7 @@ def run_cell(
             variant_id=args.variant_id,
             distill_profile=args.distill_profile,
             manifest_hash=manifest_hash,
+            calculator_dtype=calc_dtype,
         )
     policy_limits_path = None
     policy_limits_hash = None
@@ -752,11 +769,6 @@ def run_cell(
         policy_limits_path, policy_limits_hash, policy_limits_tmp = materialize_distill_policy_url(args.distill_policy_url)
     if preloaded_calc is None:
         load_started = time.perf_counter()
-        # Barrier geometry optimization (CI-NEB saddle search) follows the
-        # MACE vendor guidance: float64 for geometry optimization, float32
-        # only for MD-style rows. Scoped to the single-cell barrier path;
-        # run-batch shares one calculator and keeps the row default.
-        calc_dtype = "float64" if args.row_id == BARRIER_ROW_ID else "float32"
         calc = load_calculator(args.mlip_id, default_dtype=calc_dtype)
         model_load_s = max(time.perf_counter() - load_started, 0.0)
         model_preloaded = False
@@ -826,6 +838,7 @@ def run_cell(
         "cold_total_seconds": cold_duration_s,
         "model_load_seconds": model_load_s,
         "warm_inference_seconds": warm_duration_s,
+        "calculator_dtype": calc_dtype,
         "cloud_run_job": os.environ.get("CLOUD_RUN_JOB") or os.environ.get("K_SERVICE"),
         "cloud_run_revision": os.environ.get("K_REVISION"),
         "runner_image_digest": os.environ.get("RUNNER_IMAGE_DIGEST"),
