@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import math
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -18,6 +19,7 @@ from ase import Atoms
 EV_PER_A3_TO_GPA = 160.21766208
 
 ROW_IDS = (
+    "adsorption_energy",
     "elastic_constants",
     "energy_volume",
     "forces",
@@ -26,6 +28,13 @@ ROW_IDS = (
 )
 
 ROW_DEFAULTS: dict[str, dict[str, Any]] = {
+    "adsorption_energy": {
+        "min_cases": 1,
+        "max_cases": 1,
+        "error_tolerance": 0.10,
+        "error_unit": "eV",
+        "reference_keys": ("adsorption_energy_ev",),
+    },
     "energy_volume": {
         "min_cases": 5,
         "error_tolerance": 0.10,
@@ -184,6 +193,68 @@ def _elastic_reference(ref: dict[str, Any]) -> Any:
     return ref.get("elastic_constants_gpa", ref.get("elastic_constants"))
 
 
+def _adsorption_system_blockers(case: dict[str, Any], prefix: str) -> list[str]:
+    systems = case.get("systems")
+    if not isinstance(systems, list):
+        return [f"{prefix} needs a systems list"]
+    blockers: list[str] = []
+    roles: Counter[str] = Counter()
+    system_ids: set[str] = set()
+    balance: Counter[str] = Counter()
+    for system_index, system in enumerate(systems):
+        system_prefix = f"{prefix}.systems[{system_index}]"
+        if not isinstance(system, dict):
+            blockers.append(f"{system_prefix} must be an object")
+            continue
+        system_id = system.get("system_id")
+        if not isinstance(system_id, str) or not system_id:
+            blockers.append(f"{system_prefix}.system_id is required")
+        elif system_id in system_ids:
+            blockers.append(f"{system_prefix}.system_id must be unique")
+        else:
+            system_ids.add(system_id)
+        role = system.get("role")
+        if role not in {"adsorbate_slab", "clean_slab", "reference"}:
+            blockers.append(f"{system_prefix}.role is unsupported")
+        else:
+            roles[str(role)] += 1
+        coefficient = system.get("stoichiometric_coefficient")
+        if not _finite(coefficient) or float(coefficient) == 0.0:
+            blockers.append(f"{system_prefix}.stoichiometric_coefficient must be finite and nonzero")
+            continue
+        coefficient = float(coefficient)
+        if role == "adsorbate_slab" and coefficient != 1.0:
+            blockers.append(f"{system_prefix} adsorbate_slab coefficient must be 1")
+        elif role in {"clean_slab", "reference"} and coefficient >= 0.0:
+            blockers.append(f"{system_prefix} reactant coefficient must be negative")
+        symbols = system.get("symbols")
+        positions = system.get("positions")
+        if not isinstance(symbols, list) or not symbols or not all(isinstance(symbol, str) and symbol for symbol in symbols):
+            blockers.append(f"{system_prefix}.symbols must be a non-empty string list")
+            continue
+        if not isinstance(positions, list) or len(positions) != len(symbols):
+            blockers.append(f"{system_prefix}.positions must match symbols")
+        else:
+            try:
+                position_array = np.asarray(positions, dtype=float)
+                if position_array.shape != (len(symbols), 3) or not np.all(np.isfinite(position_array)):
+                    blockers.append(f"{system_prefix}.positions must be finite Nx3 coordinates")
+            except (TypeError, ValueError):
+                blockers.append(f"{system_prefix}.positions must be finite Nx3 coordinates")
+        for symbol in symbols:
+            balance[symbol] += coefficient
+    if roles["adsorbate_slab"] != 1:
+        blockers.append(f"{prefix} needs exactly one adsorbate_slab system")
+    if roles["clean_slab"] != 1:
+        blockers.append(f"{prefix} needs exactly one clean_slab system")
+    if roles["reference"] < 1:
+        blockers.append(f"{prefix} needs at least one gas/reference system")
+    residual = {symbol: value for symbol, value in balance.items() if not math.isclose(value, 0.0, abs_tol=1e-8)}
+    if residual:
+        blockers.append(f"{prefix} stoichiometry is not element-balanced: {residual}")
+    return blockers
+
+
 def _validate_row_selection(selection: RowSelection) -> list[str]:
     row_id = selection.row_id
     spec = selection.row_spec
@@ -191,10 +262,23 @@ def _validate_row_selection(selection: RowSelection) -> list[str]:
     min_cases = int(spec.get("min_cases", ROW_DEFAULTS[row_id]["min_cases"]))
     if len(selection.cases) < min_cases:
         blockers.append(f"{row_id} requires at least {min_cases} cases; found {len(selection.cases)}")
+    if row_id == "adsorption_energy" and len(selection.cases) != 1:
+        blockers.append(
+            f"adsorption_energy requires exactly one candidate; found {len(selection.cases)}"
+        )
+    max_cases = spec.get("max_cases")
+    if isinstance(max_cases, int) and len(selection.cases) > max_cases:
+        blockers.append(f"{row_id} permits at most {max_cases} cases; found {len(selection.cases)}")
     for idx, case in enumerate(selection.cases):
         ref = _reference(case, spec)
         prefix = f"{row_id}[{idx}]"
-        if row_id == "forces":
+        if row_id == "adsorption_energy":
+            if not isinstance(case.get("candidate_id"), str) or not case["candidate_id"]:
+                blockers.append(f"{prefix} needs candidate_id")
+            if not _finite(ref.get("adsorption_energy_ev")):
+                blockers.append(f"{prefix} needs finite reference.adsorption_energy_ev")
+            blockers.extend(_adsorption_system_blockers(case, prefix))
+        elif row_id == "forces":
             if not _force_reference_is_nondegenerate(ref):
                 blockers.append(f"{prefix} needs nonzero reference forces")
         elif row_id == "elastic_constants":
@@ -222,11 +306,20 @@ def validate_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
 
     row_counts: dict[str, int] = {}
     row_blockers: dict[str, list[str]] = {}
+    declared_row_fixtures = _as_record(manifest.get("row_fixtures"))
+    declared_rows = set(declared_row_fixtures) if declared_row_fixtures else set(ROW_IDS)
+    unknown_rows = sorted(declared_rows - set(ROW_IDS))
+    blockers.extend(f"unsupported row fixture: {row_id}" for row_id in unknown_rows)
     for row_id in ROW_IDS:
         selection = select_row(manifest, row_id)
         row_counts[row_id] = len(selection.cases)
         row_blockers[row_id] = _validate_row_selection(selection)
-    blockers.extend(f"{row}: {blocker}" for row, items in row_blockers.items() for blocker in items)
+    blockers.extend(
+        f"{row}: {blocker}"
+        for row, items in row_blockers.items()
+        if row in declared_rows
+        for blocker in items
+    )
 
     provenance = manifest.get("reference_provenance") or _as_record(manifest.get("metadata")).get("reference_provenance")
     if not provenance:
@@ -276,6 +369,73 @@ def single_point_prediction(record: dict[str, Any], calc: Any, row_spec: dict[st
         prediction["stress_gpa"] = _stress_gpa(atoms).tolist()
     except Exception as exc:
         prediction["stress_error"] = str(exc)
+    return prediction
+
+
+def adsorption_energy_prediction(record: dict[str, Any], calc: Any, row_spec: dict[str, Any]) -> dict[str, Any]:
+    reference = _reference(record, row_spec)
+    prediction: dict[str, Any] = {
+        "candidate_id": record.get("candidate_id"),
+        "structure_id": record.get("structure_id"),
+        "row_id": "adsorption_energy",
+        "status": "completed",
+        "systems": [],
+        "adsorption_energy_ev": None,
+        "reference": reference,
+        "signed_error_ev": None,
+    }
+    contributions: list[float] = []
+    failures: list[dict[str, str]] = []
+    for system in record["systems"]:
+        coefficient = float(system["stoichiometric_coefficient"])
+        system_result: dict[str, Any] = {
+            "system_id": system["system_id"],
+            "role": system["role"],
+            "stoichiometric_coefficient": coefficient,
+            "n_atoms": len(system["symbols"]),
+            "energy_ev": None,
+            "reaction_contribution_ev": None,
+            "status": "completed",
+        }
+        try:
+            atoms = atoms_from_record(system)
+            atoms.calc = calc
+            energy_ev = float(atoms.get_potential_energy())
+            if not math.isfinite(energy_ev):
+                raise ValueError("calculator returned non-finite energy")
+            # Preserve the finite raw system energy even if the stoichiometric
+            # contribution overflows; raw calculator outputs must not be lost.
+            system_result["energy_ev"] = energy_ev
+            contribution_ev = coefficient * energy_ev
+            if not math.isfinite(contribution_ev):
+                raise ValueError("stoichiometric contribution is non-finite")
+            system_result["reaction_contribution_ev"] = contribution_ev
+            contributions.append(contribution_ev)
+        except Exception as exc:
+            system_result["status"] = "failed"
+            system_result["error"] = f"{exc.__class__.__name__}: {exc}"
+            failures.append({"system_id": str(system["system_id"]), "error": system_result["error"]})
+        prediction["systems"].append(system_result)
+    if not failures:
+        try:
+            reaction_energy = math.fsum(contributions)
+            signed_error = reaction_energy - float(reference["adsorption_energy_ev"])
+            if not math.isfinite(reaction_energy) or not math.isfinite(signed_error):
+                raise ValueError("aggregate adsorption energy or signed error is non-finite")
+            prediction["adsorption_energy_ev"] = reaction_energy
+            prediction["signed_error_ev"] = signed_error
+        except (OverflowError, TypeError, ValueError) as exc:
+            failures.append(
+                {
+                    "system_id": "reaction-aggregate",
+                    "error": f"{exc.__class__.__name__}: {exc}",
+                }
+            )
+    if failures:
+        prediction["status"] = "failed"
+        prediction["adsorption_energy_ev"] = None
+        prediction["signed_error_ev"] = None
+        prediction["failures"] = failures
     return prediction
 
 
@@ -367,6 +527,56 @@ def _elastic_material_groups(predictions: list[dict[str, Any]]) -> dict[str, lis
 def evaluate_row(row_id: str, predictions: list[dict[str, Any]], row_spec: dict[str, Any]) -> tuple[float, str, dict[str, Any]]:
     tolerance = float(row_spec.get("error_tolerance", ROW_DEFAULTS[row_id]["error_tolerance"]))
     unit = str(row_spec.get("error_unit", ROW_DEFAULTS[row_id]["error_unit"]))
+    if row_id == "adsorption_energy":
+        absolute_errors: list[float] = []
+        completed: list[dict[str, Any]] = []
+        failed: list[dict[str, Any]] = []
+        for prediction in predictions:
+            reference = _as_record(prediction.get("reference"))
+            if (
+                prediction.get("status") != "completed"
+                or not _finite(prediction.get("adsorption_energy_ev"))
+                or not _finite(reference.get("adsorption_energy_ev"))
+            ):
+                failed.append(prediction)
+                continue
+            signed_error = float(prediction["adsorption_energy_ev"]) - float(
+                reference["adsorption_energy_ev"]
+            )
+            if not math.isfinite(signed_error):
+                failed.append(prediction)
+                continue
+            absolute_errors.append(abs(signed_error))
+            completed.append(prediction)
+        error: float | None = None
+        aggregate_error: str | None = None
+        if absolute_errors:
+            try:
+                error = math.fsum(absolute_errors) / len(absolute_errors)
+                if not math.isfinite(error):
+                    raise ValueError("adsorption MAE is non-finite")
+            except (OverflowError, ValueError) as exc:
+                aggregate_error = f"{exc.__class__.__name__}: {exc}"
+                failed.extend(completed)
+                completed = []
+                error = None
+        metrics = {
+            "primary_metric": "adsorption_energy_mae",
+            "adsorption_energy_mae": error,
+            "error": error,
+            "error_unit": unit,
+            "score_tolerance": tolerance,
+            "successful_candidates": len(completed),
+            "failed_candidates": len(failed),
+            "failed_candidate_ids": [prediction.get("candidate_id") for prediction in failed],
+        }
+        if aggregate_error is not None:
+            metrics["aggregate_error"] = aggregate_error
+        return (
+            _score_from_error(error, tolerance) if error is not None else 0.0,
+            "row_native_physical_score",
+            metrics,
+        )
     if row_id == "energy_volume":
         errors = [abs(float(pred["energy_ev_per_atom"]) - _ref_energy_ev_per_atom(pred)) for pred in predictions]
         error = float(np.mean(errors))
@@ -509,10 +719,14 @@ def run_row(
     predictions = []
     for case_index, case in enumerate(selection.cases):
         cached = checkpoint.get_prediction(row_id, case_index, case) if checkpoint else None
-        if cached is not None:
+        # Failed predictions are never reused from checkpoints: a transient
+        # failure must be retried on resume, not frozen into the run.
+        if cached is not None and cached.get("status", "completed") == "completed":
             predictions.append(cached)
             continue
-        if row_id == "relaxation_stability":
+        if row_id == "adsorption_energy":
+            prediction = adsorption_energy_prediction(case, calc, selection.row_spec)
+        elif row_id == "relaxation_stability":
             if runtime_session is not None and hasattr(runtime_session, "relaxation_prediction"):
                 prediction = runtime_session.relaxation_prediction(
                     case,
@@ -524,7 +738,7 @@ def run_row(
                 prediction = relaxation_prediction(case, calc, selection.row_spec)
         else:
             prediction = single_point_prediction(case, calc, selection.row_spec)
-        if checkpoint is not None:
+        if checkpoint is not None and prediction.get("status", "completed") == "completed":
             checkpoint.record_prediction(row_id, case_index, case, prediction)
         predictions.append(prediction)
     if runtime_session is not None:

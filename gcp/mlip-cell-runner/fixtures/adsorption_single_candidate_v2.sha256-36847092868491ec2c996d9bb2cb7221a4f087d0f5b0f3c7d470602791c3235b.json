@@ -1,0 +1,58 @@
+{
+  "schema": "lupine.mlip.fixture_manifest.v2",
+  "fixture_id": "z3-single-candidate-test",
+  "reference_provenance": {
+    "source": "synthetic runner contract fixture",
+    "purpose": "software validation only"
+  },
+  "row_specs": {
+    "adsorption_energy": {
+      "min_cases": 1,
+      "max_cases": 1,
+      "error_tolerance": 0.1,
+      "error_unit": "eV"
+    }
+  },
+  "row_fixtures": {
+    "adsorption_energy": {
+      "structures": [
+        {
+          "candidate_id": "CO-Pt111-synthetic",
+          "structure_id": "CO-Pt111-synthetic",
+          "reference": {
+            "adsorption_energy_ev": -1.2
+          },
+          "systems": [
+            {
+              "system_id": "adsorbate-slab",
+              "role": "adsorbate_slab",
+              "stoichiometric_coefficient": 1.0,
+              "symbols": ["Pt", "Pt", "C", "O"],
+              "positions": [[0, 0, 0], [2, 2, 0], [1, 1, 2], [1, 1, 3]],
+              "cell": [[5, 0, 0], [0, 5, 0], [0, 0, 12]],
+              "pbc": [true, true, false]
+            },
+            {
+              "system_id": "clean-slab",
+              "role": "clean_slab",
+              "stoichiometric_coefficient": -1.0,
+              "symbols": ["Pt", "Pt"],
+              "positions": [[0, 0, 0], [2, 2, 0]],
+              "cell": [[5, 0, 0], [0, 5, 0], [0, 0, 12]],
+              "pbc": [true, true, false]
+            },
+            {
+              "system_id": "CO-gas",
+              "role": "reference",
+              "stoichiometric_coefficient": -1.0,
+              "symbols": ["C", "O"],
+              "positions": [[0, 0, 0], [0, 0, 1.15]],
+              "cell": [[12, 0, 0], [0, 12, 0], [0, 0, 12]],
+              "pbc": false
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
