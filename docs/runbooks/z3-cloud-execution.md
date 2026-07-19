@@ -37,8 +37,8 @@ Preflight without cloud spend:
 ```bash
 python gcp/z3-campaign/run_measurement.py \
   --model-id chgnet \
-  --fixture-url gs://shed-489901-atlas-inputs/z3-campaign/<fixture-sha256>/CO-Pt111.json \
-  --candidate-id CO-Pt111 \
+  --fixture-url gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/biomass_ni_mol1.sha256-34aeeb125ba048e37bca9b3b6baa84b96621cfc2da707dca127f9e2561225408.json \
+  --candidate-id biomass_ni_mol1 \
   --run-id z3-20260718 \
   --dry-run
 ```
@@ -48,11 +48,13 @@ Execute and capture locally:
 ```bash
 python gcp/z3-campaign/run_measurement.py \
   --model-id chgnet \
-  --fixture-url gs://shed-489901-atlas-inputs/z3-campaign/<fixture-sha256>/CO-Pt111.json \
-  --candidate-id CO-Pt111 \
+  --fixture-url gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/biomass_ni_mol1.sha256-34aeeb125ba048e37bca9b3b6baa84b96621cfc2da707dca127f9e2561225408.json \
+  --candidate-id biomass_ni_mol1 \
   --run-id z3-20260718 \
   --capture-dir tmp/z3-raw
 ```
+
+The example fixture is one of the 32 content-addressed single-candidate fixtures generated from the locked panel by `tools/build_z3_candidate_fixtures.py`; `build/z3-campaign/catbench-bm-v1/z3-candidate-fixtures.manifest.json` maps every `candidate_id` to its fixture filename and SHA-256 under `gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/`.
 
 The fixture, not this transport wrapper, defines the candidate structures and observable. Use a fixture containing exactly one candidate when one output record per candidate is required. The default row is `adsorption_energy`; the downloaded artifact must report the requested model and row and contain exactly one completed prediction for the requested candidate with a finite `adsorption_energy_ev`, or the wrapper fails.
 
