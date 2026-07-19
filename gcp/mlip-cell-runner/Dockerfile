@@ -36,8 +36,11 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir -r requirements-backend.txt
 
 COPY gcp/mlip-cell-runner/mlip_cell_runner.py ./
+COPY gcp/mlip-cell-runner/z1_barrier.py ./
 COPY python/lupine_distill_runtime ./lupine_distill_runtime
 COPY python/lupine_distill ./lupine_distill
+COPY campaigns/v1/z1.campaign-manifest.v1.json ./campaigns/v1/z1.campaign-manifest.v1.json
+COPY data/candidates/z1_nebdft2k_barriers.lock.json ./data/candidates/z1_nebdft2k_barriers.lock.json
 # Lean env-field certificates: the report backs the run-time CertificateGate
 # (tier-2-refused cells are excluded from correction). Without it in the
 # image, the gate's "auto" default resolves to a nonexistent path and the
