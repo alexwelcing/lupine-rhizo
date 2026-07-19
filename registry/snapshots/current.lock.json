@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:77b9dda7a89f03502e1154ac42c8a2615d26434bdcbc5d08ef3c90917fd6f75f"
+      "content_hash": "sha256:4d896031bd92eed43848e5bcba7fd02de2fa64cf69fc5e2d1de7c555ac97663f"
     },
     "registry/campaigns.v1.json": {
       "content_hash": "sha256:8343774190df7c14c13f0f486cbf6e8a76de96d479e9854914dad802a36ba286"
@@ -38,6 +38,10 @@
       {
         "claim_id": "correction.same_class.a0.v1",
         "content_hash": "sha256:63dabd11bb2936a01b1607e4b62ce83f54880dc7e69c90703e1eff0959bdc498"
+      },
+      {
+        "claim_id": "discovery.z1.barrier-accuracy.v1",
+        "content_hash": "sha256:7003987ffaee7f74cd361770af822c84adbd4af8f63a57718ced70b126d1d4e1"
       },
       {
         "claim_id": "discovery.z3.adsorption-accuracy.v1",

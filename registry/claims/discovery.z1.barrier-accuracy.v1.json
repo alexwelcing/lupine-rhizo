@@ -1,0 +1,45 @@
+{
+  "claim_id": "discovery.z1.barrier-accuracy.v1",
+  "version": 1,
+  "statement": "The Z1 barrier-accurate MLIP screening panel satisfies the Hard Materials Z1 migration-barrier acceptance test (MAE <= 40 meV) on a chemistry-held-out DFT-NEB benchmark.",
+  "classification": {
+    "intent": "confirmatory",
+    "outcome": "pending",
+    "assurance": "unsupported",
+    "strength": "predictive"
+  },
+  "premises": [
+    {
+      "premise_id": "chemistry-held-out-neb",
+      "statement": "The content-addressed 30-path LiTraj nebDFT2k barrier panel reports MAE against published DFT-NEB references across 30 held-out chemical systems, below the 40 meV Z1 ceiling.",
+      "support_policy": {
+        "mode": "unsupported"
+      },
+      "bundle_references": []
+    }
+  ],
+  "bindings": {
+    "lean_theorem": {
+      "status": "unsupported",
+      "reason": "BarrierArrhenius and HonestErrors.Kinetics theorems formalize consequences of barrier error; they do not prove the empirical 30-path aggregate MAE."
+    },
+    "runtime_gate": {
+      "status": "unsupported",
+      "reason": "No deployed runtime gate consumes the Hard Materials Z1 aggregate barrier-accuracy measurement."
+    },
+    "publication": {
+      "status": "bound",
+      "publication_id": "gates.licenses.paper.v1",
+      "recurring_claim": "result1.discovery.z1.barrier.accuracy"
+    }
+  },
+  "excluded_scope": [
+    "Barrier accuracy for models other than the declared available models (chgnet, mace-mp-small, mace-mp-medium, mace-mpa-0-medium)",
+    "Structures or chemistries outside the 30-path held-out LiTraj nebDFT2k panel",
+    "Error-against-experiment framing: references are published DFT-NEB, not experiment",
+    "Charged-defect corrections, finite-temperature prefactors, diffusivities, and Arrhenius rates",
+    "Battery screening hit-rate claims beyond the barrier-accuracy acceptance test"
+  ],
+  "supersedes": [],
+  "content_hash": "sha256:7003987ffaee7f74cd361770af822c84adbd4af8f63a57718ced70b126d1d4e1"
+}
