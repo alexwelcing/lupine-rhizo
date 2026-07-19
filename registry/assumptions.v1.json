@@ -118,6 +118,15 @@
       "status": "active"
     },
     {
+      "claim_content_hash": "sha256:7003987ffaee7f74cd361770af822c84adbd4af8f63a57718ced70b126d1d4e1",
+      "claim_id": "discovery.z1.barrier-accuracy.v1",
+      "claim_version": 1,
+      "disposition": "unsupported",
+      "evidence": [],
+      "statement": "The Z1 barrier-accurate MLIP screening panel satisfies the Hard Materials Z1 migration-barrier acceptance test (MAE <= 40 meV) on a chemistry-held-out DFT-NEB benchmark.",
+      "status": "unsupported"
+    },
+    {
       "claim_content_hash": "sha256:2a5bc1c222ecfbff7537e03dbdbd94ef90156c7d3cdc7a453fd0ca1726415d87",
       "claim_id": "discovery.z3.adsorption-accuracy.v1",
       "claim_version": 1,
