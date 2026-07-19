@@ -9,6 +9,7 @@ relies on.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -18,6 +19,10 @@ import pytest
 from ase.calculators.calculator import Calculator, all_changes
 
 FIXTURE_PATH = Path(__file__).with_name("fixtures") / "canonical_structures_v2_mptrj.json"
+ADSORPTION_FIXTURE_PATH = (
+    Path(__file__).with_name("fixtures")
+    / "adsorption_single_candidate_v2.sha256-36847092868491ec2c996d9bb2cb7221a4f087d0f5b0f3c7d470602791c3235b.json"
+)
 
 
 class ConstantEnergyCalculator(Calculator):
@@ -78,6 +83,44 @@ def test_run_cell_offline_with_file_url_manifest_and_no_beat_url(
     # Default read-write checkpoint lands next to the artifact, fully local.
     checkpoint = json.loads((artifacts / "cell_checkpoint.json").read_text(encoding="utf-8"))
     assert checkpoint["schema"] == "lupine.mlip.cell_checkpoint.v1"
+
+
+@pytest.mark.integration
+def test_content_addressed_adsorption_fixture_produces_nonempty_cell_artifact(
+    tmp_path: Path, monkeypatch, capsys, offline
+) -> None:
+    fixture_digest = hashlib.sha256(ADSORPTION_FIXTURE_PATH.read_bytes()).hexdigest()
+    assert f"sha256-{fixture_digest}" in ADSORPTION_FIXTURE_PATH.name
+    artifacts = tmp_path / "adsorption-artifacts"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "mlip_cell_runner.py",
+            "run-cell",
+            "--run-id", "adsorption-contract",
+            "--cell-id", "adsorption-contract:adsorption_energy:mock:CO-Pt111-synthetic",
+            "--row-id", "adsorption_energy",
+            "--mlip-id", "mock-mlip",
+            "--manifest-url", ADSORPTION_FIXTURE_PATH.as_uri(),
+            "--artifact-prefix", str(artifacts),
+            "--checkpoint-mode", "off",
+        ],
+    )
+
+    rc = runner.main()
+
+    assert rc == 0
+    metrics = json.loads(capsys.readouterr().out)
+    assert metrics["status"] == "completed"
+    assert metrics["row_metrics"]["primary_metric"] == "adsorption_energy_mae"
+    assert metrics["row_metrics"]["adsorption_energy_mae"] == pytest.approx(1.2)
+    artifact = json.loads((artifacts / "cell_result.json").read_text(encoding="utf-8"))
+    assert artifact["schema"] == "lupine.mlip.cell_artifact.v1"
+    assert artifact["row_id"] == "adsorption_energy"
+    assert len(artifact["predictions"]) == 1
+    prediction = artifact["predictions"][0]
+    assert prediction["adsorption_energy_ev"] == pytest.approx(0.0)
+    assert [system["energy_ev"] for system in prediction["systems"]] == [-4.0, -2.0, -2.0]
 
 
 def _write_batch_spec(tmp_path: Path, defaults_extra: dict | None = None) -> Path:

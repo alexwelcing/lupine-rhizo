@@ -42,7 +42,10 @@ def evaluate_fixture(manifest: dict[str, Any]) -> dict[str, Any]:
 
     rows: dict[str, Any] = {}
     started = time.perf_counter()
+    declared_rows = set((manifest.get("row_fixtures") or {}).keys())
     for row_id in ROW_IDS:
+        if row_id not in declared_rows:
+            continue
         calc = reference_calculator(manifest)
         row_started = time.perf_counter()
         result = run_row(row_id, manifest, calc)
