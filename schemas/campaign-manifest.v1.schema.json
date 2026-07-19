@@ -161,7 +161,17 @@
       "properties": {
         "lane": { "$ref": "#/$defs/identifier" },
         "model_selection": { "const": "available_models" },
-        "excluded_models_block_execution": { "const": false }
+        "excluded_models_block_execution": { "const": false },
+        "candidate_panel": { "$ref": "#/$defs/artifact_lock" }
+      }
+    },
+    "artifact_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/non_empty_string" },
+        "sha256": { "$ref": "#/$defs/sha256" }
       }
     },
     "decision_condition": {

@@ -27,8 +27,16 @@
     {"requirement_id": "e.z1.held-out-paths", "artifact_type": "neb-path-set", "description": "Fresh held-out paths with endpoint and saddle energies, convergence metadata, and reference provenance.", "minimum_count": 30},
     {"requirement_id": "e.z1.model-results", "artifact_type": "model-measurements", "description": "Per-path predictions from every available model, including signed errors and failures without imputation.", "minimum_count": 1}
   ],
-  "execution": {"lane": "round4.available-models", "model_selection": "available_models", "excluded_models_block_execution": false},
+  "execution": {
+    "lane": "round4.available-models",
+    "model_selection": "available_models",
+    "excluded_models_block_execution": false,
+    "candidate_panel": {
+      "path": "data/candidates/z1_nebdft2k_barriers.lock.json",
+      "sha256": "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68"
+    }
+  },
   "kill_conditions": [{"condition_id": "kill.z1.reference-leakage", "metric": "reference_paths_seen_during_training", "operator": "gt", "threshold": 0, "action": "kill"}],
   "demotion_conditions": [{"condition_id": "demote.z1.barrier-mae", "metric": "barrier_mae", "operator": "gt", "threshold": 40, "unit": "meV", "action": "demote"}],
-  "content_hash": "sha256:3de39fb3878a11f61ac3c290d9cd0a8690ee942169a569671424a1510237607e"
+  "content_hash": "sha256:0a85044ca84d10e021a0a282987976a3a9e79a611a618470e1638e9105171e40"
 }
