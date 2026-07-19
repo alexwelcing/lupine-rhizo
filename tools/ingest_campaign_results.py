@@ -364,6 +364,12 @@ def ingest(root: Path, manifest_path: Path, measurements_path: Path) -> list[str
             root / "evidence" / "v1" / "examples",
             staged_root / "evidence" / "v1" / "examples",
         )
+        # Campaign manifests participate in the generated snapshot lock.  Keep
+        # them in the transactional staging tree so validation compares the
+        # same corpus that will be materialized in the real root.
+        campaigns = root / "campaigns" / "v1"
+        if campaigns.exists():
+            shutil.copytree(campaigns, staged_root / "campaigns" / "v1")
         for path, claim in claims.items():
             staged_path = staged_root / path.relative_to(root)
             staged_path.write_text(rendered(claim), encoding="utf-8")

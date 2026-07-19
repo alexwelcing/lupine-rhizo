@@ -1,0 +1,808 @@
+{
+  "accuracy": {
+    "error": 4.457622762826773,
+    "error_unit": "ev_per_atom_mae",
+    "primary_metric": "energy_mae_ev_per_atom",
+    "score": 0.0,
+    "score_tolerance": 0.1,
+    "unit": "row_native_physical_score"
+  },
+  "campaign_id": "correction.round-4.available-models.v1",
+  "cell_id": "correction-round4-20260719:r4-pv-csmgf3:energy_volume:mace-mp-medium",
+  "checkpoint": {
+    "cache_misses": 13,
+    "flush_count": 1,
+    "ignored_reason": null,
+    "loaded_predictions": 0,
+    "mode": "read-write",
+    "pending_flush_predictions": 0,
+    "schema": "lupine.mlip.cell_checkpoint.summary.v1",
+    "stored_predictions": 13,
+    "url": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-medium/r4-pv-csmgf3/energy_volume/cell_checkpoint.json",
+    "written_predictions": 13
+  },
+  "distill_policy_engine": "auto",
+  "distill_policy_hash": null,
+  "distill_policy_url": null,
+  "distill_profile": "off",
+  "duration_s": 0.5478907789999994,
+  "execution": {
+    "cloud_run_job": "mlip-cell-mace-round4-mp-medium",
+    "cloud_run_revision": null,
+    "cold_total_seconds": 0.7227605620000048,
+    "model_load_seconds": 20.827458597,
+    "model_preloaded": true,
+    "runner_image_digest": null,
+    "warm_inference_seconds": 0.5478907789999994
+  },
+  "fixture_contract": {
+    "blockers": [],
+    "fixture_id": "round4-r4-pv-csmgf3",
+    "manifest_hash": null,
+    "reference_provenance": {
+      "campaign": "docs/plans/2026-07-14-round4-preregistration.md",
+      "candidate_lock": "sha256:b7562637c860b15b92f64659f0b063bc6d2b6c0c12899e21f370359cccb914f1",
+      "note": "Reference energies in the execution contract are validation placeholders; property references are joined only during assembly.",
+      "references": "data/candidates/round4_references.json"
+    },
+    "release_ready": true,
+    "row_blockers": {
+      "elastic_constants": [],
+      "energy_volume": [],
+      "forces": [],
+      "relaxation_stability": [],
+      "stress": []
+    },
+    "row_counts": {
+      "elastic_constants": 36,
+      "energy_volume": 13,
+      "forces": 5,
+      "relaxation_stability": 3,
+      "stress": 5
+    },
+    "schema": "lupine.mlip.fixture_manifest.v2"
+  },
+  "manifest_hash": "sha256:3cb74ab9440497c5d0e37266c6f011abf27bec8387adb126d56b2422241cea19",
+  "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json",
+  "mlip_id": "mace-mp-medium",
+  "operation_name": null,
+  "predictions": [
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -3.3310081481933596,
+      "forces_ev_per_angstrom": [
+        [
+          -2.747457870100334e-07,
+          1.1466909199953079e-07,
+          1.2479722499847412e-07
+        ],
+        [
+          -1.8044011085294187e-07,
+          3.0877345125190914e-07,
+          5.957772373221815e-07
+        ],
+        [
+          2.587912604212761e-07,
+          -2.1932801530510915e-07,
+          -1.41095370054245e-07
+        ],
+        [
+          1.1734664440155029e-07,
+          -3.571112117128905e-08,
+          -1.1082738637924194e-07
+        ],
+        [
+          2.2449455627793213e-08,
+          -3.0139926820993423e-07,
+          -1.6274861991405487e-07
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -135.31692822814955,
+        -135.3168613801317,
+        -135.31695687730007,
+        -2.752395083580701e-06,
+        -3.39486924239677e-06,
+        -9.078919778824698e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s0.880",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 0.681472
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -3.7740447998046873,
+      "forces_ev_per_angstrom": [
+        [
+          -4.0884486907089013e-07,
+          -3.40660335496068e-07,
+          6.332993507385254e-08
+        ],
+        [
+          -1.0629126023786739e-07,
+          2.598430910438765e-07,
+          -2.484302967786789e-07
+        ],
+        [
+          1.7578713595867157e-07,
+          -1.9557731434360903e-07,
+          2.611486706882715e-07
+        ],
+        [
+          2.277083694934845e-07,
+          -5.134296188202825e-08,
+          8.09086486697197e-08
+        ],
+        [
+          8.055840083898147e-08,
+          1.581211108714342e-07,
+          -2.4121254682540894e-07
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -93.80176892163094,
+        -93.80174982219727,
+        -93.80176892163094,
+        -8.53209496028646e-07,
+        1.1683968960410155e-06,
+        6.680623830075072e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s0.900",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 0.7290000000000001
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.096825027465821,
+      "forces_ev_per_angstrom": [
+        [
+          -4.284623855710379e-08,
+          -1.5708792489022017e-08,
+          4.946195986121893e-08
+        ],
+        [
+          3.282860561171219e-08,
+          1.781167924264082e-07,
+          3.4691765904426575e-08
+        ],
+        [
+          1.2019427231280133e-08,
+          7.450589478708025e-09,
+          1.4484612620435655e-08
+        ],
+        [
+          -4.1443854570388794e-08,
+          -7.843482308089733e-08,
+          -1.4073157217353582e-07
+        ],
+        [
+          8.890962277519066e-08,
+          -1.689259079284966e-07,
+          -1.0771327652037144e-07
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -65.81900243217127,
+        -65.81900720702968,
+        -65.8190358561802,
+        2.162693679948739e-07,
+        1.379270550671149e-06,
+        -5.358795634873799e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s0.920",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 0.778688
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.33436279296875,
+      "forces_ev_per_angstrom": [
+        [
+          1.4010339555170503e-09,
+          9.755603969097137e-08,
+          -9.569339454174042e-08
+        ],
+        [
+          -1.0011725493086487e-07,
+          -6.583279343885806e-08,
+          -7.852213457226753e-08
+        ],
+        [
+          -1.885928213596344e-08,
+          2.2351741790771484e-08,
+          -1.417938619852066e-07
+        ],
+        [
+          -9.383074939250946e-08,
+          5.727633833885193e-08,
+          3.073364496231079e-08
+        ],
+        [
+          2.6321396262574126e-07,
+          -4.901085048913956e-08,
+          1.4784745872020721e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -46.483046150415916,
+        -46.483046150415916,
+        -46.48303660069908,
+        1.4018120206767878e-06,
+        7.291715730613339e-07,
+        3.2639267615502833e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s0.940",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 0.8305839999999999
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.50872917175293,
+      "forces_ev_per_angstrom": [
+        [
+          2.5986771845509793e-08,
+          5.131005309522152e-08,
+          5.21540641784668e-08
+        ],
+        [
+          1.0607619316260752e-07,
+          5.0436945286946866e-08,
+          -2.3137545213103294e-09
+        ],
+        [
+          -6.984919309616089e-08,
+          -7.916241884231567e-09,
+          -9.173527359962463e-08
+        ],
+        [
+          -2.3283064365386963e-10,
+          -1.4202669262886047e-08,
+          -2.123415470123291e-07
+        ],
+        [
+          3.5391344965773897e-08,
+          -8.300412446260452e-08,
+          2.0023435354232788e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -32.41184875980818,
+        -32.41184398494976,
+        -32.411867859241845,
+        -4.1446821285947777e-07,
+        7.291970450960486e-07,
+        1.800954144269162e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s0.960",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 0.8847359999999999
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.633446121215821,
+      "forces_ev_per_angstrom": [
+        [
+          9.310356574587786e-08,
+          5.708716344088316e-08,
+          -1.2175587471574545e-07
+        ],
+        [
+          -1.6706280803191476e-08,
+          -8.92669049790129e-09,
+          -5.1484221330611035e-08
+        ],
+        [
+          -2.1187588572502136e-08,
+          -7.962808012962341e-08,
+          -6.379559636116028e-08
+        ],
+        [
+          -3.4226104617118835e-08,
+          -5.820766091346741e-09,
+          7.916241884231567e-09
+        ],
+        [
+          8.789022842847771e-09,
+          6.356276571750641e-08,
+          -5.029141902923584e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -21.723538285980204,
+        -21.723540673409413,
+        -21.723538285980204,
+        -1.5772027751947347e-08,
+        6.003573589812845e-07,
+        1.1330131803321593e-06
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s0.980",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 0.9411919999999999
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.717858123779297,
+      "forces_ev_per_angstrom": [
+        [
+          -7.883503627681421e-08,
+          -2.996966941282153e-08,
+          -5.385663826018572e-08
+        ],
+        [
+          6.007030606269836e-08,
+          3.914989576969674e-08,
+          -1.955777406692505e-08
+        ],
+        [
+          6.600748747587204e-08,
+          -7.497146725654602e-08,
+          1.9650906324386597e-07
+        ],
+        [
+          -1.5133991837501526e-09,
+          1.4633405953645706e-07,
+          -5.75091689825058e-08
+        ],
+        [
+          -1.7651487382863706e-08,
+          6.490154191851616e-08,
+          5.77711034566164e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -13.523293130629792,
+        -13.52330626149044,
+        -13.52328716205677,
+        -6.938232905180862e-07,
+        4.4940001340495383e-07,
+        -5.955465774528268e-08
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.000",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.0
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.769403457641602,
+      "forces_ev_per_angstrom": [
+        [
+          -4.676253695379273e-08,
+          2.92484401143156e-08,
+          -1.3299813872436062e-07
+        ],
+        [
+          -2.8172507882118225e-08,
+          1.8594157324969274e-08,
+          7.962808012962341e-08
+        ],
+        [
+          -4.307366907596588e-09,
+          7.194466888904572e-08,
+          -7.264316082000732e-08
+        ],
+        [
+          -7.450580596923828e-08,
+          -6.530899554491043e-08,
+          1.8416903913021088e-07
+        ],
+        [
+          1.1080918227435177e-07,
+          -9.15315467864275e-09,
+          1.6130798030644655e-07
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -7.201439077860861,
+        -7.201437287288954,
+        -7.201433706145141,
+        -9.93506261444882e-07,
+        6.807393273010856e-08,
+        -2.1330096877619609e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.020",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.0612080000000002
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.793354034423828,
+      "forces_ev_per_angstrom": [
+        [
+          3.926837166545738e-08,
+          9.840735515354027e-08,
+          -2.0365399677757523e-07
+        ],
+        [
+          -1.487787812948227e-07,
+          3.1693232926954806e-08,
+          -4.6100467443466187e-08
+        ],
+        [
+          -4.086177796125412e-08,
+          -7.194466888904572e-08,
+          8.440110832452774e-08
+        ],
+        [
+          3.050081431865692e-08,
+          -8.405186235904694e-08,
+          1.424923539161682e-07
+        ],
+        [
+          -2.586887148936512e-08,
+          -2.089723238896113e-08,
+          1.777516445145011e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -2.1434549828405838,
+        -2.1434472236956554,
+        -2.1434549828405838,
+        -6.872280257531699e-07,
+        -9.361773205653278e-08,
+        4.936915771421706e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.040",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.124864
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.793571853637696,
+      "forces_ev_per_angstrom": [
+        [
+          -1.4901161193847656e-08,
+          1.8835999071598053e-07,
+          -4.44706529378891e-08
+        ],
+        [
+          4.190951585769653e-09,
+          -3.9595640544121125e-08,
+          2.9336661100387573e-08
+        ],
+        [
+          -2.9103830456733704e-09,
+          -4.516914486885071e-08,
+          1.5087425708770752e-07
+        ],
+        [
+          3.370223566889763e-08,
+          -1.7601996660232544e-07,
+          -3.9814040064811707e-08
+        ],
+        [
+          -2.933065346155672e-08,
+          -2.02552534744882e-08,
+          -6.076879799365997e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        1.8794539562223547,
+        1.8794517180074715,
+        1.8794596263667256,
+        1.1115598927257548e-06,
+        -5.820680111505539e-07,
+        -4.762429487588935e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.060",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.191016
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.7735954284667965,
+      "forces_ev_per_angstrom": [
+        [
+          2.7939677238464355e-08,
+          -5.51808625459671e-08,
+          2.3283064365386963e-10
+        ],
+        [
+          1.1408701539039612e-08,
+          -1.0523693561026448e-07,
+          6.565824151039124e-08
+        ],
+        [
+          -5.1513779908418655e-08,
+          7.566995918750763e-09,
+          1.0168878361582756e-07
+        ],
+        [
+          3.370223566889763e-08,
+          1.3050157576799393e-07,
+          3.864988684654236e-08
+        ],
+        [
+          -1.3364956430450547e-07,
+          2.5566917472019668e-09,
+          -3.5157427191734314e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        5.019167032729447,
+        5.019168823301353,
+        5.019164645300238,
+        -4.263605224300826e-07,
+        -4.2598754922903736e-07,
+        -2.8811249482273586e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.080",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.2597120000000002
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.736689758300781,
+      "forces_ev_per_angstrom": [
+        [
+          6.28642737865448e-08,
+          2.0512379705905914e-07,
+          -2.9033981263637543e-07
+        ],
+        [
+          -1.1920928955078125e-07,
+          3.0753831481433735e-08,
+          -2.60770320892334e-08
+        ],
+        [
+          4.959292709827423e-08,
+          -1.6298145055770874e-08,
+          3.123423084616661e-07
+        ],
+        [
+          6.810296326875687e-08,
+          -1.3562384992837906e-07,
+          2.0954757928848267e-09
+        ],
+        [
+          -1.9370483528291516e-07,
+          -1.5837777311844548e-08,
+          -1.2549571692943573e-07
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        7.407126250769283,
+        7.407115507337844,
+        7.407124460197377,
+        -1.7709329678016224e-06,
+        -1.194931996874863e-06,
+        -2.625836282987858e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.100",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.3310000000000004
+    },
+    {
+      "chemical_system": "Cs-F-Mg",
+      "energy_ev_per_atom": -4.68620719909668,
+      "forces_ev_per_angstrom": [
+        [
+          -1.6577541828155518e-07,
+          7.497146725654602e-08,
+          2.8870999813079834e-08
+        ],
+        [
+          1.3597309589385986e-07,
+          1.8488677255845687e-09,
+          8.66129994392395e-08
+        ],
+        [
+          -1.1920928955078125e-07,
+          8.766073733568192e-08,
+          3.0617229640483856e-08
+        ],
+        [
+          3.7369318306446075e-08,
+          7.566995918750763e-09,
+          -1.448206603527069e-07
+        ],
+        [
+          3.5853611279890174e-07,
+          -1.16872328703721e-07,
+          5.122274160385132e-08
+        ]
+      ],
+      "material_id": "r4-pv-csmgf3",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        9.006830354383528,
+        9.00683632295655,
+        9.00683632295655,
+        -3.002262172090605e-08,
+        7.062675178911535e-07,
+        -6.13777279125419e-07
+      ],
+      "structure_id": "r4-pv-csmgf3-eos-s1.120",
+      "symbols": [
+        "Cs",
+        "Mg",
+        "F",
+        "F",
+        "F"
+      ],
+      "volume_scale": 1.4049280000000004
+    }
+  ],
+  "ribbon_version": "hyperribbon-v1",
+  "row_id": "energy_volume",
+  "row_spec": {
+    "error_tolerance": 0.1,
+    "error_unit": "ev_per_atom_mae",
+    "min_cases": 5,
+    "reference_keys": [
+      "energy_ev_per_atom",
+      "energy"
+    ]
+  },
+  "run_id": "correction-round4-20260719",
+  "schema": "lupine.mlip.cell_artifact.v1",
+  "speed": {
+    "score": 23.72735679860751,
+    "unit": "structures_per_second"
+  },
+  "support_manifest_url": null,
+  "variant_id": "baseline",
+  "versions": {
+    "ase": "3.28.0",
+    "chgnet": null,
+    "cuda_available": true,
+    "cuda_device": "NVIDIA L4",
+    "fairchem-core": null,
+    "mace-torch": "0.3.16",
+    "matgl": null,
+    "numpy": "1.26.4",
+    "orb-models": null,
+    "python": "3.10.12",
+    "sevenn": null,
+    "torch": "2.4.1+cu121",
+    "uma_model_name": null,
+    "uma_task_name": null
+  }
+}

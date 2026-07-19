@@ -1,0 +1,109 @@
+{
+  "schema": "lupine.round4_references.v1",
+  "sourced_after_lock": true,
+  "target_lock": "data/candidates/round4_targets.lock.json",
+  "notes": [
+    "Reference sourcing began only after the candidate lock was frozen.",
+    "null means no defensible value was located; no value is imputed.",
+    "Rocksalt lattice constants are derived from the cited 300 K density and four formula units per conventional Fm-3m cell using N_A = 6.02214076e23 mol^-1 and standard atomic weights.",
+    "JARVIS elastic tensors and cells are athermal OptB88-vdW DFT references, not experimental measurements."
+  ],
+  "candidates": [
+    {
+      "id": "r4-rs-nabr",
+      "formula": "NaBr",
+      "structure_type": "rocksalt",
+      "references": {
+        "a0": {"value": 5.976207, "unit": "Angstrom", "kind": "exp-derived", "source": "J. T. Lewis, A. Lehoczky, C. V. Briscoe, Phys. Rev. 161, 877 (1967), Table V, density 3.202 g/cm3 at 300 K; doi:10.1103/PhysRev.161.877", "caveat": "Derived from density; conventional rocksalt cell, 300 K."},
+        "b0": {"value": 19.9067, "unit": "GPa", "kind": "exp-derived", "source": "Lewis et al. (1967), Table V; (C11 + 2 C12)/3", "caveat": "Adiabatic elastic bulk modulus at 300 K."},
+        "c11": {"value": 39.70, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table V, 300 K", "caveat": "Adiabatic ultrasonic value."},
+        "c12": {"value": 10.01, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table V, 300 K", "caveat": "Adiabatic ultrasonic value."},
+        "c44": {"value": 9.98, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table V, 300 K", "caveat": "Adiabatic ultrasonic value."}
+      }
+    },
+    {
+      "id": "r4-rs-nai",
+      "formula": "NaI",
+      "structure_type": "rocksalt",
+      "references": {
+        "a0": {"value": 6.474199, "unit": "Angstrom", "kind": "exp-derived", "source": "R. N. Claytor, B. J. Marshall, Phys. Rev. 120, 332 (1960), Table III, density 3.6689 g/cm3 at 300 K; doi:10.1103/PhysRev.120.332", "caveat": "Derived from density; conventional rocksalt cell, 300 K."},
+        "b0": {"value": 16.1033, "unit": "GPa", "kind": "exp-derived", "source": "Claytor and Marshall (1960), Table III; (C11 + 2 C12)/3", "caveat": "Adiabatic elastic bulk modulus at 300 K."},
+        "c11": {"value": 30.07, "unit": "GPa", "kind": "exp", "source": "Claytor and Marshall (1960), Table III, 300 K", "caveat": "Adiabatic ultrasonic value."},
+        "c12": {"value": 9.12, "unit": "GPa", "kind": "exp", "source": "Claytor and Marshall (1960), Table III, 300 K", "caveat": "Table extraction column order is C11, C44, C12; cross-checked against the stated 4.2 K values."},
+        "c44": {"value": 7.33, "unit": "GPa", "kind": "exp", "source": "Claytor and Marshall (1960), Table III, 300 K", "caveat": "Adiabatic ultrasonic value."}
+      }
+    },
+    {
+      "id": "r4-rs-rbbr",
+      "formula": "RbBr",
+      "structure_type": "rocksalt",
+      "references": {
+        "a0": {"value": 6.896337, "unit": "Angstrom", "kind": "exp-derived", "source": "Lewis et al., Phys. Rev. 161, 877 (1967), Table VI, density 3.349 g/cm3 at 300 K", "caveat": "Derived from density; conventional rocksalt cell, 300 K."},
+        "b0": {"value": 13.79, "unit": "GPa", "kind": "exp-derived", "source": "Lewis et al. (1967), Table VI; (C11 + 2 C12)/3", "caveat": "Adiabatic elastic bulk modulus at 300 K."},
+        "c11": {"value": 31.07, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table VI, 300 K", "caveat": "Adiabatic ultrasonic value."},
+        "c12": {"value": 5.15, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table VI, 300 K", "caveat": "Adiabatic ultrasonic value."},
+        "c44": {"value": 3.760, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table VI, 300 K", "caveat": "Adiabatic ultrasonic value."}
+      }
+    },
+    {
+      "id": "r4-rs-rbi",
+      "formula": "RbI",
+      "structure_type": "rocksalt",
+      "references": {
+        "a0": {"value": 7.352476, "unit": "Angstrom", "kind": "exp-derived", "source": "Lewis et al., Phys. Rev. 161, 877 (1967), Table VII, density 3.549 g/cm3 at 300 K", "caveat": "Derived from density; conventional rocksalt cell, 300 K."},
+        "b0": {"value": 10.7667, "unit": "GPa", "kind": "exp-derived", "source": "Lewis et al. (1967), Table VII; (C11 + 2 C12)/3", "caveat": "Adiabatic elastic bulk modulus at 300 K."},
+        "c11": {"value": 25.50, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table VII, 300 K", "caveat": "Adiabatic ultrasonic value."},
+        "c12": {"value": 3.40, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table VII, 300 K", "caveat": "Adiabatic ultrasonic value; table reports two decimal places in 10^11 dyn/cm2."},
+        "c44": {"value": 2.773, "unit": "GPa", "kind": "exp", "source": "Lewis et al. (1967), Table VII, 300 K", "caveat": "Adiabatic ultrasonic value."}
+      }
+    },
+    {
+      "id": "r4-pv-kcaf3",
+      "formula": "KCaF3",
+      "structure_type": "perovskite",
+      "references": {
+        "a0": {"value": 4.43525023, "unit": "Angstrom", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-57777, jdft_3d-12-12-2022.json, doi:10.6084/m9.figshare.6815699; methodology doi:10.1038/s41524-020-00440-1", "caveat": "Athermal DFT cubic Pm-3m cell."},
+        "b0": {"value": 54.30, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-57777 bulk_modulus_kv", "caveat": "Voigt bulk modulus from athermal DFT elastic tensor."},
+        "c11": {"value": 124.9, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-57777 elastic_tensor", "caveat": "Athermal DFT."},
+        "c12": {"value": 19.0, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-57777 elastic_tensor", "caveat": "Athermal DFT."},
+        "c44": {"value": 17.3, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-57777 elastic_tensor", "caveat": "Athermal DFT."}
+      }
+    },
+    {
+      "id": "r4-pv-rbcaf3",
+      "formula": "RbCaF3",
+      "structure_type": "perovskite",
+      "references": {
+        "a0": {"value": 4.47307921, "unit": "Angstrom", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-20907, jdft_3d-12-12-2022.json", "caveat": "Athermal DFT cubic Pm-3m cell."},
+        "b0": {"value": 53.80, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-20907 bulk_modulus_kv", "caveat": "Voigt bulk modulus from athermal DFT elastic tensor."},
+        "c11": {"value": 118.6, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-20907 elastic_tensor", "caveat": "Athermal DFT."},
+        "c12": {"value": 21.4, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-20907 elastic_tensor", "caveat": "Athermal DFT."},
+        "c44": {"value": 20.5, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-20907 elastic_tensor", "caveat": "Athermal DFT."}
+      }
+    },
+    {
+      "id": "r4-pv-rbmgf3",
+      "formula": "RbMgF3",
+      "structure_type": "perovskite",
+      "references": {
+        "a0": {"value": 4.08650680, "unit": "Angstrom", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-22719, jdft_3d-12-12-2022.json", "caveat": "Athermal DFT cubic Pm-3m cell; the dataset also contains a duplicate calculation, JVASP-136576, retained only as a cross-check."},
+        "b0": {"value": 73.27, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-22719 bulk_modulus_kv", "caveat": "Voigt bulk modulus from athermal DFT elastic tensor; duplicate JVASP-136576 gives 76.23 GPa."},
+        "c11": {"value": 128.8, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-22719 elastic_tensor", "caveat": "Athermal DFT."},
+        "c12": {"value": 45.5, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-22719 elastic_tensor", "caveat": "Athermal DFT."},
+        "c44": {"value": 52.2, "unit": "GPa", "kind": "DFT-OptB88vdW", "source": "JARVIS-DFT JVASP-22719 elastic_tensor", "caveat": "Athermal DFT."}
+      }
+    },
+    {
+      "id": "r4-pv-csmgf3",
+      "formula": "CsMgF3",
+      "structure_type": "perovskite",
+      "references": {
+        "a0": {"value": 4.04205627, "unit": "Angstrom", "kind": "DFT-PBE-derived", "source": "OQMD entry 646366 / ICSD 49584, fine_relax volume 13.208 Angstrom^3 per atom, 5-atom cubic Pm-3m cell; https://oqmd.org/materials/entry/646366", "caveat": "Derived as cube root of 5 times the reported per-atom relaxed volume; athermal DFT."},
+        "b0": null,
+        "c11": null,
+        "c12": null,
+        "c44": null
+      }
+    }
+  ]
+}

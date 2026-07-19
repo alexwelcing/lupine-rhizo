@@ -1,0 +1,1322 @@
+{
+  "batch_id": "correction-round4-20260719-mace-mp-small",
+  "batch_spec_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/batch_specs/mace-mp-small.json",
+  "campaign_id": "correction.round-4.available-models.v1",
+  "cells_completed": 16,
+  "cells_failed": 0,
+  "cells_total": 16,
+  "completed": [
+    {
+      "accuracy": {
+        "error": 2.9369966983795166,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nabr/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nabr:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 10792,
+        "duration_ms": 10609,
+        "model_load_ms": 25902,
+        "score": 1.2253609099907532,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 10609
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            56.86247881308411,
+            0.0,
+            0.0,
+            -4.3520844795314636e-06,
+            0.0,
+            0.0
+          ],
+          [
+            18.54085833928481,
+            0.0,
+            0.0,
+            1.409246409275961e-05,
+            0.0,
+            0.0
+          ],
+          [
+            18.540871188296133,
+            0.0,
+            0.0,
+            -1.3677979822719696e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -9.69410233078078e-06,
+            0.0,
+            0.0,
+            8.461111392086167,
+            0.0,
+            0.0
+          ],
+          [
+            1.7476886637959134e-05,
+            0.0,
+            0.0,
+            -7.572423603468802e-06,
+            0.0,
+            0.0
+          ],
+          [
+            1.8883087343666095e-05,
+            0.0,
+            0.0,
+            6.6874778465793445e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-nabr": [
+            [
+              56.86247881308411,
+              0.0,
+              0.0,
+              -4.3520844795314636e-06,
+              0.0,
+              0.0
+            ],
+            [
+              18.54085833928481,
+              0.0,
+              0.0,
+              1.409246409275961e-05,
+              0.0,
+              0.0
+            ],
+            [
+              18.540871188296133,
+              0.0,
+              0.0,
+              -1.3677979822719696e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -9.69410233078078e-06,
+              0.0,
+              0.0,
+              8.461111392086167,
+              0.0,
+              0.0
+            ],
+            [
+              1.7476886637959134e-05,
+              0.0,
+              0.0,
+              -7.572423603468802e-06,
+              0.0,
+              0.0
+            ],
+            [
+              1.8883087343666095e-05,
+              0.0,
+              0.0,
+              6.6874778465793445e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-nabr": 9.563789140332647
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-nabr": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 9.563789140332647,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.8087242171933471,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nabr/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nabr:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 4496,
+        "duration_ms": 4330,
+        "model_load_ms": 25902,
+        "score": 8.314843266061335,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 4330
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 2.5654156574836144,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nai/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nai:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 712,
+        "duration_ms": 504,
+        "model_load_ms": 25902,
+        "score": 25.77994358741534,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 504
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            49.36506814254476,
+            0.0,
+            0.0,
+            -6.217263590038243e-06,
+            0.0,
+            0.0
+          ],
+          [
+            13.853952855272732,
+            0.0,
+            0.0,
+            -9.118653270971973e-06,
+            0.0,
+            0.0
+          ],
+          [
+            13.853950782851758,
+            0.0,
+            0.0,
+            -2.9842865140071473e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -7.864721458083595e-06,
+            0.0,
+            0.0,
+            5.500741062042623,
+            0.0,
+            0.0
+          ],
+          [
+            -9.57902188202315e-06,
+            0.0,
+            0.0,
+            6.420883257629212e-07,
+            0.0,
+            0.0
+          ],
+          [
+            2.1501187101386422e-06,
+            0.0,
+            0.0,
+            -2.6115319211467383e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-nai": [
+            [
+              49.36506814254476,
+              0.0,
+              0.0,
+              -6.217263590038243e-06,
+              0.0,
+              0.0
+            ],
+            [
+              13.853952855272732,
+              0.0,
+              0.0,
+              -9.118653270971973e-06,
+              0.0,
+              0.0
+            ],
+            [
+              13.853950782851758,
+              0.0,
+              0.0,
+              -2.9842865140071473e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -7.864721458083595e-06,
+              0.0,
+              0.0,
+              5.500741062042623,
+              0.0,
+              0.0
+            ],
+            [
+              -9.57902188202315e-06,
+              0.0,
+              0.0,
+              6.420883257629212e-07,
+              0.0,
+              0.0
+            ],
+            [
+              2.1501187101386422e-06,
+              0.0,
+              0.0,
+              -2.6115319211467383e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-nai": 10.081442360167378
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-nai": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 10.081442360167378,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.7983711527966524,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nai/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nai:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1502,
+        "duration_ms": 1333,
+        "model_load_ms": 25902,
+        "score": 27.00702540503611,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1333
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 2.9623199976407566,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbbr/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbbr:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 695,
+        "duration_ms": 508,
+        "model_load_ms": 25902,
+        "score": 25.58972666801949,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 508
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            49.21023320349309,
+            0.0,
+            0.0,
+            -9.015032192994712e-06,
+            0.0,
+            0.0
+          ],
+          [
+            5.988427853081943,
+            0.0,
+            0.0,
+            -4.155204485804539e-05,
+            0.0,
+            0.0
+          ],
+          [
+            5.988366716656822,
+            0.0,
+            0.0,
+            -2.611250700279618e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.9077421765529084e-05,
+            0.0,
+            0.0,
+            2.807401966112183,
+            0.0,
+            0.0
+          ],
+          [
+            6.142357163343125e-06,
+            0.0,
+            0.0,
+            8.737202124271243e-06,
+            0.0,
+            0.0
+          ],
+          [
+            1.0510345810173214e-06,
+            0.0,
+            0.0,
+            -1.6975204858162572e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-rbbr": [
+            [
+              49.21023320349309,
+              0.0,
+              0.0,
+              -9.015032192994712e-06,
+              0.0,
+              0.0
+            ],
+            [
+              5.988427853081943,
+              0.0,
+              0.0,
+              -4.155204485804539e-05,
+              0.0,
+              0.0
+            ],
+            [
+              5.988366716656822,
+              0.0,
+              0.0,
+              -2.611250700279618e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.9077421765529084e-05,
+              0.0,
+              0.0,
+              2.807401966112183,
+              0.0,
+              0.0
+            ],
+            [
+              6.142357163343125e-06,
+              0.0,
+              0.0,
+              8.737202124271243e-06,
+              0.0,
+              0.0
+            ],
+            [
+              1.0510345810173214e-06,
+              0.0,
+              0.0,
+              -1.6975204858162572e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-rbbr": 8.080943745793634
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-rbbr": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 8.080943745793634,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.8383811250841273,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbbr/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbbr:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1477,
+        "duration_ms": 1307,
+        "model_load_ms": 25902,
+        "score": 27.552356641231093,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1307
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 2.642692254139827,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbi/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbi:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 720,
+        "duration_ms": 511,
+        "model_load_ms": 25902,
+        "score": 25.42150537644511,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 511
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            35.71458021122997,
+            0.0,
+            0.0,
+            4.9789919049948904e-05,
+            0.0,
+            0.0
+          ],
+          [
+            8.08765482490633,
+            0.0,
+            0.0,
+            9.952802753997463e-05,
+            0.0,
+            0.0
+          ],
+          [
+            8.087711868299625,
+            0.0,
+            0.0,
+            8.15497737767121e-05,
+            0.0,
+            0.0
+          ],
+          [
+            3.0571731417558033e-06,
+            0.0,
+            0.0,
+            1.8803229301657458,
+            0.0,
+            0.0
+          ],
+          [
+            2.983594026209094e-06,
+            0.0,
+            0.0,
+            -3.86364029389489e-06,
+            0.0,
+            0.0
+          ],
+          [
+            2.5885496858603873e-06,
+            0.0,
+            0.0,
+            -2.5672746715537407e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-rbi": [
+            [
+              35.71458021122997,
+              0.0,
+              0.0,
+              4.9789919049948904e-05,
+              0.0,
+              0.0
+            ],
+            [
+              8.08765482490633,
+              0.0,
+              0.0,
+              9.952802753997463e-05,
+              0.0,
+              0.0
+            ],
+            [
+              8.087711868299625,
+              0.0,
+              0.0,
+              8.15497737767121e-05,
+              0.0,
+              0.0
+            ],
+            [
+              3.0571731417558033e-06,
+              0.0,
+              0.0,
+              1.8803229301657458,
+              0.0,
+              0.0
+            ],
+            [
+              2.983594026209094e-06,
+              0.0,
+              0.0,
+              -3.86364029389489e-06,
+              0.0,
+              0.0
+            ],
+            [
+              2.5885496858603873e-06,
+              0.0,
+              0.0,
+              -2.5672746715537407e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-rbi": 4.835752427021409
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-rbi": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 4.835752427021409,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.9032849514595718,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbi/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbi:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1440,
+        "duration_ms": 1265,
+        "model_load_ms": 25902,
+        "score": 28.457582049511263,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1265
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 5.022289393498347,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-kcaf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-kcaf3:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 641,
+        "duration_ms": 472,
+        "model_load_ms": 25902,
+        "score": 27.571072732498404,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 472
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            160.10081705020468,
+            0.0,
+            0.0,
+            -8.289684730892148e-06,
+            0.0,
+            0.0
+          ],
+          [
+            35.136568263873414,
+            0.0,
+            0.0,
+            -0.0001981234657549761,
+            0.0,
+            0.0
+          ],
+          [
+            35.13648205115228,
+            0.0,
+            0.0,
+            -0.00021884767758220648,
+            0.0,
+            0.0
+          ],
+          [
+            5.626310276407744e-05,
+            0.0,
+            0.0,
+            17.267783940433173,
+            0.0,
+            0.0
+          ],
+          [
+            -5.6336904145803075e-06,
+            0.0,
+            0.0,
+            -1.4453899674650328e-06,
+            0.0,
+            0.0
+          ],
+          [
+            -3.74113537573945e-05,
+            0.0,
+            0.0,
+            5.9474601084966696e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-kcaf3": [
+            [
+              160.10081705020468,
+              0.0,
+              0.0,
+              -8.289684730892148e-06,
+              0.0,
+              0.0
+            ],
+            [
+              35.136568263873414,
+              0.0,
+              0.0,
+              -0.0001981234657549761,
+              0.0,
+              0.0
+            ],
+            [
+              35.13648205115228,
+              0.0,
+              0.0,
+              -0.00021884767758220648,
+              0.0,
+              0.0
+            ],
+            [
+              5.626310276407744e-05,
+              0.0,
+              0.0,
+              17.267783940433173,
+              0.0,
+              0.0
+            ],
+            [
+              -5.6336904145803075e-06,
+              0.0,
+              0.0,
+              -1.4453899674650328e-06,
+              0.0,
+              0.0
+            ],
+            [
+              -3.74113537573945e-05,
+              0.0,
+              0.0,
+              5.9474601084966696e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-kcaf3": 18.07767770325717
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-kcaf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 18.07767770325717,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.6384464459348567,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-kcaf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-kcaf3:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1498,
+        "duration_ms": 1335,
+        "model_load_ms": 25902,
+        "score": 26.974319773217804,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1335
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 5.0170920738807085,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbcaf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbcaf3:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 652,
+        "duration_ms": 476,
+        "model_load_ms": 25902,
+        "score": 27.324097684624654,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 476
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            151.32281929857552,
+            0.0,
+            0.0,
+            4.64222346437249e-05,
+            0.0,
+            0.0
+          ],
+          [
+            34.70075798324752,
+            0.0,
+            0.0,
+            4.559326610364507e-05,
+            0.0,
+            0.0
+          ],
+          [
+            34.70080108960825,
+            0.0,
+            0.0,
+            0.00011854249193646782,
+            0.0,
+            0.0
+          ],
+          [
+            4.205916582337432e-05,
+            0.0,
+            0.0,
+            20.78190083396219,
+            0.0,
+            0.0
+          ],
+          [
+            1.7891864466672672e-05,
+            0.0,
+            0.0,
+            -2.1776375454050438e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.4415667201502275e-05,
+            0.0,
+            0.0,
+            3.5090452060267176e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-rbcaf3": [
+            [
+              151.32281929857552,
+              0.0,
+              0.0,
+              4.64222346437249e-05,
+              0.0,
+              0.0
+            ],
+            [
+              34.70075798324752,
+              0.0,
+              0.0,
+              4.559326610364507e-05,
+              0.0,
+              0.0
+            ],
+            [
+              34.70080108960825,
+              0.0,
+              0.0,
+              0.00011854249193646782,
+              0.0,
+              0.0
+            ],
+            [
+              4.205916582337432e-05,
+              0.0,
+              0.0,
+              20.78190083396219,
+              0.0,
+              0.0
+            ],
+            [
+              1.7891864466672672e-05,
+              0.0,
+              0.0,
+              -2.1776375454050438e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.4415667201502275e-05,
+              0.0,
+              0.0,
+              3.5090452060267176e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-rbcaf3": 18.134906710845907
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-rbcaf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 18.134906710845907,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.6373018657830818,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbcaf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbcaf3:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1476,
+        "duration_ms": 1271,
+        "model_load_ms": 25902,
+        "score": 28.326168955409933,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1271
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 4.710317200880785,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbmgf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbmgf3:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 664,
+        "duration_ms": 467,
+        "model_load_ms": 25902,
+        "score": 27.840880680555667,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 467
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            173.50013416526306,
+            0.0,
+            0.0,
+            1.0776590099916834e-05,
+            0.0,
+            0.0
+          ],
+          [
+            74.27847179935699,
+            0.0,
+            0.0,
+            -5.139604563298907e-05,
+            0.0,
+            0.0
+          ],
+          [
+            74.27852319540196,
+            0.0,
+            0.0,
+            3.481667600372824e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.037484759169063e-05,
+            0.0,
+            0.0,
+            53.8535542192234,
+            0.0,
+            0.0
+          ],
+          [
+            1.6676982065838618e-05,
+            0.0,
+            0.0,
+            1.4299862810623847e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.2738116939890008e-05,
+            0.0,
+            0.0,
+            5.048477068882413e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-rbmgf3": [
+            [
+              173.50013416526306,
+              0.0,
+              0.0,
+              1.0776590099916834e-05,
+              0.0,
+              0.0
+            ],
+            [
+              74.27847179935699,
+              0.0,
+              0.0,
+              -5.139604563298907e-05,
+              0.0,
+              0.0
+            ],
+            [
+              74.27852319540196,
+              0.0,
+              0.0,
+              3.481667600372824e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.037484759169063e-05,
+              0.0,
+              0.0,
+              53.8535542192234,
+              0.0,
+              0.0
+            ],
+            [
+              1.6676982065838618e-05,
+              0.0,
+              0.0,
+              1.4299862810623847e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.2738116939890008e-05,
+              0.0,
+              0.0,
+              5.048477068882413e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-rbmgf3": 30.617896128162148
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-rbmgf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 30.617896128162148,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.38764207743675705,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbmgf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbmgf3:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1409,
+        "duration_ms": 1223,
+        "model_load_ms": 25902,
+        "score": 29.433265850867027,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1223
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 4.4419003559992865,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-csmgf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-csmgf3:energy_volume:mace-mp-small",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 676,
+        "duration_ms": 484,
+        "model_load_ms": 25902,
+        "score": 26.85424253166627,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 484
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            288.1266557302197,
+            0.0,
+            0.0,
+            0.00013275152974195182,
+            0.0,
+            0.0
+          ],
+          [
+            162.70737847985743,
+            0.0,
+            0.0,
+            0.00019355118585670595,
+            0.0,
+            0.0
+          ],
+          [
+            162.70827645995905,
+            0.0,
+            0.0,
+            0.00014780896529085122,
+            0.0,
+            0.0
+          ],
+          [
+            4.204992588674141e-05,
+            0.0,
+            0.0,
+            73.76215417283471,
+            0.0,
+            0.0
+          ],
+          [
+            -2.899704962450502e-05,
+            0.0,
+            0.0,
+            -9.210211387426957e-06,
+            0.0,
+            0.0
+          ],
+          [
+            8.521099512203808e-06,
+            0.0,
+            0.0,
+            8.714450349766073e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-csmgf3": [
+            [
+              288.1266557302197,
+              0.0,
+              0.0,
+              0.00013275152974195182,
+              0.0,
+              0.0
+            ],
+            [
+              162.70737847985743,
+              0.0,
+              0.0,
+              0.00019355118585670595,
+              0.0,
+              0.0
+            ],
+            [
+              162.70827645995905,
+              0.0,
+              0.0,
+              0.00014780896529085122,
+              0.0,
+              0.0
+            ],
+            [
+              4.204992588674141e-05,
+              0.0,
+              0.0,
+              73.76215417283471,
+              0.0,
+              0.0
+            ],
+            [
+              -2.899704962450502e-05,
+              0.0,
+              0.0,
+              -9.210211387426957e-06,
+              0.0,
+              0.0
+            ],
+            [
+              8.521099512203808e-06,
+              0.0,
+              0.0,
+              8.714450349766073e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-csmgf3": 120.2962699676848
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-csmgf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 120.2962699676848,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.0,
+        "score_tolerance": 50.0,
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-csmgf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-csmgf3:elastic_constants:mace-mp-small",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1464,
+        "duration_ms": 1301,
+        "model_load_ms": 25902,
+        "score": 27.6736497132101,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1301
+      },
+      "variant_id": "baseline"
+    }
+  ],
+  "duration_seconds": 58.382768473999995,
+  "failed": [],
+  "mlip_id": "mace-mp-small",
+  "model_load_seconds": 25.90150966,
+  "run_id": "correction-round4-20260719",
+  "schema": "lupine.mlip.batch_result.v1",
+  "status": "completed",
+  "support_cache_entries": 0,
+  "versions": {
+    "ase": "3.28.0",
+    "chgnet": null,
+    "cuda_available": true,
+    "cuda_device": "NVIDIA L4",
+    "fairchem-core": null,
+    "mace-torch": "0.3.16",
+    "matgl": null,
+    "numpy": "1.26.4",
+    "orb-models": null,
+    "python": "3.10.12",
+    "sevenn": null,
+    "torch": "2.4.1+cu121",
+    "uma_model_name": null,
+    "uma_task_name": null
+  }
+}

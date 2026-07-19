@@ -23,6 +23,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
     def prepare_root(self, destination: Path) -> None:
         shutil.copytree(ROOT / "registry", destination / "registry")
         shutil.copytree(ROOT / "evidence", destination / "evidence")
+        shutil.copytree(ROOT / "campaigns", destination / "campaigns")
         shutil.copytree(FIXTURE, destination / "python" / "tests" / "fixtures" / "round4_ingest")
 
     def invoke(
