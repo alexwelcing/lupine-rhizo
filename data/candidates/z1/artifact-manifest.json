@@ -1,0 +1,74 @@
+{
+  "campaign_manifest_hash": "sha256:0a85044ca84d10e021a0a282987976a3a9e79a611a618470e1638e9105171e40",
+  "content_hash": "sha256:8ddb4878f9a03936d31cbbad94b9ed8964bcdf27bb2b3d352b2ac93459e384ed",
+  "files": [
+    {
+      "bytes": 11563,
+      "path": "data/candidates/z1/measurements.jsonl",
+      "sha256": "sha256:09d510615138c98653ed4a621b9986b2e4d6cff097024b597309d250a26239ca"
+    }
+  ],
+  "measurements_bytes": 11563,
+  "measurements_path": "data/candidates/z1/measurements.jsonl",
+  "measurements_sha256": "sha256:09d510615138c98653ed4a621b9986b2e4d6cff097024b597309d250a26239ca",
+  "row_chain_head": "sha256:4b228f756ac0371c4399d45d7aae81aa182e68a2157633fc57126cd583100295",
+  "row_chain_tail": "sha256:400609ea6449500d57f8b9f396dcd9babd9d8942cc6e297171b9afcc471e4615",
+  "row_count": 4,
+  "schema": "lupine.z1.measurement-artifact-manifest.v1",
+  "source_artifacts": [
+    {
+      "bytes": 26971,
+      "path": "data/candidates/z1/raw/chgnet/cell_checkpoint.json",
+      "sha256": "sha256:34804bb6609c59d69fdf89d111890dd003746b2e7cbe785252f23931ab8e4d39",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/chgnet/cell_checkpoint.json"
+    },
+    {
+      "bytes": 22651,
+      "path": "data/candidates/z1/raw/chgnet/cell_result.json",
+      "sha256": "sha256:6c798ffa715479533bec8fee75ba7b7147731f8c5317ddb232fd120a5759e80c",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/chgnet/cell_result.json"
+    },
+    {
+      "bytes": 27817,
+      "path": "data/candidates/z1/raw/mace-mp-medium/cell_checkpoint.json",
+      "sha256": "sha256:041c87f7795dccefc645a331c53b66a6aa6b0355b289595850ef79f0c06f0771",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/mace-mp-medium/cell_checkpoint.json"
+    },
+    {
+      "bytes": 22939,
+      "path": "data/candidates/z1/raw/mace-mp-medium/cell_result.json",
+      "sha256": "sha256:609414ccf65db50ae40e77205963b945b71ceb696de1d658d9f9d9961c2222f7",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/mace-mp-medium/cell_result.json"
+    },
+    {
+      "bytes": 24900,
+      "path": "data/candidates/z1/raw/mace-mp-small/cell_checkpoint.json",
+      "sha256": "sha256:defa1ca418ab8c9de39a86d616e71cf2af6774bcac69226228aaab6f19c7a302",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/mace-mp-small/cell_checkpoint.json"
+    },
+    {
+      "bytes": 21765,
+      "path": "data/candidates/z1/raw/mace-mp-small/cell_result.json",
+      "sha256": "sha256:09bfe4bd3033752ed84ca1f52baf4453d9e1d0bfb830e326fbca392c366590a2",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/mace-mp-small/cell_result.json"
+    },
+    {
+      "bytes": 26871,
+      "path": "data/candidates/z1/raw/mace-mpa-0-medium/cell_checkpoint.json",
+      "sha256": "sha256:b3d68f62c8846337aa17898a811428a5804a1f77fd6b76b67e8abdb2fc1c7204",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/mace-mpa-0-medium/cell_checkpoint.json"
+    },
+    {
+      "bytes": 22578,
+      "path": "data/candidates/z1/raw/mace-mpa-0-medium/cell_result.json",
+      "sha256": "sha256:fec868fde2893d7c3999e1a1dd77251a5cba8c01798fd7d0c8ec4ff0e56e8c3d",
+      "source_uri": "gs://shed-489901-atlas-outputs/z1/campaign/mace-mpa-0-medium/cell_result.json"
+    },
+    {
+      "bytes": 3372,
+      "path": "data/candidates/z1/source/executed-campaign-manifest.json",
+      "sha256": "sha256:579d72125c53597750cc6ee9ce01e87ce1a0d3dda5e5a6fe72009abc62d943f6",
+      "source_uri": "gs://shed-489901-atlas-inputs/z1/campaigns/v1/z1.campaign-manifest.v1.json"
+    }
+  ]
+}

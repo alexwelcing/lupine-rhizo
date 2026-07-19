@@ -1,0 +1,713 @@
+{
+  "context": {
+    "checkpoint_scope": "raw_predictions",
+    "manifest_hash": "sha256:0a85044ca84d10e021a0a282987976a3a9e79a611a618470e1638e9105171e40",
+    "mlip_id": "mace-mp-small",
+    "row_id": "barrier",
+    "schema": "lupine.mlip.cell_checkpoint.context.v2"
+  },
+  "predictions": {
+    "barrier:0:0:4333658b2e3d2931": {
+      "case_hash": "4333658b2e3d293143b114eb5f2ff0de6f90be79c83b9c1b76aa5bf0a49046fd",
+      "case_index": 0,
+      "prediction": {
+        "absolute_error_mev": 74.88613062503191,
+        "chemical_system": "Ag-F-Li",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-761269",
+        "neb_converged": true,
+        "path_id": "mp-761269_2_1_1_-1_0",
+        "predicted_barrier_ev": 1.503662109375,
+        "predicted_image_energies_ev": [
+          -459.6373291015625,
+          -459.22503662109375,
+          -458.4920959472656,
+          -458.1336669921875,
+          -458.49444580078125,
+          -459.2268371582031,
+          -459.6373291015625
+        ],
+        "reference_barrier_ev": 1.578548240000032,
+        "signed_error_mev": -74.88613062503191,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494141,
+      "structure_id": null
+    },
+    "barrier:10:10:8fbf3cc60a951975": {
+      "case_hash": "8fbf3cc60a951975441d97a6c8c18f8d3015b0d3929d72d632248cd44a1961a5",
+      "case_index": 10,
+      "prediction": {
+        "absolute_error_mev": 467.0090128124684,
+        "chemical_system": "B-Li-Ni-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-770876",
+        "neb_converged": true,
+        "path_id": "mp-770876_2_3_0_1_0",
+        "predicted_barrier_ev": 0.5614013671875,
+        "predicted_image_energies_ev": [
+          -1195.6123046875,
+          -1195.326171875,
+          -1195.0509033203125,
+          -1195.32958984375,
+          -1195.6121826171875
+        ],
+        "reference_barrier_ev": 1.0284103799999684,
+        "signed_error_mev": -467.0090128124684,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494605,
+      "structure_id": null
+    },
+    "barrier:11:11:055e85de734a8701": {
+      "case_hash": "055e85de734a8701921acb6d4e605b417531e3563511610ee724822b55a93371",
+      "case_index": 11,
+      "prediction": {
+        "absolute_error_mev": 157.77439343753485,
+        "chemical_system": "B-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-3635",
+        "neb_converged": true,
+        "path_id": "mp-3635_0_3_0_0_0",
+        "predicted_barrier_ev": 0.4635009765625,
+        "predicted_image_energies_ev": [
+          -890.9624633789062,
+          -890.680908203125,
+          -890.4990234375,
+          -890.7357788085938,
+          -890.9625244140625
+        ],
+        "reference_barrier_ev": 0.6212753700000349,
+        "signed_error_mev": -157.77439343753485,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494663,
+      "structure_id": null
+    },
+    "barrier:12:12:36546e06aef58375": {
+      "case_hash": "36546e06aef58375c5bbb7ea4a6b1e5911252a2aeeada2ca1048c8ba53c0250f",
+      "case_index": 12,
+      "prediction": {
+        "absolute_error_mev": 86.38136609374669,
+        "chemical_system": "B-Li-O-Sn",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-759667",
+        "neb_converged": true,
+        "path_id": "mp-759667_2_1_1_1_0",
+        "predicted_barrier_ev": 0.78558349609375,
+        "predicted_image_energies_ev": [
+          -589.5509033203125,
+          -589.4718627929688,
+          -589.2691650390625,
+          -589.6751098632812,
+          -590.0547485351562
+        ],
+        "reference_barrier_ev": 0.6992021300000033,
+        "signed_error_mev": 86.38136609374669,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494713,
+      "structure_id": null
+    },
+    "barrier:15:15:c3d0aed2e6a18cf4": {
+      "case_hash": "c3d0aed2e6a18cf49d3a1dfed8d706b4b67934e74c0304dd8af4f6d8dd3cb110",
+      "case_index": 15,
+      "prediction": {
+        "absolute_error_mev": 168.717836718713,
+        "chemical_system": "Bi-Li-S",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-1222404",
+        "neb_converged": true,
+        "path_id": "mp-1222404_0_0_0_1_-1",
+        "predicted_barrier_ev": 0.28839111328125,
+        "predicted_image_energies_ev": [
+          -455.04534912109375,
+          -454.8463134765625,
+          -454.7569580078125,
+          -454.84649658203125,
+          -455.04534912109375
+        ],
+        "reference_barrier_ev": 0.457108949999963,
+        "signed_error_mev": -168.717836718713,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494921,
+      "structure_id": null
+    },
+    "barrier:16:16:c4766653f94c96f5": {
+      "case_hash": "c4766653f94c96f5938ea765de4bdc521f87fddd37e18726b9e076e9c605f91b",
+      "case_index": 16,
+      "prediction": {
+        "absolute_error_mev": 258.3250487500095,
+        "chemical_system": "C-Co-Li-Na-O-P",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-760344",
+        "neb_converged": true,
+        "path_id": "mp-760344_10_4_0_1_0",
+        "predicted_barrier_ev": 0.26611328125,
+        "predicted_image_energies_ev": [
+          -332.9781188964844,
+          -332.92071533203125,
+          -332.7120056152344,
+          -332.7775573730469,
+          -332.92626953125
+        ],
+        "reference_barrier_ev": 0.5244383300000095,
+        "signed_error_mev": -258.3250487500095,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494956,
+      "structure_id": null
+    },
+    "barrier:17:17:2c7db25b71e6bb45": {
+      "case_hash": "2c7db25b71e6bb453176c0a4df485aba765bf546620175c4f29687bb80f70b1e",
+      "case_index": 17,
+      "prediction": {
+        "absolute_error_mev": 27.885169062415116,
+        "chemical_system": "C-Cr-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-758282",
+        "neb_converged": true,
+        "path_id": "mp-758282_0_2_0_0_0",
+        "predicted_barrier_ev": 0.2581787109375,
+        "predicted_image_energies_ev": [
+          -902.357421875,
+          -902.3585815429688,
+          -902.4373779296875,
+          -902.5498657226562,
+          -902.5219116210938,
+          -902.52978515625,
+          -902.6156005859375
+        ],
+        "reference_barrier_ev": 0.2860638799999151,
+        "signed_error_mev": -27.885169062415116,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495017,
+      "structure_id": null
+    },
+    "barrier:19:19:addcffd59f738eb7": {
+      "case_hash": "addcffd59f738eb7ad4d3848913d8403350535362274afb69c7b6b5360bce1c4",
+      "case_index": 19,
+      "prediction": {
+        "absolute_error_mev": 68.07678156246766,
+        "chemical_system": "C-Fe-Li-Na-O-P",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-772851",
+        "neb_converged": true,
+        "path_id": "mp-772851_6_10_0_1_0",
+        "predicted_barrier_ev": 0.5853271484375,
+        "predicted_image_energies_ev": [
+          -678.4052734375,
+          -678.4617919921875,
+          -678.1558227539062,
+          -677.87646484375,
+          -678.1697998046875,
+          -678.4095458984375,
+          -678.461669921875
+        ],
+        "reference_barrier_ev": 0.6534039299999677,
+        "signed_error_mev": -68.07678156246766,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495199,
+      "structure_id": null
+    },
+    "barrier:1:1:cc8e2deb6ed8037f": {
+      "case_hash": "cc8e2deb6ed8037f96e8b564a377f260fa62bede879fec0498e66cad56ab0285",
+      "case_index": 1,
+      "prediction": {
+        "absolute_error_mev": 130.9057365625676,
+        "chemical_system": "Al-B-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-556655",
+        "neb_converged": true,
+        "path_id": "mp-556655_0_7_0_1_-1",
+        "predicted_barrier_ev": 0.2943115234375,
+        "predicted_image_energies_ev": [
+          -868.066162109375,
+          -867.876953125,
+          -867.7718505859375,
+          -867.8777465820312,
+          -868.066162109375
+        ],
+        "reference_barrier_ev": 0.4252172600000676,
+        "signed_error_mev": -130.9057365625676,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494166,
+      "structure_id": null
+    },
+    "barrier:20:20:20ee78a8824ee2c4": {
+      "case_hash": "20ee78a8824ee2c4b9a71bd045220ae5d5cd47df91c842ea4a36f8d4b709ddd0",
+      "case_index": 20,
+      "prediction": {
+        "absolute_error_mev": 146.35374281260738,
+        "chemical_system": "C-Fe-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-753899",
+        "neb_converged": true,
+        "path_id": "mp-753899_0_3_0_0_0",
+        "predicted_barrier_ev": 3.1043701171875,
+        "predicted_image_energies_ev": [
+          -1131.4462890625,
+          -1130.7899169921875,
+          -1129.479248046875,
+          -1128.3419189453125,
+          -1129.5218505859375,
+          -1130.7886962890625,
+          -1131.4461669921875
+        ],
+        "reference_barrier_ev": 3.2507238600001074,
+        "signed_error_mev": -146.35374281260738,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495267,
+      "structure_id": null
+    },
+    "barrier:21:21:b59b86e2fb4240d2": {
+      "case_hash": "b59b86e2fb4240d2b389bfaa896faab6b88795775c88aec24c8137c30f4ffd5a",
+      "case_index": 21,
+      "prediction": {
+        "absolute_error_mev": 227.4137540624679,
+        "chemical_system": "C-Fe-Li-O-P",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-768508",
+        "neb_converged": true,
+        "path_id": "mp-768508_3_7_0_0_0",
+        "predicted_barrier_ev": 0.5023193359375,
+        "predicted_image_energies_ev": [
+          -649.011474609375,
+          -648.8412475585938,
+          -648.573974609375,
+          -648.801513671875,
+          -649.0762939453125
+        ],
+        "reference_barrier_ev": 0.7297330899999679,
+        "signed_error_mev": -227.4137540624679,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495320,
+      "structure_id": null
+    },
+    "barrier:22:22:653993410bcc0395": {
+      "case_hash": "653993410bcc0395fc39e04052cb2fc4dcd4c84c119be9bbb2eaf7e045a98b07",
+      "case_index": 22,
+      "prediction": {
+        "absolute_error_mev": 143.00879249992704,
+        "chemical_system": "C-Fe-Li-O-S",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-771011",
+        "neb_converged": true,
+        "path_id": "mp-771011_2_1_1_-1_0",
+        "predicted_barrier_ev": 0.4990234375,
+        "predicted_image_energies_ev": [
+          -614.795166015625,
+          -614.8311767578125,
+          -614.6056518554688,
+          -614.6240234375,
+          -614.3321533203125,
+          -614.5611572265625,
+          -614.7937622070312
+        ],
+        "reference_barrier_ev": 0.642032229999927,
+        "signed_error_mev": -143.00879249992704,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495393,
+      "structure_id": null
+    },
+    "barrier:23:23:059667a397a412bd": {
+      "case_hash": "059667a397a412bd80d8a99113bfc1e7fc6b4cb6164ad0d7378552160d72189d",
+      "case_index": 23,
+      "prediction": {
+        "absolute_error_mev": 427.94983468752434,
+        "chemical_system": "C-Li-Mn-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-1295192",
+        "neb_converged": true,
+        "path_id": "mp-1295192_1_1_1_0_0",
+        "predicted_barrier_ev": 1.4549560546875,
+        "predicted_image_energies_ev": [
+          -1165.2843017578125,
+          -1164.923583984375,
+          -1164.1353759765625,
+          -1163.829345703125,
+          -1164.1669921875,
+          -1164.9432373046875,
+          -1165.2843017578125
+        ],
+        "reference_barrier_ev": 1.0270062199999757,
+        "signed_error_mev": 427.94983468752434,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495440,
+      "structure_id": null
+    },
+    "barrier:24:24:a0034c5e0a8afd21": {
+      "case_hash": "a0034c5e0a8afd21f3b9bbcf4de564bafb0424e725b9fd5c55c6d0bab576386b",
+      "case_index": 24,
+      "prediction": {
+        "absolute_error_mev": 60.98412890628424,
+        "chemical_system": "C-Li-Mn-O-P-V",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-753882",
+        "neb_converged": true,
+        "path_id": "mp-753882_0_1_1_0_-1",
+        "predicted_barrier_ev": 0.65081787109375,
+        "predicted_image_energies_ev": [
+          -709.260498046875,
+          -709.0889282226562,
+          -708.6096801757812,
+          -709.1536865234375,
+          -709.1301879882812
+        ],
+        "reference_barrier_ev": 0.7118020000000342,
+        "signed_error_mev": -60.98412890628424,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495478,
+      "structure_id": null
+    },
+    "barrier:25:25:2c7ad8badc06754d": {
+      "case_hash": "2c7ad8badc06754da9d99ae7b342f903030147b67cc372d6a1018588581f26da",
+      "case_index": 25,
+      "prediction": {
+        "absolute_error_mev": 166.31229968754724,
+        "chemical_system": "C-Li-O-P-V",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-25463",
+        "neb_converged": true,
+        "path_id": "mp-25463_4_10_1_0_0",
+        "predicted_barrier_ev": 0.7772216796875,
+        "predicted_image_energies_ev": [
+          -709.9420166015625,
+          -709.6000366210938,
+          -709.164794921875,
+          -709.6000366210938,
+          -709.9420166015625
+        ],
+        "reference_barrier_ev": 0.6109093799999528,
+        "signed_error_mev": 166.31229968754724,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495512,
+      "structure_id": null
+    },
+    "barrier:26:26:329f0ff8191988c0": {
+      "case_hash": "329f0ff8191988c0200531ccc3177c182d2daf82ae999443159f0c14a88952a7",
+      "case_index": 26,
+      "prediction": {
+        "absolute_error_mev": 61.234678749997414,
+        "chemical_system": "C-Li-O-Si-V",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-772542",
+        "neb_converged": true,
+        "path_id": "mp-772542_0_2_0_0_0",
+        "predicted_barrier_ev": 0.30810546875,
+        "predicted_image_energies_ev": [
+          -679.3772583007812,
+          -679.2852783203125,
+          -679.0691528320312,
+          -679.2854614257812,
+          -679.3772583007812
+        ],
+        "reference_barrier_ev": 0.2468707900000026,
+        "signed_error_mev": 61.234678749997414,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495556,
+      "structure_id": null
+    },
+    "barrier:27:27:076cfe14a7906f69": {
+      "case_hash": "076cfe14a7906f69a8b78fa58649ae5a227171f503093028eef59024ce3e793f",
+      "case_index": 27,
+      "prediction": {
+        "absolute_error_mev": 33.935438125013206,
+        "chemical_system": "C-Li-O-V",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-752552",
+        "neb_converged": true,
+        "path_id": "mp-752552_0_7_0_0_1",
+        "predicted_barrier_ev": 0.078857421875,
+        "predicted_image_energies_ev": [
+          -625.1622314453125,
+          -625.14013671875,
+          -625.0834350585938,
+          -625.1416625976562,
+          -625.1622924804688
+        ],
+        "reference_barrier_ev": 0.1127928600000132,
+        "signed_error_mev": -33.935438125013206,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495586,
+      "structure_id": null
+    },
+    "barrier:28:28:c1dba66711c00c17": {
+      "case_hash": "c1dba66711c00c17bd363d1b5c8c058e325d4b71ea0fc399e82a678df39ec2ea",
+      "case_index": 28,
+      "prediction": {
+        "absolute_error_mev": 87.01003156238585,
+        "chemical_system": "Ca-Li-N-Si",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-1020056",
+        "neb_converged": true,
+        "path_id": "mp-1020056_0_0_1_1_0",
+        "predicted_barrier_ev": 1.9798583984375,
+        "predicted_image_energies_ev": [
+          -1165.9383544921875,
+          -1165.494140625,
+          -1164.23388671875,
+          -1163.95849609375,
+          -1164.505615234375,
+          -1165.6619873046875,
+          -1165.9383544921875
+        ],
+        "reference_barrier_ev": 2.066868429999886,
+        "signed_error_mev": -87.01003156238585,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495653,
+      "structure_id": null
+    },
+    "barrier:29:29:ee1f905d8d617305": {
+      "case_hash": "ee1f905d8d61730598a4106395ed2be7bd339555c9145f262d16af3cdd7ca9d8",
+      "case_index": 29,
+      "prediction": {
+        "absolute_error_mev": 78.4844967968752,
+        "chemical_system": "Cl-Cr-Li",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-567474",
+        "neb_converged": true,
+        "path_id": "mp-567474_0_1_0_0_0",
+        "predicted_barrier_ev": 0.146209716796875,
+        "predicted_image_energies_ev": [
+          -367.26995849609375,
+          -367.19342041015625,
+          -367.3396301269531,
+          -367.2129211425781,
+          -367.26995849609375
+        ],
+        "reference_barrier_ev": 0.0677252199999998,
+        "signed_error_mev": 78.4844967968752,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784495674,
+      "structure_id": null
+    },
+    "barrier:2:2:2160b86fb4341fa7": {
+      "case_hash": "2160b86fb4341fa71f410466bcbcb739078ff767efef69576fab0af6aebcd0d0",
+      "case_index": 2,
+      "prediction": {
+        "absolute_error_mev": 16.38429593731422,
+        "chemical_system": "Al-Co-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-1222591",
+        "neb_converged": true,
+        "path_id": "mp-1222591_0_0_0_1_0",
+        "predicted_barrier_ev": 0.5023193359375,
+        "predicted_image_energies_ev": [
+          -1200.0355224609375,
+          -1199.8404541015625,
+          -1199.533203125,
+          -1199.8447265625,
+          -1200.0355224609375
+        ],
+        "reference_barrier_ev": 0.4859350400001858,
+        "signed_error_mev": 16.38429593731422,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494206,
+      "structure_id": null
+    },
+    "barrier:3:3:7b8e022705e7fe07": {
+      "case_hash": "7b8e022705e7fe0700a6f034861923f56ef5b2dd17d668f6ca0e569abe69d950",
+      "case_index": 3,
+      "prediction": {
+        "absolute_error_mev": 232.95620390615568,
+        "chemical_system": "Al-Li-Mn-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-770551",
+        "neb_converged": true,
+        "path_id": "mp-770551_3_4_0_0_1",
+        "predicted_barrier_ev": 0.63238525390625,
+        "predicted_image_energies_ev": [
+          -836.415283203125,
+          -836.1519165039062,
+          -835.7828979492188,
+          -836.1533813476562,
+          -836.415283203125
+        ],
+        "reference_barrier_ev": 0.3994290500000943,
+        "signed_error_mev": 232.95620390615568,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494244,
+      "structure_id": null
+    },
+    "barrier:4:4:b4c4030dff30b3bd": {
+      "case_hash": "b4c4030dff30b3bd4292eff1f4d4f2d440e861d97edce94ba85e09420a5de795",
+      "case_index": 4,
+      "prediction": {
+        "absolute_error_mev": 144.11046312500275,
+        "chemical_system": "Al-Li-O-Si",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-1222469",
+        "neb_converged": true,
+        "path_id": "mp-1222469_0_0_0_1_0",
+        "predicted_barrier_ev": 1.489501953125,
+        "predicted_image_energies_ev": [
+          -588.44921875,
+          -587.1716918945312,
+          -586.9878540039062,
+          -586.959716796875,
+          -587.5386352539062,
+          -587.3095703125,
+          -588.44921875
+        ],
+        "reference_barrier_ev": 1.3453914899999972,
+        "signed_error_mev": 144.11046312500275,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494315,
+      "structure_id": null
+    },
+    "barrier:5:5:8d469a8cbe04592f": {
+      "case_hash": "8d469a8cbe04592f72d9d836a541eba74eb3ae710cddde90569b12df21125b58",
+      "case_index": 5,
+      "prediction": {
+        "absolute_error_mev": 449.7168575001069,
+        "chemical_system": "Al-Li-O-V",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-754923",
+        "neb_converged": true,
+        "path_id": "mp-754923_0_2_0_0_1",
+        "predicted_barrier_ev": 0.8701171875,
+        "predicted_image_energies_ev": [
+          -853.0659790039062,
+          -852.6137084960938,
+          -852.1958618164062,
+          -852.5344848632812,
+          -852.9631958007812
+        ],
+        "reference_barrier_ev": 0.4204003299998931,
+        "signed_error_mev": 449.7168575001069,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494341,
+      "structure_id": null
+    },
+    "barrier:6:6:25609cb9cb9c3c8d": {
+      "case_hash": "25609cb9cb9c3c8da8a2db914750e60bb20fee7d7d32610e41aa6770fe4e78fe",
+      "case_index": 6,
+      "prediction": {
+        "absolute_error_mev": 206.8020567187432,
+        "chemical_system": "As-B-Cr-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-754292",
+        "neb_converged": true,
+        "path_id": "mp-754292_0_3_0_0_0",
+        "predicted_barrier_ev": 0.71417236328125,
+        "predicted_image_energies_ev": [
+          -671.2183227539062,
+          -671.1456909179688,
+          -670.7530517578125,
+          -670.5042114257812,
+          -670.751953125,
+          -671.1450805664062,
+          -671.2183837890625
+        ],
+        "reference_barrier_ev": 0.9209744199999932,
+        "signed_error_mev": -206.8020567187432,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494391,
+      "structure_id": null
+    },
+    "barrier:7:7:22abebe6f215276c": {
+      "case_hash": "22abebe6f215276c1ecdc3040c79cb43d4fae57e4a3ce94376328592eaebbe42",
+      "case_index": 7,
+      "prediction": {
+        "absolute_error_mev": 12.940506250004091,
+        "chemical_system": "As-C-Fe-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-770939",
+        "neb_converged": true,
+        "path_id": "mp-770939_10_1_1_0_1",
+        "predicted_barrier_ev": 0.32177734375,
+        "predicted_image_energies_ev": [
+          -323.1528625488281,
+          -323.2200622558594,
+          -323.1351318359375,
+          -323.33990478515625,
+          -323.4569091796875
+        ],
+        "reference_barrier_ev": 0.3347178500000041,
+        "signed_error_mev": -12.940506250004091,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494420,
+      "structure_id": null
+    },
+    "barrier:9:9:c44031d725bc266c": {
+      "case_hash": "c44031d725bc266c9cdfdbe1c698caf9ae30229b60c442eaaba46b1c4e024f7d",
+      "case_index": 9,
+      "prediction": {
+        "absolute_error_mev": 16.21204499997475,
+        "chemical_system": "B-Co-Li-O",
+        "endpoint_final_converged": true,
+        "endpoint_initial_converged": true,
+        "material_id": "mp-752707",
+        "neb_converged": true,
+        "path_id": "mp-752707_0_2_0_0_0",
+        "predicted_barrier_ev": 0.615234375,
+        "predicted_image_energies_ev": [
+          -799.9603271484375,
+          -799.5740356445312,
+          -799.3450927734375,
+          -799.510009765625,
+          -799.7888793945312
+        ],
+        "reference_barrier_ev": 0.6314464199999748,
+        "signed_error_mev": -16.21204499997475,
+        "status": "completed"
+      },
+      "recorded_at_unix": 1784494572,
+      "structure_id": null
+    }
+  },
+  "producer_context": {
+    "cell_id": "z1-barrier-full",
+    "distill_profile": "off",
+    "run_id": "z1-campaign-mace-mp-small",
+    "variant_id": "baseline"
+  },
+  "schema": "lupine.mlip.cell_checkpoint.v1",
+  "updated_at_unix": 1784495674
+}

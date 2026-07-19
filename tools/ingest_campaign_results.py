@@ -20,6 +20,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+import rfc8785
 from generate_assumptions import (
     build_documents,
     content_hash,
@@ -216,7 +217,10 @@ def validate_row_chain(rows: list[dict[str, Any]], manifest_hash: str) -> None:
             raise ValueError(f"measurement {row_id} is not bound to the campaign manifest")
         if row.get("previous_row_hash") != previous_hash:
             raise ValueError(f"measurement hash chain is broken at {row_id}")
-        actual_hash = content_hash({key: value for key, value in row.items() if key != "row_hash"})
+        canonical_row = rfc8785.dumps(
+            {key: value for key, value in row.items() if key != "row_hash"}
+        )
+        actual_hash = "sha256:" + hashlib.sha256(canonical_row).hexdigest()
         if row.get("row_hash") != actual_hash:
             raise ValueError(f"measurement row_hash mismatch at {row_id}")
         previous_hash = actual_hash
