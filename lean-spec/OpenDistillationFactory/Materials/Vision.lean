@@ -45,6 +45,7 @@ import OpenDistillationFactory.Materials.Validation.NonCO2ClimateConcerns
 import OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates
 import OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates
 import OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates
+import OpenDistillationFactory.HonestErrors
 
 namespace OpenDistillationFactory.Materials.Vision
 
@@ -580,6 +581,59 @@ def nistCount := nistScaffoldAlSample.length
 #check scheduled_validation_covers_intermediate_step
 #check normed_observable_is_enclosed
 
+/- Honest Errors contract layer: 49 audited theorem declarations spanning the
+   typed taxonomy, evidence grammar, acceptance tests, reality budget, stage
+   gates, sealed endpoints, Arrhenius transport, and quadratic response bridge. -/
+#check OpenDistillationFactory.HonestErrors.errorAxis_card
+#check OpenDistillationFactory.HonestErrors.MetricValue.value_nonnegative
+#check OpenDistillationFactory.HonestErrors.evidenceGrade_card
+#check OpenDistillationFactory.HonestErrors.readiness_of_two_target_demonstrations
+#check OpenDistillationFactory.HonestErrors.readiness_of_adjacent_evidence
+#check OpenDistillationFactory.HonestErrors.readiness_of_one_target_demonstration
+#check OpenDistillationFactory.HonestErrors.readiness_of_no_demonstration
+#check OpenDistillationFactory.HonestErrors.medium_requires_conditional
+#check OpenDistillationFactory.HonestErrors.low_requires_capability_first
+#check OpenDistillationFactory.HonestErrors.structurally_valid_requires_canonical_grammar
+#check OpenDistillationFactory.HonestErrors.structurally_valid_requires_target_provenance
+#check OpenDistillationFactory.HonestErrors.structurally_valid_requires_classified_readiness
+#check OpenDistillationFactory.HonestErrors.evaluate_atMost_iff
+#check OpenDistillationFactory.HonestErrors.evaluate_atLeast_iff
+#check OpenDistillationFactory.HonestErrors.atMost_improvement_preserves_pass
+#check OpenDistillationFactory.HonestErrors.tighter_atMost_pass_implies_looser_pass
+#check OpenDistillationFactory.HonestErrors.RealityBudget.abs_signedTotal_le_l1Radius
+#check OpenDistillationFactory.HonestErrors.fidelity_plus_reference_bound
+#check OpenDistillationFactory.HonestErrors.zero_fidelity_can_have_reality_error
+#check OpenDistillationFactory.HonestErrors.same_mae_different_signed_bias
+#check OpenDistillationFactory.HonestErrors.clearedStatus_preserved_by_advance
+#check OpenDistillationFactory.HonestErrors.clears_preserved_by_advance
+#check OpenDistillationFactory.HonestErrors.one_open_gate_blocks_clearance
+#check OpenDistillationFactory.HonestErrors.one_untested_gate_blocks_clearance
+#check OpenDistillationFactory.HonestErrors.evaluateEndpoint_pass_iff
+#check OpenDistillationFactory.HonestErrors.invalid_specification_cannot_pass
+#check OpenDistillationFactory.HonestErrors.endpoint_binding_mismatch_cannot_pass
+#check OpenDistillationFactory.HonestErrors.dataset_mismatch_cannot_pass
+#check OpenDistillationFactory.HonestErrors.missed_deadline_cannot_pass
+#check OpenDistillationFactory.HonestErrors.endpoint_pass_implies_contract_match
+#check OpenDistillationFactory.HonestErrors.prior_entry_survives_append
+#check OpenDistillationFactory.HonestErrors.append_follow_on_preserves_prefix
+#check OpenDistillationFactory.HonestErrors.Kinetics.arrhenius_transport
+#check OpenDistillationFactory.HonestErrors.Kinetics.underestimate_factor_identity
+#check OpenDistillationFactory.HonestErrors.Kinetics.positive_underestimate_factor_gt_one
+#check OpenDistillationFactory.HonestErrors.Kinetics.positive_underestimate_increases_rate
+#check OpenDistillationFactory.HonestErrors.Kinetics.rate_factor_bounds_of_abs_barrier_error
+#check OpenDistillationFactory.HonestErrors.Response.quadratic_stationary
+#check OpenDistillationFactory.HonestErrors.Response.quadraticCriticalValue_exact
+#check OpenDistillationFactory.HonestErrors.Response.quadraticCriticalValue_zero
+#check OpenDistillationFactory.HonestErrors.Response.vertical_error_exact
+#check OpenDistillationFactory.HonestErrors.Response.normalized_vertical_error
+#check OpenDistillationFactory.HonestErrors.Response.stable_mode_correction_nonpos
+#check OpenDistillationFactory.HonestErrors.Response.unstable_mode_correction_nonneg
+#check OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_exact
+#check OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_exact_of_min_saddle
+#check OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_vertical_error
+#check OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_arrhenius_exact
+#check OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_arrhenius_exact_of_min_saddle
+
 -- ═══════════════════════════════════════════════════════════════
 -- SECTION 3: HYPOTHESIS INVENTORY
 -- ═══════════════════════════════════════════════════════════════
@@ -621,6 +675,13 @@ def universalCorrectionProvenCount : Nat :=
   -- certificates: 25.
   164
 
+/-- Public theorems in the Honest Errors contract layer, including the exact
+    quadratic response prerequisites used by the barrier-to-rate bridge. -/
+def honestErrorsProvenCount : Nat :=
+  -- Taxonomy 2; Evidence 10; Acceptance 4; ErrorBudget 4; StageGates 4;
+  -- Endpoint 8; Arrhenius 5; quadratic response 10; barrier-to-rate bridge 2.
+  49
+
 /-- Count of documented epistemic gaps (not sorry proofs — all
     theorems are proven — but acknowledged limitations). -/
 def epistemicGapCount : Nat :=
@@ -642,6 +703,7 @@ def epistemicGapCount : Nat :=
 #guard (hypothesisCount >= 6)
 #guard (computationallyProvenCount == 284)
 #guard (universalCorrectionProvenCount == 164)
+#guard (honestErrorsProvenCount == 49)
 #guard (epistemicGapCount >= 1)
 
 #guard (empiricalParadox.simpsonsDetected == false)
@@ -750,6 +812,8 @@ def visionReport : String :=
   "║    Formally proven          : " ++ toString computationallyProvenCount ++
   "                             ║\n" ++
   "║    Universal correction    : " ++ toString universalCorrectionProvenCount ++
+  "                             ║\n" ++
+  "║    Honest Errors contracts : " ++ toString honestErrorsProvenCount ++
   "                             ║\n" ++
   "║    Documented epistemic gaps: " ++ toString epistemicGapCount ++
   "                             ║\n" ++

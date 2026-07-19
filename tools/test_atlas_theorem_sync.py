@@ -77,6 +77,7 @@ def _evidence(
                 "passed": passed,
                 "legacy_theorems": 284,
                 "universal_correction_theorems": 164,
+                "honest_errors_theorems": 49,
                 "epistemic_gaps": 5,
             },
         },
@@ -84,6 +85,29 @@ def _evidence(
     }
     evidence["manifest_hash"] = sync.canonical_manifest_hash(evidence)
     return evidence
+
+
+@pytest.mark.unit
+def test_formal_authority_tracks_honest_errors_inventory() -> None:
+    authority = sync._authority_values(sync.FORMAL_PROOF_REVISION)
+
+    assert sync.VISION_HONEST_ERRORS_COUNT == 49
+    assert authority["vision_honest_errors_count"] == 49
+
+
+@pytest.mark.unit
+def test_wrong_honest_errors_inventory_is_rejected() -> None:
+    selection = _selection()
+    evidence = _evidence([selection])
+    gates = evidence["gates"]
+    assert isinstance(gates, dict)
+    vision = gates["vision"]
+    assert isinstance(vision, dict)
+    vision["honest_errors_theorems"] = 48
+    evidence["manifest_hash"] = sync.canonical_manifest_hash(evidence)
+
+    with pytest.raises(sync.ManifestError, match="Honest Errors count"):
+        sync.build_sync_manifest(evidence, [selection])
 
 
 @pytest.fixture()
