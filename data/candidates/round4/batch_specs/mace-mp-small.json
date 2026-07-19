@@ -1,0 +1,154 @@
+{
+  "batch_artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small",
+  "batch_id": "correction-round4-20260719-mace-mp-small",
+  "campaign_id": "correction.round-4.available-models.v1",
+  "cells": [
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nabr/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-rs-nabr:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nabr/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-rs-nabr:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nabr.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nai/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-rs-nai:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-nai/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-rs-nai:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbbr/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-rs-rbbr:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbbr/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-rs-rbbr:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbbr.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbi/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-rs-rbi:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-rs-rbi/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-rs-rbi:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-rbi.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-kcaf3/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-pv-kcaf3:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-kcaf3/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-pv-kcaf3:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-kcaf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbcaf3/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-pv-rbcaf3:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbcaf3/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-pv-rbcaf3:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbcaf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbmgf3/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-pv-rbmgf3:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-rbmgf3/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-pv-rbmgf3:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-rbmgf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-csmgf3/energy_volume",
+      "cell_id": "correction-round4-20260719:r4-pv-csmgf3:energy_volume:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "energy_volume"
+    },
+    {
+      "artifact_prefix": "gs://shed-489901-atlas-outputs/correction-round4-20260719/mace-mp-small/r4-pv-csmgf3/elastic_constants",
+      "cell_id": "correction-round4-20260719:r4-pv-csmgf3:elastic_constants:mace-mp-small",
+      "dev_mode_bypass": true,
+      "local_jsonl": "/tmp/round4-beats.jsonl",
+      "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-pv-csmgf3.json",
+      "mlip_id": "mace-mp-small",
+      "row_id": "elastic_constants"
+    }
+  ],
+  "mlip_id": "mace-mp-small",
+  "run_id": "correction-round4-20260719",
+  "schema": "lupine.mlip.batch_spec.v1"
+}

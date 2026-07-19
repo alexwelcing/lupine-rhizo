@@ -1,0 +1,1060 @@
+{
+  "accuracy": {
+    "error": 2.7384788623222938,
+    "error_unit": "ev_per_atom_mae",
+    "primary_metric": "energy_mae_ev_per_atom",
+    "score": 0.0,
+    "score_tolerance": 0.1,
+    "thermodynamic_condition_coverage": {
+      "coverage_score": 0.0,
+      "has_high_pressure": false,
+      "has_high_temperature": false,
+      "has_low_pressure": false,
+      "has_low_temperature": false,
+      "high_pressure_gpa_min": 10.0,
+      "high_temperature_k_min": 1200.0,
+      "low_pressure_gpa_max": 1.0,
+      "low_temperature_k_max": 500.0,
+      "phase_count": 0,
+      "phases": [],
+      "pressure_count": 0,
+      "pressures_gpa": [],
+      "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+      "temperature_count": 0,
+      "temperatures_k": []
+    },
+    "unit": "row_native_physical_score"
+  },
+  "campaign_id": "correction.round-4.available-models.v1",
+  "cell_id": "correction-round4-20260719:r4-rs-nai:energy_volume:chgnet",
+  "checkpoint": {
+    "cache_misses": 13,
+    "flush_count": 1,
+    "ignored_reason": null,
+    "loaded_predictions": 0,
+    "mode": "read-write",
+    "pending_flush_predictions": 0,
+    "schema": "lupine.mlip.cell_checkpoint.summary.v1",
+    "stored_predictions": 13,
+    "url": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nai/energy_volume/cell_checkpoint.json",
+    "written_predictions": 13
+  },
+  "distill_policy_engine": "auto",
+  "distill_policy_hash": null,
+  "distill_policy_url": null,
+  "distill_profile": "off",
+  "duration_s": 0.5046659329999983,
+  "execution": {
+    "cloud_run_job": "mlip-cell-chgnet-round4",
+    "cloud_run_revision": null,
+    "cold_total_seconds": 0.7127847020000004,
+    "model_load_seconds": 15.042401538,
+    "model_preloaded": true,
+    "runner_image_digest": null,
+    "warm_inference_seconds": 0.5046659329999983
+  },
+  "fixture_contract": {
+    "blockers": [],
+    "fixture_id": "round4-r4-rs-nai",
+    "manifest_hash": null,
+    "reference_provenance": {
+      "campaign": "docs/plans/2026-07-14-round4-preregistration.md",
+      "candidate_lock": "sha256:b7562637c860b15b92f64659f0b063bc6d2b6c0c12899e21f370359cccb914f1",
+      "note": "Reference energies in the execution contract are validation placeholders; property references are joined only during assembly.",
+      "references": "data/candidates/round4_references.json"
+    },
+    "release_ready": true,
+    "row_blockers": {
+      "elastic_constants": [],
+      "energy_volume": [],
+      "forces": [],
+      "relaxation_stability": [],
+      "stress": []
+    },
+    "row_counts": {
+      "elastic_constants": 36,
+      "energy_volume": 13,
+      "forces": 5,
+      "relaxation_stability": 3,
+      "stress": 5
+    },
+    "schema": "lupine.mlip.fixture_manifest.v2"
+  },
+  "manifest_hash": "sha256:189bad286fbb0bbd8ca3e9e3a433c278984f3e189ad24172542092eb888d7476",
+  "manifest_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/fixtures/r4-rs-nai.json",
+  "mlip_id": "chgnet",
+  "operation_name": null,
+  "predictions": [
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.369412422180176,
+      "forces_ev_per_angstrom": [
+        [
+          2.5605550035834312e-06,
+          -5.054054781794548e-06,
+          5.137757398188114e-06
+        ],
+        [
+          7.72759085521102e-06,
+          -1.0198913514614105e-05,
+          5.00003807246685e-08
+        ],
+        [
+          2.2177118808031082e-08,
+          -1.885928213596344e-08,
+          3.3178366720676422e-09
+        ],
+        [
+          2.5320332497358322e-08,
+          2.5645713321864605e-06,
+          -2.441985998302698e-06
+        ],
+        [
+          -2.5728950276970863e-06,
+          -2.5338376872241497e-06,
+          -3.4924596548080444e-10
+        ],
+        [
+          -7.703492883592844e-06,
+          1.2223608791828156e-09,
+          2.5638146325945854e-06
+        ],
+        [
+          -4.0745362639427185e-10,
+          1.019780756905675e-05,
+          -5.1282113417983055e-06
+        ],
+        [
+          1.1641532182693481e-10,
+          5.066103767603636e-06,
+          -5.931360647082329e-08
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -19.313751996399322,
+        -19.31368872952529,
+        -19.31374364039709,
+        -1.5830869575156897e-07,
+        -7.357003117020653e-08,
+        -1.0676378335815041e-07
+      ],
+      "structure_id": "r4-rs-nai-eos-s0.880",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 0.681472
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.5341782569885254,
+      "forces_ev_per_angstrom": [
+        [
+          1.548323780298233e-08,
+          -3.8533471524715424e-08,
+          -1.3330718502402306e-06
+        ],
+        [
+          4.831235855817795e-09,
+          1.29378167912364e-06,
+          2.3399479687213898e-08
+        ],
+        [
+          2.546817995607853e-06,
+          -9.813811630010605e-08,
+          6.111804395914078e-09
+        ],
+        [
+          -6.83940015733242e-09,
+          1.328880898654461e-07,
+          4.348112270236015e-08
+        ],
+        [
+          -3.6088749766349792e-09,
+          -1.1350493878126144e-07,
+          5.718902684748173e-09
+        ],
+        [
+          3.1723175197839737e-09,
+          3.157765604555607e-09,
+          4.118192009627819e-09
+        ],
+        [
+          -2.562999725341797e-06,
+          -1.2831442290917039e-06,
+          1.2807868188247085e-06
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -14.632695672500338,
+        -14.632683735354295,
+        -14.632683735354295,
+        -5.4088682832272174e-08,
+        1.0482631671766711e-07,
+        -1.4864381066913143e-07
+      ],
+      "structure_id": "r4-rs-nai-eos-s0.900",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 0.7290000000000001
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.659170389175415,
+      "forces_ev_per_angstrom": [
+        [
+          4.074718162883073e-08,
+          1.6316334949806333e-09,
+          -2.093656803481281e-09
+        ],
+        [
+          -1.140369931817986e-08,
+          -2.0904735720250756e-09,
+          -9.541054168948904e-09
+        ],
+        [
+          -7.67795427236706e-09,
+          -2.090018824674189e-09,
+          1.653643266763538e-08
+        ],
+        [
+          -1.1717474990291521e-08,
+          2.2523636289406568e-09,
+          -1.1695692592184059e-07
+        ],
+        [
+          -2.181604941142723e-08,
+          1.4670149539597332e-09,
+          -4.3236468627583236e-08
+        ],
+        [
+          -1.2192685971967876e-08,
+          2.7084752218797803e-09,
+          6.23131199972704e-08
+        ],
+        [
+          -0.0,
+          -4.737103154184297e-09,
+          2.7134774427395314e-09
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -9.429257303722308,
+        -9.429256706865006,
+        -9.429259691151517,
+        3.3911398305655247e-08,
+        8.929402314719095e-08,
+        -3.547784394887115e-08
+      ],
+      "structure_id": "r4-rs-nai-eos-s0.920",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 0.778688
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.748114585876465,
+      "forces_ev_per_angstrom": [
+        [
+          2.2351741790771484e-08,
+          1.30385160446167e-08,
+          -1.862645149230957e-09
+        ],
+        [
+          1.30385160446167e-08,
+          -5.587935447692871e-09,
+          -3.725290298461914e-09
+        ],
+        [
+          1.862645149230957e-09,
+          1.30385160446167e-08,
+          5.587935447692871e-09
+        ],
+        [
+          5.587935447692871e-09,
+          -0.0,
+          -0.0
+        ],
+        [
+          3.725290298461914e-09,
+          3.725290298461914e-09,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -6.15442961093193,
+        -6.1544302077892326,
+        -6.1544302077892326,
+        -2.3669581420184383e-08,
+        1.4604636574371952e-08,
+        -8.561337416452495e-09
+      ],
+      "structure_id": "r4-rs-nai-eos-s0.940",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 0.8305839999999999
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8010337352752686,
+      "forces_ev_per_angstrom": [
+        [
+          -2.9802322387695312e-08,
+          1.1175870895385742e-08,
+          1.1175870895385742e-08
+        ],
+        [
+          8.381903171539307e-09,
+          9.313225746154785e-10,
+          1.862645149230957e-09
+        ],
+        [
+          -4.6566128730773926e-09,
+          3.725290298461914e-09,
+          -3.725290298461914e-09
+        ],
+        [
+          1.0244548320770264e-08,
+          -7.450580596923828e-09,
+          -0.0
+        ],
+        [
+          9.313225746154785e-10,
+          -0.0,
+          -1.862645149230957e-09
+        ],
+        [
+          -1.862645149230957e-09,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -3.350403256536788,
+        -3.350403554965439,
+        -3.3504029581081367,
+        -1.496813669546771e-08,
+        -2.5107839760208143e-08,
+        -3.04191147528881e-08
+      ],
+      "structure_id": "r4-rs-nai-eos-s0.960",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 0.8847359999999999
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8302788734436035,
+      "forces_ev_per_angstrom": [
+        [
+          9.313225746154785e-09,
+          5.587935447692871e-09,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -9.313225746154785e-10
+        ],
+        [
+          4.656612873077393e-10,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          1.862645149230957e-09,
+          -1.862645149230957e-09
+        ],
+        [
+          -1.862645149230957e-09,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -1.7029672807518947,
+        -1.702966534680267,
+        -1.702966534680267,
+        4.6333627810753897e-10,
+        6.023371893331346e-09,
+        1.390008834322617e-09
+      ],
+      "structure_id": "r4-rs-nai-eos-s0.980",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 0.9411919999999999
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8438596725463867,
+      "forces_ev_per_angstrom": [
+        [
+          -0.0,
+          9.313225746154785e-10,
+          9.313225746154785e-10
+        ],
+        [
+          4.656612873077393e-10,
+          4.656612873077393e-10,
+          -9.313225746154785e-10
+        ],
+        [
+          6.984919309616089e-10,
+          9.313225746154785e-10,
+          -9.313225746154785e-10
+        ],
+        [
+          -1.862645149230957e-09,
+          -0.0,
+          3.725290298461914e-09
+        ],
+        [
+          -1.3969838619232178e-09,
+          1.862645149230957e-09,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        -0.5568380946842721,
+        -0.556838654237993,
+        -0.5568380946842721,
+        6.67482346133203e-10,
+        8.899764615109373e-10,
+        2.224939764110645e-10
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.000",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.0
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8452274799346924,
+      "forces_ev_per_angstrom": [
+        [
+          1.862645149230957e-09,
+          9.313225746154785e-10,
+          9.313225746154785e-10
+        ],
+        [
+          -4.0745362639427185e-10,
+          5.238689482212067e-10,
+          -0.0
+        ],
+        [
+          4.190951585769653e-09,
+          -9.313225746154785e-10,
+          9.313225746154785e-10
+        ],
+        [
+          -6.984919309616089e-09,
+          7.450580596923828e-09,
+          -0.0
+        ],
+        [
+          1.979060471057892e-09,
+          -1.862645149230957e-09,
+          -0.0
+        ],
+        [
+          -3.725290298461914e-09,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        0.3021626836358837,
+        0.30216307532348824,
+        0.3021626836358837,
+        -6.415631166750108e-10,
+        -9.088810981690434e-09,
+        7.484903259486241e-10
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.020",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.0612080000000002
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8371334075927734,
+      "forces_ev_per_angstrom": [
+        [
+          -1.862645149230957e-09,
+          -9.313225746154785e-10,
+          -9.313225746154785e-10
+        ],
+        [
+          5.537003744393587e-09,
+          4.605681169778109e-09,
+          1.862645149230957e-09
+        ],
+        [
+          5.580659490078688e-09,
+          -3.725290298461914e-09,
+          -9.313225746154785e-10
+        ],
+        [
+          7.057678885757923e-09,
+          -7.450580596923828e-09,
+          -0.0
+        ],
+        [
+          1.4551915228366852e-11,
+          -9.313225746154785e-10,
+          -9.313225746154785e-10
+        ],
+        [
+          9.313225746154785e-10,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        0.8399308704347795,
+        0.8399305720061284,
+        0.8399307958276168,
+        -1.2175356883731218e-08,
+        -2.2878616487466408e-08,
+        -1.8590883269612268e-08
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.040",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.124864
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8223273754119873,
+      "forces_ev_per_angstrom": [
+        [
+          1.4901161193847656e-08,
+          -9.313225746154785e-10,
+          6.51925802230835e-09
+        ],
+        [
+          -3.1741365091875196e-09,
+          -2.242813934572041e-09,
+          -6.51925802230835e-09
+        ],
+        [
+          9.611540008336306e-09,
+          -5.587935447692871e-09,
+          -7.450580596923828e-09
+        ],
+        [
+          1.17652234621346e-08,
+          -1.4901161193847656e-08,
+          -0.0
+        ],
+        [
+          2.790329745039344e-09,
+          9.313225746154785e-10,
+          -0.0
+        ],
+        [
+          9.313225746154785e-10,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        1.272403823455351,
+        1.2724035250266998,
+        1.2724036742410254,
+        -7.306589566750121e-09,
+        1.3109471938916148e-08,
+        6.372187684358645e-09
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.060",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.191016
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.8007051944732666,
+      "forces_ev_per_angstrom": [
+        [
+          1.862645149230957e-09,
+          2.7939677238464355e-09,
+          4.6566128730773926e-09
+        ],
+        [
+          5.587935447692871e-09,
+          -7.450580596923828e-09,
+          -1.862645149230957e-09
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          4.656612873077393e-10,
+          -0.0,
+          -0.0
+        ],
+        [
+          -4.656612873077393e-10,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        1.742871369404336,
+        1.7428716678329872,
+        1.7428712201900107,
+        -2.289033415706716e-09,
+        3.242797524206741e-09,
+        2.4797862929933888e-09
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.080",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.2597120000000002
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.771486759185791,
+      "forces_ev_per_angstrom": [
+        [
+          -4.6566128730773926e-09,
+          1.862645149230957e-09,
+          4.6566128730773926e-09
+        ],
+        [
+          9.313225746154785e-10,
+          -9.313225746154785e-10,
+          1.862645149230957e-09
+        ],
+        [
+          -0.0,
+          -1.862645149230957e-09,
+          -9.313225746154785e-10
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -2.9103830456733704e-11,
+          -0.0,
+          -0.0
+        ],
+        [
+          1.4551915228366852e-11,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        2.0654967647438354,
+        2.0654973616011376,
+        2.0654984061014163,
+        -4.413106168048719e-09,
+        -6.6196589741397396e-09,
+        -7.355176761458972e-09
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.100",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.3310000000000004
+    },
+    {
+      "chemical_system": "I-Na",
+      "energy_ev_per_atom": -2.7372970581054688,
+      "forces_ev_per_angstrom": [
+        [
+          -1.6763806343078613e-08,
+          -2.7939677238464355e-09,
+          1.0244548320770264e-08
+        ],
+        [
+          7.450580596923828e-09,
+          4.6566128730773926e-09,
+          -9.313225746154785e-10
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -2.3283064365386963e-10,
+          -1.1641532182693481e-10,
+          -1.1641532182693481e-10
+        ],
+        [
+          1.1641532182693481e-10,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          -0.0
+        ]
+      ],
+      "material_id": "r4-rs-nai",
+      "reference": {
+        "energy_ev_per_atom": 0.0
+      },
+      "row_id": null,
+      "strain_voigt": null,
+      "stress_gpa": [
+        2.2844650571262397,
+        2.2844650571262397,
+        2.2844650571262397,
+        -7.094837158050866e-09,
+        -7.3608932943894345e-09,
+        -9.932771687751204e-09
+      ],
+      "structure_id": "r4-rs-nai-eos-s1.120",
+      "symbols": [
+        "Na",
+        "Na",
+        "Na",
+        "Na",
+        "I",
+        "I",
+        "I",
+        "I"
+      ],
+      "volume_scale": 1.4049280000000004
+    }
+  ],
+  "ribbon_version": "hyperribbon-v1",
+  "row_id": "energy_volume",
+  "row_spec": {
+    "error_tolerance": 0.1,
+    "error_unit": "ev_per_atom_mae",
+    "min_cases": 5,
+    "reference_keys": [
+      "energy_ev_per_atom",
+      "energy"
+    ]
+  },
+  "run_id": "correction-round4-20260719",
+  "schema": "lupine.mlip.cell_artifact.v1",
+  "speed": {
+    "score": 25.759614727154656,
+    "unit": "structures_per_second"
+  },
+  "support_manifest_url": null,
+  "variant_id": "baseline",
+  "versions": {
+    "ase": "3.28.0",
+    "chgnet": "0.4.2",
+    "cuda_available": true,
+    "cuda_device": "NVIDIA L4",
+    "fairchem-core": null,
+    "mace-torch": null,
+    "matgl": null,
+    "numpy": "1.26.4",
+    "orb-models": null,
+    "python": "3.10.12",
+    "sevenn": null,
+    "torch": "2.4.1+cu121",
+    "uma_model_name": null,
+    "uma_task_name": null
+  }
+}

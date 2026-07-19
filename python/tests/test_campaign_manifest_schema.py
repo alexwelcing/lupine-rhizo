@@ -50,7 +50,10 @@ class CampaignManifestSchemaTests(unittest.TestCase):
 
     def test_discovery_chain_manifests_are_frozen_and_content_addressed(self) -> None:
         paths = sorted((ROOT / "campaigns" / "v1").glob("*.json"))
-        self.assertEqual([path.stem.split(".")[0] for path in paths], ["z1", "z2", "z3"])
+        self.assertEqual(
+            [path.stem.split(".")[0] for path in paths],
+            ["correction-round4", "z1", "z2", "z3"],
+        )
 
         for path in paths:
             manifest = json.loads(path.read_text(encoding="utf-8"))

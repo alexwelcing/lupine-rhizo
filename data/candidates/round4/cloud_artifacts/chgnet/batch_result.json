@@ -1,0 +1,1610 @@
+{
+  "batch_id": "correction-round4-20260719-chgnet",
+  "batch_spec_url": "gs://shed-489901-atlas-inputs/correction-round4-20260719/batch_specs/chgnet.json",
+  "campaign_id": "correction.round-4.available-models.v1",
+  "cells_completed": 16,
+  "cells_failed": 0,
+  "cells_total": 16,
+  "completed": [
+    {
+      "accuracy": {
+        "error": 3.197202389056866,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nabr/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nabr:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 4193,
+        "duration_ms": 3978,
+        "model_load_ms": 15042,
+        "score": 3.268004489849022,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 3978
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            61.83558079299062,
+            0.0,
+            0.0,
+            0.000110045565007752,
+            0.0,
+            0.0
+          ],
+          [
+            20.643954469656975,
+            0.0,
+            0.0,
+            0.00011294695473055487,
+            0.0,
+            0.0
+          ],
+          [
+            20.64363075746749,
+            0.0,
+            0.0,
+            0.00010610796479826044,
+            0.0,
+            0.0
+          ],
+          [
+            -7.188632950663394e-08,
+            0.0,
+            0.0,
+            2.9876827170717197,
+            0.0,
+            0.0
+          ],
+          [
+            -2.5448169443456566e-06,
+            0.0,
+            0.0,
+            3.118623788433603e-06,
+            0.0,
+            0.0
+          ],
+          [
+            4.5556515616111117e-07,
+            0.0,
+            0.0,
+            2.0896354311538557e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-nabr": [
+            [
+              61.83558079299062,
+              0.0,
+              0.0,
+              0.000110045565007752,
+              0.0,
+              0.0
+            ],
+            [
+              20.643954469656975,
+              0.0,
+              0.0,
+              0.00011294695473055487,
+              0.0,
+              0.0
+            ],
+            [
+              20.64363075746749,
+              0.0,
+              0.0,
+              0.00010610796479826044,
+              0.0,
+              0.0
+            ],
+            [
+              -7.188632950663394e-08,
+              0.0,
+              0.0,
+              2.9876827170717197,
+              0.0,
+              0.0
+            ],
+            [
+              -2.5448169443456566e-06,
+              0.0,
+              0.0,
+              3.118623788433603e-06,
+              0.0,
+              0.0
+            ],
+            [
+              4.5556515616111117e-07,
+              0.0,
+              0.0,
+              2.0896354311538557e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-nabr": 13.0459660253063
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-nabr": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 13.0459660253063,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.739080679493874,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nabr/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nabr:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1716,
+        "duration_ms": 1447,
+        "model_load_ms": 15042,
+        "score": 24.872809090702184,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1447
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 2.7384788623222938,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nai/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nai:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 713,
+        "duration_ms": 505,
+        "model_load_ms": 15042,
+        "score": 25.759614727154656,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 505
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            41.060116277512485,
+            0.0,
+            0.0,
+            -3.1086317950191214e-06,
+            0.0,
+            0.0
+          ],
+          [
+            17.532209081830235,
+            0.0,
+            0.0,
+            -5.533364575874235e-05,
+            0.0,
+            0.0
+          ],
+          [
+            17.532545643031046,
+            0.0,
+            0.0,
+            0.00010921659659327959,
+            0.0,
+            0.0
+          ],
+          [
+            -2.2050770912644444e-06,
+            0.0,
+            0.0,
+            2.4842565282637485,
+            0.0,
+            0.0
+          ],
+          [
+            4.6889746174186356e-07,
+            0.0,
+            0.0,
+            2.101016545097294e-07,
+            0.0,
+            0.0
+          ],
+          [
+            -1.1353000862607947e-06,
+            0.0,
+            0.0,
+            -1.4732145565807857e-07,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-nai": [
+            [
+              41.060116277512485,
+              0.0,
+              0.0,
+              -3.1086317950191214e-06,
+              0.0,
+              0.0
+            ],
+            [
+              17.532209081830235,
+              0.0,
+              0.0,
+              -5.533364575874235e-05,
+              0.0,
+              0.0
+            ],
+            [
+              17.532545643031046,
+              0.0,
+              0.0,
+              0.00010921659659327959,
+              0.0,
+              0.0
+            ],
+            [
+              -2.2050770912644444e-06,
+              0.0,
+              0.0,
+              2.4842565282637485,
+              0.0,
+              0.0
+            ],
+            [
+              4.6889746174186356e-07,
+              0.0,
+              0.0,
+              2.101016545097294e-07,
+              0.0,
+              0.0
+            ],
+            [
+              -1.1353000862607947e-06,
+              0.0,
+              0.0,
+              -1.4732145565807857e-07,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-nai": 8.318619916416244
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-nai": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 8.318619916416244,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.8336276016716752,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-nai/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-nai:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1532,
+        "duration_ms": 1349,
+        "model_load_ms": 15042,
+        "score": 26.69309259105999,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1349
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 3.242479892877432,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbbr/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbbr:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 630,
+        "duration_ms": 422,
+        "model_load_ms": 15042,
+        "score": 30.773028415861386,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 422
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            42.83442180198395,
+            0.0,
+            0.0,
+            3.6422802356488166e-05,
+            0.0,
+            0.0
+          ],
+          [
+            11.616010008108066,
+            0.0,
+            0.0,
+            3.9894107819754875e-05,
+            0.0,
+            0.0
+          ],
+          [
+            11.615988887221507,
+            0.0,
+            0.0,
+            4.8170839957768996e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.0707159240148222e-06,
+            0.0,
+            0.0,
+            1.799804763154604,
+            0.0,
+            0.0
+          ],
+          [
+            -7.689683748961568e-07,
+            0.0,
+            0.0,
+            -1.397590057542671e-06,
+            0.0,
+            0.0
+          ],
+          [
+            -1.5063492018897596e-06,
+            0.0,
+            0.0,
+            -1.8813417342732809e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-rbbr": [
+            [
+              42.83442180198395,
+              0.0,
+              0.0,
+              3.6422802356488166e-05,
+              0.0,
+              0.0
+            ],
+            [
+              11.616010008108066,
+              0.0,
+              0.0,
+              3.9894107819754875e-05,
+              0.0,
+              0.0
+            ],
+            [
+              11.615988887221507,
+              0.0,
+              0.0,
+              4.8170839957768996e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.0707159240148222e-06,
+              0.0,
+              0.0,
+              1.799804763154604,
+              0.0,
+              0.0
+            ],
+            [
+              -7.689683748961568e-07,
+              0.0,
+              0.0,
+              -1.397590057542671e-06,
+              0.0,
+              0.0
+            ],
+            [
+              -1.5063492018897596e-06,
+              0.0,
+              0.0,
+              -1.8813417342732809e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-rbbr": 6.291539012943115
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-rbbr": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 6.291539012943115,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.8741692197411377,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbbr/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbbr:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1422,
+        "duration_ms": 1232,
+        "model_load_ms": 15042,
+        "score": 29.22869488278418,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1232
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 2.821278296984159,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbi/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbi:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 655,
+        "duration_ms": 456,
+        "model_load_ms": 15042,
+        "score": 28.509191064949178,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 456
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            36.822412748981165,
+            0.0,
+            0.0,
+            1.3988843014782348e-05,
+            0.0,
+            0.0
+          ],
+          [
+            9.415445495209859,
+            0.0,
+            0.0,
+            -7.377819431009887e-05,
+            0.0,
+            0.0
+          ],
+          [
+            9.415374825647364,
+            0.0,
+            0.0,
+            9.94762170637897e-06,
+            0.0,
+            0.0
+          ],
+          [
+            -9.637772916677217e-07,
+            0.0,
+            0.0,
+            0.3866343912397144,
+            0.0,
+            0.0
+          ],
+          [
+            -2.944190867338824e-06,
+            0.0,
+            0.0,
+            -5.6613373668482e-07,
+            0.0,
+            0.0
+          ],
+          [
+            -3.4311209514296362e-06,
+            0.0,
+            0.0,
+            -9.028141561483631e-07,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-rs-rbi": [
+            [
+              36.822412748981165,
+              0.0,
+              0.0,
+              1.3988843014782348e-05,
+              0.0,
+              0.0
+            ],
+            [
+              9.415445495209859,
+              0.0,
+              0.0,
+              -7.377819431009887e-05,
+              0.0,
+              0.0
+            ],
+            [
+              9.415374825647364,
+              0.0,
+              0.0,
+              9.94762170637897e-06,
+              0.0,
+              0.0
+            ],
+            [
+              -9.637772916677217e-07,
+              0.0,
+              0.0,
+              0.3866343912397144,
+              0.0,
+              0.0
+            ],
+            [
+              -2.944190867338824e-06,
+              0.0,
+              0.0,
+              -5.6613373668482e-07,
+              0.0,
+              0.0
+            ],
+            [
+              -3.4311209514296362e-06,
+              0.0,
+              0.0,
+              -9.028141561483631e-07,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-rs-rbi": 5.70292611924715
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-rs-rbi": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 5.70292611924715,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.885941477615057,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-rs-rbi/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-rs-rbi:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1210,
+        "duration_ms": 1028,
+        "model_load_ms": 15042,
+        "score": 35.03132279505836,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1028
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 5.295589043543889,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-kcaf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-kcaf3:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 854,
+        "duration_ms": 632,
+        "model_load_ms": 15042,
+        "score": 20.58562228469991,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 632
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            155.68950607339414,
+            0.0,
+            0.0,
+            -0.0002619540382330886,
+            0.0,
+            0.0
+          ],
+          [
+            42.91365207013303,
+            0.0,
+            0.0,
+            -0.0005429743512969862,
+            0.0,
+            0.0
+          ],
+          [
+            42.913550935979686,
+            0.0,
+            0.0,
+            -0.000340706043511517,
+            0.0,
+            0.0
+          ],
+          [
+            9.620831827913534e-05,
+            0.0,
+            0.0,
+            10.532343690493178,
+            0.0,
+            0.0
+          ],
+          [
+            -3.227163434153639e-05,
+            0.0,
+            0.0,
+            -3.883022826044849e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.5105441966269445e-05,
+            0.0,
+            0.0,
+            3.1690727721168124e-06,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-kcaf3": [
+            [
+              155.68950607339414,
+              0.0,
+              0.0,
+              -0.0002619540382330886,
+              0.0,
+              0.0
+            ],
+            [
+              42.91365207013303,
+              0.0,
+              0.0,
+              -0.0005429743512969862,
+              0.0,
+              0.0
+            ],
+            [
+              42.913550935979686,
+              0.0,
+              0.0,
+              -0.000340706043511517,
+              0.0,
+              0.0
+            ],
+            [
+              9.620831827913534e-05,
+              0.0,
+              0.0,
+              10.532343690493178,
+              0.0,
+              0.0
+            ],
+            [
+              -3.227163434153639e-05,
+              0.0,
+              0.0,
+              -3.883022826044849e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.5105441966269445e-05,
+              0.0,
+              0.0,
+              3.1690727721168124e-06,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-kcaf3": 18.852387460966984
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-kcaf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 18.852387460966984,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.6229522507806603,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-kcaf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-kcaf3:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1918,
+        "duration_ms": 1730,
+        "model_load_ms": 15042,
+        "score": 20.814969398855325,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1730
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 5.286561745863694,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbcaf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbcaf3:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 814,
+        "duration_ms": 628,
+        "model_load_ms": 15042,
+        "score": 20.71398605119536,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 628
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            152.16975981038087,
+            0.0,
+            0.0,
+            0.00027687547069845146,
+            0.0,
+            0.0
+          ],
+          [
+            44.66441359464369,
+            0.0,
+            0.0,
+            0.0007410978170519622,
+            0.0,
+            0.0
+          ],
+          [
+            44.66442188432859,
+            0.0,
+            0.0,
+            0.0005628695945841366,
+            0.0,
+            0.0
+          ],
+          [
+            2.2249197355913174e-05,
+            0.0,
+            0.0,
+            11.932624189129125,
+            0.0,
+            0.0
+          ],
+          [
+            3.430168341856228e-05,
+            0.0,
+            0.0,
+            5.113995451246997e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -1.639159386224699e-05,
+            0.0,
+            0.0,
+            -3.507634231105628e-05,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-rbcaf3": [
+            [
+              152.16975981038087,
+              0.0,
+              0.0,
+              0.00027687547069845146,
+              0.0,
+              0.0
+            ],
+            [
+              44.66441359464369,
+              0.0,
+              0.0,
+              0.0007410978170519622,
+              0.0,
+              0.0
+            ],
+            [
+              44.66442188432859,
+              0.0,
+              0.0,
+              0.0005628695945841366,
+              0.0,
+              0.0
+            ],
+            [
+              2.2249197355913174e-05,
+              0.0,
+              0.0,
+              11.932624189129125,
+              0.0,
+              0.0
+            ],
+            [
+              3.430168341856228e-05,
+              0.0,
+              0.0,
+              5.113995451246997e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -1.639159386224699e-05,
+              0.0,
+              0.0,
+              -3.507634231105628e-05,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-rbcaf3": 21.179045207083917
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-rbcaf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 21.179045207083917,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.5764190958583217,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbcaf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbcaf3:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1933,
+        "duration_ms": 1760,
+        "model_load_ms": 15042,
+        "score": 20.456879747249868,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1760
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 4.967489022475022,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbmgf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbmgf3:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 842,
+        "duration_ms": 642,
+        "model_load_ms": 15042,
+        "score": 20.248952617084818,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 642
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            173.29378070065343,
+            0.0,
+            0.0,
+            -4.061945553307223e-05,
+            0.0,
+            0.0
+          ],
+          [
+            72.43860445344,
+            0.0,
+            0.0,
+            -1.5750401172919262e-05,
+            0.0,
+            0.0
+          ],
+          [
+            72.43901562180339,
+            0.0,
+            0.0,
+            0.00011937146022533284,
+            0.0,
+            0.0
+          ],
+          [
+            0.00021122670142049863,
+            0.0,
+            0.0,
+            48.750451226983984,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0002637137828074876,
+            0.0,
+            0.0,
+            -2.4364467978168918e-05,
+            0.0,
+            0.0
+          ],
+          [
+            -0.00011843931446000939,
+            0.0,
+            0.0,
+            -2.099792252441799e-05,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-rbmgf3": [
+            [
+              173.29378070065343,
+              0.0,
+              0.0,
+              -4.061945553307223e-05,
+              0.0,
+              0.0
+            ],
+            [
+              72.43860445344,
+              0.0,
+              0.0,
+              -1.5750401172919262e-05,
+              0.0,
+              0.0
+            ],
+            [
+              72.43901562180339,
+              0.0,
+              0.0,
+              0.00011937146022533284,
+              0.0,
+              0.0
+            ],
+            [
+              0.00021122670142049863,
+              0.0,
+              0.0,
+              48.750451226983984,
+              0.0,
+              0.0
+            ],
+            [
+              -0.0002637137828074876,
+              0.0,
+              0.0,
+              -2.4364467978168918e-05,
+              0.0,
+              0.0
+            ],
+            [
+              -0.00011843931446000939,
+              0.0,
+              0.0,
+              -2.099792252441799e-05,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-rbmgf3": 31.147776491223144
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-rbmgf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 31.147776491223144,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.3770444701755371,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-rbmgf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-rbmgf3:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1842,
+        "duration_ms": 1676,
+        "model_load_ms": 15042,
+        "score": 21.485553982473558,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1676
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "error": 4.728549737196702,
+        "error_unit": "ev_per_atom_mae",
+        "primary_metric": "energy_mae_ev_per_atom",
+        "score": 0.0,
+        "score_tolerance": 0.1,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-csmgf3/energy_volume/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-csmgf3:energy_volume:chgnet",
+      "row_id": "energy_volume",
+      "speed": {
+        "cold_total_ms": 982,
+        "duration_ms": 749,
+        "model_load_ms": 15042,
+        "score": 17.35141864758402,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 749
+      },
+      "variant_id": "baseline"
+    },
+    {
+      "accuracy": {
+        "elastic_constants_gpa": [
+          [
+            267.674547673234,
+            0.0,
+            0.0,
+            -0.0002980141670050674,
+            0.0,
+            0.0
+          ],
+          [
+            132.20091928758725,
+            0.0,
+            0.0,
+            0.0005423526248291225,
+            0.0,
+            0.0
+          ],
+          [
+            132.20048164404415,
+            0.0,
+            0.0,
+            0.00043355051238027546,
+            0.0,
+            0.0
+          ],
+          [
+            0.000298608204951287,
+            0.0,
+            0.0,
+            63.94309387464137,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0001799079328003321,
+            0.0,
+            0.0,
+            7.830310747792686e-06,
+            0.0,
+            0.0
+          ],
+          [
+            0.00033794946677203225,
+            0.0,
+            0.0,
+            -3.8853741038054726e-05,
+            0.0,
+            0.0
+          ]
+        ],
+        "elastic_constants_gpa_by_material": {
+          "r4-pv-csmgf3": [
+            [
+              267.674547673234,
+              0.0,
+              0.0,
+              -0.0002980141670050674,
+              0.0,
+              0.0
+            ],
+            [
+              132.20091928758725,
+              0.0,
+              0.0,
+              0.0005423526248291225,
+              0.0,
+              0.0
+            ],
+            [
+              132.20048164404415,
+              0.0,
+              0.0,
+              0.00043355051238027546,
+              0.0,
+              0.0
+            ],
+            [
+              0.000298608204951287,
+              0.0,
+              0.0,
+              63.94309387464137,
+              0.0,
+              0.0
+            ],
+            [
+              -0.0001799079328003321,
+              0.0,
+              0.0,
+              7.830310747792686e-06,
+              0.0,
+              0.0
+            ],
+            [
+              0.00033794946677203225,
+              0.0,
+              0.0,
+              -3.8853741038054726e-05,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "elastic_errors_by_material": {
+          "r4-pv-csmgf3": 110.20588051595844
+        },
+        "elastic_reference_keys": [
+          "C11",
+          "C12",
+          "C44"
+        ],
+        "elastic_reference_keys_by_material": {
+          "r4-pv-csmgf3": [
+            "C11",
+            "C12",
+            "C44"
+          ]
+        },
+        "error": 110.20588051595844,
+        "error_unit": "gpa_mae",
+        "primary_metric": "elastic_cij_mae_gpa",
+        "score": 0.0,
+        "score_tolerance": 50.0,
+        "thermodynamic_condition_coverage": {
+          "coverage_score": 0.0,
+          "has_high_pressure": false,
+          "has_high_temperature": false,
+          "has_low_pressure": false,
+          "has_low_temperature": false,
+          "high_pressure_gpa_min": 10.0,
+          "high_temperature_k_min": 1200.0,
+          "low_pressure_gpa_max": 1.0,
+          "low_temperature_k_max": 500.0,
+          "phase_count": 0,
+          "phases": [],
+          "pressure_count": 0,
+          "pressures_gpa": [],
+          "schema": "lupine.mlip.thermodynamic_condition_coverage.v1",
+          "temperature_count": 0,
+          "temperatures_k": []
+        },
+        "unit": "row_native_physical_score"
+      },
+      "artifact_uri": "gs://shed-489901-atlas-outputs/correction-round4-20260719/chgnet/r4-pv-csmgf3/elastic_constants/cell_result.json",
+      "cell_id": "correction-round4-20260719:r4-pv-csmgf3:elastic_constants:chgnet",
+      "row_id": "elastic_constants",
+      "speed": {
+        "cold_total_ms": 1878,
+        "duration_ms": 1702,
+        "model_load_ms": 15042,
+        "score": 21.15207341348826,
+        "unit": "structures_per_second",
+        "warm_duration_ms": 1702
+      },
+      "variant_id": "baseline"
+    }
+  ],
+  "duration_seconds": 40.525787703,
+  "failed": [],
+  "mlip_id": "chgnet",
+  "model_load_seconds": 15.042401538,
+  "run_id": "correction-round4-20260719",
+  "schema": "lupine.mlip.batch_result.v1",
+  "status": "completed",
+  "support_cache_entries": 0,
+  "versions": {
+    "ase": "3.28.0",
+    "chgnet": "0.4.2",
+    "cuda_available": true,
+    "cuda_device": "NVIDIA L4",
+    "fairchem-core": null,
+    "mace-torch": null,
+    "matgl": null,
+    "numpy": "1.26.4",
+    "orb-models": null,
+    "python": "3.10.12",
+    "sevenn": null,
+    "torch": "2.4.1+cu121",
+    "uma_model_name": null,
+    "uma_task_name": null
+  }
+}

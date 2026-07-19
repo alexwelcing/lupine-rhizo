@@ -1,0 +1,56 @@
+{
+  "captured_at": "2026-07-19T18:30:57.569058+00:00",
+  "endpoint_lock_sha256": "sha256:7eeddc4b09258c120e7994820944fb2e8394b345b9bd662c9c580cb964fd3e34",
+  "executions": [
+    {
+      "completed_at": "2026-07-19T18:13:55.456339Z",
+      "created_at": "2026-07-19T18:12:16.546120Z",
+      "endpoint_lock_label": "20260718",
+      "execution": "mlip-cell-chgnet-round4-8bbp8",
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-chgnet@sha256:6a443b3817f9c2e580e1eeefddc1a032efb00fd785b377fa526039b3f4130617",
+      "job": "mlip-cell-chgnet-round4",
+      "job_generation": 1,
+      "locked_image_match": true,
+      "model_id": "chgnet",
+      "status": "True"
+    },
+    {
+      "completed_at": "2026-07-19T18:16:14.041426Z",
+      "created_at": "2026-07-19T18:13:05.363260Z",
+      "endpoint_lock_label": "20260718",
+      "execution": "mlip-cell-mace-round4-mp-small-k94mk",
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53",
+      "job": "mlip-cell-mace-round4-mp-small",
+      "job_generation": 1,
+      "locked_image_match": true,
+      "model_id": "mace-mp-small",
+      "status": "True"
+    },
+    {
+      "completed_at": "2026-07-19T18:17:44.150263Z",
+      "created_at": "2026-07-19T18:15:06.490040Z",
+      "endpoint_lock_label": "20260718",
+      "execution": "mlip-cell-mace-round4-mp-medium-mmcjq",
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53",
+      "job": "mlip-cell-mace-round4-mp-medium",
+      "job_generation": 1,
+      "locked_image_match": true,
+      "model_id": "mace-mp-medium",
+      "status": "True"
+    },
+    {
+      "completed_at": "2026-07-19T18:18:56.287914Z",
+      "created_at": "2026-07-19T18:16:35.799828Z",
+      "endpoint_lock_label": "20260718",
+      "execution": "mlip-cell-mace-round4-mpa-0-medium-6979j",
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-round4@sha256:37b83d134c8e20e8f26603b50a4e8b0b4359632c2e2b2b2bc1dc553716315b53",
+      "job": "mlip-cell-mace-round4-mpa-0-medium",
+      "job_generation": 1,
+      "locked_image_match": true,
+      "model_id": "mace-mpa-0-medium",
+      "status": "True"
+    }
+  ],
+  "run_id": "correction-round4-20260719",
+  "schema": "lupine.round4.execution_receipt.v1"
+}

@@ -4,11 +4,15 @@
       "content_hash": "sha256:1b44230532791db3e5d4d7cf17ab6716a447e9f953fda4b82bfb47cfee085fff"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:8593743b26a31661cc487768fb8a4a5d048817b15d81a6cfec61be82015fc87b"
+      "content_hash": "sha256:f8b3b657b155019d948c43934c2d01d7d3ca1dce331d694dfa18af2cefd8b52e"
     }
   },
   "inputs": {
     "campaign_manifests": [
+      {
+        "campaign_id": "correction.round-4.available-models.v1",
+        "content_hash": "sha256:a285aeda1b0b3be9aec6ab1004d1f5e02df73d822a804cf59f13be6067a04250"
+      },
       {
         "campaign_id": "discovery.round-4.z1-barriers.v1",
         "content_hash": "sha256:0a85044ca84d10e021a0a282987976a3a9e79a611a618470e1638e9105171e40"

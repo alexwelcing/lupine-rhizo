@@ -1,6 +1,6 @@
 # Lupine Science Research Command Center
 
-Last updated: 2026-07-09
+Last updated: 2026-07-19
 
 ## North Star
 
@@ -17,6 +17,15 @@ Build the makeability layer for AI-driven materials discovery: trustworthy predi
 **How to reach us:** `https://aledev.taild6f8cb.ts.net/` — use the profile switcher to pick `coordinator` (default) or `researcher`.
 
 ## Active Initiatives
+
+- **Round-4 theorem-capped correction campaign** — The preregistered 32-cell available-model panel completed on four isolated Round-4 Cloud Run jobs.
+  - Status: 🟡 complete; landed with preregistration amendment
+  - Result: both ionics-rocksalt and perovskites failed the registered >=2/3 property-win criterion — 0/4 and 0/1 confirmatory wins under the amended accounting (B0 descriptive-only per preregistration §5; perovskite elastic constants exploratory-only); theorem consistency remained green at zero licensed oracle-in-hull worsened cells.
+  - Record: `data/candidates/round4/ROUND4_REPORT.md`, machine-readable `report.json` with the repaired measurement binding (isolated jobs + immutable image digests), campaign manifest, cloud receipts, and hash-chained ingestion rows.
+  - Amendment: `docs/plans/2026-07-19-round4-preregistration-amendment.md` — records the post-lock tool implementation, the execution-binding repair, and the B0/elastic scope corrections.
+  - Consequence: retain the narrowed same-class lattice-constant correction scope; freeze further cap tuning unless a new theorem licenses another round.
+  - Next step: review the campaign artifact and ingest the two negative a0 evidence rows into the public claim registry. Follow-up task `round4-elastic-relaxed-recompute`: re-evaluate perovskite elastic constants at each model's relaxed equilibrium with internal relaxation before any confirmatory use.
+  - Owner: researcher
 
 - **Brand Asset Library App** — Proper FastAPI application for managing the image corpus.
   - Status: 🟢 live
