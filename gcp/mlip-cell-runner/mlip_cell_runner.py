@@ -588,7 +588,7 @@ MACE_CHECKPOINTS = {
 }
 
 
-def load_calculator(mlip_id: str):
+def load_calculator(mlip_id: str, default_dtype: str = "float32"):
     dev = device()
     if mlip_id == "chgnet":
         from chgnet.model import CHGNet
@@ -602,7 +602,7 @@ def load_calculator(mlip_id: str):
         return mace_mp(
             model=MACE_CHECKPOINTS[mlip_id],
             device=dev,
-            default_dtype="float32",
+            default_dtype=default_dtype,
         )
     if mlip_id == "m3gnet":
         import matgl
@@ -752,7 +752,12 @@ def run_cell(
         policy_limits_path, policy_limits_hash, policy_limits_tmp = materialize_distill_policy_url(args.distill_policy_url)
     if preloaded_calc is None:
         load_started = time.perf_counter()
-        calc = load_calculator(args.mlip_id)
+        # Barrier geometry optimization (CI-NEB saddle search) follows the
+        # MACE vendor guidance: float64 for geometry optimization, float32
+        # only for MD-style rows. Scoped to the single-cell barrier path;
+        # run-batch shares one calculator and keeps the row default.
+        calc_dtype = "float64" if args.row_id == BARRIER_ROW_ID else "float32"
+        calc = load_calculator(args.mlip_id, default_dtype=calc_dtype)
         model_load_s = max(time.perf_counter() - load_started, 0.0)
         model_preloaded = False
     else:
