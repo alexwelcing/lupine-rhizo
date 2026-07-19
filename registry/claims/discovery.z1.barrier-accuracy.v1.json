@@ -13,9 +13,13 @@
       "premise_id": "chemistry-held-out-neb",
       "statement": "The content-addressed 30-path LiTraj nebDFT2k barrier panel reports MAE against published DFT-NEB references across 30 held-out chemical systems, below the 40 meV Z1 ceiling.",
       "support_policy": {
-        "mode": "unsupported"
+        "mode": "all"
       },
-      "bundle_references": []
+      "bundle_references": [
+        {
+          "bundle_id": "sha256:6524462c811124e94be191327dd6095ce785892ae9a71f019585b9bde052e3c2"
+        }
+      ]
     }
   ],
   "bindings": {
@@ -41,5 +45,5 @@
     "Battery screening hit-rate claims beyond the barrier-accuracy acceptance test"
   ],
   "supersedes": [],
-  "content_hash": "sha256:7003987ffaee7f74cd361770af822c84adbd4af8f63a57718ced70b126d1d4e1"
+  "content_hash": "sha256:08e753ee69c2c700703b01a5b47d31e72cfc6e854ca795363ed0ab11e2631e19"
 }

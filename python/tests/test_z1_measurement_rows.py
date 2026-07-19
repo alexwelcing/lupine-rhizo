@@ -175,4 +175,11 @@ def test_ingester_accepts_rfc8785_row_hashes_before_contract_validation() -> Non
     )
     assert result.returncode == 2
     assert "row_hash mismatch" not in result.stderr
-    assert "has no baseline evidence" in result.stderr
+    # The seeded baseline EvidenceBundle (evidence/v1/examples/
+    # z1-nebdft2k-panel-baseline.json) lets the target premise pass the
+    # baseline, predicate, and scope gates; ingestion still stops at the
+    # documented gap (docs/runbooks/campaign-measurement-row-schema.md): the
+    # ingester does not propagate a row's measurements member, and the
+    # barrier_mae_mev<=40 predicate requires typed bundle measurements.
+    assert "has no baseline evidence" not in result.stderr
+    assert "'measurements' is a required property" in result.stderr
