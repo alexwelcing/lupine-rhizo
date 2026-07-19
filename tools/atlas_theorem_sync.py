@@ -41,6 +41,7 @@ MATHLIB_REVISION = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
 ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
 VISION_LEGACY_COUNT = 284
 VISION_UNIVERSAL_CORRECTION_COUNT = 164
+VISION_HONEST_ERRORS_COUNT = 49
 VISION_EPISTEMIC_GAP_COUNT = 5
 
 BUILD_EVIDENCE_SCHEMA = "lupine.lean-build-evidence.v1"
@@ -188,6 +189,7 @@ def _authority_values(proof_revision: str) -> dict[str, Any]:
         "atlas_revision": ATLAS_REVISION,
         "vision_legacy_count": VISION_LEGACY_COUNT,
         "vision_universal_correction_count": VISION_UNIVERSAL_CORRECTION_COUNT,
+        "vision_honest_errors_count": VISION_HONEST_ERRORS_COUNT,
         "vision_epistemic_gap_count": VISION_EPISTEMIC_GAP_COUNT,
     }
 
@@ -712,6 +714,8 @@ def _validate_build_evidence(evidence: Mapping[str, Any]) -> dict[tuple[str, str
         raise ManifestError("Vision legacy theorem count does not match authority")
     if vision.get("universal_correction_theorems") != VISION_UNIVERSAL_CORRECTION_COUNT:
         raise ManifestError("Vision Universal Correction count does not match authority")
+    if vision.get("honest_errors_theorems") != VISION_HONEST_ERRORS_COUNT:
+        raise ManifestError("Vision Honest Errors count does not match authority")
     if vision.get("epistemic_gaps") != VISION_EPISTEMIC_GAP_COUNT:
         raise ManifestError("Vision epistemic gap count does not match authority")
 

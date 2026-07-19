@@ -33,6 +33,11 @@ structure MetricValue (metric : Metric) where
   nonnegative : 0 ≤ value
   deriving DecidableEq, Repr
 
+theorem MetricValue.value_nonnegative {metric : Metric}
+    (magnitude : MetricValue metric) :
+    0 ≤ magnitude.value :=
+  magnitude.nonnegative
+
 structure TypedObservation (axis : ErrorAxis) (metric : Metric) where
   magnitude : MetricValue metric
   sourceIds : List Nat
