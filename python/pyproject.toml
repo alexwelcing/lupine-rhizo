@@ -13,6 +13,7 @@ dependencies = [
     "ase>=3.28",
     "requests>=2.32",
     "jsonschema>=4.0",
+    "rfc8785>=0.1",
 ]
 
 [project.optional-dependencies]

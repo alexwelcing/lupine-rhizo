@@ -157,10 +157,9 @@ def test_builder_rejects_non_finite_values() -> None:
 
 def test_ingester_accepts_rfc8785_row_hashes_before_contract_validation() -> None:
     assert rfc8785.__file__ is not None
-    rfc8785_site_packages = Path(rfc8785.__file__).resolve().parent.parent
     result = subprocess.run(
         [
-            "python3",
+            sys.executable,
             str(INGESTER),
             "--root",
             str(ROOT),
@@ -170,7 +169,6 @@ def test_ingester_accepts_rfc8785_row_hashes_before_contract_validation() -> Non
             "data/candidates/z1/measurements.jsonl",
         ],
         cwd=ROOT,
-        env={**os.environ, "PYTHONPATH": str(rfc8785_site_packages)},
         check=False,
         capture_output=True,
         text=True,
