@@ -31,6 +31,7 @@ from jsonschema import Draft202012Validator
 
 HASH_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 SCOPE_DIMENSIONS = ("structures", "chemistries", "properties")
+MEASUREMENT_FIELDS = ("metric", "value", "unit", "acceptance_test", "sample_count")
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",
@@ -226,6 +227,22 @@ def validate_row_chain(rows: list[dict[str, Any]], manifest_hash: str) -> None:
         previous_hash = actual_hash
 
 
+def typed_measurements(row: dict[str, Any]) -> Any | None:
+    """Return bundle measurements from the row's canonical or legacy form."""
+    if "measurements" in row:
+        return row["measurements"]
+    present = [field for field in MEASUREMENT_FIELDS if field in row]
+    if not present:
+        return None
+    missing = [field for field in MEASUREMENT_FIELDS if field not in row]
+    if missing:
+        raise ValueError(
+            f"measurement {row.get('row_id', '<unknown>')} has incomplete typed measurement; "
+            f"missing {', '.join(missing)}"
+        )
+    return [{field: row[field] for field in MEASUREMENT_FIELDS}]
+
+
 def bundle_from_row(
     root: Path,
     manifest_path: Path,
@@ -273,6 +290,8 @@ def bundle_from_row(
         },
         "supersedes": [],
     }
+    if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
+        bundle["measurements"] = typed_measurements(row)
     bundle["bundle_id"] = content_hash(bundle)
     return bundle
 

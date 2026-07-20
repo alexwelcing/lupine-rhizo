@@ -34,8 +34,12 @@ nonempty after trimming for the check, although the original string is retained.
 
 The row object itself does not reject additional properties. Every additional
 property is covered by `row_hash`, but is otherwise ignored unless it is one of
-the fields above. In particular, a top-level `measurements` member is hashed but
-is not copied into the generated EvidenceBundle.
+the fields above. A top-level `measurements` member is copied unchanged into the
+generated EvidenceBundle and validated there against the EvidenceBundle schema.
+For compatibility with the canonical Z1 aggregate rows, the ingester also
+assembles a one-element `measurements` array when all five legacy top-level
+members are present: `metric`, `value`, `unit`, `acceptance_test`, and
+`sample_count`. A partial legacy measurement fails closed.
 
 ### Scope
 
@@ -77,9 +81,9 @@ shape and units are outside this ingester's validated contract.
 
 The EvidenceBundle schema has a typed `measurements` form only for the predicate
 `barrier_mae_mev<=40`: metric `barrier_mae`, nonnegative numeric `value`, unit
-`meV`, an acceptance test, and a positive sample count. The current ingester does
-not propagate a row's `measurements` member, so it cannot ingest that predicate
-successfully without code changes.
+`meV`, an acceptance test, and a positive sample count. The ingester propagates
+the canonical array or assembles it from the five legacy top-level fields before
+schema validation.
 
 ## Content addresses
 
