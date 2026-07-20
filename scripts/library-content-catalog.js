@@ -611,6 +611,23 @@ export const CATALOG = {
       ]
     },
     {
+      "id": "z1-barrier-campaign-round4",
+      "source": "docs/validation/z1-barrier-campaign-round4-results.md",
+      "title": "Z1 Barrier-Accurate MLIP Campaign — Round-4 Results (Two Precision Chains)",
+      "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; systematic under-prediction.",
+      "category": "validation",
+      "tags": [
+        "z1",
+        "barriers",
+        "neb",
+        "batteries",
+        "round-4",
+        "featured"
+      ],
+      "group": "mlip-flywheel",
+      "status": "refuted"
+    },
+    {
       "id": "z3-adsorption-delta-campaign-round4",
       "source": "docs/validation/z3-adsorption-delta-campaign-round4-results.md",
       "title": "Z3 Δ-Learned Adsorption Accuracy — Round-4 Results",
