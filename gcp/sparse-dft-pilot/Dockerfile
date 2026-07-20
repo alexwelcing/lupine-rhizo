@@ -6,7 +6,7 @@ WORKDIR /app
 # Build toolchain for gpaw's C extension (PyPI serves sdists for this tag;
 # BLAS headers let it link optimized BLAS instead of the noblas fallback).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libopenblas-dev \
+    gcc g++ libopenblas-dev libxc-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
