@@ -4,6 +4,7 @@ import OpenDistillationFactory.HonestErrors.Acceptance
 import OpenDistillationFactory.HonestErrors.ErrorBudget
 import OpenDistillationFactory.HonestErrors.StageGates
 import OpenDistillationFactory.HonestErrors.Endpoint
+import OpenDistillationFactory.HonestErrors.CorrectionBoundary
 import OpenDistillationFactory.HonestErrors.Kinetics.Arrhenius
 import OpenDistillationFactory.HonestErrors.Response.Quadratic
 import OpenDistillationFactory.HonestErrors.Response.Barrier
