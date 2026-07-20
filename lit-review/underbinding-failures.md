@@ -1,0 +1,43 @@
+> **Provenance:** source task `t_c49221d8` (LIT-B) · researcher profile `researcher` · comment date(s) 2026-07-20 · materialized verbatim by director (agent lacked filesystem tools)
+
+<!-- BEGIN VERBATIM kanban comment id=407 -->
+# Evidence digest: uMLIP barrier underprediction / transition-state softening (2022–2026)
+
+## Cases that pass strict provenance
+
+| Primary paper / system | Model(s) and evidence of directional failure | Exact numeric error quoted | Published remedy and outcome | Provenance / access |
+|---|---|---|---|---|
+| **Deng et al. (2025), Mg²⁺ ApproxNEB paths** collected from Rutt et al.; explicit example is Mg migration in `V2O3(SO4)2` (mp-28207) with six intermediate images (paper Fig. 4). | M3GNet, CHGNet, MACE-MP-0. Sec. II.6 says: **“While all three uMLIPs are shown to capture the overall shape of the DFT energy along the path, we observe systematic energy under-predictions of uMLIPs resulting in under-predictions of migration barriers.”** Fig. 4 is titled **“Underpredicted ion migration barriers in DFT and uMLIPs.”** | Sec. II.6: **“MACE achieves the best performance with a 0.34 eV MAE against DFT, followed by CHGNet (0.39 eV) and M3GNet (0.49 eV).”** These are barrier MAEs; direction is independently established by the quoted sentence and parity plot, so the MAEs must not be misreported as signed biases. | The same paper demonstrates local correction on high-energy configurations. Sec. II.7 / Fig. 5: **“The linear corrected CHGNet exhibits a softening scale of 0.965 and a force MAE of 0.166 eV/Å, improved from 0.859 and 0.190 eV/Å in the pre-trained CHGNet.”** Methods: a scalar linear layer is placed before energy prediction; all CHGNet parameters are frozen except that scalar. The correction uses a single DFT-labelled high-energy structure for the illustrated chemical system. This is a force/PES-softening outcome, not a reported post-correction migration-barrier MAE. | Full article text is open (Nature HTML/PDF and arXiv HTML/PDF); quotations anchored to **Sec. II.6, Fig. 4; Sec. II.7/Fig. 5; Methods “Linear correction.”** DOI **10.1038/s41524-024-01500-6**; arXiv **2405.07105**. Direct `web_extract` was unavailable in this run, but the publisher/arXiv full-text index exposed the quoted passages. |
+| **Bheemaguli, Xiao & Sai Gautam (2026), 574 literature-derived solid-state ionic migration paths** benchmarked with NEB. | CHGNet and M3GNet. Results section states: **“In contrast, CHGNet and M3GNet show a bias toward under-estimating barriers, with under-estimated datapoints accounting for 73.1% and 78.2% of all predictions, respectively.”** It immediately quantifies: **“Represented as (under-estimated, over-estimated) pairs, CHGNet and M3GNet exhibit distributions of (420,154) and (449,125), respectively.”** | Same Results passage: **“CHGNet and M3GNet show higher MAE values of 0.248 eV and 0.257 eV with 31 and 36 outliers, respectively.”** Comparator counts in the same section: MACE-MP-0 `(299,275)`, SevenNet `(244,330)`, Orb-v3 `(242,332)`; therefore those three do **not** meet the strict directional-bias inclusion rule. | No fine-tuning/correction outcome is reported in this benchmark. This is an evaluation paper, so remedy = **not demonstrated**. | Open RSC article and arXiv full text; anchor **Results discussion around Fig. 2 (overall barrier parity/error distribution)**. DOI **10.1039/D5DD00534E**; arXiv **2512.03642**. Published *Digital Discovery* **5 (2026) 1809–1819**. Direct extractor unavailable; quotations were verified from indexed RSC/arXiv full-text passages. |
+| **Lian et al. (2025), Li-ion migration paths in crystalline solid electrolytes**; CHGNet-NEB training/test sets generated from transition-state/NEB configurations (2,784 DFT-labelled structures reported for training). | Pretrained CHGNet. Paper explicitly calls the failure PES softening: **“Compared to the pre-trained potential, the fine-tuned CHGNet model clearly reduces the potential energy surface softening…”** This establishes the pretrained model’s softening in the paper’s barrier task. | Conclusion: **“The fine-tuned model reduced the MAE of barriers prediction from 0.24 eV to 0.07 eV on the training set and from 0.23 eV to 0.09 eV on the test set.”** These are MAEs, not signed errors; directional softening is separately stated. | Explicit transition-state fine-tuning with DFT single-point energies, forces, and stresses on CHGNet-generated NEB images. Paper reports **“an 80% improvement in energy barrier prediction accuracy”** and the MAE reductions above. This is the strongest directly demonstrated barrier-specific remedy found. | Open RSC HTML/PDF and arXiv PDF; anchors **Fig. 3 caption / model-performance discussion; Conclusion**. DOI **10.1039/D5TA05355B**; arXiv **2507.02334**. Direct extractor unavailable; exact text verified through indexed full-paper PDF/HTML passages. |
+
+## What the included primary literature does **not** establish
+
+- None of these papers demonstrates that D3/MBD dispersion, short-range repulsion, E0/atomic-reference refits, or explicit charge/spin-state corrections repair **activation-barrier underprediction**. Do not infer those remedies from adsorption/surface studies.
+- Deng et al.’s one-scalar/one-label result repairs a local high-energy **force slope** (0.859→0.965) and force MAE (0.190→0.166 eV/Å); the paper does not quote a corrected migration-barrier MAE from that scalar experiment.
+- Bheemaguli et al. establishes population-level directional bias for CHGNet/M3GNet but does not provide a correction experiment.
+- The reported errors (0.23–0.49 eV MAEs) and fractions underpredicted do not document errors on the order of 3.4–6× low for individual barriers; they support the qualitative signature, not that extreme scale.
+
+## Evidence-derived program hypotheses (clearly hypotheses, not published outcomes)
+
+1. A per-chemical-space multiplicative energy/force calibration is a low-cost diagnostic because Deng et al. found a force slope of 0.859 and corrected it to 0.965 with a scalar layer.
+2. Barrier-specific fine-tuning should prioritize NEB/transition-state images, since Lian et al.’s TS-inclusive 2,784-structure set reduced test barrier MAE 0.23→0.09 eV.
+3. CHGNet and M3GNet should receive stricter abstention/calibration gates than MACE-MP-0, SevenNet, or Orb-v3 in migration screening because only the former two showed strong majority-underprediction (73.1%, 78.2%) in the 574-path benchmark.
+4. A scalar correction is unlikely to be sufficient for the most extreme 3.4–6× failures unless their error is nearly linear within each chemical space; validate slope stability before deploying it.
+
+## References
+
+1. Bowen Deng, Yunyeong Choi, Peichen Zhong, Janosh Riebesell, Shashwat Anand, Zhuohan Li, KyuJung Jun, and Gerbrand Ceder, “Systematic softening in universal machine learning interatomic potentials,” *npj Computational Materials* (2025). DOI: **10.1038/s41524-024-01500-6**. Preprint title: “Overcoming systematic softening in universal machine learning interatomic potentials by fine-tuning,” arXiv:**2405.07105**.
+2. Achinthya Krishna Bheemaguli, Penghao Xiao, and Gopalakrishnan Sai Gautam, “Evaluation of foundational machine learned interatomic potentials for migration barrier predictions,” *Digital Discovery* **5** (2026) 1809–1819. DOI: **10.1039/D5DD00534E**; arXiv:**2512.03642**.
+3. Jingchen Lian, Xiao Fu, Xuhe Gong, Ruijuan Xiao, and Hong Li, “High-throughput NEB for Li-ion conductor discovery via fine-tuned CHGNet potential,” *Journal of Materials Chemistry A* **13** (2025) 34918 ff. DOI: **10.1039/D5TA05355B**; arXiv:**2507.02334**.
+
+**Workspace issue:** this worker runtime exposed web/kanban tools but no filesystem write tool, so I could not physically create `lit-review/underbinding-failures.md`. The complete markdown deliverable is preserved in this task comment for direct downstream use.
+<!-- END VERBATIM kanban comment id=407 -->
+
+---
+
+## Addendum: independent post-completion provenance verification (kanban comment id=410, 2026-07-20 08:51)
+
+<!-- BEGIN VERBATIM kanban comment id=410 -->
+Independent post-completion provenance check: the final publisher PDF for Deng et al. (`https://www.nature.com/articles/s41524-024-01500-6.pdf`) explicitly reports MACE barrier MAE **0.34 eV** (not the 0.30 eV appearing in arXiv:2405.07105v1), followed by CHGNet 0.39 eV and M3GNet 0.49 eV; publisher PDF lines 228–231 also state the majority are underpredicted. The task digest correctly uses the final 0.34 eV value. Note that the scratch workspace has already been cleaned after completion, so the durable deliverable remains comment 407 rather than `lit-review/underbinding-failures.md`.
+<!-- END VERBATIM kanban comment id=410 -->
