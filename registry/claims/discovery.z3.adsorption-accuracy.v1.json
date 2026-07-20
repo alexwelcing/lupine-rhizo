@@ -13,9 +13,13 @@
       "premise_id": "hard_materials_z3_adsorption_mae",
       "statement": "The content-addressed adsorption reference panel reports MAE against published DFT references on a held-out benchmark, below the 0.1 eV Z3 ceiling.",
       "support_policy": {
-        "mode": "unsupported"
+        "mode": "all"
       },
-      "bundle_references": []
+      "bundle_references": [
+        {
+          "bundle_id": "sha256:095ec1577152f47fd1f05012c90bbf3e006e1fd17f53459680f36c79a24af606"
+        }
+      ]
     }
   ],
   "bindings": {
@@ -40,5 +44,5 @@
     "Catalyst screening hit-rate claims beyond the accuracy acceptance test"
   ],
   "supersedes": [],
-  "content_hash": "sha256:87f35a1c916b6af633c2ea02fce1f667fc8c70422e8b8032a9af3bb83a48bf51"
+  "content_hash": "sha256:6fb1a1bc6a4da165fb77b2629b8eaf02760b050d2dc6e8b14cef0e2a2fcabf97"
 }

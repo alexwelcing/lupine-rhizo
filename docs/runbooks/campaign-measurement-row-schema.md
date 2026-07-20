@@ -128,11 +128,11 @@ Before rows are materialized, the ingester enforces all of the following:
 - the complete staged assumption registry and lock can be generated before any
   repository files are changed.
 
-At this checkout, `campaigns/v1/z3.campaign-manifest.v1.json` names premise
-`chemically-held-out-experiment-anchored`, while the corresponding ClaimContract
-contains `hard_materials_z3_adsorption_mae` with an empty baseline reference
-list. The Z3 manifest therefore cannot yet pass this ingester. That is a
-registry/contract prerequisite, not a missing adsorption-energy field in a row.
+The Z3 manifest and ClaimContract both use the governing premise ID
+`hard_materials_z3_adsorption_mae`. The premise cites the pre-execution CatBench
+baseline bundle, whose scope is the locked panel's 32 structures and 96 component
+systems. A Z3 measurement row can therefore pass the ingester's baseline,
+`adsorption_energy_mae<=0.1` predicate, and scope gates before it is materialized.
 
 ## Reproducing the passing example safely
 
