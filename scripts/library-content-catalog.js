@@ -611,6 +611,53 @@ export const CATALOG = {
       ]
     },
     {
+      "id": "z3-adsorption-delta-campaign-round4",
+      "source": "docs/validation/z3-adsorption-delta-campaign-round4-results.md",
+      "title": "Z3 Δ-Learned Adsorption Accuracy — Round-4 Results",
+      "subtitle": "Refuted — 128/128 baseline measurements; every validation-selected correction worsened the holdout (2.27–5.91 eV vs the 0.1 eV gate).",
+      "category": "validation",
+      "tags": [
+        "z3",
+        "adsorption",
+        "delta-learning",
+        "catbench",
+        "round-4",
+        "featured"
+      ],
+      "group": "mlip-flywheel",
+      "status": "refuted"
+    },
+    {
+      "id": "z2-abstention-audit-round4",
+      "source": "docs/campaigns/z2-abstention-audit.md",
+      "title": "Z2 Spin-Aware Campaign — Abstention Audit",
+      "subtitle": "No spin-capable runner, panel, or contract exists; four hash-chained abstention rows, zero cloud spend. Full scope returns with a spin runner.",
+      "category": "validation",
+      "tags": [
+        "z2",
+        "magnetism",
+        "abstention",
+        "round-4"
+      ],
+      "group": "mlip-flywheel",
+      "status": "proposed"
+    },
+    {
+      "id": "round4-elastic-correction-results-amendment",
+      "source": "docs/plans/2026-07-19-round4-preregistration-amendment.md",
+      "title": "Round-4 Elastic Correction — Results and Preregistration Amendment",
+      "subtitle": "Confirmatory fail (0/4, 0/1) with the post-lock violation recorded void and repaired; B0 descriptive-only; zero verdict changes.",
+      "category": "validation",
+      "tags": [
+        "round-4",
+        "elastic",
+        "preregistration",
+        "amendment"
+      ],
+      "group": "mlip-flywheel",
+      "status": "refuted"
+    },
+    {
       "id": "mlip-cloud-baseline-distill",
       "source": "docs/mlip-cloud-baseline-distill-report.md",
       "title": "MLIP Cloud Baseline and Distill: First Real 5x5 Results",
