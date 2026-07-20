@@ -1,7 +1,7 @@
 # China-Lab uMLIPs: State of the Art and Correction Practice
 
-**Literature cutoff:** 20 July 2026  
-**Program:** Lupine MLIP runtime-correction program  
+**Literature cutoff:** 20 July 2026
+**Program:** Lupine MLIP runtime-correction program
 **Provenance rule:** Numerical claims below are quoted only from accessed primary papers, publisher full text, or Lupine's content-addressed campaign reports. `DIRECT` means primary-literature evidence; `LUPINE` means an internal measured result; `INFERENCE` is a proposed interpretation; `UNACCESSED` marks evidence that was not available in sufficient detail. A model's training-set error is never relabeled here as adsorption, surface, or barrier accuracy.
 
 ## Executive conclusion
