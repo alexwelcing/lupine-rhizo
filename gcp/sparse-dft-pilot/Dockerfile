@@ -5,9 +5,9 @@ WORKDIR /app
 
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir \
-      ase==3.28.0 \
+      ase==3.29.0 \
       gpaw==26.7.0 \
-      numpy==1.26.4 \
+      numpy==2.4.6 \
       google-cloud-storage==2.18.0
 
 COPY gcp/mlip-cell-runner/z1_barrier.py ./
