@@ -38,8 +38,24 @@ PROJECT = "shed-489901"
 
 
 def gcloud_cp(uri: str, dest: Path) -> None:
-    subprocess.run(["gcloud", "storage", "cp", uri, str(dest), "--project", PROJECT],
-                   check=True, capture_output=True)
+    """Download a gs:// object using ADC (the job's service account)."""
+    from google.cloud import storage
+
+    bucket_name, _, blob_name = uri.removeprefix("gs://").partition("/")
+    if not bucket_name or not blob_name:
+        raise ValueError(f"not a gs:// URI: {uri}")
+    client = storage.Client()
+    client.bucket(bucket_name).blob(blob_name).download_to_filename(str(dest))
+
+
+def gcs_upload(local: Path, uri: str) -> None:
+    from google.cloud import storage
+
+    bucket_name, _, blob_name = uri.removeprefix("gs://").partition("/")
+    if not bucket_name or not blob_name:
+        raise ValueError(f"not a gs:// URI: {uri}")
+    client = storage.Client()
+    client.bucket(bucket_name).blob(blob_name).upload_from_filename(str(local))
 
 
 def load_json(path: Path) -> dict:
@@ -167,7 +183,7 @@ def main() -> int:
     if args.out.startswith("gs://"):
         tmp = workdir / "pilot-results.json"
         tmp.write_text(payload, encoding="utf-8")
-        subprocess.run(["gcloud", "storage", "cp", str(tmp), args.out, "--project", PROJECT], check=True)
+        gcs_upload(tmp, args.out)
     else:
         Path(args.out).write_text(payload, encoding="utf-8")
     print(json.dumps(summary, indent=1))
