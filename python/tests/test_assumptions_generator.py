@@ -170,9 +170,10 @@ class AssumptionsGeneratorTests(unittest.TestCase):
                 "discovery.round-4.z1-barriers.v1",
                 "discovery.round-4.z2-magnetic-anisotropy.v1",
                 "discovery.round-4.z3-adsorption.v1",
+                "discovery.round-5.z1-correction-train.v1",
             ],
         )
-        self.assertEqual(len(lock["inputs"]["campaign_manifests"]), 4)
+        self.assertEqual(len(lock["inputs"]["campaign_manifests"]), 5)
         self.assertIn("registry/campaigns.v1.json", lock["artifacts"])
 
     def test_campaign_loader_rejects_a_stale_content_hash(self) -> None:

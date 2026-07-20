@@ -4,7 +4,7 @@
       "content_hash": "sha256:a83f1c4d3f600e5498e0506e8bc5ad402d35d1ab380d883c88eecedd8a92d3cb"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:8343774190df7c14c13f0f486cbf6e8a76de96d479e9854914dad802a36ba286"
+      "content_hash": "sha256:883ac1acce10b4dc936214172792cb770db090e6c7721dfe5fd2264f4a4c7d76"
     }
   },
   "inputs": {
@@ -24,6 +24,10 @@
       {
         "campaign_id": "discovery.round-4.z3-adsorption.v1",
         "content_hash": "sha256:49f5f20e41450697b63b9ff079fe25b5490ba684956c5d68bb37a5d2cd02c494"
+      },
+      {
+        "campaign_id": "discovery.round-5.z1-correction-train.v1",
+        "content_hash": "sha256:4ee27414ebf561043980c92b4e10507ae8631c6790ba753875285ff369260e40"
       }
     ],
     "claim_contracts": [
