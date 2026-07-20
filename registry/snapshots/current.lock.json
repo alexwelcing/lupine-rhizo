@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:7964cc5aa372d448a927c66ac40a34ebb1a37e422ea045e5258bf23587318c82"
+      "content_hash": "sha256:a83f1c4d3f600e5498e0506e8bc5ad402d35d1ab380d883c88eecedd8a92d3cb"
     },
     "registry/campaigns.v1.json": {
       "content_hash": "sha256:8343774190df7c14c13f0f486cbf6e8a76de96d479e9854914dad802a36ba286"
@@ -41,11 +41,11 @@
       },
       {
         "claim_id": "discovery.z1.barrier-accuracy.v1",
-        "content_hash": "sha256:08e753ee69c2c700703b01a5b47d31e72cfc6e854ca795363ed0ab11e2631e19"
+        "content_hash": "sha256:4e4f88766772cc8c17ae95c38fe220c812a9adb74dae028290dd7ab2fafb38c1"
       },
       {
         "claim_id": "discovery.z3.adsorption-accuracy.v1",
-        "content_hash": "sha256:6fb1a1bc6a4da165fb77b2629b8eaf02760b050d2dc6e8b14cef0e2a2fcabf97"
+        "content_hash": "sha256:bef60bb3ff745736b5ee897d46e085385fcfa6942be61a5a8a76c413583a6e12"
       },
       {
         "claim_id": "fcc.b0.anticorrelation.v1",
@@ -56,10 +56,18 @@
       "sha256:095ec1577152f47fd1f05012c90bbf3e006e1fd17f53459680f36c79a24af606",
       "sha256:2420d5f743e98bdcbb0286d9996d0724d1f09326d74740b3336eb92402ead6ec",
       "sha256:3841fb153a282b8f149c884b7b6ccc74b8c427f747a2881bff6b6176e4ebd935",
+      "sha256:49782118ad3ecc42a0e534a0b3f850ffb04a746f10eaaa0732c1679b344e9f16",
       "sha256:4a31ae007b43ce9ad5d39c2fe0b542a3108d8a4871e795e8b951f85b3285a554",
+      "sha256:52a03d8159e92166f4f236ba01beab7e4665065d56475f0d1058cd4c9dde9285",
       "sha256:54fd5b2a796386ebca206cc3892db50fd967184feee1f3d2767f6f3da1e7726b",
       "sha256:6524462c811124e94be191327dd6095ce785892ae9a71f019585b9bde052e3c2",
-      "sha256:d24af382da6650cd6e4d2ab69be90d733befe227c2f19defbf30fdace097dc46"
+      "sha256:990fed4734d55eb8e7a40573ac4ba1dadb5475e2ef445c1292df275e5e990946",
+      "sha256:a584270a3168b27f0bf6cf39b9ea566820037880808a783ef56a82cbc70c3f57",
+      "sha256:a7c3f472d9774ae49fe48b6562e8eccf394db5ed2f40134d9c4e596268e0aaa5",
+      "sha256:bfb1481cc6cdb547f4e438eb13c2a10489b48679280c1c46abab4364ebb83f78",
+      "sha256:d24af382da6650cd6e4d2ab69be90d733befe227c2f19defbf30fdace097dc46",
+      "sha256:e09dec9e5dbc4a08144a728456afd58d776199db1f679155602bf81add00d8e0",
+      "sha256:f1752a20cdf035b45f5ab956c6c914921b1b07c1df0a3f5d664ecbd6fde0f521"
     ]
   },
   "version": 1

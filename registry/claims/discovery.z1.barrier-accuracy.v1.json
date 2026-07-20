@@ -1,42 +1,27 @@
 {
-  "claim_id": "discovery.z1.barrier-accuracy.v1",
-  "version": 1,
-  "statement": "The Z1 barrier-accurate MLIP screening panel satisfies the Hard Materials Z1 migration-barrier acceptance test (MAE <= 40 meV) on a chemistry-held-out DFT-NEB benchmark.",
-  "classification": {
-    "intent": "confirmatory",
-    "outcome": "pending",
-    "assurance": "unsupported",
-    "strength": "predictive"
-  },
-  "premises": [
-    {
-      "premise_id": "chemistry-held-out-neb",
-      "statement": "The content-addressed 30-path LiTraj nebDFT2k barrier panel reports MAE against published DFT-NEB references across 30 held-out chemical systems, below the 40 meV Z1 ceiling.",
-      "support_policy": {
-        "mode": "all"
-      },
-      "bundle_references": [
-        {
-          "bundle_id": "sha256:6524462c811124e94be191327dd6095ce785892ae9a71f019585b9bde052e3c2"
-        }
-      ]
-    }
-  ],
   "bindings": {
     "lean_theorem": {
-      "status": "unsupported",
-      "reason": "BarrierArrhenius and HonestErrors.Kinetics theorems formalize consequences of barrier error; they do not prove the empirical 30-path aggregate MAE."
-    },
-    "runtime_gate": {
-      "status": "unsupported",
-      "reason": "No deployed runtime gate consumes the Hard Materials Z1 aggregate barrier-accuracy measurement."
+      "reason": "BarrierArrhenius and HonestErrors.Kinetics theorems formalize consequences of barrier error; they do not prove the empirical 30-path aggregate MAE.",
+      "status": "unsupported"
     },
     "publication": {
-      "status": "bound",
       "publication_id": "gates.licenses.paper.v1",
-      "recurring_claim": "result1.discovery.z1.barrier.accuracy"
+      "recurring_claim": "result1.discovery.z1.barrier.accuracy",
+      "status": "bound"
+    },
+    "runtime_gate": {
+      "reason": "No deployed runtime gate consumes the Hard Materials Z1 aggregate barrier-accuracy measurement.",
+      "status": "unsupported"
     }
   },
+  "claim_id": "discovery.z1.barrier-accuracy.v1",
+  "classification": {
+    "assurance": "withdrawn",
+    "intent": "confirmatory",
+    "outcome": "contradicted",
+    "strength": "predictive"
+  },
+  "content_hash": "sha256:4e4f88766772cc8c17ae95c38fe220c812a9adb74dae028290dd7ab2fafb38c1",
   "excluded_scope": [
     "Barrier accuracy for models other than the declared available models (chgnet, mace-mp-small, mace-mp-medium, mace-mpa-0-medium)",
     "Structures or chemistries outside the 30-path held-out LiTraj nebDFT2k panel",
@@ -44,6 +29,33 @@
     "Charged-defect corrections, finite-temperature prefactors, diffusivities, and Arrhenius rates",
     "Battery screening hit-rate claims beyond the barrier-accuracy acceptance test"
   ],
+  "premises": [
+    {
+      "bundle_references": [
+        {
+          "bundle_id": "sha256:6524462c811124e94be191327dd6095ce785892ae9a71f019585b9bde052e3c2"
+        },
+        {
+          "bundle_id": "sha256:990fed4734d55eb8e7a40573ac4ba1dadb5475e2ef445c1292df275e5e990946"
+        },
+        {
+          "bundle_id": "sha256:f1752a20cdf035b45f5ab956c6c914921b1b07c1df0a3f5d664ecbd6fde0f521"
+        },
+        {
+          "bundle_id": "sha256:a584270a3168b27f0bf6cf39b9ea566820037880808a783ef56a82cbc70c3f57"
+        },
+        {
+          "bundle_id": "sha256:e09dec9e5dbc4a08144a728456afd58d776199db1f679155602bf81add00d8e0"
+        }
+      ],
+      "premise_id": "chemistry-held-out-neb",
+      "statement": "The content-addressed 30-path LiTraj nebDFT2k barrier panel reports MAE against published DFT-NEB references across 30 held-out chemical systems, below the 40 meV Z1 ceiling.",
+      "support_policy": {
+        "mode": "all"
+      }
+    }
+  ],
+  "statement": "The Z1 barrier-accurate MLIP screening panel satisfies the Hard Materials Z1 migration-barrier acceptance test (MAE <= 40 meV) on a chemistry-held-out DFT-NEB benchmark.",
   "supersedes": [],
-  "content_hash": "sha256:08e753ee69c2c700703b01a5b47d31e72cfc6e854ca795363ed0ab11e2631e19"
+  "version": 1
 }
