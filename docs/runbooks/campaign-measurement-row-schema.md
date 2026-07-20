@@ -1,5 +1,11 @@
 # Campaign measurement-row input contract
 
+> **Superseded:** use [`docs/ingestion_schema.md`](../ingestion_schema.md) for
+> the exact current contract. It distinguishes the RFC 8785 row hash from the
+> project's `json.dumps`-based semantic hashes, documents the absence of a
+> dry-run flag, and removes assumptions about fixtures or unit enforcement.
+> The text below is retained only as historical campaign guidance.
+
 `tools/ingest_campaign_results.py` consumes newline-delimited JSON (JSONL). Each
 nonblank line must decode to one JSON object. The file must contain at least one
 row. There is no separate JSON Schema for an input row; this document records

@@ -1,0 +1,189 @@
+{
+  "artifact_count": 32,
+  "campaign_manifest_hash": "sha256:49f5f20e41450697b63b9ff079fe25b5490ba684956c5d68bb37a5d2cd02c494",
+  "content_hash": "sha256:7179e1087808b0969737d7f3971241e4f049d571f80491c67c4b142074cca1a4",
+  "delta_correction_artifact": {
+    "bytes": 28549,
+    "path": "data/candidates/z3/delta-correction-report.json",
+    "sha256": "sha256:95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f"
+  },
+  "files": [
+    {
+      "bytes": 35003,
+      "path": "data/candidates/z3/measurements.jsonl",
+      "sha256": "sha256:ac54a86f1340e4fc3dbbc5d392f33d84f1f845090b09cbd9fa75dc462605dd88"
+    },
+    {
+      "bytes": 15735,
+      "path": "data/candidates/z3/artifacts/biomass_ni_mol1.json",
+      "sha256": "sha256:a97df32b244ab8276121e47f339dae059b283dbbbf3edfe1d207b74efa1fa7fa"
+    },
+    {
+      "bytes": 15745,
+      "path": "data/candidates/z3/artifacts/biomass_ni_mol2.json",
+      "sha256": "sha256:08fe234caa9e394355f79fe69fa42ace4953ba03445408cc22b556477ed961b7"
+    },
+    {
+      "bytes": 15755,
+      "path": "data/candidates/z3/artifacts/biomass_ni_mol3.json",
+      "sha256": "sha256:3d7762c63377b37676868e8cbfa1bc82cd302775b7f1f289236808c8af09e4d8"
+    },
+    {
+      "bytes": 15768,
+      "path": "data/candidates/z3/artifacts/biomass_ni_mol4.json",
+      "sha256": "sha256:9136f7facc6b8bcff0f64796a724da5b5c4c4735f6fac3203cfdecdcdffdeb1b"
+    },
+    {
+      "bytes": 14789,
+      "path": "data/candidates/z3/artifacts/biomass_ni_mol5.json",
+      "sha256": "sha256:30f15a266bdecf77ae2b269acb70a9403b0f81c5a1e16c67608cb5cdbd32f1b2"
+    },
+    {
+      "bytes": 15712,
+      "path": "data/candidates/z3/artifacts/biomass_ru_mol1.json",
+      "sha256": "sha256:ac2edaccc3ec97e407a52a5add7d3d5633bcc8c426351c8d5d026f9407c4d9f2"
+    },
+    {
+      "bytes": 14819,
+      "path": "data/candidates/z3/artifacts/biomass_ru_mol2.json",
+      "sha256": "sha256:3a26b52c4c936ead35a468b4775a2c41a33c269e677beba06d06c8f96a29690b"
+    },
+    {
+      "bytes": 14809,
+      "path": "data/candidates/z3/artifacts/biomass_ru_mol3.json",
+      "sha256": "sha256:2e3c1cc9d62031a03f49251e1cc7df0e383e0fe8dd66a0c327a413c3ed267fb7"
+    },
+    {
+      "bytes": 15733,
+      "path": "data/candidates/z3/artifacts/biomass_ru_mol4.json",
+      "sha256": "sha256:94942c38b3cdbeb79631f7f429dbf50ed2806f3cec307bb8fd4fd5ce7088b0ec"
+    },
+    {
+      "bytes": 14813,
+      "path": "data/candidates/z3/artifacts/biomass_ru_mol5.json",
+      "sha256": "sha256:303beb6c727953735b9e6871bc58aa84aac0cb9b1f0d6c663e496a5b5247fbb4"
+    },
+    {
+      "bytes": 15718,
+      "path": "data/candidates/z3/artifacts/plastics_pt_PE.json",
+      "sha256": "sha256:8039e3512963b32128905a47ab08be78447c9140baa153695de37c9141787b9c"
+    },
+    {
+      "bytes": 15735,
+      "path": "data/candidates/z3/artifacts/plastics_pt_PET.json",
+      "sha256": "sha256:6180048410fa12186b297281d2be165d6082f00245802112c190063d3398e39f"
+    },
+    {
+      "bytes": 15777,
+      "path": "data/candidates/z3/artifacts/plastics_pt_PPit.json",
+      "sha256": "sha256:ee6216320075e289406cf5d73019e34d113898bc76f21d6526b262113dab32e9"
+    },
+    {
+      "bytes": 14843,
+      "path": "data/candidates/z3/artifacts/plastics_pt_PPst.json",
+      "sha256": "sha256:0e8904c0488e0c0dbeda0e64e6a50749c1797622534d9f5570f9af3eab455895"
+    },
+    {
+      "bytes": 14752,
+      "path": "data/candidates/z3/artifacts/plastics_pt_PS.json",
+      "sha256": "sha256:fa8f8c86d2b6713e0197ccbc7036c86247e0bc48a0eeba1dd0c4e14a19444325"
+    },
+    {
+      "bytes": 14820,
+      "path": "data/candidates/z3/artifacts/plastics_ru_PET.json",
+      "sha256": "sha256:aacfd044bdae1ba9a6bc4cae7cd2a063c5cabf9f8bfd6a3fdf1d1d4482ba1524"
+    },
+    {
+      "bytes": 14770,
+      "path": "data/candidates/z3/artifacts/plastics_ru_PS.json",
+      "sha256": "sha256:c0c9c1673fc1734b5474c4176c7611786eebe943408c52747e128ddb46b7dc2d"
+    },
+    {
+      "bytes": 15976,
+      "path": "data/candidates/z3/artifacts/polyurethanes_ag_mol16.json",
+      "sha256": "sha256:8e09375746940b76385fc30e3e0a1aa6f5d35afbb5534df2c6585949991e08c7"
+    },
+    {
+      "bytes": 15973,
+      "path": "data/candidates/z3/artifacts/polyurethanes_ag_mol17.json",
+      "sha256": "sha256:886b2e4d88957f46f91caedbb38e37dc356c1ce8ccff766f997dd346a5dc65eb"
+    },
+    {
+      "bytes": 15975,
+      "path": "data/candidates/z3/artifacts/polyurethanes_ag_mol18.json",
+      "sha256": "sha256:10161e768e3120e7712aff148e8d69f960de4a5ebef9075120f2c560943c39e2"
+    },
+    {
+      "bytes": 15990,
+      "path": "data/candidates/z3/artifacts/polyurethanes_ag_mol19.json",
+      "sha256": "sha256:b2e34448d8d8a732c65b42cec1b50c1987ae88900e8fe825d9e4c523667730d9"
+    },
+    {
+      "bytes": 15994,
+      "path": "data/candidates/z3/artifacts/polyurethanes_ag_mol41.json",
+      "sha256": "sha256:b91b3b4c36cf21c718f8c863f7ed3009aa477369361a28a20aac542d1ed3bb5a"
+    },
+    {
+      "bytes": 15975,
+      "path": "data/candidates/z3/artifacts/polyurethanes_au_mol16.json",
+      "sha256": "sha256:6715f458688f965ae1d4e9b5e3d4c1660b0ee138c82009018f987c3b73401157"
+    },
+    {
+      "bytes": 15976,
+      "path": "data/candidates/z3/artifacts/polyurethanes_au_mol17.json",
+      "sha256": "sha256:90149af1fda6916e0a5ec53ce7f3d0e1743c981899d3c0a610a60d5356e48bff"
+    },
+    {
+      "bytes": 15031,
+      "path": "data/candidates/z3/artifacts/polyurethanes_au_mol18.json",
+      "sha256": "sha256:e5fc65dbd07ed1f6dfcfd9135ea9e15b607a2f0d936c380a11bf71cc8656c7d8"
+    },
+    {
+      "bytes": 15063,
+      "path": "data/candidates/z3/artifacts/polyurethanes_au_mol19.json",
+      "sha256": "sha256:a733201b124bdde8f780d4d4ab4755098a00addacfd280fc25e4afc1cdbe6ee9"
+    },
+    {
+      "bytes": 15050,
+      "path": "data/candidates/z3/artifacts/polyurethanes_au_mol41.json",
+      "sha256": "sha256:05e437d5046455242edee6263dba10687c624026083b093429d66a9b2bfad6f0"
+    },
+    {
+      "bytes": 15956,
+      "path": "data/candidates/z3/artifacts/polyurethanes_cu_mol16.json",
+      "sha256": "sha256:41d4767f783b957314f10f762881102034287f337a7c9e70b8a93d17c45f9ad1"
+    },
+    {
+      "bytes": 15041,
+      "path": "data/candidates/z3/artifacts/polyurethanes_cu_mol17.json",
+      "sha256": "sha256:e868500b32dbbed206714367218d4e858f618213fe4f05802f423d7f46ddfdc8"
+    },
+    {
+      "bytes": 15967,
+      "path": "data/candidates/z3/artifacts/polyurethanes_cu_mol18.json",
+      "sha256": "sha256:be9047e96260ff462d8580a20532eeb8ccc3b2da36fe2fcbe855837bdf92c622"
+    },
+    {
+      "bytes": 15973,
+      "path": "data/candidates/z3/artifacts/polyurethanes_cu_mol19.json",
+      "sha256": "sha256:4b10b09c340a022bde214b993dfd9f521799d24d96b08118e4b60f0b8e305850"
+    },
+    {
+      "bytes": 15973,
+      "path": "data/candidates/z3/artifacts/polyurethanes_cu_mol41.json",
+      "sha256": "sha256:15c7dc28b0fd494d8e90ef5f86005c0795158d7c80f1c6a49ea19ceba4f76b41"
+    }
+  ],
+  "measurements_bytes": 35003,
+  "measurements_path": "data/candidates/z3/measurements.jsonl",
+  "measurements_sha256": "sha256:ac54a86f1340e4fc3dbbc5d392f33d84f1f845090b09cbd9fa75dc462605dd88",
+  "row_chain_head": "sha256:1a0bc336a9843a0dcb861fb6f91301b8a662f937e4d9a52ef653437559e846ba",
+  "row_chain_tail": "sha256:f7b22c20ef77711fc861cfc9c743af00eb26cf26829f3239d67f1b1a962b87da",
+  "row_count": 4,
+  "schema": "lupine.z3.measurement-artifact-manifest.v1",
+  "source_artifact": {
+    "bytes": 477880,
+    "path": "data/candidates/z3/source/z3-candidate-measurements.json",
+    "sha256": "sha256:d100d09defa3d7dd0395d3a28de8d80389b753646fbde743efeb115c1cf2914e"
+  }
+}

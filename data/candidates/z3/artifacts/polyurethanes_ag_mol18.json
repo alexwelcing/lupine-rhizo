@@ -1,0 +1,367 @@
+{
+  "campaign_manifest": {
+    "content_hash": "sha256:49f5f20e41450697b63b9ff079fe25b5490ba684956c5d68bb37a5d2cd02c494",
+    "path": "campaigns/v1/z3.campaign-manifest.v1.json"
+  },
+  "candidate": {
+    "adsorbate_formula": "C9H12N2O2",
+    "application_family": "polyurethanes",
+    "candidate_id": "polyurethanes_ag_mol18",
+    "conditions": {
+      "adsorption_site": "source lowest-energy relaxed configuration; site label is not published",
+      "coverage": {
+        "adsorbates_per_periodic_cell": 1,
+        "derivation": "one source adsorbate divided by the source periodic surface-cell area",
+        "molecules_per_square_angstrom": 0.003835706335,
+        "molecules_per_square_nanometer": 0.383570633488,
+        "surface_cell_area_angstrom2": 260.70817541673
+      },
+      "energy_definition": "E(adsorbate+slab) - E(clean slab) - E(gas-phase adsorbate)",
+      "facet": "fcc(111)",
+      "surface_state": "source DFT-relaxed slab; no independent reconstruction label is published",
+      "temperature": {
+        "interpretation": "DFT electronic energy; no vibrational, entropic, or finite-temperature correction",
+        "value_k": 0.0
+      }
+    },
+    "model_measurements": [
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:chgnet:polyurethanes_ag_mol18",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/chgnet/polyurethanes_ag_mol18/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:7605efff2d35594ed4a76f53cda5883dc0d465be288397183c39056126bb2c08",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/polyurethanes_ag_mol18.sha256-16554f57e1d85a4107a5bad91a89027b9745db0dde5acb7648e167ebed9fcc4b.json",
+          "sha256": "9c6d9ea557d63af0bfd9cdf6192765e6e569e024467206f7ef826c4f2943e0fa"
+        },
+        "candidate_id": "polyurethanes_ag_mol18",
+        "cloud_run": {
+          "completed_at": "2026-07-20T00:35:22.728230Z",
+          "cpu": "4",
+          "created_at": "2026-07-20T00:32:42.289699Z",
+          "execution_name": "mlip-cell-chgnet-2d75g",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-chgnet@sha256:e9e1ceeb6a060ee92031f5b5d9011ccd8745e92a09a708109f34e4dca9592e3b",
+          "job": "mlip-cell-chgnet",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 1.1511884497387697,
+        "corrected_signed_error_ev": -1.1511884497387697,
+        "delta_correction_ev": 0.4541376742663574,
+        "delta_hybrid_corrected_adsorption_energy_ev": -1.9243386897387698,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "chgnet",
+        "raw_adsorption_energy_ev": -1.470201015472412,
+        "raw_signed_error_ev": -0.6970507754724121,
+        "reference_adsorption_energy_ev": -0.77315024,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 1.7503335769999993,
+          "model_load_seconds": 12.349083476,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": "0.4.2",
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": null,
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 1.7503335769999993
+        },
+        "selected_correction_form": "C_family_linear",
+        "systems": [
+          {
+            "raw_total_energy_ev": -157.60226249694824,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18gas"
+          },
+          {
+            "raw_total_energy_ev": -547.2397952079773,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18star"
+          },
+          {
+            "raw_total_energy_ev": -388.16733169555664,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mp-medium:polyurethanes_ag_mol18",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mp-medium/polyurethanes_ag_mol18/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:7605efff2d35594ed4a76f53cda5883dc0d465be288397183c39056126bb2c08",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/polyurethanes_ag_mol18.sha256-16554f57e1d85a4107a5bad91a89027b9745db0dde5acb7648e167ebed9fcc4b.json",
+          "sha256": "31cec0d3111193e129d6894fa634072cad3197083c302aef68e0b7436c451383"
+        },
+        "candidate_id": "polyurethanes_ag_mol18",
+        "cloud_run": {
+          "completed_at": "2026-07-20T00:46:06.613077Z",
+          "cpu": "4",
+          "created_at": "2026-07-20T00:32:41.895896Z",
+          "execution_name": "mlip-cell-mace-mp-medium-x99t5",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mp-medium",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 7.076248576438802,
+        "corrected_signed_error_ev": -7.076248576438802,
+        "delta_correction_ev": 7.119372571321614,
+        "delta_hybrid_corrected_adsorption_energy_ev": -7.849398816438802,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mp-medium",
+        "raw_adsorption_energy_ev": -0.7300262451171875,
+        "raw_signed_error_ev": 0.04312399488281249,
+        "reference_adsorption_energy_ev": -0.77315024,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 0.15669850199999935,
+          "model_load_seconds": 9.392445018,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 0.15669850199999935
+        },
+        "selected_correction_form": "A_global_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -156.09486389160156,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18gas"
+          },
+          {
+            "raw_total_energy_ev": -541.3135375976562,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18star"
+          },
+          {
+            "raw_total_energy_ev": -384.4886474609375,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mp-small:polyurethanes_ag_mol18",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mp-small/polyurethanes_ag_mol18/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:7605efff2d35594ed4a76f53cda5883dc0d465be288397183c39056126bb2c08",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/polyurethanes_ag_mol18.sha256-16554f57e1d85a4107a5bad91a89027b9745db0dde5acb7648e167ebed9fcc4b.json",
+          "sha256": "36a8a7beff8e75bed0cb64c14f9101159d84e7754ccd290baf8c56c73322fbc0"
+        },
+        "candidate_id": "polyurethanes_ag_mol18",
+        "cloud_run": {
+          "completed_at": "2026-07-20T00:29:23.543352Z",
+          "cpu": "4",
+          "created_at": "2026-07-20T00:24:52.370281Z",
+          "execution_name": "mlip-cell-mace-mp-small-t6dsq",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mp-small",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 7.359006653424479,
+        "corrected_signed_error_ev": -7.359006653424479,
+        "delta_correction_ev": 7.969055697135416,
+        "delta_hybrid_corrected_adsorption_energy_ev": -8.13215689342448,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mp-small",
+        "raw_adsorption_energy_ev": -0.1631011962890625,
+        "raw_signed_error_ev": 0.6100490437109375,
+        "reference_adsorption_energy_ev": -0.77315024,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 5.711195923,
+          "model_load_seconds": 9.211052565,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 5.711195923
+        },
+        "selected_correction_form": "A_global_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -156.08494567871094,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18gas"
+          },
+          {
+            "raw_total_energy_ev": -538.7286987304688,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18star"
+          },
+          {
+            "raw_total_energy_ev": -382.48065185546875,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mpa-0-medium:polyurethanes_ag_mol18",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mpa-0-medium/polyurethanes_ag_mol18/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:7605efff2d35594ed4a76f53cda5883dc0d465be288397183c39056126bb2c08",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/polyurethanes_ag_mol18.sha256-16554f57e1d85a4107a5bad91a89027b9745db0dde5acb7648e167ebed9fcc4b.json",
+          "sha256": "481e599e9e1550ee4155ab9ceaacb76fda3bb873087d0bbefc2101ad9ab0ec74"
+        },
+        "candidate_id": "polyurethanes_ag_mol18",
+        "cloud_run": {
+          "completed_at": "2026-07-20T00:36:46.360596Z",
+          "cpu": "4",
+          "created_at": "2026-07-20T00:32:42.266628Z",
+          "execution_name": "mlip-cell-mace-mpa-0-medium-sczk6",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mpa-0-medium",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 1.2780299948437501,
+        "corrected_signed_error_ev": -1.2780299948437501,
+        "delta_correction_ev": 1.860475889140625,
+        "delta_hybrid_corrected_adsorption_energy_ev": -2.0511802348437502,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mpa-0-medium",
+        "raw_adsorption_energy_ev": -0.190704345703125,
+        "raw_signed_error_ev": 0.582445894296875,
+        "reference_adsorption_energy_ev": -0.77315024,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 0.14175396199999568,
+          "model_load_seconds": 26.275448963000002,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 0.14175396199999568
+        },
+        "selected_correction_form": "B_family_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -154.7626953125,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18gas"
+          },
+          {
+            "raw_total_energy_ev": -538.1646118164062,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "polyurethanes_ag_mol18:mol18star"
+          },
+          {
+            "raw_total_energy_ev": -383.2112121582031,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "polyurethanes_ag_mol18:star"
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "adsorption_energy_ev": -0.77315024,
+      "confidence_level": null,
+      "scope_note": "Three times the published 1e-5 eV electronic convergence threshold. This is not a statistical interval and excludes functional, slab, k-point, geometry, dispersion, and model-form uncertainty.",
+      "uncertainty_ev": 3.0000000000000004e-05,
+      "uncertainty_kind": "three-term electronic-convergence proxy bound"
+    },
+    "split": "confirmatory_test",
+    "surface_element": "Ag",
+    "surface_facet": "fcc(111)"
+  },
+  "delta_correction_report": {
+    "path": "data/candidates/z3/delta-correction-report.json",
+    "sha256": "sha256:95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f"
+  },
+  "run_id": "z3-20260719",
+  "schema": "lupine.z3.candidate_measurement_artifact.v1",
+  "source": {
+    "path": "data/candidates/z3/source/z3-candidate-measurements.json",
+    "sha256": "sha256:d100d09defa3d7dd0395d3a28de8d80389b753646fbde743efeb115c1cf2914e"
+  },
+  "unit": "eV"
+}

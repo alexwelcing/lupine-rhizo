@@ -1,0 +1,367 @@
+{
+  "campaign_manifest": {
+    "content_hash": "sha256:49f5f20e41450697b63b9ff079fe25b5490ba684956c5d68bb37a5d2cd02c494",
+    "path": "campaigns/v1/z3.campaign-manifest.v1.json"
+  },
+  "candidate": {
+    "adsorbate_formula": "C15H32",
+    "application_family": "plastics",
+    "candidate_id": "plastics_pt_PPit",
+    "conditions": {
+      "adsorption_site": "source lowest-energy relaxed configuration; site label is not published",
+      "coverage": {
+        "adsorbates_per_periodic_cell": 1,
+        "derivation": "one source adsorbate divided by the source periodic surface-cell area",
+        "molecules_per_square_angstrom": 0.003055667975,
+        "molecules_per_square_nanometer": 0.305566797482,
+        "surface_cell_area_angstrom2": 327.260686776673
+      },
+      "energy_definition": "E(adsorbate+slab) - E(clean slab) - E(gas-phase adsorbate)",
+      "facet": "fcc(111)",
+      "surface_state": "source DFT-relaxed slab; no independent reconstruction label is published",
+      "temperature": {
+        "interpretation": "DFT electronic energy; no vibrational, entropic, or finite-temperature correction",
+        "value_k": 0.0
+      }
+    },
+    "model_measurements": [
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:chgnet:plastics_pt_PPit",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/chgnet/plastics_pt_PPit/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:fc09450daa41094533c819bf5c8f0238a03113a7ae7229d0d8ed31d57743049f",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/plastics_pt_PPit.sha256-f2674d814c0311173e19752e902ac5df8a1a6e5302883c1a86c27dfdc6e595cf.json",
+          "sha256": "1ac0846d872ed50111d612953a80d0cfd4941dbe89bdecd9b81133c201a12997"
+        },
+        "candidate_id": "plastics_pt_PPit",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:56:29.041428Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:53:10.554164Z",
+          "execution_name": "mlip-cell-chgnet-sx9ls",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-chgnet@sha256:e9e1ceeb6a060ee92031f5b5d9011ccd8745e92a09a708109f34e4dca9592e3b",
+          "job": "mlip-cell-chgnet",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 11.403367409919426,
+        "corrected_signed_error_ev": -11.403367409919426,
+        "delta_correction_ev": 10.398039668483879,
+        "delta_hybrid_corrected_adsorption_energy_ev": -12.332560389919426,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "chgnet",
+        "raw_adsorption_energy_ev": -1.9345207214355469,
+        "raw_signed_error_ev": -1.005327741435547,
+        "reference_adsorption_energy_ev": -0.92919298,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 1.5558292089999988,
+          "model_load_seconds": 6.587537111,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": "0.4.2",
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": null,
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 1.5558292089999988
+        },
+        "selected_correction_form": "C_family_linear",
+        "systems": [
+          {
+            "raw_total_energy_ev": -254.36979055404663,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:PPitgas"
+          },
+          {
+            "raw_total_energy_ev": -1381.1504111289978,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "plastics_pt_PPit:PPitstar"
+          },
+          {
+            "raw_total_energy_ev": -1124.8460998535156,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mp-medium:plastics_pt_PPit",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mp-medium/plastics_pt_PPit/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:fc09450daa41094533c819bf5c8f0238a03113a7ae7229d0d8ed31d57743049f",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/plastics_pt_PPit.sha256-f2674d814c0311173e19752e902ac5df8a1a6e5302883c1a86c27dfdc6e595cf.json",
+          "sha256": "2ae2a5f9608857c43f3a8e00fa7444fc1980e6e3b3f85b50d4038e724031a28b"
+        },
+        "candidate_id": "plastics_pt_PPit",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:56:38.788960Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:52:56.254670Z",
+          "execution_name": "mlip-cell-mace-mp-medium-zwj4h",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mp-medium",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 6.191110377454427,
+        "corrected_signed_error_ev": -6.191110377454427,
+        "delta_correction_ev": 7.119372571321614,
+        "delta_hybrid_corrected_adsorption_energy_ev": -7.120303357454427,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mp-medium",
+        "raw_adsorption_energy_ev": -0.0009307861328125,
+        "raw_signed_error_ev": 0.9282621938671874,
+        "reference_adsorption_energy_ev": -0.92919298,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 5.817429313999998,
+          "model_load_seconds": 12.592015251,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 5.817429313999998
+        },
+        "selected_correction_form": "A_global_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -255.4186248779297,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:PPitgas"
+          },
+          {
+            "raw_total_energy_ev": -1362.5013427734375,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "plastics_pt_PPit:PPitstar"
+          },
+          {
+            "raw_total_energy_ev": -1107.081787109375,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mp-small:plastics_pt_PPit",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mp-small/plastics_pt_PPit/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:fc09450daa41094533c819bf5c8f0238a03113a7ae7229d0d8ed31d57743049f",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/plastics_pt_PPit.sha256-f2674d814c0311173e19752e902ac5df8a1a6e5302883c1a86c27dfdc6e595cf.json",
+          "sha256": "55bda2be9371bfcaa9f57da1119fcbe5ccd375eda755f2253d286e8be0f40a32"
+        },
+        "candidate_id": "plastics_pt_PPit",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:55:36.571985Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:52:55.634558Z",
+          "execution_name": "mlip-cell-mace-mp-small-6fzzm",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mp-small",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 7.587500656588541,
+        "corrected_signed_error_ev": -7.587500656588541,
+        "delta_correction_ev": 7.969055697135416,
+        "delta_hybrid_corrected_adsorption_energy_ev": -8.516693636588542,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mp-small",
+        "raw_adsorption_energy_ev": -0.547637939453125,
+        "raw_signed_error_ev": 0.38155504054687495,
+        "reference_adsorption_energy_ev": -0.92919298,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 5.7905736759999975,
+          "model_load_seconds": 9.440118732,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 5.7905736759999975
+        },
+        "selected_correction_form": "A_global_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -254.76950073242188,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:PPitgas"
+          },
+          {
+            "raw_total_energy_ev": -1349.795654296875,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "plastics_pt_PPit:PPitstar"
+          },
+          {
+            "raw_total_energy_ev": -1094.478515625,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mpa-0-medium:plastics_pt_PPit",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mpa-0-medium/plastics_pt_PPit/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:fc09450daa41094533c819bf5c8f0238a03113a7ae7229d0d8ed31d57743049f",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/plastics_pt_PPit.sha256-f2674d814c0311173e19752e902ac5df8a1a6e5302883c1a86c27dfdc6e595cf.json",
+          "sha256": "42d558c3acdf66f6fe3d0e5189a1144d9df7dc997b2c782566b24ce1dc131854"
+        },
+        "candidate_id": "plastics_pt_PPit",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:55:36.736956Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:52:59.912296Z",
+          "execution_name": "mlip-cell-mace-mpa-0-medium-gg7lj",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mpa-0-medium",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 19.829429734355468,
+        "corrected_signed_error_ev": -19.829429734355468,
+        "delta_correction_ev": 20.227738925292968,
+        "delta_hybrid_corrected_adsorption_energy_ev": -20.758622714355468,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mpa-0-medium",
+        "raw_adsorption_energy_ev": -0.5308837890625,
+        "raw_signed_error_ev": 0.39830919093749995,
+        "reference_adsorption_energy_ev": -0.92919298,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 5.583633312,
+          "model_load_seconds": 9.558237350999999,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 5.583633312
+        },
+        "selected_correction_form": "B_family_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -253.744140625,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:PPitgas"
+          },
+          {
+            "raw_total_energy_ev": -1349.095947265625,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "plastics_pt_PPit:PPitstar"
+          },
+          {
+            "raw_total_energy_ev": -1094.8209228515625,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "plastics_pt_PPit:star"
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "adsorption_energy_ev": -0.92919298,
+      "confidence_level": null,
+      "scope_note": "Three times the published 1e-5 eV electronic convergence threshold. This is not a statistical interval and excludes functional, slab, k-point, geometry, dispersion, and model-form uncertainty.",
+      "uncertainty_ev": 3.0000000000000004e-05,
+      "uncertainty_kind": "three-term electronic-convergence proxy bound"
+    },
+    "split": "confirmatory_test",
+    "surface_element": "Pt",
+    "surface_facet": "fcc(111)"
+  },
+  "delta_correction_report": {
+    "path": "data/candidates/z3/delta-correction-report.json",
+    "sha256": "sha256:95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f"
+  },
+  "run_id": "z3-20260719",
+  "schema": "lupine.z3.candidate_measurement_artifact.v1",
+  "source": {
+    "path": "data/candidates/z3/source/z3-candidate-measurements.json",
+    "sha256": "sha256:d100d09defa3d7dd0395d3a28de8d80389b753646fbde743efeb115c1cf2914e"
+  },
+  "unit": "eV"
+}
