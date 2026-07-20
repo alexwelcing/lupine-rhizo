@@ -16,6 +16,74 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-07-17 - Round-3 consequence wave: B0 correction gate denial + assumption-link CI + contract compiler
+
+- **Why.** Round-3 produced a kill-condition verdict for B0 correction (both
+  rocksalt and perovskite worsened under the frozen rule) and a confirmed
+  scope for a0. The formal plane needed to encode that disposition as a
+  fail-closed gate, and the CI plane needed to verify every theorem and
+  premise has a receipt.
+- **What.**
+  - Lean `UniversalCorrection/Empirical/Registry.lean` gains
+    `CorrectionGatePolicy` with `B0 -> deny/contradicting_evidence` and
+    `a0 -> allow/scope_matched_same_class_a0`.
+  - `registry/claims/correction.b0.v1.json` and
+    `registry/claims/fcc.b0.anticorrelation.v1.json` rewritten to describe
+    contradicting evidence rather than licensed improvement.
+  - `data/discovery_gates/licenses.v1.json` gains a `correction_gate` deny
+    for B0.
+  - `tools/check_assumption_links.py` + `assumption-links` verify job:
+    assurance-exported theorems must have `@[requires(contract_id)]`,
+    premises must have valid bundle references or explicit unsupported tags.
+  - `tools/atlas_theorem_sync.py --compile-gates` compiles locked
+    ClaimContracts into a provenance-bearing runtime gate manifest.
+  - `python/tests/test_d1_migrations.py` updated to expect the intentional
+    `0011_atlas_schema_reconciliation.sql` reapplication guard.
+- **Results.** `lake build` green (3732 jobs). 115 focused B0/license/Round-3
+  Python tests pass; 14 assumption-link tests pass; 56 evidence-formal bridge
+  tests pass.
+- **Next.** Finish `t_64d423d6` atlas-sync contract compiler (EvidenceBundle
+  resolution, duplicate gate-ID guard, premise-policy semantics), then run
+  the end-to-end QA replay (`t_163d358b`).
+
+---
+
+## 2026-07-16 - Empirical-formal bridge integration wave: contracts, evidence bundles, anti-laundering CI, and UniversalCorrection registry
+
+- **Why.** The Round-3 empirical results (B0 refuted, a0 confirmed) were not yet
+  locked into the formal evidence plane. There was no machine-readable registry
+  linking Lean theorems to their empirical scope, no CI guard preventing
+  assumption laundering (status upgrades without new evidence), and no D1
+  schema for versioned claim/evidence contracts.
+- **What.**
+  - Added versioned schemas for EvidenceBundle, ClaimContract, and
+    CampaignManifest; backfilled the three Round-3 claim contracts and their
+    content-addressed evidence bundles.
+  - Added `tools/generate_assumptions.py` to derive
+    `registry/assumptions.v1.json` and `registry/snapshots/current.lock.json`
+    from the contracts/bundles.
+  - Added D1 migration `0011_claim_evidence_contracts.sql` with append-only
+    `status_event` and `evidence_bundle_id` FK so D1 status changes can be
+    tied to receipts.
+  - Hardened legacy migration `0004_claims.sql` so it applies cleanly on both
+    fresh and production-shaped databases.
+  - Added anti-laundering CI (`tools/check_status_evidence.py` +
+    `.github/workflows/anti-laundering.yml`) that rejects status/assurance
+    changes unless a new EvidenceBundle hash appears.
+  - Added `OpenDistillationFactory.UniversalCorrection.Empirical.Registry`
+    (172 theorem inventory entries across 17 active correction modules) plus
+    `ActiveSampling.lean`, `SubspaceCorrectionScheme.lean`, and
+    `UniversalCorrectionScheme.lean`. Excluded quarantined
+    `AlloyResidualTransfer` from the registry.
+- **Results.** `lake build` green (3675 jobs, 0 `sorry`). Python contract tests
+  (40) pass, `tools/generate_assumptions.py --check` passes, and the
+  anti-laundering checker accepts/rejects as expected.
+- **Next.** Finish the three running kanban tasks (`t_9d49164c`,
+  `t_223ee397`, `t_64d423d6`) and then run the end-to-end QA integration test
+  (`t_163d358b`) to prove Round-3 propagates with zero manual touches.
+
+---
+
 ## 2026-07-13 - CI unblock: disk-quota fix for evidence-index workflows + diff-hygiene guard for LAMMPS work dirs
 
 - **Why.** Two recurring CI failures were blocking the research pipeline:

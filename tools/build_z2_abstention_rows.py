@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 import rfc8785
@@ -50,13 +51,11 @@ def content_hash(document: dict) -> str:
     return "sha256:" + hashlib.sha256(canonical_bytes(document)).hexdigest()
 
 
-def main() -> int:
+def build_rows() -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     manifest_hash = manifest["content_hash"]
     if manifest.get("campaign_id") != "discovery.round-4.z2-magnetic-anisotropy.v1":
         raise ValueError("unexpected Z2 manifest")
-
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
     rows = []
     previous_hash = None
     for model_id in MODELS:
@@ -86,29 +85,55 @@ def main() -> int:
         row["row_hash"] = content_hash({k: v for k, v in row.items() if k != "row_hash"})
         rows.append(row)
         previous_hash = row["row_hash"]
+    return rows
 
-    out = OUT_DIR / "measurements.jsonl"
-    with out.open("w", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(rfc8785.dumps(row).decode("utf-8") + "\n")
 
+def rendered_outputs(rows: list[dict]) -> tuple[bytes, bytes]:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    measurements = b"".join(rfc8785.dumps(row).decode("utf-8").encode("utf-8") + b"\n" for row in rows)
     artifact_manifest = {
         "schema": "lupine.z2.abstention_artifact_manifest.v1",
         "generator": "tools/build_z2_abstention_rows.py",
-        "campaign_manifest_hash": manifest_hash,
+        "campaign_manifest_hash": manifest["content_hash"],
         "row_count": len(rows),
         "chain_head": rows[0]["row_hash"],
         "chain_tail": rows[-1]["row_hash"],
         "artifacts": [
             {
                 "path": "data/candidates/z2/measurements.jsonl",
-                "sha256": "sha256:" + hashlib.sha256(out.read_bytes()).hexdigest(),
+                "sha256": "sha256:" + hashlib.sha256(measurements).hexdigest(),
             }
         ],
     }
-    (OUT_DIR / "artifact-manifest.json").write_text(
-        json.dumps(artifact_manifest, indent=1, sort_keys=True) + "\n", encoding="utf-8"
+    rendered_manifest = (json.dumps(artifact_manifest, indent=1, sort_keys=True) + "\n").encode(
+        "utf-8"
     )
+    return measurements, rendered_manifest
+
+
+def main() -> int:
+    check = "--check" in sys.argv
+    rows = build_rows()
+    measurements, rendered_manifest = rendered_outputs(rows)
+    out = OUT_DIR / "measurements.jsonl"
+    manifest_path = OUT_DIR / "artifact-manifest.json"
+    if check:
+        stale = []
+        for path, payload in ((out, measurements), (manifest_path, rendered_manifest)):
+            try:
+                actual = path.read_bytes()
+            except OSError:
+                actual = None
+            if actual != payload:
+                stale.append(path.name)
+        if stale:
+            print(f"stale: {', '.join(stale)}; rebuild Z2 abstention rows", file=sys.stderr)
+            return 1
+        print("Z2 abstention rows are up to date")
+        return 0
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(measurements)
+    manifest_path.write_bytes(rendered_manifest)
     print(json.dumps({"rows": len(rows), "chain_tail": rows[-1]["row_hash"]}, indent=1))
     return 0
 

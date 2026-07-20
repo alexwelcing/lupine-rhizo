@@ -32,6 +32,11 @@ from jsonschema import Draft202012Validator
 HASH_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 SCOPE_DIMENSIONS = ("structures", "chemistries", "properties")
 MEASUREMENT_FIELDS = ("metric", "value", "unit", "acceptance_test", "sample_count")
+# The EvidenceBundle schema defines typed measurements only as
+# barrierErrorMeasurement today; attaching typed measurements to any other
+# predicate would publish a bundle whose measurements cannot describe the
+# claim (Codex PR#41 P2). Reject instead of laundering.
+TYPED_MEASUREMENT_PREDICATES = frozenset({"barrier_mae_mev<=40"})
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",
@@ -228,7 +233,20 @@ def validate_row_chain(rows: list[dict[str, Any]], manifest_hash: str) -> None:
 
 
 def typed_measurements(row: dict[str, Any]) -> Any | None:
-    """Return bundle measurements from the row's canonical or legacy form."""
+    """Return bundle measurements from the row's canonical or legacy form.
+
+    Fail closed when a typed measurement cannot describe the row's claim
+    predicate: the bundle schema defines typed measurements for specific
+    predicates, and attaching a mismatched measurement would publish a
+    schema-valid bundle whose measurements describe something else.
+    """
+    has_typed = "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS)
+    if has_typed and row.get("claim_predicate") not in TYPED_MEASUREMENT_PREDICATES:
+        raise ValueError(
+            f"measurement {row.get('row_id', '<unknown>')} carries typed measurements on "
+            f"unsupported predicate {row.get('claim_predicate')!r}; the EvidenceBundle "
+            f"schema defines typed measurements only for {sorted(TYPED_MEASUREMENT_PREDICATES)}"
+        )
     if "measurements" in row:
         return row["measurements"]
     present = [field for field in MEASUREMENT_FIELDS if field in row]
