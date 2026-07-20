@@ -2,8 +2,8 @@
 
 # Certified inference for machine-learned interatomic potentials
 
-**Scope:** 2022–2026 literature on uncertainty-triggered abstention, physical consistency at prediction time, and gate cost, with emphasis on work from the United States and China.  
-**Evidence cut:** 2026-07-20.  
+**Scope:** 2022–2026 literature on uncertainty-triggered abstention, physical consistency at prediction time, and gate cost, with emphasis on work from the United States and China.
+**Evidence cut:** 2026-07-20.
 **Provenance rule:** Quantitative statements below come from the cited paper text or tables. “Derived” statements are simple consequences explicitly labeled as such. All arXiv citations retain the version actually read. PDFs for every item in the References were accessed locally; no unaccessed item is used as evidence.
 
 ## Executive result
