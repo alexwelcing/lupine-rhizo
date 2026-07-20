@@ -1,0 +1,78 @@
+{
+ "models": {
+  "chgnet": {
+   "abstain_reason": "direction",
+   "applied": false,
+   "direction_gate": {
+    "passed": false,
+    "reason": "direction"
+   },
+   "model_id": "chgnet",
+   "n_test": 28,
+   "n_train": 12,
+   "raw_test_mae_mev": 242.5310896016575,
+   "theorem_cap": {
+    "passed": false,
+    "side": "deflation"
+   },
+   "verdict": "abstained"
+  },
+  "mace-mp-medium": {
+   "abstain_reason": "direction",
+   "applied": false,
+   "direction_gate": {
+    "passed": false,
+    "reason": "direction"
+   },
+   "model_id": "mace-mp-medium",
+   "n_test": 29,
+   "n_train": 11,
+   "raw_test_mae_mev": 174.70373717850015,
+   "theorem_cap": {
+    "passed": false,
+    "side": "deflation"
+   },
+   "verdict": "abstained"
+  },
+  "mace-mp-small": {
+   "abstain_reason": "direction",
+   "applied": false,
+   "direction_gate": {
+    "passed": false,
+    "reason": "direction"
+   },
+   "model_id": "mace-mp-small",
+   "n_test": 26,
+   "n_train": 12,
+   "raw_test_mae_mev": 151.86646622687434,
+   "theorem_cap": {
+    "passed": false,
+    "side": "inflation"
+   },
+   "verdict": "abstained"
+  },
+  "mace-mpa-0-medium": {
+   "abstain_reason": "direction",
+   "applied": false,
+   "direction_gate": {
+    "passed": false,
+    "reason": "direction"
+   },
+   "model_id": "mace-mpa-0-medium",
+   "n_test": 28,
+   "n_train": 12,
+   "raw_test_mae_mev": 134.9898445996668,
+   "theorem_cap": {
+    "passed": false,
+    "side": "deflation"
+   },
+   "verdict": "abstained"
+  }
+ },
+ "preregistration": "docs/plans/2026-07-20-round5-z1-correction-preregistration.md",
+ "schema": "lupine.z1r5.correction_score.v1",
+ "test_panel": "data/candidates/z1_nebdft2k_barriers.lock.json",
+ "test_panel_sha256": "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68",
+ "train_panel": "data/candidates/z1r5_correction_train.lock.json",
+ "train_panel_sha256": "sha256:4099f4fcee6418988a250c2a9892d3bc16015f53e21eb47a6bf70bb62e05cc2f"
+}
