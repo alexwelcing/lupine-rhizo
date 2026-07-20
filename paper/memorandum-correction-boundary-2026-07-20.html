@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A Sub-Core-Hour 3×3×3 Elastic-Constant Reference for MatPES Foundation MLIPs</title>
+<style>
+
+@page { size: letter; margin: 2.5cm; }
+body {
+    font-family: "Times New Roman", Georgia, serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #111;
+    max-width: 18cm;
+    margin: 0 auto;
+}
+h1 { font-size: 16pt; text-align: center; margin-bottom: 0.3em; }
+h2 { font-size: 13pt; margin-top: 1.4em; margin-bottom: 0.4em; border-bottom: 1px solid #ccc; }
+h3 { font-size: 11pt; margin-top: 1.1em; margin-bottom: 0.3em; }
+p { margin: 0.6em 0; text-align: justify; }
+table {
+    border-collapse: collapse;
+    margin: 1em auto;
+    font-size: 10pt;
+    width: 100%;
+}
+th, td { border: 1px solid #999; padding: 4px 6px; text-align: right; }
+th { background: #f2f2f2; text-align: center; }
+img { max-width: 100%; display: block; margin: 1em auto; }
+code { font-family: Consolas, Monaco, monospace; font-size: 9pt; background: #f5f5f5; padding: 1px 3px; }
+blockquote { border-left: 3px solid #ccc; margin-left: 0; padding-left: 1em; color: #333; }
+sup { font-size: 0.75em; }
+
+</style>
+</head>
+<body>
+<h1>A Correction Boundary for Foundation Interatomic Potentials: Machine-Checked Limits, a Geometry–Levels Decomposition, and Model-Guided Sparse DFT</h1>
+<p><strong>Memorandum of theory, draft v0.2 — 2026-07-20.</strong></p>
+<blockquote>
+<p><strong>Frozen-before-results declaration.</strong> Every sentence of framing, theory, and protocol was written before the sparse-DFT campaign completed. Result slots are marked <code>[PENDING]</code>; everything measured is locked <code>[FINAL]</code> with receipts. Claims carry an epistemic register (§9). Machine-checked theorems: <code>lean-spec/OpenDistillationFactory/HonestErrors/CorrectionBoundary.lean</code> — merged, 3761-job <code>lake build</code>, zero <code>sorry</code>, zero new axioms (<code>#print axioms</code> restricted to <code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code>). Preregistrations and locked panels are content-addressed; the abstention record is included, not edited away.</p>
+</blockquote>
+<p><strong>Intended readership.</strong> Machine-learning venues (ICML track on science), computational-materials venues, and reviewers who must decide whether AI-designed matter can be trusted — including those who audit claims on behalf of institutions and states.</p>
+<h2>Abstract</h2>
+<p>Foundation machine-learned interatomic potentials (uMLIPs) are being asked to carry materials decisions at national scale — battery electrolytes, catalysts, structural alloys — on the strength of speed claims that were never falsification-tested at the observables that matter. We report the first preregistered, hash-locked measurement of that trust question on migration barriers: across 30 chemistry-held-out lithium-conductor paths, four foundation models miss a 40 meV accuracy gate by 3.4–6× (MAE 135.0–242.5 meV), identically under two precision regimes, with systematic under-prediction rather than scatter <code>[FINAL]</code>. We then do three things the field has not done. First, we prove the <em>correction boundary</em> in Lean 4: additive shifts cannot move a barrier; a model's barrier error is exactly its profile wobble, with a tightness witness; slope corrections help only under sign stability; and anchors at the two true extrema reconstruct the barrier exactly — which is to say, accuracy costs precisely model irrelevance at two points (§3). Second, we show the failure decomposes: the models' energy <em>levels</em> are wrong while their energy <em>landscape geometry</em> — transition-state locations — is right on 82–86% of paths (89–93% within one image) <code>[FINAL]</code>. Third, from the theorems and the decomposition we derive <strong>model-guided sparse DFT</strong>: the model proposes extrema, a free DFT engine measures only those points. On the locked reference profile the protocol reproduces barriers with MAE 1.2–9.4 meV at ≈7 evaluations per path, against ≈50–100 for full NEB — under the same 40 meV gate the raw models miss by 3.4–6× <code>[FINAL, simulation]</code>. The physical campaign is frozen herein (protocol, success criteria, analysis plan; §5) and reports <code>[PENDING]</code>. Beyond the specific result, we present the process as a method for distilling physical laws from error structure: preregistration with content-addressed evidence, anti-laundering ingestion into machine-checked claims registries, and abstention as a first-class epistemic output (§7). The claims that could not survive this process — every cheap correction we tried — are preserved as a record.</p>
+<h2>1. Introduction</h2>
+<h3>1.1 The trust question, asked properly</h3>
+<p>The public case for foundation interatomic potentials is throughput: screen thousands of candidates at MLIP speed, let DFT follow the winners. This case fails silently if the MLIP errs <em>systematically</em> — if every barrier it reports is low and every interface it reports is weak — because then the winners are chosen by a biased judge, and no amount of downstream DFT launders the choice. The correct response to a biased judge is not more screening; it is a boundary: a formal statement of where the judge can and cannot be believed, and a protocol that operates inside the boundary.</p>
+<p>We build that boundary here, in three layers: measured failure (§2), machine-checked limits (§3), and a protocol that passes inside the limits (§4–§5). Each layer is constrained to be checkable by an adversarial reviewer: measurements are hash-locked before analysis, theorems are machine-checked, and anything not yet measured is explicitly marked pending.</p>
+<h3>1.2 Contributions</h3>
+<ol>
+<li><strong>A preregistered measurement of systematic underbinding</strong> at migration barriers across 30 chemistry-held-out paths and four foundation models, in duplicate precision regimes, with all artifacts content-addressed (§2).</li>
+<li><strong>The correction boundary</strong>: to our knowledge the first machine-checked impossibility bounds for runtime correction of uMLIP observables — shift invariance, the wobble bound with tightness, slope-stability licensing, and anchor pricing with two-point exactness (§3).</li>
+<li><strong>The geometry–levels decomposition</strong>: the empirical separation of energy-level error from landscape-geometry accuracy, quantified per model (§4).</li>
+<li><strong>Model-guided sparse DFT</strong>, a protocol that passes the same gate the raw models fail, at an order-of-magnitude-lower DFT cost, with its cost and failure modes declared in advance (§5).</li>
+<li><strong>The process itself</strong> as a method for distilling physical laws from error structure: preregistration, anti-laundering evidence chains, machine-checked claims, and abstention-as-output (§7).</li>
+</ol>
+<h2>2. The measured failure</h2>
+<h3>2.1 Protocol</h3>
+<p>Thirty migration paths, one per chemical system, drawn from the LiTraj nebDFT2k benchmark (npj Comput. Mater. 2025, DOI <a href="https://doi.org/10.1038/s41524-025-01571-z">10.1038/s41524-025-01571-z</a>) and locked with SHA-256 <code>192fe54a…</code> before any model ran. The barrier convention — max(image energy) − min(image energy) — is identical on the reference and prediction sides; the panel builder validates the dataset's own barrier against the profile max−min within 0.5 meV. Execution: one Cloud Run cell per model on isolated jobs (NVIDIA L4), CI-NEB per path under a frozen protocol, per-path outcomes recorded without imputation; manifest and panel hashes validated fail-closed by the runner.</p>
+<h3>2.2 Results <code>[FINAL]</code></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>float32 MAE (meV)</th>
+<th>float64 MAE (meV)</th>
+<th>completed</th>
+<th>signed-error direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mace-mpa-0-medium</td>
+<td>135.0</td>
+<td>135.0</td>
+<td>28/30</td>
+<td>17/26 negative (mp-small f64)</td>
+</tr>
+<tr>
+<td>mace-mp-small</td>
+<td>152.0</td>
+<td>151.9</td>
+<td>26/30</td>
+<td>all 26 negative (f32)</td>
+</tr>
+<tr>
+<td>mace-mp-medium</td>
+<td>174.7</td>
+<td>174.7</td>
+<td>29/30</td>
+<td>mixed</td>
+</tr>
+<tr>
+<td>chgnet</td>
+<td>242.5</td>
+<td>242.5</td>
+<td>28/30</td>
+<td>predominantly negative</td>
+</tr>
+</tbody>
+</table>
+<p>A float32 protocol defect found in review (vendor guidance reserves float32 for geometry optimization) changed the outcome by ≤0.1 meV per model: the failure is model error, not numerics. This replicates, at preregistered scale, the published softening record (Deng et al., DOI <a href="https://doi.org/10.1038/s41524-024-01500-6">10.1038/s41524-024-01500-6</a>; Bheemaguli et al., DOI <a href="https://doi.org/10.1039/D5DD00534E">10.1039/D5DD00534E</a>, who report 73–78% underprediction across 574 literature-derived paths).</p>
+<h3>2.3 Every cheap correction fails — and the record is kept</h3>
+<p>Global scalars, additive shifts, per-family shifts, and frozen six-point deltas leave MAE at 139–160 meV or worse. A preregistered disjoint-training pilot (12 paths, zero chemistry overlap) ended in universal abstention: signed errors flip sign <em>within</em> every chemistry family, so no low-dimensional correction is honest on this field. Even a perfect best-of-four oracle — hindsight model selection per path — reaches only 70 meV. We preserve these results because they are the evidence that the boundary in §3 is not optional.</p>
+<h2>3. Theory: the correction boundary</h2>
+<p>Definitions. A profile is a map <code>p : Fin n → ℝ</code> (sampled energies along a reaction path); <code>barrier p = max p − min p</code>; the per-image deviation <code>d = m − r</code> between model and reference profiles; the wobble <code>wobble d = max d − min d</code>. All theorems below are proved in Lean 4 (<code>CorrectionBoundary.lean</code>) with zero <code>sorry</code>.</p>
+<p><strong>Theorem 3.1 (shift invariance).</strong> For any constant <code>c</code>, <code>barrier (fun i ↦ p i + c) = barrier p</code>. <em>Global additive shifts cannot change a barrier.</em> This kills the entire family of level-shift corrections — not with an experiment, with a theorem.</p>
+<p><strong>Theorem 3.2 (wobble bound).</strong> <code>|barrier m − barrier r| ≤ wobble d</code>, and there exist profiles achieving equality (tightness witness <code>barrier_error_le_wobble_tight</code>). A model's barrier error is <em>exactly</em> its profile wobble; no correction operating on the model's own outputs can guarantee better. This is the no-free-lunch theorem of runtime correction.</p>
+<p><strong>Theorem 3.3 (slope family).</strong> For a single-ratio correction scaled by <code>σ</code>, the corrected error is bounded by the slope residuals (<code>slope_correction_error_le</code>); one-signed slope ratios are exactly the condition under which the midrange-ratio certificate strictly improves the raw one; and there exist mixed-sign profiles on which every ratio correction degenerates to a shift — whereupon Theorem 3.1 applies (<code>slope_instability_witness</code>). Note carefully what this says: slope corrections are <em>licensed only by sign stability</em>, a condition our training data violated everywhere (§2.3) — the abstention is a theorem's worth of honesty, not a conservative mood.</p>
+<p><strong>Theorem 3.4 (anchor pricing).</strong> Anchoring a single point <code>k</code> to its reference value changes the barrier by at most <code>|m k − r k|</code> (<code>anchor_barrier_change_le</code>), and the residual error is at least the raw error minus that amount (<code>anchor_impossibility_bound</code>). Anchors at the sampled maximum and minimum reconstruct the barrier exactly (<code>two_point_anchor_exact</code>). Read as a price list: accuracy costs exactly two anchors — and at two anchors the model contributes nothing but location. (A stronger "precise" bound proposed in the design was found false and is refuted in-file, <code>anchor_wobble_lower_bound_refuted</code>: the boundary layer audits itself.)</p>
+<p><strong>Corollary 3.5 (routing bound).</strong> Any model-selection rule restricted to a fixed model set inherits each member's wobble; hence the 70 meV oracle ceiling of §2.3 is a property of the set, not of the selector.</p>
+<h2>4. The geometry–levels decomposition <code>[FINAL]</code></h2>
+<p>Theorem 3.2 says error lives in the wobble. Where does the wobble live? Comparing model-predicted and reference image-energy argmax on the locked panel:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>exact saddle location</th>
+<th>within ±1 image</th>
+<th>along-path wobble (RMS)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chgnet</td>
+<td>24/28 (86%)</td>
+<td>26/28 (93%)</td>
+<td>~131 meV</td>
+</tr>
+<tr>
+<td>mace-mp-small</td>
+<td>23/26 (88%)</td>
+<td>23/26 (89%)</td>
+<td>~103 meV</td>
+</tr>
+<tr>
+<td>mace-mpa-0-medium</td>
+<td>23/28 (82%)</td>
+<td>25/28 (89%)</td>
+<td>~110 meV</td>
+</tr>
+</tbody>
+</table>
+<p>The models misprice the <em>level</em> of the landscape while correctly locating its <em>extrema</em>. This is the decomposition the whole program turns on: geometry is the model's skill; levels are its failure. The published softening record attributes level failure to near-equilibrium training bias (Deng et al.); our measurement adds that the <em>geometric</em> layer survives that bias.</p>
+<h2>5. Method: model-guided sparse DFT (frozen protocol)</h2>
+<p>Theorem 3.4 prices exactness at two anchors — provided they are the <em>true</em> extrema. §4 says the model supplies them 82–93% of the time. The protocol follows:</p>
+<ol>
+<li><strong>Guide.</strong> Each model evaluates the path's input images (single-point energies; no relaxation — the model only guides) and proposes predicted min/max image indices.</li>
+<li><strong>Anchors.</strong> A free DFT engine (GPAW, PBE [enkovaara2010gpaw; mortensen2005gpaw; perdue1996pbe]) evaluates the reference-profile positions <code>{min, max ± 1}</code> plus both endpoints; short paths (≤6 images) widen to ±2, declared.</li>
+<li><strong>Measure.</strong> Sparse barrier = max − min over anchor energies, scored against the locked reference barrier. <strong>WIN: MAE ≤ 40 meV per model. Strong WIN: MAE ≤ 15 meV.</strong></li>
+<li><strong>Honesty conditions.</strong> Anchors beyond the frozen sets void the cost claim; GPAW-vs-VASP convention differences (functional, pseudopotential, k-points; [grimme2006d2; kresse1996vasp]) are reported as their own line item; any GPAW failure fails that path, recorded without imputation.</li>
+</ol>
+<p><strong>Simulation on the reference profile <code>[FINAL]</code></strong>: across all 82 model-path pairs, MAE 1.2–9.4 meV at ≈7 anchors/path (±2: exact) — the same 40 meV gate the raw models miss by 3.4–6×, at ≈10× lower DFT cost.</p>
+<h2>6. Results (preregistered analysis plan)</h2>
+<ul>
+<li><strong>T1 — convention offset</strong>: GPAW vs VASP reference energy per anchor (mean, max |Δ|), per path class. <code>[PENDING]</code></li>
+<li><strong>T2 — sparse MAE per model</strong> with WIN/strong-WIN verdicts and per-family no-harm checks. <code>[PENDING]</code></li>
+<li><strong>T3 — cost</strong>: median anchors/path vs the frozen full-NEB protocol. <code>[PENDING]</code></li>
+<li><strong>F1 — the boundary figure</strong>: raw error vs wobble, sparse error vs wobble, Theorem 3.2 overlaid. <code>[PENDING]</code></li>
+</ul>
+<h2>7. The process: distilling physical laws from error structure</h2>
+<p>The measurements in this memorandum were produced by a pipeline that treats <em>process</em> as a first-class scientific object: campaign manifests are content-addressed before execution; panels are SHA-locked; runners validate hashes fail-closed; measurement rows are RFC 8785-canonicalized and hash-chained; ingestion into the claims registry is derivation, not editing — status changes require bundle-hash changes, so no verdict can be laundered by hand; and the formal layer certifies the registry's outcomes in Lean (<code>z1_gate_refuted</code>, <code>z3_gate_refuted</code> — the machine-checked record of these same failures). Abstention is a first-class output: the registry of this program contains refuted claims and an abstained campaign, deliberately un-deleted. We claim this process — preregistration + hash-chained evidence + machine-checked claims + abstention — is itself a method for distilling physical laws from error structure, and the correction boundary of §3 is its first law.</p>
+<h2>8. Related work</h2>
+<p><strong>Softening and underbinding.</strong> Deng et al., npj Comput. Mater. (2025), DOI <a href="https://doi.org/10.1038/s41524-024-01500-6">10.1038/s41524-024-01500-6</a>; Bheemaguli, Xiao &amp; Sai Gautam, Digital Discovery 5 (2026) 1809–1819, DOI <a href="https://doi.org/10.1039/D5DD00534E">10.1039/D5DD00534E</a>. <strong>Barrier-specific fine-tuning (the training route we exclude).</strong> Lian et al., J. Mater. Chem. A 13 (2025), DOI <a href="https://doi.org/10.1039/D5TA05355B">10.1039/D5TA05355B</a> — effective at ~3k labels; our constraint is zero training. <strong>Δ-learning and active residual models.</strong> Christiansen &amp; Hammer, J. Chem. Phys. 162, 184701 (2025), DOI <a href="https://doi.org/10.1063/5.0268264">10.1063/5.0268264</a>; Pitfield et al., Phys. Chem. Chem. Phys. 28, 912–926 (2026), DOI <a href="https://doi.org/10.1039/D5CP04302F">10.1039/D5CP04302F</a>. <strong>Foundation models.</strong> MACE-MP-0: Batatia et al., arXiv:2401.00096; CHGNet: Deng et al., Nat. Mach. Intell. 5, 1031–1041 (2023), DOI <a href="https://doi.org/10.1038/s42256-023-00716-3">10.1038/s42256-023-00716-3</a>; DPA-1/DPA-2: Zhang et al., npj Comput. Mater. (2024), DOIs <a href="https://doi.org/10.1038/s41524-024-01278-7">10.1038/s41524-024-01278-7</a>, <a href="https://doi.org/10.1038/s41524-024-01493-2">10.1038/s41524-024-01493-2</a>; MatterSim: Yang et al., arXiv:2405.04967. <strong>Benchmarks.</strong> LiTraj nebDFT2k, DOI <a href="https://doi.org/10.1038/s41524-025-01571-z">10.1038/s41524-025-01571-z</a>; CatBench BM (GAME-Net lineage), Zenodo DOI <a href="https://doi.org/10.5281/zenodo.17157086">10.5281/zenodo.17157086</a>, npj/Nat. Comput. Sci. DOI <a href="https://doi.org/10.1038/s43588-023-00437-y">10.1038/s43588-023-00437-y</a>. <strong>Method theory.</strong> Sloppy-model/error-geometry foundations: Brown &amp; Sethna, Phys. Rev. E 68, 021904 (2003). CI-NEB: Henkelman &amp; Jónsson, J. Chem. Phys. 113, 9978 (2000). Conformal abstention: Vovk, Gammerman &amp; Shafer (2005); Angelopoulos &amp; Bates, arXiv:2107.07511. <strong>Verification.</strong> Lean 4: de Moura &amp; Ullrich, CADE-28 (2021). Preregistration practice: Nosek et al., PNAS 115, 2600–2606 (2018). <strong>Quantum engines.</strong> GPAW: Enkovaara et al., J. Comput. Chem. 31, 2474 (2010); Mortensen et al., Phys. Rev. B 71, 035109 (2005). VASP: Kresse &amp; Furthmüller, Phys. Rev. B 54, 11169 (1996). PBE: Perdew, Burke &amp; Ernzerhof, Phys. Rev. Lett. 77, 3865 (1996). Grimme D2: J. Comput. Chem. 27, 1787 (2006).</p>
+<h2>9. Epistemic-status register</h2>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Status</th>
+<th>Receipt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Four models fail the 40 meV barrier gate, 135–243 meV</td>
+<td>FINAL</td>
+<td>Round-4 locks + artifacts, PRs #26–#31</td>
+</tr>
+<tr>
+<td>Precision-independence of the failure</td>
+<td>FINAL</td>
+<td>float64 chain, PR #32, #36</td>
+</tr>
+<tr>
+<td>All cheap corrections fail; pilot abstains universally</td>
+<td>FINAL</td>
+<td>R5 record, PRs #54, #55</td>
+</tr>
+<tr>
+<td>Routing oracle ceiling 70 meV</td>
+<td>FINAL</td>
+<td>R4 analysis (this repo)</td>
+</tr>
+<tr>
+<td>Boundary theorems (3.1–3.4, Corollary 3.5)</td>
+<td>MACHINE-CHECKED</td>
+<td><code>CorrectionBoundary.lean</code>, PR #56</td>
+</tr>
+<tr>
+<td>Geometry accuracy 82–86% exact / 89–93% ±1</td>
+<td>FINAL</td>
+<td>R4 artifacts</td>
+</tr>
+<tr>
+<td>Sparse protocol MAE 1.2–9.4 meV on reference profile</td>
+<td>FINAL (simulation)</td>
+<td>analysis of locked panel</td>
+</tr>
+<tr>
+<td>Sparse pilot physical MAE, WIN verdicts, cost</td>
+<td>PENDING</td>
+<td>campaign per §5</td>
+</tr>
+<tr>
+<td>GPAW-vs-VASP convention offset</td>
+<td>PENDING</td>
+<td>T1</td>
+</tr>
+</tbody>
+</table>
+<h2>10. Limitations and honesty conditions</h2>
+<p>Panel paths are short (5–10 images); the sparse advantage grows with denser paths and is not claimed at long-path scale. The ±2 short-path fallback is declared, not tuned. Simulation (§5) is exact arithmetic on reference data, not physical measurement; the campaign decides, and if geometry guidance degrades on denser paths that failure is reported with the same prominence as a WIN. The abstention record of §2.3 stands; nothing here re-opens the corrections already refuted. All panel references are published DFT, not experiment; nothing here is error-against-experiment.</p>
+<h2>References</h2>
+<p>[Resolved in §8 with DOIs; additional: Brown &amp; Sethna PRE 68, 021904 (2003); Henkelman &amp; Jónsson JCP 113, 9978 (2000); Vovk et al. (2005); Angelopoulos &amp; Bates arXiv:2107.07511; de Moura &amp; Ullrich, CADE-28 (2021); Nosek et al., PNAS 115 (2018); Enkovaara et al., JCC 31 (2010); Mortensen et al., PRB 71 (2005); Kresse &amp; Furthmüller PRB 54 (1996); Perdew, Burke &amp; Ernzerhof PRL 77 (1996); Grimme, JCC 27 (2006).]</p>
+<hr />
+<p><em>Receipts: locked panels (<code>192fe54a…</code>, <code>4099f4fc…</code>); Round-4/5 artifacts <code>gs://shed-489901-atlas-outputs/</code>; Lean module PR #56; preregistrations <code>docs/plans/2026-07-20-sparse-dft-pilot-preregistration.md</code>, <code>2026-07-20-round5-z1-correction-preregistration.md</code>, <code>2026-07-20-correction-boundary-theorems.md</code>; claims registry entries for this campaign remain <code>unsupported</code> until ingestion.</em></p>
+</body>
+</html>
