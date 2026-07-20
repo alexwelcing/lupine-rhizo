@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -155,31 +155,59 @@ def test_builder_rejects_non_finite_values() -> None:
         builder.canonical_bytes({"value": float("nan")})
 
 
-def test_ingester_accepts_rfc8785_row_hashes_before_contract_validation() -> None:
+def test_ingester_accepts_all_z1_rows_and_preserves_typed_measurements(
+    tmp_path: Path,
+) -> None:
     assert rfc8785.__file__ is not None
+    for directory in ("registry", "evidence", "campaigns"):
+        shutil.copytree(ROOT / directory, tmp_path / directory)
+    shutil.copytree(
+        ROOT / "data" / "candidates" / "z1",
+        tmp_path / "data" / "candidates" / "z1",
+    )
     result = subprocess.run(
         [
             sys.executable,
             str(INGESTER),
             "--root",
-            str(ROOT),
+            str(tmp_path),
             "--manifest",
-            "campaigns/v1/z1.campaign-manifest.v1.json",
+            str(tmp_path / "campaigns/v1/z1.campaign-manifest.v1.json"),
             "--measurements",
-            "data/candidates/z1/measurements.jsonl",
+            str(tmp_path / "data/candidates/z1/measurements.jsonl"),
         ],
-        cwd=ROOT,
+        cwd=tmp_path,
         check=False,
         capture_output=True,
         text=True,
     )
-    assert result.returncode == 2
+    assert result.returncode == 0, result.stderr
     assert "row_hash mismatch" not in result.stderr
-    # The seeded baseline EvidenceBundle (evidence/v1/examples/
-    # z1-nebdft2k-panel-baseline.json) lets the target premise pass the
-    # baseline, predicate, and scope gates; ingestion still stops at the
-    # documented gap (docs/runbooks/campaign-measurement-row-schema.md): the
-    # ingester does not propagate a row's measurements member, and the
-    # barrier_mae_mev<=40 predicate requires typed bundle measurements.
-    assert "has no baseline evidence" not in result.stderr
-    assert "'measurements' is a required property" in result.stderr
+    output = json.loads(result.stdout)
+    assert len(output["ingested_bundle_ids"]) == 4
+
+    source_rows = [
+        json.loads(line)
+        for line in (tmp_path / "data/candidates/z1/measurements.jsonl").read_text().splitlines()
+    ]
+    generated = sorted(
+        (tmp_path / "evidence/v1/examples").glob(
+            "round4-discovery-round-4-z1-barriers-v1-z1-*.json"
+        )
+    )
+    assert len(generated) == 4
+    bundles_by_run = {
+        bundle["evidence_refs"][0]["run_id"]: bundle
+        for path in generated
+        for bundle in [json.loads(path.read_text())]
+    }
+    for row in source_rows:
+        assert bundles_by_run[row["run_id"]]["measurements"] == [
+            {
+                "metric": row["metric"],
+                "value": row["value"],
+                "unit": row["unit"],
+                "acceptance_test": row["acceptance_test"],
+                "sample_count": row["sample_count"],
+            }
+        ]

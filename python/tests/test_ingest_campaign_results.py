@@ -107,6 +107,42 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             self.assertEqual(check.returncode, 0, check.stderr)
 
+    def test_typed_measurements_are_preserved_in_generated_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.prepare_root(root)
+            fixture = root / "python" / "tests" / "fixtures" / "round4_ingest"
+            measurements_path = fixture / "measurements.jsonl"
+            rows = [json.loads(line) for line in measurements_path.read_text().splitlines()]
+            typed_measurements = [
+                {
+                    "metric": "barrier_mae",
+                    "value": 12.5,
+                    "unit": "meV",
+                    "acceptance_test": {
+                        "comparator": "less_than_or_equal",
+                        "threshold": 40,
+                        "outcome": "pass",
+                    },
+                    "sample_count": 8,
+                }
+            ]
+            rows[0]["measurements"] = typed_measurements
+            measurements_path.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8"
+            )
+            manifest = json.loads((fixture / "manifest.json").read_text())
+            self.rebind_measurements(measurements_path, manifest["content_hash"])
+
+            result = self.invoke(root)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            bundle_path = next(
+                (root / "evidence" / "v1" / "examples").glob("round4-*-r4-rocksalt-a0.json")
+            )
+            bundle = json.loads(bundle_path.read_text())
+            self.assertEqual(bundle["measurements"], typed_measurements)
+
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
