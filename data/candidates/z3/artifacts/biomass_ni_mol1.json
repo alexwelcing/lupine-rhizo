@@ -1,0 +1,367 @@
+{
+  "campaign_manifest": {
+    "content_hash": "sha256:49f5f20e41450697b63b9ff079fe25b5490ba684956c5d68bb37a5d2cd02c494",
+    "path": "campaigns/v1/z3.campaign-manifest.v1.json"
+  },
+  "candidate": {
+    "adsorbate_formula": "C17H20O6",
+    "application_family": "biomass",
+    "candidate_id": "biomass_ni_mol1",
+    "conditions": {
+      "adsorption_site": "source lowest-energy relaxed configuration; site label is not published",
+      "coverage": {
+        "adsorbates_per_periodic_cell": 1,
+        "derivation": "one source adsorbate divided by the source periodic surface-cell area",
+        "molecules_per_square_angstrom": 0.006662091823,
+        "molecules_per_square_nanometer": 0.66620918225,
+        "surface_cell_area_angstrom2": 150.103004678208
+      },
+      "energy_definition": "E(adsorbate+slab) - E(clean slab) - E(gas-phase adsorbate)",
+      "facet": "fcc(111)",
+      "surface_state": "source DFT-relaxed slab; no independent reconstruction label is published",
+      "temperature": {
+        "interpretation": "DFT electronic energy; no vibrational, entropic, or finite-temperature correction",
+        "value_k": 0.0
+      }
+    },
+    "model_measurements": [
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:chgnet:biomass_ni_mol1",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/chgnet/biomass_ni_mol1/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:32af9851eb6afddede22e835d814b6a042cc94e1d56edbbe25145f7ee8bdcfa3",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/biomass_ni_mol1.sha256-34aeeb125ba048e37bca9b3b6baa84b96621cfc2da707dca127f9e2561225408.json",
+          "sha256": "cc13d14a328d3b81566b189178610baefcd1147922d230b48e4a5e4f2f8d081b"
+        },
+        "candidate_id": "biomass_ni_mol1",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:38:10.143071Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:35:24.130638Z",
+          "execution_name": "mlip-cell-chgnet-j2fdp",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-chgnet@sha256:e9e1ceeb6a060ee92031f5b5d9011ccd8745e92a09a708109f34e4dca9592e3b",
+          "job": "mlip-cell-chgnet",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 0.6618512071887208,
+        "corrected_signed_error_ev": -0.6618512071887208,
+        "delta_correction_ev": 0.04162521627319338,
+        "delta_hybrid_corrected_adsorption_energy_ev": -3.5265714671887207,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "chgnet",
+        "raw_adsorption_energy_ev": -3.4849462509155273,
+        "raw_signed_error_ev": -0.6202259909155274,
+        "reference_adsorption_energy_ev": -2.86472026,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 2.1686572499999954,
+          "model_load_seconds": 8.985827974000003,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": "0.4.2",
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": null,
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 2.1686572499999954
+        },
+        "selected_correction_form": "C_family_linear",
+        "systems": [
+          {
+            "raw_total_energy_ev": -269.58414363861084,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:mol1gas"
+          },
+          {
+            "raw_total_energy_ev": -722.4205360412598,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "biomass_ni_mol1:mol1star"
+          },
+          {
+            "raw_total_energy_ev": -449.3514461517334,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mp-medium:biomass_ni_mol1",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mp-medium/biomass_ni_mol1/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:32af9851eb6afddede22e835d814b6a042cc94e1d56edbbe25145f7ee8bdcfa3",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/biomass_ni_mol1.sha256-34aeeb125ba048e37bca9b3b6baa84b96621cfc2da707dca127f9e2561225408.json",
+          "sha256": "bc22ecbaddfeb79d13d264e3819e0ac8a0941eac9ce5563d9cbc42aa2b32823f"
+        },
+        "candidate_id": "biomass_ni_mol1",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:38:20.149228Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:35:24.131490Z",
+          "execution_name": "mlip-cell-mace-mp-medium-zpn5m",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mp-medium",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 1.724104215618489,
+        "corrected_signed_error_ev": -1.724104215618489,
+        "delta_correction_ev": 7.119372571321614,
+        "delta_hybrid_corrected_adsorption_energy_ev": -4.588824475618489,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mp-medium",
+        "raw_adsorption_energy_ev": 2.530548095703125,
+        "raw_signed_error_ev": 5.395268355703125,
+        "reference_adsorption_energy_ev": -2.86472026,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 6.267662422000001,
+          "model_load_seconds": 14.916773246000005,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 6.267662422000001
+        },
+        "selected_correction_form": "A_global_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -265.4123840332031,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:mol1gas"
+          },
+          {
+            "raw_total_energy_ev": -707.114013671875,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "biomass_ni_mol1:mol1star"
+          },
+          {
+            "raw_total_energy_ev": -444.232177734375,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mp-small:biomass_ni_mol1",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mp-small/biomass_ni_mol1/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:32af9851eb6afddede22e835d814b6a042cc94e1d56edbbe25145f7ee8bdcfa3",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/biomass_ni_mol1.sha256-34aeeb125ba048e37bca9b3b6baa84b96621cfc2da707dca127f9e2561225408.json",
+          "sha256": "c83c18878b674a3f8e9de17907e4c6f7b90ee2e294c67ea5073185ec7f5fd8a3"
+        },
+        "candidate_id": "biomass_ni_mol1",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:30:03.804689Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:25:35.647525Z",
+          "execution_name": "mlip-cell-mace-mp-small-jtpr7",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mp-small",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 1.8526958128645843,
+        "corrected_signed_error_ev": 1.8526958128645843,
+        "delta_correction_ev": 7.969055697135416,
+        "delta_hybrid_corrected_adsorption_energy_ev": -1.0120244471354156,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mp-small",
+        "raw_adsorption_energy_ev": 6.95703125,
+        "raw_signed_error_ev": 9.82175151,
+        "reference_adsorption_energy_ev": -2.86472026,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 7.653569581000056,
+          "model_load_seconds": 16.684994639000024,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 7.653569581000056
+        },
+        "selected_correction_form": "A_global_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -265.2298889160156,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:mol1gas"
+          },
+          {
+            "raw_total_energy_ev": -700.23876953125,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "biomass_ni_mol1:mol1star"
+          },
+          {
+            "raw_total_energy_ev": -441.9659118652344,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:star"
+          }
+        ]
+      },
+      {
+        "artifact": {
+          "cell_id": "z3-20260719:adsorption_energy:mace-mpa-0-medium:biomass_ni_mol1",
+          "gcs_uri": "gs://shed-489901-atlas-outputs/z3-campaign/raw/z3-20260719/mace-mpa-0-medium/biomass_ni_mol1/adsorption_energy/cell_result.json",
+          "manifest_hash": "sha256:32af9851eb6afddede22e835d814b6a042cc94e1d56edbbe25145f7ee8bdcfa3",
+          "manifest_url": "gs://shed-489901-atlas-inputs/z3-campaign/catbench-bm-v1/biomass_ni_mol1.sha256-34aeeb125ba048e37bca9b3b6baa84b96621cfc2da707dca127f9e2561225408.json",
+          "sha256": "a339d7040d66da182ef4a53bc4bf88f7bf82414ed01007361ad02ca8db1ee7fe"
+        },
+        "candidate_id": "biomass_ni_mol1",
+        "cloud_run": {
+          "completed_at": "2026-07-19T23:37:14.321308Z",
+          "cpu": "4",
+          "created_at": "2026-07-19T23:35:24.086379Z",
+          "execution_name": "mlip-cell-mace-mpa-0-medium-wvpmx",
+          "gpu": "1",
+          "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-mace-mp-small@sha256:4ce208b14b01f42ce37e4de07f95634f483c7c408c3049184c6f30744f65eaf3",
+          "job": "mlip-cell-mace-mpa-0-medium",
+          "max_retries": 1,
+          "memory": "16Gi",
+          "timeout_seconds": "3600"
+        },
+        "corrected_absolute_error_ev": 13.741027077265624,
+        "corrected_signed_error_ev": 13.741027077265624,
+        "delta_correction_ev": 4.9066826846875,
+        "delta_hybrid_corrected_adsorption_energy_ev": 10.876306817265624,
+        "delta_status": "corrected_confirmatory_test",
+        "model_id": "mace-mpa-0-medium",
+        "raw_adsorption_energy_ev": 15.782989501953125,
+        "raw_signed_error_ev": 18.647709761953124,
+        "reference_adsorption_energy_ev": -2.86472026,
+        "reference_uncertainty_ev": 3.0000000000000004e-05,
+        "runtime": {
+          "distill_profile": "off",
+          "duration_s": 5.811863916,
+          "model_load_seconds": 9.734150523,
+          "variant_id": "baseline",
+          "versions": {
+            "ase": "3.28.0",
+            "chgnet": null,
+            "cuda_available": true,
+            "cuda_device": "NVIDIA L4",
+            "fairchem-core": null,
+            "mace-torch": "0.3.16",
+            "matgl": null,
+            "numpy": "1.26.4",
+            "orb-models": null,
+            "python": "3.10.12",
+            "sevenn": null,
+            "torch": "2.4.1+cu121",
+            "uma_model_name": null,
+            "uma_task_name": null
+          },
+          "warm_inference_seconds": 5.811863916
+        },
+        "selected_correction_form": "B_family_constant",
+        "systems": [
+          {
+            "raw_total_energy_ev": -263.54931640625,
+            "role": "reference",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:mol1gas"
+          },
+          {
+            "raw_total_energy_ev": -689.2139892578125,
+            "role": "adsorbate_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": 1.0,
+            "system_id": "biomass_ni_mol1:mol1star"
+          },
+          {
+            "raw_total_energy_ev": -441.4476623535156,
+            "role": "clean_slab",
+            "status": "completed",
+            "stoichiometric_coefficient": -1.0,
+            "system_id": "biomass_ni_mol1:star"
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "adsorption_energy_ev": -2.86472026,
+      "confidence_level": null,
+      "scope_note": "Three times the published 1e-5 eV electronic convergence threshold. This is not a statistical interval and excludes functional, slab, k-point, geometry, dispersion, and model-form uncertainty.",
+      "uncertainty_ev": 3.0000000000000004e-05,
+      "uncertainty_kind": "three-term electronic-convergence proxy bound"
+    },
+    "split": "confirmatory_test",
+    "surface_element": "Ni",
+    "surface_facet": "fcc(111)"
+  },
+  "delta_correction_report": {
+    "path": "data/candidates/z3/delta-correction-report.json",
+    "sha256": "sha256:95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f"
+  },
+  "run_id": "z3-20260719",
+  "schema": "lupine.z3.candidate_measurement_artifact.v1",
+  "source": {
+    "path": "data/candidates/z3/source/z3-candidate-measurements.json",
+    "sha256": "sha256:d100d09defa3d7dd0395d3a28de8d80389b753646fbde743efeb115c1cf2914e"
+  },
+  "unit": "eV"
+}
