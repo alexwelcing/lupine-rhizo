@@ -37,6 +37,9 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip \
 
 COPY gcp/mlip-cell-runner/mlip_cell_runner.py ./
 COPY gcp/mlip-cell-runner/z1_barrier.py ./
+# Sparse-DFT row imports gpaw lazily; images without gpaw keep every other
+# row working and fail the sparse row closed at evaluation time.
+COPY gcp/mlip-cell-runner/z1_sparse_dft.py ./
 COPY python/lupine_distill_runtime ./lupine_distill_runtime
 COPY python/lupine_distill ./lupine_distill
 COPY campaigns/v1/z1.campaign-manifest.v1.json ./campaigns/v1/z1.campaign-manifest.v1.json
