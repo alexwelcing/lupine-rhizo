@@ -624,19 +624,32 @@ class AutoPolicyEngine:
     def name(self) -> str:
         return "rust" if self.rust.available else "python_fallback"
 
+    @staticmethod
+    def _direction_gate_present(support_model: Any | None) -> bool:
+        """Direction-gated corrections are implemented only by the Python
+        engine; the Rust engine silently ignores the gated block (Codex
+        PR#53 P1), so its presence must route around Rust."""
+        evidence = support_evidence(support_model)
+        if not isinstance(evidence, dict):
+            return False
+        correction = evidence.get("correction")
+        return isinstance(correction, dict) and "direction_gated_correction_v1" in correction
+
     def decide(self, **kwargs: Any) -> DistillDecision:
-        if self.rust.available:
+        if self.rust.available and not self._direction_gate_present(kwargs.get("support_model")):
             return self.rust.decide(**kwargs)
         decision = self.python.decide(**kwargs)
         decision.policy_engine = "python_fallback"
+        decision.raw.setdefault("route_reason", "direction_gate_python_engine")
         return decision
 
     def decide_many(self, **kwargs: Any) -> list[DistillDecision]:
-        if self.rust.available:
+        if self.rust.available and not self._direction_gate_present(kwargs.get("support_model")):
             return self.rust.decide_many(**kwargs)
         decisions = self.python.decide_many(**kwargs)
         for decision in decisions:
             decision.policy_engine = "python_fallback"
+            decision.raw.setdefault("route_reason", "direction_gate_python_engine")
         return decisions
 
 
