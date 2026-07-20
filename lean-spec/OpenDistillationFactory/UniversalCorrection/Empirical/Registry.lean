@@ -125,94 +125,99 @@ def AcceptanceGateCleared {metric : Metric} {scope : AcceptanceScope}
     evaluate evidence.threshold evidence.observed = .pass ∧
     ClearedStatus (gateStatusOfDecision (evaluate evidence.threshold evidence.observed))
 
+/-- The ingested result belongs to the named chain test, and the executable
+threshold evaluation FAILS: the acceptance gate is refuted by this evidence. -/
+def AcceptanceGateRefuted {metric : Metric} {scope : AcceptanceScope}
+    (test : DiscoveryChains.AcceptanceTest)
+    (expectedId : DiscoveryChains.AcceptanceTestId)
+    (evidence : IngestedAcceptanceEvidence metric scope) : Prop :=
+  test.id = expectedId ∧
+    test.scope = scope ∧
+    test.provenance = evidence.threshold.provenance ∧
+    evaluate evidence.threshold evidence.observed = .fail ∧
+    gateStatusOfDecision (evaluate evidence.threshold evidence.observed) = .unmet
+
 /-!
-# ⚠ PRE-INGESTION SCAFFOLDING — NOT REAL CAMPAIGN EVIDENCE ⚠
+# INGESTED CAMPAIGN EVIDENCE (2026-07-20) — GATES REFUTED
 
-`z1ScaffoldingEvidence`, `z2ScaffoldingEvidence`, and `z3ScaffoldingEvidence`
-below are hard-coded, ceiling-exact placeholders: every `observed` magnitude was
-chosen to sit exactly on its preregistered acceptance boundary. No Z1/Z2/Z3
-campaign result has been ingested into the formal acceptance registry, so the
-`z1_gate_clearance` / `z2_gate_clearance` / `z3_gate_clearance` theorems prove
-clearance only for this synthetic scaffolding. Formal-gate consumers MUST NOT
-read them as evidence that the real Z1/Z2/Z3 acceptance gates have passed.
+The scaffolding placeholders that previously occupied this section (hard-coded,
+ceiling-exact synthetic values) are gone. What stands here now is the real
+ingested Round-4 evidence, and its verdict is negative on every gate:
 
-The corresponding claims-registry entries are `unsupported`:
+* **Z1 (barrier accuracy).** All four available models FAIL the 40 meV gate on
+  both executed precision chains (float32 and float64, MAE 135.0–242.5 meV).
+  The theorem below uses the MOST FAVORABLE model (mace-mpa-0-medium,
+  135.0 meV): even the best case fails by 3.4×.
+* **Z2 (magnetocrystalline anisotropy).** Abstained: no spin-capable runner,
+  reference panel, or ClaimContract exists; zero cloud executions. There is no
+  evidence to evaluate, so there is deliberately NO gate theorem — the
+  abstention record below documents this (kanban t_052adac7 restores scope).
+* **Z3 (delta-learned adsorption accuracy).** All four models FAIL the
+  0.1 eV gate; every validation-selected correction worsened the frozen
+  holdout (corrected MAE 2.27–5.91 eV). The theorem uses the most favorable
+  corrected result (chgnet, 2.2719 eV): even it fails by 22.7×.
+
+Claims-registry state (derived by the anti-laundering chain, not hand-edited):
 `registry/claims/discovery.z1.barrier-accuracy.v1.json` and
-`registry/claims/discovery.z3.adsorption-accuracy.v1.json`
-(`classification.assurance := "unsupported"`); the Z2 target
-`discovery.z2.magnetic-anisotropy.v1` of
-`campaigns/v1/z2.campaign-manifest.v1.json` likewise has no ingested evidence.
+`registry/claims/discovery.z3.adsorption-accuracy.v1.json` are
+`{outcome: "contradicted", assurance: "withdrawn"}` with derivation
+`(withdrawn, refuted)`; evidence bundles live under
+`evidence/v1/examples/round4-discovery-round-4-*`.
 
-These defs are to be replaced by real ingested evidence under kanban tasks
-t_d7601709 / t_0d932098; the scaffolding names must not survive into any
-consumer-facing gate decision.
+Formal-gate consumers: these theorems certify REFUTATION. No consumer may
+present any Z1/Z2/Z3 gate as cleared.
 -/
 
-/-- Scaffolding Z1 placeholder (pre-ingestion): barrier MAE hard-coded at the
-40 meV preregistered ceiling. NOT an ingested result — see the module warning
-above; replaced by real ingested evidence under kanban t_d7601709/t_0d932098. -/
-def z1ScaffoldingEvidence :
+/-- Ingested Z1 result (best case): mace-mpa-0-medium barrier MAE 135.0 meV
+against the 40 meV preregistered ceiling. Source: bundle
+`round4-discovery-round-4-z1-barriers-v1-z1-mace-mpa-0-medium.json`. -/
+def z1IngestedBestEvidence :
     IngestedAcceptanceEvidence .migrationBarrierMAE .totalUncertaintyToReality :=
   { grade := .high
     source :=
       { sourceId := 5
         evidenceUnitId := 5
-        locator := "discovery.round-4.z1-barriers.v1/ingested-result" }
-    observed := { magnitude := { value := 40, nonnegative := by norm_num } }
+        locator := "evidence/v1/examples/round4-discovery-round-4-z1-barriers-v1-z1-mace-mpa-0-medium.json" }
+    observed := { magnitude := { value := 135, nonnegative := by norm_num } }
     threshold :=
       { boundary := { value := 40, nonnegative := by norm_num }
         direction := .atMost
         provenance := .authorProposed } }
 
-/-- Scaffolding Z2 placeholder (pre-ingestion): held-out magnetocrystalline
-ordering hard-coded at Spearman ρ = 1. NOT an ingested result — see the module
-warning above; replaced by real ingested evidence under kanban t_d7601709/t_0d932098. -/
-def z2ScaffoldingEvidence :
-    IngestedAcceptanceEvidence .magnetocrystallineRankCorrelation
-      .totalUncertaintyToReality :=
-  { grade := .high
-    source :=
-      { sourceId := 16
-        evidenceUnitId := 16
-        locator := "discovery.round-4.z2-magnetic-anisotropy.v1/ingested-result" }
-    observed := { magnitude := { value := 1, nonnegative := by norm_num } }
-    threshold :=
-      { boundary := { value := 1, nonnegative := by norm_num }
-        direction := .atLeast
-        provenance := .engineeringRequirement } }
-
-/-- Scaffolding Z3 placeholder (pre-ingestion): adsorption-energy error
-hard-coded at the 0.1 eV ceiling. NOT an ingested result — see the module
-warning above; replaced by real ingested evidence under kanban t_d7601709/t_0d932098. -/
-def z3ScaffoldingEvidence :
+/-- Ingested Z3 result (best case): chgnet delta-corrected holdout MAE
+2.2719 eV against the 0.1 eV preregistered ceiling. Source: bundle
+`round4-discovery-round-4-z3-adsorption-v1-z3-chgnet.json`. -/
+def z3IngestedBestEvidence :
     IngestedAcceptanceEvidence .adsorptionEnergyMUE .totalUncertaintyToReality :=
   { grade := .high
     source :=
       { sourceId := 1
         evidenceUnitId := 1
-        locator := "discovery.round-4.z3-adsorption.v1/ingested-result" }
-    observed := { magnitude := { value := 1 / 10, nonnegative := by norm_num } }
+        locator := "evidence/v1/examples/round4-discovery-round-4-z3-adsorption-v1-z3-chgnet.json" }
+    observed := { magnitude := { value := 22719 / 10000, nonnegative := by norm_num } }
     threshold :=
       { boundary := { value := 1 / 10, nonnegative := by norm_num }
         direction := .atMost
         provenance := .literatureBenchmark } }
 
-theorem z1_gate_clearance :
-    AcceptanceGateCleared DiscoveryChains.Chain01.contract.acceptance
-      .z1 z1ScaffoldingEvidence := by
-  norm_num [AcceptanceGateCleared, z1ScaffoldingEvidence, gateStatusOfDecision,
+/-- The Z2 abstention record: no runner, panel, or contract exists, so the
+campaign recorded four hash-chained `unsupported` abstention rows with zero
+cloud executions rather than fabricate a measurement
+(`data/candidates/z2/measurements.jsonl`). Full scope returns with a
+spin-capable runner (kanban t_052adac7). -/
+def z2AbstentionRecord : String :=
+  "Z2 abstained 2026-07-19: no SOC/anisotropy/Tc path among declared models; zero cloud executions"
+
+theorem z1_gate_refuted :
+    AcceptanceGateRefuted DiscoveryChains.Chain01.contract.acceptance
+      .z1 z1IngestedBestEvidence := by
+  norm_num [AcceptanceGateRefuted, z1IngestedBestEvidence, gateStatusOfDecision,
     evaluate, ClearedStatus, DiscoveryChains.Chain01.contract]
 
-theorem z2_gate_clearance :
-    AcceptanceGateCleared DiscoveryChains.Chain02.contract.acceptance
-      .z2 z2ScaffoldingEvidence := by
-  norm_num [AcceptanceGateCleared, z2ScaffoldingEvidence, gateStatusOfDecision,
-    evaluate, ClearedStatus, DiscoveryChains.Chain02.contract]
-
-theorem z3_gate_clearance :
-    AcceptanceGateCleared DiscoveryChains.Chain03.contract.acceptance
-      .z3 z3ScaffoldingEvidence := by
-  norm_num [AcceptanceGateCleared, z3ScaffoldingEvidence, gateStatusOfDecision,
+theorem z3_gate_refuted :
+    AcceptanceGateRefuted DiscoveryChains.Chain03.contract.acceptance
+      .z3 z3IngestedBestEvidence := by
+  norm_num [AcceptanceGateRefuted, z3IngestedBestEvidence, gateStatusOfDecision,
     evaluate, ClearedStatus, DiscoveryChains.Chain03.contract]
 
 /-- Inventory of every theorem and lemma in the 17-module active correction theory surface
