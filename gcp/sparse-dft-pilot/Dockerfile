@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ libopenblas-dev libxc-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# GPAW 26.7 compiles as C++; make g++ the default driver so C++ headers resolve.
+ENV CC=g++ CXX=g++
+
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir \
       ase==3.29.0 \
