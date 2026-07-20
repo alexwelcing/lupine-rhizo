@@ -314,12 +314,26 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument(
+        "--source-root",
+        type=Path,
+        help="input tree holding source/ and raw/ (default: data/candidates/z1)",
+    )
+    parser.add_argument(
+        "--result-uri-root",
+        help="GCS URI prefix for raw artifacts (default: the float32 campaign root)",
+    )
     parser.add_argument("--check", action="store_true")
     return parser.parse_args()
 
 
 def main() -> int:
+    global SOURCE_ROOT, RESULT_URI_ROOT
     args = parse_args()
+    if args.source_root is not None:
+        SOURCE_ROOT = args.source_root
+    if args.result_uri_root is not None:
+        RESULT_URI_ROOT = args.result_uri_root
     root = args.root.resolve()
     output_dir = (args.output_dir or root / SOURCE_ROOT).resolve()
     try:
