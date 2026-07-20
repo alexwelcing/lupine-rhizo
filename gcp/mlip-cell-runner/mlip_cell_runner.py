@@ -28,6 +28,7 @@ import numpy as np
 import requests
 from lupine_distill.fixture_contract import run_row, validate_manifest
 from z1_barrier import BARRIER_ROW_ID, load_campaign_panel, run_barrier_row
+from z1_sparse_dft import SPARSE_DFT_ROW_ID, run_sparse_dft_row
 
 try:
     from lupine_distill_runtime import DistillSession, LeakageGuard
@@ -731,12 +732,17 @@ def run_cell(
     # MACE vendor guidance: float64 for geometry optimization, float32
     # only for MD-style rows. Scoped to the single-cell barrier path;
     # run-batch shares one calculator and keeps the row default.
-    calc_dtype = "float64" if args.row_id == BARRIER_ROW_ID else "float32"
+    # The sparse_dft_barrier guide profile is also run in float64 so the
+    # proposed extrema match the float64 barrier-row measurements the
+    # sparse-DFT preregistration premise was measured on.
+    calc_dtype = (
+        "float64" if args.row_id in (BARRIER_ROW_ID, SPARSE_DFT_ROW_ID) else "float32"
+    )
     barrier_panel = None
     barrier_contract = None
-    if args.row_id == BARRIER_ROW_ID:
+    if args.row_id in (BARRIER_ROW_ID, SPARSE_DFT_ROW_ID):
         if args.distill_profile != "off":
-            raise ValueError("barrier row does not support distill profiles")
+            raise ValueError(f"{args.row_id} row does not support distill profiles")
         manifest, barrier_panel, manifest_hash, barrier_contract = load_campaign_panel(
             manifest_url, args.mlip_id, read_url
         )
@@ -809,13 +815,22 @@ def run_cell(
             )
         run_calc = distill_session.wrap_calculator(calc)
     if barrier_panel is not None and barrier_contract is not None:
-        row_result = run_barrier_row(
-            manifest,
-            barrier_panel,
-            run_calc,
-            barrier_contract,
-            checkpoint=checkpoint,
-        )
+        if args.row_id == SPARSE_DFT_ROW_ID:
+            row_result = run_sparse_dft_row(
+                manifest,
+                barrier_panel,
+                run_calc,
+                barrier_contract,
+                checkpoint=checkpoint,
+            )
+        else:
+            row_result = run_barrier_row(
+                manifest,
+                barrier_panel,
+                run_calc,
+                barrier_contract,
+                checkpoint=checkpoint,
+            )
     else:
         row_result = run_row(
             args.row_id,
