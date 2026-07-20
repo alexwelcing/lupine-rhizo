@@ -349,6 +349,16 @@ def _stress_gpa(atoms: Atoms) -> np.ndarray:
     return np.asarray(atoms.get_stress(voigt=True), dtype=float).reshape(-1) * EV_PER_A3_TO_GPA
 
 
+def _propagate_class_labels(record: dict[str, Any], prediction: dict[str, Any]) -> None:
+    """Carry optional ``class``/``group`` labels from a fixture record into
+    its prediction so the runtime direction gate can group support
+    structures by (property, class). Inert for unlabeled records, keeping
+    existing fixtures byte-identical."""
+    for key in ("class", "group"):
+        if record.get(key) is not None:
+            prediction[key] = record[key]
+
+
 def single_point_prediction(record: dict[str, Any], calc: Any, row_spec: dict[str, Any]) -> dict[str, Any]:
     atoms = atoms_from_record(record)
     atoms.calc = calc
@@ -365,6 +375,7 @@ def single_point_prediction(record: dict[str, Any], calc: Any, row_spec: dict[st
         "forces_ev_per_angstrom": _forces_ev_per_angstrom(atoms).tolist(),
         "reference": _reference(record, row_spec),
     }
+    _propagate_class_labels(record, prediction)
     try:
         prediction["stress_gpa"] = _stress_gpa(atoms).tolist()
     except Exception as exc:
@@ -688,7 +699,7 @@ def relaxation_prediction(record: dict[str, Any], calc: Any, row_spec: dict[str,
     converged = bool(optimizer.run(fmax=fmax, steps=max_steps))
     forces = _forces_ev_per_angstrom(atoms)
     symbols = [str(symbol) for symbol in record.get("symbols", [])]
-    return {
+    prediction: dict[str, Any] = {
         "structure_id": record.get("structure_id"),
         "material_id": record.get("material_id", record.get("material")),
         "chemical_system": "-".join(sorted(set(symbols))),
@@ -702,6 +713,8 @@ def relaxation_prediction(record: dict[str, Any], calc: Any, row_spec: dict[str,
         "relaxed_positions": np.asarray(atoms.positions, dtype=float).tolist(),
         "reference": _reference(record, row_spec),
     }
+    _propagate_class_labels(record, prediction)
+    return prediction
 
 
 def run_row(

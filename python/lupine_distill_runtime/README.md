@@ -11,6 +11,7 @@ This package wraps an MLIP execution cell with sessions, support/eval leakage gu
 | Module | Key classes / functions |
 |---|---|
 | `session.py` | `DistillSession`, `DistillSupportModel` |
+| `direction_gate.py` | `direction_gated_correction()`, `GatedCorrection` |
 | `leakage.py` | `LeakageGuard`, `StructureFingerprint` |
 | `policy_engine.py` | `build_policy_engine()`, `PythonPolicyEngine`, `RustPolicyEngine`, `AutoPolicyEngine`, `DistillDecision` |
 | `policy.py` | `RuntimePolicy` |

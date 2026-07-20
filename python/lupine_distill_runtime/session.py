@@ -3,12 +3,19 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
 
+from .direction_gate import (
+    DEFAULT_CAP_VERSION,
+    MIN_CALIBRATION_MEMBERS,
+    GatedCorrection,
+    direction_gated_correction,
+)
 from .events import RuntimeEventLog
 from .instrumented import InstrumentedCalculator
 from .leakage import LeakageGuard
@@ -20,6 +27,37 @@ PredictRow = Callable[[str, dict[str, Any], Any], dict[str, Any]]
 MAX_ENERGY_BIAS_EV_PER_ATOM = 0.5
 MAX_STRESS_BIAS_GPA = 25.0
 MAX_FORCE_BIAS_EV_PER_ANGSTROM = 1.0
+
+#: Implicit class label for support/eval structures without an explicit
+#: ``class``/``group`` label when at least one support structure is labeled.
+DEFAULT_CLASS_LABEL = "default"
+
+#: Correction fields gated by the direction gate, per row.
+GATED_CORRECTION_FIELDS: dict[str, tuple[str, ...]] = {
+    "energy_volume": ("energy_ev_per_atom",),
+    "relaxation_stability": ("relaxed_energy_ev_per_atom",),
+    "stress": ("stress_gpa",),
+    "elastic_constants": ("stress_gpa",),
+    "forces": ("forces_ev_per_angstrom",),
+}
+
+#: Additive mean-bias candidate keys superseded by the direction gate when a
+#: support set carries class labels (the gated path is multiplicative, so the
+#: additive biases must stay out of any engine-consumable correction block).
+_ADDITIVE_BIAS_KEYS = (
+    "energy_bias_ev_per_atom",
+    "relaxed_energy_bias_ev_per_atom",
+    "stress_bias_gpa",
+    "force_bias_ev_per_angstrom",
+)
+
+#: Diagnostics gate keys written by the legacy additive path.
+_LEGACY_GATE_DIAGNOSTIC_KEYS = (
+    "energy_correction_gate",
+    "stress_correction_gate",
+    "force_correction_gate",
+    "relaxation_energy_correction_gate",
+)
 
 
 def manifest_hash(manifest: dict[str, Any]) -> str:
@@ -415,15 +453,95 @@ def _fit_residual_ribbon(
     return model, projected_model, diagnostics
 
 
+def _class_label(prediction: dict[str, Any]) -> str | None:
+    """Optional ``class``/``group`` label of one structure (verbatim, stripped)."""
+    for key in ("class", "group"):
+        value = prediction.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
+def _calibration_ratios(predictions: list[dict[str, Any]], field: str) -> list[float]:
+    """``pred / ref`` ratios over support predictions for one correction field.
+
+    Mirrors the offline pre-filter (``run_round3_analysis.py``): null /
+    non-finite / zero references cannot form ratios. Array fields (stress,
+    forces) contribute one ratio per component, pooled over the cell.
+    """
+    ratios: list[float] = []
+    for pred in predictions:
+        pred_value = _finite_array(pred.get(field))
+        ref_value = _finite_array(_ref(pred).get(field))
+        if pred_value is None or ref_value is None or pred_value.shape != ref_value.shape:
+            continue
+        for p, r in zip(pred_value.reshape(-1), ref_value.reshape(-1), strict=True):
+            if r != 0.0:
+                ratios.append(float(p / r))
+    return ratios
+
+
+def _direction_gated_fit(
+    row_id: str,
+    support_predictions: list[dict[str, Any]],
+    *,
+    cap_version: str,
+    min_members: int = MIN_CALIBRATION_MEMBERS,
+) -> tuple[dict[str, dict[str, GatedCorrection]] | None, float]:
+    """Group support structures by (correction field, class) and gate each cell.
+
+    Returns ``(None, 0.0)`` when the row has no gated correction field or no
+    support structure carries a class/group label — the caller then keeps
+    the legacy additive path unchanged (back-compat). Otherwise returns the
+    per-field, per-class gate decisions and the gate evaluation seconds.
+    """
+    fields = GATED_CORRECTION_FIELDS.get(row_id)
+    if not fields:
+        return None, 0.0
+    if not any(_class_label(pred) is not None for pred in support_predictions):
+        return None, 0.0
+    started = time.perf_counter()
+    cells: dict[str, dict[str, GatedCorrection]] = {}
+    for correction_field in fields:
+        by_class: dict[str, list[dict[str, Any]]] = {}
+        for pred in support_predictions:
+            label = _class_label(pred) or DEFAULT_CLASS_LABEL
+            by_class.setdefault(label, []).append(pred)
+        cells[correction_field] = {
+            label: direction_gated_correction(
+                _calibration_ratios(members, correction_field),
+                cap_version=cap_version,
+                min_members=min_members,
+            )
+            for label, members in sorted(by_class.items())
+        }
+    return cells, time.perf_counter() - started
+
+
 @dataclass
 class DistillSupportModel:
     row_id: str
     correction: dict[str, Any] = field(default_factory=dict)
     candidate_correction: dict[str, Any] = field(default_factory=dict)
     diagnostics: dict[str, Any] = field(default_factory=dict)
+    #: Direction-gated multiplicative corrections, keyed by correction field
+    #: then class label. Non-empty iff the support set carried class labels
+    #: (gated mode); empty means the legacy additive path (back-compat).
+    gated: dict[str, dict[str, GatedCorrection]] = field(default_factory=dict)
+    cap_version: str = DEFAULT_CAP_VERSION
+    #: perf_counter spans accumulated by model methods (seconds).
+    overhead: dict[str, float] = field(
+        default_factory=lambda: {"correction_s": 0.0, "guards_s": 0.0}
+    )
 
     @classmethod
-    def fit(cls, row_id: str, support_predictions: list[dict[str, Any]]) -> DistillSupportModel:
+    def fit(
+        cls,
+        row_id: str,
+        support_predictions: list[dict[str, Any]],
+        *,
+        cap_version: str = DEFAULT_CAP_VERSION,
+    ) -> DistillSupportModel:
         correction: dict[str, Any] = {}
         candidate_correction: dict[str, Any] = {}
         support_material_roots = sorted(_material_roots(support_predictions))
@@ -613,14 +731,56 @@ class DistillSupportModel:
                 else:
                     diagnostics["relaxation_energy_correction_gate"] = "blocked_no_support_lift"
 
-        return cls(
+        gated_cells, gate_eval_s = _direction_gated_fit(
+            row_id,
+            support_predictions,
+            cap_version=cap_version,
+        )
+        if gated_cells is not None:
+            # Gated mode: the direction gate replaces the un-gated additive
+            # mean-bias path. The additive biases stay visible as diagnostics
+            # (``*_bias_candidate_*``) but leave both engine-consumable
+            # correction blocks, so no policy engine can apply an un-gated
+            # additive correction; gated cells apply multiplicatively
+            # (``pred / b``) in ``correct_prediction``.
+            correction = {}
+            for key in _ADDITIVE_BIAS_KEYS:
+                candidate_correction.pop(key, None)
+            gate_block = {
+                "schema": "lupine.distill.direction_gate.v1",
+                "cap_version": cap_version,
+                "cells": {
+                    correction_field: {
+                        label: cell.to_dict() for label, cell in field_cells.items()
+                    }
+                    for correction_field, field_cells in gated_cells.items()
+                },
+            }
+            diagnostics["direction_gate"] = gate_block
+            candidate_correction["direction_gated_correction_v1"] = gate_block
+            for legacy_key in _LEGACY_GATE_DIAGNOSTIC_KEYS:
+                if legacy_key in diagnostics:
+                    diagnostics[legacy_key] = "superseded_by_direction_gate"
+
+        model = cls(
             row_id=row_id,
             correction=correction,
             candidate_correction=candidate_correction,
             diagnostics=diagnostics,
+            gated=gated_cells or {},
+            cap_version=cap_version,
         )
+        model.overhead["guards_s"] += gate_eval_s
+        return model
 
     def gate_for_eval_predictions(self, predictions: list[dict[str, Any]]) -> None:
+        started = time.perf_counter()
+        try:
+            self._gate_for_eval_predictions(predictions)
+        finally:
+            self.overhead["guards_s"] += time.perf_counter() - started
+
+    def _gate_for_eval_predictions(self, predictions: list[dict[str, Any]]) -> None:
         support_roots = set(self.diagnostics.get("support_material_roots") or [])
         eval_roots = _material_roots(predictions)
         self.diagnostics["eval_material_roots"] = sorted(eval_roots)
@@ -709,6 +869,13 @@ class DistillSupportModel:
         return float(np.linalg.norm(stiff) / max(float(np.linalg.norm(vector)), 1e-12))
 
     def correct_prediction(self, prediction: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        started = time.perf_counter()
+        try:
+            return self._correct_prediction(prediction)
+        finally:
+            self.overhead["correction_s"] += time.perf_counter() - started
+
+    def _correct_prediction(self, prediction: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         corrected = copy.deepcopy(prediction)
         interventions: list[dict[str, Any]] = []
         if "energy_bias_ev_per_atom" in self.correction and "energy_ev_per_atom" in corrected:
@@ -733,6 +900,50 @@ class DistillSupportModel:
                 self.correction["relaxed_energy_bias_ev_per_atom"]
             )
             interventions.append({"action": "delta_correct", "field": "relaxed_energy_ev_per_atom"})
+        if self.gated:
+            label = _class_label(corrected) or DEFAULT_CLASS_LABEL
+            for correction_field, field_cells in self.gated.items():
+                if correction_field not in corrected:
+                    continue
+                cell = field_cells.get(label)
+                if cell is None:
+                    # No calibration cell for this class: fail closed with the
+                    # canonical empty-cell abstention.
+                    cell = direction_gated_correction((), cap_version=self.cap_version)
+                if cell.applied and cell.b:
+                    value = np.asarray(corrected[correction_field], dtype=float)
+                    scaled = value / cell.b
+                    corrected[correction_field] = float(scaled) if scaled.ndim == 0 else scaled.tolist()
+                    interventions.append(
+                        {
+                            "action": "scale_correct",
+                            "gate": "direction_gate",
+                            "field": correction_field,
+                            "class": label,
+                            "b": cell.b,
+                            "s": cell.s,
+                            "n_calibration": cell.n_calibration,
+                            "cap_version": cell.cap_version,
+                            "theorem_refs": list(cell.theorem_refs),
+                        }
+                    )
+                else:
+                    abstain_reason = cell.abstain_reason or "zero_bias"
+                    interventions.append(
+                        {
+                            "action": "skip_correction",
+                            "gate": "direction_gate",
+                            "reason": f"direction_gate_abstain: {abstain_reason}",
+                            "field": correction_field,
+                            "class": label,
+                            "abstain_reason": abstain_reason,
+                            "b": cell.b,
+                            "s": cell.s,
+                            "n_calibration": cell.n_calibration,
+                            "cap_version": cell.cap_version,
+                            "theorem_refs": list(cell.theorem_refs),
+                        }
+                    )
         return corrected, interventions
 
     def correction_evidence(self) -> dict[str, Any]:
@@ -752,6 +963,9 @@ class DistillSession:
     atlas_distill_bin: str | None = None
     ribbon_version: str = "hyperribbon-v1"
     policy_limits_path: str | None = None
+    #: Cap version for the runtime direction gate ("round4-v2" default;
+    #: "round3-frozen" retained for replay compatibility).
+    cap_version: str = DEFAULT_CAP_VERSION
     #: Env-field binding report backing the Lean certificate gate: "auto"
     #: requires the validated repo report, an explicit path requires that
     #: report, and None disables the gate.
@@ -763,6 +977,11 @@ class DistillSession:
     refusals: list[dict[str, Any]] = field(default_factory=list)
     policy_batches: list[dict[str, Any]] = field(default_factory=list)
     policy_decisions: list[dict[str, Any]] = field(default_factory=list)
+    #: perf_counter spans measured by session methods (seconds); the support
+    #: model's own correction/guard spans are folded in at summary time.
+    overhead: dict[str, float] = field(
+        default_factory=lambda: {"support_fit_s": 0.0, "correction_s": 0.0, "guards_s": 0.0}
+    )
 
     def __post_init__(self) -> None:
         self.policy = RuntimePolicy(self.profile)
@@ -845,6 +1064,13 @@ class DistillSession:
         return best
 
     def fit_support(self, calc: Any, predict_row: PredictRow) -> None:
+        started = time.perf_counter()
+        try:
+            self._fit_support(calc, predict_row)
+        finally:
+            self.overhead["support_fit_s"] += time.perf_counter() - started
+
+    def _fit_support(self, calc: Any, predict_row: PredictRow) -> None:
         if not self.enabled or self.support_manifest is None:
             return
         if self.eval_manifest is not None:
@@ -855,7 +1081,11 @@ class DistillSession:
         predictions = row_result.get("predictions")
         if not isinstance(predictions, list):
             raise ValueError("support row did not return predictions")
-        self.support_model = DistillSupportModel.fit(self.row_id, predictions)
+        self.support_model = DistillSupportModel.fit(
+            self.row_id,
+            predictions,
+            cap_version=self.cap_version,
+        )
         self.event_log.emit(
             "support.fit",
             row_id=self.row_id,
@@ -865,6 +1095,16 @@ class DistillSession:
             candidate_correction_fields=sorted(self.support_model.candidate_correction.keys()),
             diagnostics=self.support_model.diagnostics,
         )
+        for correction_field, field_cells in self.support_model.gated.items():
+            for label, cell in field_cells.items():
+                self.event_log.emit(
+                    "policy.direction_gate",
+                    row_id=self.row_id,
+                    mlip_id=self.mlip_id,
+                    field=correction_field,
+                    class_label=label,
+                    **cell.to_dict(),
+                )
 
     def apply_row_policy(self, predictions: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not self.enabled:
@@ -956,8 +1196,15 @@ class DistillSession:
         eval_count = self.leakage_guard.get("eval_structures", 0) if self.leakage_guard else 0
         kappa1_hat = support_count / max(support_count + eval_count, 1)
         observed_speedup = None
+        observed_speedup_reason = None
         if duration_s and baseline_duration_s and duration_s > 0:
             observed_speedup = baseline_duration_s / duration_s
+        elif not baseline_duration_s:
+            # No distill-off baseline recorded for this cell (A/B baselines are
+            # not yet recorded by the runner): null must not ship silently.
+            observed_speedup_reason = "no_baseline_duration"
+        else:
+            observed_speedup_reason = "invalid_duration_s"
         diagnostics = self.support_model.diagnostics if self.support_model else {}
         residual_keys = [
             key
@@ -978,6 +1225,7 @@ class DistillSession:
             "refusal_threshold_proxy": 200.0,
             "false_refusal_estimate": None,
             "observed_speedup": observed_speedup,
+            "observed_speedup_reason": observed_speedup_reason,
             "p2_residual_pca": {
                 "top_k": 5,
                 "status": "computed_from_support_residuals" if residual_keys else "not_computed_in_cell_runner",
@@ -985,6 +1233,19 @@ class DistillSession:
             },
             "layerwise_exact": False,
         }
+
+    def overhead_summary(self) -> dict[str, float]:
+        """``session.overhead`` with the support model's spans folded in."""
+        overhead = {
+            "support_fit_s": 0.0,
+            "correction_s": 0.0,
+            "guards_s": 0.0,
+            **self.overhead,
+        }
+        if self.support_model is not None:
+            overhead["correction_s"] += self.support_model.overhead.get("correction_s", 0.0)
+            overhead["guards_s"] += self.support_model.overhead.get("guards_s", 0.0)
+        return overhead
 
     def summary(self, events_uri: str | None = None) -> dict[str, Any]:
         return {
@@ -1016,5 +1277,6 @@ class DistillSession:
             "refusals": self.refusals,
             "policy_batches": self.policy_batches,
             "policy_decisions": self.policy_decisions,
+            "overhead": self.overhead_summary(),
             "events_uri": events_uri,
         }

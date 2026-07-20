@@ -951,6 +951,7 @@ def run_cell(
             "refusal_count": len(distill_summary.get("refusals", [])),
             "policy_decision_count": len(distill_summary.get("policy_decisions", [])),
             "policy_decisions": distill_summary.get("policy_decisions", []),
+            "overhead": distill_summary.get("overhead"),
             "events_uri": distill_events_uri,
         }
         metrics["support_manifest_hash"] = distill_summary.get("support_manifest_hash")

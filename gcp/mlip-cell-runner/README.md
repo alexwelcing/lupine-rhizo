@@ -86,7 +86,13 @@ runtime policies:
 
 Distill variants write `distill_runtime`, `support_manifest_hash`,
 `interventions`, `refusals`, `theorem_hooks`, and a `distill_events.jsonl`
-artifact. For local iteration without a Worker, use `--local-jsonl beats.jsonl`
+artifact. `distill_runtime.overhead` records the support-fit / correction /
+guard spans in seconds, and `theorem_hooks.observed_speedup_reason` explains
+any null `observed_speedup`. When support structures carry `class`/`group`
+labels, corrections are direction-gated per (property, class) cell
+(`lupine_distill_runtime.direction_gate`, cap version `round4-v2`) and apply
+multiplicatively; unlabeled support sets keep the legacy additive path.
+For local iteration without a Worker, use `--local-jsonl beats.jsonl`
 instead of `--beat-emit-url`.
 
 The MLIP runner is intentionally generic: it loads an MLIP backend, computes
