@@ -65,6 +65,17 @@ class CampaignResultIngestionTests(unittest.TestCase):
             previous_hash = row["row_hash"]
         path.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows))
 
+    @staticmethod
+    def round4_bundles(root: Path) -> list[str]:
+        """Names of every round4 bundle in the staged evidence dir.
+
+        The repo now carries ingested Z1/Z3 campaign bundles, so fail-closed
+        tests must assert "no NEW bundles" (set unchanged), not "no bundles".
+        """
+        return sorted(
+            path.name for path in (root / "evidence" / "v1" / "examples").glob("round4-*.json")
+        )
+
     def test_synthetic_round4_fixture_ingests_and_materializes_new_lock(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -76,7 +87,12 @@ class CampaignResultIngestionTests(unittest.TestCase):
             result = self.invoke(root)
 
             self.assertEqual(result.returncode, 0, result.stderr)
-            created = sorted((root / "evidence" / "v1" / "examples").glob("round4-*.json"))
+            created = sorted(
+                path
+                for path in (root / "evidence" / "v1" / "examples").glob("round4-*.json")
+                if "discovery-round-4-z1" not in path.name
+                and "discovery-round-4-z3" not in path.name
+            )
             self.assertEqual(len(created), 2)
             bundle_ids = {json.loads(path.read_text())["bundle_id"] for path in created}
             claim = json.loads((root / "registry" / "claims" / f"{CLAIM_ID}.json").read_text())
@@ -144,6 +160,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.prepare_root(root)
+            before_bundles = self.round4_bundles(root)
             manifest_path = (
                 root / "python" / "tests" / "fixtures" / "round4_ingest" / "manifest.json"
             )
@@ -164,7 +181,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertIn("campaign manifest schema validation failed", result.stderr)
             self.assertEqual(claim_path.read_bytes(), before_claim)
-            self.assertFalse(list((root / "evidence" / "v1" / "examples").glob("round4-*.json")))
+            self.assertEqual(self.round4_bundles(root), before_bundles)
 
     def test_two_targets_in_one_claim_preserve_both_contract_updates(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -213,6 +230,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.prepare_root(root)
+            before_bundles = self.round4_bundles(root)
             measurements_path = (
                 root / "python" / "tests" / "fixtures" / "round4_ingest" / "measurements.jsonl"
             )
@@ -224,12 +242,13 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("measurement hash chain is broken", result.stderr)
-            self.assertFalse(list((root / "evidence" / "v1" / "examples").glob("round4-*.json")))
+            self.assertEqual(self.round4_bundles(root), before_bundles)
 
     def test_scope_outside_baseline_contract_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.prepare_root(root)
+            before_bundles = self.round4_bundles(root)
             fixture = root / "python" / "tests" / "fixtures" / "round4_ingest"
             measurements_path = fixture / "measurements.jsonl"
             rows = [json.loads(line) for line in measurements_path.read_text().splitlines()]
@@ -242,12 +261,13 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("scope mismatch", result.stderr)
-            self.assertFalse(list((root / "evidence" / "v1" / "examples").glob("round4-*.json")))
+            self.assertEqual(self.round4_bundles(root), before_bundles)
 
     def test_missing_evidence_artifact_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.prepare_root(root)
+            before_bundles = self.round4_bundles(root)
             fixture = root / "python" / "tests" / "fixtures" / "round4_ingest"
             measurements_path = fixture / "measurements.jsonl"
             rows = [json.loads(line) for line in measurements_path.read_text().splitlines()]
@@ -260,12 +280,13 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("missing evidence artifact", result.stderr)
-            self.assertFalse(list((root / "evidence" / "v1" / "examples").glob("round4-*.json")))
+            self.assertEqual(self.round4_bundles(root), before_bundles)
 
     def test_tampered_claim_contract_fails_instead_of_laundering_content_hash(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.prepare_root(root)
+            before_bundles = self.round4_bundles(root)
             claim_path = root / "registry" / "claims" / f"{CLAIM_ID}.json"
             claim = json.loads(claim_path.read_text())
             claim["statement"] = "Tampered without updating content_hash"
@@ -277,12 +298,13 @@ class CampaignResultIngestionTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertIn("non-canonical ClaimContract content_hash", result.stderr)
             self.assertEqual(claim_path.read_bytes(), before_claim)
-            self.assertFalse(list((root / "evidence" / "v1" / "examples").glob("round4-*.json")))
+            self.assertEqual(self.round4_bundles(root), before_bundles)
 
     def test_claim_predicate_outside_baseline_contract_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.prepare_root(root)
+            before_bundles = self.round4_bundles(root)
             fixture = root / "python" / "tests" / "fixtures" / "round4_ingest"
             measurements_path = fixture / "measurements.jsonl"
             rows = [json.loads(line) for line in measurements_path.read_text().splitlines()]
@@ -297,7 +319,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("claim predicate mismatch", result.stderr)
-            self.assertFalse(list((root / "evidence" / "v1" / "examples").glob("round4-*.json")))
+            self.assertEqual(self.round4_bundles(root), before_bundles)
 
 
 if __name__ == "__main__":

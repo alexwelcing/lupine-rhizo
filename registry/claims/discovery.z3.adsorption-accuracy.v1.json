@@ -1,48 +1,60 @@
 {
-  "claim_id": "discovery.z3.adsorption-accuracy.v1",
-  "version": 1,
-  "statement": "The Z3 \u0394-learned hybrid-accuracy screening panel satisfies the Hard Materials Z3 adsorption-energy acceptance test (MAE <= 0.1 eV) on a held-out benchmark.",
-  "classification": {
-    "intent": "confirmatory",
-    "outcome": "pending",
-    "assurance": "unsupported",
-    "strength": "predictive"
-  },
-  "premises": [
-    {
-      "premise_id": "hard_materials_z3_adsorption_mae",
-      "statement": "The content-addressed adsorption reference panel reports MAE against published DFT references on a held-out benchmark, below the 0.1 eV Z3 ceiling.",
-      "support_policy": {
-        "mode": "all"
-      },
-      "bundle_references": [
-        {
-          "bundle_id": "sha256:095ec1577152f47fd1f05012c90bbf3e006e1fd17f53459680f36c79a24af606"
-        }
-      ]
-    }
-  ],
   "bindings": {
     "lean_theorem": {
-      "status": "unsupported",
-      "reason": "No Lean theorem proves the empirical adsorption-energy aggregate MAE; the available theorems formalize consequences of error, not the measurement itself."
-    },
-    "runtime_gate": {
-      "status": "unsupported",
-      "reason": "No deployed runtime gate consumes the Hard Materials Z3 aggregate adsorption-accuracy measurement."
+      "reason": "No Lean theorem proves the empirical adsorption-energy aggregate MAE; the available theorems formalize consequences of error, not the measurement itself.",
+      "status": "unsupported"
     },
     "publication": {
-      "status": "bound",
       "publication_id": "gates.licenses.paper.v1",
-      "recurring_claim": "result1.discovery.z3.adsorption.accuracy"
+      "recurring_claim": "result1.discovery.z3.adsorption.accuracy",
+      "status": "bound"
+    },
+    "runtime_gate": {
+      "reason": "No deployed runtime gate consumes the Hard Materials Z3 aggregate adsorption-accuracy measurement.",
+      "status": "unsupported"
     }
   },
+  "claim_id": "discovery.z3.adsorption-accuracy.v1",
+  "classification": {
+    "assurance": "withdrawn",
+    "intent": "confirmatory",
+    "outcome": "contradicted",
+    "strength": "predictive"
+  },
+  "content_hash": "sha256:bef60bb3ff745736b5ee897d46e085385fcfa6942be61a5a8a76c413583a6e12",
   "excluded_scope": [
-    "Adsorption accuracy for models other than the \u0394-learned hybrid stack",
+    "Adsorption accuracy for models other than the Δ-learned hybrid stack",
     "Structures or chemistries outside the held-out reference panel",
     "Operando reconstruction effects, coverage effects, solvent effects, and finite-temperature corrections",
     "Catalyst screening hit-rate claims beyond the accuracy acceptance test"
   ],
+  "premises": [
+    {
+      "bundle_references": [
+        {
+          "bundle_id": "sha256:095ec1577152f47fd1f05012c90bbf3e006e1fd17f53459680f36c79a24af606"
+        },
+        {
+          "bundle_id": "sha256:a7c3f472d9774ae49fe48b6562e8eccf394db5ed2f40134d9c4e596268e0aaa5"
+        },
+        {
+          "bundle_id": "sha256:bfb1481cc6cdb547f4e438eb13c2a10489b48679280c1c46abab4364ebb83f78"
+        },
+        {
+          "bundle_id": "sha256:52a03d8159e92166f4f236ba01beab7e4665065d56475f0d1058cd4c9dde9285"
+        },
+        {
+          "bundle_id": "sha256:49782118ad3ecc42a0e534a0b3f850ffb04a746f10eaaa0732c1679b344e9f16"
+        }
+      ],
+      "premise_id": "hard_materials_z3_adsorption_mae",
+      "statement": "The content-addressed adsorption reference panel reports MAE against published DFT references on a held-out benchmark, below the 0.1 eV Z3 ceiling.",
+      "support_policy": {
+        "mode": "all"
+      }
+    }
+  ],
+  "statement": "The Z3 Δ-learned hybrid-accuracy screening panel satisfies the Hard Materials Z3 adsorption-energy acceptance test (MAE <= 0.1 eV) on a held-out benchmark.",
   "supersedes": [],
-  "content_hash": "sha256:6fb1a1bc6a4da165fb77b2629b8eaf02760b050d2dc6e8b14cef0e2a2fcabf97"
+  "version": 1
 }
