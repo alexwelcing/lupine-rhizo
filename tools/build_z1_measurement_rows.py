@@ -330,6 +330,13 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     global SOURCE_ROOT, RESULT_URI_ROOT
     args = parse_args()
+    if args.source_root is not None and args.result_uri_root is None:
+        print(
+            "--source-root requires --result-uri-root: rows must reference the same "
+            "artifact root the raw inputs came from (Codex PR#45 P2)",
+            file=sys.stderr,
+        )
+        return 2
     if args.source_root is not None:
         SOURCE_ROOT = args.source_root
     if args.result_uri_root is not None:

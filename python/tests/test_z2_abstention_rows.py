@@ -22,8 +22,13 @@ spec.loader.exec_module(tool)
 
 
 @pytest.fixture(scope="module", autouse=True)
-def build_rows() -> None:
-    subprocess.run([sys.executable, str(TOOL)], check=True, cwd=ROOT)
+def check_rows_current() -> None:
+    """Codex PR#42 P2: verify the committed artifacts are current — never
+    regenerate them from tests. A stale artifact must fail here, loudly."""
+    result = subprocess.run(
+        [sys.executable, str(TOOL), "--check"], check=False, capture_output=True, text=True, cwd=ROOT
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def load_rows() -> list[dict]:
@@ -73,7 +78,10 @@ def test_artifact_manifest_records_chain_and_file_hash() -> None:
     assert manifest["artifacts"][0]["sha256"] == digest
 
 
-def test_rebuild_is_deterministic() -> None:
-    before = ROWS.read_bytes()
-    subprocess.run([sys.executable, str(TOOL)], check=True, cwd=ROOT)
-    assert ROWS.read_bytes() == before
+def test_rebuild_is_deterministic(tmp_path) -> None:
+    # Rebuild into a scratch copy and compare bytes; the committed artifacts
+    # must match a from-scratch rebuild exactly.
+    rows = tool.build_rows()
+    measurements, rendered_manifest = tool.rendered_outputs(rows)
+    assert ROWS.read_bytes() == measurements
+    assert ARTIFACT_MANIFEST.read_bytes() == rendered_manifest
