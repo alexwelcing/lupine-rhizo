@@ -1,0 +1,797 @@
+{
+ "fit_exclusion": "delta_train fit; delta_validation selection; confirmatory_test scoring only",
+ "models": {
+  "chgnet": {
+   "baseline_test_mae": 0.6870841794971009,
+   "corrected_test_mae": 2.271904728260539,
+   "gate_outcome": "fail",
+   "gate_threshold_ev": 0.1,
+   "selected_form": "C_family_linear",
+   "test_rows": [
+    {
+     "baseline_signed_error_ev": -0.6202259909155274,
+     "candidate_id": "biomass_ni_mol1",
+     "corrected_absolute_error_ev": 0.6618512071887208,
+     "corrected_signed_error_ev": -0.6618512071887208,
+     "delta_correction_ev": 0.04162521627319338,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": -0.9181544667285158,
+     "candidate_id": "biomass_ni_mol2",
+     "corrected_absolute_error_ev": 0.9597796830017091,
+     "corrected_signed_error_ev": -0.9597796830017091,
+     "delta_correction_ev": 0.04162521627319338,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": -0.2426253391552735,
+     "candidate_id": "biomass_ni_mol3",
+     "corrected_absolute_error_ev": 0.2842505554284669,
+     "corrected_signed_error_ev": -0.2842505554284669,
+     "delta_correction_ev": 0.04162521627319338,
+     "family": "biomass",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": -0.08230053645019542,
+     "candidate_id": "biomass_ni_mol4",
+     "corrected_absolute_error_ev": 0.1239257527233888,
+     "corrected_signed_error_ev": -0.1239257527233888,
+     "delta_correction_ev": 0.04162521627319338,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": 1.3794460485046387,
+     "candidate_id": "biomass_ru_mol1",
+     "corrected_absolute_error_ev": 1.3378208322314453,
+     "corrected_signed_error_ev": 1.3378208322314453,
+     "delta_correction_ev": 0.04162521627319338,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 1.3083599628125002,
+     "candidate_id": "biomass_ru_mol4",
+     "corrected_absolute_error_ev": 1.2667347465393068,
+     "corrected_signed_error_ev": 1.2667347465393068,
+     "delta_correction_ev": 0.04162521627319338,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": -0.8343376536181641,
+     "candidate_id": "plastics_pt_PE",
+     "corrected_absolute_error_ev": 6.495212614471644,
+     "corrected_signed_error_ev": -6.495212614471644,
+     "delta_correction_ev": 5.66087496085348,
+     "family": "plastics",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": -0.054398571616210756,
+     "candidate_id": "plastics_pt_PET",
+     "corrected_absolute_error_ev": 13.084196411005866,
+     "corrected_signed_error_ev": -13.084196411005866,
+     "delta_correction_ev": 13.029797839389655,
+     "family": "plastics",
+     "n_adsorbate_atoms": 52
+    },
+    {
+     "baseline_signed_error_ev": -1.005327741435547,
+     "candidate_id": "plastics_pt_PPit",
+     "corrected_absolute_error_ev": 11.403367409919426,
+     "corrected_signed_error_ev": -11.403367409919426,
+     "delta_correction_ev": 10.398039668483879,
+     "family": "plastics",
+     "n_adsorbate_atoms": 47
+    },
+    {
+     "baseline_signed_error_ev": -0.053047161286621125,
+     "candidate_id": "polyurethanes_ag_mol16",
+     "corrected_absolute_error_ev": 0.5071848355529786,
+     "corrected_signed_error_ev": -0.5071848355529786,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": -0.6358381971307373,
+     "candidate_id": "polyurethanes_ag_mol17",
+     "corrected_absolute_error_ev": 1.0899758713970948,
+     "corrected_signed_error_ev": -1.0899758713970948,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": -0.6970507754724121,
+     "candidate_id": "polyurethanes_ag_mol18",
+     "corrected_absolute_error_ev": 1.1511884497387697,
+     "corrected_signed_error_ev": -1.1511884497387697,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": -1.1367570582641602,
+     "candidate_id": "polyurethanes_ag_mol19",
+     "corrected_absolute_error_ev": 1.5908947325305176,
+     "corrected_signed_error_ev": -1.5908947325305176,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": -0.4688135556567383,
+     "candidate_id": "polyurethanes_ag_mol41",
+     "corrected_absolute_error_ev": 0.9229512299230958,
+     "corrected_signed_error_ev": -0.9229512299230958,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 0.29985584758361816,
+     "candidate_id": "polyurethanes_au_mol16",
+     "corrected_absolute_error_ev": 0.15428182668273926,
+     "corrected_signed_error_ev": -0.15428182668273926,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.027401975350952124,
+     "candidate_id": "polyurethanes_au_mol17",
+     "corrected_absolute_error_ev": 0.4267356989154053,
+     "corrected_signed_error_ev": -0.4267356989154053,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": -0.14850717330810537,
+     "candidate_id": "polyurethanes_cu_mol16",
+     "corrected_absolute_error_ev": 0.6026448475744628,
+     "corrected_signed_error_ev": -0.6026448475744628,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 1.5195130318432617,
+     "candidate_id": "polyurethanes_cu_mol18",
+     "corrected_absolute_error_ev": 1.0653753575769043,
+     "corrected_signed_error_ev": 1.0653753575769043,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 1.5104064281750489,
+     "candidate_id": "polyurethanes_cu_mol19",
+     "corrected_absolute_error_ev": 1.0562687539086915,
+     "corrected_signed_error_ev": 1.0562687539086915,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": -0.7993160746337891,
+     "candidate_id": "polyurethanes_cu_mol41",
+     "corrected_absolute_error_ev": 1.2534537489001465,
+     "corrected_signed_error_ev": -1.2534537489001465,
+     "delta_correction_ev": 0.4541376742663574,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    }
+   ],
+   "train_mae_after_correction": 0.4358784695727563,
+   "validation_mae_after_correction": 1.1242282045892902,
+   "validation_mae_by_form": {
+    "A_global_constant": 2.765870960819227,
+    "B_family_constant": 2.590384561166178,
+    "C_family_linear": 1.1242282045892902,
+    "D_global_linear": 3.3025457082715213
+   }
+  },
+  "mace-mp-medium": {
+   "baseline_test_mae": 2.1141161814589844,
+   "corrected_test_mae": 5.007329980057943,
+   "gate_outcome": "fail",
+   "gate_threshold_ev": 0.1,
+   "selected_form": "A_global_constant",
+   "test_rows": [
+    {
+     "baseline_signed_error_ev": 5.395268355703125,
+     "candidate_id": "biomass_ni_mol1",
+     "corrected_absolute_error_ev": 1.724104215618489,
+     "corrected_signed_error_ev": -1.724104215618489,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 4.67083860578125,
+     "candidate_id": "biomass_ni_mol2",
+     "corrected_absolute_error_ev": 2.4485339655403644,
+     "corrected_signed_error_ev": -2.4485339655403644,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 4.06551636921875,
+     "candidate_id": "biomass_ni_mol3",
+     "corrected_absolute_error_ev": 3.053856202102864,
+     "corrected_signed_error_ev": -3.053856202102864,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "biomass",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 4.637427933398437,
+     "candidate_id": "biomass_ni_mol4",
+     "corrected_absolute_error_ev": 2.481944637923177,
+     "corrected_signed_error_ev": -2.481944637923177,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": 4.361216087109375,
+     "candidate_id": "biomass_ru_mol1",
+     "corrected_absolute_error_ev": 2.7581564842122397,
+     "corrected_signed_error_ev": -2.7581564842122397,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 3.4501293719921877,
+     "candidate_id": "biomass_ru_mol4",
+     "corrected_absolute_error_ev": 3.6692431993294266,
+     "corrected_signed_error_ev": -3.6692431993294266,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": 1.0946422200390624,
+     "candidate_id": "plastics_pt_PE",
+     "corrected_absolute_error_ev": 6.024730351282551,
+     "corrected_signed_error_ev": -6.024730351282551,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "plastics",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 3.842808688515625,
+     "candidate_id": "plastics_pt_PET",
+     "corrected_absolute_error_ev": 3.276563882805989,
+     "corrected_signed_error_ev": -3.276563882805989,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "plastics",
+     "n_adsorbate_atoms": 52
+    },
+    {
+     "baseline_signed_error_ev": 0.9282621938671874,
+     "candidate_id": "plastics_pt_PPit",
+     "corrected_absolute_error_ev": 6.191110377454427,
+     "corrected_signed_error_ev": -6.191110377454427,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "plastics",
+     "n_adsorbate_atoms": 47
+    },
+    {
+     "baseline_signed_error_ev": 0.20616819363281247,
+     "candidate_id": "polyurethanes_ag_mol16",
+     "corrected_absolute_error_ev": 6.9132043776888015,
+     "corrected_signed_error_ev": -6.9132043776888015,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.05526359234375,
+     "candidate_id": "polyurethanes_ag_mol17",
+     "corrected_absolute_error_ev": 7.064108978977864,
+     "corrected_signed_error_ev": -7.064108978977864,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.04312399488281249,
+     "candidate_id": "polyurethanes_ag_mol18",
+     "corrected_absolute_error_ev": 7.076248576438802,
+     "corrected_signed_error_ev": -7.076248576438802,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": -0.020735901953125024,
+     "candidate_id": "polyurethanes_ag_mol19",
+     "corrected_absolute_error_ev": 7.140108473274739,
+     "corrected_signed_error_ev": -7.140108473274739,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": 0.28267894464843746,
+     "candidate_id": "polyurethanes_ag_mol41",
+     "corrected_absolute_error_ev": 6.836693626673177,
+     "corrected_signed_error_ev": -6.836693626673177,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 0.8363298370703125,
+     "candidate_id": "polyurethanes_au_mol16",
+     "corrected_absolute_error_ev": 6.2830427342513016,
+     "corrected_signed_error_ev": -6.2830427342513016,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.968800834375,
+     "candidate_id": "polyurethanes_au_mol17",
+     "corrected_absolute_error_ev": 6.150571736946614,
+     "corrected_signed_error_ev": -6.150571736946614,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.5688952848828126,
+     "candidate_id": "polyurethanes_cu_mol16",
+     "corrected_absolute_error_ev": 6.5504772864388014,
+     "corrected_signed_error_ev": -6.5504772864388014,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 2.5440463036328125,
+     "candidate_id": "polyurethanes_cu_mol18",
+     "corrected_absolute_error_ev": 4.575326267688801,
+     "corrected_signed_error_ev": -4.575326267688801,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 3.336696081953125,
+     "candidate_id": "polyurethanes_cu_mol19",
+     "corrected_absolute_error_ev": 3.782676489368489,
+     "corrected_signed_error_ev": -3.782676489368489,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": 0.9734748341796875,
+     "candidate_id": "polyurethanes_cu_mol41",
+     "corrected_absolute_error_ev": 6.145897737141927,
+     "corrected_signed_error_ev": -6.145897737141927,
+     "delta_correction_ev": 7.119372571321614,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    }
+   ],
+   "train_mae_after_correction": 6.982456434874131,
+   "validation_mae_after_correction": 3.2594489066037324,
+   "validation_mae_by_form": {
+    "A_global_constant": 3.2594489066037324,
+    "B_family_constant": 3.8888639592578125,
+    "C_family_linear": 6.147540296416687,
+    "D_global_linear": 4.178993987200617
+   }
+  },
+  "mace-mp-small": {
+   "baseline_test_mae": 3.2350971375703126,
+   "corrected_test_mae": 4.997755320063802,
+   "gate_outcome": "fail",
+   "gate_threshold_ev": 0.1,
+   "selected_form": "A_global_constant",
+   "test_rows": [
+    {
+     "baseline_signed_error_ev": 9.82175151,
+     "candidate_id": "biomass_ni_mol1",
+     "corrected_absolute_error_ev": 1.8526958128645843,
+     "corrected_signed_error_ev": 1.8526958128645843,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 8.598817121406249,
+     "candidate_id": "biomass_ni_mol2",
+     "corrected_absolute_error_ev": 0.6297614242708329,
+     "corrected_signed_error_ev": 0.6297614242708329,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 6.581583874101563,
+     "candidate_id": "biomass_ni_mol3",
+     "corrected_absolute_error_ev": 1.3874718230338532,
+     "corrected_signed_error_ev": -1.3874718230338532,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "biomass",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 6.994758255664062,
+     "candidate_id": "biomass_ni_mol4",
+     "corrected_absolute_error_ev": 0.9742974414713537,
+     "corrected_signed_error_ev": -0.9742974414713537,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": 5.781382102734375,
+     "candidate_id": "biomass_ru_mol1",
+     "corrected_absolute_error_ev": 2.1876735944010415,
+     "corrected_signed_error_ev": -2.1876735944010415,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 4.161311012617188,
+     "candidate_id": "biomass_ru_mol4",
+     "corrected_absolute_error_ev": 3.8077446845182283,
+     "corrected_signed_error_ev": -3.8077446845182283,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": -0.15551036785156258,
+     "candidate_id": "plastics_pt_PE",
+     "corrected_absolute_error_ev": 8.124566064986979,
+     "corrected_signed_error_ev": -8.124566064986979,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "plastics",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 3.01086899125,
+     "candidate_id": "plastics_pt_PET",
+     "corrected_absolute_error_ev": 4.958186705885415,
+     "corrected_signed_error_ev": -4.958186705885415,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "plastics",
+     "n_adsorbate_atoms": 52
+    },
+    {
+     "baseline_signed_error_ev": 0.38155504054687495,
+     "candidate_id": "plastics_pt_PPit",
+     "corrected_absolute_error_ev": 7.587500656588541,
+     "corrected_signed_error_ev": -7.587500656588541,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "plastics",
+     "n_adsorbate_atoms": 47
+    },
+    {
+     "baseline_signed_error_ev": 0.851569194609375,
+     "candidate_id": "polyurethanes_ag_mol16",
+     "corrected_absolute_error_ev": 7.117486502526041,
+     "corrected_signed_error_ev": -7.117486502526041,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.70260245953125,
+     "candidate_id": "polyurethanes_ag_mol17",
+     "corrected_absolute_error_ev": 7.266453237604166,
+     "corrected_signed_error_ev": -7.266453237604166,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.6100490437109375,
+     "candidate_id": "polyurethanes_ag_mol18",
+     "corrected_absolute_error_ev": 7.359006653424479,
+     "corrected_signed_error_ev": -7.359006653424479,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.745072203515625,
+     "candidate_id": "polyurethanes_ag_mol19",
+     "corrected_absolute_error_ev": 7.223983493619791,
+     "corrected_signed_error_ev": -7.223983493619791,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": 0.8936103411328125,
+     "candidate_id": "polyurethanes_ag_mol41",
+     "corrected_absolute_error_ev": 7.075445356002604,
+     "corrected_signed_error_ev": -7.075445356002604,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 0.660502810703125,
+     "candidate_id": "polyurethanes_au_mol16",
+     "corrected_absolute_error_ev": 7.308552886432291,
+     "corrected_signed_error_ev": -7.308552886432291,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.86009722109375,
+     "candidate_id": "polyurethanes_au_mol17",
+     "corrected_absolute_error_ev": 7.108958476041666,
+     "corrected_signed_error_ev": -7.108958476041666,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 1.563112203828125,
+     "candidate_id": "polyurethanes_cu_mol16",
+     "corrected_absolute_error_ev": 6.405943493307291,
+     "corrected_signed_error_ev": -6.405943493307291,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 4.469186684492188,
+     "candidate_id": "polyurethanes_cu_mol18",
+     "corrected_absolute_error_ev": 3.499869012643228,
+     "corrected_signed_error_ev": -3.499869012643228,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 5.120509558515625,
+     "candidate_id": "polyurethanes_cu_mol19",
+     "corrected_absolute_error_ev": 2.848546138619791,
+     "corrected_signed_error_ev": -2.848546138619791,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": 2.7380927541015625,
+     "candidate_id": "polyurethanes_cu_mol41",
+     "corrected_absolute_error_ev": 5.230962943033854,
+     "corrected_signed_error_ev": -5.230962943033854,
+     "delta_correction_ev": 7.969055697135416,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    }
+   ],
+   "train_mae_after_correction": 6.661296224370659,
+   "validation_mae_after_correction": 3.983204002992621,
+   "validation_mae_by_form": {
+    "A_global_constant": 3.983204002992621,
+    "B_family_constant": 4.393291551217448,
+    "C_family_linear": 9.853783175648458,
+    "D_global_linear": 4.7043085545399
+   }
+  },
+  "mace-mpa-0-medium": {
+   "baseline_test_mae": 4.274188587357422,
+   "corrected_test_mae": 5.910472797319336,
+   "gate_outcome": "fail",
+   "gate_threshold_ev": 0.1,
+   "selected_form": "B_family_constant",
+   "test_rows": [
+    {
+     "baseline_signed_error_ev": 18.647709761953124,
+     "candidate_id": "biomass_ni_mol1",
+     "corrected_absolute_error_ev": 13.741027077265624,
+     "corrected_signed_error_ev": 13.741027077265624,
+     "delta_correction_ev": 4.9066826846875,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 15.828126203437499,
+     "candidate_id": "biomass_ni_mol2",
+     "corrected_absolute_error_ev": 10.92144351875,
+     "corrected_signed_error_ev": 10.92144351875,
+     "delta_correction_ev": 4.9066826846875,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 11.824198620195313,
+     "candidate_id": "biomass_ni_mol3",
+     "corrected_absolute_error_ev": 6.917515935507813,
+     "corrected_signed_error_ev": 6.917515935507813,
+     "delta_correction_ev": 4.9066826846875,
+     "family": "biomass",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 13.0922771765625,
+     "candidate_id": "biomass_ni_mol4",
+     "corrected_absolute_error_ev": 8.185594491875001,
+     "corrected_signed_error_ev": 8.185594491875001,
+     "delta_correction_ev": 4.9066826846875,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": 4.6949868390625,
+     "candidate_id": "biomass_ru_mol1",
+     "corrected_absolute_error_ev": 0.211695845625,
+     "corrected_signed_error_ev": -0.211695845625,
+     "delta_correction_ev": 4.9066826846875,
+     "family": "biomass",
+     "n_adsorbate_atoms": 43
+    },
+    {
+     "baseline_signed_error_ev": 3.367899757734375,
+     "candidate_id": "biomass_ru_mol4",
+     "corrected_absolute_error_ev": 1.5387829269531244,
+     "corrected_signed_error_ev": -1.5387829269531244,
+     "delta_correction_ev": 4.9066826846875,
+     "family": "biomass",
+     "n_adsorbate_atoms": 28
+    },
+    {
+     "baseline_signed_error_ev": 0.3510051350781249,
+     "candidate_id": "plastics_pt_PE",
+     "corrected_absolute_error_ev": 19.876733790214843,
+     "corrected_signed_error_ev": -19.876733790214843,
+     "delta_correction_ev": 20.227738925292968,
+     "family": "plastics",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 1.3844041475000002,
+     "candidate_id": "plastics_pt_PET",
+     "corrected_absolute_error_ev": 18.84333477779297,
+     "corrected_signed_error_ev": -18.84333477779297,
+     "delta_correction_ev": 20.227738925292968,
+     "family": "plastics",
+     "n_adsorbate_atoms": 52
+    },
+    {
+     "baseline_signed_error_ev": 0.39830919093749995,
+     "candidate_id": "plastics_pt_PPit",
+     "corrected_absolute_error_ev": 19.829429734355468,
+     "corrected_signed_error_ev": -19.829429734355468,
+     "delta_correction_ev": 20.227738925292968,
+     "family": "plastics",
+     "n_adsorbate_atoms": 47
+    },
+    {
+     "baseline_signed_error_ev": 0.71433164578125,
+     "candidate_id": "polyurethanes_ag_mol16",
+     "corrected_absolute_error_ev": 1.146144243359375,
+     "corrected_signed_error_ev": -1.146144243359375,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.5990105405859375,
+     "candidate_id": "polyurethanes_ag_mol17",
+     "corrected_absolute_error_ev": 1.2614653485546876,
+     "corrected_signed_error_ev": -1.2614653485546876,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.582445894296875,
+     "candidate_id": "polyurethanes_ag_mol18",
+     "corrected_absolute_error_ev": 1.2780299948437501,
+     "corrected_signed_error_ev": -1.2780299948437501,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.6069954212890625,
+     "candidate_id": "polyurethanes_ag_mol19",
+     "corrected_absolute_error_ev": 1.2534804678515625,
+     "corrected_signed_error_ev": -1.2534804678515625,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": 1.0278266497265625,
+     "candidate_id": "polyurethanes_ag_mol41",
+     "corrected_absolute_error_ev": 0.8326492394140625,
+     "corrected_signed_error_ev": -0.8326492394140625,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    },
+    {
+     "baseline_signed_error_ev": 0.0680650665625,
+     "candidate_id": "polyurethanes_au_mol16",
+     "corrected_absolute_error_ev": 1.792410822578125,
+     "corrected_signed_error_ev": -1.792410822578125,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 0.018742850976562475,
+     "candidate_id": "polyurethanes_au_mol17",
+     "corrected_absolute_error_ev": 1.8417330381640626,
+     "corrected_signed_error_ev": -1.8417330381640626,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 0.6932086393750001,
+     "candidate_id": "polyurethanes_cu_mol16",
+     "corrected_absolute_error_ev": 1.167267249765625,
+     "corrected_signed_error_ev": -1.167267249765625,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 19
+    },
+    {
+     "baseline_signed_error_ev": 4.7071780175,
+     "candidate_id": "polyurethanes_cu_mol18",
+     "corrected_absolute_error_ev": 2.846702128359375,
+     "corrected_signed_error_ev": 2.846702128359375,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 25
+    },
+    {
+     "baseline_signed_error_ev": 5.800532751875,
+     "candidate_id": "polyurethanes_cu_mol19",
+     "corrected_absolute_error_ev": 3.940056862734375,
+     "corrected_signed_error_ev": 3.940056862734375,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 31
+    },
+    {
+     "baseline_signed_error_ev": 1.07651743671875,
+     "candidate_id": "polyurethanes_cu_mol41",
+     "corrected_absolute_error_ev": 0.783958452421875,
+     "corrected_signed_error_ev": -0.783958452421875,
+     "delta_correction_ev": 1.860475889140625,
+     "family": "polyurethanes",
+     "n_adsorbate_atoms": 38
+    }
+   ],
+   "train_mae_after_correction": 3.0891214998372396,
+   "validation_mae_after_correction": 4.029500641132812,
+   "validation_mae_by_form": {
+    "A_global_constant": 5.857736066794705,
+    "B_family_constant": 4.029500641132812,
+    "C_family_linear": 8.637727861266947,
+    "D_global_linear": 6.526989465540075
+   }
+  }
+ },
+ "panel_sha256": "b434de005e5da46e33e3275ffc8bec2d251b8a52438c1cfe7d6f4f3d8dbb41f4",
+ "run_id": "z3-20260719",
+ "schema": "lupine.z3.delta_correction_report.v1",
+ "splits_sha256": "00f3b4c80378f271021e2f2c44b93e8b856aeb2b93980cba0490e6d08afe4dbc"
+}
