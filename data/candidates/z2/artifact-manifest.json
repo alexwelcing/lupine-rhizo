@@ -1,0 +1,14 @@
+{
+ "artifacts": [
+  {
+   "path": "data/candidates/z2/measurements.jsonl",
+   "sha256": "sha256:ff3ecf161f4f4058375cf296dd35be1055adb68e147016cf0fa8a5be6212aed3"
+  }
+ ],
+ "campaign_manifest_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a",
+ "chain_head": "sha256:18f82bcdb59e5a7093fc01ed91a4a9eadceb2bc4bc15782b65e42ead3059f69c",
+ "chain_tail": "sha256:05d3b087a831775bfcd27d42837b60310820356d97aee0f05b1996f78f66c145",
+ "generator": "tools/build_z2_abstention_rows.py",
+ "row_count": 4,
+ "schema": "lupine.z2.abstention_artifact_manifest.v1"
+}
