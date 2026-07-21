@@ -48,6 +48,7 @@ Everything currently running serves this thesis or is explicitly parked below. N
 - Hermes teams own tasks end-to-end (implement → self-verify → reviewer → qa); director reviews independently before landing.
 - Deploys are fully automated post-merge (owner directive 2026-07-20, no human gates).
 - Honest voice everywhere: proof-first, derived estimates labeled, retractions recorded in the same record that replaces them.
+- Tests validate against external truth (publications, references), never against the implementation's own assumptions — the Z2 tautological-test catch (reviewer, 2026-07-21) is the standing example.
 
 ## Team (Hermes-driven)
 
