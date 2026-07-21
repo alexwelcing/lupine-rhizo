@@ -237,7 +237,7 @@
         }
       ],
       "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
-      "content_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a",
+      "content_hash": "sha256:986214ea2548cae50ad7319e9954bced2ffadcf99121e73bf0afb80d8c1934a6",
       "demotion_conditions": [
         {
           "action": "demote",
@@ -260,6 +260,12 @@
           "description": "Predicted ordering, signed anisotropy energies, tie policy, abstentions, and Spearman statistic.",
           "minimum_count": 1,
           "requirement_id": "e.z2.ranking-results"
+        },
+        {
+          "artifact_type": "curie-temperature-measurements",
+          "description": "Per-material J, B/J, Green/MC/RNSW Curie-temperature estimates, method-envelope coverage, and RNSW MAE in kelvin.",
+          "minimum_count": 5,
+          "requirement_id": "e.z2.tc-results"
         }
       ],
       "exclusions": [
@@ -275,6 +281,10 @@
         }
       ],
       "execution": {
+        "candidate_panel": {
+          "path": "data/candidates/z2_soc_tc_panel.lock.json",
+          "sha256": "sha256:349e0520856e68a2a65907d41a550d1596dfac6ecd8a57c3b900ae41b8a64355"
+        },
         "excluded_models_block_execution": false,
         "lane": "round4.available-models",
         "model_selection": "available_models"
@@ -284,6 +294,11 @@
           "frozen": true,
           "hypothesis_id": "h.z2.anisotropy-ranking",
           "statement": "The spin-aware multi-fidelity stack reproduces the complete held-out magnetocrystalline-anisotropy ordering, including easy-axis sign."
+        },
+        {
+          "frozen": true,
+          "hypothesis_id": "h.z2.tc-prediction",
+          "statement": "The same spin-resolved FM/AFM evidence predicts Curie temperature under the frozen nearest-neighbour analytical fits, reported against the published Green/MC/RNSW method envelope."
         },
         {
           "frozen": true,
