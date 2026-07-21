@@ -348,6 +348,14 @@ def main() -> int:
         default=Path(DEFERRED_JSON),
         help="deferred-paths record to annotate (paths stay IN the analysis)",
     )
+    parser.add_argument(
+        "--recorded-at",
+        default=None,
+        help=(
+            "pin the recorded_at timestamp (ISO 8601) for byte-reproducible "
+            "output; default is current UTC time"
+        ),
+    )
     args = parser.parse_args()
 
     panel, artifacts, hashes = load_inputs(args.local)
@@ -360,7 +368,7 @@ def main() -> int:
 
     output = {
         "schema": SCHEMA,
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "recorded_at": args.recorded_at or datetime.now(timezone.utc).isoformat(),
         "analysis": (
             "Cross-model union-anchor economics for the Z1 sparse-DFT pilot, "
             "computed from recorded campaign artifacts only (no DFT run)."
