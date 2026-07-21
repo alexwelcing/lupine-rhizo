@@ -1,7 +1,7 @@
 {
   "schema": "lupine.z1.sparse_dft.deferred.v1",
   "recorded_at": "2026-07-20",
-  "decision": "The six paths with >=159-atom cells are deferred from the local sparse-DFT pilot (owner decisions 2026-07-20): they carry ~44% of the pilot budget; the pilot proceeds on the remaining 24 paths per model.",
+  "decision": "The seven paths with >=159-atom cells are deferred from the local sparse-DFT pilot (owner decisions 2026-07-20): they carry ~44% of the pilot budget; the pilot proceeds on the remaining 23 paths per model.",
   "deferred_paths": [
     {
       "index": 2,
@@ -40,5 +40,5 @@
     }
   ],
   "status": "waiting",
-  "reentry_condition": "run on stronger hardware (the owner's GPU-class box or dedicated CPU fleet) with the anchor-sharded fallback from the preregistration; verdicts for these three remain PENDING until then \u2014 they are NOT excluded from the campaign record, only deferred."
+  "reentry_condition": "run on stronger hardware (the owner's GPU-class box or dedicated CPU fleet) with the anchor-sharded fallback from the preregistration; verdicts for these seven remain PENDING until then — they are NOT excluded from the campaign record, only deferred."
 }
