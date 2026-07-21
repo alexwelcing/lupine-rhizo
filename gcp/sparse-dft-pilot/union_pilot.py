@@ -857,6 +857,19 @@ def parse_kpts(spec: str) -> tuple[int, int, int]:
     return parts
 
 
+def positive_finite_float(spec: str) -> float:
+    """Parse a strictly positive, finite float (e.g. --h grid spacing)."""
+    try:
+        value = float(spec)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected a number, got {spec!r}") from None
+    if not math.isfinite(value) or value <= 0.0:
+        raise argparse.ArgumentTypeError(
+            f"expected a positive finite value, got {spec!r}"
+        )
+    return value
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workdir", type=Path, default=Path("/tmp/z1-union-local"),
@@ -867,7 +880,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--kpts", type=parse_kpts, default=FROZEN_GPAW_PARAMS["kpts"],
                         metavar="I,J,K",
                         help="k-point mesh triple (frozen default 2,2,2; '1,1,1' = Gamma-only)")
-    parser.add_argument("--h", type=float, default=FROZEN_GPAW_PARAMS["h"],
+    parser.add_argument("--h", type=positive_finite_float, default=FROZEN_GPAW_PARAMS["h"],
                         help="fd grid spacing in Angstrom (frozen default 0.18)")
     parser.add_argument("--out", type=Path, default=None,
                         help="campaign JSON path (default <workdir>/campaign.json)")

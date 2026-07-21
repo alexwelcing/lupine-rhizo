@@ -656,3 +656,28 @@ def test_cli_kpts_rejects_bad_strings():
         with pytest.raises(SystemExit) as excinfo:
             up.main(["--kpts", bad])
         assert excinfo.value.code == 2
+
+
+def test_positive_finite_float_validation():
+    assert up.positive_finite_float("0.20") == 0.20
+    for bad in ("0", "-1", "nan", "inf", "-inf", "abc", ""):
+        with pytest.raises(argparse.ArgumentTypeError):
+            up.positive_finite_float(bad)
+
+
+def test_cli_rejects_invalid_h(synthetic, tmp_path):
+    local = tmp_path / "inputs"
+    write_local_inputs(synthetic, local)
+    deferred = tmp_path / "deferred.json"
+    deferred.write_text(json.dumps({"deferred_paths": []}))
+    for bad in ("0", "-1", "nan"):
+        with pytest.raises(SystemExit) as excinfo:
+            up.main([
+                "--local", str(local),
+                "--deferred", str(deferred),
+                "--workdir", str(tmp_path / "work"),
+                "--h", bad,
+                "--dry-run",
+                "--no-import",
+            ])
+        assert excinfo.value.code == 2
