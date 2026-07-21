@@ -18,7 +18,8 @@ PATHS="${1:-}"
 shift || true
 WORKDIR=/tmp/z1-union-local
 mkdir -p "$WORKDIR"
-cd /home/alex/Dev/lupine/lupine-rhizo || exit 1
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$REPO_ROOT" || exit 1
 
 args=(gcp/sparse-dft-pilot/union_pilot.py --workdir "$WORKDIR")
 if [ -n "$PATHS" ]; then

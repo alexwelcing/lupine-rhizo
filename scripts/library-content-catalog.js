@@ -921,8 +921,7 @@ export const CATALOG = {
       ],
       "group": "mlip-flywheel",
       "status": "supported",
-      "featured": true,
-      "featuredRole": "newest"
+      "featured": false
     },
     {
       "id": "lupine-refinement-sprint-announcement",
@@ -1426,7 +1425,8 @@ export const CATALOG = {
         "correctness-certificate"
       ],
       "group": "savings-stack",
-      "featured": true
+      "featured": true,
+      "featuredRole": "newest"
     },
     {
       "id": "z1-union-anchor-economics",

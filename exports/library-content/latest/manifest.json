@@ -1,10 +1,10 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-07-21T14:01:30.580Z",
+  "generatedAt": "2026-07-21T14:50:21.578Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "54cbe3a93b212f8eeab393125171b401d9f31a9f",
-    "dirty": false,
+    "commit": "751b03ff310758c9f3e2e015252a38b74eceacaf",
+    "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
   "catalog": {
@@ -990,8 +990,7 @@
         ],
         "group": "mlip-flywheel",
         "status": "supported",
-        "featured": true,
-        "featuredRole": "newest",
+        "featured": false,
         "originalSource": "paper/lupine-layer2-3x3x3-final-paper.md"
       },
       {
@@ -1534,6 +1533,7 @@
         ],
         "group": "savings-stack",
         "featured": true,
+        "featuredRole": "newest",
         "originalSource": "lit-review/savings-techniques-synthesis-2026-07-21.md"
       },
       {
