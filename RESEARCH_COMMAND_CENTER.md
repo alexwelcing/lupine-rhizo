@@ -15,9 +15,10 @@ Everything currently running serves this thesis or is explicitly parked below. N
 ## Priority Stack
 
 **P0 — Z1 sparse-DFT pilot to verdict (the only thing that matters until done)**
-- Critical path: path 16 completes → convergence revalidation (Gamma / h=0.20, adopt-if-≤5 meV, amendment 02 decision) → union-anchor driver over the 23 active paths → chgnet verdict vs the ≤40 meV gate + **measured cost ledger** → then remaining models, one at a time.
-- Watchdog: cron `02c262c1` (2-hourly) handles the path-16 → revalidation handoff automatically.
-- Frozen: GPAW fd/h=0.18/(2,2,2)/PBE (amendment 01 governs; same-engine gate primary, VASP secondary, T1 wander reported per path).
+- Critical path: **path-7 revalidation (running)** → if Gamma passes ≤5 meV: amendment 02 + union driver at loosened settings (~2 days, feasible locally) → chgnet verdict vs the ≤40 meV gate + **measured cost ledger** → then remaining models, one at a time.
+- **Frozen-settings full-panel execution is deferred to investment/partner-grade compute** (owner decision 2026-07-21; record `data/candidates/z1-sparse-dft-frozen-execution.json`). Path 16 stopped at 62 CPU-hours without receipt — it measured the cost curve and forced the feasible route.
+- Watchdog: cron `32c4fe6e` (2-hourly) handles revalidation completion → amendment 02 → union launch (Gamma-enabled driver flag if needed).
+- Gate rules: amendment 01 in force (same-engine primary, VASP secondary, T1 wander reported per path); amendment 02 pending the revalidation verdict.
 
 **P1 — in flight, land and close**
 - PR #73: T1 convention-wander gate + revalidation runner (Codex P2s fixed; merge on green).
