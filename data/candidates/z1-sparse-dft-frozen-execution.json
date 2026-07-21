@@ -1,0 +1,14 @@
+{
+  "schema": "lupine.z1.sparse_dft.frozen_execution_deferred.v1",
+  "recorded_at": "2026-07-21",
+  "decision": "Frozen-settings execution of the full Z1 sparse-DFT panel is deferred to investment/partner-grade compute (owner decision 2026-07-21: 'we would be better off flagging these impossible long runs as something that we want to do when we have received investment / partners').",
+  "evidence": {
+    "path_16_partial": "mp-760344_10_4_0_1_0 ran 16.3 h wall / 62.2 CPU-hours at frozen settings (fd, h=0.18, kpts=(2,2,2), PBE) without producing a receipt; stopped 2026-07-21. Checkpoints are per-path, so no partial anchors survive.",
+    "path_7": "mp-770939_10_1_1_0_1 completed: 4 anchors, 10,927 s wall (~45 min/anchor on the smallest cell).",
+    "projection": "union driver needs ~125 anchors; at the measured path-16 pace (~3 h/anchor) that is ~375+ h serial — beyond this box's envelope."
+  },
+  "feasibility_gate": "Convergence-loosening revalidation on path 7's existing frozen receipt (running 2026-07-21, /tmp/z1-revalidation/): variant-g Gamma-point and variant-h h=0.20, adoption criterion |delta-barrier| <= 5 meV. If variant-g passes, the union run at Gamma settings is feasible locally (~2 days) and proceeds under amendment 02. If it fails, ALL full-panel execution waits for investment-grade compute.",
+  "status": "waiting",
+  "reentry_condition": "investment/partner-grade compute arrives, OR the revalidation passes and downgrades the required settings per amendment 02.",
+  "notes": "The 62 CPU-hours on path 16 were not wasted: they measured the frozen-settings cost curve on a mid-size cell, forced the revalidation onto the feasible path, and are the recorded basis for this deferral."
+}
