@@ -3,12 +3,15 @@
 No GPAW is touched: the energy function is injected, the panel and model
 artifacts are synthetic, and every filesystem effect lands under pytest's
 tmp_path. Covers anchor-universe construction (union + A3.2 dense
-extension), resume/skip, the memory guard, receipt import, and the offline
-assembly math (same-engine/VASP errors, T1 wander, verdicts).
+extension), resume/skip, the memory guard, receipt import, the offline
+assembly math (same-engine/VASP errors, T1 wander, verdicts), and the
+settings overrides (--kpts/--h) with their params-match checkpoint trust
+rule.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -18,10 +21,28 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import union_pilot as up  # noqa: E402
-from z1_sparse_dft import build_anchor_set, select_extrema  # noqa: E402
+from z1_sparse_dft import (  # noqa: E402
+    FROZEN_GPAW_PARAMS,
+    build_anchor_set,
+    select_extrema,
+)
 
 MODEL_A = "chgnet"
 MODEL_B = "mace-mp-small"
+
+# JSON-normalized settings records, mirroring what the driver writes into
+# checkpoints and what run_pilot.py receipts carry in summary.gpaw_params.
+FROZEN_PARAMS_JSON = {"h": 0.18, "kpts": [2, 2, 2], "mode": "fd", "txt": None, "xc": "PBE"}
+GAMMA_PARAMS_JSON = {"h": 0.18, "kpts": [1, 1, 1], "mode": "fd", "txt": None, "xc": "PBE"}
+
+
+@pytest.fixture(autouse=True)
+def reset_active_params():
+    """Every test starts and ends with the frozen preregistration settings,
+    so override tests cannot contaminate the frozen-default tests."""
+    up.set_active_params()
+    yield
+    up.set_active_params()
 
 
 # --- Synthetic fixtures -----------------------------------------------------------
@@ -235,7 +256,10 @@ def test_failure_is_recorded_and_retried(synthetic, tmp_path):
 
 # --- Receipt import -------------------------------------------------------------------
 
-def receipt_for(plan: dict, indices: list[int], energy_fn) -> dict:
+def receipt_for(plan: dict, indices: list[int], energy_fn, params: dict | None = None) -> dict:
+    """Receipt in the run_pilot.py shape. Real receipts record the settings
+    they were computed under in summary.gpaw_params (see path-7.json), so
+    the synthetic ones do too; `params` overrides them (default: active)."""
     return {
         "rows": [{
             "path_id": plan["path_id"],
@@ -250,7 +274,7 @@ def receipt_for(plan: dict, indices: list[int], energy_fn) -> dict:
                 for j in indices
             ],
         }],
-        "summary": {},
+        "summary": {"gpaw_params": params if params is not None else up.gpaw_params_json()},
         "failures": [],
     }
 
@@ -449,3 +473,186 @@ def test_dry_run_reports_done_and_todo(synthetic, tmp_path, capsys):
     assert report["anchors_total"] == 15
     assert report["anchors_to_compute"] == 10
     assert report["estimated_hours"] == pytest.approx(15.0)
+
+
+# --- Settings overrides (--kpts / --h) -----------------------------------------
+
+def test_set_active_params_override_and_reset():
+    assert up.gpaw_params_json()["kpts"] == [2, 2, 2]  # frozen default
+    up.set_active_params(kpts=(1, 1, 1))
+    params = up.gpaw_params_json()
+    assert params["kpts"] == [1, 1, 1]
+    assert params["h"] == 0.18  # untouched knobs stay frozen
+    assert params["mode"] == "fd" and params["xc"] == "PBE"
+    assert up.active_params_overridden() is True
+    up.set_active_params(h=0.15)
+    params = up.gpaw_params_json()
+    assert params["h"] == 0.15
+    assert params["kpts"] == [2, 2, 2]  # unspecified overrides reset to frozen
+    up.set_active_params()
+    assert up.gpaw_params_json() == FROZEN_PARAMS_JSON
+    assert up.active_params_overridden() is False
+    # The frozen preregistration dict itself is never mutated.
+    assert FROZEN_GPAW_PARAMS["kpts"] == (2, 2, 2)
+    assert FROZEN_GPAW_PARAMS["h"] == 0.18
+
+
+def test_params_match_normalizes_tuples_and_lists():
+    up.set_active_params(kpts=(1, 1, 1))
+    assert up.params_match({"gpaw_params": GAMMA_PARAMS_JSON})
+    assert up.params_match({"gpaw_params": {**GAMMA_PARAMS_JSON, "kpts": (1, 1, 1)}})
+    assert not up.params_match({"gpaw_params": FROZEN_PARAMS_JSON})
+    assert not up.params_match({"gpaw_params": {**GAMMA_PARAMS_JSON, "h": 0.15}})
+    assert not up.params_match(None)
+    assert not up.params_match({})
+    assert not up.params_match({"gpaw_params": None})
+
+
+def test_resume_recomputes_mismatched_params_checkpoint(synthetic, tmp_path):
+    plans = plans_of(synthetic)
+    energy_fn, _ = completed_energy(synthetic["references"][0])
+    calls: list[int] = []
+
+    def counting_fn(record: dict) -> float:
+        calls.append(record["image"])
+        return energy_fn(record)
+
+    totals = up.compute_anchors(plans[:1], synthetic["panel"], tmp_path, 0, counting_fn)
+    assert totals["computed"] == 5 and totals["resumed"] == 0
+
+    # Same workdir, Gamma active: kpts [2,2,2] checkpoints are recomputed,
+    # not resumed — and rewritten with the active params.
+    up.set_active_params(kpts=(1, 1, 1))
+    calls.clear()
+    totals = up.compute_anchors(plans[:1], synthetic["panel"], tmp_path, 0, counting_fn)
+    assert totals["computed"] == 5 and totals["resumed"] == 0
+    assert sorted(calls) == [0, 1, 2, 3, 4]
+    checkpoint = json.loads(
+        (tmp_path / "anchors" / "path-0" / "anchor-0.json").read_text()
+    )
+    assert checkpoint["gpaw_params"]["kpts"] == [1, 1, 1]
+
+    # A matching-params checkpoint IS resumed.
+    calls.clear()
+    totals = up.compute_anchors(plans[:1], synthetic["panel"], tmp_path, 0, counting_fn)
+    assert totals["resumed"] == 5 and totals["computed"] == 0
+    assert calls == []
+
+
+def test_assembly_treats_mismatched_params_as_missing(synthetic, tmp_path):
+    fill_pool(synthetic, tmp_path)  # computed under the frozen settings
+    up.set_active_params(kpts=(1, 1, 1))
+    campaign = up.assemble_campaign(plans_of(synthetic), tmp_path, deferred_indices=[])
+    path0 = campaign["per_path"][0]
+    assert path0["anchors_evaluated"] == []
+    assert path0["anchors_missing"] == path0["anchor_universe"]
+    assert path0["dense_complete"] is False
+    assert path0["t1_gate"]["verdict"] == "insufficient_data"
+    assert campaign["per_model_summary"][MODEL_A]["verdict"] == "incomplete"
+    assert campaign["gpaw_params"]["kpts"] == [1, 1, 1]
+    assert campaign["settings_note"] == "adopted per amendment 02: kpts=(1,1,1)"
+
+    # Back under the frozen settings the same checkpoints are usable again
+    # and no settings_note is recorded.
+    up.set_active_params()
+    campaign = up.assemble_campaign(plans_of(synthetic), tmp_path, deferred_indices=[])
+    assert campaign["per_path"][0]["dense_complete"] is True
+    assert campaign["gpaw_params"]["kpts"] == [2, 2, 2]
+    assert "settings_note" not in campaign
+
+
+def test_import_rejects_receipt_with_mismatched_params(synthetic, tmp_path):
+    plans = plans_of(synthetic)
+    plan = plans[0]
+    energy_fn, _ = completed_energy(synthetic["references"][0])
+    up.set_active_params(kpts=(1, 1, 1))
+    receipt = tmp_path / "path-0.json"
+    receipt.write_text(json.dumps(
+        receipt_for(plan, [0, 1, 2, 4], energy_fn, params=FROZEN_PARAMS_JSON)
+    ))
+    stats = up.import_receipt(receipt, plan, tmp_path)
+    assert stats["imported"] == []
+    assert stats["skipped_existing"] == []
+    assert len(stats["rejected"]) == 1
+    assert "gpaw_params" in stats["rejected"][0]
+    # The whole receipt was refused: nothing landed in the checkpoint pool.
+    assert not (tmp_path / "anchors" / "path-0").exists()
+
+
+def test_import_rejects_receipt_without_params(synthetic, tmp_path):
+    plans = plans_of(synthetic)
+    plan = plans[0]
+    energy_fn, _ = completed_energy(synthetic["references"][0])
+    receipt = receipt_for(plan, [0, 1], energy_fn)
+    receipt["summary"] = {}  # no gpaw_params recorded -> cannot be verified
+    path = tmp_path / "path-0.json"
+    path.write_text(json.dumps(receipt))
+    stats = up.import_receipt(path, plan, tmp_path)
+    assert stats["imported"] == []
+    assert len(stats["rejected"]) == 1
+    assert "gpaw_params" in stats["rejected"][0]
+
+
+def test_import_stores_receipt_params_when_matching(synthetic, tmp_path):
+    plans = plans_of(synthetic)
+    plan = plans[0]
+    energy_fn, _ = completed_energy(synthetic["references"][0])
+    up.set_active_params(kpts=(1, 1, 1))
+    receipt_params = dict(GAMMA_PARAMS_JSON)
+    receipt = tmp_path / "path-0.json"
+    receipt.write_text(json.dumps(
+        receipt_for(plan, [0, 1, 2, 4], energy_fn, params=receipt_params)
+    ))
+    stats = up.import_receipt(receipt, plan, tmp_path)
+    assert stats["imported"] == [0, 1, 2, 4]
+    assert stats["rejected"] == []
+    checkpoint = json.loads(
+        (tmp_path / "anchors" / "path-0" / "anchor-0.json").read_text()
+    )
+    assert checkpoint["status"] == "imported"
+    assert checkpoint["gpaw_params"] == receipt_params
+
+
+def write_local_inputs(synthetic: dict, root: Path) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "panel.lock.json").write_text(json.dumps(synthetic["panel"]))
+    for model, artifact in synthetic["artifacts"].items():
+        model_dir = root / model
+        model_dir.mkdir(parents=True, exist_ok=True)
+        (model_dir / "cell_result.json").write_text(json.dumps(artifact))
+
+
+def test_parse_kpts():
+    assert up.parse_kpts("1,1,1") == (1, 1, 1)
+    assert up.parse_kpts("2,2,2") == (2, 2, 2)
+    for bad in ("1,1", "1,1,1,1", "a,b,c", "", "0,1,1"):
+        with pytest.raises(argparse.ArgumentTypeError):
+            up.parse_kpts(bad)
+
+
+def test_cli_kpts_override_end_to_end(synthetic, tmp_path, capsys):
+    local = tmp_path / "inputs"
+    write_local_inputs(synthetic, local)
+    deferred = tmp_path / "deferred.json"
+    deferred.write_text(json.dumps({"deferred_paths": []}))
+    rc = up.main([
+        "--local", str(local),
+        "--deferred", str(deferred),
+        "--workdir", str(tmp_path / "work"),
+        "--kpts", "1,1,1",
+        "--dry-run",
+        "--no-import",
+    ])
+    assert rc == 0
+    out = capsys.readouterr().out
+    # Startup banner and dry-run output both show the active params.
+    assert "[1, 1, 1]" in out
+    assert "adopted per amendment 02" in out
+    assert up.gpaw_params_json()["kpts"] == [1, 1, 1]
+
+
+def test_cli_kpts_rejects_bad_strings():
+    for bad in ("1,1", "1,1,1,1", "a,b,c", ""):
+        with pytest.raises(SystemExit) as excinfo:
+            up.main(["--kpts", bad])
+        assert excinfo.value.code == 2

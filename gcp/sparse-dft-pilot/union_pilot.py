@@ -25,6 +25,14 @@ the frozen base protocol (docs/plans/2026-07-20-sparse-dft-pilot-preregistration
 - Memory guard: an anchor is skipped with status "skipped-memory" when
   MemAvailable is under --min-free-gb, rather than crashing. Serial
   execution only — one GPAW evaluation at a time, ever.
+- Settings overrides (pending amendment 02): --kpts / --h replace the frozen
+  k-point mesh / grid spacing for the whole run — everything else stays
+  frozen. Gamma-only example:
+      python union_pilot.py --kpts 1,1,1 --dry-run
+  Every checkpoint records the params it was produced under and is trusted
+  only when those equal the active params — a checkpoint is never silently
+  reused across different parameter sets. Receipts whose
+  summary.gpaw_params differ from the active params are rejected wholesale.
 
 This driver supersedes run_pilot.py for the remaining paths; run_pilot.py's
 completed results remain valid receipts and are imported.
@@ -91,12 +99,77 @@ STATUS_FAILED = "failed"
 STATUS_SKIPPED_MEMORY = "skipped-memory"
 USABLE_STATUSES = {STATUS_COMPLETED, STATUS_IMPORTED}
 
+# Provenance recorded in campaign.json whenever the active settings deviate
+# from the preregistration-frozen ones (pending amendment 02 adopts Gamma
+# k-points after the revalidation moved the barrier -4.72 meV, within the
+# <=5 meV criterion).
+SETTINGS_OVERRIDE_PROVENANCE = "adopted per amendment 02"
+
+# Active GPAW params for this process: FROZEN_GPAW_PARAMS plus any overrides
+# from set_active_params. The frozen dict itself is never mutated.
+_ACTIVE_PARAMS: dict = dict(FROZEN_GPAW_PARAMS)
+
+
+def set_active_params(kpts: tuple | None = None, h: float | None = None) -> None:
+    """Set the process-wide active GPAW params: the frozen preregistration
+    settings plus the given overrides. Every knob not passed here stays at
+    its frozen value; calling with no arguments restores the frozen settings.
+    """
+    global _ACTIVE_PARAMS
+    _ACTIVE_PARAMS = dict(FROZEN_GPAW_PARAMS)
+    if kpts is not None:
+        if len(kpts) != 3:
+            raise ValueError(f"kpts must be a 3-tuple, got {kpts!r}")
+        _ACTIVE_PARAMS["kpts"] = tuple(int(v) for v in kpts)
+    if h is not None:
+        _ACTIVE_PARAMS["h"] = float(h)
+
+
+def _normalize_value(value):
+    return list(value) if isinstance(value, (tuple, list)) else value
+
+
+def _normalize_params(params: dict) -> dict:
+    return {key: _normalize_value(value) for key, value in params.items()}
+
 
 def gpaw_params_json() -> dict:
-    return {
-        key: list(value) if isinstance(value, tuple) else value
-        for key, value in FROZEN_GPAW_PARAMS.items()
-    }
+    return _normalize_params(_ACTIVE_PARAMS)
+
+
+def active_params_overridden() -> bool:
+    return _normalize_params(_ACTIVE_PARAMS) != _normalize_params(FROZEN_GPAW_PARAMS)
+
+
+def settings_note() -> str:
+    """Human-readable provenance for a run whose active params deviate from
+    the frozen preregistration settings, e.g.
+    'adopted per amendment 02: kpts=(1,1,1)'."""
+    overrides = ", ".join(
+        f"{key}={_format_setting(_ACTIVE_PARAMS[key])}"
+        for key in sorted(_ACTIVE_PARAMS)
+        if _normalize_value(_ACTIVE_PARAMS[key])
+        != _normalize_value(FROZEN_GPAW_PARAMS.get(key))
+    )
+    return f"{SETTINGS_OVERRIDE_PROVENANCE}: {overrides}"
+
+
+def _format_setting(value) -> str:
+    if isinstance(value, (tuple, list)):
+        return "(" + ",".join(str(v) for v in value) + ")"
+    return repr(value)
+
+
+def params_match(checkpoint: dict | None) -> bool:
+    """True only when the checkpoint's recorded gpaw_params equal the active
+    params (tuples/lists normalized) — checkpoints are never silently
+    trusted across different parameter sets."""
+    if checkpoint is None:
+        return False
+    recorded = checkpoint.get("gpaw_params")
+    if not isinstance(recorded, dict):
+        return False
+    return _normalize_params(recorded) == gpaw_params_json()
 
 
 def utc_now() -> str:
@@ -256,6 +329,7 @@ def anchor_record(
     wall_seconds: float | None,
     source: str,
     error: str | None = None,
+    params: dict | None = None,
 ) -> dict:
     reference = plan["reference_energies_ev"][anchor_index]
     record = {
@@ -268,7 +342,7 @@ def anchor_record(
         "reference_energy_ev": reference,
         "offset_ev": (energy - reference) if energy is not None else None,
         "wall_seconds": wall_seconds,
-        "gpaw_params": gpaw_params_json(),
+        "gpaw_params": gpaw_params_json() if params is None else _normalize_params(params),
         "source": source,
         "recorded_at": utc_now(),
     }
@@ -283,10 +357,27 @@ def import_receipt(receipt_path: Path, plan: dict, workdir: Path) -> dict:
     """Map a run_pilot.py path receipt into per-anchor checkpoints.
 
     Validates path identity and per-anchor reference energies against the
-    locked panel; never overwrites an existing usable checkpoint.
+    locked panel; never overwrites an existing usable checkpoint. The whole
+    receipt is rejected when its summary.gpaw_params are missing or differ
+    from the active params — energies computed under different settings are
+    never imported. On a match the RECEIPT's params are stored in the
+    imported checkpoint records.
     """
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     stats = {"imported": [], "skipped_existing": [], "rejected": []}
+    receipt_params = (receipt.get("summary") or {}).get("gpaw_params")
+    if not isinstance(receipt_params, dict):
+        stats["rejected"].append(
+            "receipt summary.gpaw_params missing — cannot verify settings, "
+            "refusing to import"
+        )
+        return stats
+    if _normalize_params(receipt_params) != gpaw_params_json():
+        stats["rejected"].append(
+            f"receipt gpaw_params {receipt_params} != active params "
+            f"{gpaw_params_json()} — refusing to import across settings"
+        )
+        return stats
     for row in receipt.get("rows", []):
         if row.get("status") != "completed":
             continue
@@ -316,7 +407,8 @@ def import_receipt(receipt_path: Path, plan: dict, workdir: Path) -> dict:
                 )
                 continue
             dest = anchor_checkpoint_path(workdir, plan["path_index"], index)
-            if usable_energy(read_checkpoint(dest)) is not None:
+            existing = read_checkpoint(dest)
+            if usable_energy(existing) is not None and params_match(existing):
                 stats["skipped_existing"].append(index)
                 continue
             write_checkpoint(
@@ -328,6 +420,7 @@ def import_receipt(receipt_path: Path, plan: dict, workdir: Path) -> dict:
                     float(energy),
                     None,  # per-anchor wall time is not recorded in receipts
                     source=f"import:{receipt_path}",
+                    params=receipt_params,
                 ),
             )
             stats["imported"].append(index)
@@ -373,7 +466,7 @@ def gpaw_energy(image_record: dict) -> float:
     from z1_barrier import atoms_from_image
 
     atoms = atoms_from_image(image_record)
-    atoms.calc = GPAW(**FROZEN_GPAW_PARAMS)
+    atoms.calc = GPAW(**_ACTIVE_PARAMS)
     energy = float(atoms.get_potential_energy())
     if not math.isfinite(energy):
         raise RuntimeError("GPAW produced a non-finite energy")
@@ -396,9 +489,13 @@ def compute_anchors(
         images = panel["paths"][plan["path_index"]]["input_images"]
         for anchor_index in plan["anchor_universe"]:
             dest = anchor_checkpoint_path(workdir, plan["path_index"], anchor_index)
-            if usable_energy(read_checkpoint(dest)) is not None:
-                totals["resumed"] += 1
-                continue
+            checkpoint = read_checkpoint(dest)
+            if usable_energy(checkpoint) is not None:
+                if params_match(checkpoint):
+                    totals["resumed"] += 1
+                    continue
+                log(f"  path-{plan['path_index']} anchor-{anchor_index}: "
+                    "checkpoint params differ from active params; recomputing")
             free = available_memory_bytes()
             if free is not None and free < min_free_bytes:
                 write_checkpoint(
@@ -459,14 +556,16 @@ def compute_anchors(
 # --- Assembly (offline, from the anchor pool) -----------------------------------------
 
 def pool_for_plan(plan: dict, workdir: Path) -> dict[int, dict]:
-    """All usable checkpoints for a path, keyed by anchor index."""
+    """All usable checkpoints for a path, keyed by anchor index. A checkpoint
+    recorded under different params than the active ones is treated as
+    missing, never as usable."""
     pool: dict[int, dict] = {}
     for anchor_index in range(plan["image_count"]):
         checkpoint = read_checkpoint(
             anchor_checkpoint_path(workdir, plan["path_index"], anchor_index)
         )
         energy = usable_energy(checkpoint)
-        if energy is not None:
+        if energy is not None and params_match(checkpoint):
             pool[anchor_index] = checkpoint
     return pool
 
@@ -610,7 +709,7 @@ def assemble_campaign(
                     if p["t1_gate"]["verdict"] == "contaminated"]
     anchors_total = sum(len(p["anchor_universe"]) for p in per_path)
     anchors_done = sum(len(p["anchors_evaluated"]) for p in per_path)
-    return {
+    campaign = {
         "schema": SCHEMA_CAMPAIGN,
         "recorded_at": utc_now(),
         "preregistration": PREREGISTRATION,
@@ -639,6 +738,9 @@ def assemble_campaign(
             "anchors_remaining": anchors_total - anchors_done,
         },
     }
+    if active_params_overridden():
+        campaign["settings_note"] = settings_note()
+    return campaign
 
 
 def print_summary(campaign: dict, log=print) -> None:
@@ -682,6 +784,8 @@ def dry_run(plans: list[dict], workdir: Path, minutes_per_anchor: float, log=pri
     total_remaining = 0
     total_anchors = 0
     rows = []
+    log(f"active GPAW params: {gpaw_params_json()}"
+        + (f" [{settings_note()}]" if active_params_overridden() else ""))
     log(f"{'path':>5} {'imgs':>4} {'models':>6} {'union':>5} {'univ':>4} "
         f"{'done':>4} {'todo':>4}  est.h  anchors-to-compute")
     for plan in plans:
@@ -691,7 +795,9 @@ def dry_run(plans: list[dict], workdir: Path, minutes_per_anchor: float, log=pri
             checkpoint = read_checkpoint(
                 anchor_checkpoint_path(workdir, plan["path_index"], anchor_index)
             )
-            (done if usable_energy(checkpoint) is not None else todo).append(anchor_index)
+            (done
+             if usable_energy(checkpoint) is not None and params_match(checkpoint)
+             else todo).append(anchor_index)
         total_remaining += len(todo)
         total_anchors += len(plan["anchor_universe"])
         hours = len(todo) * minutes_per_anchor / 60.0
@@ -722,6 +828,7 @@ def dry_run(plans: list[dict], workdir: Path, minutes_per_anchor: float, log=pri
         "anchors_total": total_anchors,
         "anchors_to_compute": total_remaining,
         "estimated_hours": round(total_hours, 1),
+        "gpaw_params": gpaw_params_json(),
         "per_path": rows,
     }
 
@@ -735,13 +842,33 @@ def parse_paths_filter(spec: str) -> set[int]:
     return {int(x) for x in spec.split(",")}
 
 
-def main() -> int:
+def parse_kpts(spec: str) -> tuple[int, int, int]:
+    """Parse a --kpts comma triple like '1,1,1' (Gamma-only sampling)."""
+    try:
+        parts = tuple(int(x) for x in spec.split(","))
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"--kpts expects three comma-separated integers, got {spec!r}"
+        ) from None
+    if len(parts) != 3 or any(v < 1 for v in parts):
+        raise argparse.ArgumentTypeError(
+            f"--kpts expects three positive comma-separated integers, got {spec!r}"
+        )
+    return parts
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workdir", type=Path, default=Path("/tmp/z1-union-local"),
                         help="checkpoint + input-cache root")
     parser.add_argument("--local", type=Path,
                         help="offline input dir with panel.lock.json + <model>/cell_result.json")
     parser.add_argument("--paths", help="active path indices, e.g. '0-29' or '7,16'")
+    parser.add_argument("--kpts", type=parse_kpts, default=FROZEN_GPAW_PARAMS["kpts"],
+                        metavar="I,J,K",
+                        help="k-point mesh triple (frozen default 2,2,2; '1,1,1' = Gamma-only)")
+    parser.add_argument("--h", type=float, default=FROZEN_GPAW_PARAMS["h"],
+                        help="fd grid spacing in Angstrom (frozen default 0.18)")
     parser.add_argument("--out", type=Path, default=None,
                         help="campaign JSON path (default <workdir>/campaign.json)")
     parser.add_argument("--receipts-dir", type=Path, default=DEFAULT_RECEIPTS_DIR,
@@ -757,7 +884,16 @@ def main() -> int:
                         help="report anchor coverage and cost; do not touch GPAW")
     parser.add_argument("--assemble-only", action="store_true",
                         help="assemble campaign.json from the existing anchor pool only")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+
+    # Settings overrides apply to everything below: planning, receipt import,
+    # compute, and assembly all see the active params, and checkpoints
+    # recorded under different params are never trusted.
+    set_active_params(kpts=args.kpts, h=args.h)
+    banner = f"union-pilot: active GPAW params {gpaw_params_json()}"
+    if active_params_overridden():
+        banner += f" [{settings_note()}]"
+    print(banner)
 
     workdir = args.workdir
     workdir.mkdir(parents=True, exist_ok=True)
