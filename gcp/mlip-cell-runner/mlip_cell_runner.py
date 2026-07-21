@@ -29,12 +29,18 @@ import requests
 from lupine_distill.fixture_contract import run_row, validate_manifest
 from z1_barrier import BARRIER_ROW_ID, load_campaign_panel, run_barrier_row
 from z1_sparse_dft import SPARSE_DFT_ROW_ID, run_sparse_dft_row
-from z2_soc_tc import (
-    SOC_TC_ROW_ID,
-    GPAWSpinEnergyEngine,
-    load_campaign_panel as load_soc_tc_campaign_panel,
-    run_soc_tc_row,
-)
+try:
+    from z2_soc_tc import (
+        SOC_TC_ROW_ID,
+        GPAWSpinEnergyEngine,
+        load_campaign_panel as load_soc_tc_campaign_panel,
+        run_soc_tc_row,
+    )
+except ImportError:  # pragma: no cover - absent from generic Z1-only images
+    SOC_TC_ROW_ID = None  # type: ignore[assignment]
+    GPAWSpinEnergyEngine = None  # type: ignore[assignment]
+    load_soc_tc_campaign_panel = None  # type: ignore[assignment]
+    run_soc_tc_row = None  # type: ignore[assignment]
 
 try:
     from lupine_distill_runtime import DistillSession, LeakageGuard
