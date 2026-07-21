@@ -1,12 +1,44 @@
 {
   "schema": "lupine.z1.sparse_dft.deferred.v1",
   "recorded_at": "2026-07-20",
-  "decision": "The three 191-atom paths are deferred from the local sparse-DFT pilot (owner decision 2026-07-20): they cost ~67.5 wall-hours each (14x the small cells) and ~25% of the pilot budget; the pilot proceeds on the remaining 27 paths per model.",
+  "decision": "The six paths with >=159-atom cells are deferred from the local sparse-DFT pilot (owner decisions 2026-07-20): they carry ~44% of the pilot budget; the pilot proceeds on the remaining 24 paths per model.",
   "deferred_paths": [
-    {"index": 2, "path_id": "mp-1222591_0_0_0_1_0", "atoms": 191},
-    {"index": 8, "path_id": "mp-768738_3_2_1_1_0", "atoms": 191},
-    {"index": 10, "path_id": "mp-770876_2_3_0_1_0", "atoms": 191}
+    {
+      "index": 2,
+      "path_id": "mp-1222591_0_0_0_1_0",
+      "atoms": 191
+    },
+    {
+      "index": 8,
+      "path_id": "mp-768738_3_2_1_1_0",
+      "atoms": 191
+    },
+    {
+      "index": 10,
+      "path_id": "mp-770876_2_3_0_1_0",
+      "atoms": 191
+    },
+    {
+      "index": 18,
+      "path_id": "mp-757800_1_4_0_0_0",
+      "atoms": 161
+    },
+    {
+      "index": 20,
+      "path_id": "mp-753899_0_3_0_0_0",
+      "atoms": 159
+    },
+    {
+      "index": 23,
+      "path_id": "mp-1295192_1_1_1_0_0",
+      "atoms": 159
+    },
+    {
+      "index": 28,
+      "path_id": "mp-1020056_0_0_1_1_0",
+      "atoms": 175
+    }
   ],
   "status": "waiting",
-  "reentry_condition": "run on stronger hardware (the owner's GPU-class box or dedicated CPU fleet) with the anchor-sharded fallback from the preregistration; verdicts for these three remain PENDING until then — they are NOT excluded from the campaign record, only deferred."
+  "reentry_condition": "run on stronger hardware (the owner's GPU-class box or dedicated CPU fleet) with the anchor-sharded fallback from the preregistration; verdicts for these three remain PENDING until then \u2014 they are NOT excluded from the campaign record, only deferred."
 }
