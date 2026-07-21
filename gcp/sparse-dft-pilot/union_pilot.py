@@ -18,8 +18,10 @@ the frozen base protocol (docs/plans/2026-07-20-sparse-dft-pilot-preregistration
   path, sparse barrier from the shared pool via the frozen selection;
   dense same-engine barrier (max-min over all images' GPAW energies);
   same-engine (primary, A1) and VASP-referenced (secondary) errors; T1
-  offset mean/wander per path; WIN/strong-WIN verdicts at <=40/<=15 meV
-  vs the same-engine basis.
+  offset mean/wander per path plus the T1 convention-wander gate verdict
+  (clean / contaminated / insufficient_data — REPORTED per path, never a
+  refusal; tools/analysis/t1_wander.py); WIN/strong-WIN verdicts at
+  <=40/<=15 meV vs the same-engine basis.
 - Memory guard: an anchor is skipped with status "skipped-memory" when
   MemAvailable is under --min-free-gb, rather than crashing. Serial
   execution only — one GPAW evaluation at a time, ever.
@@ -48,6 +50,12 @@ for _candidate in (_HERE.parent, _HERE.parents[1] / "mlip-cell-runner"):
     if (_candidate / "z1_sparse_dft.py").exists():
         sys.path.insert(0, str(_candidate))
         break
+for _candidate in (_REPO_ROOT / "tools" / "analysis", _HERE.parent):
+    if (_candidate / "t1_wander.py").exists():
+        sys.path.insert(0, str(_candidate))
+        break
+
+from t1_wander import analyze_offsets  # noqa: E402
 
 from z1_sparse_dft import (  # noqa: E402
     FROZEN_GPAW_PARAMS,
@@ -497,14 +505,25 @@ def assemble(plan: dict, workdir: Path) -> dict:
                 )
         per_model[model] = record
 
-    offsets_mev = [
-        (pool[i]["gpaw_energy_ev"] - plan["reference_energies_ev"][i]) * 1000.0
-        for i in sorted(pool)
-    ]
+    # T1 (amendment A1): per-path offset mean/wander AND the convention-
+    # wander gate verdict from the same pool. The gate is a reported line
+    # item (clean / contaminated / insufficient_data), never a refusal.
+    gate = analyze_offsets(
+        [
+            (i, pool[i]["gpaw_energy_ev"], plan["reference_energies_ev"][i])
+            for i in sorted(pool)
+        ],
+        gate_mev=WIN_THRESHOLD_MEV,
+    )
     t1 = {
         "evaluated_image_count": len(pool),
-        "offset_mean_mev": (math.fsum(offsets_mev) / len(offsets_mev)) if offsets_mev else None,
-        "offset_wander_mev": (max(offsets_mev) - min(offsets_mev)) if offsets_mev else None,
+        "offset_mean_mev": gate["offset_mean_mev"],
+        "offset_wander_mev": gate["offset_wander_mev"],
+    }
+    t1_gate = {
+        "wander_mev": gate["offset_wander_mev"],
+        "verdict": gate["verdict"],
+        "driver_pair": gate["driver_pair"],
     }
 
     return {
@@ -527,6 +546,7 @@ def assemble(plan: dict, workdir: Path) -> dict:
         ),
         "reference_barrier_ev": reference_barrier,
         "t1": t1,
+        "t1_gate": t1_gate,
     }
 
 
@@ -586,6 +606,8 @@ def assemble_campaign(
 
     wanders = [p["t1"]["offset_wander_mev"] for p in per_path
                if p["t1"]["offset_wander_mev"] is not None]
+    contaminated = [p["path_index"] for p in per_path
+                    if p["t1_gate"]["verdict"] == "contaminated"]
     anchors_total = sum(len(p["anchor_universe"]) for p in per_path)
     anchors_done = sum(len(p["anchors_evaluated"]) for p in per_path)
     return {
@@ -597,6 +619,7 @@ def assemble_campaign(
         "thresholds": {
             "win_mev": WIN_THRESHOLD_MEV,
             "strong_win_mev": STRONG_WIN_THRESHOLD_MEV,
+            "t1_gate_mev": WIN_THRESHOLD_MEV,
             "basis": "same-engine (sparse GPAW vs dense same-engine GPAW profile)",
         },
         "deferred_path_indices": deferred_indices,
@@ -605,6 +628,8 @@ def assemble_campaign(
         "per_model_summary": per_model_summary,
         "t1_summary": {
             "paths_with_offsets": len(wanders),
+            "paths_contaminated": len(contaminated),
+            "contaminated_path_indices": contaminated,
             "mean_offset_wander_mev": mean_mev(wanders),
             "max_offset_wander_mev": max(wanders) if wanders else None,
         },
@@ -634,7 +659,8 @@ def print_summary(campaign: dict, log=print) -> None:
     mean_wander = t1["mean_offset_wander_mev"]
     max_wander = t1["max_offset_wander_mev"]
     log(f"T1 offset wander: mean {mean_wander:.1f} meV, max {max_wander:.1f} meV "
-        f"over {t1['paths_with_offsets']} paths"
+        f"over {t1['paths_with_offsets']} paths; "
+        f"contaminated: {t1['contaminated_path_indices'] or 'none'}"
         if mean_wander is not None and max_wander is not None
         else "T1 offset wander: n/a (no anchors evaluated yet)")
     for p in campaign["per_path"]:
@@ -645,6 +671,7 @@ def print_summary(campaign: dict, log=print) -> None:
             f"imgs={p['image_count']} eval={len(p['anchors_evaluated'])}/{p['image_count']} "
             f"models={len(p['models_present'])} "
             f"wander={f'{wander:6.1f}' if wander is not None else '   n/a'}"
+            f" t1_gate={p['t1_gate']['verdict']}"
             + (f" missing={missing}" if missing else ""))
 
 

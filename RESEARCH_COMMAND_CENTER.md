@@ -1,140 +1,72 @@
 # Lupine Science Research Command Center
 
-Last updated: 2026-07-19
+Last updated: 2026-07-21 (focus reset — owner directive: "focus on focusing on our research direction")
 
 ## North Star
 
 Build the makeability layer for AI-driven materials discovery: trustworthy predictions, machine-checkable certificates, and a public record that labs, model builders, and formalizers can collaborate on.
 
+## The Research Direction (focused, 2026-07-21)
+
+**Thesis:** universal MLIPs drift farthest exactly where the science is hardest. Lupine corrects them **at runtime — no retraining, no fine-tuning** — using theorem-gated sparse DFT anchors. The proof vehicle is the Z1 barrier pilot; the amplifier is the theorem commons (shared gates + shared anchors: every team that joins makes every other team faster).
+
+Everything currently running serves this thesis or is explicitly parked below. Nothing else starts until P0 lands.
+
+## Priority Stack
+
+**P0 — Z1 sparse-DFT pilot to verdict (the only thing that matters until done)**
+- Critical path: path 16 completes → convergence revalidation (Gamma / h=0.20, adopt-if-≤5 meV, amendment 02 decision) → union-anchor driver over the 23 active paths → chgnet verdict vs the ≤40 meV gate + **measured cost ledger** → then remaining models, one at a time.
+- Watchdog: cron `02c262c1` (2-hourly) handles the path-16 → revalidation handoff automatically.
+- Frozen: GPAW fd/h=0.18/(2,2,2)/PBE (amendment 01 governs; same-engine gate primary, VASP secondary, T1 wander reported per path).
+
+**P1 — in flight, land and close**
+- PR #73: T1 convention-wander gate + revalidation runner (Codex P2s fixed; merge on green).
+- PR #72: Z2 spin-capable runner (Codex P1 fixed; hermes reviewer+qa sign-off required, then merge). **Execution of Z2 SOC stays owner-gated.**
+
+**P2 — queued immediately after P0 verdict**
+- Aggregate chgnet verdict + measured costs; publish run costs (owner: "publish actual run costs").
+- Amendment 02 (convergence loosening) if revalidation passes — propagates to all later models.
+- Union-anchor driver economics measured on real energies (commons baseline number).
+
+**Parked (do not touch without owner decision)**
+- Deferred big-7 paths (≥159 atoms) — `waiting` on stronger hardware, verdicts PENDING.
+- Z2 SOC heavy execution — compute budget decision required.
+- Spin-capable runner beyond PR #72; Round-4 elastic recompute (team finishing independently; land its receipts when done).
+- Further Savings Stack marketing — the book is live; no new marketing until P0 results exist.
+
+**Not doing (scope guards)**
+- No training or fine-tuning models. Runtime correction only (owner directive; cost-slope guard).
+- No new experimental domains, no cloud fleet (cancelled 2026-07-20; local box is the compute plan).
+- No new panels, campaigns, or sites until P0 lands.
+
+## How we work (operating rules that held up)
+
+- Preregistration before results; amendments are dated documents, never silent changes (see amendment 01).
+- Primary records get committed immediately with sha256 sidecars (the 624/132 retraction is why).
+- Codex review is read on every PR before merge (4 catches this week, incl. the P1 generic-image breaker).
+- Hermes teams own tasks end-to-end (implement → self-verify → reviewer → qa); director reviews independently before landing.
+- Deploys are fully automated post-merge (owner directive 2026-07-20, no human gates).
+- Honest voice everywhere: proof-first, derived estimates labeled, retractions recorded in the same record that replaces them.
+
 ## Team (Hermes-driven)
 
-| Agent | Profile | Model | Role |
-|---|---|---|---|
-| **Coordinator** | `coordinator` | `kimi-k2.7-code` | Orchestrates research, tracks progress, dispatches work. Primary contact. |
-| **Researcher** | `researcher` | `kimi-k2.7-code` | Executes science work: cleanup, triage, Lean formalization, A6 bridge, experiments. |
-| **Media Director** | skill | `kimi-k2.7-code` / MiniMax | Produces launch films, images, articles, audio, pitch visuals, content design system, creative exploration loops, brand asset library. |
+| Agent | Profile | Role |
+|---|---|---|
+| **Coordinator** | `coordinator` | Orchestrates research, tracks progress, dispatches work. |
+| **Researcher** | `researcher` | Science execution: experiments, formalization, digests, elastic recompute. |
+| **Software-engineer** | `software-engineer` | Runners, packaging, CI (Z2 spin runner delivered 2026-07-21). |
+| **Reviewer / QA** | `reviewer` / `qa` | Sign-off gates before landing. |
+| **Media Director** | skill + MiniMax | Brand assets, films, booklet art. |
 
-**How to reach us:** `https://aledev.taild6f8cb.ts.net/` — use the profile switcher to pick `coordinator` (default) or `researcher`.
+Reach us: `https://aledev.taild6f8cb.ts.net/` (profile switcher).
 
-## Active Initiatives
+## Live properties
 
-- **Round-4 theorem-capped correction campaign** — The preregistered 32-cell available-model panel completed on four isolated Round-4 Cloud Run jobs.
-  - Status: 🟡 complete; landed with preregistration amendment
-  - Result: both ionics-rocksalt and perovskites failed the registered >=2/3 property-win criterion — 0/4 and 0/1 confirmatory wins under the amended accounting (B0 descriptive-only per preregistration §5; perovskite elastic constants exploratory-only); theorem consistency remained green at zero licensed oracle-in-hull worsened cells.
-  - Record: `data/candidates/round4/ROUND4_REPORT.md`, machine-readable `report.json` with the repaired measurement binding (isolated jobs + immutable image digests), campaign manifest, cloud receipts, and hash-chained ingestion rows.
-  - Amendment: `docs/plans/2026-07-19-round4-preregistration-amendment.md` — records the post-lock tool implementation, the execution-binding repair, and the B0/elastic scope corrections.
-  - Consequence: retain the narrowed same-class lattice-constant correction scope; freeze further cap tuning unless a new theorem licenses another round.
-  - Next step: review the campaign artifact and ingest the two negative a0 evidence rows into the public claim registry. Follow-up task `round4-elastic-relaxed-recompute`: re-evaluate perovskite elastic constants at each model's relaxed equilibrium with internal relaxation before any confirmatory use.
-  - Owner: researcher
+- lupine.science — PR/venture side; The Savings Stack booklet + dataset live (2026-07-21).
+- library.lupine.science — full transparent detail; `savings-stack` group (12 entries).
 
-- **Brand Asset Library App** — Proper FastAPI application for managing the image corpus.
-  - Status: 🟢 live
-  - URL: `http://aledev.taild6f8cb.ts.net:8787/`
-  - Stack: FastAPI + SQLite + FTS5 + Jinja2 + vanilla JS
-  - Features: full-text search, version/motif/variant/aspect/tag filters, favorites, ratings (0–5), private notes, detail view, download, JSON API.
-  - Indexed: 152 assets across v1–v9.
-  - Service: systemd user service `lupine-assets.service` on port 8787.
-  - Next step: Curate shortlist and generate social cards / X thread.
-  - Owner: media director
+## History
 
-- **Climate Partnerships Article Series** — Five published articles based on climate.md and partnerships.md.
-  - Status: 🟢 published
-  - Articles: The 0.2% Synthesis Problem; A Field, Not a Neural Net; Five Materials That Could Unlock 5–12 GtCO₂/Year; From Predicted Crystal to Commercial Cell; Investing in the Trust Layer.
-  - Audience: sophisticated materials, mechanical, and chemical engineers; climate-tech investors.
-  - Location: `media/projects/climate-partnerships-series/` and `articles/`.
-  - Next step: Drive traffic; consider a social thread and proof-pack PDF.
-  - Owner: researcher + media director
-
-- **Brand / pitch deliverables** — Production assets and pitch deck from the winning still are shipped.
-  - Status: 🟢 shipped
-  - Deliverables: `media/projects/brand-exploration/renders/deliverables/` (OG card, site hero, one-pager cover, deck backgrounds), `renders/deliverables/slides/` (9-slide narrative in 16:9 and 4:3).
-  - Deployed: `public/og-lupine-science.jpg`, `public/ribbon-still.jpg`, `public/one-pager-assets/cover-shape-of-wrongness.jpg`.
-  - Next step: Generate alternate deliverables from v8 winners.
-  - Owner: media director
-
-- **v8 abstract asset corpus** — 24 non-research visuals across 8 motifs.
-  - Status: 🟢 generated and indexed
-  - Motifs: particle ribbon, ink wash, moiré circles, constellation threads, shadow geometry, stroke dissolution, folded light, scale shards.
-  - Next step: Review via asset library and select keepers.
-  - Owner: media director
-
-- **v9 standalone iconography corpus** — 48 copy-paste-ready icons across 16 motifs.
-  - Status: 🟢 generated and indexed
-  - Motifs: orbit mark, lattice node, proof check, error tick, molecule glyph, bond angle, calibration cross, trust shield, field line, manifold curve, atomic ring, coordinate axis, hex cell, wave packet, convergence star, divergence burst.
-  - Formats: square (1:1), circle (1:1), wide (16:9).
-  - Next step: Review via asset library and select keepers.
-  - Owner: media director
-
-- **Public proof-pack: environment-error-field paper** — Web-native proof-pack published on `lupine.science`.
-  - Status: 🟢 published
-  - Article: `/articles/a-smooth-environment-resolved-error-field/`
-  - Source: `articles/a-smooth-environment-resolved-error-field.md`
-  - Hero: `v7/error-vector-alignment_wide_v7.jpg`
-  - Figures: Fig 1 (error landscape), Fig 4 (field + blind test), Fig 5 (run-time correction).
-  - Next step: Drive traffic; consider a companion social thread.
-  - Owner: researcher + media director
-
-- **A6 bridge protocol** — Full 5,000-permutation / 2,000-bootstrap pilot completed with a 1,000-replicate geometry-preserving (coupling-aware) null. Results committed.
-  - Status: 🟢 pilot complete
-  - Report: `lupine-rhizo/data/a6_bridge/report_pilot_mptrj_v2_5000.md`
-  - Key finding: Force-field magnitude correlation (`mag_corr`) survives the stratified null (Fisher χ² = 51.10, df = 6) but is not significant against the geometry-preserving null, suggesting the shared pattern may be partly mechanical/elastic on this tiny 5-structure pilot. `atom_cos` and `field_cos` survive in some pairs even under rotation.
-  - Next step: Scale to multi-config trajectories (MatPES/MPtrj/OMat24) using the newly merged y-matrix / envfield corpus.
-  - Owner: researcher
-
-- **Content design system / brand book** — Templates and components for every long-form surface shipped.
-  - Status: 🟢 shipped
-  - Deliverables: `lupine-science/docs/content-design-system.md`, `articles/_templates/*.md`, extended `public/articles/styles.css`, `public/articles/components.html`, builder support for format classes.
-  - Next step: Continuously apply to new articles and proof packs.
-  - Owner: researcher
-
-- **Day-in-the-life social content** — 5-image carousel + X thread committed.
-  - Status: 🟢 ready to share
-  - Next step: Post to X from `media/projects/day-in-the-life/renders/x_thread.md`.
-  - Owner: media director
-
-- **Lupine Science public front door** — Live at [lupine.science](https://lupine.science).
-  - Status: 🟢 live
-  - Next step: Deploy latest commits (already committed; ensure published).
-  - Owner: media director
-
-- **LUPI launch** — 30-second film + "Why LUPI?" article shipped.
-  - Status: 🟢 shipped
-  - Next step: Drive traffic and gather feedback.
-  - Owner: media director
-
-- **Remote access & operations** — Tailscale SSH + Hermes dashboard verified on iOS/Mac/Windows.
-  - Status: 🟢 verified
-  - Owner: infrastructure
-
-- **Hermes v0.17.0** — Operational; dashboard build fixed.
-  - Status: 🟢 operational
-  - Owner: infrastructure
-
-## Done Recently
-
-- Built a full FastAPI application for the brand asset library with SQLite/FTS5 search, filters, favorites, ratings, notes, tags, and detail/download views.
-- Generated the v8 abstract asset corpus (24 non-research visuals) and indexed it in the library.
-- Generated the v9 standalone iconography corpus (48 copy-paste-ready icons) and indexed it in the library.
-- Created and published the five-article Climate Partnerships Series based on climate.md and partnerships.md.
-- Deployed the app as a systemd user service on `aledev.taild6f8cb.ts.net:8787`.
-- Merged latest remote `lupine-science` work and `lupine-rhizo` work into local branches.
-- Published the environment-error-field paper as a public proof-pack on `lupine.science`.
-- Built a 9-slide pitch deck in 16:9 and 4:3 from the winning brand still.
-- Produced production brand deliverables: OG card, site hero, one-pager cover, deck backgrounds.
-- Ran v6/v7 brand-exploration matrices, selected `v7/error-vector-alignment_wide_v7.jpg` as the upstream-cascade replacement.
-- Updated `build-articles.py` to use per-article hero images for OG/Twitter cards.
-- Updated the public site OG/Twitter meta tags and refreshed the public-ledger fallback entries.
-
-## Blockers
-
-- A6 full-scale run still needs MatPES/MPtrj/OMat24 multi-config trajectory manifests beyond the pilot/synthetic subsets.
-- Hermes dashboard is tailnet-gated only; acceptable until shared.
-- Public ledger refreshes by TTL; no active purge permission.
-
-## Upcoming Bets
-
-- Scale A6 bridge to the merged y-matrix / envfield multi-config corpus.
-- Curate v8 asset winners and generate social cards / X thread for the proof-pack and pitch deck.
-- Generate alternate deliverables from v8 winners.
-- Materialize the MatPES/MPtrj/OMat24 manifest and re-run A6 at scale.
-- Add LUPI landing page.
+- 2026-07-19: Round-4 campaign complete (both ionics failed confirmatory criterion; theorem consistency green) — see git history for the 2026-07-19 command center.
+- 2026-07-20: sparse-DFT premise validated; preregistration frozen; first real result 32.2 meV WIN (mp-760344); cloud fleet cancelled; seven big cells deferred.
+- 2026-07-21: path-7 FAIL 118.8 meV → root cause T1 convention wander (139.4 meV on the barrier-defining pair) → amendment 01 (same-engine gate) + T1 wander gate built (first self-contributed commons theorem); Savings Stack book published.

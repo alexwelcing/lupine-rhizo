@@ -348,6 +348,15 @@ def test_assembly_math(synthetic, tmp_path):
     assert path0["t1"]["evaluated_image_count"] == 5
     assert path0["t1"]["offset_mean_mev"] == pytest.approx(-7.4)
     assert path0["t1"]["offset_wander_mev"] == pytest.approx(10.0)
+    # T1 gate: 10 meV wander is well under the 40 meV gate -> clean; the
+    # residual wander is driven by images 4 (deepest, -12 meV) and 2.
+    assert path0["t1_gate"] == {
+        "wander_mev": pytest.approx(10.0),
+        "verdict": "clean",
+        "driver_pair": [4, 2],
+    }
+    assert campaign["t1_summary"]["paths_contaminated"] == 0
+    assert campaign["t1_summary"]["contaminated_path_indices"] == []
 
     model_a = path0["per_model"][MODEL_A]
     assert model_a["complete"] is True
@@ -387,9 +396,46 @@ def test_assembly_marks_incomplete_until_pool_is_full(synthetic, tmp_path):
     # T1 uses whatever is evaluated.
     assert path0["t1"]["evaluated_image_count"] == 4
     assert path0["t1"]["offset_wander_mev"] == pytest.approx(8.0)
+    assert path0["t1_gate"]["verdict"] == "clean"
+    assert path0["t1_gate"]["driver_pair"] == [0, 2]
     summary = campaign["per_model_summary"][MODEL_A]
     assert summary["verdict"] == "incomplete"
     assert summary["win"] is False
+
+
+def test_assembly_t1_gate_contaminated(synthetic, tmp_path):
+    """A >40 meV offset wander flags the path convention-contaminated."""
+    plans = plans_of(synthetic)
+    reference = synthetic["references"][0]
+    offsets = [-0.010, -0.008, -0.100, -0.005, -0.012]  # eV; 95 meV wander
+
+    def energy_fn(image_record: dict) -> float:
+        j = image_record["image"]
+        return reference[j] + offsets[j]
+
+    up.compute_anchors(plans[:1], synthetic["panel"], tmp_path, 0, energy_fn)
+    campaign = up.assemble_campaign(plans, tmp_path, deferred_indices=[])
+    path0 = campaign["per_path"][0]
+    assert path0["t1_gate"]["wander_mev"] == pytest.approx(95.0)
+    assert path0["t1_gate"]["verdict"] == "contaminated"
+    # min offset -100 meV at image 2, max offset -5 meV at image 3.
+    assert path0["t1_gate"]["driver_pair"] == [2, 3]
+    summary = campaign["t1_summary"]
+    assert summary["paths_contaminated"] == 1
+    assert summary["contaminated_path_indices"] == [0]
+    assert summary["max_offset_wander_mev"] == pytest.approx(95.0)
+
+
+def test_assembly_t1_gate_insufficient_data_without_anchors(synthetic, tmp_path):
+    campaign = up.assemble_campaign(plans_of(synthetic), tmp_path, deferred_indices=[])
+    for path in campaign["per_path"]:
+        assert path["t1_gate"] == {
+            "wander_mev": None,
+            "verdict": "insufficient_data",
+            "driver_pair": None,
+        }
+    assert campaign["t1_summary"]["paths_contaminated"] == 0
+    assert campaign["t1_summary"]["contaminated_path_indices"] == []
 
 
 def test_dry_run_reports_done_and_todo(synthetic, tmp_path, capsys):
