@@ -29,6 +29,12 @@ import requests
 from lupine_distill.fixture_contract import run_row, validate_manifest
 from z1_barrier import BARRIER_ROW_ID, load_campaign_panel, run_barrier_row
 from z1_sparse_dft import SPARSE_DFT_ROW_ID, run_sparse_dft_row
+from z2_soc_tc import (
+    SOC_TC_ROW_ID,
+    GPAWSpinEnergyEngine,
+    load_campaign_panel as load_soc_tc_campaign_panel,
+    run_soc_tc_row,
+)
 
 try:
     from lupine_distill_runtime import DistillSession, LeakageGuard
@@ -736,7 +742,9 @@ def run_cell(
     # proposed extrema match the float64 barrier-row measurements the
     # sparse-DFT preregistration premise was measured on.
     calc_dtype = (
-        "float64" if args.row_id in (BARRIER_ROW_ID, SPARSE_DFT_ROW_ID) else "float32"
+        "float64"
+        if args.row_id in (BARRIER_ROW_ID, SPARSE_DFT_ROW_ID, SOC_TC_ROW_ID)
+        else "float32"
     )
     barrier_panel = None
     barrier_contract = None
@@ -744,6 +752,12 @@ def run_cell(
         if args.distill_profile != "off":
             raise ValueError(f"{args.row_id} row does not support distill profiles")
         manifest, barrier_panel, manifest_hash, barrier_contract = load_campaign_panel(
+            manifest_url, args.mlip_id, read_url
+        )
+    elif args.row_id == SOC_TC_ROW_ID:
+        if args.distill_profile != "off":
+            raise ValueError(f"{SOC_TC_ROW_ID} row does not support distill profiles")
+        manifest, barrier_panel, manifest_hash, barrier_contract = load_soc_tc_campaign_panel(
             manifest_url, args.mlip_id, read_url
         )
     else:
@@ -823,11 +837,20 @@ def run_cell(
                 barrier_contract,
                 checkpoint=checkpoint,
             )
-        else:
+        elif args.row_id == BARRIER_ROW_ID:
             row_result = run_barrier_row(
                 manifest,
                 barrier_panel,
                 run_calc,
+                barrier_contract,
+                checkpoint=checkpoint,
+            )
+        else:
+            spin_engine = GPAWSpinEnergyEngine(run_calc, barrier_panel["execution_protocol"])
+            row_result = run_soc_tc_row(
+                manifest,
+                barrier_panel,
+                spin_engine,
                 barrier_contract,
                 checkpoint=checkpoint,
             )

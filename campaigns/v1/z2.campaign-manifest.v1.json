@@ -9,6 +9,7 @@
   },
   "frozen_hypotheses": [
     {"hypothesis_id": "h.z2.anisotropy-ranking", "statement": "The spin-aware multi-fidelity stack reproduces the complete held-out magnetocrystalline-anisotropy ordering, including easy-axis sign.", "frozen": true},
+    {"hypothesis_id": "h.z2.tc-prediction", "statement": "The same spin-resolved FM/AFM evidence predicts Curie temperature under the frozen nearest-neighbour analytical fits, reported against the published Green/MC/RNSW method envelope.", "frozen": true},
     {"hypothesis_id": "h.z2.scalar-abstention", "statement": "Scalar-energy rows without spin-orbit-resolved evidence abstain and cannot count as ranking successes.", "frozen": true}
   ],
   "available_models": [
@@ -25,10 +26,11 @@
   "acceptance_test": {"metric": "magnetocrystalline_anisotropy_rank_correlation", "operator": "eq", "threshold": 1, "unit": "spearman_rho"},
   "evidence_requirements": [
     {"requirement_id": "e.z2.reference-order", "artifact_type": "soc-reference-set", "description": "Held-out spin-polarized SOC references with easy axes, anisotropy energies, convergence settings, and identities.", "minimum_count": 5},
-    {"requirement_id": "e.z2.ranking-results", "artifact_type": "ranking-measurements", "description": "Predicted ordering, signed anisotropy energies, tie policy, abstentions, and Spearman statistic.", "minimum_count": 1}
+    {"requirement_id": "e.z2.ranking-results", "artifact_type": "ranking-measurements", "description": "Predicted ordering, signed anisotropy energies, tie policy, abstentions, and Spearman statistic.", "minimum_count": 1},
+    {"requirement_id": "e.z2.tc-results", "artifact_type": "curie-temperature-measurements", "description": "Per-material J, B/J, Green/MC/RNSW Curie-temperature estimates, method-envelope coverage, and RNSW MAE in kelvin.", "minimum_count": 5}
   ],
-  "execution": {"lane": "round4.available-models", "model_selection": "available_models", "excluded_models_block_execution": false},
+  "execution": {"lane": "round4.available-models", "model_selection": "available_models", "excluded_models_block_execution": false, "candidate_panel": {"path": "data/candidates/z2_soc_tc_panel.lock.json", "sha256": "sha256:349e0520856e68a2a65907d41a550d1596dfac6ecd8a57c3b900ae41b8a64355"}},
   "kill_conditions": [{"condition_id": "kill.z2.sign-error", "metric": "easy_axis_sign_errors", "operator": "gt", "threshold": 0, "unit": "materials", "action": "kill"}],
   "demotion_conditions": [{"condition_id": "demote.z2.ranking", "metric": "magnetocrystalline_anisotropy_rank_correlation", "operator": "lt", "threshold": 1, "unit": "spearman_rho", "action": "demote"}],
-  "content_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a"
+  "content_hash": "sha256:986214ea2548cae50ad7319e9954bced2ffadcf99121e73bf0afb80d8c1934a6"
 }
