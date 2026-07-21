@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:fcc4da9109a0d8ca9b0d0ac25d2562898cd06d32e665c395c2987a741d129768"
+      "content_hash": "sha256:1707a3de9c8fe0b6ba395d530c98b79c2cb8d9f6f88a4fc99f36859290c62280"
     },
     "registry/campaigns.v1.json": {
       "content_hash": "sha256:01cf8e7fd26400ec576481e6acdda0161a9e448883bf725fe3f09795ec4d07c7"
@@ -49,7 +49,7 @@
       },
       {
         "claim_id": "discovery.z2.magnetic-anisotropy.v1",
-        "content_hash": "sha256:e81bb7815cdb628033ed0eec16d47dc7da40d413736a7456b57770c20dc7cd10"
+        "content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd"
       },
       {
         "claim_id": "discovery.z3.adsorption-accuracy.v1",

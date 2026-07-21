@@ -16,12 +16,12 @@
   },
   "claim_id": "discovery.z2.magnetic-anisotropy.v1",
   "classification": {
-    "assurance": "provisional",
+    "assurance": "unsupported",
     "intent": "confirmatory",
     "outcome": "pending",
     "strength": "predictive"
   },
-  "content_hash": "sha256:e81bb7815cdb628033ed0eec16d47dc7da40d413736a7456b57770c20dc7cd10",
+  "content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd",
   "excluded_scope": [
     "Materials outside the locked seven-material Tiwari/C2DB reference panel",
     "Spin models other than the frozen nearest-neighbour J and B/J analytical fits",
