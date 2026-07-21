@@ -1279,6 +1279,183 @@ export const CATALOG = {
         "mlip"
       ],
       "group": "mlip-flywheel"
+    },
+    {
+      "id": "savings-surrogate-neb",
+      "source": "lit-review/savings-surrogate-neb.md",
+      "title": "Surrogate-Accelerated Transition-State and Pathway Search",
+      "subtitle": "GPR-NEB and variants, ML-surrogate NEB, surrogate dimer methods, and uMLIP-warmed practice, 2015–2026; costs counted in electronic-structure evaluations.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "neb",
+        "surrogate",
+        "transition-state"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-active-learning",
+      "source": "lit-review/savings-active-learning.md",
+      "title": "Active Learning for Interatomic Potentials as a DFT-Call Economizer",
+      "subtitle": "Active-learning loops for training interatomic potentials, priced in DFT calls avoided.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "active-learning",
+        "mlip"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-delta-multifidelity",
+      "source": "lit-review/savings-delta-multifidelity.md",
+      "title": "Δ-Learning, Multi-Fidelity, and Transfer-Learning Corrections",
+      "subtitle": "Correction layers that learn the gap between cheap and expensive electronic-structure methods.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "delta-learning",
+        "multi-fidelity",
+        "transfer-learning"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-abstention-economics",
+      "source": "lit-review/savings-abstention-economics.md",
+      "title": "Uncertainty-Gated Selective DFT and the Economics of Abstention",
+      "subtitle": "Measured DFT-call budgets, labeling and abstention fractions, and accuracy-per-call pricing.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "abstention",
+        "uncertainty"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-dft-systems",
+      "source": "lit-review/savings-dft-systems.md",
+      "title": "Systems-Level DFT Acceleration",
+      "subtitle": "LS-DFT, GPU ports, mixed precision and reduced-rank methods, SCF accelerators, k-point economization, and wavefunction reuse.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "dft",
+        "systems",
+        "hpc"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-electronic-surrogates",
+      "source": "lit-review/savings-electronic-surrogates.md",
+      "title": "Electronic-Structure Surrogates that Skip or Shorten the SCF Loop",
+      "subtitle": "Learned Hamiltonians, semi-empirical+ML hybrids, and ML kinetic-energy and exchange-correlation functionals.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "scf",
+        "hamiltonian",
+        "surrogate"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-path-sampling-algorithms",
+      "source": "lit-review/savings-path-sampling-algorithms.md",
+      "title": "Algorithmic Compute-Savings in Path-Finding and Sampling Methods",
+      "subtitle": "Surrogate path methods, freezing and growing strings, single-ended searches, and replica economization.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "path-finding",
+        "sampling",
+        "algorithms"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "supercomputing-atomistic-history",
+      "source": "lit-review/supercomputing-atomistic-history.md",
+      "title": "Atomic-Scale Simulation on Supercomputers",
+      "subtitle": "Machine history and capex per PFLOP, and what four decades of hardware bought atomistic simulation.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "supercomputing",
+        "history",
+        "hpc"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "research-compute-resourcing",
+      "source": "lit-review/research-compute-resourcing.md",
+      "title": "Compute Resourcing for Atomistic Simulation and ML",
+      "subtitle": "Public allocation programs, cloud and spot pricing, and resourcing routes, compiled 2026-07-21.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "allocations",
+        "cloud",
+        "funding"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "savings-techniques-synthesis-2026-07-21",
+      "source": "lit-review/savings-techniques-synthesis-2026-07-21.md",
+      "title": "The Savings Stack and the Theorem Commons",
+      "subtitle": "Synthesis of the nine digests: seven layers of compute savings, each with the same hole — the missing correctness certificate.",
+      "category": "references",
+      "tags": [
+        "literature-review",
+        "savings-stack",
+        "synthesis",
+        "correctness-certificate"
+      ],
+      "group": "savings-stack",
+      "featured": true
+    },
+    {
+      "id": "z1-union-anchor-economics",
+      "source": "docs/analysis/z1-union-anchor-economics.md",
+      "title": "Z1 Sparse-DFT Pilot — Union-Anchor Economics",
+      "subtitle": "Cross-model cost analysis from recorded campaign artifacts: 558 naive vs 154 union anchors (72.4% fewer evaluations, 3.62×); union cost scales 139.5→154 from one to four models.",
+      "category": "validation",
+      "tags": [
+        "savings-stack",
+        "z1",
+        "union-anchor",
+        "sparse-dft",
+        "economics"
+      ],
+      "group": "savings-stack"
+    },
+    {
+      "id": "citation-verification-2026-07-21",
+      "source": "lit-review/citation-verification-2026-07-21.md",
+      "title": "Citation Identifier Verification — Nine Savings Digests",
+      "subtitle": "Identifier audit for the savings-stack digests: 115/115 arXiv IDs and 48/48 DOI strings verified against the arXiv API and Crossref, with corrections applied.",
+      "category": "references",
+      "tags": [
+        "savings-stack",
+        "citation-audit",
+        "verification",
+        "provenance"
+      ],
+      "group": "savings-stack"
     }
   ]
 };
