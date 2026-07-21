@@ -426,3 +426,33 @@ def test_main_real_run_then_assemble_only(receipt_path, tmp_path, monkeypatch, c
     report = json.loads((workdir / "revalidation-report.json").read_text())
     assert report["variants"]["variant-g"]["sparse_barrier_ev"] == pytest.approx(0.409)
     assert report["variants"]["variant-h"]["verdict"] == "FAIL"
+
+
+# --- Codex P2 regressions ------------------------------------------------------
+
+
+def test_stale_checkpoint_identity_rejected(receipt_path, panel, tmp_path):
+    target = target_of(receipt_path, panel)
+    totals = compute_all(target, panel, tmp_path)
+    assert totals["variant-g"]["computed"] == 4
+
+    dest = tmp_path / "variant-g" / "anchor-2.json"
+    checkpoint = json.loads(dest.read_text())
+    checkpoint["path_id"] = "mp-someone-else"
+    dest.write_text(json.dumps(checkpoint))
+
+    totals = compute_all(target, panel, tmp_path)
+    assert totals["variant-g"]["computed"] == 1  # stale checkpoint recomputed
+    assert totals["variant-g"]["resumed"] == 3
+    restored = json.loads(dest.read_text())
+    assert restored["path_id"] == PATH_ID
+
+
+def test_subset_variants_never_reports_both_adoptable(receipt_path, panel, tmp_path):
+    target = target_of(receipt_path, panel)
+    rc.compute_variants(
+        target, panel, tmp_path, 0, ["variant-g"], fake_energy, log=lambda *_: None
+    )
+    report = rc.build_report(target, tmp_path, ["variant-g"], receipt_path, tmp_path)
+    assert report["variants"]["variant-g"]["adoptable"] is True
+    assert report["both_adoptable"] is None

@@ -301,6 +301,27 @@ def usable_variant_energy(checkpoint: dict | None) -> float | None:
     return float(energy)
 
 
+def checkpoint_identity_ok(
+    checkpoint: dict | None,
+    target: dict,
+    variant: str,
+    anchor_index: int,
+) -> bool:
+    """True only when the checkpoint provably belongs to this target/variant/
+    anchor with the params this run would execute — guards stale-workdir reuse."""
+    if checkpoint is None:
+        return False
+    if checkpoint.get("path_id") != target["path_id"]:
+        return False
+    if checkpoint.get("path_index") != target["path_index"]:
+        return False
+    if checkpoint.get("anchor_index") != anchor_index:
+        return False
+    if checkpoint.get("variant") != variant:
+        return False
+    return checkpoint.get("gpaw_params") == params_json(variant_params(variant))
+
+
 def variant_record(
     target: dict,
     variant: str,
@@ -371,7 +392,11 @@ def compute_variants(
         params = variant_params(variant)
         for anchor_index in target["anchor_indices"]:
             dest = anchor_checkpoint_path(workdir, variant, anchor_index)
-            if usable_variant_energy(up.read_checkpoint(dest)) is not None:
+            existing = up.read_checkpoint(dest)
+            if (
+                usable_variant_energy(existing) is not None
+                and checkpoint_identity_ok(existing, target, variant, anchor_index)
+            ):
                 totals[variant]["resumed"] += 1
                 continue
             free = up.available_memory_bytes()
@@ -445,7 +470,11 @@ def assemble_variant(target: dict, workdir: Path, variant: str) -> dict:
     for anchor_index in target["anchor_indices"]:
         anchor = target["anchors"][anchor_index]
         checkpoint = up.read_checkpoint(anchor_checkpoint_path(workdir, variant, anchor_index))
-        energy = usable_variant_energy(checkpoint)
+        energy = (
+            usable_variant_energy(checkpoint)
+            if checkpoint_identity_ok(checkpoint, target, variant, anchor_index)
+            else None
+        )
         if energy is None:
             missing.append(anchor_index)
         else:
@@ -501,7 +530,7 @@ def build_report(
     verdicts = [info["verdict"] for info in per_variant.values()]
     both_adoptable = (
         all(info["adoptable"] for info in per_variant.values())
-        if all(v != "incomplete" for v in verdicts)
+        if set(variants) == set(VARIANTS) and all(v != "incomplete" for v in verdicts)
         else None
     )
     return {
@@ -590,7 +619,10 @@ def dry_run(
             checkpoint = up.read_checkpoint(
                 anchor_checkpoint_path(workdir, variant, anchor_index)
             )
-            (done if usable_variant_energy(checkpoint) is not None else todo).append(
+            (done if (
+                usable_variant_energy(checkpoint) is not None
+                and checkpoint_identity_ok(checkpoint, target, variant, anchor_index)
+            ) else todo).append(
                 anchor_index
             )
         total_todo += len(todo)
