@@ -1,6 +1,8 @@
 import Mathlib.Data.Finset.Lattice.Fold
 import Mathlib.Data.Real.Basic
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Ring
+import OpenDistillationFactory.Materials.Theory.BarrierArrhenius
 
 /-!
 # Bounded transfer of reaction barriers (the T1 law)
@@ -33,6 +35,12 @@ for any finite sampled profile:
   underestimate by omission, which is why anchor placement near the predicted
   saddle is the entire game (preregistration
   `docs/plans/2026-07-20-sparse-dft-pilot-preregistration.md`).
+
+* `hopRate_le_exp_wander_mul` / `hopRate_ratio_le_exp_wander` — the kinetic
+  T1 corollary: under an offset-wander bound, Vineyard hop rates at the two
+  barriers differ by at most `exp(wander / kT)`. Convention wander becomes a
+  *bounded* kinetic amplification, priced in units of conductivity
+  (composed with `Theory.BarrierArrhenius`).
 
 Epistemic grade (per `UniversalCorrection.Empirical.Registry`): **pure
 mathematical** — no empirical premise; the hypotheses are pointwise bounds
@@ -148,5 +156,48 @@ theorem barrier_mono_subset {s t : Finset ι} {hs : s.Nonempty} {ht : t.Nonempty
     exact Finset.inf'_le (f := E) (hst hx)
   unfold barrier
   linarith
+
+/-- **The kinetic T1 corollary.** Under the same offset-wander bound, the
+Vineyard hop rate at the `g`-predicted barrier overestimates the rate at the
+`f`-predicted barrier by at most `exp(wander / kT)` — the convention wander
+becomes a *bounded* kinetic amplification, not an unknown one. This is the
+theorem that prices a T1-contaminated path in units of conductivity. -/
+theorem hopRate_le_exp_wander_mul {s : Finset ι} {hs : s.Nonempty} {f g : ι → ℝ}
+    {a b ν kT : ℝ} (hν : 0 < ν) (hkT : 0 < kT)
+    (ha : ∀ x ∈ s, a ≤ g x - f x) (hb : ∀ x ∈ s, g x - f x ≤ b) :
+    BarrierArrhenius.hopRate ν (barrier s hs g) kT
+      ≤ Real.exp ((b - a) / kT) * BarrierArrhenius.hopRate ν (barrier s hs f) kT := by
+  have hΔ : barrier s hs f - barrier s hs g ≤ -a - -b :=
+    barrier_sub_le_wander (f := g) (g := f) (a := -b) (b := -a)
+      (fun x hx => by have h := hb x hx; linarith)
+      (fun x hx => by have h := ha x hx; linarith)
+  have hbz : BarrierArrhenius.boltzmann (barrier s hs g) kT
+      ≤ BarrierArrhenius.boltzmann (barrier s hs f - (b - a)) kT :=
+    BarrierArrhenius.boltzmann_antitone hkT (by linarith)
+  have hfact : BarrierArrhenius.boltzmann (barrier s hs f - (b - a)) kT
+      = Real.exp ((b - a) / kT) * BarrierArrhenius.boltzmann (barrier s hs f) kT :=
+    BarrierArrhenius.boltzmann_error_factor (barrier s hs f) (b - a) kT
+  unfold BarrierArrhenius.hopRate
+  calc ν * BarrierArrhenius.boltzmann (barrier s hs g) kT
+      ≤ ν * (Real.exp ((b - a) / kT) * BarrierArrhenius.boltzmann (barrier s hs f) kT) := by
+        exact mul_le_mul_of_nonneg_left (le_trans hbz (le_of_eq hfact)) hν.le
+    _ = Real.exp ((b - a) / kT) * (ν * BarrierArrhenius.boltzmann (barrier s hs f) kT) := by
+        ring
+
+/-- The ratio form: rates at the two barriers differ by at most the proved
+exponential factor. -/
+theorem hopRate_ratio_le_exp_wander {s : Finset ι} {hs : s.Nonempty} {f g : ι → ℝ}
+    {a b ν kT : ℝ} (hν : 0 < ν) (hkT : 0 < kT)
+    (ha : ∀ x ∈ s, a ≤ g x - f x) (hb : ∀ x ∈ s, g x - f x ≤ b) :
+    BarrierArrhenius.hopRate ν (barrier s hs g) kT
+      / BarrierArrhenius.hopRate ν (barrier s hs f) kT
+      ≤ Real.exp ((b - a) / kT) := by
+  have hmul : BarrierArrhenius.hopRate ν (barrier s hs g) kT
+      ≤ Real.exp ((b - a) / kT) * BarrierArrhenius.hopRate ν (barrier s hs f) kT :=
+    hopRate_le_exp_wander_mul (f := f) (g := g) hν hkT ha hb
+  have hpos : 0 < BarrierArrhenius.hopRate ν (barrier s hs f) kT :=
+    BarrierArrhenius.hopRate_pos ν (barrier s hs f) kT hν
+  rw [div_le_iff₀ hpos]
+  exact hmul
 
 end OpenDistillationFactory.Materials.Theory.UniversalCorrection

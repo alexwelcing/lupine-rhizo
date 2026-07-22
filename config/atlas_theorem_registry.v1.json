@@ -302,6 +302,16 @@
       "facet": "theorist",
       "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_mono_subset",
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.hopRate_le_exp_wander_mul",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.hopRate_ratio_le_exp_wander",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
     }
   ]
 }
