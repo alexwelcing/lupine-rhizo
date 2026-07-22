@@ -9,7 +9,7 @@
   ],
   "authority": {
     "proof_repository": "lupine-science/open-distillation-factory",
-    "proof_revision": "bad604c13d9f4977bd2505362ec327b103fafe60",
+    "proof_revision": "e5f57eb0ad7192e41ad63a990efa083e2a3054a0",
     "lean_version": "4.29.0",
     "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
     "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
@@ -311,6 +311,11 @@
     {
       "facet": "theorist",
       "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.hopRate_ratio_le_exp_wander",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_barrier_of_extrema_mem",
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
     }
   ]

@@ -2,14 +2,14 @@
   "schema": "lupine.lean-build-evidence.v1",
   "schema_version": 1,
   "proof_repository": "lupine-science/open-distillation-factory",
-  "proof_revision": "bad604c13d9f4977bd2505362ec327b103fafe60",
+  "proof_revision": "e5f57eb0ad7192e41ad63a990efa083e2a3054a0",
   "lean_version": "4.29.0",
   "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
   "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
   "gates": {
     "lake_build": {
       "passed": true,
-      "command": "lake build",
+      "command": "lake build (skipped by flag)",
       "exit_code": 0
     },
     "zero_sorry": {
@@ -26,9 +26,849 @@
   },
   "modules": [
     {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain01",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain01.lean",
+      "source_hash": "144a84a344e0e2f8fbeddb2ee8e7f6958c1de9c46c094dcbfe1ffc9c86472eaa",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain01.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain01",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain01.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain01",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain02",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain02.lean",
+      "source_hash": "b469b4de388c29ac81e5f9937f7250e510705226081692463757d305fbc37210",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain02.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain02",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain02.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain02",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain03",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain03.lean",
+      "source_hash": "305cc10a9c58832d960820d4f47d4e4f01ea521cae7e86c8f448816730e096da",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain03.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain03",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain03.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain03",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain04",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain04.lean",
+      "source_hash": "9935d9b666d40147bb07a4b8a11a04864f6d96e5c4770a43440ba9e8ec81c197",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain04.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain04",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain04.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain04",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain05",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain05.lean",
+      "source_hash": "b84d22c13a54637bc7113ef4030c388bbb58897794c3cc7c507531945bcdbec1",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain05.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain05",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain05.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain05",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain06",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain06.lean",
+      "source_hash": "d4310541b99e902072744914b7595bcb3f5c967bd50e95ab705374d63f4dadce",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain06.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain06",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain06.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain06",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain07",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain07.lean",
+      "source_hash": "c3c09baa40c068bd1b3673b09de71d41e8fd36fc101e3ec1fa93da28e6475ae7",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain07.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain07",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain07.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain07",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain08",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain08.lean",
+      "source_hash": "5c7177d9c5d47d916a4a487073cbb974b75bd27d0856541728665b99af6b2688",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain08.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain08",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain08.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain08",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain09",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain09.lean",
+      "source_hash": "cd20ef4d13179080924b680dcb637c93918cc027d1bbe977c38dc5e9a4bd9ecb",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain09.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain09",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain09.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain09",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain10",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain10.lean",
+      "source_hash": "486c1089dfb9e6eb6584dc729717a44eae060c09308a5265f480ca04705ba53c",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain10.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain10",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain10.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain10",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Chain11",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Chain11.lean",
+      "source_hash": "f15c721262767b85b690a3904273590f30b4ed236bea319a17d27d5d6cc89417",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain11.contract_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain11",
+          "statement_hash": "50a33ef93e42b22c74276a18205cc072dab1ecdac3b5dec88ef81240526c8be6"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.Chain11.gate_clearance",
+          "namespace": "OpenDistillationFactory.DiscoveryChains.Chain11",
+          "statement_hash": "6469212d96ca592d7c14ccecfcc1afb3e8861ca75ca3379e17b6f3eeb503c5be"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains.Core",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Core.lean",
+      "source_hash": "9c0b005cea29c1059743d05da6c6b346d04048e81c89fa53dc8a5a7591c44c77",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.chainId_card",
+          "namespace": "OpenDistillationFactory.DiscoveryChains",
+          "statement_hash": "fb9b6bfd06469670ed1f66c1688f450535fc13bc1a7114b593bda081a37eea3a"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.acceptanceTestId_card",
+          "namespace": "OpenDistillationFactory.DiscoveryChains",
+          "statement_hash": "de3f8b904921fdc2aa8c4c49ed2171056ba408b29c70a6ea3144fc85b654c5ee"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.DiscoveryChains",
+      "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains.lean",
+      "source_hash": "a6970f8faf547eb643ccc0ac1beff520ab1f8b4ce5bc64776626f21bd64c4447",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.all_contracts_count",
+          "namespace": "OpenDistillationFactory.DiscoveryChains",
+          "statement_hash": "703e17a7838470ffc634a48eaca7ef986df95ae17a1e8c911695f5a69181a4db"
+        },
+        {
+          "name": "OpenDistillationFactory.DiscoveryChains.all_contracts_valid",
+          "namespace": "OpenDistillationFactory.DiscoveryChains",
+          "statement_hash": "5ed4b4ddc3bb3015dcaf854d323626b4d9285d97d2caa119063c060c8fbae30c"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.ErrorLandscape.Emblems",
+      "source_path": "lean-spec/OpenDistillationFactory/ErrorLandscape/Emblems.lean",
+      "source_hash": "563ff4d2ea49b5c4ea64aac28e7ffd0c741963ac5e75c19e8c55b8f2572483ad",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.Emblem.hasTypedClassification_eq_true",
+          "namespace": "OpenDistillationFactory.ErrorLandscape.Emblem",
+          "statement_hash": "0431b65aa964e21046d14fed0c3026553313ad52327ff2c26e14f3687e102b94"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.allEmblems_length",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "2350433634a4a87f41a524000b90a60bfca34afb0760e93f8b6f2717081b41a0"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.everyEmblem_hasTypedClassification",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "7d5e659c52033cb0132f23ca587a01636080fa24350fff032c7cbcdb9387f2ce"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.ErrorLandscape.MasterMatrix",
+      "source_path": "lean-spec/OpenDistillationFactory/ErrorLandscape/MasterMatrix.lean",
+      "source_hash": "e8596d8546dbb9bfb8339ae7a3d76da8521fe1ec95041474eb3d8b0e2af539ed",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.MasterMatrixRow.hasTypedClassification_eq_true",
+          "namespace": "OpenDistillationFactory.ErrorLandscape.MasterMatrixRow",
+          "statement_hash": "204b56282aa89898ebb7a191e44301f71aed931aae70fc3bf885fcadb3860100"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.masterMatrix_length",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "0dd716f4d1e1df94d78b9ec18b5ecd8f1a23b36f5fb52fd3c92ca91ed868d4a9"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.everyMasterRow_hasTypedClassification",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "f9dec33f10c322dcc5277df3e805f39b486edb2f0291309d02b37b2695103d76"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.batteries_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "6673e1bfb52a1c7aed9adc42dfe2d73a00f60168393c2cdb508d801e0916b1cb"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.magnets_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "400a21715cbebd19337a43eb0ae6fda2d3ef8dc5a95d18d9077a7bae35169219"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.catalysts_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "9bd71802e72836a8f4cf57049121bc63d62f04c8f7fa79e686331c518e9039c0"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.heas_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "a3a89dde58df7d5dc62fc85105eb5ca49c01054871debc54c12fd2c61d00f415"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.frameworks_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "a4c1e016cc0c58b1db50389747466866657a020906d193e036addd8a3cca0c08"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.semiconductors_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "c038c84941cceb7d064024c7edfd0f69ab93b3b13e4fb79148892a95c0298040"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.fusion_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "309c46adc958343e804a2638775033a5ffffc7933513581a4c9c53ba1a729dad"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.superconductors_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "53663cb30651adf07da96d207aa8004fd838d7306d8b4dd108ec68913fc2e743"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.correlatedOxides_row",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "61109a248a904ccf778c18728660b92346f44ba3f79e5028e786e5e155a2f8b0"
+        },
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.fusion_prediction_cell_is_empty",
+          "namespace": "OpenDistillationFactory.ErrorLandscape",
+          "statement_hash": "ce76fd06c8c6d0afaf75eefcc10d95cc75ed8daf96369d3289b5937d99836582"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.ErrorLandscape.Types",
+      "source_path": "lean-spec/OpenDistillationFactory/ErrorLandscape/Types.lean",
+      "source_hash": "8db02ed8ef62040c12da5c444509f4ea67d6fc721138134d2f5fbdefb80d479e",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.ErrorLandscape.ErrorClassification.primary_mem_tags",
+          "namespace": "OpenDistillationFactory.ErrorLandscape.ErrorClassification",
+          "statement_hash": "936a4b033211544c3071135e104101ca49889509f444028da3c7f213a452e619"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.ErrorLandscape",
+      "source_path": "lean-spec/OpenDistillationFactory/ErrorLandscape.lean",
+      "source_hash": "0aa9a6458595dee8472ad8b003a33e24d33e558292079a0093f7f9da905af460",
+      "built": true,
+      "theorems": []
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Acceptance",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Acceptance.lean",
+      "source_hash": "e32e3056d80165d8bf6dc06f445d1fdcfb8abd4915dd7f85dd8b58ad531f786b",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.evaluate_atMost_iff",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "9e04799c8704d80247e93b8ec7042cdbedd73c360e141b9692815b9e1a11de11"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.evaluate_atLeast_iff",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "cb3e9f45e4aca2f3295893d0782a588e7a66ff04f7749d123f72656f7d4e9a65"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.atMost_improvement_preserves_pass",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "15590284b4c195c1db3d2bf76f11ceeab300842465463f344ea99ff6d95b74b6"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.tighter_atMost_pass_implies_looser_pass",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "6b4511e5b2594c542f3db352fd50c4a12e937cbb105d253a25235d47d7c60fea"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/CorrectionBoundary.lean",
+      "source_hash": "f5f3d313143c47df44e77d895d2c073e1334dfc325f438642d73f48931dbfbc2",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMax_add_const",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "3afc59877420eef4adc9ebdd26e3ccaa875b29f9e17117d9955273d08d645d83"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMin_add_const",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "2eceeab382b0fcea7640f68ecee6f51c6252e5d952e580cfea37ea8273f68637"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_shift_invariant",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "fd8166e1637040758af701a353caa069069787511095f55a61c7710559164828"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_sub_le_wobble",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "1dd924f589b38996dc945e1aebde04ee9c2b17a1c2ded6064cfd7ab71992025a"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMax_neg",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "13cdfd1f11be766ce30c91a7dff9eaf9dffce29be8c8b7029d07ffa3203d9c3e"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMin_neg",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "31a0e85b4ddc7022190a1db7ec33c1583448018b82ba5c4aad6492b074f2ab5d"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.wobble_neg",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "071c611266a0a2d2b119d8e002497e3b3e6dd0b9049cec961c21baf7e2455d89"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_error_le_wobble",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "79c9c83254183737cd64ecbbe93b73e75bda963784dc42f46b4449ba6b2e1d55"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMax_pair",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "3584d0df2bd9dc836ad231979ea15b920f4dc2bc07fbff3aa631a980c46d5c81"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMin_pair",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "f630f295312c588d52dc66616e3610c9c4628cbc079cb994833f9723cad81235"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_pair",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "d6a794386302b30c2481e549c1054f27f076f362c2b30aec9d0c221100d6bdf8"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMax_triple",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "447d44be9aa4b5cd39d17c3e0ed0989542ffcefcce800e26ab74f609428531ee"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.profileMin_triple",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "5798e5fd08cdcc517bc56b79abc3e8dbfbfa447a22f24dcb9d3d977c93190090"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_triple",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "ebe472dd6b78aa154cee623215018671831ab8a564dd2552d59f7bae6bb52cc2"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_error_le_wobble_tight",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "7e6bb4f0e80025079817d2310a3145472f947e9dfdd659c7835b7d419116dc92"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.refScale_nonneg",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "c01f71bd1c7eeb366404477dc5ed709fa3eebd8c9bc2ca6c1d91ad460d1042d8"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.slope_correction_error_le",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "c867853b08a502d7bc4be4191f9b86d58bc50ae18f635268160a433fbf61a8dc"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.abs_sub_midrange_le",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "3ac851165df83d70de94a578f7ea93249b4a4c6317d99bded6515e51fa7f4247"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.slope_correction_error_le_midrange",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "427ca2befa0164dc0fc6d111793fc54808ef10e5392e750c3d0bc36c0a261a7e"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.slopeSpread_le_maxAbs_of_nonneg",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "4f09f39b9271a3a216184da8e3c130e0d6ec8917c1b9b30783ea9f6801b741e2"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.slopeSpread_le_maxAbs_of_nonpos",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "5c1394105d1000dbad4bc208271b52c26c9ef954110d5b1c806d3d7989965548"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.slope_correction_stable_of_one_sign",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "8039a75f0eb9b45d234d8827103fdf55057b3cc4113cfe915411173b35ab7367"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.barrier_error_le_raw_slope_certificate",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "05196cb74faa9137d12334ad6c24923cfb4af51a3410b5d19db4b0ef356f08c5"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.slope_instability_witness",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "8e636c96a9dae173f334034fed3d4c378763e4a6de27141e36faded705390355"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.wobble_anchor_deviation",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "92f02d504a9a81186e8abbb2e1d2e05f0af621162c9a4f59cacfb9e42b0fae7d"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.anchor_barrier_change_le",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "306fd2552e7bacca3a19c5517466bb417bf8b1675fa40f49fce4b89020f72700"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.anchor_impossibility_bound",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "c728b1e464480fa620ed2cf42aaa7021decf7016b6a974d72466350edb20ed90"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.anchor_wobble_lower_bound_refuted",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "1a498a88de41e0c0698b15395a1ed1327817128d2042c4b1c37b37aeda6afc2c"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.two_point_anchor_exact",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "fe2c1bae112486483f8ae2daac73d0c86f1b38ad8786b4c3cbe637f7742d75d0"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.CorrectionBoundary.two_point_anchor_exact_witness",
+          "namespace": "OpenDistillationFactory.HonestErrors.CorrectionBoundary",
+          "statement_hash": "b8f19d0e10f3f05d13b0629152c111f121445af96d6bc06da956950a5c3323d3"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Endpoint",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Endpoint.lean",
+      "source_hash": "a3976e6ddb56552d9cd6d9e5382d561ecc0aad369c226983bcf84cf694517355",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.evaluateEndpoint_pass_iff",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "38ee6ebdf784ee530ebeb6a020dc28ea3b218d172a997a7f5a37a314ac5d0322"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.invalid_specification_cannot_pass",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "d8991a812bc71377ffceddfb84ffe2105d68a55ca65801404744c247f20f3631"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.endpoint_binding_mismatch_cannot_pass",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "9d698f5be2f52e813e8681afc89f214a074574e0a772908c6ade64ef092a7aa5"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.dataset_mismatch_cannot_pass",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "ac5bb2fade9018defc3bab19acc8835d285f2f44143f9ae0c494bf3ecd16e662"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.missed_deadline_cannot_pass",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "48961bcbcdf3dbc2497bd5327f45b165331de2f9f68037ed718d4da23d3e1f19"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.endpoint_pass_implies_contract_match",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "048233cee2086473f169e8dac22ec4509180790320f91e0cc6ba29646f867d43"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.prior_entry_survives_append",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "ff1cde724587f09a84537aa6ac87d9f850e05fbddccfd37b3d42b14de6ed6d30"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.append_follow_on_preserves_prefix",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "0d3e64166eb68f0d761229bb53820d227d6323db5bb98f81aa4cd079c7ff864c"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.ErrorBudget",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/ErrorBudget.lean",
+      "source_hash": "6d5ed40bde6b7adb087e8161ac83772a02c4193d30a4b77cd7935f2fa01151b7",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.RealityBudget.abs_signedTotal_le_l1Radius",
+          "namespace": "OpenDistillationFactory.HonestErrors.RealityBudget",
+          "statement_hash": "fef100d5ee68297b81b3f016489f334f051c70e6f4777c47365d7554e01f5775"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.fidelity_plus_reference_bound",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "b3f4b5883fd51b0f28c9bff82ba7a8603f61e9e38e668fb16b9d0b7c5f89b7b4"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.zero_fidelity_can_have_reality_error",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "50394a3b3988d3459a6c89e588f0e7061d977153af4db9fe141f1a6d1c956750"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.same_mae_different_signed_bias",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "1a4637e2eaccd4a52aaa3a95f764b67dca98f73555a4bc9a06d51a2ba5723a9b"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Evidence",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Evidence.lean",
+      "source_hash": "c7da204f6b003a96e7f3313ea9ba3d2d2a24e6017f8578b6a8cfff52e9075317",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.evidenceGrade_card",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "d608415c1a6ebcc6a775aafbc13e5b9eaa5ff144c52035678dceab1e488f4da2"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.readiness_of_two_target_demonstrations",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "29b006fbe9cc62fffa5238fc7b60012354ac546db186f8d236c606bf5fd1098b"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.readiness_of_adjacent_evidence",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "73b95ed9ebb8b26b4a30381272c77b765cdf346ca1c23ce3b2d9146eaf3af3b8"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.readiness_of_one_target_demonstration",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "40a2fc0815587c6ac0f6a9733609d9bfc4817498461fbbfed51da22042f281e7"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.readiness_of_no_demonstration",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "ec55f8b35258174334fd83341c99267a9b2fa3b1f64f1fa757e59bc2791af703"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.medium_requires_conditional",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "d4e5d42b64788f9fb7f2b36f1eeac841ad99084fddf47a1fdafa91af3a8ece5d"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.low_requires_capability_first",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "b296e9bcbaaa8defb4349b32fc143ff0f124f973ce9485df8917f0e06be1cbdb"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.structurally_valid_requires_canonical_grammar",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "ec323b17e41522b348299d7f6d848bc9769c039cc2a28f6f4570b3f1c6bbc6ba"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.structurally_valid_requires_target_provenance",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "75b1f0b98769593b8a7ec8a19475decc25b51d8bad0290e79b23534d8adc9adf"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.structurally_valid_requires_classified_readiness",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "7c753f3f0e56a2c0ab5e5a2fe38fb4300cb7b62c6a3d17d4649ecbd5b2fb6e3c"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Kinetics.Arrhenius",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Kinetics/Arrhenius.lean",
+      "source_hash": "411e71b84dcb21149c37809afd45fe6deb2cc158bfd47b1f8eee70ce620271aa",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Kinetics.arrhenius_transport",
+          "namespace": "OpenDistillationFactory.HonestErrors.Kinetics",
+          "statement_hash": "de23c96c4945c4227d1fd0def8f58585daefe3e12afcea262fbe415635118323"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Kinetics.underestimate_factor_identity",
+          "namespace": "OpenDistillationFactory.HonestErrors.Kinetics",
+          "statement_hash": "9b8da13fe806ef656abd6b3c25eaca7f32c08d5ce74c5e50e94d8ac5a728bfc2"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Kinetics.positive_underestimate_factor_gt_one",
+          "namespace": "OpenDistillationFactory.HonestErrors.Kinetics",
+          "statement_hash": "eab7f5ff8d717e28ae43c48f4ac4954581ae8ae6d60d001ab2f5933657316e95"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Kinetics.positive_underestimate_increases_rate",
+          "namespace": "OpenDistillationFactory.HonestErrors.Kinetics",
+          "statement_hash": "1c2ba9a0684692daa196a712505c4736fe6128becd96f9f515ea313da5305bc4"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Kinetics.rate_factor_bounds_of_abs_barrier_error",
+          "namespace": "OpenDistillationFactory.HonestErrors.Kinetics",
+          "statement_hash": "4f2c19389dd449030ee32d8941b5bb54f7ad0c669512a59f5f6b93462bfedc73"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Response.Barrier",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Response/Barrier.lean",
+      "source_hash": "2c193b7b92d42fce248973e54bcf7f8925bd0cc06ef97fdb4f0911bbc3da7f20",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_exact",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "232223776b1ebc31c41304b7cd9dd3e92d0d3fde4f7def7b491a7b73e4fbf459"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_exact_of_min_saddle",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "fdaf3d3dabb53637d441c773200d46300f5553cecc772e8ba9724e30563895f4"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_vertical_error",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "cac4675f7b426191eef67edcac8a52ef920a3f7cd8b1f82cc9b6d1b82ee43068"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Response.BarrierToRate",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Response/BarrierToRate.lean",
+      "source_hash": "3e2141e91cf1ed92f41b360b3d6a65dbdb80a35688ac030ff4856d625d5ed158",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_arrhenius_exact",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "5cb623273014ec7cc4df89f7841a4fd3a600969057d6119a558e5b30610b0db1"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticBarrier_arrhenius_exact_of_min_saddle",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "1793b02a319cf1ac0746597a2681dafd4eb9a8d753ac52c05045cd509bf5f203"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Response.Quadratic",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Response/Quadratic.lean",
+      "source_hash": "09fd6bac3b13d0a9c9739e6936c655d752485b70b032be2c58a59b9794519dac",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadratic_stationary",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "89130fce248c28707eb7e7f7915f3a0fc33621480fd43d33614d8c1e72d77f38"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticCriticalValue_exact",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "5b27aa72e3c731c6e431919af3d2d992ea1715de7cb0969737646034418e7385"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.quadraticCriticalValue_zero",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "79e5d1b4f366c8bee1d3b497f9544f47ff100a3c2eaa1a4fa97a7328fe213d0e"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.vertical_error_exact",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "3c75ab506e26a890156bff17d13fa499e936fdbd474ea55cb50c480f49b292bb"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.normalized_vertical_error",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "399c4f819bb8dae943e833ac9c16e33df56ea9b948fd75208b6dea58d94e636b"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.stable_mode_correction_nonpos",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "0516d6f309946f913d15dbd6d3b3c9141e3d3aabd8e2e1c154c8e484093b793e"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.Response.unstable_mode_correction_nonneg",
+          "namespace": "OpenDistillationFactory.HonestErrors.Response",
+          "statement_hash": "ac133d547ba0cded0c4b1730e14f41acb4d9f12bdd24c19d8f4e05638a2235ad"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.StageGates",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/StageGates.lean",
+      "source_hash": "41c3b9461fd2eed000b9ce1c93bb54bf6d1b0aed12737e759c8cacab10baa043",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.clearedStatus_preserved_by_advance",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "b9d86309420c15432d00c483d9d7e29658aab67a3cd3aa4a84bce7a5d8f9c1b4"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.clears_preserved_by_advance",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "28f0444850e022022d3f97d733d0c228509df5e2a0d8978c12047bf72aa0eb15"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.one_open_gate_blocks_clearance",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "68cdb51d00d0637a1e3e9c1d3444fc2889b4a6838feb284ba44ae3dfc41c447c"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.one_untested_gate_blocks_clearance",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "d028ad6ca522967886df825a2f28edfd30ff26fc8d90f8807901973e581dfa33"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors.Taxonomy",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors/Taxonomy.lean",
+      "source_hash": "19f83bf7e633281c2ad760bd2029472fbc269d520aaa651f85fbd97c51694c56",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.HonestErrors.MetricValue.value_nonnegative",
+          "namespace": "OpenDistillationFactory.HonestErrors.MetricValue",
+          "statement_hash": "e7a3cb982b0bc8b7afa1979983d52f4c6061f6e90dcb5d303fb7ac49ee62e2ef"
+        },
+        {
+          "name": "OpenDistillationFactory.HonestErrors.errorAxis_card",
+          "namespace": "OpenDistillationFactory.HonestErrors",
+          "statement_hash": "de03fea956b6cb88e100a15115f8f8e7703b42496daa846f3559b183b4311421"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.HonestErrors",
+      "source_path": "lean-spec/OpenDistillationFactory/HonestErrors.lean",
+      "source_hash": "f133cc236dd30d4cbec7dd1117b3074dedf65b2e24cb2c5105951c192f6e9ff5",
+      "built": true,
+      "theorems": []
+    },
+    {
       "module": "OpenDistillationFactory.Materials.Analysis.Causal",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Analysis/Causal.lean",
-      "source_hash": "cb5bf677945b7748dea9e8c708b6ae4467fca5780d7829eff3ca9675edf55df6",
+      "source_hash": "6b15a013a8de2edb506843873dcf57f6ece8f794cca35eba67dcc8353f147424",
       "built": true,
       "theorems": [
         {
@@ -71,7 +911,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Analysis.Manifold",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Analysis/Manifold.lean",
-      "source_hash": "f10f4cde13f031f35dd9b3afde8cd879cfc6a96088baca8469ea3cd8ad90c213",
+      "source_hash": "8bd13a808b0d71ad42c786a3fcf1121205e9e4807cd30e75732ab60893d3b584",
       "built": true,
       "theorems": [
         {
@@ -134,14 +974,14 @@
     {
       "module": "OpenDistillationFactory.Materials.Analysis.Stats",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Analysis/Stats.lean",
-      "source_hash": "d90f804183d119b83f4062269c28a999c0c7572dc2af64eb9b31ea5cb107902e",
+      "source_hash": "227a2a31401430278884d5686436aa0e4d05eee51cef3a82ab3eca4abb7f6b2d",
       "built": true,
       "theorems": []
     },
     {
       "module": "OpenDistillationFactory.Materials.Computation.LammpsTrace",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Computation/LammpsTrace.lean",
-      "source_hash": "ae3bdeaa6bb04319cf1db8f095b14ab4c8618037037328335b3ec3e42f093291",
+      "source_hash": "3f0f53167fb0318dd61da3c967dc1dbe4c6ab5f650772a139b0e23e2e2a8fc9d",
       "built": true,
       "theorems": [
         {
@@ -164,7 +1004,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Data.Benchmark",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Data/Benchmark.lean",
-      "source_hash": "a3c41a65526a088e5fd4137643bcd6aa472fcd13d0f78573d6fe2c6c5fbde209",
+      "source_hash": "ae4c98e8b11ece11620dd80086acfc2b48c9ab27aa4d839cdf7af75b181fd000",
       "built": true,
       "theorems": [
         {
@@ -232,103 +1072,21 @@
     {
       "module": "OpenDistillationFactory.Materials.Data.EmpiricalParadox",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Data/EmpiricalParadox.lean",
-      "source_hash": "3ba556a039a3366c9b9c0ba88083d78ee3fccddee5f1d81d481935a0a1ed3d79",
+      "source_hash": "c8e6f58a335e00922057d8517c9218f0b95193458cfa651db5321f7ad5f325c1",
       "built": true,
       "theorems": []
     },
     {
       "module": "OpenDistillationFactory.Materials.Data.Provenance",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Data/Provenance.lean",
-      "source_hash": "ef461ee3774e5598819627b2c1360d394ae9982248edb0718e9d633a870d5418",
+      "source_hash": "3b94864876864fd0efd050b0dc0958e36cb70688c5f4adedd55edfe8fa66b000",
       "built": true,
       "theorems": []
     },
     {
-      "module": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
-      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/DirectionalCorrectionScheme.lean",
-      "source_hash": "a906ae74571d3af58bf20c24749aeed0f832e6c58a6907c516a4a3a39c558888",
-      "built": true,
-      "theorems": [
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.alpha_minimizes",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
-          "statement_hash": "64053990304f80fdb6e7e309bd1239ed1aeb9210e5d2f9d583a8ca0da1f72134"
-        },
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.correct_minimizes",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
-          "statement_hash": "8d5deee8b377e23fadbeb007d8c63be423dd63f26d44ae63d1acb6722e9f8713"
-        },
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.oracle_offset_zero_residual",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
-          "statement_hash": "fdf363db445f9b24d84df8013c4feab6ab924fc3b8b9b047e5a04e239489eee7"
-        },
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.class_aware_eq_global",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
-          "statement_hash": "254051dc3a4663f313d7d92d370f6d13e9de6e437245f1b02689f3a6f03e5cba"
-        }
-      ]
-    },
-    {
-      "module": "OpenDistillationFactory.Materials.Distillation.Extracted",
-      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/Extracted.lean",
-      "source_hash": "1210741495f78c1edf8701e7ce8bbd7e567504d7e570ddaa787e25db1906b7ed",
-      "built": true,
-      "theorems": [
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.Extracted.eam_shear_bound_zero",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.Extracted",
-          "statement_hash": "3fb4c906bd1e4012e4b7ca672a80ae725662608ab15d2881ea02b0ea4eee173f"
-        },
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.Extracted.eam_shear_bound_monotonic",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.Extracted",
-          "statement_hash": "a10c3a74e766d79c30cdd593449fdc5c5b4a5d0df968e5e9bfc3c7571ea6fa9b"
-        }
-      ]
-    },
-    {
-      "module": "OpenDistillationFactory.Materials.Distillation.Operator",
-      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/Operator.lean",
-      "source_hash": "3a4e0abed064f835fe8c701f7e3dbde098b4365a19d41f3680789ebc371a2013",
-      "built": true,
-      "theorems": [
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.predictShearError_zero",
-          "namespace": "OpenDistillationFactory.Materials.Distillation",
-          "statement_hash": "2de27957f84cfedb04598753ed86210a501332f4125b070abf74240991a9ff86"
-        }
-      ]
-    },
-    {
-      "module": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
-      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/ScalarBulkOperator.lean",
-      "source_hash": "0cdad39863432184450982b862aadbc4a16e0ae780272bc86b383286c16da655",
-      "built": true,
-      "theorems": [
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator.bulkModulus_correct",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
-          "statement_hash": "6f82af238f9ffeca08baeea49ba37d2e3cc57c219884c6eb6b67e521278fdfa0"
-        },
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator.fit_minimizes_bulkResidual",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
-          "statement_hash": "2dfeeaa70fe6b867c966883c69e00ed9d9196e59036ef2d2739ad59c0d436d28"
-        },
-        {
-          "name": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator.functional_shift_correct",
-          "namespace": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
-          "statement_hash": "520cadfe68ec1dca8787772b070b57a0207454f9d341178de9236da026e2e882"
-        }
-      ]
-    },
-    {
       "module": "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean",
-      "source_hash": "f8965e9c4d940968e84d9a649d1b7178bce6d59382a63d2ae1ea95aa600d1131",
+      "source_hash": "a2c150b4d7f0ab8d165d9b25de9dc81fcf844a5c5c4d0057dd7478a15ddc9f1b",
       "built": true,
       "theorems": [
         {
@@ -606,7 +1364,7 @@
     {
       "module": "OpenDistillationFactory.Materials.DistillAtlas.MPtrj_DFT",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/MPtrj_DFT.lean",
-      "source_hash": "95c8b31962ad5dd96627dc8f6e87b2f8b98412b90ec0e1e75345acda01488400",
+      "source_hash": "964cda542050adbe2ebd15cc3a8f3271636cada5536ec2a54666a0aa798fbd33",
       "built": true,
       "theorems": [
         {
@@ -674,7 +1432,7 @@
     {
       "module": "OpenDistillationFactory.Materials.DistillAtlas.Ni_EAM",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/Ni_EAM.lean",
-      "source_hash": "cdb04ea5f15282107f026c17aa4596f889d6d709954c621b33ed1c328460e8d4",
+      "source_hash": "4595dea1a11696a4a0aef725aeece82cc7913ca9093b74293f7d29e77a48cf82",
       "built": true,
       "theorems": [
         {
@@ -730,9 +1488,147 @@
       ]
     },
     {
+      "module": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/DirectionalCorrectionScheme.lean",
+      "source_hash": "e30596cfe7ffd604e7bb300312b7c2c23e513beac9ef8da91be24dcdad4c8612",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.alpha_minimizes",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "64053990304f80fdb6e7e309bd1239ed1aeb9210e5d2f9d583a8ca0da1f72134"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.correct_minimizes",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "8d5deee8b377e23fadbeb007d8c63be423dd63f26d44ae63d1acb6722e9f8713"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.oracle_offset_zero_residual",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "fdf363db445f9b24d84df8013c4feab6ab924fc3b8b9b047e5a04e239489eee7"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.class_aware_eq_global",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "254051dc3a4663f313d7d92d370f6d13e9de6e437245f1b02689f3a6f03e5cba"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.Materials.Distillation.Extracted",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/Extracted.lean",
+      "source_hash": "6327cbbe45a5813dfa0add3dea10b7d9eb413e8d9574805c6084796d0f3aa3ff",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.Extracted.eam_shear_bound_zero",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.Extracted",
+          "statement_hash": "3fb4c906bd1e4012e4b7ca672a80ae725662608ab15d2881ea02b0ea4eee173f"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.Extracted.eam_shear_bound_monotonic",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.Extracted",
+          "statement_hash": "a10c3a74e766d79c30cdd593449fdc5c5b4a5d0df968e5e9bfc3c7571ea6fa9b"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.Materials.Distillation.Operator",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/Operator.lean",
+      "source_hash": "6bd46190324f8c7b0b2bd141f6caf7b8cb1ee3c777c35de64997450634e70c03",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.predictShearError_zero",
+          "namespace": "OpenDistillationFactory.Materials.Distillation",
+          "statement_hash": "2de27957f84cfedb04598753ed86210a501332f4125b070abf74240991a9ff86"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/ScalarBulkOperator.lean",
+      "source_hash": "22f22f7c06a7f7d37c208f726ea7ca7f9ae1ff3db119aeeb415c19a0e18a69f7",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator.bulkModulus_correct",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
+          "statement_hash": "6f82af238f9ffeca08baeea49ba37d2e3cc57c219884c6eb6b67e521278fdfa0"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator.fit_minimizes_bulkResidual",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
+          "statement_hash": "2dfeeaa70fe6b867c966883c69e00ed9d9196e59036ef2d2739ad59c0d436d28"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator.functional_shift_correct",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.ScalarBulkOperator",
+          "statement_hash": "520cadfe68ec1dca8787772b070b57a0207454f9d341178de9236da026e2e882"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/SubspaceCorrectionScheme.lean",
+      "source_hash": "a15943167e97208f70b84d38e85d000d40bf7700e4b0a26de1ae71cbd15653b1",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme.correction_mem_subspace",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme",
+          "statement_hash": "29da048582036afd73535550d61e3aac121ee5246431e72a7707695c7623fc77"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme.correctedResidual_orthogonal",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme",
+          "statement_hash": "2ebb3dab3e3634e4e2797fb3e7bceb92fadedaa93bc49d2d81d3bfe0d89af9d0"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme.correct_minimizes",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme",
+          "statement_hash": "e694f40c4c958d86ed914e382cb8f09d747fc0b66c979ac3a8d88c39eca50bca"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme.no_harm",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme",
+          "statement_hash": "f45b6521d68f82bb040abf0b1234c80fc50752811d547437a90b0acae800cf92"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme.oracle_offset_zero_residual",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.SubspaceCorrectionScheme",
+          "statement_hash": "fdf363db445f9b24d84df8013c4feab6ab924fc3b8b9b047e5a04e239489eee7"
+        }
+      ]
+    },
+    {
+      "module": "OpenDistillationFactory.Materials.Distillation.UniversalCorrectionScheme",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Distillation/UniversalCorrectionScheme.lean",
+      "source_hash": "881370268975d26837425349da31271f1d9a689d5d6f4df5ff16046627915e1e",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.residual_eq",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "34a3fbe991d0b6ea94d756c434b9ad2d9b3d21996e16bdd72f4b4d68064f82eb"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.toSubspace_correctedResidual_eq",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "1e31a9de55c29b481cb3bf7e2072ea1e67fd0ae0d3ab341431a0da7a1474ead7"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme.directional_minimality_from_subspace",
+          "namespace": "OpenDistillationFactory.Materials.Distillation.DirectionalCorrectionScheme",
+          "statement_hash": "8d5deee8b377e23fadbeb007d8c63be423dd63f26d44ae63d1acb6722e9f8713"
+        }
+      ]
+    },
+    {
       "module": "OpenDistillationFactory.Materials.Elasticity.FCC",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Elasticity/FCC.lean",
-      "source_hash": "acf7781e2caea531260a1be94454820e0c7638d61ec07c9530f460240565876d",
+      "source_hash": "2330f7ae02a33bb913bb4e86f1efaee04ba591622b5665895388611d085e4f82",
       "built": true,
       "theorems": [
         {
@@ -750,7 +1646,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Mechanics.HallPetch",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Mechanics/HallPetch.lean",
-      "source_hash": "9c259a06c4f978bec661c5067da3fc28c050ebd7c5c574a4a49a15fbdaaf5db3",
+      "source_hash": "77f7a3395ca39f545b31e6529b22fc68cb4a814a2ae14885f8fd348da8c03950",
       "built": true,
       "theorems": [
         {
@@ -763,7 +1659,7 @@
     {
       "module": "OpenDistillationFactory.Materials.NeuralSymbolic.ChgnetShearBound",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/NeuralSymbolic/ChgnetShearBound.lean",
-      "source_hash": "3a452248dded9b797b8033a6e9232481896a61763af2afdb83b9a9032a871cf5",
+      "source_hash": "cd927cce357884dc38e087f9a9086949d65bd69fcd7e0d77079a9f0c0e7804f4",
       "built": true,
       "theorems": [
         {
@@ -781,7 +1677,7 @@
     {
       "module": "OpenDistillationFactory.Materials.NeuralSymbolic.Mace_mp_0ShearBound",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/NeuralSymbolic/Mace_mp_0ShearBound.lean",
-      "source_hash": "7da1a206c61912ece91ce3ab920740736906ad100ff0cb02cd09954ab5826214",
+      "source_hash": "077f8f3c923ed978c39360143e81386fe629532cec589233bb6d3b4a78056e30",
       "built": true,
       "theorems": [
         {
@@ -799,7 +1695,7 @@
     {
       "module": "OpenDistillationFactory.Materials.RegimeGate.Dominance",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/RegimeGate/Dominance.lean",
-      "source_hash": "57f85c6b18f7092f6a5212af63f3ee6c72ca024bd010d20062d7b809ced4ef0b",
+      "source_hash": "6a0a0afa8f9e129f4fda7749b9bcfcbad87ff07a9cbf74d3186815070e7a827b",
       "built": true,
       "theorems": [
         {
@@ -832,14 +1728,14 @@
     {
       "module": "OpenDistillationFactory.Materials.Scope.Validity",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Scope/Validity.lean",
-      "source_hash": "2ce7abdd3ba5767c8c57fd4b27b9020fdbb3d9c76d5758c648ad2808ed353040",
+      "source_hash": "d521d2f6015239c2fd120e98d87774d8e6944eabc41189b13b86e123bf74ea8b",
       "built": true,
       "theorems": []
     },
     {
       "module": "OpenDistillationFactory.Materials.Theory.AccuracyCommitment",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/AccuracyCommitment.lean",
-      "source_hash": "b97a012bb7d850504ffc0d99cb49e68c7cc199ed7baf6ba78a513d2d183086f9",
+      "source_hash": "48ff81f0ec916861eab11667a08dab97c2bb187f7da25952a0a76e9800bc4a7b",
       "built": true,
       "theorems": [
         {
@@ -905,9 +1801,37 @@
       ]
     },
     {
+      "module": "OpenDistillationFactory.Materials.Theory.ActiveSampling",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ActiveSampling.lean",
+      "source_hash": "cf50101fb8d75c99ad7c5b4758c3e6d774b4565c1a0c48e1bef65592de8cf1a4",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.ActiveSampling.exists_greedyChoice",
+          "namespace": "OpenDistillationFactory.Materials.Theory.ActiveSampling",
+          "statement_hash": "86804d348b972a23938e7e5de5fe650dfc9ff449711df434eb89171d2c332e36"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.ActiveSampling.greedy_minimizes_max_remaining",
+          "namespace": "OpenDistillationFactory.Materials.Theory.ActiveSampling",
+          "statement_hash": "1dbdd11fcfa974a291f0ae53c15962fae6d86e14de730d9c55089c7c94691a89"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.ActiveSampling.projection_norm_nonincreasing",
+          "namespace": "OpenDistillationFactory.Materials.Theory.ActiveSampling",
+          "statement_hash": "46ffb6bfacc4ac7d885d4d68a2a493ba9285aecfcfe8491557d72f767f883c9d"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.ActiveSampling.active_sampling_rank_bound",
+          "namespace": "OpenDistillationFactory.Materials.Theory.ActiveSampling",
+          "statement_hash": "94af2f7a66a127a16a89b5f1f9d79be0439f8d191c5754a86c495875042b3dc8"
+        }
+      ]
+    },
+    {
       "module": "OpenDistillationFactory.Materials.Theory.AffineDecomposition",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/AffineDecomposition.lean",
-      "source_hash": "2b227fea9a2a2c606b337f240f7c976a989aa59c5b8356ace7fe0b6e2ddd2765",
+      "source_hash": "b2466ec5306bd22a6151b54bb87ca25526b0fc74824cf56f31595738d99d6ca3",
       "built": true,
       "theorems": [
         {
@@ -970,7 +1894,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.AlloyResidualTransfer",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/AlloyResidualTransfer.lean",
-      "source_hash": "713cbd2d62ab4a742c58d95e46f6f2cc0b540c97b3d83d29a0ba77cbbedd256d",
+      "source_hash": "8a554635e934c685ec1dc4ca7636641ca39501f86def24d39faef72d1670a28b",
       "built": true,
       "theorems": [
         {
@@ -1108,7 +2032,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.AnchorBracket",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/AnchorBracket.lean",
-      "source_hash": "41801040eff43411bd81031f6a089ee7d5697ac4f77a2980c90c6a1c972a4ad7",
+      "source_hash": "c8ab7e37afe6e63b0397b0e7c890dc25e8b757fd7b988795f076305ee0edf0f3",
       "built": true,
       "theorems": [
         {
@@ -1406,7 +2330,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.AnchoredField",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/AnchoredField.lean",
-      "source_hash": "125b1bceeafe62186cff2357929859fba87618e641555226eb936a1c3351793b",
+      "source_hash": "19108626dc2dd713673e812a68a0de2e01981bf1b7da410f85541c0ee3604457",
       "built": true,
       "theorems": [
         {
@@ -1614,7 +2538,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.BarrierArrhenius",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/BarrierArrhenius.lean",
-      "source_hash": "fb3f9cfa7b8ac822baa6ac9c23cba22cde20182c223a450ebdcbdb89aa726e91",
+      "source_hash": "3ad65c696b3b9375f9da78ba2196ea7acf17d5dae8e7ce3eae0d95a1b375a13c",
       "built": true,
       "theorems": [
         {
@@ -1702,7 +2626,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ContextSpecificProof",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ContextSpecificProof.lean",
-      "source_hash": "38a0025ed3ee809c8e644515142bd6d1e423fa44c6ba958c353700bf16e282c4",
+      "source_hash": "e08b271ba2086adfab73b1fe01c835ea6195d8cc1ac8db1d88747010da3b1dd6",
       "built": true,
       "theorems": [
         {
@@ -1775,7 +2699,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ConvexProjection",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ConvexProjection.lean",
-      "source_hash": "6507abe736f367fe7fec240c5f6bb4dc92e4a799fa9588fed0e968525c3f8f67",
+      "source_hash": "3cd90f1b8379dd031f29e2318d4f7e130f1dbcec3d8cada4fc15eb43f105a2ea",
       "built": true,
       "theorems": [
         {
@@ -1798,7 +2722,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.DefectStability",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/DefectStability.lean",
-      "source_hash": "3db0bfa04782585bf43e93f8a91ea371f074dc9a3a47fc58858f4d3639d22749",
+      "source_hash": "b83e28a7a270a9513799e3504351df9600b194996c1e02695deec50a8454cdef",
       "built": true,
       "theorems": [
         {
@@ -1846,7 +2770,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.EnvironmentField",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/EnvironmentField.lean",
-      "source_hash": "85a31f84f6bf1eefd0f36026e25124b8c38ff26e475984296a11c9aa62c7b4f6",
+      "source_hash": "0f0a7c9165c4dbfe88f52d7319ac84ecff2c968eba5d1367547cfb94725511a4",
       "built": true,
       "theorems": [
         {
@@ -1944,7 +2868,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ErrorGeometry",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ErrorGeometry.lean",
-      "source_hash": "7aa2479ae94bcc1aa758a24917f0d679d664ec11aa88466baf1bcde0906a6ba3",
+      "source_hash": "997fb05cf632aba8ac234e922428d0b00184b66a9d638170bdee5a27b44f47e4",
       "built": true,
       "theorems": [
         {
@@ -2220,7 +3144,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.FiniteSampleConcentration",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/FiniteSampleConcentration.lean",
-      "source_hash": "70a5afc97e460e41992094305fc770f7613a157a3f11f921f2dc5b7e34fdcf63",
+      "source_hash": "f5e5a1f728295bcca3d967a04dfa7dd141effa242448793ad37c3e8638e3ee6c",
       "built": true,
       "theorems": [
         {
@@ -2258,7 +3182,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.HyperRibbon",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbon.lean",
-      "source_hash": "109292b216cb6ff05e44a37a4d2e1e0e37918ae560c243331972e13e0674e3ce",
+      "source_hash": "6d25f784b2a32af9c30ac4b50c5389b2d322561fa988fc62375250523d55a50d",
       "built": true,
       "theorems": [
         {
@@ -2281,7 +3205,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.HyperRibbonEmpirical",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbonEmpirical.lean",
-      "source_hash": "8be4bac9e255cf1e8a6529a9e0a78ce1952f3c366d58ad63713cefaacb14670e",
+      "source_hash": "d4d68b0e23c6448664d242dcb45a3e4c639cfda621b389e7f992a8f5dfd4233d",
       "built": true,
       "theorems": [
         {
@@ -2294,7 +3218,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.MetaScience",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/MetaScience.lean",
-      "source_hash": "943ede681977402edb2b47884131db215e10831510cee1708cf6804f2337b1d3",
+      "source_hash": "7d923d37c35e19325b36aabac2523f06c2418702e5b2838fd29e92242d2d81a7",
       "built": true,
       "theorems": [
         {
@@ -2327,7 +3251,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ParameterBound",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ParameterBound.lean",
-      "source_hash": "9a4e7f1f1face5923fc7dd73988392bf826a4b6b2829b07aa84ae96a23df8062",
+      "source_hash": "3214c6ee3838347db83eda07434b3f9f083e61c55dc235a31cd642d047973f81",
       "built": true,
       "theorems": [
         {
@@ -2470,7 +3394,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ProjectedRibbon",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ProjectedRibbon.lean",
-      "source_hash": "0483a66f57ef8553401d9a9224c1e4154f47bcc5b831a9d138affa616faa1b9e",
+      "source_hash": "fa38189ac7e4d012b8a227aa5c39229eeb2284b4d0e88b4901d348735c04cd23",
       "built": true,
       "theorems": [
         {
@@ -2523,7 +3447,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ProjectionLaw",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ProjectionLaw.lean",
-      "source_hash": "996cda54756e16e617238a399f224e209674713e4e82fc075d15aa4ac0e3e95b",
+      "source_hash": "119c271c0c6cd260a8dff74bef4aacd334c2a0865ca2abf5f8e27a264027ff28",
       "built": true,
       "theorems": [
         {
@@ -2551,7 +3475,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.RankingIntegrity",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/RankingIntegrity.lean",
-      "source_hash": "d726bb0111bcce33cc68295b22ff8f6ec5b6f8aefe3900a9d0600a56a2042649",
+      "source_hash": "325ece0bc812e7c956108fa9d1cc76cd1c1fc45ea1237d8feeea6020d6a67cde",
       "built": true,
       "theorems": [
         {
@@ -2604,7 +3528,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.RibbonProjection",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/RibbonProjection.lean",
-      "source_hash": "13f6b00c198f22a0a86667e2dacf33d9757f54345442102ec1faa89bd5b8723b",
+      "source_hash": "9993c4cc129a3eaae913b835b408e6d73eaca149cad3aef7361b1b54030ffd96",
       "built": true,
       "theorems": [
         {
@@ -2667,7 +3591,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.ScalingVolcano",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/ScalingVolcano.lean",
-      "source_hash": "3444aecdb6ca1c0093b7db92947eff5895c72ba51dc8ee9715236116e9a14aaf",
+      "source_hash": "ae533c1aef66f9b1bd311831f0fa23409da121b6b11122b1c3cef3ad2d8f1d64",
       "built": true,
       "theorems": [
         {
@@ -2730,7 +3654,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.SmoothProjection",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/SmoothProjection.lean",
-      "source_hash": "02055ae7e2554c3e5b1dd8d75f9848e775a1573e476ce18513e8cf89d6a4914f",
+      "source_hash": "9c80cc61e61831c7d2810fc5840e4a3f8286f0588042456f3499776cff6aa13d",
       "built": true,
       "theorems": [
         {
@@ -2768,7 +3692,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.SorptionStability",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/SorptionStability.lean",
-      "source_hash": "ba2ee370db26ec44e2f1a16e7e53d0438bd3432162775d898021a75a1b815d19",
+      "source_hash": "89c270b69696aee2c2843e4b17cb9ef9086ee0c393ba478928aa2c93669cb367",
       "built": true,
       "theorems": [
         {
@@ -2826,7 +3750,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.SpectrumBridge",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/SpectrumBridge.lean",
-      "source_hash": "2dd1086c5bad252db9226a1e8ce9240fa8289c5ea2e66c9b9894cad0843e44e9",
+      "source_hash": "c722668f00dbbd9194b31600d7082e7c6fd7dee0d7266a7e646f5fc2505c9ad4",
       "built": true,
       "theorems": [
         {
@@ -2869,7 +3793,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Aggregation",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Aggregation.lean",
-      "source_hash": "f952b772dfac684767a766c64db4e88d22cd6b73af9ac0539e912fca8c604801",
+      "source_hash": "0ae095e6ff61c1d5739e96e9817aa351f3b94304d77d3d33f4e78e2fd18ef35c",
       "built": true,
       "theorems": [
         {
@@ -2942,7 +3866,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Anchor",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Anchor.lean",
-      "source_hash": "3e1424eff5bdf0c9997f91982cc032054d5d93999ecd2f2e34b7cb372c6807a4",
+      "source_hash": "229d69b65355f6743709e91dc7a9dfcc5e9f5940c56b7f11d4eeee176f9cf066",
       "built": true,
       "theorems": [
         {
@@ -2990,7 +3914,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Attestation",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Attestation.lean",
-      "source_hash": "a87388fa629dd1b74eb1255d45f76dd0372a63028742895c17f7120393a71416",
+      "source_hash": "5d60de2f39066bbd91e08aae2200364a654d4a73bfe05734e86412e631a556c6",
       "built": true,
       "theorems": [
         {
@@ -3016,9 +3940,72 @@
       ]
     },
     {
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/BarrierTransfer.lean",
+      "source_hash": "df4363e0b9a9ce8bdd043afa5977bed911b5d8baf8734828ba807b44255eb7aa",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.sup_sub_sup_le",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "9e5fee75ee5e6fb37aad1900143a1b69433869db5cf0a713affe338ef31a9108"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.inf_sub_inf_le",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "6e23efda56e9e030ee463632ff513f457a9c479e070bd76414df74683c9bfe27"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_sub_le_wander",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "1ae1c7e5057cf41c3752876eace1009a322d6de9ad3cc1b4a586dbec97ef82ea"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.abs_barrier_sub_le_wander",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "ea90c36a88ee56c12d839906ae23d7190ae2a34b84b22e62b8fe8073f8accbd5"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_sub_le_two_eps",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "de2c79d94d61af4b57b79ff61f41ae482952586517a8276dee68851c0f7bedad"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_sub_eq_offset_sub",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "bd8a626dc0d6a5b38626798d9eda3f6aa3af448a7fd766037789a59d7da05587"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_mono_subset",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "4b3128f3a03bcf0955227191c2cbb7e03f5c2250b3c60d52d262edfa79c2c58f"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_barrier_of_extrema_mem",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "efe855f7a0be8ec8843c4a2d7622a1857739033be99779e0fffb2db016155538"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_barrier_of_extrema_mem_mono",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "0ed93d0da4cc61444ede5670370a5e669b01b524e13cc9dcea4d26803dca3f32"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.hopRate_le_exp_wander_mul",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "b01a05cdba0e5fd3b0ea1f05ca0f4bcfd043593ac8f50cb954e52803f86d6767"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.hopRate_ratio_le_exp_wander",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "90fad55b23a641e04e415ea1f739e775464d669f3998fbdcf96690bb43f6b7a6"
+        }
+      ]
+    },
+    {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.ColdStart",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/ColdStart.lean",
-      "source_hash": "cca46e35bac20fb26dd93ea22eb1bc7802c6816681d0173f29328bac01465d0c",
+      "source_hash": "7dc888acc903c71aa342f007ca58ada0e1ad797f8d23cc07b0fec7628e90ed15",
       "built": true,
       "theorems": [
         {
@@ -3041,7 +4028,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.CoordinationBridge",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/CoordinationBridge.lean",
-      "source_hash": "2fab89884c097723edf3ca7dba5e171effa3e0496e85fc024a0fce4291fff989",
+      "source_hash": "b5ac14c75f72eabc721303b3c8fde06e31c1ca0357b5927e8bb66fcc5ce25d13",
       "built": true,
       "theorems": [
         {
@@ -3074,7 +4061,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Descriptor",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Descriptor.lean",
-      "source_hash": "feabf96f3afb58cdf608beb83cbe3b3f20dd3e069fa2fc0ae0865e4f6d403ffc",
+      "source_hash": "26026ebe2c4d612be6dcd4aad5579b6f7857a392954c68a69fc6961c0ef8208e",
       "built": true,
       "theorems": [
         {
@@ -3132,7 +4119,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.FixedSampledLipschitz",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/FixedSampledLipschitz.lean",
-      "source_hash": "8cc9b630ac6521c3b06573a8922fe30aaf489c162a750213ac28605c615bb038",
+      "source_hash": "d54a8a1558aa192be85ed0d8b76db15801fdc509bc688686692709d06ced4b10",
       "built": true,
       "theorems": [
         {
@@ -3165,7 +4152,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Gate",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Gate.lean",
-      "source_hash": "93b0578d68f3591a796aec2b170bd827ab1587be835d9fd5051e67dbc1158daf",
+      "source_hash": "2537fdaa48419cd1b84d477cf6cf61498a71181c4051b255614449d0c8b2f1b6",
       "built": true,
       "theorems": [
         {
@@ -3203,7 +4190,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.NormedObservable",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/NormedObservable.lean",
-      "source_hash": "d7227dfd4095f92c4ad2e46e048b7fead3e45e3c383efea9fffa6b623b6519f3",
+      "source_hash": "e4ffacc4c2b0577fdc3ace88135e61f72b6d69e1e8ace41d79aa01c9f54e859a",
       "built": true,
       "theorems": [
         {
@@ -3226,7 +4213,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.NumericContract",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/NumericContract.lean",
-      "source_hash": "1601a23a1962b99ef081c42fa8ff539299a831f57e25a7d67d4f9b3fd1924545",
+      "source_hash": "ce8dc74b678842d97fa38d2ca237dd3caad3b21a1bbb97a3cc93bea1643da083",
       "built": true,
       "theorems": [
         {
@@ -3304,7 +4291,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Residual",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Residual.lean",
-      "source_hash": "6412285df30b5522c4d328e4e00169132f5702e6bef4e88a91d9bfc47d2250af",
+      "source_hash": "5f8c4a22d3d24c03cd314d261fce6a205b70edf25d037d0b05429cbda95525c4",
       "built": true,
       "theorems": [
         {
@@ -3337,7 +4324,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RobustRanking",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/RobustRanking.lean",
-      "source_hash": "de05e6055b42f01a5c8ce2dfbe283b601c029f84f2e522e5f1149b843d878ea1",
+      "source_hash": "b1d4b1d3261b1d8504861bf094af056b9cc8ad5f1fc3c589b575d816b73139d7",
       "built": true,
       "theorems": [
         {
@@ -3360,7 +4347,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/RuntimeContract.lean",
-      "source_hash": "97d400557a198ded64f0d875ee791df08a8dafdffdf5c06293e048ea7b2babba",
+      "source_hash": "4f524f89b068540c3e96ad13b8ab2e65d0bc812b0923662f16a8fd2574210606",
       "built": true,
       "theorems": [
         {
@@ -3408,7 +4395,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.ScalarEnvelope",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/ScalarEnvelope.lean",
-      "source_hash": "91744bc262422ebd5b6da670e8b500623bf726bae3205ef12c23c6fe103d795d",
+      "source_hash": "bf1bde755aeadfe4ce0bbf6793b39a47874b0dc86f1f3b8f45b7b7168bd20044",
       "built": true,
       "theorems": [
         {
@@ -3496,7 +4483,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Scope",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Scope.lean",
-      "source_hash": "054fdf434755b2a8b06e6f4d059d8fe097bacf730fc1aa68ee82d53268153cae",
+      "source_hash": "1ef681ebcc0db0ce3a071d1c78fd19a77850937e492aa998ead1d3850268143d",
       "built": true,
       "theorems": [
         {
@@ -3524,7 +4511,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.Smoothness",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/Smoothness.lean",
-      "source_hash": "0a556b04694509dcdb1e7883f98c7bf30dc204970d671c08b6d56af44c4e21de",
+      "source_hash": "5584db2b7e58d9d72e2d48f2a7c236e6f37c8c5108f8d2f3b8a0d252dc8440ce",
       "built": true,
       "theorems": [
         {
@@ -3537,7 +4524,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.TrajectoryValidation",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/TrajectoryValidation.lean",
-      "source_hash": "bccb0cae6aeb1cad573105c75fc7dfdca0ebe02973780ff81a1b036bb59e3d95",
+      "source_hash": "6924539accb892b63785224c8092f11943f3ee44df8fa8edc6571652ee188570",
       "built": true,
       "theorems": [
         {
@@ -3610,14 +4597,14 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection.lean",
-      "source_hash": "d51404681034a24e08f0ef1c50a48521c475baa2053256513ab2eea107b01f80",
+      "source_hash": "acffb80c3209579f7cc7a68cd6cc573efc72bc9bce725a627801a99157bfd09a",
       "built": true,
       "theorems": []
     },
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalityBridge",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalityBridge.lean",
-      "source_hash": "77d3fe083fede2ba29e83ec3e0f947ea161fcb27d42f3f34b76030521958ff08",
+      "source_hash": "3004019c81d8425b12122991c46cc99fca809573066644a2358f3a245b74507f",
       "built": true,
       "theorems": [
         {
@@ -3705,7 +4692,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.WeakAcceleration",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/WeakAcceleration.lean",
-      "source_hash": "a11d8c5ff5c2be34d7b171ec0dcdf001254fcc9a8ec018b3e3496fa37e81ae65",
+      "source_hash": "056a754c92dac7359ca8605208c49e2f673d24fb10b28db536e24e1bdef8675d",
       "built": true,
       "theorems": [
         {
@@ -3768,7 +4755,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.AnchorBracketCertificates",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/AnchorBracketCertificates.lean",
-      "source_hash": "a4ff0caefbcd345e1a15520f577b60ca3b1b4204fad930806be6c9313604f67b",
+      "source_hash": "7532ccec9bc8b22f4013a5faec95032763f586ab3de262535935619cfe5c3216",
       "built": true,
       "theorems": [
         {
@@ -3816,7 +4803,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.Audit",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/Audit.lean",
-      "source_hash": "e613a4822ad07db3629654489fe31db828725b0fb97953beba32587e3c0cefd1",
+      "source_hash": "fafd68f79315f1cd68429f82dffab00061341dc65720ec23dbd3f6dad3c72f1b",
       "built": true,
       "theorems": [
         {
@@ -3854,7 +4841,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.ClimatePortfolio",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/ClimatePortfolio.lean",
-      "source_hash": "02c2d7bb74e665b56362b4acc69d63b34198308f132309d32fa170688fddcff9",
+      "source_hash": "c790e5d1fa43e80c15f174d7133f44407b23e22e06d4fea38823f72c725e706d",
       "built": true,
       "theorems": [
         {
@@ -3912,7 +4899,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.ClimateSeries",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/ClimateSeries.lean",
-      "source_hash": "c0c58c3e4ee1420d84793a7f37131fcd13eaf51b82827b48284820216af6872e",
+      "source_hash": "1cc51c1be506c305193c8e5034814cf53a7a0cb10ed10152b99fec2012640427",
       "built": true,
       "theorems": [
         {
@@ -3970,7 +4957,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.EmpiricalBoundaryCertificates",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/EmpiricalBoundaryCertificates.lean",
-      "source_hash": "fb89ae6ccd567dfdb914100d4f33a8d9c478db48002c31914d193a9db57ac83b",
+      "source_hash": "3c35178e1f97d0d35d7fd010ce0a920a946851fbbfe8af8020caeaafffd2d7f6",
       "built": true,
       "theorems": [
         {
@@ -4103,7 +5090,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.Experiment",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/Experiment.lean",
-      "source_hash": "1c59cb24f047da448d476215cf30aa2eafc57ef775452551ba98d05e71d7a820",
+      "source_hash": "4413d490c18fa67f1f3a9d200a55e4772e54e810fa0f2e441e525f75b3bdfa1b",
       "built": true,
       "theorems": [
         {
@@ -4136,7 +5123,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.NonCO2ClimateConcerns",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/NonCO2ClimateConcerns.lean",
-      "source_hash": "7cbabb349f61fa44c399f51c5ee5b448bde1d3982d2aed27f14b736f8ad10c3f",
+      "source_hash": "c9e5dd8bbe875d181c777695ea769b8567fec153b40086cdc61fd921b12c34d5",
       "built": true,
       "theorems": [
         {
@@ -4189,7 +5176,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.RankGate",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/RankGate.lean",
-      "source_hash": "fdd505ccff02182a769531576061a405626bc45e6b4a0ae97506c3587d7cc2f5",
+      "source_hash": "2469651a7cbc65835e634fc747188c8b8d4af7e2cb3bbd4f5647cafbb789005e",
       "built": true,
       "theorems": [
         {
@@ -4217,7 +5204,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.UniversalCorrectionCertificates",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/UniversalCorrectionCertificates.lean",
-      "source_hash": "018776c27a8c300da9572442a528e410b77246b9c62de7061fb55a89309a481b",
+      "source_hash": "a077d4be4938b043f3003909ec89de398c53d384c0a1e37f3f60648e0add40cd",
       "built": true,
       "theorems": [
         {
@@ -4325,10 +5312,33 @@
     {
       "module": "OpenDistillationFactory.Materials.Vision",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Vision.lean",
-      "source_hash": "416552ddcfe8059937f967e1dc82d9f7e44937ee0baca43d727938b72e120818",
+      "source_hash": "8a35faac48b3f4d3caf0d2e51e1445fcb455d95d730ca08a216d55f06775a939",
       "built": true,
       "theorems": []
+    },
+    {
+      "module": "OpenDistillationFactory.UniversalCorrection.Empirical.Registry",
+      "source_path": "lean-spec/OpenDistillationFactory/UniversalCorrection/Empirical/Registry.lean",
+      "source_hash": "30934387953a72ed49df5e53bbe44b0f33ac309749df3f2ebb8f444793b20a84",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.UniversalCorrection.Empirical.deriving",
+          "namespace": "OpenDistillationFactory.UniversalCorrection.Empirical",
+          "statement_hash": "513e08847007111794cceddea72d160e105c9298449a8a37516eb3ccb0482ebc"
+        },
+        {
+          "name": "OpenDistillationFactory.UniversalCorrection.Empirical.z1_gate_refuted",
+          "namespace": "OpenDistillationFactory.UniversalCorrection.Empirical",
+          "statement_hash": "5dc8ed26bfa7b6b58f864656fc6e0d151d82c7566a9252f24f348ed9eae8f304"
+        },
+        {
+          "name": "OpenDistillationFactory.UniversalCorrection.Empirical.z3_gate_refuted",
+          "namespace": "OpenDistillationFactory.UniversalCorrection.Empirical",
+          "statement_hash": "cc5610454dcaa98efa522262627374cc73acf0c4654679bc3d15207647450322"
+        }
+      ]
     }
   ],
-  "manifest_hash": "05e77e7ce6b5f3a3d93f35479cc59595f82010dc34ede0c1b316e8686c8a835d"
+  "manifest_hash": "8a3c2866214bf41e804dd7c6895b8ac984ea6afc6a6f2403fc4e5e17cabc8eb3"
 }
