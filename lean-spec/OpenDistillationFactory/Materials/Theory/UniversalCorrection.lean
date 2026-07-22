@@ -15,6 +15,7 @@ import OpenDistillationFactory.Materials.Theory.UniversalCorrection.TrajectoryVa
 import OpenDistillationFactory.Materials.Theory.UniversalCorrection.RobustRanking
 import OpenDistillationFactory.Materials.Theory.UniversalCorrection.Aggregation
 import OpenDistillationFactory.Materials.Theory.UniversalCorrection.CoordinationBridge
+import OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer
 
 /-!
 # Universal correction assurance spine

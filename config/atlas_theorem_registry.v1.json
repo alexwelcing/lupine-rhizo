@@ -287,6 +287,21 @@
       "facet": "theorist",
       "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.correctionAllowed_checkRuntimeContract_iff",
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.RuntimeContract"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.abs_barrier_sub_le_wander",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_sub_eq_offset_sub",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_mono_subset",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
     }
   ]
 }
