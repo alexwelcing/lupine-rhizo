@@ -35,7 +35,7 @@ PROOF_REPOSITORY = "lupine-science/open-distillation-factory"
 # ATLAS_PROOF_REVISION environment variable, nor an explicit --proof-revision
 # override supplies one. The registry pin is the single source of truth:
 # re-pinning after a rebase or squash-merge is a one-file, reviewable change.
-FORMAL_PROOF_REVISION = "e5f57eb0ad7192e41ad63a990efa083e2a3054a0"
+FORMAL_PROOF_REVISION = "96bc0d96c4f1b941ad9659e5102974ce113f2ed5"
 LEAN_VERSION = "4.29.0"
 MATHLIB_REVISION = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
 ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
@@ -57,7 +57,7 @@ DEFAULT_ASSUMPTIONS_PATH = _REPO / "registry" / "assumptions.v1.json"
 DEFAULT_ASSUMPTIONS_LOCK_PATH = _REPO / "registry" / "snapshots" / "current.lock.json"
 DEFAULT_CLAIMS_PATH = _REPO / "registry" / "claims"
 DEFAULT_EVIDENCE_PATH = _REPO / "evidence" / "v1" / "examples"
-DEFAULT_THEOREM_BUILD_EVIDENCE_PATH = _REPO / "config" / "atlas_theorem_sync.e5f57eb.json"
+DEFAULT_THEOREM_BUILD_EVIDENCE_PATH = _REPO / "config" / "atlas_theorem_sync.96bc0d9.json"
 _HEX_64 = re.compile(r"^[0-9a-f]{64}$")
 _CONTENT_HASH = re.compile(r"^sha256:[0-9a-f]{64}$")
 _GIT_COMMIT = re.compile(r"^[0-9a-f]{40}$")

@@ -2,14 +2,14 @@
   "schema": "lupine.lean-build-evidence.v1",
   "schema_version": 1,
   "proof_repository": "lupine-science/open-distillation-factory",
-  "proof_revision": "e5f57eb0ad7192e41ad63a990efa083e2a3054a0",
+  "proof_revision": "96bc0d96c4f1b941ad9659e5102974ce113f2ed5",
   "lean_version": "4.29.0",
   "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
   "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
   "gates": {
     "lake_build": {
       "passed": true,
-      "command": "lake build (skipped by flag)",
+      "command": "lake build",
       "exit_code": 0
     },
     "zero_sorry": {
@@ -3942,7 +3942,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/UniversalCorrection/BarrierTransfer.lean",
-      "source_hash": "df4363e0b9a9ce8bdd043afa5977bed911b5d8baf8734828ba807b44255eb7aa",
+      "source_hash": "0e336adc8107054208a2524dc58b6d9065fc4ebe59c6014974ed5f8c92f158c0",
       "built": true,
       "theorems": [
         {
@@ -3989,6 +3989,11 @@
           "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_barrier_of_extrema_mem_mono",
           "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
           "statement_hash": "0ed93d0da4cc61444ede5670370a5e669b01b524e13cc9dcea4d26803dca3f32"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_deficit_le_lipschitz_cover",
+          "namespace": "OpenDistillationFactory.Materials.Theory.UniversalCorrection",
+          "statement_hash": "30b64a0251fd88c0138deddc10dde0a1dc31180cb779971d997c387927fa680d"
         },
         {
           "name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.hopRate_le_exp_wander_mul",
@@ -5340,5 +5345,5 @@
       ]
     }
   ],
-  "manifest_hash": "8a3c2866214bf41e804dd7c6895b8ac984ea6afc6a6f2403fc4e5e17cabc8eb3"
+  "manifest_hash": "0eb6ba151c325b8883e59799dcf0295822a3bb05531090c77718d78a0eac9104"
 }
