@@ -157,6 +157,44 @@ theorem barrier_mono_subset {s t : Finset ι} {hs : s.Nonempty} {ht : t.Nonempty
   unfold barrier
   linarith
 
+/-- **Extrema sufficiency (the union law).** Any sample set that contains an
+argmax and an argmin of the dense profile reproduces the dense barrier
+*exactly* — no approximation, no window tolerance. This is the formal basis of
+union anchoring: multiple models' predicted-extrema sets each aim at the true
+extrema, and their union covers every model's needs with one shared
+evaluation (measured: 558 naive vs 154 union anchors,
+`data/candidates/z1-union-anchor-economics.json`). -/
+theorem barrier_eq_barrier_of_extrema_mem {s t : Finset ι} {hs : s.Nonempty} {ht : t.Nonempty}
+    (hst : t ⊆ s) (E : ι → ℝ) {xm xn : ι} (hxm : xm ∈ t) (hxn : xn ∈ t)
+    (hmax : ∀ x ∈ s, E x ≤ E xm) (hmin : ∀ x ∈ s, E xn ≤ E x) :
+    barrier t ht E = barrier s hs E := by
+  have hsup : t.sup' ht E = s.sup' hs E := by
+    apply le_antisymm
+    · exact Finset.sup'_le (s := t) ht E (fun x hx => Finset.le_sup' (f := E) (hst hx))
+    · have h1 : E xm ≤ t.sup' ht E := Finset.le_sup' (f := E) hxm
+      have h2 : ∀ x ∈ s, E x ≤ t.sup' ht E := fun x hx => le_trans (hmax x hx) h1
+      exact Finset.sup'_le (s := s) hs E h2
+  have hinf : t.inf' ht E = s.inf' hs E := by
+    apply le_antisymm
+    · have h1 : t.inf' ht E ≤ E xn := Finset.inf'_le (f := E) hxn
+      have h2 : ∀ x ∈ s, t.inf' ht E ≤ E x := fun x hx => le_trans h1 (hmin x hx)
+      exact Finset.le_inf' (s := s) hs E h2
+    · exact Finset.le_inf' (s := t) ht E (fun x hx => Finset.inf'_le (f := E) (hst hx))
+  unfold barrier
+  rw [hsup, hinf]
+
+/-- The sparse-window corollary: if the true saddle region's argmax and argmin
+lie inside the sampled window, the sparse protocol's barrier IS the dense
+barrier — window error is then exactly zero, and the protocol's residual risk
+is purely *coverage* risk (an extremum outside the window), never evaluation
+error. -/
+theorem barrier_eq_barrier_of_extrema_mem_mono {s t : Finset ι} {hs : s.Nonempty} {ht : t.Nonempty}
+    (hst : t ⊆ s) (E : ι → ℝ) {xm xn : ι} (hxm : xm ∈ t) (hxn : xn ∈ t)
+    (hmax : ∀ x ∈ s, E x ≤ E xm) (hmin : ∀ x ∈ s, E xn ≤ E x) :
+    barrier t ht E = barrier s hs E ∧ barrier t ht E ≤ barrier s hs E :=
+  ⟨barrier_eq_barrier_of_extrema_mem hst E hxm hxn hmax hmin,
+   barrier_mono_subset hst E⟩
+
 /-- **The kinetic T1 corollary.** Under the same offset-wander bound, the
 Vineyard hop rate at the `g`-predicted barrier overestimates the rate at the
 `f`-predicted barrier by at most `exp(wander / kT)` — the convention wander
