@@ -42,6 +42,14 @@ for any finite sampled profile:
   *bounded* kinetic amplification, priced in units of conductivity
   (composed with `Theory.BarrierArrhenius`).
 
+* `barrier_deficit_le_lipschitz_cover` — the sparse-window coverage bound:
+  for an `L`-Lipschitz profile with every dense image within `d` of the
+  sparse set, the sparse deficit is at most `2Ld`. With
+  `barrier_mono_subset` (deficit ≥ 0) and `barrier_eq_barrier_of_extrema_mem`
+  (deficit = 0 when extrema are covered), the sparse protocol's error budget
+  is closed: placement risk is a covering-radius question, and it is the
+  only question.
+
 Epistemic grade (per `UniversalCorrection.Empirical.Registry`): **pure
 mathematical** — no empirical premise; the hypotheses are pointwise bounds
 supplied by the caller, never by this module.
@@ -194,6 +202,48 @@ theorem barrier_eq_barrier_of_extrema_mem_mono {s t : Finset ι} {hs : s.Nonempt
     barrier t ht E = barrier s hs E ∧ barrier t ht E ≤ barrier s hs E :=
   ⟨barrier_eq_barrier_of_extrema_mem hst E hxm hxn hmax hmin,
    barrier_mono_subset hst E⟩
+
+/-- **The sparse-window coverage bound.** If `E` is `L`-Lipschitz over the
+image metric and every densely-sampled image lies within distance `d` of the
+sparse set, then the sparse deficit is at most `2Ld`. Together with
+`barrier_mono_subset` (deficit is non-negative) and
+`barrier_eq_barrier_of_extrema_mem` (deficit vanishes when extrema are
+covered), this closes the sparse protocol's error budget: *placement* risk is
+a covering-radius question, and it is the only question. -/
+theorem barrier_deficit_le_lipschitz_cover {s t : Finset ι} {hs : s.Nonempty} {ht : t.Nonempty}
+    (E : ι → ℝ) {dist : ι → ι → ℝ} {L d : ℝ}
+    (hL0 : 0 ≤ L) (hsymm : ∀ x y, dist x y = dist y x)
+    (hL : ∀ x y, |E x - E y| ≤ L * dist x y)
+    (hcov : ∀ x ∈ s, ∃ y ∈ t, dist x y ≤ d) :
+    barrier s hs E - barrier t ht E ≤ 2 * L * d := by
+  have hsup : s.sup' hs E ≤ t.sup' ht E + L * d := by
+    refine Finset.sup'_le (s := s) hs E ?_
+    intro x hx
+    obtain ⟨y, hyt, hdy⟩ := hcov x hx
+    have h1 : E x ≤ E y + L * d := by
+      have h2 : |E x - E y| ≤ L * dist x y := hL x y
+      have h3 : L * dist x y ≤ L * d := mul_le_mul_of_nonneg_left hdy hL0
+      rw [abs_le] at h2
+      linarith
+    have h4 : E y ≤ t.sup' ht E := Finset.le_sup' (f := E) hyt
+    linarith
+  have hinf : t.inf' ht E ≤ s.inf' hs E + L * d := by
+    obtain ⟨x0, hx0s, hx0eq⟩ := Finset.exists_mem_eq_inf' (s := s) (H := hs) E
+    obtain ⟨y, hyt, hdy⟩ := hcov x0 hx0s
+    have h6 : t.inf' ht E ≤ E y := Finset.inf'_le (f := E) hyt
+    have h7 : E y ≤ E x0 + L * d := by
+      have h8 : |E y - E x0| ≤ L * dist y x0 := hL y x0
+      have h9 : dist y x0 = dist x0 y := hsymm y x0
+      have h10 : L * dist y x0 ≤ L * d := by
+        rw [h9]; exact mul_le_mul_of_nonneg_left hdy hL0
+      rw [abs_le] at h8
+      linarith
+    linarith
+  have hdef : barrier s hs E - barrier t ht E =
+      (s.sup' hs E - t.sup' ht E) + (t.inf' ht E - s.inf' hs E) := by
+    unfold barrier; ring
+  rw [hdef]
+  linarith
 
 /-- **The kinetic T1 corollary.** Under the same offset-wander bound, the
 Vineyard hop rate at the `g`-predicted barrier overestimates the rate at the
