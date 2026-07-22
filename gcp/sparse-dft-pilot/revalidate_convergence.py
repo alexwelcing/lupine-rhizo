@@ -117,6 +117,11 @@ VARIANTS: dict[str, dict] = {
         "description": "grid spacing h=0.20 (frozen: 0.18); all other settings frozen",
         "overrides": {"h": 0.20},
     },
+    "variant-gh": {
+        "label": "GH",
+        "description": "combined Gamma + h=0.20 (kpts=(1,1,1), h=0.20); all other settings frozen",
+        "overrides": {"kpts": (1, 1, 1), "h": 0.20},
+    },
 }
 
 

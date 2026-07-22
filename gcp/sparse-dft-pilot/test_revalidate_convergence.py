@@ -32,6 +32,8 @@ FROZEN_OFFSETS = {0: -0.010, 1: -0.008, 2: -0.002, 4: -0.012}
 # G: barrier moves +1 meV -> PASS. H: saddle image up 12 meV -> FAIL.
 G_SHIFTS = {0: +0.001, 1: -0.002, 2: +0.002, 4: 0.000}
 H_SHIFTS = {0: 0.000, 1: 0.000, 2: +0.012, 4: 0.000}
+# GH (combined): saddle up 2 meV net -> PASS.
+GH_SHIFTS = {0: +0.001, 1: -0.002, 2: +0.003, 4: 0.000}
 
 
 def frozen_energy(j: int) -> float:
@@ -47,6 +49,8 @@ def fake_energy(image_record: dict, params: dict) -> float:
     """Param-keyed fake GPAW; also pins the 'all other settings frozen' contract."""
     assert params["mode"] == "fd" and params["xc"] == "PBE" and params["txt"] is None
     j = image_record["image"]
+    if tuple(params["kpts"]) == (1, 1, 1) and params["h"] == 0.20:
+        return frozen_energy(j) + GH_SHIFTS[j]
     if tuple(params["kpts"]) == (1, 1, 1):
         assert params["h"] == 0.18
         return frozen_energy(j) + G_SHIFTS[j]
@@ -221,7 +225,8 @@ def test_compute_checkpoints_then_resume(receipt_path, panel, tmp_path):
     totals = compute_all(target, panel, tmp_path, counting)
     assert totals["variant-g"]["computed"] == 4
     assert totals["variant-h"]["computed"] == 4
-    assert len(calls) == 8
+    assert totals["variant-gh"]["computed"] == 4
+    assert len(calls) == 12
 
     checkpoint = json.loads((tmp_path / "variant-g" / "anchor-2.json").read_text())
     assert checkpoint["schema"] == rc.SCHEMA_ANCHOR
@@ -326,6 +331,13 @@ def test_barrier_math_and_verdicts(receipt_path, panel, tmp_path):
 
     assert report["both_adoptable"] is False
 
+    variant_gh = report["variants"]["variant-gh"]
+    assert variant_gh["complete"] is True
+    assert variant_gh["sparse_barrier_ev"] == pytest.approx(0.410)
+    assert variant_gh["delta_vs_frozen_mev"] == pytest.approx(+2.0)
+    assert variant_gh["verdict"] == "PASS"
+    assert variant_gh["adoptable"] is True
+
     # Per-anchor tables: every anchor row carries both energies and the shift.
     for info in report["variants"].values():
         assert [a["anchor_index"] for a in info["anchors"]] == ANCHORS
@@ -333,7 +345,7 @@ def test_barrier_math_and_verdicts(receipt_path, panel, tmp_path):
             assert anchor["status"] == "completed"
             assert anchor["variant_energy_ev"] is not None
             expected = (
-                G_SHIFTS if info["label"] == "G" else H_SHIFTS
+                {"G": G_SHIFTS, "H": H_SHIFTS, "GH": GH_SHIFTS}[info["label"]]
             )[anchor["anchor_index"]]
             assert anchor["shift_vs_frozen_mev"] == pytest.approx(expected * 1000.0)
 
@@ -371,7 +383,7 @@ def test_main_dry_run(receipt_path, tmp_path, monkeypatch, capsys):
     assert rc.main() == 0
     out = capsys.readouterr().out
     assert "todo=[0, 1, 2, 4]" in out
-    assert "8 GPAW evaluations to compute" in out
+    assert "12 GPAW evaluations to compute" in out
 
     target = target_of(receipt_path, make_panel())
     compute_all(target, make_panel(), workdir)
@@ -404,13 +416,14 @@ def test_main_real_run_then_assemble_only(receipt_path, tmp_path, monkeypatch, c
     ]
     monkeypatch.setattr(sys, "argv", argv)
     assert rc.main() == 0
-    assert len(calls) == 8
+    assert len(calls) == 12
 
     report = json.loads((workdir / "revalidation-report.json").read_text())
     assert report["schema"] == rc.SCHEMA_REPORT
     assert report["path_id"] == PATH_ID
     assert report["variants"]["variant-g"]["verdict"] == "PASS"
     assert report["variants"]["variant-h"]["verdict"] == "FAIL"
+    assert report["variants"]["variant-gh"]["verdict"] == "PASS"
     assert report["both_adoptable"] is False
     assert report["report_sha256"].startswith("sha256:")
     out = capsys.readouterr().out
