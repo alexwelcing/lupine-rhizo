@@ -11,8 +11,11 @@
 |---|---|---|---|---|
 | variant-g | kpts (2,2,2) → (1,1,1) Gamma-only | **−4.72 meV** | ≤5 meV | **PASS — adopt** |
 | variant-h | h 0.18 → 0.20 | **+0.40 meV** | ≤5 meV | **PASS — adopt** |
+| variant-gh | combined: kpts=(1,1,1) AND h=0.20 | **−4.36 meV** | ≤5 meV | **PASS — adopt** |
 
 Both loosenings are adopted for the Z1 union-anchor campaign on this panel: **kpts=(1,1,1), h=0.20**, all other settings frozen (fd mode, XC=PBE).
+
+**Process note (2026-07-21, recorded for the article):** the first version of this amendment adopted the combined profile from single-knob evidence only. Code review (Codex P1 on PR #77) caught that the interaction was never measured — correct. The union campaign was paused, `variant-gh` was added to the revalidation runner, and the combined profile now carries its own 4-anchor evidence (this table's third row, margin 0.64 meV, shift wander 12.4 meV). The review loop caught an invalid adoption ~40 minutes after it was written; the fix cost ~18 minutes of compute.
 
 ## A2.2 Mandatory disclosures (standing line items)
 

@@ -34,9 +34,9 @@
  "path_id": "mp-770939_10_1_1_0_1",
  "path_index": 7,
  "purpose": "one-path convergence-loosening revalidation (amendment \u00a7A4)",
- "recorded_at": "2026-07-21T23:17:27.383684+00:00",
+ "recorded_at": "2026-07-22T01:22:31.551738+00:00",
  "reference_barrier_ev": 0.3347178500000041,
- "report_sha256": "sha256:93af808d18c9a39c8ebf8f57524b6d7004590d874df050fa42655a282b856ded",
+ "report_sha256": "sha256:91604ebcd9caf8d89aa329d84bb5f1a4c3c288f632ada18a6242f953abce48b3",
  "schema": "lupine.z1.revalidation.report.v1",
  "short_path_fallback": true,
  "variants": {
@@ -100,6 +100,68 @@
    },
    "label": "G",
    "sparse_barrier_ev": 0.44879448303049685,
+   "verdict": "PASS"
+  },
+  "variant-gh": {
+   "abs_delta_vs_frozen_mev": 4.353840776161633,
+   "adoptable": true,
+   "anchors": [
+    {
+     "anchor_index": 0,
+     "frozen_energy_ev": -339.6436421257205,
+     "reference_energy_ev": -324.88751542,
+     "shift_vs_frozen_mev": -4097.854523826243,
+     "status": "completed",
+     "variant_energy_ev": -343.7414966495467
+    },
+    {
+     "anchor_index": 1,
+     "frozen_energy_ev": -339.53605480499886,
+     "reference_energy_ev": -324.8379344,
+     "shift_vs_frozen_mev": -4100.326157901122,
+     "status": "completed",
+     "variant_energy_ev": -343.6363809629
+    },
+    {
+     "anchor_index": 2,
+     "frozen_energy_ev": -339.19012055391545,
+     "reference_energy_ev": -324.57336965,
+     "shift_vs_frozen_mev": -4102.208364602404,
+     "status": "completed",
+     "variant_energy_ev": -343.29232891851785
+    },
+    {
+     "anchor_index": 4,
+     "frozen_energy_ev": -339.57424902897884,
+     "reference_energy_ev": -324.9080875,
+     "shift_vs_frozen_mev": -4110.2895077745525,
+     "status": "completed",
+     "variant_energy_ev": -343.6845385367534
+    }
+   ],
+   "anchors_evaluated": [
+    0,
+    1,
+    2,
+    4
+   ],
+   "anchors_missing": [],
+   "complete": true,
+   "delta_vs_frozen_mev": -4.353840776161633,
+   "description": "combined Gamma + h=0.20 (kpts=(1,1,1), h=0.20); all other settings frozen",
+   "gpaw_params": {
+    "h": 0.2,
+    "kpts": [
+     1,
+     1,
+     1
+    ],
+    "mode": "fd",
+    "txt": null,
+    "xc": "PBE"
+   },
+   "label": "GH",
+   "sparse_barrier_ev": 0.4491677310288651,
    "verdict": "PASS"
   },
   "variant-h": {
