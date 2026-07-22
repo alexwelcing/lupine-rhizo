@@ -15,12 +15,20 @@ from ase.io import read
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE_DIR = Path("/tmp/z2-c2db")
 DEFAULT_OUTPUT = ROOT / "data" / "candidates" / "z2_soc_tc_panel.lock.json"
+DEFAULT_PROVENANCE_OUTPUT = (
+    ROOT / "data" / "candidates" / "z2_soc_tc_panel.provenance.json"
+)
 SUPPLEMENT_URL = (
     "https://journals.aps.org/prresearch/supplement/10.1103/PhysRevResearch.3.043024/"
     "Supplementary-document.pdf"
 )
+SUPPLEMENT_PROVENANCE_URL = (
+    "https://journals.aps.org/prresearch/supplemental/10.1103/PhysRevResearch.3.043024/"
+    "Supplementary-document.pdf"
+)
 SUPPLEMENT_SHA256 = "e403103e413d1c240a668bca14d6ec62e1cc3ff117aa8126dc54ab16f2c48b8f"
 DOI = "10.1103/PhysRevResearch.3.043024"
+C2DB_MAE_METHOD_DOI = "10.1088/2053-1583/ab2c43"
 
 # J, Δ, and Tc are transcribed from published Supplemental Table 1. MAE xz/yz
 # is the C2DB PBE force-theorem reference attached to the mapped current UID.
@@ -198,10 +206,159 @@ def build(source_dir: Path) -> dict[str, Any]:
     }
 
 
+def provenance_entry(material: dict[str, Any]) -> dict[str, Any]:
+    reference = material["reference"]
+    uid = material["c2db_uid"]
+    mae_uncertainty = {
+        "kind": "source_display_rounding_proxy",
+        "plus_minus": 0.0005,
+        "confidence_level": None,
+        "physical_error_bar_available": False,
+        "scope_note": (
+            "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only "
+            "bounds transcription rounding and is not a DFT or model-form uncertainty."
+        ),
+    }
+    return {
+        "material_id": material["material_id"],
+        "formula": material["formula"],
+        "c2db_uid": uid,
+        "method_class": "published_high_level_theory",
+        "reference_values": {
+            "mca": {
+                "components": {
+                    "xz": reference["mae_xz_mev_per_cell"],
+                    "yz": reference["mae_yz_mev_per_cell"],
+                },
+                "unit": "meV/unit_cell",
+                "uncertainty": mae_uncertainty,
+            },
+            "tc": {
+                "values": reference["tc_k"],
+                "unit": "K",
+                "uncertainty": reference["uncertainty"],
+            },
+        },
+        "tc_exchange_source": {
+            "doi": DOI,
+            "url": f"https://doi.org/{DOI}",
+            "table": "Supplemental Table 1",
+            "row_key": material["material_id"],
+            "fields": [
+                "J [meV]", "Delta", "Tc (Green) [K]", "Tc (MC) [K]",
+                "Tc (RNSW) [K]", "S", "N_NN",
+            ],
+            "transcribed_values": {
+                "exchange_mev": reference["exchange_mev"],
+                "exchange_anisotropy": reference["exchange_anisotropy"],
+                "tc_k": reference["tc_k"],
+                "spin": material["spin"],
+                "nearest_neighbors": material["nearest_neighbors"],
+            },
+        },
+        "mae_source": {
+            "database": "Computational 2D Materials Database (C2DB)",
+            "url": f"https://c2db.fysik.dtu.dk/material/{uid}",
+            "doi": C2DB_MAE_METHOD_DOI,
+            "method": (
+                "PBE non-selfconsistent spin-orbit force theorem with the "
+                "xc-magnetic field aligned along x, y, and z"
+            ),
+            "fields": [
+                "Magnetic anisotropy energy, xz [meV/unit cell]",
+                "Magnetic anisotropy energy, yz [meV/unit cell]",
+            ],
+            "transcribed_values": {
+                "mae_xz_mev_per_cell": reference["mae_xz_mev_per_cell"],
+                "mae_yz_mev_per_cell": reference["mae_yz_mev_per_cell"],
+            },
+        },
+        "uncertainty": {
+            "tc_k": reference["uncertainty"],
+            "mae_mev_per_cell": mae_uncertainty,
+            "exchange_and_delta": {
+                "statistical_error_bar_available": False,
+                "scope_note": (
+                    "Supplemental Table 1 reports point estimates only. Source decimal places "
+                    "are preserved, but no confidence interval or physical uncertainty is inferred."
+                ),
+            },
+        },
+        "extraction_note": (
+            f"Matched Supplemental Table 1 row {material['material_id']} to current C2DB UID "
+            f"{uid}; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, "
+            "then transcribed the two PBE MAE fields from the mapped C2DB material page."
+        ),
+    }
+
+
+def build_provenance(panel: dict[str, Any], panel_digest: str, panel_path: Path) -> dict[str, Any]:
+    return {
+        "schema": "lupine.z2.soc_tc_provenance.v1",
+        "manifest_id": "z2-tiwari-c2db-soc-tc-provenance-v1",
+        "created_at": "2026-07-21T00:00:00Z",
+        "panel": {
+            "path": str(panel_path.relative_to(ROOT)),
+            "sha256": f"sha256:{panel_digest}",
+        },
+        "panel_scope": {
+            "reference_kind": "published_high_level_theory",
+            "material_count": len(panel["materials"]),
+            "easy_axis_classes": ["out_of_plane"],
+            "supports_two_class_discrimination": False,
+            "scope_note": (
+                "Tiwari et al. screened C2DB ferromagnets with positive out-of-plane exchange "
+                "anisotropy. This panel supports within-class MAE ranking and sign-flip detection, "
+                "not validation of discrimination between in-plane and out-of-plane classes."
+            ),
+            "physics_review": [
+                "Negative C2DB xz/yz values are retained exactly as published; under the C2DB "
+                "axis-difference convention they are consistent with a lower-energy z axis, not "
+                "a negative anisotropy magnitude.",
+                "The approximately 34 meV/unit-cell W2S4 anisotropy is unusually large but is "
+                "not converted or clipped because both independently displayed components agree "
+                "within 0.235 meV/unit cell.",
+                "Fe2F2 is metallic, and the Tc source explicitly treats its localized-spin "
+                "Heisenberg estimate as a rough first-level value.",
+            ],
+        },
+        "source_artifacts": {
+            "supplement": {
+                "title": "Computing Curie temperature of two-dimensional ferromagnets in the presence of exchange anisotropy",
+                "doi": DOI,
+                "url": SUPPLEMENT_PROVENANCE_URL,
+                "sha256": f"sha256:{SUPPLEMENT_SHA256}",
+                "locator": "Supplemental Table 1",
+            },
+            "c2db_mae_method": {
+                "title": "High throughput computational screening for 2D ferromagnetic materials: the critical role of anisotropy and local correlations",
+                "doi": C2DB_MAE_METHOD_DOI,
+                "url": f"https://doi.org/{C2DB_MAE_METHOD_DOI}",
+                "database": "https://c2db.fysik.dtu.dk/",
+            },
+        },
+        "uncertainty_policy": {
+            "tc": (
+                "Retain the published Green/MC/RNSW spread as a method envelope; the source "
+                "reports no statistical confidence intervals."
+            ),
+            "mae": (
+                "Retain a half-display-increment transcription proxy only; the C2DB page "
+                "reports no statistical or model-form uncertainty."
+            ),
+            "no_invented_error_bars": True,
+        },
+        "entries": [provenance_entry(material) for material in panel["materials"]],
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-dir", type=Path, default=DEFAULT_SOURCE_DIR)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--provenance-output", type=Path, default=DEFAULT_PROVENANCE_OUTPUT
+    )
     args = parser.parse_args()
     panel = build(args.source_dir)
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -209,7 +366,20 @@ def main() -> int:
     digest = sha256_file(args.output)
     sidecar = args.output.with_suffix(args.output.suffix + ".sha256")
     sidecar.write_text(f"{digest}  {args.output.name}\n", encoding="utf-8")
+    provenance = build_provenance(panel, digest, args.output)
+    args.provenance_output.parent.mkdir(parents=True, exist_ok=True)
+    args.provenance_output.write_text(
+        json.dumps(provenance, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    provenance_digest = sha256_file(args.provenance_output)
+    provenance_sidecar = args.provenance_output.with_suffix(
+        args.provenance_output.suffix + ".sha256"
+    )
+    provenance_sidecar.write_text(
+        f"{provenance_digest}  {args.provenance_output.name}\n", encoding="utf-8"
+    )
     print(f"wrote {len(panel['materials'])} materials to {args.output} ({digest})")
+    print(f"wrote provenance to {args.provenance_output} ({provenance_digest})")
     return 0
 
 

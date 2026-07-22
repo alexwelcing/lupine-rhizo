@@ -9,6 +9,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 PANEL = ROOT / "data" / "candidates" / "z2_soc_tc_panel.lock.json"
 SIDECAR = PANEL.with_suffix(PANEL.suffix + ".sha256")
+PROVENANCE = ROOT / "data" / "candidates" / "z2_soc_tc_panel.provenance.json"
+PROVENANCE_SIDECAR = PROVENANCE.with_suffix(PROVENANCE.suffix + ".sha256")
 MANIFEST = ROOT / "campaigns" / "v1" / "z2.campaign-manifest.v1.json"
 
 
@@ -24,6 +26,72 @@ def test_z2_panel_is_content_addressed_and_wired_to_campaign() -> None:
         "path": "data/candidates/z2_soc_tc_panel.lock.json",
         "sha256": f"sha256:{digest}",
     }
+
+
+def test_z2_provenance_manifest_is_locked_and_covers_every_panel_entry() -> None:
+    panel = load(PANEL)
+    provenance = load(PROVENANCE)
+    provenance_digest = hashlib.sha256(PROVENANCE.read_bytes()).hexdigest()
+    assert PROVENANCE_SIDECAR.read_text(encoding="utf-8").split()[0] == provenance_digest
+    assert provenance["panel"] == {
+        "path": "data/candidates/z2_soc_tc_panel.lock.json",
+        "sha256": f"sha256:{hashlib.sha256(PANEL.read_bytes()).hexdigest()}",
+    }
+    assert provenance["source_artifacts"]["supplement"]["doi"] == (
+        "10.1103/PhysRevResearch.3.043024"
+    )
+    assert provenance["source_artifacts"]["supplement"]["locator"] == (
+        "Supplemental Table 1"
+    )
+    assert provenance["source_artifacts"]["c2db_mae_method"]["doi"] == (
+        "10.1088/2053-1583/ab2c43"
+    )
+    entries = provenance["entries"]
+    assert {entry["material_id"] for entry in entries} == {
+        material["material_id"] for material in panel["materials"]
+    }
+    for entry in entries:
+        assert entry["method_class"] == "published_high_level_theory"
+        assert entry["reference_values"]["mca"]["unit"] == "meV/unit_cell"
+        assert set(entry["reference_values"]["mca"]["components"]) == {"xz", "yz"}
+        assert entry["reference_values"]["tc"]["unit"] == "K"
+        assert set(entry["reference_values"]["tc"]["values"]) == {
+            "green", "mc", "rnsw"
+        }
+        assert entry["tc_exchange_source"]["doi"] == "10.1103/PhysRevResearch.3.043024"
+        assert entry["tc_exchange_source"]["table"] == "Supplemental Table 1"
+        assert entry["mae_source"]["doi"] == "10.1088/2053-1583/ab2c43"
+        assert entry["mae_source"]["url"].startswith("https://c2db.fysik.dtu.dk/material/")
+        assert entry["mae_source"]["fields"] == [
+            "Magnetic anisotropy energy, xz [meV/unit cell]",
+            "Magnetic anisotropy energy, yz [meV/unit cell]",
+        ]
+        assert entry["uncertainty"]["tc_k"]["kind"] == "published_method_envelope"
+        assert entry["uncertainty"]["mae_mev_per_cell"] == {
+            "confidence_level": None,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": False,
+            "plus_minus": 0.0005,
+            "scope_note": (
+                "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only "
+                "bounds transcription rounding and is not a DFT or model-form uncertainty."
+            ),
+        }
+        assert (
+            entry["reference_values"]["mca"]["uncertainty"]
+            == entry["uncertainty"]["mae_mev_per_cell"]
+        )
+        assert (
+            entry["reference_values"]["tc"]["uncertainty"]
+            == entry["uncertainty"]["tc_k"]
+        )
+        assert entry["extraction_note"]
+
+
+def test_z2_provenance_discloses_easy_axis_class_limitation() -> None:
+    provenance = load(PROVENANCE)
+    assert provenance["panel_scope"]["easy_axis_classes"] == ["out_of_plane"]
+    assert provenance["panel_scope"]["supports_two_class_discrimination"] is False
 
 
 def test_z2_panel_has_seven_executable_published_reference_materials() -> None:
