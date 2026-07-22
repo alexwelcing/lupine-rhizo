@@ -179,7 +179,7 @@ def test_bound_theorem_requires_verified_build_evidence(tmp_path: Path) -> None:
     _write_content_addressed(claim_path, claim, "content_hash")
     _refresh_registry(tmp_path)
     build_evidence = json.loads(
-        (_REPO / "config" / "atlas_theorem_sync.e5f57eb.json").read_text(encoding="utf-8")
+        (_REPO / "config" / "atlas_theorem_sync.bf697f0.json").read_text(encoding="utf-8")
     )
     evidence_row = next(
         row for row in build_evidence["theorems"] if row["theorem_name"] == theorem["theorem_name"]
@@ -264,7 +264,7 @@ def test_at_least_rejects_duplicate_premise_references(tmp_path: Path) -> None:
 def test_theorem_build_evidence_rejects_duplicate_verified_rows(tmp_path: Path) -> None:
     assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
     build_evidence = json.loads(
-        (_REPO / "config" / "atlas_theorem_sync.e5f57eb.json").read_text(encoding="utf-8")
+        (_REPO / "config" / "atlas_theorem_sync.bf697f0.json").read_text(encoding="utf-8")
     )
     row = next(
         row for row in build_evidence["theorems"] if row["status"] == "verified"
@@ -288,7 +288,7 @@ def test_theorem_build_evidence_rejects_duplicate_verified_rows(tmp_path: Path) 
 def test_theorem_build_evidence_rejects_invalid_statement_hash(tmp_path: Path) -> None:
     assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
     build_evidence = json.loads(
-        (_REPO / "config" / "atlas_theorem_sync.e5f57eb.json").read_text(encoding="utf-8")
+        (_REPO / "config" / "atlas_theorem_sync.bf697f0.json").read_text(encoding="utf-8")
     )
     row = next(
         row for row in build_evidence["theorems"] if row["status"] == "verified"

@@ -9,7 +9,7 @@
   ],
   "authority": {
     "proof_repository": "lupine-science/open-distillation-factory",
-    "proof_revision": "e5f57eb0ad7192e41ad63a990efa083e2a3054a0",
+    "proof_revision": "bf697f0b619644d07659329c3997655622a7d668",
     "lean_version": "4.29.0",
     "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
     "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
@@ -316,6 +316,11 @@
     {
       "facet": "theorist",
       "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_barrier_of_extrema_mem",
+      "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_deficit_le_lipschitz_cover",
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
     }
   ]
