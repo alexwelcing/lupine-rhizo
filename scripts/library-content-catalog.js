@@ -1456,6 +1456,84 @@ export const CATALOG = {
         "provenance"
       ],
       "group": "savings-stack"
+    },
+    {
+      "id": "z1-union-campaign-verdict",
+      "source": "docs/analysis/z1-union-campaign-verdict.md",
+      "title": "Z1 Union Campaign — Verdict of Record (2026-07-24)",
+      "subtitle": "All four uMLIPs strong-win on the same-engine basis (≤15 meV) across 23 active paths; realized union economics 70.0% fewer evaluations (430 naive vs 129 executed), with the T1 wander map and law check.",
+      "category": "validation",
+      "tags": [
+        "z1",
+        "union-anchor",
+        "sparse-dft",
+        "campaign",
+        "verdict"
+      ],
+      "group": "mlip-flywheel",
+      "status": "supported"
+    },
+    {
+      "id": "z1-union-cost-ledger",
+      "source": "docs/analysis/z1-union-cost-ledger.md",
+      "title": "Z1 Union Campaign — Measured Cost Ledger (2026-07-24)",
+      "subtitle": "129 anchors in 61.0 wall-hours (mean 28.4 min/anchor), 244 vCPU-hours → $14.65 cloud-equivalent plus $0.60 local electricity, with per-path wall-hours.",
+      "category": "validation",
+      "tags": [
+        "z1",
+        "union-anchor",
+        "sparse-dft",
+        "economics",
+        "cost-ledger"
+      ],
+      "group": "mlip-flywheel",
+      "status": "supported"
+    },
+    {
+      "id": "t1-niggli-audit",
+      "source": "docs/analysis/t1-niggli-audit.md",
+      "title": "T1 Niggli Audit — Path-15 Cell-Representation Check (2026-07-24)",
+      "subtitle": "VALID: raw vs Niggli-reduced cells shift absolute energies ~39 eV but the barrier moves only 3.5 meV — the third recorded offset-cancellation instance; no anchor recomputation needed.",
+      "category": "validation",
+      "tags": [
+        "t1",
+        "niggli",
+        "audit",
+        "sparse-dft",
+        "offset-cancellation"
+      ],
+      "group": "mlip-flywheel",
+      "status": "supported"
+    },
+    {
+      "id": "t1-wander-mechanism",
+      "source": "docs/analysis/t1-wander-mechanism.md",
+      "title": "T1 Wander Mechanism — Metallic Saddles and SCF Fragility (2026-07-22)",
+      "subtitle": "Path-0 diagnostic: the GPAW↔VASP offset wander is intrinsic to metallic, near-zero-gap saddles rather than a settings artifact; the adopted settings are validated as converged on the worst-behaved path.",
+      "category": "references",
+      "tags": [
+        "t1",
+        "wander",
+        "gpaw",
+        "scf",
+        "metallic-saddle"
+      ],
+      "group": "mlip-flywheel"
+    },
+    {
+      "id": "t1-wander-gate",
+      "source": "docs/analysis/t1-wander-gate.md",
+      "title": "T1 — The Convention-Wander Gate",
+      "subtitle": "Gate semantics for cross-engine barrier comparisons: |barrier_A − barrier_B| ≤ offset wander, so wander above the 40 meV gate downgrades a VASP-referenced verdict to convention-contaminated.",
+      "category": "references",
+      "tags": [
+        "t1",
+        "wander",
+        "gate",
+        "cross-engine",
+        "theorem-commons"
+      ],
+      "group": "mlip-flywheel"
     }
   ]
 };

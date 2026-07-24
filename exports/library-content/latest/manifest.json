@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-07-21T14:50:21.578Z",
+  "generatedAt": "2026-07-24T20:51:11.386Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "751b03ff310758c9f3e2e015252a38b74eceacaf",
+    "commit": "2ead4a1e2d9c3bd9e0dcc57efbb018f13168deaa",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1566,6 +1566,89 @@
         ],
         "group": "savings-stack",
         "originalSource": "lit-review/citation-verification-2026-07-21.md"
+      },
+      {
+        "id": "z1-union-campaign-verdict",
+        "source": "articles/docs/analysis/z1-union-campaign-verdict.md",
+        "title": "Z1 Union Campaign — Verdict of Record (2026-07-24)",
+        "subtitle": "All four uMLIPs strong-win on the same-engine basis (≤15 meV) across 23 active paths; realized union economics 70.0% fewer evaluations (430 naive vs 129 executed), with the T1 wander map and law check.",
+        "category": "validation",
+        "tags": [
+          "z1",
+          "union-anchor",
+          "sparse-dft",
+          "campaign",
+          "verdict"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "originalSource": "docs/analysis/z1-union-campaign-verdict.md"
+      },
+      {
+        "id": "z1-union-cost-ledger",
+        "source": "articles/docs/analysis/z1-union-cost-ledger.md",
+        "title": "Z1 Union Campaign — Measured Cost Ledger (2026-07-24)",
+        "subtitle": "129 anchors in 61.0 wall-hours (mean 28.4 min/anchor), 244 vCPU-hours → $14.65 cloud-equivalent plus $0.60 local electricity, with per-path wall-hours.",
+        "category": "validation",
+        "tags": [
+          "z1",
+          "union-anchor",
+          "sparse-dft",
+          "economics",
+          "cost-ledger"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "originalSource": "docs/analysis/z1-union-cost-ledger.md"
+      },
+      {
+        "id": "t1-niggli-audit",
+        "source": "articles/docs/analysis/t1-niggli-audit.md",
+        "title": "T1 Niggli Audit — Path-15 Cell-Representation Check (2026-07-24)",
+        "subtitle": "VALID: raw vs Niggli-reduced cells shift absolute energies ~39 eV but the barrier moves only 3.5 meV — the third recorded offset-cancellation instance; no anchor recomputation needed.",
+        "category": "validation",
+        "tags": [
+          "t1",
+          "niggli",
+          "audit",
+          "sparse-dft",
+          "offset-cancellation"
+        ],
+        "group": "mlip-flywheel",
+        "status": "supported",
+        "originalSource": "docs/analysis/t1-niggli-audit.md"
+      },
+      {
+        "id": "t1-wander-mechanism",
+        "source": "articles/docs/analysis/t1-wander-mechanism.md",
+        "title": "T1 Wander Mechanism — Metallic Saddles and SCF Fragility (2026-07-22)",
+        "subtitle": "Path-0 diagnostic: the GPAW↔VASP offset wander is intrinsic to metallic, near-zero-gap saddles rather than a settings artifact; the adopted settings are validated as converged on the worst-behaved path.",
+        "category": "references",
+        "tags": [
+          "t1",
+          "wander",
+          "gpaw",
+          "scf",
+          "metallic-saddle"
+        ],
+        "group": "mlip-flywheel",
+        "originalSource": "docs/analysis/t1-wander-mechanism.md"
+      },
+      {
+        "id": "t1-wander-gate",
+        "source": "articles/docs/analysis/t1-wander-gate.md",
+        "title": "T1 — The Convention-Wander Gate",
+        "subtitle": "Gate semantics for cross-engine barrier comparisons: |barrier_A − barrier_B| ≤ offset wander, so wander above the 40 meV gate downgrades a VASP-referenced verdict to convention-contaminated.",
+        "category": "references",
+        "tags": [
+          "t1",
+          "wander",
+          "gate",
+          "cross-engine",
+          "theorem-commons"
+        ],
+        "group": "mlip-flywheel",
+        "originalSource": "docs/analysis/t1-wander-gate.md"
       }
     ],
     "languages": {
@@ -2113,6 +2196,36 @@
       "bundleSource": "articles/lit-review/citation-verification-2026-07-21.md",
       "bytes": 2731,
       "sha256": "e5cf6774b1bb57a704d172ba86a3716ac9836117f86dfc0f1322f829d96a8721"
+    },
+    {
+      "source": "docs/analysis/z1-union-campaign-verdict.md",
+      "bundleSource": "articles/docs/analysis/z1-union-campaign-verdict.md",
+      "bytes": 3005,
+      "sha256": "51a6cf8681d156a5e68d2370417177b2cc64200f538306f4763c17dbc931435f"
+    },
+    {
+      "source": "docs/analysis/z1-union-cost-ledger.md",
+      "bundleSource": "articles/docs/analysis/z1-union-cost-ledger.md",
+      "bytes": 919,
+      "sha256": "feca0f96b52508960bc9106ecb73c3488c0563a2702823ddb29558fa41ac0ca4"
+    },
+    {
+      "source": "docs/analysis/t1-niggli-audit.md",
+      "bundleSource": "articles/docs/analysis/t1-niggli-audit.md",
+      "bytes": 1164,
+      "sha256": "5e03363b41a1504482e69512676f49bba409ab8706f329b20c9e76f88a4b4152"
+    },
+    {
+      "source": "docs/analysis/t1-wander-mechanism.md",
+      "bundleSource": "articles/docs/analysis/t1-wander-mechanism.md",
+      "bytes": 2958,
+      "sha256": "9e7ccca06cc85d67e572197465c151582b8036c6c10de4ad36b74df553e143ba"
+    },
+    {
+      "source": "docs/analysis/t1-wander-gate.md",
+      "bundleSource": "articles/docs/analysis/t1-wander-gate.md",
+      "bytes": 7746,
+      "sha256": "6d7d1dca33f49e4f5c57c020a4967999d6784c6bc558cc943ab6970cacabd954"
     }
   ]
 }
