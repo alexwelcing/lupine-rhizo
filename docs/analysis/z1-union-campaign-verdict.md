@@ -30,4 +30,4 @@ mean 952.3 meV, max 4542.4 meV; clean paths: path-27 only (33.5 meV). Largest: p
 
 ## Cost ledger (measured; detail in `z1-union-cost-ledger.md`)
 
-129 anchors, 61.0 wall-hours, mean 28.4 min/anchor → 244 vCPU-hours → **$14.65 cloud-equivalent**, $0.60 local electricity.
+129 anchors, 61.0 wall-hours, mean 28.4 min/anchor → 244 vCPU-hours → **\$14.65 cloud-equivalent**, \$0.60 local electricity.

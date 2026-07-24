@@ -2,8 +2,8 @@
 
 anchors: 129 | total wall: 61.0 h | mean anchor: 28.4 min
 
-vCPU-hours (4 threads): 244 | cloud-equivalent at $0.06/vCPU-h: $14.65
-local electricity (~65W @ $0.15/kWh): $0.60
+vCPU-hours (4 threads): 244 | cloud-equivalent at \$0.06/vCPU-h: \$14.65
+local electricity (~65W @ \$0.15/kWh): \$0.60
 
 per-path wall-hours:
 

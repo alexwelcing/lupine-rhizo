@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-07-24T20:39:16.633Z",
+  "generatedAt": "2026-07-24T20:51:11.386Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "469998dc2d46d7977bc0307d5e786a4361debcdf",
+    "commit": "2ead4a1e2d9c3bd9e0dcc57efbb018f13168deaa",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -2200,14 +2200,14 @@
     {
       "source": "docs/analysis/z1-union-campaign-verdict.md",
       "bundleSource": "articles/docs/analysis/z1-union-campaign-verdict.md",
-      "bytes": 3003,
-      "sha256": "9b022a1a6382f35c25712db5a103935ac1408aa1be18a996eb7f1ecfe008a119"
+      "bytes": 3005,
+      "sha256": "51a6cf8681d156a5e68d2370417177b2cc64200f538306f4763c17dbc931435f"
     },
     {
       "source": "docs/analysis/z1-union-cost-ledger.md",
       "bundleSource": "articles/docs/analysis/z1-union-cost-ledger.md",
-      "bytes": 915,
-      "sha256": "3cd2350fb21e47d4d25da7370d9f5d352c8d70a793a49cf511ea117f2f591dfd"
+      "bytes": 919,
+      "sha256": "feca0f96b52508960bc9106ecb73c3488c0563a2702823ddb29558fa41ac0ca4"
     },
     {
       "source": "docs/analysis/t1-niggli-audit.md",
