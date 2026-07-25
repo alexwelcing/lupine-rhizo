@@ -52,10 +52,10 @@ GOLDEN_PATHS = [16, 0, 14, 27]
 # commit that (re)builds the golden bundles; the pin test skips when no
 # bundles are committed yet.
 GOLDEN_DIGESTS = {
-    16: "00eb15530f15469e8c2cb840f4c34681ae324b0b4de0abb9ae36982e5af0a6be",
-    0: "a88aa06b3d22c683f8906e06fe24b75f5d01575f5232f4e912bb3f45d54cc2f1",
-    14: "261113841dcdff2f462af10c5bdf1798e84c7dd5ec688f4517d77a4e0f9264c5",
-    27: "71ca75cffa36d00ac7495caa95d9fe1817166c151627e1733c7cdced7bec99fd",
+    16: "4d1d80a8d54588eafefccb8076d69425d70ef694d12bef87c8e1b953bd9b8679",
+    0: "4a50ad948e12ebc770615f8a2aa7bfc925c8b3b877e6551576c30b46881f8b3e",
+    14: "f633c630ae916b26a29d7ec73dc14bc086f26ec2785f3bd26725e93809d96cba",
+    27: "ce4938689799af294301198f84fd3914d8de575f833a9b10d6ff43c876ee8ef9",
 }
 
 
