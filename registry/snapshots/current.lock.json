@@ -4,7 +4,7 @@
       "content_hash": "sha256:1707a3de9c8fe0b6ba395d530c98b79c2cb8d9f6f88a4fc99f36859290c62280"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:01cf8e7fd26400ec576481e6acdda0161a9e448883bf725fe3f09795ec4d07c7"
+      "content_hash": "sha256:6f04b53f1e029a44878fa37e79fe162d5578b68449949c14d8a0fd061bc680ed"
     }
   },
   "inputs": {
@@ -19,7 +19,7 @@
       },
       {
         "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
-        "content_hash": "sha256:986214ea2548cae50ad7319e9954bced2ffadcf99121e73bf0afb80d8c1934a6"
+        "content_hash": "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc"
       },
       {
         "campaign_id": "discovery.round-4.z3-adsorption.v1",

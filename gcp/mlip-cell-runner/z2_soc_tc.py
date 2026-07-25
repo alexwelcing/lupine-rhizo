@@ -280,6 +280,7 @@ class GPAWSpinEnergyEngine:
         self.soc_band_energy = soc_band_energy
         self.optimizer_factory = optimizer_factory
         self._relaxed: dict[str, Atoms] = {}
+        self._scalar_states: dict[tuple[str, str], tuple[Atoms, Any, float, np.ndarray]] = {}
 
     def _relaxed_atoms(self, material: dict[str, Any]) -> Atoms:
         material_id = str(material["material_id"])
@@ -301,14 +302,22 @@ class GPAWSpinEnergyEngine:
         self._relaxed[material_id] = atoms.copy()
         return atoms
 
-    def evaluate_ordering(self, material: dict[str, Any], ordering: str) -> dict[str, Any]:
+    def _scalar_state(
+        self, material: dict[str, Any], ordering: str
+    ) -> tuple[Atoms, Any, float, np.ndarray]:
         if ordering not in {"fm", "afm"}:
             raise ValueError(f"unsupported magnetic ordering: {ordering}")
+        cache_key = (str(material["material_id"]), ordering)
+        cached = self._scalar_states.get(cache_key)
+        if cached is not None:
+            return cached
         atoms = self._relaxed_atoms(material)
         indices = material["magnetic_atom_indices"]
         afm_signs = material["afm_signs"]
         moment = 2.0 * _finite(material.get("spin"), "material.spin")
-        magmoms = np.zeros(len(atoms), dtype=float)
+        # Preserve fixture-provided moments on nonmagnetic atoms; the ordering
+        # initialization is authoritative only for explicitly magnetic sites.
+        magmoms = np.asarray(atoms.get_initial_magnetic_moments(), dtype=float).copy()
         for position, atom_index in enumerate(indices):
             if not isinstance(atom_index, int) or not 0 <= atom_index < len(atoms):
                 raise ValueError("magnetic_atom_indices contains an invalid atom index")
@@ -319,6 +328,44 @@ class GPAWSpinEnergyEngine:
         atoms.set_initial_magnetic_moments(magmoms)
         calc = self.scalar_calculator_factory(atoms, ordering, self.protocol)
         scalar_total = _finite(self.scalar_energy(calc, atoms), "GPAW scalar total energy")
+        try:
+            final_magmoms = np.asarray(calc.get_magnetic_moments(atoms), dtype=float)
+        except (AttributeError, NotImplementedError, RuntimeError):
+            # SOC-only injected calculators may omit local moments. Keep the
+            # scalar state usable for direct SOC tests, but make screening fail
+            # closed rather than inventing retained moments.
+            final_magmoms = np.full(len(atoms), np.nan, dtype=float)
+        if final_magmoms.shape != (len(atoms),):
+            raise RuntimeError("GPAW returned invalid final local magnetic moments")
+        state = (atoms, calc, scalar_total, final_magmoms)
+        self._scalar_states[cache_key] = state
+        return state
+
+    def evaluate_screen(self, material: dict[str, Any]) -> dict[str, Any]:
+        """Run the mandatory scalar FM/AFM screen without evaluating SOC."""
+        fm_atoms, _, fm_energy, fm_moments = self._scalar_state(material, "fm")
+        afm_atoms, _, afm_energy, afm_moments = self._scalar_state(material, "afm")
+        indices = np.asarray(material["magnetic_atom_indices"], dtype=int)
+        initial = np.concatenate(
+            (
+                np.abs(fm_atoms.get_initial_magnetic_moments()[indices]),
+                np.abs(afm_atoms.get_initial_magnetic_moments()[indices]),
+            )
+        )
+        final = np.concatenate((np.abs(fm_moments[indices]), np.abs(afm_moments[indices])))
+        if not np.all(np.isfinite(final)):
+            raise RuntimeError("scalar backend did not provide finite final local moments")
+        if np.any(initial <= 0.0):
+            raise RuntimeError("magnetic-site initialization must be nonzero")
+        return {
+            "fm_scalar_energy_ev": fm_energy,
+            "afm_scalar_energy_ev": afm_energy,
+            "minimum_final_local_moment_muB": float(np.min(final)),
+            "moment_retention_fraction": float(np.mean(final / initial)),
+        }
+
+    def evaluate_ordering(self, material: dict[str, Any], ordering: str) -> dict[str, Any]:
+        _, calc, scalar_total, _ = self._scalar_state(material, ordering)
         scalar_band = _finite(
             self.soc_band_energy(calc, theta=0.0, phi=0.0, scale=0.0),
             "GPAW scalar band energy",
@@ -342,8 +389,17 @@ class GPAWSpinEnergyEngine:
             "scalar_total_energy_ev": scalar_total,
             "scalar_band_energy_ev": scalar_band,
             "soc_band_energies_ev": {"x": x_band, "y": y_band, "z": z_band},
-            "soc_method": "non-selfconsistent_force_theorem",
-            "geometry_method": "mlip_fire_relaxation",
+            "orientation_energies_ev": {
+                "x": x_energy,
+                "y": y_energy,
+                "z": z_energy,
+            },
+            "soc_method": self.protocol.get(
+                "soc_method", "non-selfconsistent_force_theorem"
+            ),
+            "geometry_method": self.protocol.get(
+                "geometry_method", "mlip_fire_relaxation"
+            ),
         }
 
 
@@ -352,12 +408,19 @@ def derive_spin_observables(
     fm: dict[str, Any],
     afm: dict[str, Any],
 ) -> dict[str, Any]:
-    """Derive J, B/J, signed MAE, and Tc from FM/AFM SOC energies.
+    """Derive J, Δ, signed MAE, and Tc from FM/AFM SOC energies.
 
     ``perpendicular_energy_ev`` is the z-axis force-theorem energy and
     ``parallel_energy_ev`` is the x-axis energy. For the nearest-neighbour
-    Hamiltonian used by Tiwari et al., the in-plane AFM-FM split measures J
-    and the out-of-plane split measures J+B. Therefore Δ=B/J.
+    anisotropic Heisenberg Hamiltonian used by Tiwari et al., the in-plane
+    AFM-FM split measures J_parallel and the out-of-plane split measures
+    J_perpendicular. The published mapping (Tiwari et al., Eq. 4c–4d) is
+
+        J = (J_parallel + J_perpendicular) / 2
+        Δ = (J_perpendicular - J_parallel) / (2 J)
+
+    Note this is NOT J = J_parallel with Δ = B/J — the earlier
+    implementation made exactly that error (reviewer-flagged twice).
     """
     spin = _finite(material.get("spin"), "material.spin")
     neighbors = material.get("nearest_neighbors")
@@ -369,12 +432,13 @@ def derive_spin_observables(
     afm_z = _finite(afm.get("perpendicular_energy_ev"), "AFM perpendicular energy")
     afm_x = _finite(afm.get("parallel_energy_ev"), "AFM parallel energy")
 
-    exchange_ev = (afm_x - fm_x) / factor
-    anisotropic_exchange_ev = ((afm_z - fm_z) - (afm_x - fm_x)) / factor
+    j_parallel_ev = (afm_x - fm_x) / factor
+    j_perpendicular_ev = (afm_z - fm_z) / factor
+    exchange_ev = (j_parallel_ev + j_perpendicular_ev) / 2.0
     exchange_mev = exchange_ev * 1000.0
     if exchange_mev <= 0:
         raise ValueError("derived nearest-neighbour exchange must be positive")
-    exchange_anisotropy = anisotropic_exchange_ev / exchange_ev
+    exchange_anisotropy = (j_perpendicular_ev - j_parallel_ev) / (2.0 * exchange_ev)
     tc = tc_estimates_k(
         exchange_mev=exchange_mev,
         exchange_anisotropy=exchange_anisotropy,
@@ -393,7 +457,9 @@ def derive_spin_observables(
         "formula": material.get("formula"),
         "status": "completed",
         "exchange_mev": exchange_mev,
-        "anisotropic_exchange_mev": anisotropic_exchange_ev * 1000.0,
+        "j_parallel_mev": j_parallel_ev * 1000.0,
+        "j_perpendicular_mev": j_perpendicular_ev * 1000.0,
+        "anisotropic_exchange_mev": (j_perpendicular_ev - j_parallel_ev) * 1000.0,
         "exchange_anisotropy": exchange_anisotropy,
         "mae_xz_mev_per_cell": mae_xz,
         "mae_yz_mev_per_cell": mae_yz,
@@ -551,3 +617,14 @@ def run_soc_tc_row(
         "fixture_contract": fixture_contract,
         "n_structures": len(panel["materials"]),
     }
+
+
+# The strict v1 fixture runner is kept separate from the legacy locked-panel
+# adapter above so already content-addressed Z2 campaign artifacts remain
+# readable while new executions use the fail-closed, no-placeholder contract.
+import z2_soc_tc_contract as _fixture_runner  # noqa: E402
+
+CellMeasurementError = _fixture_runner.CellMeasurementError
+load_fixture = _fixture_runner.load_fixture
+run_soc_tc_rows = _fixture_runner.run_soc_tc_rows
+validate_fixture = _fixture_runner.validate_fixture

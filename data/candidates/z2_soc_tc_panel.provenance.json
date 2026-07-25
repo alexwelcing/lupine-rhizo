@@ -677,7 +677,7 @@
   "manifest_id": "z2-tiwari-c2db-soc-tc-provenance-v1",
   "panel": {
     "path": "data/candidates/z2_soc_tc_panel.lock.json",
-    "sha256": "sha256:349e0520856e68a2a65907d41a550d1596dfac6ecd8a57c3b900ae41b8a64355"
+    "sha256": "sha256:7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8"
   },
   "panel_scope": {
     "easy_axis_classes": [

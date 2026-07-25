@@ -237,7 +237,7 @@
         }
       ],
       "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
-      "content_hash": "sha256:986214ea2548cae50ad7319e9954bced2ffadcf99121e73bf0afb80d8c1934a6",
+      "content_hash": "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc",
       "demotion_conditions": [
         {
           "action": "demote",
@@ -283,7 +283,7 @@
       "execution": {
         "candidate_panel": {
           "path": "data/candidates/z2_soc_tc_panel.lock.json",
-          "sha256": "sha256:349e0520856e68a2a65907d41a550d1596dfac6ecd8a57c3b900ae41b8a64355"
+          "sha256": "sha256:7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8"
         },
         "excluded_models_block_execution": false,
         "lane": "round4.available-models",

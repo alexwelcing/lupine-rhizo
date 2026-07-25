@@ -199,7 +199,7 @@ def build(source_dir: Path) -> dict[str, Any]:
             "gpaw_convergence_energy_ev": 1e-6,
             "gpaw_maximum_scf_iterations": 200,
             "tc_model": "Tiwari et al. Eq. (3) nearest-neighbour analytical fits",
-            "exchange_definition": "in-plane AFM-FM split gives J; out-of-plane split gives J+B; delta=B/J",
+            "exchange_definition": "Tiwari et al. Eq. (4c-4d): J=(J_parallel+J_perpendicular)/2; delta=(J_perpendicular-J_parallel)/(2J)",
             "failure_policy": "record failure without imputation",
         },
         "materials": [material_record(source_dir, source) for source in REFERENCES],

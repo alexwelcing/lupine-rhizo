@@ -105,7 +105,7 @@ def test_z2_panel_has_seven_executable_published_reference_materials() -> None:
         "sha256:e403103e413d1c240a668bca14d6ec62e1cc3ff117aa8126dc54ab16f2c48b8f"
     )
     assert panel["execution_protocol"] == {
-        "exchange_definition": "in-plane AFM-FM split gives J; out-of-plane split gives J+B; delta=B/J",
+        "exchange_definition": "Tiwari et al. Eq. (4c-4d): J=(J_parallel+J_perpendicular)/2; delta=(J_perpendicular-J_parallel)/(2J)",
         "failure_policy": "record failure without imputation",
         "geometry_force_convergence_ev_per_angstrom": 0.05,
         "geometry_maximum_steps": 200,

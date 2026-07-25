@@ -16,11 +16,11 @@ class ReferenceEnergyEngine:
         neighbors = material["nearest_neighbors"]
         exchange_ev = reference["exchange_mev"] / 1000.0
         delta = reference["exchange_anisotropy"]
-        # Tiwari et al. use Δ = B / J for the anisotropic Heisenberg
-        # Hamiltonian.  The in-plane AFM-FM split measures J; the
-        # out-of-plane split measures J + B.
+        # Tiwari et al. (Eq. 4c–4d): J = (J_parallel + J_perpendicular)/2,
+        # Δ = (J_perpendicular - J_parallel)/(2J). Inverting the mapping:
+        # J_parallel = J(1 - Δ), J_perpendicular = J(1 + Δ).
         j_perpendicular = exchange_ev * (1.0 + delta)
-        j_parallel = exchange_ev
+        j_parallel = exchange_ev * (1.0 - delta)
         fm_parallel = 0.0
         fm_perpendicular = reference["mae_xz_mev_per_cell"] / 1000.0
         if ordering == "fm":
@@ -228,3 +228,34 @@ def test_soc_tc_row_reuses_completed_checkpoint_predictions() -> None:
     assert result["metrics"]["measurement_complete"] is True
     assert result["score"] == pytest.approx(1.0)
     assert checkpoint.recorded == 0
+
+
+def test_tiwari_eq4_mapping_with_independent_axis_constants() -> None:
+    """Reviewer regression: independently specified J_parallel and J_perpendicular.
+
+    Tiwari et al. Eq. (4c-4d): J = (J_parallel + J_perpendicular)/2 and
+    Delta = (J_perpendicular - J_parallel)/(2J). With J_parallel = 5.0 meV and
+    J_perpendicular = 5.5 meV the correct answers are J = 5.25 meV and
+    Delta = 0.047619 — NOT J = 5.0 meV, Delta = 0.1 (the old wrong mapping).
+    """
+    spin = 1.0
+    neighbors = 2
+    factor = 2.0 * neighbors * spin**2  # 4.0
+    j_parallel_ev = 5.0 / 1000.0
+    j_perpendicular_ev = 5.5 / 1000.0
+
+    material = {
+        "spin": spin,
+        "nearest_neighbors": neighbors,
+        "lattice": "honeycomb",
+    }
+    fm = {"parallel_energy_ev": 0.0, "perpendicular_energy_ev": 0.0}
+    afm = {
+        "parallel_energy_ev": factor * j_parallel_ev,
+        "perpendicular_energy_ev": factor * j_perpendicular_ev,
+    }
+
+    prediction = derive_spin_observables(material, fm, afm)
+
+    assert prediction["exchange_mev"] == pytest.approx(5.25)
+    assert prediction["exchange_anisotropy"] == pytest.approx(0.047619047619047616)

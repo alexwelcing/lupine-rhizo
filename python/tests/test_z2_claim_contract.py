@@ -29,7 +29,7 @@ def test_z2_claim_contract_is_pending_and_targets_measurement_premise() -> None:
     assert claim["classification"] == {
         "intent": "confirmatory",
         "outcome": "pending",
-        "assurance": "provisional",
+        "assurance": "unsupported",
         "strength": "predictive",
     }
     assert [premise["premise_id"] for premise in claim["premises"]] == [
