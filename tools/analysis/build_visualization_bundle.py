@@ -61,7 +61,7 @@ from t1_wander import (  # noqa: E402
 )
 
 SCHEMA_ID = "lupine.visualization-bundle.v1"
-TOOL_VERSION = "1.0.0"
+TOOL_VERSION = "1.1.0"  # 1.1.0: verify dereferences series source pointers, derives verdicts from numeric errors, and revalidates diagnostic receipts; diagnostic source assets are digest-bound
 TOOL_PATH = "tools/analysis/build_visualization_bundle.py"
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -973,8 +973,16 @@ def build_diagnostics(
                 "energy_ev": energy_ev,
                 **parsed,
                 "source_assets": [
-                    {"filename": json_name, "media_type": "application/json"},
-                    {"filename": txt_name, "media_type": "text/plain"},
+                    {
+                        "filename": json_name,
+                        "media_type": "application/json",
+                        "sha256": digest_id(sha256_file(json_path)),
+                    },
+                    {
+                        "filename": txt_name,
+                        "media_type": "text/plain",
+                        "sha256": digest_id(sha256_file(txt_path)),
+                    },
                 ],
             }
         )
@@ -1197,10 +1205,167 @@ def freeze_assets(
 
 # --- Verification -------------------------------------------------------------------------
 
-def _checks_from_stored(manifest: dict) -> list[str]:
+def _resolve_json_pointer(document, pointer: str):
+    """RFC 6901 resolution into a parsed JSON document."""
+    if pointer == "":
+        return document
+    if not pointer.startswith("/"):
+        raise BundleError(f"not a JSON pointer: {pointer!r}")
+    node = document
+    for raw in pointer.lstrip("/").split("/"):
+        token = raw.replace("~1", "/").replace("~0", "~")
+        if isinstance(node, list):
+            node = node[int(token)]
+        elif isinstance(node, dict):
+            node = node[token]
+        else:
+            raise BundleError(f"JSON pointer {pointer!r} walks through a scalar")
+    return node
+
+
+def _dereference_series_sources(manifest: dict, bundle_dir: Path, check) -> None:
+    """P1-1: every displayed series value must match its declared source bytes.
+
+    A resealed manifest that edits a series while leaving the frozen source
+    asset untouched is rejected here: the pointer is resolved into the frozen
+    asset and compared to the stored value.
+    """
+    assets_by_digest = {a["sha256"]: a for a in manifest["assets"]}
+    documents: dict[str, object] = {}
+    for series in manifest["series"]:
+        series_id = series["series_id"]
+        for i, pointer in enumerate(series["value_sources"]):
+            if pointer is None:
+                continue
+            if i >= len(series["values"]):
+                check(
+                    False,
+                    f"{series_id}: value_sources longer than values — "
+                    "trajectory/profile cardinality mismatch",
+                )
+                continue
+            asset = assets_by_digest.get(pointer["asset_sha256"])
+            if asset is None:
+                continue  # already reported as an unresolved source pointer
+            target = bundle_dir / asset["uri"]
+            if not target.is_file():
+                continue  # already reported as a missing asset
+            digest = pointer["asset_sha256"]
+            if digest not in documents:
+                try:
+                    documents[digest] = json.loads(target.read_bytes())
+                except (OSError, json.JSONDecodeError) as exc:
+                    check(False, f"{series_id}: source asset {asset['uri']} unreadable: {exc}")
+                    continue
+            try:
+                sourced = _resolve_json_pointer(documents[digest], pointer["json_pointer"])
+            except (KeyError, IndexError, ValueError, BundleError):
+                check(
+                    False,
+                    f"{series_id}: source pointer {pointer['json_pointer']} does not "
+                    f"resolve in frozen asset {asset['uri']}",
+                )
+                continue
+            check(
+                sourced == series["values"][i],
+                f"{series_id}: displayed value at image {i} "
+                f"({series['values'][i]!r}) does not match its declared source "
+                f"({sourced!r} at {pointer['json_pointer']})",
+            )
+
+
+def _verify_diagnostics(manifest: dict, bundle_dir: Path, check) -> None:
+    """P1-3: revalidate bound diagnostic receipts against the frozen assets.
+
+    Runs the same binding validation as the build: each run's parsed electronic
+    facts must re-parse from its digest-bound frozen receipts, and the adopted
+    run's energy must bind to the stored GPAW series at the diagnostic image.
+    """
+    diagnostics = manifest["diagnostics"]
+    if not isinstance(diagnostics, dict) or diagnostics.get("status") != "bound":
+        return
+    check(
+        manifest["path_index"] == DIAGNOSTIC_PATH_INDEX,
+        f"diagnostics bound for path {manifest['path_index']}; only path "
+        f"{DIAGNOSTIC_PATH_INDEX} may carry bound electronic diagnostics",
+    )
+    assets_by_digest = {a["sha256"]: a for a in manifest["assets"]}
+    gpaw = next(s for s in manifest["series"] if s["series_id"] == "gpaw_total_energy")
+    image_index = diagnostics["image_index"]
+    adopted_seen = False
+    for run in diagnostics["runs"]:
+        label = run.get("label", "?")
+        receipt_docs: dict[str, bytes] = {}
+        for source in run["source_assets"]:
+            asset = assets_by_digest.get(source.get("sha256"))
+            check(
+                asset is not None,
+                f"diagnostic {label}: source asset {source.get('sha256')} is not "
+                "a frozen bundle asset",
+            )
+            if asset is None:
+                continue
+            check(
+                asset["role"] == "electronic_diagnostic",
+                f"diagnostic {label}: source asset {asset['uri']} has role "
+                f"{asset['role']!r}, not electronic_diagnostic",
+            )
+            target = bundle_dir / asset["uri"]
+            if target.is_file():
+                receipt_docs[source["media_type"]] = target.read_bytes()
+        energy_doc = receipt_docs.get("application/json")
+        if energy_doc is not None:
+            try:
+                record = json.loads(energy_doc)
+            except json.JSONDecodeError as exc:
+                check(False, f"diagnostic {label}: energy receipt is not JSON: {exc}")
+                record = {}
+            check(
+                record.get("energy_ev") == run["energy_ev"],
+                f"diagnostic {label}: energy_ev {run['energy_ev']!r} does not match "
+                f"the frozen receipt ({record.get('energy_ev')!r})",
+            )
+            check(
+                record.get("params") == run["params"],
+                f"diagnostic {label}: params do not match the frozen receipt",
+            )
+        log_doc = receipt_docs.get("text/plain")
+        if log_doc is not None:
+            try:
+                parsed = parse_diagnostic_log(log_doc.decode("utf-8"))
+            except (BundleError, UnicodeDecodeError) as exc:
+                check(False, f"diagnostic {label}: log does not re-parse: {exc}")
+                parsed = None
+            if parsed is not None:
+                for key in ("gap_ev", "fermi_level_ev", "gpaw_version", "charge_e"):
+                    check(
+                        run.get(key) == parsed[key],
+                        f"diagnostic {label}: {key} {run.get(key)!r} does not "
+                        f"re-parse from the frozen log ({parsed[key]!r})",
+                    )
+                for key in ("scf", "spin", "occupations"):
+                    check(
+                        run.get(key) == parsed[key],
+                        f"diagnostic {label}: {key} does not re-parse from the frozen log",
+                    )
+        if str(label).startswith("adopted"):
+            adopted_seen = True
+            check(
+                gpaw["values"][image_index] == run["energy_ev"],
+                f"diagnostic {label}: adopted energy {run['energy_ev']!r} does not "
+                f"bind to the stored GPAW value at image {image_index} "
+                f"({gpaw['values'][image_index]!r})",
+            )
+    check(adopted_seen, "diagnostics: no adopted-settings run is bound")
+
+
+def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[str]:
     """Recompute every derived scalar from the manifest's stored arrays.
 
-    Returns a list of failure strings; empty means the bundle reproduces.
+    With bundle_dir (frozen-bundle verification), also dereference every series
+    source pointer against the frozen asset bytes and revalidate any bound
+    diagnostic receipts. Returns a list of failure strings; empty means the
+    bundle reproduces.
     """
     failures = []
 
@@ -1367,15 +1532,40 @@ def _checks_from_stored(manifest: dict) -> list[str]:
         "T1 offset series does not recompute",
     )
 
-    # Verdict label recompute.
+    # P1-2: verdicts are derived strictly from the stored numeric errors and
+    # the frozen 15/40 thresholds — never trusted from the recorded strings.
+    per_model_expected: dict[str, str] = {}
+    for model, same in gates["same_engine"]["per_model"].items():
+        expected_model_verdict = path_verdict(
+            same.get("same_engine_abs_error_mev"), same.get("complete", False)
+        )
+        per_model_expected[model] = expected_model_verdict
+        check(
+            same.get("verdict") == expected_model_verdict,
+            f"{model}: recorded verdict {same.get('verdict')!r} does not follow "
+            f"from the stored same-engine abs error "
+            f"{same.get('same_engine_abs_error_mev')!r} (expected "
+            f"{expected_model_verdict!r} under the frozen thresholds)",
+        )
     if not selection["per_model"]:
         expected_se = "no_guidance"
     else:
-        expected_se = max(
-            (m["verdict"] for m in gates["same_engine"]["per_model"].values()),
-            key=lambda v: VERDICT_RANK[v],
-        )
+        expected_se = max(per_model_expected.values(), key=lambda v: VERDICT_RANK[v])
     expected_label = f"{expected_se}_t1_{gate['verdict']}"
+    check(
+        gates["verdict"]["same_engine"] == expected_se,
+        f"recorded same-engine verdict {gates['verdict']['same_engine']!r} does "
+        f"not recompute from the stored numeric errors ({expected_se!r})",
+    )
+    check(
+        gates["verdict"]["t1"] == gate["verdict"],
+        "recorded T1 verdict does not recompute from the stored offset series",
+    )
+    check(
+        gates["verdict"]["cross_engine_contaminated"]
+        == (gate["verdict"] == VERDICT_CONTAMINATED),
+        "cross_engine_contaminated flag does not follow from the recomputed T1 verdict",
+    )
     check(
         gates["verdict"]["label"] == expected_label,
         f"verdict label {gates['verdict']['label']!r} does not recompute ({expected_label!r})",
@@ -1391,6 +1581,9 @@ def _checks_from_stored(manifest: dict) -> list[str]:
                 pointer["asset_sha256"] in asset_digests,
                 f"{series['series_id']}: source pointer {pointer['asset_sha256']} unresolved",
             )
+    if bundle_dir is not None:
+        _dereference_series_sources(manifest, bundle_dir, check)
+        _verify_diagnostics(manifest, bundle_dir, check)
     return failures
 
 
@@ -1451,7 +1644,7 @@ def verify_bundle(bundle_dir: Path) -> list[str]:
             ).split()[0] != hex_digest:
                 failures.append(f"asset {asset['uri']}: .sha256 sidecar missing/mismatched")
         try:
-            failures.extend(_checks_from_stored(manifest))
+            failures.extend(_checks_from_stored(manifest, bundle_dir))
         except Exception as exc:  # fail closed: a crashed recompute is a failure
             failures.append(f"stored-array recomputation error: {exc!r}")
     return failures

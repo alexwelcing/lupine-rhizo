@@ -327,6 +327,59 @@ def test_verify_rejects_corrupted_energy(tmp_path):
     assert any("barrier" in f or "wander" in f or "recompute" in f for f in failures), failures
 
 
+def test_verify_rejects_series_detached_from_source(tmp_path):
+    """Codex P1-1: a resealed manifest whose displayed series no longer matches
+    its frozen source bytes is rejected. The constant offset preserves model
+    extrema (and therefore every recomputed anchor set), so only dereferencing
+    the series' source pointers catches it."""
+
+    def mutate(manifest):
+        series = next(
+            s for s in manifest["series"] if s["series_id"] == "model_total_energy/chgnet"
+        )
+        series["values"] = [value + 0.5 for value in series["values"]]
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 16, mutate))
+    assert any("does not match its declared source" in f for f in failures), failures
+
+
+def test_verify_rejects_resealed_verdict_strings(tmp_path):
+    """Codex P1-2: per-model verdict strings and the aggregate label changed
+    together are re-derived from the stored numeric errors, not trusted."""
+
+    def mutate(manifest):
+        gates = manifest["quality_gates"]
+        for same in gates["same_engine"]["per_model"].values():
+            same["verdict"] = "loss"
+        gates["verdict"]["same_engine"] = "loss"
+        gates["verdict"]["label"] = "loss_t1_contaminated"
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 16, mutate))
+    assert any("verdict" in f for f in failures), failures
+
+
+def test_verify_rejects_diagnostic_fact_reseal(tmp_path):
+    """Codex P1-3: path-0 diagnostic electronic facts are re-parsed from the
+    frozen diagnostic receipts at verify time."""
+
+    def mutate(manifest):
+        manifest["diagnostics"]["runs"][0]["gap_ev"] = 0.5
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("gap_ev" in f for f in failures), failures
+
+
+def test_verify_rejects_diagnostic_energy_reseal(tmp_path):
+    """Codex P1-3: the adopted diagnostic energy must still bind to the frozen
+    receipt and to the stored GPAW image-3 value."""
+
+    def mutate(manifest):
+        manifest["diagnostics"]["runs"][0]["energy_ev"] += 0.25
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("energy" in f for f in failures), failures
+
+
 def test_verify_rejects_off_by_one_profile(tmp_path):
     def mutate(manifest):
         series = next(s for s in manifest["series"] if s["series_id"] == "gpaw_total_energy")

@@ -727,10 +727,11 @@
                 "items": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["filename", "media_type"],
+                  "required": ["filename", "media_type", "sha256"],
                   "properties": {
                     "filename": { "type": "string" },
-                    "media_type": { "type": "string" }
+                    "media_type": { "type": "string" },
+                    "sha256": { "$ref": "#/$defs/sha256id" }
                   }
                 }
               }
