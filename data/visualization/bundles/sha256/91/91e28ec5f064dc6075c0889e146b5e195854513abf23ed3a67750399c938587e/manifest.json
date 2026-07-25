@@ -89,7 +89,7 @@
       "uri": "assets/sha256/88/881ee797bda78f37bf37079c54d361f860718652aebb393978e7f6d8d305aacc.json"
     }
   ],
-  "bundle_id": "sha256:ce4938689799af294301198f84fd3914d8de575f833a9b10d6ff43c876ee8ef9",
+  "bundle_id": "sha256:91e28ec5f064dc6075c0889e146b5e195854513abf23ed3a67750399c938587e",
   "campaign_id": "z1-union-pilot",
   "campaign_sha256": "sha256:539ca24f3729b93aed2f6258c606ce888ff7df1c1be88f5fa2dc62f40731c05a",
   "campaign_version": "lupine.z1.union_pilot.campaign.v1",
@@ -2841,7 +2841,7 @@
       "status": "not_containerized",
       "value": null
     },
-    "git_commit": "7e8f3e84ccb885cf6819afb60bf79b17ea584b58",
+    "git_commit": "3953cbe40c6e7ecb1f2dc4cf7a5e87d69c96334c",
     "normalized_parameters": {
       "anchor_receipt_sha256": {
         "0": "sha256:8c5af579f73be8dd2bb993ca79a5abaa645cfdea94bc4f92b79fc25fe3847c30",
@@ -2858,7 +2858,7 @@
       "t1_gate_mev": 40.0
     },
     "tool": "tools/analysis/build_visualization_bundle.py",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "provenance": {
     "amendments": [
@@ -2889,7 +2889,7 @@
     },
     "preregistration": "docs/plans/2026-07-20-sparse-dft-pilot-preregistration.md",
     "source_revision": {
-      "converter_git_commit": "7e8f3e84ccb885cf6819afb60bf79b17ea584b58",
+      "converter_git_commit": "3953cbe40c6e7ecb1f2dc4cf7a5e87d69c96334c",
       "reference_dataset_revision": "c3ca5c2afbc13ffc823306f546dcee24486ade2a",
       "reference_source_archive_sha256": "b7a99d89337902e9e1da319f57547170fdb132bf15bf6ffef03a0140e2207d7f"
     }

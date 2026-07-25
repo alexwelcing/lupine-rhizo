@@ -137,7 +137,7 @@
       "uri": "assets/sha256/27/274e4bc491e59bca8f85da904e3b9ba48284232ade06b7448aa0c710e1950543.txt"
     }
   ],
-  "bundle_id": "sha256:4a50ad948e12ebc770615f8a2aa7bfc925c8b3b877e6551576c30b46881f8b3e",
+  "bundle_id": "sha256:c3da4be89ab2ea990c351491076408f434b4bea412b64e1fe0966e832a44401f",
   "campaign_id": "z1-union-pilot",
   "campaign_sha256": "sha256:539ca24f3729b93aed2f6258c606ce888ff7df1c1be88f5fa2dc62f40731c05a",
   "campaign_version": "lupine.z1.union_pilot.campaign.v1",
@@ -4505,11 +4505,13 @@
         "source_assets": [
           {
             "filename": "img3-adopted.json",
-            "media_type": "application/json"
+            "media_type": "application/json",
+            "sha256": "sha256:caf7835efa45864f52ce43a2fbab4d42b902d66f828e0952cbd47015f87e6bee"
           },
           {
             "filename": "img3-adopted.txt",
-            "media_type": "text/plain"
+            "media_type": "text/plain",
+            "sha256": "sha256:daf43609ecb6d7a082044b1dc23251b85c8798e3e37c5d62c209134bdd44d24e"
           }
         ],
         "spin": {
@@ -4545,11 +4547,13 @@
         "source_assets": [
           {
             "filename": "img3-h018.json",
-            "media_type": "application/json"
+            "media_type": "application/json",
+            "sha256": "sha256:e1f41587814cf0e99ba92ab16f303829588bbcb0165db770f46814ad6e38fdd2"
           },
           {
             "filename": "img3-h018.txt",
-            "media_type": "text/plain"
+            "media_type": "text/plain",
+            "sha256": "sha256:274e4bc491e59bca8f85da904e3b9ba48284232ade06b7448aa0c710e1950543"
           }
         ],
         "spin": {
@@ -4785,7 +4789,7 @@
       "status": "not_containerized",
       "value": null
     },
-    "git_commit": "7e8f3e84ccb885cf6819afb60bf79b17ea584b58",
+    "git_commit": "3953cbe40c6e7ecb1f2dc4cf7a5e87d69c96334c",
     "normalized_parameters": {
       "anchor_receipt_sha256": {
         "0": "sha256:7cba7f0ae91690c739ac58a0aed12cd4eff8f62c4824b39c4736c3eaf4cec62c",
@@ -4804,7 +4808,7 @@
       "t1_gate_mev": 40.0
     },
     "tool": "tools/analysis/build_visualization_bundle.py",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "provenance": {
     "amendments": [
@@ -4835,7 +4839,7 @@
     },
     "preregistration": "docs/plans/2026-07-20-sparse-dft-pilot-preregistration.md",
     "source_revision": {
-      "converter_git_commit": "7e8f3e84ccb885cf6819afb60bf79b17ea584b58",
+      "converter_git_commit": "3953cbe40c6e7ecb1f2dc4cf7a5e87d69c96334c",
       "reference_dataset_revision": "c3ca5c2afbc13ffc823306f546dcee24486ade2a",
       "reference_source_archive_sha256": "b7a99d89337902e9e1da319f57547170fdb132bf15bf6ffef03a0140e2207d7f"
     }
