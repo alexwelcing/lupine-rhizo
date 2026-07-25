@@ -1,7 +1,7 @@
 # Z2 spin-aware SOC/Tc runner contract
 
-Status: implementation contract  
-Schema: `lupine.z2.soc_tc_fixture.v1`  
+Status: implementation contract
+Schema: `lupine.z2.soc_tc_fixture.v1`
 Runner row ID: `soc_tc`
 
 ## Hypotheses and fail-closed rule
