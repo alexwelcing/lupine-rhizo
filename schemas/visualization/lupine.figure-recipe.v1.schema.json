@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lupine.dev/schemas/visualization/lupine.figure-recipe.v1.schema.json",
+  "title": "LupineFigureRecipe v1",
+  "description": "Immutable saved-view figure recipe (saved view v2). recipe_id is sha256(canonical recipe JSON) with the recipe_id field omitted during hashing, canonicalized as sorted keys, 2-space indent, trailing newline. A recipe binds a source bundle, a viewer build, a frame of the reaction-path sequence (an NEB image index, never time), the science overlay, and view state by digest. Friendly slugs are aliases to recipe revisions, never citation targets.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "recipe_id",
+    "created_at",
+    "source",
+    "viewer",
+    "frame",
+    "science_overlay",
+    "view"
+  ],
+  "properties": {
+    "schema": { "const": "lupine.figure-recipe.v1" },
+    "recipe_id": { "$ref": "#/$defs/sha256id" },
+    "created_at": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundle_id",
+        "manifest_sha256",
+        "trajectory_sha256",
+        "profile_sha256",
+        "catalog_record_version"
+      ],
+      "properties": {
+        "bundle_id": { "$ref": "#/$defs/sha256id" },
+        "manifest_sha256": { "$ref": "#/$defs/sha256id" },
+        "trajectory_sha256": {
+          "description": "Digest of the display trajectory asset; null when the bundle carries coordinates in-manifest.",
+          "oneOf": [{ "$ref": "#/$defs/sha256id" }, { "const": null }]
+        },
+        "profile_sha256": { "$ref": "#/$defs/sha256id" },
+        "catalog_record_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "viewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "git_commit", "build_id", "canonical_view_schema_version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "git_commit": { "type": "string", "minLength": 1 },
+        "build_id": { "type": "string", "minLength": 1 },
+        "canonical_view_schema_version": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "frame": {
+      "description": "One frame of the reaction-path sequence. image_index is a zero-based NEB image index — it is NOT time, dynamics, or temperature.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["image_index", "decoded_frame_digest_v3"],
+      "properties": {
+        "image_index": { "type": "integer", "minimum": 0 },
+        "decoded_frame_digest_v3": { "$ref": "#/$defs/sha256id" }
+      }
+    },
+    "science_overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["visible_series_ids", "annotation_ids", "profile_digest"],
+      "properties": {
+        "visible_series_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "annotation_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "profile_digest": { "$ref": "#/$defs/sha256id" }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["camera", "cell", "bonds", "filter", "color", "layers", "dimensions"],
+      "properties": {
+        "camera": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["position", "target", "up", "projection"],
+          "properties": {
+            "position": { "$ref": "#/$defs/vec3" },
+            "target": { "$ref": "#/$defs/vec3" },
+            "up": { "$ref": "#/$defs/vec3" },
+            "projection": { "enum": ["perspective", "orthographic"] },
+            "fov_degrees": { "type": "number", "exclusiveMinimum": 0, "maximum": 180 }
+          }
+        },
+        "cell": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["visible"],
+          "properties": { "visible": { "type": "boolean" } }
+        },
+        "bonds": {
+          "description": "Bonds are either source topology or viewer inference; the mode must be explicit because mechanism interpretation can depend on it.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["visible", "mode"],
+          "properties": {
+            "visible": { "type": "boolean" },
+            "mode": { "enum": ["source", "inferred"] }
+          }
+        },
+        "filter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hidden_species", "hidden_atom_ids"],
+          "properties": {
+            "hidden_species": { "type": "array", "items": { "type": "string" } },
+            "hidden_atom_ids": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "color": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scheme"],
+          "properties": {
+            "scheme": { "type": "string", "minLength": 1 },
+            "background": { "type": "string" }
+          }
+        },
+        "layers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "number" }
+    }
+  }
+}
