@@ -598,6 +598,15 @@
       "status": "withdrawn"
     },
     {
+      "claim_content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd",
+      "claim_id": "discovery.z2.magnetic-anisotropy.v1",
+      "claim_version": 1,
+      "disposition": "unsupported",
+      "evidence": [],
+      "statement": "The spin-aware multi-fidelity stack exactly reproduces the signed magnetocrystalline-anisotropy ordering on the locked Z2 panel and reports Curie-temperature predictions against the published method envelope.",
+      "status": "unsupported"
+    },
+    {
       "claim_content_hash": "sha256:bef60bb3ff745736b5ee897d46e085385fcfa6942be61a5a8a76c413583a6e12",
       "claim_id": "discovery.z3.adsorption-accuracy.v1",
       "claim_version": 1,

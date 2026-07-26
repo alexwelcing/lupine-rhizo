@@ -1,0 +1,45 @@
+{
+  "schema": "lupine.z2.execution_endpoints.v1",
+  "verified_at": "2026-07-21T17:47:08Z",
+  "candidate_lock": {
+    "path": "data/candidates/z2_soc_tc_panel.lock.json",
+    "sha256": "349e0520856e68a2a65907d41a550d1596dfac6ecd8a57c3b900ae41b8a64355"
+  },
+  "gcp": {
+    "project": "shed-489901",
+    "region": "us-central1",
+    "service_account": "atlas-distill-runner@shed-489901.iam.gserviceaccount.com"
+  },
+  "build": {
+    "config": "gcp/mlip-cell-runner/cloudbuild.z2.yaml",
+    "id": "addc48e2-aa2c-46f4-bfdc-c21c99dea486",
+    "status": "SUCCESS",
+    "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-z2-chgnet@sha256:e0b71face465e092324735195167a27535d3154ead3e28650930a0ef19a191cc"
+  },
+  "endpoints": [
+    {
+      "mlip_id": "chgnet",
+      "job": "mlip-cell-z2-chgnet",
+      "generation": 3,
+      "ready": true,
+      "image": "us-central1-docker.pkg.dev/shed-489901/cloud-run-source-deploy/mlip-cell-z2-chgnet:z2-soc-tc-20260721-r3",
+      "image_digest": "sha256:e0b71face465e092324735195167a27535d3154ead3e28650930a0ef19a191cc",
+      "smoke": {
+        "execution": "mlip-cell-z2-chgnet-5xtz7",
+        "args": [
+          "--help"
+        ],
+        "status": "EXECUTION_SUCCEEDED"
+      }
+    }
+  ],
+  "validation_history": [
+    {
+      "execution": "mlip-cell-z2-chgnet-ggpwn",
+      "status": "EXECUTION_FAILED",
+      "reason": "The first image preserved mode 0600 on z2_soc_tc.py; the non-root runtime could not import it. Dockerfile.z2 now grants read and directory traversal permissions before USER mlip."
+    }
+  ],
+  "heavy_soc_campaign_executed": false,
+  "execution_template": "gcloud run jobs execute mlip-cell-z2-chgnet --project=shed-489901 --region=us-central1 --wait --args=run-cell,..."
+}

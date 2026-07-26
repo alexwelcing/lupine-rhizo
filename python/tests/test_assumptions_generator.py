@@ -84,6 +84,7 @@ class AssumptionsGeneratorTests(unittest.TestCase):
                 "correction.b0.v1": ("withdrawn", "refuted"),
                 "correction.same_class.a0.v1": ("active", "supported"),
                 "discovery.z1.barrier-accuracy.v1": ("withdrawn", "refuted"),
+                "discovery.z2.magnetic-anisotropy.v1": ("unsupported", "unsupported"),
                 "discovery.z3.adsorption-accuracy.v1": ("withdrawn", "refuted"),
                 "fcc.b0.anticorrelation.v1": ("withdrawn", "refuted"),
             },

@@ -1,0 +1,45 @@
+{
+  "bindings": {
+    "lean_theorem": {
+      "reason": "The formal layer proves scalar-only Z2 abstention; it does not prove the empirical SOC ranking or Curie-temperature measurements.",
+      "status": "unsupported"
+    },
+    "publication": {
+      "publication_id": "gates.licenses.paper.v1",
+      "recurring_claim": "result1.discovery.z2.magnetic-anisotropy",
+      "status": "bound"
+    },
+    "runtime_gate": {
+      "reason": "No deployed runtime gate consumes the pending Z2 aggregate SOC/Tc measurement.",
+      "status": "unsupported"
+    }
+  },
+  "claim_id": "discovery.z2.magnetic-anisotropy.v1",
+  "classification": {
+    "assurance": "unsupported",
+    "intent": "confirmatory",
+    "outcome": "pending",
+    "strength": "predictive"
+  },
+  "content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd",
+  "excluded_scope": [
+    "Materials outside the locked seven-material Tiwari/C2DB reference panel",
+    "Spin models other than the frozen nearest-neighbour J and B/J analytical fits",
+    "Long-range exchange, itinerant-magnet corrections, finite-size scaling, substrate effects, and experimental Tc claims",
+    "Scalar-energy rows without SOC-resolved FM/AFM evidence",
+    "Statistical uncertainty claims beyond the published Green/MC/RNSW method envelope"
+  ],
+  "premises": [
+    {
+      "bundle_references": [],
+      "premise_id": "spin-orbit-resolved-held-out-ranking",
+      "statement": "The content-addressed Z2 panel reports complete signed magnetocrystalline-anisotropy ranking and Curie-temperature measurements from spin-resolved FM/AFM SOC evidence for at least five held-out materials.",
+      "support_policy": {
+        "mode": "unsupported"
+      }
+    }
+  ],
+  "statement": "The spin-aware multi-fidelity stack exactly reproduces the signed magnetocrystalline-anisotropy ordering on the locked Z2 panel and reports Curie-temperature predictions against the published method envelope.",
+  "supersedes": [],
+  "version": 1
+}

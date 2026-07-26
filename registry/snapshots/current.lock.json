@@ -1,10 +1,10 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:a83f1c4d3f600e5498e0506e8bc5ad402d35d1ab380d883c88eecedd8a92d3cb"
+      "content_hash": "sha256:1707a3de9c8fe0b6ba395d530c98b79c2cb8d9f6f88a4fc99f36859290c62280"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:883ac1acce10b4dc936214172792cb770db090e6c7721dfe5fd2264f4a4c7d76"
+      "content_hash": "sha256:6f04b53f1e029a44878fa37e79fe162d5578b68449949c14d8a0fd061bc680ed"
     }
   },
   "inputs": {
@@ -19,7 +19,7 @@
       },
       {
         "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
-        "content_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a"
+        "content_hash": "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc"
       },
       {
         "campaign_id": "discovery.round-4.z3-adsorption.v1",
@@ -46,6 +46,10 @@
       {
         "claim_id": "discovery.z1.barrier-accuracy.v1",
         "content_hash": "sha256:4e4f88766772cc8c17ae95c38fe220c812a9adb74dae028290dd7ab2fafb38c1"
+      },
+      {
+        "claim_id": "discovery.z2.magnetic-anisotropy.v1",
+        "content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd"
       },
       {
         "claim_id": "discovery.z3.adsorption-accuracy.v1",

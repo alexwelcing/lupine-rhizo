@@ -65,6 +65,11 @@ inference time, model id, image digest, package versions, and CUDA facts in
 every completed beat. Legacy `canonical-structures-v1` and tiny smoke manifests
 are useful for wiring checks, but they are not accepted for release baselines.
 
+The spin-aware Z2 `soc_tc` row has a separate fixture and output contract. See
+[`docs/runbooks/z2-soc-tc-runner-row-contract.md`](../../docs/runbooks/z2-soc-tc-runner-row-contract.md)
+for the two fidelity tiers, spin initialization, and complete MAE-ranking and Tc
+prediction schemas.
+
 ## Distill Runtime Variants
 
 Baseline remains the default:

@@ -1,0 +1,898 @@
+{
+  "execution_protocol": {
+    "exchange_definition": "Tiwari et al. Eq. (4c-4d): J=(J_parallel+J_perpendicular)/2; delta=(J_perpendicular-J_parallel)/(2J)",
+    "failure_policy": "record failure without imputation",
+    "geometry_force_convergence_ev_per_angstrom": 0.05,
+    "geometry_maximum_steps": 200,
+    "geometry_stage": "MLIP FIRE relaxation under frozen force and step limits",
+    "gpaw_convergence_energy_ev": 1e-06,
+    "gpaw_fermi_width_ev": 0.05,
+    "gpaw_kpoint_density_per_angstrom": 6.0,
+    "gpaw_maximum_scf_iterations": 200,
+    "gpaw_plane_wave_cutoff_ev": 500.0,
+    "soc_axes_degrees": {
+      "x": [
+        90.0,
+        0.0
+      ],
+      "y": [
+        90.0,
+        90.0
+      ],
+      "z": [
+        0.0,
+        0.0
+      ]
+    },
+    "soc_method": "GPAW PBE scalar FM/AFM states plus non-selfconsistent force-theorem SOC at x, y, z axes",
+    "tc_model": "Tiwari et al. Eq. (3) nearest-neighbour analytical fits"
+  },
+  "holdout": {
+    "campaign_fit_exclusion": "All seven materials are excluded from Z2-specific fitting, threshold tuning, and model selection.",
+    "selection_rule": "Seven materials with verified old-ID to current-C2DB structure mappings, spanning honeycomb and square magnetic lattices, selected before runner execution."
+  },
+  "locked_at": "2026-07-21T00:00:00Z",
+  "materials": [
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2FFe-2",
+      "formula": "Fe2F2",
+      "lattice": "square",
+      "magnetic_atom_indices": [
+        2,
+        3
+      ],
+      "material_id": "F2Fe2-3c50b5e0d85d",
+      "nearest_neighbors": 4,
+      "reference": {
+        "exchange_anisotropy": 0.000811,
+        "exchange_mev": 67.47603,
+        "mae_xz_mev_per_cell": -1.332,
+        "mae_yz_mev_per_cell": -1.332,
+        "tc_envelope_k": [
+          486.7,
+          962.3
+        ],
+        "tc_k": {
+          "green": 726.4,
+          "mc": 962.3,
+          "rnsw": 486.7
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 486.7,
+          "statistical_error_bar_available": false,
+          "upper_k": 962.3
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:f04884703978fd6e09fbca26206e7fe8a217ece87c2ca10d51abeb53f09d7a66",
+        "url": "https://c2db.fysik.dtu.dk/material/2FFe-2/download/xyz"
+      },
+      "spin": 1.5,
+      "structure": {
+        "cell_angstrom": [
+          [
+            3.42763282778329,
+            -1.8036120858952087e-18,
+            0.0
+          ],
+          [
+            2.1661698317854993e-16,
+            3.42763282778329,
+            0.0
+          ],
+          [
+            2.271709429122983e-17,
+            4.431931987378363e-36,
+            17.672863632885154
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            0.0,
+            0.0,
+            10.24887975
+          ],
+          [
+            1.71381641,
+            1.71381641,
+            7.42398249
+          ],
+          [
+            1.71381641,
+            0.0,
+            8.83643116
+          ],
+          [
+            0.0,
+            1.71381641,
+            8.83643116
+          ]
+        ],
+        "symbols": [
+          "F",
+          "F",
+          "Fe",
+          "Fe"
+        ]
+      }
+    },
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2CrI3-1",
+      "formula": "CrI3",
+      "lattice": "honeycomb",
+      "magnetic_atom_indices": [
+        0,
+        1
+      ],
+      "material_id": "Cr2I6-462e253dd5f0",
+      "nearest_neighbors": 3,
+      "reference": {
+        "exchange_anisotropy": 0.068308,
+        "exchange_mev": 2.048469,
+        "mae_xz_mev_per_cell": -1.708,
+        "mae_yz_mev_per_cell": -1.705,
+        "tc_envelope_k": [
+          21.4,
+          41.3
+        ],
+        "tc_k": {
+          "green": 41.3,
+          "mc": 30.9,
+          "rnsw": 21.4
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 21.4,
+          "statistical_error_bar_available": false,
+          "upper_k": 41.3
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:8bcdce59b207dce2adfb856d581355d9946da1d459e30b36c42dac982a11f4dd",
+        "url": "https://c2db.fysik.dtu.dk/material/2CrI3-1/download/xyz"
+      },
+      "spin": 1.5,
+      "structure": {
+        "cell_angstrom": [
+          [
+            7.007944101379477,
+            5.693083073016206e-19,
+            0.0
+          ],
+          [
+            -3.5039720506897396,
+            6.069057620095938,
+            0.0
+          ],
+          [
+            -7.556124271010452e-19,
+            0.0,
+            18.063536576448442
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            3.50397205,
+            2.02301921,
+            9.03176873
+          ],
+          [
+            0.0,
+            4.04603841,
+            9.03176919
+          ],
+          [
+            4.48565621,
+            -1.343e-05,
+            7.46488009
+          ],
+          [
+            1.26113232,
+            2.1843721,
+            7.46488009
+          ],
+          [
+            -2.24281648,
+            3.88469895,
+            7.46488009
+          ],
+          [
+            2.522288,
+            -1.162e-05,
+            10.59865633
+          ],
+          [
+            2.24281799,
+            3.88469794,
+            10.59865633
+          ],
+          [
+            -1.26113394,
+            2.1843713,
+            10.59865633
+          ]
+        ],
+        "symbols": [
+          "Cr",
+          "Cr",
+          "I",
+          "I",
+          "I",
+          "I",
+          "I",
+          "I"
+        ]
+      }
+    },
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2CrBr3-1",
+      "formula": "CrBr3",
+      "lattice": "honeycomb",
+      "magnetic_atom_indices": [
+        0,
+        1
+      ],
+      "material_id": "Cr2Br6-e406fd4547de",
+      "nearest_neighbors": 3,
+      "reference": {
+        "exchange_anisotropy": 0.0162,
+        "exchange_mev": 1.932402,
+        "mae_xz_mev_per_cell": -0.419,
+        "mae_yz_mev_per_cell": -0.419,
+        "tc_envelope_k": [
+          14.1,
+          26.0
+        ],
+        "tc_k": {
+          "green": 26.0,
+          "mc": 23.7,
+          "rnsw": 14.1
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 14.1,
+          "statistical_error_bar_available": false,
+          "upper_k": 26.0
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:95344e04e7660ee528804dfd2228b16029379688f4d497fc4f3aaefa0804c997",
+        "url": "https://c2db.fysik.dtu.dk/material/2CrBr3-1/download/xyz"
+      },
+      "spin": 1.5,
+      "structure": {
+        "cell_angstrom": [
+          [
+            6.4467068374023295,
+            -3.233361265592684e-19,
+            0.0
+          ],
+          [
+            -3.2233534187011657,
+            5.583011891941252,
+            0.0
+          ],
+          [
+            -5.42482696203828e-19,
+            0.0,
+            17.829973718358993
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            3.22335342,
+            1.86100396,
+            8.91500012
+          ],
+          [
+            -0.0,
+            3.72200793,
+            8.91497359
+          ],
+          [
+            4.13032783,
+            -3.42e-06,
+            7.47604094
+          ],
+          [
+            1.15818654,
+            2.00604478,
+            7.47604094
+          ],
+          [
+            -2.06516095,
+            3.57697054,
+            7.47604094
+          ],
+          [
+            2.31637894,
+            3.69e-06,
+            10.35393345
+          ],
+          [
+            2.06516714,
+            3.57696705,
+            10.35393345
+          ],
+          [
+            -1.15819266,
+            2.00604116,
+            10.35393345
+          ]
+        ],
+        "symbols": [
+          "Cr",
+          "Cr",
+          "Br",
+          "Br",
+          "Br",
+          "Br",
+          "Br",
+          "Br"
+        ]
+      }
+    },
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2CrCl3-1",
+      "formula": "CrCl3",
+      "lattice": "honeycomb",
+      "magnetic_atom_indices": [
+        0,
+        1
+      ],
+      "material_id": "Cr2Cl6-9f9e75488d50",
+      "nearest_neighbors": 3,
+      "reference": {
+        "exchange_anisotropy": 0.001722,
+        "exchange_mev": 1.388498,
+        "mae_xz_mev_per_cell": -0.065,
+        "mae_yz_mev_per_cell": -0.065,
+        "tc_envelope_k": [
+          6.9,
+          13.2
+        ],
+        "tc_k": {
+          "green": 12.3,
+          "mc": 13.2,
+          "rnsw": 6.9
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 6.9,
+          "statistical_error_bar_available": false,
+          "upper_k": 13.2
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:22e969a7d61cf756db97390e46e9e30c3b66404cf0408db245c05dbb0b724380",
+        "url": "https://c2db.fysik.dtu.dk/material/2CrCl3-1/download/xyz"
+      },
+      "spin": 1.5,
+      "structure": {
+        "cell_angstrom": [
+          [
+            6.061237407962466,
+            3.6949629818362615e-18,
+            0.0
+          ],
+          [
+            -3.0306187039812333,
+            5.249185573664039,
+            0.0
+          ],
+          [
+            -9.053069687570174e-19,
+            0.0,
+            17.641496233963647
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            3.0306187,
+            1.74972852,
+            8.82075026
+          ],
+          [
+            -0.0,
+            3.49945705,
+            8.82074545
+          ],
+          [
+            3.88035124,
+            4.9e-07,
+            7.48152363
+          ],
+          [
+            1.09044351,
+            1.88870258,
+            7.48152363
+          ],
+          [
+            -1.94017604,
+            3.3604825,
+            7.48152363
+          ],
+          [
+            2.180886,
+            8.08e-06,
+            10.15997248
+          ],
+          [
+            1.9401827,
+            3.36047885,
+            10.15997248
+          ],
+          [
+            -1.09045,
+            1.88869864,
+            10.15997248
+          ]
+        ],
+        "symbols": [
+          "Cr",
+          "Cr",
+          "Cl",
+          "Cl",
+          "Cl",
+          "Cl",
+          "Cl",
+          "Cl"
+        ]
+      }
+    },
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2WS2-2",
+      "formula": "W2S4",
+      "lattice": "square",
+      "magnetic_atom_indices": [
+        0,
+        1
+      ],
+      "material_id": "W2S4-0728bb0ff0b4",
+      "nearest_neighbors": 4,
+      "reference": {
+        "exchange_anisotropy": 0.165444,
+        "exchange_mev": 17.16775,
+        "mae_xz_mev_per_cell": -33.793,
+        "mae_yz_mev_per_cell": -34.028,
+        "tc_envelope_k": [
+          182.6,
+          260.7
+        ],
+        "tc_k": {
+          "green": 260.7,
+          "mc": 195.9,
+          "rnsw": 182.6
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 182.6,
+          "statistical_error_bar_available": false,
+          "upper_k": 260.7
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:aa83ca1ce2e24a57f29cc3c11ca930d33b8d1ccfa73e013fefefddf43bff7ba6",
+        "url": "https://c2db.fysik.dtu.dk/material/2WS2-2/download/xyz"
+      },
+      "spin": 1.0,
+      "structure": {
+        "cell_angstrom": [
+          [
+            6.088240369625721,
+            5.329588899228717e-18,
+            0.0
+          ],
+          [
+            1.1696427905491132e-17,
+            6.087649498315222,
+            0.0
+          ],
+          [
+            1.712358436245182e-17,
+            0.0,
+            16.423945215957783
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            3.04412019,
+            0.0,
+            8.2119726
+          ],
+          [
+            0.0,
+            3.04382475,
+            8.21197259
+          ],
+          [
+            0.90611825,
+            0.90650628,
+            8.21210722
+          ],
+          [
+            3.95023834,
+            2.1373181,
+            8.2118388
+          ],
+          [
+            5.18212213,
+            5.18114323,
+            8.21183799
+          ],
+          [
+            2.13800204,
+            3.9503314,
+            8.21210642
+          ]
+        ],
+        "symbols": [
+          "W",
+          "W",
+          "S",
+          "S",
+          "S",
+          "S"
+        ]
+      }
+    },
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2VTe2-3",
+      "formula": "V2Te4",
+      "lattice": "square",
+      "magnetic_atom_indices": [
+        0,
+        1
+      ],
+      "material_id": "V2Te4-31bf29ee1828",
+      "nearest_neighbors": 4,
+      "reference": {
+        "exchange_anisotropy": 0.016081,
+        "exchange_mev": 43.92472,
+        "mae_xz_mev_per_cell": -4.365,
+        "mae_yz_mev_per_cell": -4.357,
+        "tc_envelope_k": [
+          263.4,
+          387.6
+        ],
+        "tc_k": {
+          "green": 387.6,
+          "mc": 371.1,
+          "rnsw": 263.4
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 263.4,
+          "statistical_error_bar_available": false,
+          "upper_k": 387.6
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:6508d8cbaedce53eee65674b75159e567824df9309eed1f50d0cd5e9a65cfc24",
+        "url": "https://c2db.fysik.dtu.dk/material/2VTe2-3/download/xyz"
+      },
+      "spin": 1.0,
+      "structure": {
+        "cell_angstrom": [
+          [
+            6.898518872973594,
+            -4.955649035161453e-18,
+            0.0
+          ],
+          [
+            1.1182087003283415e-17,
+            6.898828770377227,
+            0.0
+          ],
+          [
+            1.9662550124691744e-17,
+            -4.530497992962272e-38,
+            16.642130370015835
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            3.44925943,
+            1e-08,
+            8.32106518
+          ],
+          [
+            -0.0,
+            3.44941439,
+            8.32106517
+          ],
+          [
+            1.04689584,
+            1.04700415,
+            8.32182529
+          ],
+          [
+            4.49615397,
+            2.40241108,
+            8.32030529
+          ],
+          [
+            5.85162303,
+            5.85182463,
+            8.32030508
+          ],
+          [
+            2.4023649,
+            4.49641769,
+            8.32182508
+          ]
+        ],
+        "symbols": [
+          "V",
+          "V",
+          "Te",
+          "Te",
+          "Te",
+          "Te"
+        ]
+      }
+    },
+    {
+      "afm_signs": [
+        1,
+        -1
+      ],
+      "c2db_uid": "2CoBr3-2",
+      "formula": "Co2Br6",
+      "lattice": "honeycomb",
+      "magnetic_atom_indices": [
+        0,
+        1
+      ],
+      "material_id": "Co2Br6-26f91951e231",
+      "nearest_neighbors": 3,
+      "reference": {
+        "exchange_anisotropy": 0.036505,
+        "exchange_mev": 21.1372,
+        "mae_xz_mev_per_cell": -8.598,
+        "mae_yz_mev_per_cell": -8.591,
+        "tc_envelope_k": [
+          185.6,
+          349.7
+        ],
+        "tc_k": {
+          "green": 349.7,
+          "mc": 290.1,
+          "rnsw": 185.6
+        },
+        "uncertainty": {
+          "kind": "published_method_envelope",
+          "lower_k": 185.6,
+          "statistical_error_bar_available": false,
+          "upper_k": 349.7
+        }
+      },
+      "source_structure": {
+        "sha256": "sha256:0465926a4c5ff22d742a2349c7c279fcffa8cf4a4cc7bbe607066feb47642b94",
+        "url": "https://c2db.fysik.dtu.dk/material/2CoBr3-2/download/xyz"
+      },
+      "spin": 1.5,
+      "structure": {
+        "cell_angstrom": [
+          [
+            6.747476652869034,
+            -2.5658539075488635e-18,
+            0.0
+          ],
+          [
+            -3.373738326434518,
+            5.84348619282698,
+            0.0
+          ],
+          [
+            -1.0083610455212797e-19,
+            0.0,
+            18.06945799955933
+          ]
+        ],
+        "initial_magmoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pbc": [
+          true,
+          true,
+          false
+        ],
+        "positions_angstrom": [
+          [
+            3.37373833,
+            1.94782873,
+            9.03474247
+          ],
+          [
+            0.0,
+            3.89565746,
+            9.03471516
+          ],
+          [
+            3.36963966,
+            6.51e-05,
+            7.44690572
+          ],
+          [
+            1.68897487,
+            2.9252601,
+            7.44690572
+          ],
+          [
+            -1.6848762,
+            2.918161,
+            7.44690572
+          ],
+          [
+            3.36963964,
+            8.806e-05,
+            10.62255235
+          ],
+          [
+            1.68899477,
+            2.92524863,
+            10.62255235
+          ],
+          [
+            -1.68489608,
+            2.9181495,
+            10.62255235
+          ]
+        ],
+        "symbols": [
+          "Co",
+          "Co",
+          "Br",
+          "Br",
+          "Br",
+          "Br",
+          "Br",
+          "Br"
+        ]
+      }
+    }
+  ],
+  "measurement": {
+    "minimum_material_count": 5,
+    "primary_metric": "magnetocrystalline_anisotropy_rank_correlation",
+    "secondary_metrics": [
+      "easy_axis_sign_errors",
+      "tc_rnsw_mae_k",
+      "tc_envelope_coverage"
+    ]
+  },
+  "panel_id": "z2-tiwari-c2db-soc-tc-v1",
+  "reference_provenance": {
+    "article": "Computing Curie temperature of two-dimensional ferromagnets in the presence of exchange anisotropy",
+    "authors": "Tiwari et al.",
+    "c2db": "https://c2db.fysik.dtu.dk/",
+    "c2db_mae_method": "PBE non-selfconsistent spin-orbit force theorem with magnetic field aligned x, y, and z",
+    "doi": "10.1103/PhysRevResearch.3.043024",
+    "limitations": [
+      "Published Tc values have no statistical error bars; the Green/MC/RNSW spread is retained as a method envelope.",
+      "The Tc fit is a nearest-neighbour Heisenberg model and omits long-range interactions.",
+      "Fe2F2 is metallic and the source article labels its Tc a rough first-level estimate.",
+      "The article body quotes a conservative Fe2F2 Tc of 403 K while Supplemental Table 1 reports RNSW 486.7 K; this panel preserves the table value without reconciliation.",
+      "C2DB is mutable; exact downloaded structure bytes and the derived panel bytes are SHA-256 locked."
+    ],
+    "supplement_sha256": "sha256:e403103e413d1c240a668bca14d6ec62e1cc3ff117aa8126dc54ab16f2c48b8f",
+    "supplement_table": "Supplemental Table 1",
+    "supplement_url": "https://journals.aps.org/prresearch/supplement/10.1103/PhysRevResearch.3.043024/Supplementary-document.pdf"
+  },
+  "schema": "lupine.z2.soc_tc_panel.v1"
+}

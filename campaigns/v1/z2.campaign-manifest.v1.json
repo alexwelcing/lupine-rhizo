@@ -8,27 +8,116 @@
     "frozen_before_execution": true
   },
   "frozen_hypotheses": [
-    {"hypothesis_id": "h.z2.anisotropy-ranking", "statement": "The spin-aware multi-fidelity stack reproduces the complete held-out magnetocrystalline-anisotropy ordering, including easy-axis sign.", "frozen": true},
-    {"hypothesis_id": "h.z2.scalar-abstention", "statement": "Scalar-energy rows without spin-orbit-resolved evidence abstain and cannot count as ranking successes.", "frozen": true}
+    {
+      "hypothesis_id": "h.z2.anisotropy-ranking",
+      "statement": "The spin-aware multi-fidelity stack reproduces the complete held-out magnetocrystalline-anisotropy ordering, including easy-axis sign.",
+      "frozen": true
+    },
+    {
+      "hypothesis_id": "h.z2.tc-prediction",
+      "statement": "The same spin-resolved FM/AFM evidence predicts Curie temperature under the frozen nearest-neighbour analytical fits, reported against the published Green/MC/RNSW method envelope.",
+      "frozen": true
+    },
+    {
+      "hypothesis_id": "h.z2.scalar-abstention",
+      "statement": "Scalar-energy rows without spin-orbit-resolved evidence abstain and cannot count as ranking successes.",
+      "frozen": true
+    }
   ],
   "available_models": [
-    {"model_id": "chgnet", "version": "chgnet 0.4.2", "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890"},
-    {"model_id": "mace-mp-small", "version": "mace-torch 0.3.16 / small", "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694"},
-    {"model_id": "mace-mp-medium", "version": "mace-torch 0.3.16 / medium", "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3"},
-    {"model_id": "mace-mpa-0-medium", "version": "mace-torch 0.3.16 / mpa-0 medium", "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9"}
+    {
+      "model_id": "chgnet",
+      "version": "chgnet 0.4.2",
+      "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890"
+    },
+    {
+      "model_id": "mace-mp-small",
+      "version": "mace-torch 0.3.16 / small",
+      "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694"
+    },
+    {
+      "model_id": "mace-mp-medium",
+      "version": "mace-torch 0.3.16 / medium",
+      "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3"
+    },
+    {
+      "model_id": "mace-mpa-0-medium",
+      "version": "mace-torch 0.3.16 / mpa-0 medium",
+      "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9"
+    }
   ],
   "exclusions": [
-    {"subject": "uma-family", "disposition": "excluded", "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models."},
-    {"subject": "spin-orbit-unresolved-row", "disposition": "excluded", "rationale": "A scalar result without a frozen spin/SOC companion calculation abstains from anisotropy adjudication."}
+    {
+      "subject": "uma-family",
+      "disposition": "excluded",
+      "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models."
+    },
+    {
+      "subject": "spin-orbit-unresolved-row",
+      "disposition": "excluded",
+      "rationale": "A scalar result without a frozen spin/SOC companion calculation abstains from anisotropy adjudication."
+    }
   ],
-  "target_premises": [{"claim_id": "discovery.z2.magnetic-anisotropy.v1", "premise_id": "spin-orbit-resolved-held-out-ranking"}],
-  "acceptance_test": {"metric": "magnetocrystalline_anisotropy_rank_correlation", "operator": "eq", "threshold": 1, "unit": "spearman_rho"},
+  "target_premises": [
+    {
+      "claim_id": "discovery.z2.magnetic-anisotropy.v1",
+      "premise_id": "spin-orbit-resolved-held-out-ranking"
+    }
+  ],
+  "acceptance_test": {
+    "metric": "magnetocrystalline_anisotropy_rank_correlation",
+    "operator": "eq",
+    "threshold": 1,
+    "unit": "spearman_rho"
+  },
   "evidence_requirements": [
-    {"requirement_id": "e.z2.reference-order", "artifact_type": "soc-reference-set", "description": "Held-out spin-polarized SOC references with easy axes, anisotropy energies, convergence settings, and identities.", "minimum_count": 5},
-    {"requirement_id": "e.z2.ranking-results", "artifact_type": "ranking-measurements", "description": "Predicted ordering, signed anisotropy energies, tie policy, abstentions, and Spearman statistic.", "minimum_count": 1}
+    {
+      "requirement_id": "e.z2.reference-order",
+      "artifact_type": "soc-reference-set",
+      "description": "Held-out spin-polarized SOC references with easy axes, anisotropy energies, convergence settings, and identities.",
+      "minimum_count": 5
+    },
+    {
+      "requirement_id": "e.z2.ranking-results",
+      "artifact_type": "ranking-measurements",
+      "description": "Predicted ordering, signed anisotropy energies, tie policy, abstentions, and Spearman statistic.",
+      "minimum_count": 1
+    },
+    {
+      "requirement_id": "e.z2.tc-results",
+      "artifact_type": "curie-temperature-measurements",
+      "description": "Per-material J, B/J, Green/MC/RNSW Curie-temperature estimates, method-envelope coverage, and RNSW MAE in kelvin.",
+      "minimum_count": 5
+    }
   ],
-  "execution": {"lane": "round4.available-models", "model_selection": "available_models", "excluded_models_block_execution": false},
-  "kill_conditions": [{"condition_id": "kill.z2.sign-error", "metric": "easy_axis_sign_errors", "operator": "gt", "threshold": 0, "unit": "materials", "action": "kill"}],
-  "demotion_conditions": [{"condition_id": "demote.z2.ranking", "metric": "magnetocrystalline_anisotropy_rank_correlation", "operator": "lt", "threshold": 1, "unit": "spearman_rho", "action": "demote"}],
-  "content_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a"
+  "execution": {
+    "lane": "round4.available-models",
+    "model_selection": "available_models",
+    "excluded_models_block_execution": false,
+    "candidate_panel": {
+      "path": "data/candidates/z2_soc_tc_panel.lock.json",
+      "sha256": "sha256:7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8"
+    }
+  },
+  "kill_conditions": [
+    {
+      "condition_id": "kill.z2.sign-error",
+      "metric": "easy_axis_sign_errors",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "materials",
+      "action": "kill"
+    }
+  ],
+  "demotion_conditions": [
+    {
+      "condition_id": "demote.z2.ranking",
+      "metric": "magnetocrystalline_anisotropy_rank_correlation",
+      "operator": "lt",
+      "threshold": 1,
+      "unit": "spearman_rho",
+      "action": "demote"
+    }
+  ],
+  "content_hash": "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc"
 }

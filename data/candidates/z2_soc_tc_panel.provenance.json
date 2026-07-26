@@ -1,0 +1,717 @@
+{
+  "created_at": "2026-07-21T00:00:00Z",
+  "entries": [
+    {
+      "c2db_uid": "2FFe-2",
+      "extraction_note": "Matched Supplemental Table 1 row F2Fe2-3c50b5e0d85d to current C2DB UID 2FFe-2; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "Fe2F2",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -1.332,
+          "mae_yz_mev_per_cell": -1.332
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2FFe-2"
+      },
+      "material_id": "F2Fe2-3c50b5e0d85d",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -1.332,
+            "yz": -1.332
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 486.7,
+            "statistical_error_bar_available": false,
+            "upper_k": 962.3
+          },
+          "unit": "K",
+          "values": {
+            "green": 726.4,
+            "mc": 962.3,
+            "rnsw": 486.7
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "F2Fe2-3c50b5e0d85d",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.000811,
+          "exchange_mev": 67.47603,
+          "nearest_neighbors": 4,
+          "spin": 1.5,
+          "tc_k": {
+            "green": 726.4,
+            "mc": 962.3,
+            "rnsw": 486.7
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 486.7,
+          "statistical_error_bar_available": false,
+          "upper_k": 962.3
+        }
+      }
+    },
+    {
+      "c2db_uid": "2CrI3-1",
+      "extraction_note": "Matched Supplemental Table 1 row Cr2I6-462e253dd5f0 to current C2DB UID 2CrI3-1; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "CrI3",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -1.708,
+          "mae_yz_mev_per_cell": -1.705
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2CrI3-1"
+      },
+      "material_id": "Cr2I6-462e253dd5f0",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -1.708,
+            "yz": -1.705
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 21.4,
+            "statistical_error_bar_available": false,
+            "upper_k": 41.3
+          },
+          "unit": "K",
+          "values": {
+            "green": 41.3,
+            "mc": 30.9,
+            "rnsw": 21.4
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "Cr2I6-462e253dd5f0",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.068308,
+          "exchange_mev": 2.048469,
+          "nearest_neighbors": 3,
+          "spin": 1.5,
+          "tc_k": {
+            "green": 41.3,
+            "mc": 30.9,
+            "rnsw": 21.4
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 21.4,
+          "statistical_error_bar_available": false,
+          "upper_k": 41.3
+        }
+      }
+    },
+    {
+      "c2db_uid": "2CrBr3-1",
+      "extraction_note": "Matched Supplemental Table 1 row Cr2Br6-e406fd4547de to current C2DB UID 2CrBr3-1; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "CrBr3",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -0.419,
+          "mae_yz_mev_per_cell": -0.419
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2CrBr3-1"
+      },
+      "material_id": "Cr2Br6-e406fd4547de",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -0.419,
+            "yz": -0.419
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 14.1,
+            "statistical_error_bar_available": false,
+            "upper_k": 26.0
+          },
+          "unit": "K",
+          "values": {
+            "green": 26.0,
+            "mc": 23.7,
+            "rnsw": 14.1
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "Cr2Br6-e406fd4547de",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.0162,
+          "exchange_mev": 1.932402,
+          "nearest_neighbors": 3,
+          "spin": 1.5,
+          "tc_k": {
+            "green": 26.0,
+            "mc": 23.7,
+            "rnsw": 14.1
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 14.1,
+          "statistical_error_bar_available": false,
+          "upper_k": 26.0
+        }
+      }
+    },
+    {
+      "c2db_uid": "2CrCl3-1",
+      "extraction_note": "Matched Supplemental Table 1 row Cr2Cl6-9f9e75488d50 to current C2DB UID 2CrCl3-1; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "CrCl3",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -0.065,
+          "mae_yz_mev_per_cell": -0.065
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2CrCl3-1"
+      },
+      "material_id": "Cr2Cl6-9f9e75488d50",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -0.065,
+            "yz": -0.065
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 6.9,
+            "statistical_error_bar_available": false,
+            "upper_k": 13.2
+          },
+          "unit": "K",
+          "values": {
+            "green": 12.3,
+            "mc": 13.2,
+            "rnsw": 6.9
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "Cr2Cl6-9f9e75488d50",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.001722,
+          "exchange_mev": 1.388498,
+          "nearest_neighbors": 3,
+          "spin": 1.5,
+          "tc_k": {
+            "green": 12.3,
+            "mc": 13.2,
+            "rnsw": 6.9
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 6.9,
+          "statistical_error_bar_available": false,
+          "upper_k": 13.2
+        }
+      }
+    },
+    {
+      "c2db_uid": "2WS2-2",
+      "extraction_note": "Matched Supplemental Table 1 row W2S4-0728bb0ff0b4 to current C2DB UID 2WS2-2; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "W2S4",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -33.793,
+          "mae_yz_mev_per_cell": -34.028
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2WS2-2"
+      },
+      "material_id": "W2S4-0728bb0ff0b4",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -33.793,
+            "yz": -34.028
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 182.6,
+            "statistical_error_bar_available": false,
+            "upper_k": 260.7
+          },
+          "unit": "K",
+          "values": {
+            "green": 260.7,
+            "mc": 195.9,
+            "rnsw": 182.6
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "W2S4-0728bb0ff0b4",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.165444,
+          "exchange_mev": 17.16775,
+          "nearest_neighbors": 4,
+          "spin": 1.0,
+          "tc_k": {
+            "green": 260.7,
+            "mc": 195.9,
+            "rnsw": 182.6
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 182.6,
+          "statistical_error_bar_available": false,
+          "upper_k": 260.7
+        }
+      }
+    },
+    {
+      "c2db_uid": "2VTe2-3",
+      "extraction_note": "Matched Supplemental Table 1 row V2Te4-31bf29ee1828 to current C2DB UID 2VTe2-3; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "V2Te4",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -4.365,
+          "mae_yz_mev_per_cell": -4.357
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2VTe2-3"
+      },
+      "material_id": "V2Te4-31bf29ee1828",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -4.365,
+            "yz": -4.357
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 263.4,
+            "statistical_error_bar_available": false,
+            "upper_k": 387.6
+          },
+          "unit": "K",
+          "values": {
+            "green": 387.6,
+            "mc": 371.1,
+            "rnsw": 263.4
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "V2Te4-31bf29ee1828",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.016081,
+          "exchange_mev": 43.92472,
+          "nearest_neighbors": 4,
+          "spin": 1.0,
+          "tc_k": {
+            "green": 387.6,
+            "mc": 371.1,
+            "rnsw": 263.4
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 263.4,
+          "statistical_error_bar_available": false,
+          "upper_k": 387.6
+        }
+      }
+    },
+    {
+      "c2db_uid": "2CoBr3-2",
+      "extraction_note": "Matched Supplemental Table 1 row Co2Br6-26f91951e231 to current C2DB UID 2CoBr3-2; transcribed J, Delta, S, N_NN, and all three Tc estimates from the PDF, then transcribed the two PBE MAE fields from the mapped C2DB material page.",
+      "formula": "Co2Br6",
+      "mae_source": {
+        "database": "Computational 2D Materials Database (C2DB)",
+        "doi": "10.1088/2053-1583/ab2c43",
+        "fields": [
+          "Magnetic anisotropy energy, xz [meV/unit cell]",
+          "Magnetic anisotropy energy, yz [meV/unit cell]"
+        ],
+        "method": "PBE non-selfconsistent spin-orbit force theorem with the xc-magnetic field aligned along x, y, and z",
+        "transcribed_values": {
+          "mae_xz_mev_per_cell": -8.598,
+          "mae_yz_mev_per_cell": -8.591
+        },
+        "url": "https://c2db.fysik.dtu.dk/material/2CoBr3-2"
+      },
+      "material_id": "Co2Br6-26f91951e231",
+      "method_class": "published_high_level_theory",
+      "reference_values": {
+        "mca": {
+          "components": {
+            "xz": -8.598,
+            "yz": -8.591
+          },
+          "uncertainty": {
+            "confidence_level": null,
+            "kind": "source_display_rounding_proxy",
+            "physical_error_bar_available": false,
+            "plus_minus": 0.0005,
+            "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+          },
+          "unit": "meV/unit_cell"
+        },
+        "tc": {
+          "uncertainty": {
+            "kind": "published_method_envelope",
+            "lower_k": 185.6,
+            "statistical_error_bar_available": false,
+            "upper_k": 349.7
+          },
+          "unit": "K",
+          "values": {
+            "green": 349.7,
+            "mc": 290.1,
+            "rnsw": 185.6
+          }
+        }
+      },
+      "tc_exchange_source": {
+        "doi": "10.1103/PhysRevResearch.3.043024",
+        "fields": [
+          "J [meV]",
+          "Delta",
+          "Tc (Green) [K]",
+          "Tc (MC) [K]",
+          "Tc (RNSW) [K]",
+          "S",
+          "N_NN"
+        ],
+        "row_key": "Co2Br6-26f91951e231",
+        "table": "Supplemental Table 1",
+        "transcribed_values": {
+          "exchange_anisotropy": 0.036505,
+          "exchange_mev": 21.1372,
+          "nearest_neighbors": 3,
+          "spin": 1.5,
+          "tc_k": {
+            "green": 349.7,
+            "mc": 290.1,
+            "rnsw": 185.6
+          }
+        },
+        "url": "https://doi.org/10.1103/PhysRevResearch.3.043024"
+      },
+      "uncertainty": {
+        "exchange_and_delta": {
+          "scope_note": "Supplemental Table 1 reports point estimates only. Source decimal places are preserved, but no confidence interval or physical uncertainty is inferred.",
+          "statistical_error_bar_available": false
+        },
+        "mae_mev_per_cell": {
+          "confidence_level": null,
+          "kind": "source_display_rounding_proxy",
+          "physical_error_bar_available": false,
+          "plus_minus": 0.0005,
+          "scope_note": "Half of the C2DB page's 0.001 meV/unit-cell display increment; this only bounds transcription rounding and is not a DFT or model-form uncertainty."
+        },
+        "tc_k": {
+          "kind": "published_method_envelope",
+          "lower_k": 185.6,
+          "statistical_error_bar_available": false,
+          "upper_k": 349.7
+        }
+      }
+    }
+  ],
+  "manifest_id": "z2-tiwari-c2db-soc-tc-provenance-v1",
+  "panel": {
+    "path": "data/candidates/z2_soc_tc_panel.lock.json",
+    "sha256": "sha256:7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8"
+  },
+  "panel_scope": {
+    "easy_axis_classes": [
+      "out_of_plane"
+    ],
+    "material_count": 7,
+    "physics_review": [
+      "Negative C2DB xz/yz values are retained exactly as published; under the C2DB axis-difference convention they are consistent with a lower-energy z axis, not a negative anisotropy magnitude.",
+      "The approximately 34 meV/unit-cell W2S4 anisotropy is unusually large but is not converted or clipped because both independently displayed components agree within 0.235 meV/unit cell.",
+      "Fe2F2 is metallic, and the Tc source explicitly treats its localized-spin Heisenberg estimate as a rough first-level value."
+    ],
+    "reference_kind": "published_high_level_theory",
+    "scope_note": "Tiwari et al. screened C2DB ferromagnets with positive out-of-plane exchange anisotropy. This panel supports within-class MAE ranking and sign-flip detection, not validation of discrimination between in-plane and out-of-plane classes.",
+    "supports_two_class_discrimination": false
+  },
+  "schema": "lupine.z2.soc_tc_provenance.v1",
+  "source_artifacts": {
+    "c2db_mae_method": {
+      "database": "https://c2db.fysik.dtu.dk/",
+      "doi": "10.1088/2053-1583/ab2c43",
+      "title": "High throughput computational screening for 2D ferromagnetic materials: the critical role of anisotropy and local correlations",
+      "url": "https://doi.org/10.1088/2053-1583/ab2c43"
+    },
+    "supplement": {
+      "doi": "10.1103/PhysRevResearch.3.043024",
+      "locator": "Supplemental Table 1",
+      "sha256": "sha256:e403103e413d1c240a668bca14d6ec62e1cc3ff117aa8126dc54ab16f2c48b8f",
+      "title": "Computing Curie temperature of two-dimensional ferromagnets in the presence of exchange anisotropy",
+      "url": "https://journals.aps.org/prresearch/supplemental/10.1103/PhysRevResearch.3.043024/Supplementary-document.pdf"
+    }
+  },
+  "uncertainty_policy": {
+    "mae": "Retain a half-display-increment transcription proxy only; the C2DB page reports no statistical or model-form uncertainty.",
+    "no_invented_error_bars": true,
+    "tc": "Retain the published Green/MC/RNSW spread as a method envelope; the source reports no statistical confidence intervals."
+  }
+}
