@@ -1,5 +1,6 @@
 import Mathlib.Data.Fintype.Card
 import Mathlib.Tactic.DeriveFintype
+import OpenDistillationFactory.ErrorLandscape.MasterMatrix
 import OpenDistillationFactory.HonestErrors.Acceptance
 import OpenDistillationFactory.HonestErrors.StageGates
 
@@ -13,6 +14,27 @@ inductive ChainId where
   | chain1 | chain2 | chain3 | chain4 | chain5 | chain6
   | chain7 | chain8 | chain9 | chain10 | chain11
   deriving DecidableEq, Fintype, Repr
+
+/-- Stable ontology identifiers for the nine rows of the material-class matrix. -/
+inductive MaterialClassId where
+  | MC1 | MC2 | MC3 | MC4 | MC5 | MC6 | MC7 | MC8 | MC9
+  deriving DecidableEq, Fintype, Repr
+
+/-- Bind each discovery chain to its material-class ontology identifier.
+Chain 10 is the class-independent stability meta-chain; MC9 intentionally owns
+both the excited-state (C6) and thermal-transport (C11) chains. -/
+def classFor : ChainId → Option MaterialClassId
+  | .chain1 => some .MC4
+  | .chain2 => some .MC6
+  | .chain3 => some .MC5
+  | .chain4 => some .MC3
+  | .chain5 => some .MC8
+  | .chain6 => some .MC9
+  | .chain7 => some .MC7
+  | .chain8 => some .MC1
+  | .chain9 => some .MC2
+  | .chain10 => none
+  | .chain11 => some .MC9
 
 inductive AcceptanceTestId where
   | z1 | z2 | z3 | z4 | z5 | z6 | z7 | z8 | z9 | z10 | z11
@@ -75,5 +97,26 @@ instance (contract : ChainContract) : Decidable (ContractValid contract) := by
 theorem chainId_card : Fintype.card ChainId = 11 := by decide
 
 theorem acceptanceTestId_card : Fintype.card AcceptanceTestId = 11 := by decide
+
+-- Ontology binding locks: the nine material IDs match the nine rows of the
+-- master matrix, C10 is the class-independent meta-chain, and acceptance tests
+-- remain a one-to-one map over all eleven chains.
+#guard ErrorLandscape.masterMatrix.length = Fintype.card MaterialClassId
+#guard classFor .chain1 == some .MC4
+#guard classFor .chain2 == some .MC6
+#guard classFor .chain3 == some .MC5
+#guard classFor .chain4 == some .MC3
+#guard classFor .chain5 == some .MC8
+#guard classFor .chain6 == some .MC9
+#guard classFor .chain7 == some .MC7
+#guard classFor .chain8 == some .MC1
+#guard classFor .chain9 == some .MC2
+#guard classFor .chain10 == none
+#guard classFor .chain11 == some .MC9
+#guard decide ([acceptanceFor .chain1, acceptanceFor .chain2,
+  acceptanceFor .chain3, acceptanceFor .chain4, acceptanceFor .chain5,
+  acceptanceFor .chain6, acceptanceFor .chain7, acceptanceFor .chain8,
+  acceptanceFor .chain9, acceptanceFor .chain10,
+  acceptanceFor .chain11].Nodup)
 
 end OpenDistillationFactory.DiscoveryChains
