@@ -36,6 +36,28 @@ def classFor : ChainId → Option MaterialClassId
   | .chain10 => none
   | .chain11 => some .MC9
 
+/-- Interpret the one-based discovery-chain numbers stored in the master matrix. -/
+def chainIdOfNat? : Nat → Option ChainId
+  | 1 => some .chain1
+  | 2 => some .chain2
+  | 3 => some .chain3
+  | 4 => some .chain4
+  | 5 => some .chain5
+  | 6 => some .chain6
+  | 7 => some .chain7
+  | 8 => some .chain8
+  | 9 => some .chain9
+  | 10 => some .chain10
+  | 11 => some .chain11
+  | _ => none
+
+/-- Check that a nonempty master-matrix chain list belongs to one material class. -/
+def chainsBelongTo (chains : List Nat) (materialClass : MaterialClassId) : Bool :=
+  !chains.isEmpty && chains.all fun n =>
+    match chainIdOfNat? n with
+    | some chain => classFor chain == some materialClass
+    | none => false
+
 inductive AcceptanceTestId where
   | z1 | z2 | z3 | z4 | z5 | z6 | z7 | z8 | z9 | z10 | z11
   deriving DecidableEq, Fintype, Repr
@@ -113,6 +135,19 @@ theorem acceptanceTestId_card : Fintype.card AcceptanceTestId = 11 := by decide
 #guard classFor .chain9 == some .MC2
 #guard classFor .chain10 == none
 #guard classFor .chain11 == some .MC9
+#guard chainIdOfNat? 0 == none
+#guard chainIdOfNat? 12 == none
+#guard chainsBelongTo [] .MC4 == false
+#guard chainsBelongTo [1] .MC6 == false
+#guard chainsBelongTo ErrorLandscape.batteriesRow.discoveryChains .MC4
+#guard chainsBelongTo ErrorLandscape.magnetsRow.discoveryChains .MC6
+#guard chainsBelongTo ErrorLandscape.catalystsRow.discoveryChains .MC5
+#guard chainsBelongTo ErrorLandscape.heasRow.discoveryChains .MC3
+#guard chainsBelongTo ErrorLandscape.frameworksRow.discoveryChains .MC8
+#guard chainsBelongTo ErrorLandscape.semiconductorsRow.discoveryChains .MC9
+#guard chainsBelongTo ErrorLandscape.fusionRow.discoveryChains .MC7
+#guard chainsBelongTo ErrorLandscape.superconductorsRow.discoveryChains .MC1
+#guard chainsBelongTo ErrorLandscape.correlatedOxidesRow.discoveryChains .MC2
 #guard decide ([acceptanceFor .chain1, acceptanceFor .chain2,
   acceptanceFor .chain3, acceptanceFor .chain4, acceptanceFor .chain5,
   acceptanceFor .chain6, acceptanceFor .chain7, acceptanceFor .chain8,
