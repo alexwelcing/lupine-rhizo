@@ -138,10 +138,14 @@ def build_feedback_plan(
         chain: _chain_state(chain, assumption_rows, evidence_by_id, cycle_date)
         for chain in priority
     }
+    missing_new_bundles = sorted(new_bundle_ids - evidence_by_id.keys())
+    if missing_new_bundles:
+        raise ValueError(
+            f"new EvidenceBundle is missing from the evidence directory: {missing_new_bundles[0]}"
+        )
 
     updates: list[dict[str, Any]] = []
     queue: list[dict[str, Any]] = []
-    changed_evidence: dict[str, dict[str, Any]] = {}
 
 
     for row in sorted(hypotheses, key=lambda item: item["literature_hypothesis_id"]):
@@ -203,8 +207,6 @@ def build_feedback_plan(
                     "contract_json": changed,
                 }
             )
-            changed_evidence[authorization] = evidence_by_id[authorization]
-
         effective_status = new_status
         if effective_status not in {"rejected", "superseded"}:
             for chain, state in zip(bound_chains, states, strict=True):
@@ -243,7 +245,7 @@ def build_feedback_plan(
         "as_of": as_of,
         "updates": updates,
         "queue": queue,
-        "evidence": [changed_evidence[key] for key in sorted(changed_evidence)],
+        "evidence": [evidence_by_id[key] for key in sorted(new_bundle_ids)],
         "digest_markdown": "\n".join(digest_lines) + "\n",
     }
 

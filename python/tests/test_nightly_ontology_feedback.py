@@ -172,6 +172,51 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("hyp.refuted", plan["digest_markdown"])
         self.assertIn("hyp.gap", plan["digest_markdown"])
 
+    def test_fresh_bundle_is_synced_to_d1_even_without_a_hypothesis_transition(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        evidence = {
+            BUNDLE_A: bundle(
+                BUNDLE_A,
+                outcome="pass",
+                campaign="one",
+                status="confirmatory",
+            )
+        }
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id=evidence,
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.already-ready",
+                    "contract_json": hypothesis("C1", "Z1", readiness="M"),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
+        self.assertEqual(
+            [row["bundle_id"] for row in plan["evidence"]],
+            [BUNDLE_A],
+        )
+
     def test_readiness_requires_dated_defined_new_evidence_and_two_independent_demonstrations_for_h(self) -> None:
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
