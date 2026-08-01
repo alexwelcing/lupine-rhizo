@@ -477,26 +477,25 @@ def enforce_path_minimums(
         if isinstance(preregistration, dict)
         else None
     )
-    retrospective = isinstance(recorded_inputs, list) and bool(recorded_inputs)
-    if retrospective:
-        # Retrospective reuse of the canonical recorded dataset is identity-locked:
-        # exactly one input, the canonical source, and the canonical campaign —
-        # cloned campaigns over the same dataset are not independent replication.
-        if len(recorded_inputs) != 1:
-            raise ValueError(
-                f"measurement {row_id} requires exactly one locked recorded input; "
-                f"the sign-skew family cannot reconcile {len(recorded_inputs)}"
-            )
-        declared_input = recorded_inputs[0]
-        if (
-            not isinstance(declared_input, dict)
-            or declared_input.get("path") != CANONICAL_RECORDED_SOURCE
-            or declared_input.get("sha256") != CANONICAL_RECORDED_DIGEST
-        ):
-            raise ValueError(
-                f"measurement {row_id} recorded input is not the canonical locked "
-                f"source {CANONICAL_RECORDED_SOURCE}"
-            )
+    if not (isinstance(recorded_inputs, list) and recorded_inputs):
+        raise ValueError(
+            f"measurement {row_id} requires a manifest with locked "
+            "preregistration.recorded_inputs for the sign-skew family; an "
+            "omitted lock is not proof of fresh compute"
+        )
+    if len(recorded_inputs) != 1:
+        raise ValueError(
+            f"measurement {row_id} requires exactly one locked recorded input; "
+            f"the sign-skew family cannot reconcile {len(recorded_inputs)}"
+        )
+    declared_input = recorded_inputs[0]
+    declared_pair = (
+        declared_input.get("path") if isinstance(declared_input, dict) else None,
+        declared_input.get("sha256") if isinstance(declared_input, dict) else None,
+    )
+    if declared_pair == (CANONICAL_RECORDED_SOURCE, CANONICAL_RECORDED_DIGEST):
+        # Retrospective reuse of the canonical dataset is identity-locked: the
+        # same locked rows may only support the canonical campaign.
         if manifest.get("campaign_id") != CANONICAL_CAMPAIGN_ID:
             raise ValueError(
                 f"measurement {row_id} manifest campaign {manifest.get('campaign_id')!r} "
@@ -510,9 +509,14 @@ def enforce_path_minimums(
                 f"the frozen sign-skew panel requires exactly {FROZEN_PANEL_PATH_MINIMUM}"
             )
     else:
-        # A fresh-compute campaign carries no retrospective source to lock and is
-        # graded by its own frozen evidence requirements; genuinely independent
-        # replication remains reachable.
+        if declared_pair[0] == CANONICAL_RECORDED_SOURCE or declared_pair[1] == CANONICAL_RECORDED_DIGEST:
+            raise ValueError(
+                f"measurement {row_id} recorded input partially matches the canonical "
+                "locked source; declare it exactly or use a distinct dataset"
+            )
+        # A distinct locked dataset is an independent campaign: its digest is
+        # verified and every row binds to it below, and its own frozen
+        # requirements set the floor.
         floor = max(minimums)
     try:
         document = json.loads(artifact.read_text(encoding="utf-8"))
@@ -527,7 +531,9 @@ def enforce_path_minimums(
             "self-reported aggregates cannot prove coverage"
         )
     paths, models, pairs, rows = coverage
-    if retrospective:
+    # Always true after the recorded-input checks above: bind every coverage row
+    # to the declared locked source's identity, status, and values.
+    if recorded_inputs:
         # Bind every coverage row to the locked source's path identity, recorded
         # status, and recorded value, so the receipt demonstrably measures the
         # frozen panel and nothing else. The source bytes must match the

@@ -525,7 +525,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     "recorded_inputs": [{"path": "other.json", "sha256": manifest["preregistration"]["recorded_inputs"][0]["sha256"]}]
                 },
             }
-            with self.assertRaisesRegex(ValueError, "not the canonical locked source"):
+            with self.assertRaisesRegex(ValueError, "partially matches the canonical"):
                 module.enforce_path_minimums(root, foreign_manifest, make_bundle(), artifact, "skew-1")
 
             # The canonical digest is verified against the actual source bytes.
@@ -535,7 +535,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     "recorded_inputs": [{"path": "locked.json", "sha256": "sha256:" + "0" * 64}]
                 },
             }
-            with self.assertRaisesRegex(ValueError, "not the canonical locked source"):
+            with self.assertRaisesRegex(ValueError, "partially matches the canonical"):
                 module.enforce_path_minimums(root, tampered_manifest, make_bundle(), artifact, "skew-1")
             (root / "locked.json").write_bytes(b"{}")
             with self.assertRaisesRegex(ValueError, "digest mismatch"):
@@ -611,13 +611,45 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "outside the locked recorded panel"):
                 enforce(make_bundle())
 
-            # Genuinely independent fresh-compute campaigns remain reachable:
-            # no retrospective source to lock, their own frozen requirements.
+            # Genuinely independent campaigns remain reachable with their own
+            # locked dataset; an omitted lock is rejected, not trusted.
             fresh_manifest = {
                 key: value for key, value in manifest.items() if key != "preregistration"
             }
             fresh_manifest["campaign_id"] = "literature.protocol-offset-sign-skew.v2"
             write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "omitted lock"):
+                module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+
+            fresh_document = {
+                "per_path": [
+                    {
+                        "path_index": index,
+                        "path_id": f"mp-{2000 + index}_0_0_0_0_0",
+                        "per_model": {
+                            model: {"vasp_signed_error_mev": 500.0, "complete": True}
+                            for model in models
+                        },
+                        "models_missing": {},
+                    }
+                    for index in range(22)
+                ]
+            }
+            fresh_bytes = json.dumps(fresh_document).encode()
+            (root / "fresh-locked.json").write_bytes(fresh_bytes)
+            fresh_manifest["preregistration"] = {
+                "recorded_inputs": [
+                    {
+                        "path": "fresh-locked.json",
+                        "sha256": "sha256:" + hashlib.sha256(fresh_bytes).hexdigest(),
+                    }
+                ]
+            }
+            fresh_rows = [
+                {**row, "path_id": f"mp-{2000 + row['path_index']}_0_0_0_0_0"}
+                for row in full_rows
+            ]
+            write_artifact(artifact, fresh_rows)
             module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
 
     def test_sign_skew_rows_require_a_locked_sign_skew_manifest(self) -> None:
