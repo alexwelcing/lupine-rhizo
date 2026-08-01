@@ -364,6 +364,40 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     manifest, make_bundle(median=460.14), artifact, "skew-1"
                 )
 
+            # Rows for models outside execution.model_selection are rejected.
+            write_artifact(
+                artifact,
+                full_rows
+                + [
+                    {
+                        "path_index": 0,
+                        "model": "uma",
+                        "status": "measured",
+                        "signed_error_mev": 500.0,
+                    }
+                ],
+            )
+            with self.assertRaisesRegex(ValueError, "undeclared models"):
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
+            # Placeholder rows are not terminal observations or failures.
+            write_artifact(
+                artifact,
+                [
+                    row
+                    for row in full_rows
+                    if not (row["path_index"] == 13 and row["model"] == "mace-mp-small")
+                ]
+                + [{"path_index": 13, "model": "mace-mp-small"}],
+            )
+            with self.assertRaisesRegex(ValueError, "measured or an explicit failure"):
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
+            # Duplicate (path, model) rows would double-vote the path median.
+            write_artifact(artifact, full_rows + [dict(full_rows[0])])
+            with self.assertRaisesRegex(ValueError, "duplicate observation"):
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

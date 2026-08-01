@@ -320,7 +320,11 @@ def bundle_from_row(
 
 
 def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], list[dict]] | None:
-    """Derive (path indices, models, disclosed pairs, rows) from artifact rows."""
+    """Derive (path indices, models, disclosed pairs, rows) from artifact rows.
+
+    Every row must be a terminal record — measured with a numeric signed error
+    or an explicit failure — and each (path, model) pair may appear once.
+    """
     if not isinstance(document, dict):
         return None
     rows = document.get("per_row") or document.get("per_path")
@@ -331,15 +335,31 @@ def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], 
     pairs: set[tuple[int, str]] = set()
     for row in rows:
         if not isinstance(row, dict):
-            continue
+            raise ValueError("coverage rows must be objects")
         index = row.get("path_index")
         model = row.get("model")
-        if isinstance(index, int) and not isinstance(index, bool):
-            paths.add(index)
-            if isinstance(model, str):
-                pairs.add((index, model))
-        if isinstance(model, str):
-            models.add(model)
+        if (
+            not isinstance(index, int)
+            or isinstance(index, bool)
+            or not isinstance(model, str)
+        ):
+            raise ValueError("coverage rows require a path_index and a model")
+        status = row.get("status")
+        value = row.get("signed_error_mev")
+        if status == "measured":
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                raise ValueError(
+                    f"measured row for path {index} model {model} requires a numeric signed_error_mev"
+                )
+        elif status != "failed":
+            raise ValueError(
+                f"row for path {index} model {model} must be measured or an explicit failure"
+            )
+        if (index, model) in pairs:
+            raise ValueError(f"duplicate observation for path {index} model {model}")
+        pairs.add((index, model))
+        paths.add(index)
+        models.add(model)
     return paths, models, pairs, rows
 
 
@@ -431,6 +451,13 @@ def enforce_path_minimums(
         raise ValueError(
             f"measurement {row_id} omits declared available models: {', '.join(missing_models)}"
         )
+    if required_models:
+        extra_models = sorted(models - required_models)
+        if extra_models:
+            raise ValueError(
+                f"measurement {row_id} includes undeclared models outside "
+                f"execution.model_selection: {', '.join(extra_models)}"
+            )
     missing_pairs = sorted(
         (path, model) for path in paths for model in required_models if (path, model) not in pairs
     )
