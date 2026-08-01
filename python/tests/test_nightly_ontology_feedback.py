@@ -124,8 +124,18 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
 
             self.assertEqual(len(result["ingested_bundle_ids"]), 2)
+            self.assertGreater(
+                len(result["sync_candidate_bundle_ids"]),
+                len(result["ingested_bundle_ids"]),
+            )
+            self.assertTrue(
+                set(result["ingested_bundle_ids"]).issubset(
+                    result["sync_candidate_bundle_ids"]
+                )
+            )
             self.assertTrue((output / "runtime-gates.json").is_file())
             self.assertTrue((output / "ingested-bundles.json").is_file())
+            self.assertTrue((output / "sync-candidates.json").is_file())
             regenerated = json.loads((root / "registry" / "assumptions.v1.json").read_text())
             self.assertGreater(len(regenerated["assumptions"]), 0)
 
@@ -334,6 +344,50 @@ class NightlyFeedbackTests(unittest.TestCase):
                 as_of="2026-08-01",
             )
 
+    def test_readiness_requires_every_acceptance_measurement_to_pass(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        partial = bundle(
+            BUNDLE_A,
+            outcome="pass",
+            campaign="one",
+            status="confirmatory",
+        )
+        failing_measurement = json.loads(json.dumps(partial["measurements"][0]))
+        failing_measurement["value"] = 70
+        failing_measurement["acceptance_test"]["outcome"] = "fail"
+        partial["measurements"].append(failing_measurement)
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: partial},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.partial",
+                    "contract_json": hypothesis("C1", "Z1"),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
+        self.assertEqual(plan["queue"][0]["evidence_gap"]["current_readiness"], "L")
+
     def test_workflow_rehydrates_and_persists_the_complete_nightly_corpus(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
 
@@ -342,7 +396,8 @@ class NightlyFeedbackTests(unittest.TestCase):
         apply_feedback = workflow.index("Apply feedback to production D1")
         persist = workflow.index("Persist durable ontology corpus")
         self.assertLess(restore, ingest)
-        self.assertLess(apply_feedback, persist)
+        self.assertLess(persist, apply_feedback)
+        self.assertIn("--new-bundle-ids nightly-output/sync-candidates.json", workflow)
         self.assertIn("registry/claims", workflow)
         self.assertIn("evidence/v1/examples", workflow)
         self.assertIn("ontology-state/$CYCLE_DATE/corpus-", workflow)
@@ -486,6 +541,48 @@ class NightlyFeedbackTests(unittest.TestCase):
             ("literature_hypothesis_evidence_guard",),
         ).fetchone()[0]
         self.assertIn("max(latest.rowid)", after)
+
+    def test_latest_state_schema_keeps_evidence_and_status_history_immutable(self) -> None:
+        connection = sqlite3.connect(":memory:")
+        self.addCleanup(connection.close)
+        connection.executescript(
+            (ROOT / "glim-think" / "schema.sql").read_text(encoding="utf-8")
+        )
+        bundle_id = "sha256:" + "a" * 64
+        connection.execute(
+            """
+            INSERT INTO evidence_bundle (
+              bundle_id, claim_predicate, epistemic_status, scope_json, provenance_json
+            ) VALUES (?, 'barrier_mae_mev<=40', 'confirmatory', '{}', '{}')
+            """,
+            (bundle_id,),
+        )
+        connection.execute(
+            """
+            INSERT INTO status_event (
+              status_event_id, entity_type, entity_id, from_status, to_status,
+              evidence_bundle_id, occurred_at
+            ) VALUES ('event.latest-state', 'literature_hypothesis', 'hyp.one',
+                      'proposed', 'accepted', ?, '2026-08-01T08:00:00Z')
+            """,
+            (bundle_id,),
+        )
+
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "evidence_bundle is immutable"):
+            connection.execute(
+                "UPDATE evidence_bundle SET epistemic_status = 'negative' WHERE bundle_id = ?",
+                (bundle_id,),
+            )
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "evidence_bundle is immutable"):
+            connection.execute("DELETE FROM evidence_bundle WHERE bundle_id = ?", (bundle_id,))
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "status_event is append-only"):
+            connection.execute(
+                "UPDATE status_event SET to_status = 'rejected' WHERE status_event_id = 'event.latest-state'"
+            )
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "status_event is append-only"):
+            connection.execute(
+                "DELETE FROM status_event WHERE status_event_id = 'event.latest-state'"
+            )
 
 
 if __name__ == "__main__":

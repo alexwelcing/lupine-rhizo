@@ -392,6 +392,25 @@ def _compile_claim_gate(
             premise_status = _PREMISE_STATUS[
                 sorted(levels, reverse=True)[minimum_count - 1]
             ]
+        scope_bundle_ids = bundle_ids
+        if not contradicted and levels:
+            support_level: int | None
+            if mode == "all":
+                support_level = min(levels)
+            elif mode == "any":
+                support_level = max(levels)
+            elif minimum_count <= len(levels):
+                support_level = sorted(levels, reverse=True)[minimum_count - 1]
+            else:
+                support_level = None
+            if support_level is not None:
+                scope_bundle_ids = [
+                    bundle_id
+                    for bundle_id in bundle_ids
+                    if evidence_by_id[bundle_id]["epistemic_status"] != "negative"
+                    and _EVIDENCE_LEVEL[str(evidence_by_id[bundle_id]["epistemic_status"])]
+                    >= support_level
+                ]
         premise_rows.append(
             {
                 "premise_id": premise_id,
@@ -407,7 +426,7 @@ def _compile_claim_gate(
                         evidence_by_id[bundle_id]["scope"],
                         f"claim {claim_id} evidence scope",
                     )
-                    for bundle_id in bundle_ids
+                    for bundle_id in scope_bundle_ids
                 ],
                 claim_id,
             )

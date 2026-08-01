@@ -282,11 +282,6 @@ jobs:
           Path('nightly-output/staging-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n')
           PY
 
-      - name: Apply feedback to production D1
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
-        working-directory: glim-think
-        run: npx wrangler d1 execute glim-ledger --remote --file ../nightly-output/feedback.sql
-
       - name: Persist durable ontology corpus
         if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
         run: |
@@ -296,6 +291,11 @@ jobs:
           tar -czf "$archive" registry/claims evidence/v1/examples
           gcloud storage cp "$archive" \
             "gs://shed-489901-atlas-outputs/evidence-nightly/ontology-state/$CYCLE_DATE/corpus-$run_id-$run_attempt.tar.gz"
+
+      - name: Apply feedback to production D1
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        working-directory: glim-think
+        run: npx wrangler d1 execute glim-ledger --remote --file ../nightly-output/feedback.sql
 
       - name: Publish Hermes digest to job summary
         if: always()

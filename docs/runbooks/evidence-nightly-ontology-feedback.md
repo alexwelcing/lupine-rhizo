@@ -45,11 +45,14 @@ Missing input, broken row hashes, scope drift, or missing artifacts fail the job
 5. The generated SQL inserts the new EvidenceBundle, appends a `status_event`,
    updates the hypothesis, and refreshes `literature_reprioritization_queue` in
    one transaction. Queue rows follow `discoveryChains` order in atlas v2.
-6. Wrangler applies that SQL to the existing `glim-ledger` D1 database. Only after
-   that transaction succeeds, the job writes a run-addressed immutable corpus
-   archive back to the existing GCS output bucket. The job also uploads the SQL,
-   queue JSON, runtime gate, complete claim/evidence corpus, staging evidence
-   (when selected), Markdown digest, and machine-readable
+6. Before committing that SQL to D1, the job writes a run-addressed immutable
+   corpus archive to the existing GCS output bucket. D1 can therefore never get
+   ahead of the restorable claim/evidence corpus: a failed archive upload leaves
+   the ledger untouched, while a failed D1 transaction leaves an unused immutable
+   archive that a retry may safely supersede.
+7. Wrangler applies the SQL to the existing `glim-ledger` D1 database. The job
+   also uploads the SQL, queue JSON, runtime gate, complete claim/evidence corpus,
+   staging evidence (when selected), Markdown digest, and machine-readable
    `hermes.digest-card.v1` card.
 
 ## Anti-laundering invariant

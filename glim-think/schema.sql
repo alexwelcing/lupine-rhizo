@@ -732,6 +732,32 @@ CREATE TABLE IF NOT EXISTS status_event (
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
+-- Keep latest-state initialization aligned with migration 0011: evidence is
+-- content-addressed and transition history is append-only.
+CREATE TRIGGER IF NOT EXISTS evidence_bundle_immutable_update
+BEFORE UPDATE ON evidence_bundle
+BEGIN
+  SELECT RAISE(ABORT, 'evidence_bundle is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS evidence_bundle_immutable_delete
+BEFORE DELETE ON evidence_bundle
+BEGIN
+  SELECT RAISE(ABORT, 'evidence_bundle is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS status_event_append_only_update
+BEFORE UPDATE ON status_event
+BEGIN
+  SELECT RAISE(ABORT, 'status_event is append-only');
+END;
+
+CREATE TRIGGER IF NOT EXISTS status_event_append_only_delete
+BEFORE DELETE ON status_event
+BEGIN
+  SELECT RAISE(ABORT, 'status_event is append-only');
+END;
+
 CREATE TABLE IF NOT EXISTS literature_reprioritization_queue (
   cycle_date TEXT NOT NULL,
   literature_hypothesis_id TEXT NOT NULL

@@ -137,7 +137,7 @@ def _chain_state(
         if not outcomes:
             continue
         defined.append(bundle_id)
-        if "pass" in outcomes:
+        if outcomes and all(outcome == "pass" for outcome in outcomes):
             passing.append(bundle_id)
             for reference in bundle.get("evidence_refs", []):
                 if isinstance(reference, dict) and isinstance(reference.get("campaign"), str):
