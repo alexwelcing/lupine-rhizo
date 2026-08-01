@@ -257,6 +257,52 @@ def test_any_policy_rejects_same_grade_correlated_scope_expansion(tmp_path: Path
 
 
 @pytest.mark.unit
+def test_scope_union_marks_axis_condition_cross_products_fail_closed() -> None:
+    scopes = [
+        {
+            "chemistries": ["Ni"],
+            "properties": ["barrier"],
+            "structures": ["fcc"],
+            "conditions": {"calibration": "same", "temperature_k": 300},
+        },
+        {
+            "chemistries": ["Cu"],
+            "properties": ["barrier"],
+            "structures": ["fcc"],
+            "conditions": {"calibration": "same", "temperature_k": 500},
+        },
+    ]
+
+    scope = sync._scope_union(scopes, "claim.correlated")  # noqa: SLF001
+
+    assert scope["requires_correlated_match"] is True
+    assert scope["correlated_scopes"] == scopes
+
+
+@pytest.mark.unit
+def test_correlated_conditions_force_runtime_gate_to_deny(tmp_path: Path) -> None:
+    assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
+    bundle_id = _add_a0_evidence(
+        tmp_path,
+        epistemic_status="confirmatory",
+        condition_updates={"sample_count": 999},
+        scope_updates={"chemistries": ["Cu"]},
+    )
+    _add_a0_premise_reference(tmp_path, bundle_id, {"mode": "any"})
+
+    manifest = sync.compile_gate_manifest(assumptions, lock, claims, evidence)
+    gate = next(
+        row
+        for row in manifest["gates"]
+        if row["claim_contract"]["claim_id"] == "correction.same_class.a0.v1"
+    )
+
+    assert gate["decision"] == "deny"
+    assert gate["reason"] == "scope_correlation_not_flattenable"
+    assert gate["scope"]["requires_correlated_match"] is True
+
+
+@pytest.mark.unit
 def test_contract_compiler_rejects_incompatible_scope_conditions(tmp_path: Path) -> None:
     assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
     bundle_id = _add_a0_evidence(

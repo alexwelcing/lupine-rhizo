@@ -268,12 +268,50 @@ def _scope_union(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> dict[str
             f"claim {claim_id} has scope-correlated evidence that cannot be flattened safely"
         )
     condition_values: dict[str, list[Any]] = {}
+    scope_conditions: list[Mapping[str, Any]] = []
     for scope in scopes:
         current = _require_mapping(scope.get("conditions"), "scope.conditions")
+        scope_conditions.append(current)
         for key, value in current.items():
             condition_items = condition_values.setdefault(key, [])
             if value not in condition_items:
                 condition_items.append(value)
+    condition_keys = sorted(condition_values)
+    observed_contexts = {
+        (
+            *combination,
+            *(
+                _canonical_json(conditions[key])
+                if key in conditions
+                else ("missing-condition", key)
+                for key in condition_keys
+            ),
+        )
+        for axes, conditions in zip(scope_axes, scope_conditions, strict=True)
+        for combination in product(
+            axes["chemistries"], axes["properties"], axes["structures"]
+        )
+    }
+    condition_options = [
+        list(
+            {
+                _canonical_json(conditions[key])
+                if key in conditions
+                else ("missing-condition", key)
+                for conditions in scope_conditions
+            }
+        )
+        for key in condition_keys
+    ]
+    expanded_contexts = set(
+        product(
+            merged["chemistries"],
+            merged["properties"],
+            merged["structures"],
+            *condition_options,
+        )
+    )
+    requires_correlated_match = expanded_contexts != observed_contexts
     # Calibration defines how a correction is licensed. Unlike measured
     # outcomes, it cannot vary across rows without changing the gate itself.
     if len(condition_values.get("calibration", [])) > 1:
@@ -282,6 +320,9 @@ def _scope_union(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> dict[str
         key: values[0] if len(values) == 1 else values
         for key, values in sorted(condition_values.items())
     }
+    if requires_correlated_match:
+        merged["requires_correlated_match"] = True
+        merged["correlated_scopes"] = [dict(scope) for scope in scopes]
     return merged
 
 
@@ -456,6 +497,17 @@ def _compile_claim_gate(
         raise ManifestError(f"claim {claim_id} assumption evidence is stale or unreferenced")
 
     scope = _scope_intersection(premise_scopes, claim_id)
+    requires_correlated_match = any(
+        premise_scope.get("requires_correlated_match") is True
+        for premise_scope in premise_scopes
+    )
+    if requires_correlated_match:
+        scope["requires_correlated_match"] = True
+        scope["correlated_scopes"] = [
+            correlated_scope
+            for premise_scope in premise_scopes
+            for correlated_scope in premise_scope.get("correlated_scopes", [])
+        ]
     contradiction = any(
         evidence["epistemic_status"] == "negative" for evidence in evidence_by_id.values()
     )
@@ -463,6 +515,8 @@ def _compile_claim_gate(
     disposition = assumption.get("disposition")
     if contradiction:
         decision, reason = "deny", "contradicting_evidence"
+    elif requires_correlated_match:
+        decision, reason = "deny", "scope_correlation_not_flattenable"
     elif status == "active" and disposition == "supported" and all(
         premise["status"] == "active" for premise in premise_rows
     ):
