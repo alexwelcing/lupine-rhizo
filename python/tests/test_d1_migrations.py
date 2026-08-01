@@ -26,6 +26,7 @@ EXPECTED_TABLES = {
     "publication_binding",
     "status_event",
     "registry_snapshot",
+    "literature_hypotheses",
 }
 
 

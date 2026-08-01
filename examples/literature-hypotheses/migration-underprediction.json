@@ -1,0 +1,28 @@
+{
+  "source": {
+    "arxiv_id": null,
+    "openalex_id": null,
+    "ss_id": null,
+    "doi": "10.1039/D5DD00534E",
+    "url": "https://doi.org/10.1039/D5DD00534E",
+    "asOf": "2026-07-20"
+  },
+  "claim_text": "The majority-direction migration-barrier underprediction reported for CHGNet and M3GNet should recur as a signed-error imbalance unless a barrier-targeted correction clears the Z1 gate.",
+  "bindings": {
+    "errorTypes": ["T2", "T3"],
+    "materialClasses": ["MC1"],
+    "chains": ["C1"],
+    "acceptanceTests": ["Z1"]
+  },
+  "epistemicMarker": "INF",
+  "readiness": "M (574-path literature panel; local panel pending)",
+  "confidence": "Medium",
+  "proposedExperiment": {
+    "metric": "barrier_mae",
+    "predicate": "barrier_mae_mev<=40",
+    "panel_ref": "data/candidates/z1_nebdft2k_barriers.lock.json",
+    "estimated_cells": 30,
+    "estimated_gpu_hours": 6
+  },
+  "status": "proposed"
+}

@@ -1,0 +1,28 @@
+{
+  "source": {
+    "arxiv_id": null,
+    "openalex_id": null,
+    "ss_id": null,
+    "doi": "10.1038/s41524-024-01500-6",
+    "url": "https://doi.org/10.1038/s41524-024-01500-6",
+    "asOf": "2026-07-20"
+  },
+  "claim_text": "Near-equilibrium-biased universal MLIPs systematically underpredict energies and forces for barriers and other high-energy configurations, so signed barrier error should be measured before correction.",
+  "bindings": {
+    "errorTypes": ["T2", "T3"],
+    "materialClasses": ["MC1"],
+    "chains": ["C1"],
+    "acceptanceTests": ["Z1"]
+  },
+  "epistemicMarker": "OBS",
+  "readiness": "M (literature result; locked-panel replication pending)",
+  "confidence": "High",
+  "proposedExperiment": {
+    "metric": "barrier_mae",
+    "predicate": "barrier_mae_mev<=40",
+    "panel_ref": "data/candidates/z1_nebdft2k_barriers.lock.json",
+    "estimated_cells": 30,
+    "estimated_gpu_hours": 6
+  },
+  "status": "proposed"
+}
