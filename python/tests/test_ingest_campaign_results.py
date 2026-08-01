@@ -212,6 +212,10 @@ class CampaignResultIngestionTests(unittest.TestCase):
         module = load_ingest_module()
         models = ["chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium"]
 
+        def set_canonical(path: str, digest: str) -> None:
+            module.CANONICAL_RECORDED_SOURCE = path
+            module.CANONICAL_RECORDED_DIGEST = digest
+
         def make_bundle(fraction: float = 1.0, median: float = 500.0, sample_count: int = 22) -> dict:
             return {
                 "claim_predicate": "signed_error_positive_fraction>0.5",
@@ -277,6 +281,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             locked_bytes = json.dumps(locked_document).encode()
             (root / "locked.json").write_bytes(locked_bytes)
+            set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
             manifest = {
                 "available_models": [{"model_id": model} for model in models],
                 "acceptance_test": {
@@ -350,6 +355,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             failed_bytes = json.dumps(failed_document).encode()
             (root / "locked-failed.json").write_bytes(failed_bytes)
+            set_canonical("locked-failed.json", "sha256:" + hashlib.sha256(failed_bytes).hexdigest())
             failed_manifest = {
                 **manifest,
                 "preregistration": {
@@ -375,6 +381,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 module.enforce_path_minimums(
                     root, failed_manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
                 )
+            set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
 
             # Six paths measured by four models must not launder the minimum:
             # distinct path coverage, not raw sample_count, is the gate.
@@ -411,6 +418,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             pair_document["per_path"][13]["models_missing"] = {"mace-mp-small": "failed"}
             pair_bytes = json.dumps(pair_document).encode()
             (root / "locked-pair.json").write_bytes(pair_bytes)
+            set_canonical("locked-pair.json", "sha256:" + hashlib.sha256(pair_bytes).hexdigest())
             pair_manifest = {
                 **manifest,
                 "preregistration": {
@@ -440,6 +448,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ],
             )
             module.enforce_path_minimums(root, pair_manifest, make_bundle(), artifact, "skew-1")
+            set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
 
             # Submitted statistics must match the artifact's own rows.
             write_artifact(artifact, full_rows)
@@ -501,16 +510,36 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "finite numeric"):
                 enforce(make_bundle())
 
-            # The locked source digest is verified before any binding.
+            # A manifest pointing at anything but the canonical source is rejected.
             write_artifact(artifact, full_rows)
+            foreign_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [{"path": "other.json", "sha256": manifest["preregistration"]["recorded_inputs"][0]["sha256"]}]
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "not the canonical locked source"):
+                module.enforce_path_minimums(root, foreign_manifest, make_bundle(), artifact, "skew-1")
+
+            # The canonical digest is verified against the actual source bytes.
             tampered_manifest = {
                 **manifest,
                 "preregistration": {
                     "recorded_inputs": [{"path": "locked.json", "sha256": "sha256:" + "0" * 64}]
                 },
             }
-            with self.assertRaisesRegex(ValueError, "digest mismatch"):
+            with self.assertRaisesRegex(ValueError, "not the canonical locked source"):
                 module.enforce_path_minimums(root, tampered_manifest, make_bundle(), artifact, "skew-1")
+            (root / "locked.json").write_bytes(b"{}")
+            with self.assertRaisesRegex(ValueError, "digest mismatch"):
+                module.enforce_path_minimums(root, manifest, make_bundle(), artifact, "skew-1")
+            (root / "locked.json").write_bytes(locked_bytes)
+
+            # The canonical neb-path-set requirement itself must be present.
+            write_artifact(artifact, full_rows)
+            bare_manifest = {**manifest, "evidence_requirements": []}
+            with self.assertRaisesRegex(ValueError, "lacks the canonical neb-path-set"):
+                module.enforce_path_minimums(root, bare_manifest, make_bundle(), artifact, "skew-1")
 
             # Manifests with multiple recorded inputs cannot be reconciled.
             multi_manifest = {

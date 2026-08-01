@@ -45,6 +45,12 @@ TYPED_MEASUREMENT_PREDICATES = frozenset(
 # The sign-skew family's frozen panel: 22 measured paths from the locked Z1 union
 # campaign. The floor is pinned here, not derived from a caller-controlled manifest.
 FROZEN_PANEL_PATH_MINIMUM = 22
+# The family's single canonical recorded source. A caller-supplied manifest may not
+# substitute its own file: consistency is proven only against this locked source.
+CANONICAL_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
+CANONICAL_RECORDED_DIGEST = (
+    "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2"
+)
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",
@@ -458,7 +464,10 @@ def enforce_path_minimums(
         and isinstance(requirement.get("minimum_count"), int)
     ]
     if not minimums:
-        return
+        raise ValueError(
+            f"measurement {row_id} manifest lacks the canonical neb-path-set "
+            "requirement; the frozen sign-skew panel cannot be proven"
+        )
     floor = max(minimums)
     if floor != FROZEN_PANEL_PATH_MINIMUM:
         raise ValueError(
@@ -493,6 +502,16 @@ def enforce_path_minimums(
         raise ValueError(
             f"measurement {row_id} requires exactly one locked recorded input; "
             f"the sign-skew family cannot reconcile {len(recorded_inputs)}"
+        )
+    declared_input = recorded_inputs[0]
+    if (
+        not isinstance(declared_input, dict)
+        or declared_input.get("path") != CANONICAL_RECORDED_SOURCE
+        or declared_input.get("sha256") != CANONICAL_RECORDED_DIGEST
+    ):
+        raise ValueError(
+            f"measurement {row_id} recorded input is not the canonical locked "
+            f"source {CANONICAL_RECORDED_SOURCE}"
         )
     if isinstance(recorded_inputs, list) and recorded_inputs:
         # Bind every coverage row to the locked source's path identity, recorded
