@@ -92,6 +92,31 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_sign_skew_predicate_requires_typed_measurement(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        del bundle["measurements"]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+    def test_sign_skew_measurement_rejects_wrong_unit_and_comparator(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"][0]["unit"] = "meV"
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"][0]["acceptance_test"]["comparator"] = (
+            "less_than_or_equal"
+        )
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()

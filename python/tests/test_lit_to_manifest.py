@@ -91,8 +91,8 @@ def test_a3_examples_convert_to_checked_in_deterministic_fixtures() -> None:
         ]
         if "T1" in hypothesis["bindings"]["errorTypes"]:
             assert first["acceptance_test"] == {
-                "metric": "signed_error_positive_fraction",
-                "operator": "gte",
+                "metric": "signed_error_positive",
+                "operator": "gt",
                 "threshold": 0.5,
                 "unit": "fraction",
             }

@@ -51,7 +51,14 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/$defs/barrierErrorMeasurement"
+        "oneOf": [
+          {
+            "$ref": "#/$defs/barrierErrorMeasurement"
+          },
+          {
+            "$ref": "#/$defs/signSkewFractionMeasurement"
+          }
+        ]
       }
     },
     "supersedes": {
@@ -68,6 +75,15 @@
       "if": {
         "properties": {
           "claim_predicate": { "const": "barrier_mae_mev<=40" }
+        },
+        "required": ["claim_predicate"]
+      },
+      "then": { "required": ["measurements"] }
+    },
+    {
+      "if": {
+        "properties": {
+          "claim_predicate": { "pattern": "^signed_error_positive_fraction>" }
         },
         "required": ["claim_predicate"]
       },
@@ -214,6 +230,33 @@
           "properties": {
             "comparator": { "const": "less_than_or_equal" },
             "threshold": { "type": "number", "minimum": 0 },
+            "outcome": { "enum": ["pass", "fail"] }
+          }
+        },
+        "sample_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "signSkewFractionMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "value",
+        "unit",
+        "acceptance_test",
+        "sample_count"
+      ],
+      "properties": {
+        "metric": { "const": "signed_error_positive" },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "unit": { "const": "fraction" },
+        "acceptance_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["comparator", "threshold", "outcome"],
+          "properties": {
+            "comparator": { "const": "greater_than" },
+            "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
             "outcome": { "enum": ["pass", "fail"] }
           }
         },

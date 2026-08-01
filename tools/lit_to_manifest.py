@@ -56,23 +56,41 @@ ACCEPTANCE_TEST_BY_ID = {
 }
 # T1 (protocol-offset) hypotheses claim a systematic signed offset of the sparse-anchor
 # protocol against the reference, not a per-model accuracy level. Their machine-readable
-# acceptance test is therefore the sign-skew majority they predict, evaluated on the
-# recorded union-campaign panel; they require no fresh held-out compute.
+# acceptance test is therefore the strict sign-skew majority they predict, evaluated on
+# the recorded union-campaign panel; they require no fresh held-out compute. The frozen
+# median band is gated through demotion conditions.
 T1_ACCEPTANCE_TEST = {
-    "metric": "signed_error_positive_fraction",
-    "operator": "gte",
+    "metric": "signed_error_positive",
+    "operator": "gt",
     "threshold": 0.5,
     "unit": "fraction",
 }
+T1_MEDIAN_BAND_MEV = (400, 600)
 T1_DEMOTION_CONDITIONS = [
     {
         "action": "demote",
-        "condition_id": "demote.z1.protocol-offset-sign-skew",
-        "metric": "signed_error_positive_fraction",
-        "operator": "lt",
+        "condition_id": "demote.z1.protocol-offset-sign-skew.fraction",
+        "metric": "signed_error_positive",
+        "operator": "lte",
         "threshold": 0.5,
         "unit": "fraction",
-    }
+    },
+    {
+        "action": "demote",
+        "condition_id": "demote.z1.protocol-offset-sign-skew.median-low",
+        "metric": "median_signed_error_mev",
+        "operator": "lt",
+        "threshold": T1_MEDIAN_BAND_MEV[0],
+        "unit": "meV",
+    },
+    {
+        "action": "demote",
+        "condition_id": "demote.z1.protocol-offset-sign-skew.median-high",
+        "metric": "median_signed_error_mev",
+        "operator": "gt",
+        "threshold": T1_MEDIAN_BAND_MEV[1],
+        "unit": "meV",
+    },
 ]
 T1_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
 # Executed union-campaign rows carrying a usable per-path signed error (of the 23 locked).

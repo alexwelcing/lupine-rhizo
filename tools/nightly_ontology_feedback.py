@@ -13,8 +13,9 @@ from typing import Any
 
 HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 ACCEPTANCE_PREDICATE_RE = re.compile(
-    r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev)<=(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
+    r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev|fraction)(?P<comparator><=|>)(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
 )
+PREDICATE_COMPARATORS = {"<=": "less_than_or_equal", ">": "greater_than"}
 READINESS_RANK = {"L": 0, "M": 1, "H": 2}
 
 
@@ -64,13 +65,18 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
         threshold = acceptance.get("threshold")
         comparator = acceptance.get("comparator")
         asserted_outcome = acceptance.get("outcome")
+        expected_comparator = (
+            PREDICATE_COMPARATORS[predicate_match.group("comparator")]
+            if predicate_match is not None
+            else None
+        )
         if (
             predicate_match is None
             or not isinstance(value, (int, float))
             or isinstance(value, bool)
             or not isinstance(threshold, (int, float))
             or isinstance(threshold, bool)
-            or comparator != "less_than_or_equal"
+            or comparator != expected_comparator
             or asserted_outcome not in {"pass", "fail"}
         ):
             raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
@@ -83,7 +89,10 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
             raise ValueError(
                 "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
             )
-        measured_outcome = "pass" if value <= threshold else "fail"
+        if comparator == "less_than_or_equal":
+            measured_outcome = "pass" if value <= threshold else "fail"
+        else:
+            measured_outcome = "pass" if value > threshold else "fail"
         if asserted_outcome != measured_outcome:
             raise ValueError(
                 "EvidenceBundle asserted acceptance outcome disagrees with its measured value"

@@ -1,5 +1,5 @@
 {
-  "claim_predicate": "protocol_offset_positive_signed_skew(property=migration_barrier,panel=z1-nebdft2k-chemistry-held-out-v1)",
+  "claim_predicate": "signed_error_positive_fraction>0.5",
   "epistemic_status": "confirmatory",
   "scope": {
     "structures": [
@@ -76,7 +76,7 @@
     {
       "campaign": "literature.protocol-offset-sign-skew.v1",
       "campaign_manifest": "campaigns/v1/literature-protocol-offset-sign-skew.campaign-manifest.v1.json",
-      "campaign_manifest_hash": "sha256:b7b0061e34a5a799cbc5ecba960d38c61ef7ec3241a8cd27e60c58cbc4891516",
+      "campaign_manifest_hash": "sha256:5d6dd0b14d535067b6c7d25340a7b30900665768fa57ac11f81177ca0851be3b",
       "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
       "artifact_hash": "sha256:f0e287b6f0e7e5c2a30b4fde66f15430f1f5c3ebf31b4bb401ba092c4e73272d",
@@ -89,6 +89,19 @@
     "timestamp": "2026-08-01T12:06:00Z",
     "preregistration_id": "prereg.literature.protocol-offset-sign-skew.v1"
   },
+  "measurements": [
+    {
+      "metric": "signed_error_positive",
+      "value": 0.9545,
+      "unit": "fraction",
+      "acceptance_test": {
+        "comparator": "greater_than",
+        "threshold": 0.5,
+        "outcome": "pass"
+      },
+      "sample_count": 22
+    }
+  ],
   "supersedes": [],
-  "bundle_id": "sha256:be7a30e5cc9f74432c8abff71866718884d0eeae0ee63a69759a580dac66632d"
+  "bundle_id": "sha256:e079337d3d60d2653dc93991be60ef6a70b6f03c06445c29b8e7326d873ecdc4"
 }

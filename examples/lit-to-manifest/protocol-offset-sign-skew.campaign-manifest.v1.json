@@ -1,7 +1,7 @@
 {
   "acceptance_test": {
-    "metric": "signed_error_positive_fraction",
-    "operator": "gte",
+    "metric": "signed_error_positive",
+    "operator": "gt",
     "threshold": 0.5,
     "unit": "fraction"
   },
@@ -28,15 +28,31 @@
     }
   ],
   "campaign_id": "literature.protocol-offset-sign-skew.v1",
-  "content_hash": "sha256:5fdfe5d4487358fcfc6c7ba2da6174154754e5627d58fb803aa1e974b036d07b",
+  "content_hash": "sha256:8e97f12371efcd9ba1d06c612c31dc9b7a41adc6b2596fd834093734877bf656",
   "demotion_conditions": [
     {
       "action": "demote",
-      "condition_id": "demote.z1.protocol-offset-sign-skew",
-      "metric": "signed_error_positive_fraction",
-      "operator": "lt",
+      "condition_id": "demote.z1.protocol-offset-sign-skew.fraction",
+      "metric": "signed_error_positive",
+      "operator": "lte",
       "threshold": 0.5,
       "unit": "fraction"
+    },
+    {
+      "action": "demote",
+      "condition_id": "demote.z1.protocol-offset-sign-skew.median-low",
+      "metric": "median_signed_error_mev",
+      "operator": "lt",
+      "threshold": 400,
+      "unit": "meV"
+    },
+    {
+      "action": "demote",
+      "condition_id": "demote.z1.protocol-offset-sign-skew.median-high",
+      "metric": "median_signed_error_mev",
+      "operator": "gt",
+      "threshold": 600,
+      "unit": "meV"
     }
   ],
   "evidence_requirements": [

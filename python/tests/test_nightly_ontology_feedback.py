@@ -346,6 +346,103 @@ class NightlyFeedbackTests(unittest.TestCase):
                 as_of="2026-08-01",
             )
 
+    def test_sign_skew_bundle_yields_typed_outcomes_without_promoting_barrier_predicate(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            }
+        ]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: skew},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.sign-skew",
+                    "contract_json": hypothesis("C1", "Z1"),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        # The skew receipt is dated and defined, but it must not count as a passing
+        # barrier_mae_mev<=40 demonstration for the bound hypothesis.
+        self.assertEqual(plan["updates"], [])
+
+    def test_sign_skew_bundle_rejects_an_asserted_outcome_that_disagrees(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.4,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "asserted acceptance outcome"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: skew},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.sign-skew-inconsistent",
+                        "contract_json": hypothesis("C1", "Z1"),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
     def test_readiness_rejects_a_threshold_that_disagrees_with_the_bound_predicate(self) -> None:
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
