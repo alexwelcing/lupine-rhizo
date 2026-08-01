@@ -485,6 +485,15 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate observation"):
                 enforce(make_bundle())
 
+            # Non-finite signed errors are rejected before any comparison.
+            artifact.write_text(
+                json.dumps({"per_row": full_rows}).replace(
+                '"signed_error_mev": 500.0', '"signed_error_mev": NaN', 1
+                )
+            )
+            with self.assertRaisesRegex(ValueError, "finite numeric"):
+                enforce(make_bundle())
+
             # The locked source digest is verified before any binding.
             write_artifact(artifact, full_rows)
             tampered_manifest = {

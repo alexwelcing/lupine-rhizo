@@ -182,6 +182,14 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_sign_skew_predicate_is_the_single_frozen_const(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["claim_predicate"] = "signed_error_positive_fraction>0.6"
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()

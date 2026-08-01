@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import statistics
 import re
 import shutil
@@ -386,9 +387,13 @@ def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], 
         status = row.get("status")
         value = row.get("signed_error_mev")
         if status == "measured":
-            if not isinstance(value, (int, float)) or isinstance(value, bool):
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(value)
+            ):
                 raise ValueError(
-                    f"measured row for path {index} model {model} requires a numeric signed_error_mev"
+                    f"measured row for path {index} model {model} requires a finite numeric signed_error_mev"
                 )
         elif status != "failed":
             raise ValueError(
