@@ -2,12 +2,12 @@
  "artifacts": [
   {
    "path": "data/candidates/z2/measurements.jsonl",
-   "sha256": "sha256:ff3ecf161f4f4058375cf296dd35be1055adb68e147016cf0fa8a5be6212aed3"
+   "sha256": "sha256:1fc1cff88e9e43c13d74c318f1448b9ffb6568458d51aa11517fbb11919bb98a"
   }
  ],
- "campaign_manifest_hash": "sha256:71dc1866592e4198a9a21ba059082c361b77b2e4c337d8554cb71e3b9e95645a",
- "chain_head": "sha256:18f82bcdb59e5a7093fc01ed91a4a9eadceb2bc4bc15782b65e42ead3059f69c",
- "chain_tail": "sha256:05d3b087a831775bfcd27d42837b60310820356d97aee0f05b1996f78f66c145",
+ "campaign_manifest_hash": "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc",
+ "chain_head": "sha256:ccee6ec26d761d9bdf55033c6aea16cabd117968db98b669a48f9533459d6e85",
+ "chain_tail": "sha256:1019cff0cbdaf408b26e274c876fe08add180aa90add991e7047b88aa619d0e0",
  "generator": "tools/build_z2_abstention_rows.py",
  "row_count": 4,
  "schema": "lupine.z2.abstention_artifact_manifest.v1"

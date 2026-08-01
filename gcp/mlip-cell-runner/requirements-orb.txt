@@ -1,6 +1,9 @@
 ase==3.28.0
 numpy==1.26.4
 requests==2.32.5
+pydantic>=2.0,<3
+jsonschema>=4.0,<5
+rfc8785>=0.1,<1
 --extra-index-url https://download.pytorch.org/whl/cu118
 torch==2.6.0+cu118
 orb-models==0.5.5
