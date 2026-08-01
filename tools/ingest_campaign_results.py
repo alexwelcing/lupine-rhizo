@@ -581,6 +581,30 @@ def enforce_path_minimums(
                     f"measurement {row_id} recorded input reserializes the canonical "
                     "dataset; independence requires distinct observations"
                 )
+        else:
+            fingerprint = CANONICAL_SOURCE_FINGERPRINT
+        examples_dir = root / "evidence" / "v1" / "examples"
+        if examples_dir.is_dir():
+            for prior_path in sorted(examples_dir.glob("*.json")):
+                try:
+                    prior = json.loads(prior_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                prior_predicate = prior.get("claim_predicate")
+                if not isinstance(prior_predicate, str) or not prior_predicate.startswith(
+                    "signed_error_positive_fraction"
+                ):
+                    continue
+                for reference in prior.get("evidence_refs", []):
+                    if (
+                        isinstance(reference, dict)
+                        and reference.get("campaign") != manifest.get("campaign_id")
+                        and reference.get("dataset_fingerprint") == fingerprint
+                    ):
+                        raise ValueError(
+                            f"measurement {row_id} dataset already supports campaign "
+                            f"{reference.get('campaign')!r}; one dataset is not independent replication"
+                        )
         locked = {}
         expected: dict[tuple[int, str], tuple[str, float | None]] = {}
         for entry in source.get("per_path", []):

@@ -92,7 +92,8 @@
       "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
       "artifact_hash": "sha256:d56347e61a677ec85e06f2e9b008e99284f42c18728c8e429cb8e31c23aba866",
-      "thresholds_version": "hard-materials-z1.v1"
+      "thresholds_version": "hard-materials-z1.v1",
+      "dataset_fingerprint": "sha256:e41d658e48dc58b0358519f14dce30a6b0b9064e4a3c35d024e269aeda325732"
     }
   ],
   "provenance": {
@@ -137,5 +138,5 @@
     }
   ],
   "supersedes": [],
-  "bundle_id": "sha256:4a942d26d631351b46b2694b0a8f0c93eff5fbe815718bd695992c16ba552288"
+  "bundle_id": "sha256:4d04bc286529bcf93b60c075f94ced6787cee7506470a00da8f1807bbbfd05cb"
 }

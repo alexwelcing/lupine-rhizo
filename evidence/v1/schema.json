@@ -315,6 +315,10 @@
         "thresholds_version": {
           "type": "string",
           "minLength": 1
+        },
+        "dataset_fingerprint": {
+          "$ref": "#/$defs/contentHash",
+          "description": "Content fingerprint of the analyzed dataset observations; two campaigns sharing a fingerprint are not independent replication."
         }
       }
     },

@@ -652,6 +652,28 @@ class CampaignResultIngestionTests(unittest.TestCase):
             write_artifact(artifact, fresh_rows)
             module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
 
+            # A second campaign over the same independent dataset is not replication.
+            prior_dir = root / "evidence" / "v1" / "examples"
+            prior_dir.mkdir(parents=True)
+            (prior_dir / "prior.json").write_text(
+                json.dumps(
+                    {
+                        "claim_predicate": "signed_error_positive_fraction>0.5",
+                        "evidence_refs": [
+                            {
+                                "campaign": "literature.protocol-offset-sign-skew.v2",
+                                "dataset_fingerprint": module._source_fingerprint(fresh_document),
+                            }
+                        ],
+                    }
+                )
+            )
+            duplicate_manifest = {**fresh_manifest, "campaign_id": "literature.dup.v3"}
+            with self.assertRaisesRegex(ValueError, "not independent replication"):
+                module.enforce_path_minimums(root, duplicate_manifest, make_bundle(), artifact, "skew-1")
+            # The same campaign re-ingesting its own dataset remains idempotent.
+            module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+
             # Independent campaigns must still measure the frozen 22-path claim.
             lax_fresh = {
                 **fresh_manifest,

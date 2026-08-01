@@ -118,13 +118,13 @@
       "status": "active"
     },
     {
-      "claim_content_hash": "sha256:04f29527805f0023559154242f6a9baf68c102a630b89d292a45ed21a1ac2e18",
+      "claim_content_hash": "sha256:ea9467e23fe5dff930dbe88947144fce3cc609b62ebcec415afd8a96e315cab2",
       "claim_id": "discovery.z1.barrier-accuracy.v1",
       "claim_version": 1,
       "disposition": "refuted",
       "evidence": [
         {
-          "bundle_id": "sha256:4a942d26d631351b46b2694b0a8f0c93eff5fbe815718bd695992c16ba552288",
+          "bundle_id": "sha256:4d04bc286529bcf93b60c075f94ced6787cee7506470a00da8f1807bbbfd05cb",
           "epistemic_status": "confirmatory",
           "scope": {
             "chemistries": [
