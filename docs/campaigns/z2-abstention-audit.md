@@ -11,31 +11,22 @@ Can the declared available models reproduce the complete held-out
 magnetocrystalline-anisotropy ordering, including easy-axis sign, on a
 locked reference panel (frozen hypothesis `h.z2.anisotropy-ranking`)?
 
-## Verdict: the campaign cannot be executed honestly — abstention is the preregistered answer
+## Verdict: this pipeline smoke must abstain — scientific execution is separately owner-gated
 
-The same preregistration freezes the escape hatch: `h.z2.scalar-abstention` —
-"scalar-energy rows without spin-orbit-resolved evidence abstain and cannot
-count as ranking successes." Every precondition for honest execution is absent:
+The same preregistration freezes `h.z2.scalar-abstention`: "scalar-energy rows
+without spin-orbit-resolved evidence abstain and cannot count as ranking
+successes." The repository now contains the prerequisites for a separate
+scientific campaign: `gcp/mlip-cell-runner/z2_soc_tc.py`, the seven-material
+`data/candidates/z2_soc_tc_panel.lock.json`, and
+`registry/claims/discovery.z2.magnetic-anisotropy.v1.json`. The campaign
+manifest also freezes both anisotropy ranking and Tc prediction hypotheses.
 
-1. **No spin-capable runner.** The MLIP cell runner exposes rows
-   `adsorption_energy, elastic_constants, energy_volume, forces, stress,
-   relaxation_stability` (`python/lupine_distill/fixture_contract.py`,
-   `ROW_IDS`) — all scalar energy/forces/stress-derived. No SOC,
-   non-collinear magnetism, anisotropy, or Tc path exists for any declared
-   model (chgnet 0.4.2; mace-torch 0.3.16 small / medium / mpa-0-medium).
-2. **No reference panel.** The frozen manifest requires ≥5 held-out SOC/Tc
-   reference materials with uncertainties; no such locked panel exists, and
-   none was fabricated.
-3. **No ClaimContract.** `registry/claims/discovery.z2.magnetic-anisotropy.v1.json`
-   does not exist, so no ingestion target can lawfully receive Z2 rows;
-   materialization stays fail-closed by design.
-4. **Tc outside the frozen scope.** The manifest preregisters the anisotropy
-   *ordering* only; no Tc metric or premise is frozen, so Tc numbers would be
-   unpreregistered claims.
-
-Executing anyway would require fabricating a panel, a runner capability, or a
-claim — each independently disqualifying. Cloud compute spend for this audit:
-**zero executions**.
+Those additions do not turn this B1 proof into a scientific result. This smoke
+is intentionally limited to replaying four frozen abstention rows so it can
+exercise unified-image packaging, GCS delivery, and authenticated beat delivery
+without loading a calculator. The SOC/Tc runner and locked panel are deliberately
+not evaluated, the ClaimContract remains `unsupported`/`pending`, and cloud
+scientific executions for these rows remain **zero**.
 
 ## What was produced instead
 
@@ -45,11 +36,11 @@ each recording `epistemic_status: unsupported`, `sample_count: 0`, and
 RFC 8785 canonicalized and hash-chained to the campaign manifest hash, built
 deterministically by `tools/build_z2_abstention_rows.py`.
 
-## Path back to full scope
+## Path to scientific measurement scope
 
-Kanban `t_052adac7` (parked per owner decision 2026-07-19 until Z1/Z3/Round-4
-execution completes): build a spin-aware runner (SOC / non-collinear MAE
-ranking + Tc), source an honest published ≥5-material SOC/Tc reference panel
-with the Z1/Z3 locking conventions, author the missing Z2 ClaimContract, and
-amend the manifest to bring Tc into preregistered scope. Only then does this
-audit get superseded by real measurement rows.
+Run the separately owner-gated SOC/Tc campaign against the existing locked
+seven-material panel, preserve its preregistered failure policy, and materialize
+the resulting aggregate evidence into the existing ClaimContract and runtime
+gate. Only successful content-addressed SOC/Tc measurements can supersede these
+pipeline-proof abstention rows; the existence of the runner, panel, and contract
+alone cannot do so.
