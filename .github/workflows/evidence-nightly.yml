@@ -251,7 +251,7 @@ jobs:
             --assumptions registry/assumptions.v1.json \
             --evidence-dir evidence/v1/examples \
             --hypotheses nightly-output/hypotheses.json \
-            --new-bundle-ids nightly-output/ingested-bundles.json \
+            --new-bundle-ids nightly-output/sync-candidates.json \
             --known-bundle-ids nightly-output/known-bundles.json \
             --as-of "$CYCLE_DATE" \
             --out-sql nightly-output/feedback.sql \

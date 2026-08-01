@@ -34,7 +34,9 @@ Missing input, broken row hashes, scope drift, or missing artifacts fail the job
    D1 cycle, so independent demonstrations remain available across fresh runners.
 2. `tools/run_nightly_cycle.py` ingests every row set through
    `ingest_campaign_results.py`, regenerates the assumption registry, and compiles
-   the runtime gate through `atlas_theorem_sync.py`.
+   the runtime gate through `atlas_theorem_sync.py`. It also emits every bundle
+   hash in the restorable corpus as a D1 sync candidate, not only hashes ingested
+   by the current runner.
 3. Wrangler applies D1 migrations and exports the current
    `literature_hypotheses` plus the set of bundle hashes already known to D1.
 4. `tools/nightly_ontology_feedback.py` validates each asserted acceptance outcome
@@ -48,8 +50,10 @@ Missing input, broken row hashes, scope drift, or missing artifacts fail the job
 6. Before committing that SQL to D1, the job writes a run-addressed immutable
    corpus archive to the existing GCS output bucket. D1 can therefore never get
    ahead of the restorable claim/evidence corpus: a failed archive upload leaves
-   the ledger untouched, while a failed D1 transaction leaves an unused immutable
-   archive that a retry may safely supersede.
+   the ledger untouched. Each run offers every bundle in the restored corpus to
+   the feedback planner and subtracts the hashes already in D1, so a failed D1
+   transaction leaves an immutable archive whose pending bundles are replayed by
+   the next run rather than silently dropped.
 7. Wrangler applies the SQL to the existing `glim-ledger` D1 database. The job
    also uploads the SQL, queue JSON, runtime gate, complete claim/evidence corpus,
    staging evidence (when selected), Markdown digest, and machine-readable
@@ -57,12 +61,14 @@ Missing input, broken row hashes, scope drift, or missing artifacts fail the job
 
 ## Anti-laundering invariant
 
-A status or readiness update is eligible only when its authorizing bundle was
-created by the current ingest and was absent from D1 before the cycle. Migrations
-0013–0014 require a matching append-only `status_event` and prevent a hypothesis
-from reusing the same bundle hash for another transition. The event must be the
-latest event appended for that hypothesis, so an older transition receipt cannot
-authorize a repeated state edge. There is no manual override or exception path.
+A status or readiness update is eligible only when its authorizing bundle is in
+the current recoverable corpus and was absent from D1 before the cycle. This
+includes a bundle restored after an earlier D1 transaction failed, but never a
+hash already committed to the ledger. Migrations 0013–0014 require a matching
+append-only `status_event` and prevent a hypothesis from reusing the same bundle
+hash for another transition. The event must be the latest event appended for that
+hypothesis, so an older transition receipt cannot authorize a repeated state
+edge. There is no manual override or exception path.
 
 ## Staging verification
 

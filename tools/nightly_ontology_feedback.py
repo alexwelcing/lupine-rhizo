@@ -379,6 +379,22 @@ def _known_bundle_ids(payload: Any) -> set[str]:
     return ids
 
 
+def _sync_candidate_bundle_ids(payload: Any) -> set[str]:
+    """Read current or legacy nightly runner output."""
+    if isinstance(payload, dict):
+        payload = payload.get(
+            "sync_candidate_bundle_ids", payload.get("ingested_bundle_ids")
+        )
+    if not isinstance(payload, list):
+        raise ValueError("sync candidate EvidenceBundle export must be a JSON array")
+    ids = set(payload)
+    if len(ids) != len(payload) or any(
+        not isinstance(value, str) or not HASH_RE.fullmatch(value) for value in payload
+    ):
+        raise ValueError("sync candidate EvidenceBundle export contains an invalid bundle_id")
+    return ids
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--atlas", type=Path, required=True)
@@ -398,9 +414,8 @@ def main() -> int:
         for path in sorted(args.evidence_dir.glob("*.json"))
         for document in [_load(path)]
     }
-    new_ids_payload = _load(args.new_bundle_ids)
-    ingested_ids = set(new_ids_payload.get("ingested_bundle_ids", new_ids_payload))
-    new_ids = ingested_ids - _known_bundle_ids(_load(args.known_bundle_ids))
+    sync_candidate_ids = _sync_candidate_bundle_ids(_load(args.new_bundle_ids))
+    new_ids = sync_candidate_ids - _known_bundle_ids(_load(args.known_bundle_ids))
     plan = build_feedback_plan(
         atlas=_load(args.atlas),
         assumptions=_load(args.assumptions),
