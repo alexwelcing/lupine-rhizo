@@ -184,9 +184,12 @@ jobs:
               --no-same-owner --no-same-permissions
             test -d nightly-state/restored/registry/claims
             test -d nightly-state/restored/evidence/v1/examples
-            rm -rf registry/claims evidence/v1/examples
-            mv nightly-state/restored/registry/claims registry/claims
-            mv nightly-state/restored/evidence/v1/examples evidence/v1/examples
+            # Merge, don't replace: the archive is the base state, but claims or
+            # evidence merged into the default branch since the last archive
+            # must survive (Codex P1 on PR #92). These dirs are append-only by
+            # design, so an ignore-existing overlay is the correct union.
+            rsync -a --ignore-existing nightly-state/restored/registry/claims/ registry/claims/
+            rsync -a --ignore-existing nightly-state/restored/evidence/v1/examples/ evidence/v1/examples/
           fi
 
       - name: Ingest rows and regenerate assumptions plus runtime gate

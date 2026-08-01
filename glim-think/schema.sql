@@ -716,6 +716,7 @@ CREATE TABLE IF NOT EXISTS evidence_bundle (
   scope_json TEXT NOT NULL,
   provenance_json TEXT NOT NULL,
   supersedes_bundle_id TEXT REFERENCES evidence_bundle(bundle_id) ON DELETE RESTRICT,
+  supersedes_bundle_ids_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(supersedes_bundle_ids_json)),
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 

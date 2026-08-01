@@ -1,5 +1,10 @@
 -- Migration 0013: nightly evidence-to-ontology feedback in the existing D1 ledger.
 
+-- Every supersession edge is durable: the 0011 single-column FK keeps the
+-- first predecessor for compatibility, while the full unique predecessor set
+-- (the EvidenceBundle v1 schema permits an array) lands here.
+ALTER TABLE evidence_bundle ADD COLUMN supersedes_bundle_ids_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(supersedes_bundle_ids_json));
+
 CREATE TABLE IF NOT EXISTS literature_reprioritization_queue (
   cycle_date TEXT NOT NULL,
   literature_hypothesis_id TEXT NOT NULL

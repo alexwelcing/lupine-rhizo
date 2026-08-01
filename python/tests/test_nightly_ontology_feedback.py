@@ -473,6 +473,44 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
         self.assertEqual(plan["queue"][0]["evidence_gap"]["current_readiness"], "L")
 
+    def test_supersession_edges_are_all_persisted(self) -> None:
+        connection = sqlite3.connect(":memory:")
+        self.addCleanup(connection.close)
+        apply_migrations(connection)
+        predecessor_a = bundle(BUNDLE_A, outcome="fail", campaign="one", status="negative")
+        predecessor_e = bundle("sha256:" + "e" * 64, outcome="fail", campaign="zero", status="negative")
+        replacement = {
+            **bundle(BUNDLE_B, outcome="pass", campaign="two", status="confirmatory"),
+            "supersedes": [BUNDLE_A, "sha256:" + "e" * 64],
+        }
+        plan = {"as_of": "2026-08-01", "updates": [], "queue": [], "evidence": [replacement, predecessor_a, predecessor_e]}
+        sql = render_feedback_sql(plan)
+        connection.executescript(sql)
+        row = connection.execute(
+            "SELECT supersedes_bundle_id, supersedes_bundle_ids_json FROM evidence_bundle WHERE bundle_id = ?",
+            (BUNDLE_B,),
+        ).fetchone()
+        self.assertEqual(row[0], BUNDLE_A)
+        self.assertEqual(json.loads(row[1]), sorted([BUNDLE_A, "sha256:" + "e" * 64]))
+
+    def test_superseded_predecessors_insert_before_replacements(self) -> None:
+        connection = sqlite3.connect(":memory:")
+        self.addCleanup(connection.close)
+        apply_migrations(connection)
+        predecessor = bundle(BUNDLE_A, outcome="fail", campaign="one", status="negative")
+        replacement = {
+            **bundle(BUNDLE_B, outcome="pass", campaign="two", status="confirmatory"),
+            "supersedes": [BUNDLE_A],
+        }
+        # Hash order would place the replacement (b…) before its predecessor (a…)?
+        # No — force the trap by presenting the replacement first.
+        plan = {"as_of": "2026-08-01", "updates": [], "queue": [], "evidence": [replacement, predecessor]}
+        sql = render_feedback_sql(plan)
+        self.assertLess(sql.index(BUNDLE_A), sql.index(BUNDLE_B))
+        connection.executescript(sql)
+        count = connection.execute("SELECT COUNT(*) FROM evidence_bundle").fetchone()[0]
+        self.assertEqual(count, 2)
+
     def test_workflow_rehydrates_and_persists_the_complete_nightly_corpus(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
 
@@ -488,7 +526,9 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("ontology-state/$CYCLE_DATE/corpus-", workflow)
         self.assertIn("printf '%020d' \"$GITHUB_RUN_ID\"", workflow)
         self.assertIn("tar -xzf nightly-state/corpus.tar.gz -C nightly-state/restored", workflow)
-        self.assertIn("rm -rf registry/claims evidence/v1/examples", workflow)
+        self.assertNotIn("rm -rf registry/claims evidence/v1/examples", workflow)
+        self.assertIn("rsync -a --ignore-existing nightly-state/restored/registry/claims/ registry/claims/", workflow)
+        self.assertIn("rsync -a --ignore-existing nightly-state/restored/evidence/v1/examples/ evidence/v1/examples/", workflow)
 
     def test_d1_status_change_fails_closed_without_fresh_bundle_event(self) -> None:
         connection = sqlite3.connect(":memory:")
