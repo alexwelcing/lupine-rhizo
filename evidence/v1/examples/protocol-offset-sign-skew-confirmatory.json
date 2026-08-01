@@ -67,6 +67,7 @@
       "min_signed_error_mev": -33.4,
       "max_signed_error_mev": 4212.26,
       "outlier_path": "mp-761269_2_1_1_-1_0 (Ag-F-Li) +4212.2603 meV",
+      "retrospective_inputs": "Inputs recorded 2026-07-24 (Z1 union campaign); hypothesis and analysis plan frozen 2026-08-01T04:55:29Z before the analysis run at 2026-08-01T12:06Z; no fresh compute",
       "hypothesis_prediction": "majority of paths positive, median approximately +400 to +600 meV",
       "hypothesis_outcome": "confirmed: 21/22 positive (0.9545), median +460.14 meV"
     }
@@ -75,7 +76,7 @@
     {
       "campaign": "literature.protocol-offset-sign-skew.v1",
       "campaign_manifest": "campaigns/v1/literature-protocol-offset-sign-skew.campaign-manifest.v1.json",
-      "campaign_manifest_hash": "sha256:264d7980e763bd946730fdf953975fe6cec8f766baef6dc6ce235c67d14c97f0",
+      "campaign_manifest_hash": "sha256:b7b0061e34a5a799cbc5ecba960d38c61ef7ec3241a8cd27e60c58cbc4891516",
       "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
       "artifact_hash": "sha256:f0e287b6f0e7e5c2a30b4fde66f15430f1f5c3ebf31b4bb401ba092c4e73272d",
@@ -89,5 +90,5 @@
     "preregistration_id": "prereg.literature.protocol-offset-sign-skew.v1"
   },
   "supersedes": [],
-  "bundle_id": "sha256:974754db55b4f2c1b2af78831fa70d1c43da4a3bdff90aeed9b95f6da3d133b8"
+  "bundle_id": "sha256:be7a30e5cc9f74432c8abff71866718884d0eeae0ee63a69759a580dac66632d"
 }

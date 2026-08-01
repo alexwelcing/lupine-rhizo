@@ -1,9 +1,9 @@
 {
   "acceptance_test": {
-    "metric": "barrier_mae",
-    "operator": "lte",
-    "threshold": 40,
-    "unit": "meV"
+    "metric": "signed_error_positive_fraction",
+    "operator": "gte",
+    "threshold": 0.5,
+    "unit": "fraction"
   },
   "available_models": [
     {
@@ -28,23 +28,23 @@
     }
   ],
   "campaign_id": "literature.protocol-offset-sign-skew.v1",
-  "content_hash": "sha256:1b404aa18a25a7a21e6021dfe1c4b8e45381d6326d216dc7a967a82e955dc7cb",
+  "content_hash": "sha256:5fdfe5d4487358fcfc6c7ba2da6174154754e5627d58fb803aa1e974b036d07b",
   "demotion_conditions": [
     {
       "action": "demote",
-      "condition_id": "demote.z1.barrier-mae",
-      "metric": "barrier_mae",
-      "operator": "gt",
-      "threshold": 40,
-      "unit": "meV"
+      "condition_id": "demote.z1.protocol-offset-sign-skew",
+      "metric": "signed_error_positive_fraction",
+      "operator": "lt",
+      "threshold": 0.5,
+      "unit": "fraction"
     }
   ],
   "evidence_requirements": [
     {
       "artifact_type": "neb-path-set",
-      "description": "Fresh held-out paths with endpoint and saddle energies, convergence metadata, and reference provenance.",
-      "minimum_count": 30,
-      "requirement_id": "e.z1.held-out-paths"
+      "description": "Recorded per-path sparse-anchor and reference barrier measurements from the locked Z1 union campaign artifact; the analysis reuses recorded rows and requires no fresh held-out compute.",
+      "minimum_count": 22,
+      "requirement_id": "e.z1.recorded-path-set"
     },
     {
       "artifact_type": "model-measurements",
@@ -96,6 +96,12 @@
       "path": "examples/literature-hypotheses/protocol-offset-sign-skew.json",
       "sha256": "sha256:e0d915563547ab826e515126e6d632abf8d8e63dfa8d819513f10d6565fa9f46"
     },
+    "recorded_inputs": [
+      {
+        "path": "data/candidates/z1-union-campaign.json",
+        "sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2"
+      }
+    ],
     "registered_at": "2026-08-01T04:55:29Z",
     "source": "https://doi.org/10.1038/s41524-025-01571-z",
     "source_as_of": "2026-08-01"

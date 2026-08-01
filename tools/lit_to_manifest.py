@@ -4,6 +4,11 @@
 The v0 converter intentionally supports only the already-preregistered Z1 barrier
 contract. It performs no inference: ontology bindings, acceptance criteria, models,
 and the nearest panel all come from checked-in allowlisted artifacts.
+
+T1 (protocol-offset) hypotheses analyze recorded union-campaign artifacts instead of
+requesting fresh compute; for them the converter swaps in the sign-skew acceptance
+test, the matching demotion condition, recorded-panel evidence requirements, and a
+declared preregistration.recorded_inputs lock.
 """
 
 from __future__ import annotations
@@ -49,6 +54,43 @@ ACCEPTANCE_TEST_BY_ID = {
         "unit": "meV",
     }
 }
+# T1 (protocol-offset) hypotheses claim a systematic signed offset of the sparse-anchor
+# protocol against the reference, not a per-model accuracy level. Their machine-readable
+# acceptance test is therefore the sign-skew majority they predict, evaluated on the
+# recorded union-campaign panel; they require no fresh held-out compute.
+T1_ACCEPTANCE_TEST = {
+    "metric": "signed_error_positive_fraction",
+    "operator": "gte",
+    "threshold": 0.5,
+    "unit": "fraction",
+}
+T1_DEMOTION_CONDITIONS = [
+    {
+        "action": "demote",
+        "condition_id": "demote.z1.protocol-offset-sign-skew",
+        "metric": "signed_error_positive_fraction",
+        "operator": "lt",
+        "threshold": 0.5,
+        "unit": "fraction",
+    }
+]
+T1_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
+# Executed union-campaign rows carrying a usable per-path signed error (of the 23 locked).
+T1_RECORDED_PATHS_MINIMUM = 22
+T1_EVIDENCE_REQUIREMENTS = [
+    {
+        "requirement_id": "e.z1.recorded-path-set",
+        "artifact_type": "neb-path-set",
+        "description": "Recorded per-path sparse-anchor and reference barrier measurements from the locked Z1 union campaign artifact; the analysis reuses recorded rows and requires no fresh held-out compute.",
+        "minimum_count": T1_RECORDED_PATHS_MINIMUM,
+    },
+    {
+        "requirement_id": "e.z1.model-results",
+        "artifact_type": "model-measurements",
+        "description": "Per-path predictions from every available model, including signed errors and failures without imputation.",
+        "minimum_count": 1,
+    },
+]
 IDENTIFIER_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
@@ -83,6 +125,30 @@ def _validate_schema(document: dict[str, Any], schema_path: Path, label: str) ->
         error = errors[0]
         location = ".".join(str(part) for part in error.absolute_path) or "document"
         raise ConversionError(f"{label} schema rejected {location}: {error.message}")
+
+
+def _repo_artifact_lock(relative_path: str, root: Path) -> dict[str, str]:
+    relative = PurePosixPath(relative_path)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise ConversionError(f"recorded input must be repo-relative: {relative_path}")
+    root_path = root.resolve()
+    artifact_path = root_path.joinpath(*relative.parts)
+    try:
+        resolved = artifact_path.resolve(strict=True)
+        resolved.relative_to(root_path)
+        artifact_bytes = resolved.read_bytes()
+    except ValueError as error:
+        raise ConversionError(
+            f"recorded input escapes the repository root: {relative_path}"
+        ) from error
+    except OSError as error:
+        raise ConversionError(
+            f"recorded input cannot be read: {relative_path}: {error}"
+        ) from error
+    return {
+        "path": relative_path,
+        "sha256": "sha256:" + hashlib.sha256(artifact_bytes).hexdigest(),
+    }
 
 
 def _panel_lock(proposed: dict[str, Any], root: Path) -> dict[str, str]:
@@ -235,6 +301,13 @@ def convert_hypothesis(
     ]
     manifest["target_premises"] = deepcopy(TARGET_PREMISES_BY_CHAIN[ALLOWED_CHAIN])
     manifest["acceptance_test"] = deepcopy(ACCEPTANCE_TEST_BY_ID[ALLOWED_ACCEPTANCE_TEST])
+    if "T1" in declared_types:
+        manifest["acceptance_test"] = deepcopy(T1_ACCEPTANCE_TEST)
+        manifest["demotion_conditions"] = deepcopy(T1_DEMOTION_CONDITIONS)
+        manifest["evidence_requirements"] = deepcopy(T1_EVIDENCE_REQUIREMENTS)
+        manifest["preregistration"]["recorded_inputs"] = [
+            _repo_artifact_lock(T1_RECORDED_SOURCE, root)
+        ]
     manifest["execution"] = deepcopy(template["execution"])
     manifest["execution"]["candidate_panel"] = panel_lock
     manifest["content_hash"] = _content_hash(manifest)

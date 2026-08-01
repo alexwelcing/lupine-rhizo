@@ -52,7 +52,7 @@ def convert(converter, hypothesis, *, hypothesis_id="deng-underbinding", root=RO
     )
 
 
-def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> None:
+def test_a3_examples_convert_to_checked_in_deterministic_fixtures() -> None:
     converter = load_converter()
     validator = Draft202012Validator(
         load_json(CAMPAIGN_SCHEMA), format_checker=FormatChecker()
@@ -89,12 +89,28 @@ def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> Non
                 "premise_id": "chemistry-held-out-neb",
             }
         ]
-        assert first["acceptance_test"] == {
-            "metric": "barrier_mae",
-            "operator": "lte",
-            "threshold": 40,
-            "unit": "meV",
-        }
+        if "T1" in hypothesis["bindings"]["errorTypes"]:
+            assert first["acceptance_test"] == {
+                "metric": "signed_error_positive_fraction",
+                "operator": "gte",
+                "threshold": 0.5,
+                "unit": "fraction",
+            }
+            recorded_source = ROOT / "data/candidates/z1-union-campaign.json"
+            assert first["preregistration"]["recorded_inputs"] == [
+                {
+                    "path": "data/candidates/z1-union-campaign.json",
+                    "sha256": "sha256:"
+                    + hashlib.sha256(recorded_source.read_bytes()).hexdigest(),
+                }
+            ]
+        else:
+            assert first["acceptance_test"] == {
+                "metric": "barrier_mae",
+                "operator": "lte",
+                "threshold": 40,
+                "unit": "meV",
+            }
         assert first["execution"]["candidate_panel"] == {
             "path": PANEL_PATH,
             "sha256": PANEL_SHA256,

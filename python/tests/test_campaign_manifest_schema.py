@@ -42,6 +42,24 @@ class CampaignManifestSchemaTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             self.manifest_validator.validate(manifest)
 
+    def test_recorded_inputs_declare_retrospective_analysis_sources(self) -> None:
+        manifest = load(
+            "campaigns/v1/literature-protocol-offset-sign-skew.campaign-manifest.v1.json"
+        )
+        self.manifest_validator.validate(manifest)
+        recorded = manifest["preregistration"]["recorded_inputs"]
+        self.assertEqual(
+            [item["path"] for item in recorded],
+            ["data/candidates/z1-union-campaign.json"],
+        )
+
+        invalid = load(
+            "campaigns/v1/literature-protocol-offset-sign-skew.campaign-manifest.v1.json"
+        )
+        invalid["preregistration"]["recorded_inputs"] = []
+        with self.assertRaises(ValidationError):
+            self.manifest_validator.validate(invalid)
+
     def test_manifest_requires_explicit_exclusions_block(self) -> None:
         manifest = load("examples/campaign-manifest.round-4.v1.json")
         del manifest["exclusions"]
