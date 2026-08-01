@@ -34,6 +34,8 @@ DEFAULT_SERVICE = "mlip-distill-flywheel"
 PROMOTION_ROOT = "mlip.flywheel.promotion"
 GROWTH_ROOT = "mlip.flywheel.growth_loop"
 SMOKE_ROOT = "mlip.flywheel.smoke_test"
+CLOUD_CELL_ROOT = "mlip.flywheel.cloud_cell"
+CLOUD_CELL_SCHEMA = "lupine.mlip.cloud_cell_span.v1"
 
 AttrValue = str | bool | int | float
 Attributes = dict[str, AttrValue]
@@ -236,6 +238,60 @@ def growth_report_to_spans(report: dict[str, Any]) -> tuple[Attributes, list[Att
     return root, children
 
 
+def cloud_cell_span_to_attributes(span: dict[str, Any]) -> Attributes:
+    """Validate and map one cloud campaign-cell span to the local MLIP contract."""
+    if span.get("schema") != CLOUD_CELL_SCHEMA:
+        raise ValueError(f"schema must be {CLOUD_CELL_SCHEMA}")
+    if span.get("origin") != "cloud":
+        raise ValueError("origin must be cloud")
+
+    required_strings = (
+        "correlation_id",
+        "run_id",
+        "cell_id",
+        "row_id",
+        "mlip_id",
+        "schedule_name",
+        "dispatch_status",
+        "target_job",
+    )
+    for field in required_strings:
+        value = span.get(field)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field} must be a non-empty string")
+
+    required_costs = (
+        "reserved_gpu_hours",
+        "reservation_gpu_hours",
+        "daily_gpu_hour_cap",
+    )
+    for field in required_costs:
+        value = span.get(field)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            or value < 0
+        ):
+            raise ValueError(f"{field} must be a finite non-negative number")
+
+    return sanitize({
+        "mlip.schema": span["schema"],
+        "mlip.origin": span["origin"],
+        "mlip.correlation_id": span["correlation_id"],
+        "mlip.cloud_run_id": span["run_id"],
+        "mlip.cell_id": span["cell_id"],
+        "mlip.triplet.row_id": span["row_id"],
+        "mlip.triplet.mlip_id": span["mlip_id"],
+        "mlip.schedule.name": span["schedule_name"],
+        "mlip.dispatch.status": span["dispatch_status"],
+        "mlip.dispatch.target_job": span["target_job"],
+        "mlip.cost.reserved_gpu_hours": span["reserved_gpu_hours"],
+        "mlip.cost.reservation_gpu_hours": span["reservation_gpu_hours"],
+        "mlip.cost.daily_gpu_hour_cap": span["daily_gpu_hour_cap"],
+    })
+
+
 def _traces_endpoint(base: str) -> str:
     base = base.rstrip("/")
     return base if base.endswith("/v1/traces") else f"{base}/v1/traces"
@@ -332,6 +388,17 @@ def emit_growth_trace(report: dict[str, Any], **kwargs: Any) -> bool:
     )
 
 
+def emit_cloud_cell_trace(span: dict[str, Any], **kwargs: Any) -> bool:
+    return emit_trace(
+        root_name=CLOUD_CELL_ROOT,
+        root_attributes=cloud_cell_span_to_attributes(span),
+        child_name="mlip.triplet",
+        children=[],
+        service="tasks-consumer",
+        **kwargs,
+    )
+
+
 def emit_smoke_test(*, marker: str | None = None, **kwargs: Any) -> tuple[bool, str]:
     marker = marker or uuid.uuid4().hex
     now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
@@ -360,6 +427,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Emit MLIP flywheel JSON as Phoenix OTLP traces")
     parser.add_argument("--packet", type=pathlib.Path, help="promotion_packet.json")
     parser.add_argument("--growth-report", type=pathlib.Path, help="growth_report.json")
+    parser.add_argument("--cloud-span", type=pathlib.Path, help="cloud cell span JSON")
     parser.add_argument("--smoke-test", action="store_true")
     parser.add_argument("--endpoint", default=None, help="relay base or .../v1/traces URL")
     parser.add_argument("--token", default=None, help="x-relay-token shared secret")
@@ -367,8 +435,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="print spans instead of exporting")
     args = parser.parse_args(list(argv) if argv is not None else None)
 
-    if not (args.packet or args.growth_report or args.smoke_test):
-        parser.error("provide --packet, --growth-report, and/or --smoke-test")
+    if not (args.packet or args.growth_report or args.cloud_span or args.smoke_test):
+        parser.error("provide --packet, --growth-report, --cloud-span, and/or --smoke-test")
 
     common = {"endpoint": args.endpoint, "token": args.token, "project": args.project, "dry_run": args.dry_run}
     ok = True
@@ -381,6 +449,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         ok = emit_promotion_trace(json.loads(args.packet.read_text(encoding="utf-8")), **common) and ok
     if args.growth_report:
         ok = emit_growth_trace(json.loads(args.growth_report.read_text(encoding="utf-8")), **common) and ok
+    if args.cloud_span:
+        ok = emit_cloud_cell_trace(json.loads(args.cloud_span.read_text(encoding="utf-8")), **common) and ok
     return 0 if ok else 1
 
 

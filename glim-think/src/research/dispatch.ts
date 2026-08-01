@@ -28,6 +28,16 @@ const DEV_PROJECT = "local-dev";
 const DEFAULT_LOCATION = "us-central1";
 const DEFAULT_QUEUE = "atlas-distill-jobs";
 
+export interface CloudCellTelemetry {
+  schema: "lupine.mlip.cloud_cell_span.v1";
+  origin: "cloud";
+  correlation_id: string;
+  run_id: string;
+  cell_id: string;
+  row_id: string;
+  mlip_id: string;
+}
+
 export interface TaskPayload {
   fixture_url: string;
   command: string;
@@ -35,6 +45,7 @@ export interface TaskPayload {
   beat_emit_url: string;
   target_job?: string;
   schedule_name?: "nightly-baseline" | "on-proof-complete" | "manual";
+  telemetry?: CloudCellTelemetry;
 }
 
 export interface DispatchEnv {
@@ -173,6 +184,18 @@ function validatePayload(payload: TaskPayload): void {
     throw new Error("target_job must be a string if provided");
   if (payload.schedule_name !== undefined && typeof payload.schedule_name !== "string")
     throw new Error("schedule_name must be a string if provided");
+  if (payload.schedule_name && payload.schedule_name !== "manual") {
+    const telemetry = payload.telemetry;
+    if (!telemetry || typeof telemetry !== "object")
+      throw new Error("scheduled cloud cells require telemetry");
+    if (telemetry.schema !== "lupine.mlip.cloud_cell_span.v1")
+      throw new Error("telemetry.schema must be lupine.mlip.cloud_cell_span.v1");
+    if (telemetry.origin !== "cloud") throw new Error("telemetry.origin must be cloud");
+    for (const field of ["correlation_id", "run_id", "cell_id", "row_id", "mlip_id"] as const) {
+      if (typeof telemetry[field] !== "string" || !telemetry[field].trim())
+        throw new Error(`telemetry.${field} must be a non-empty string`);
+    }
+  }
 }
 
 /**

@@ -9,8 +9,10 @@ in root/child span attributes with the corrected metric semantics preserved
 from __future__ import annotations
 
 import pytest
+import mlip_phoenix_trace
 from mlip_phoenix_trace import (
     certificate_spans,
+    cloud_cell_span_to_attributes,
     growth_report_to_spans,
     promotion_packet_to_spans,
     sanitize,
@@ -178,3 +180,94 @@ def test_growth_report_spans_still_map():
     })
     assert root["mlip.search.rounds"] == 2
     assert children[0]["mlip.objective"] == "accuracy"
+
+
+def test_cloud_cell_span_matches_local_identity_and_cost_contract():
+    attrs = cloud_cell_span_to_attributes({
+        "schema": "lupine.mlip.cloud_cell_span.v1",
+        "origin": "cloud",
+        "correlation_id": "wf-nightly-42",
+        "run_id": "baseline-20260801",
+        "cell_id": "baseline-20260801:baseline:energy_volume:chgnet",
+        "row_id": "energy_volume",
+        "mlip_id": "chgnet",
+        "schedule_name": "nightly-baseline",
+        "dispatch_status": "admitted",
+        "target_job": "mlip-cell-chgnet",
+        "reserved_gpu_hours": 0.5,
+        "reservation_gpu_hours": 0.5,
+        "daily_gpu_hour_cap": 2.0,
+    })
+
+    assert attrs["mlip.schema"] == "lupine.mlip.cloud_cell_span.v1"
+    assert attrs["mlip.origin"] == "cloud"
+    assert attrs["mlip.correlation_id"] == "wf-nightly-42"
+    assert attrs["mlip.cloud_run_id"] == "baseline-20260801"
+    assert attrs["mlip.cell_id"] == "baseline-20260801:baseline:energy_volume:chgnet"
+    assert attrs["mlip.triplet.row_id"] == "energy_volume"
+    assert attrs["mlip.triplet.mlip_id"] == "chgnet"
+    assert attrs["mlip.cost.reserved_gpu_hours"] == 0.5
+    assert attrs["mlip.cost.daily_gpu_hour_cap"] == 2.0
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("schema", "wrong.v1"),
+        ("origin", "local"),
+        ("correlation_id", ""),
+        ("run_id", None),
+        ("cell_id", 42),
+        ("reserved_gpu_hours", float("nan")),
+    ],
+)
+def test_cloud_cell_span_rejects_malformed_envelopes(field: str, value: object):
+    span = {
+        "schema": "lupine.mlip.cloud_cell_span.v1",
+        "origin": "cloud",
+        "correlation_id": "wf-nightly-42",
+        "run_id": "baseline-20260801",
+        "cell_id": "baseline-20260801:baseline:energy_volume:chgnet",
+        "row_id": "energy_volume",
+        "mlip_id": "chgnet",
+        "schedule_name": "nightly-baseline",
+        "dispatch_status": "admitted",
+        "target_job": "mlip-cell-chgnet",
+        "reserved_gpu_hours": 0.5,
+        "reservation_gpu_hours": 0.5,
+        "daily_gpu_hour_cap": 2.0,
+    }
+    span[field] = value
+
+    with pytest.raises(ValueError, match=field):
+        cloud_cell_span_to_attributes(span)
+
+
+def test_emit_cloud_cell_trace_uses_cloud_root_and_service(monkeypatch: pytest.MonkeyPatch):
+    captured: dict = {}
+    monkeypatch.setattr(
+        mlip_phoenix_trace,
+        "emit_trace",
+        lambda **kwargs: captured.update(kwargs) or True,
+    )
+    span = {
+        "schema": "lupine.mlip.cloud_cell_span.v1",
+        "origin": "cloud",
+        "correlation_id": "wf-nightly-42",
+        "run_id": "baseline-20260801",
+        "cell_id": "baseline-20260801:baseline:energy_volume:chgnet",
+        "row_id": "energy_volume",
+        "mlip_id": "chgnet",
+        "schedule_name": "nightly-baseline",
+        "dispatch_status": "admitted",
+        "target_job": "mlip-cell-chgnet",
+        "reserved_gpu_hours": 0.5,
+        "reservation_gpu_hours": 0.5,
+        "daily_gpu_hour_cap": 2.0,
+    }
+
+    assert mlip_phoenix_trace.emit_cloud_cell_trace(span, dry_run=True)
+    assert captured["root_name"] == "mlip.flywheel.cloud_cell"
+    assert captured["service"] == "tasks-consumer"
+    assert captured["root_attributes"]["mlip.cell_id"] == span["cell_id"]
+    assert captured["children"] == []

@@ -410,11 +410,29 @@ describe("mlip baseline grid workflow", () => {
     const payload = JSON.parse(atob(taskBody.task.httpRequest.body)) as {
       target_job: string;
       args: string[];
+      telemetry: {
+        schema: string;
+        origin: string;
+        correlation_id: string;
+        run_id: string;
+        cell_id: string;
+        row_id: string;
+        mlip_id: string;
+      };
     };
     expect(payload.target_job).toBe("mlip-cell-mace");
     expect(payload.args).toContain("--cell-id");
     expect(payload.args).toContain("baseline-run:baseline:elastic_constants:mace-mp-0");
     expect(payload.args).toContain("--artifact-prefix");
+    expect(payload.telemetry).toEqual({
+      schema: "lupine.mlip.cloud_cell_span.v1",
+      origin: "cloud",
+      correlation_id: "wf-1",
+      run_id: "baseline-run",
+      cell_id: "baseline-run:baseline:elastic_constants:mace-mp-0",
+      row_id: "elastic_constants",
+      mlip_id: "mace-mp-0",
+    });
   });
 
   it("gates mutating workflow routes while keeping report reads public", () => {

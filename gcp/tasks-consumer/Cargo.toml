@@ -20,6 +20,7 @@ clap = { version = "4", features = ["derive", "env"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 serde_yaml = "0.9"
 time = { version = "0.3", features = ["formatting"] }
+sha2 = "0.10"
 jsonwebtoken = "9"
 base64 = "0.22"
 tracing = "0.1"

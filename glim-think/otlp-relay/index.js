@@ -14,6 +14,7 @@
  */
 
 import { createServer } from "node:http";
+import { pathToFileURL } from "node:url";
 
 const PORT = process.env.PORT || 8080;
 const PHOENIX_OTLP_URL = process.env.PHOENIX_OTLP_URL; // .../s/<space>/v1/traces
@@ -22,6 +23,14 @@ const RELAY_TOKEN = process.env.RELAY_TOKEN;
 // Phoenix Cloud's WAF blocks custom/product User-Agents (e.g. "glim-think/*")
 // with a 302→/login. The standard OTLP exporter UA is allowed and accurate.
 const FORWARD_UA = "OTel-OTLP-Exporter-JavaScript/0.200.0";
+
+export function forwardContentType(value) {
+  const mediaType = String(value || "").split(";", 1)[0].trim().toLowerCase();
+  if (mediaType === "application/x-protobuf" || mediaType === "application/json") {
+    return mediaType;
+  }
+  throw new Error(`unsupported OTLP content-type: ${value || "missing"}`);
+}
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -65,12 +74,19 @@ const server = createServer(async (req, res) => {
     return send(400, "empty body");
   }
 
+  let contentType;
+  try {
+    contentType = forwardContentType(req.headers["content-type"]);
+  } catch (error) {
+    return send(415, String(error.message || error));
+  }
+
   try {
     const upstream = await fetch(PHOENIX_OTLP_URL, {
       method: "POST",
       headers: {
-        "content-type": "application/x-protobuf",
-        accept: "application/x-protobuf",
+        "content-type": contentType,
+        accept: contentType,
         "user-agent": FORWARD_UA,
         Authorization: `Bearer ${PHOENIX_API_KEY}`,
       },
@@ -90,6 +106,8 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`[otlp-relay] listening on :${PORT} → ${PHOENIX_OTLP_URL ? "configured" : "MISSING PHOENIX_OTLP_URL"}`);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  server.listen(PORT, () => {
+    console.log(`[otlp-relay] listening on :${PORT} → ${PHOENIX_OTLP_URL ? "configured" : "MISSING PHOENIX_OTLP_URL"}`);
+  });
+}
