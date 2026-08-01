@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use prost::Message;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
@@ -49,16 +50,30 @@ impl HttpTraceEmitter {
 #[axum::async_trait]
 impl TraceEmitter for HttpTraceEmitter {
     async fn emit(&self, span: &CloudCellSpan) -> anyhow::Result<()> {
+        let (content_type, body) = otlp_request(span, &self.project);
         self.client
             .post(&self.endpoint)
             .header("x-relay-token", &self.token)
-            .header("content-type", "application/json")
-            .json(&span.otlp_json(&self.project))
+            .header("content-type", content_type)
+            .header("accept", content_type)
+            .body(body)
             .send()
             .await?
             .error_for_status()?;
         Ok(())
     }
+}
+
+// Phoenix Cloud's OTLP/HTTP ingest currently rejects JSON with HTTP 415 even
+// though the relay accepts both standard OTLP media types. Encode at the
+// producer so the relay can preserve the request media type end to end.
+const OTLP_PROTOBUF_CONTENT_TYPE: &str = "application/x-protobuf";
+
+fn otlp_request(span: &CloudCellSpan, project: &str) -> (&'static str, Vec<u8>) {
+    (
+        OTLP_PROTOBUF_CONTENT_TYPE,
+        span.otlp_protobuf(project).encode_to_vec(),
+    )
 }
 
 pub struct CloudCellSpan {
@@ -118,57 +133,169 @@ impl CloudCellSpan {
         ])
     }
 
-    pub fn otlp_json(&self, project: &str) -> Value {
+    fn otlp_protobuf(&self, project: &str) -> ExportTraceServiceRequest {
         let seed = format!(
             "{}\0{}\0{}",
             self.identity.correlation_id, self.identity.run_id, self.identity.cell_id
         );
         let digest = Sha256::digest(seed.as_bytes());
-        let trace_id = hex(&digest[..16]);
-        let span_id = hex(&digest[16..24]);
-        let now = time::OffsetDateTime::now_utc()
-            .unix_timestamp_nanos()
-            .to_string();
+        let now = time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64;
         let attributes = self
             .attributes()
             .into_iter()
-            .map(|(key, value)| json!({"key": key, "value": otlp_value(value)}))
-            .collect::<Vec<_>>();
-        json!({
-            "resourceSpans": [{
-                "resource": {"attributes": [
-                    {"key": "service.name", "value": {"stringValue": "tasks-consumer"}},
-                    {"key": "openinference.project.name", "value": {"stringValue": project}}
-                ]},
-                "scopeSpans": [{
-                    "scope": {"name": "mlip.flywheel"},
-                    "spans": [{
-                        "traceId": trace_id,
-                        "spanId": span_id,
-                        "name": "mlip.flywheel.cloud_cell",
-                        "kind": 1,
-                        "startTimeUnixNano": now,
-                        "endTimeUnixNano": now,
-                        "attributes": attributes,
-                        "status": {"code": 1}
-                    }]
-                }]
-            }]
-        })
+            .map(|(key, value)| KeyValue {
+                key,
+                value: Some(any_value(value)),
+            })
+            .collect();
+
+        ExportTraceServiceRequest {
+            resource_spans: vec![ResourceSpans {
+                resource: Some(Resource {
+                    attributes: vec![
+                        string_key_value("service.name", "tasks-consumer"),
+                        string_key_value("openinference.project.name", project),
+                    ],
+                    dropped_attributes_count: 0,
+                }),
+                scope_spans: vec![ScopeSpans {
+                    scope: Some(InstrumentationScope {
+                        name: "mlip.flywheel".into(),
+                        version: String::new(),
+                    }),
+                    spans: vec![ProtoSpan {
+                        trace_id: digest[..16].to_vec(),
+                        span_id: digest[16..24].to_vec(),
+                        name: "mlip.flywheel.cloud_cell".into(),
+                        kind: 1,
+                        start_time_unix_nano: now,
+                        end_time_unix_nano: now,
+                        attributes,
+                        status: Some(Status {
+                            message: String::new(),
+                            code: 1,
+                        }),
+                    }],
+                }],
+            }],
+        }
     }
 }
 
-fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+#[derive(Clone, PartialEq, Message)]
+struct ExportTraceServiceRequest {
+    #[prost(message, repeated, tag = "1")]
+    resource_spans: Vec<ResourceSpans>,
 }
 
-fn otlp_value(value: Value) -> Value {
-    match value {
-        Value::Bool(value) => json!({"boolValue": value}),
-        Value::Number(value) => json!({"doubleValue": value.as_f64().unwrap_or_default()}),
-        Value::String(value) => json!({"stringValue": value}),
-        other => json!({"stringValue": other.to_string()}),
+#[derive(Clone, PartialEq, Message)]
+struct ResourceSpans {
+    #[prost(message, optional, tag = "1")]
+    resource: Option<Resource>,
+    #[prost(message, repeated, tag = "2")]
+    scope_spans: Vec<ScopeSpans>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct Resource {
+    #[prost(message, repeated, tag = "1")]
+    attributes: Vec<KeyValue>,
+    #[prost(uint32, tag = "2")]
+    dropped_attributes_count: u32,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ScopeSpans {
+    #[prost(message, optional, tag = "1")]
+    scope: Option<InstrumentationScope>,
+    #[prost(message, repeated, tag = "2")]
+    spans: Vec<ProtoSpan>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct InstrumentationScope {
+    #[prost(string, tag = "1")]
+    name: String,
+    #[prost(string, tag = "2")]
+    version: String,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ProtoSpan {
+    #[prost(bytes = "vec", tag = "1")]
+    trace_id: Vec<u8>,
+    #[prost(bytes = "vec", tag = "2")]
+    span_id: Vec<u8>,
+    #[prost(string, tag = "5")]
+    name: String,
+    #[prost(int32, tag = "6")]
+    kind: i32,
+    #[prost(fixed64, tag = "7")]
+    start_time_unix_nano: u64,
+    #[prost(fixed64, tag = "8")]
+    end_time_unix_nano: u64,
+    #[prost(message, repeated, tag = "9")]
+    attributes: Vec<KeyValue>,
+    #[prost(message, optional, tag = "15")]
+    status: Option<Status>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct Status {
+    #[prost(string, tag = "2")]
+    message: String,
+    #[prost(int32, tag = "3")]
+    code: i32,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct KeyValue {
+    #[prost(string, tag = "1")]
+    key: String,
+    #[prost(message, optional, tag = "2")]
+    value: Option<AnyValue>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct AnyValue {
+    #[prost(oneof = "any_value::Value", tags = "1, 2, 3, 4")]
+    value: Option<any_value::Value>,
+}
+
+mod any_value {
+    #[derive(Clone, PartialEq, prost::Oneof)]
+    pub enum Value {
+        #[prost(string, tag = "1")]
+        String(String),
+        #[prost(bool, tag = "2")]
+        Bool(bool),
+        #[prost(int64, tag = "3")]
+        Int(i64),
+        #[prost(double, tag = "4")]
+        Double(f64),
     }
+}
+
+fn string_key_value(key: &str, value: &str) -> KeyValue {
+    KeyValue {
+        key: key.into(),
+        value: Some(AnyValue {
+            value: Some(any_value::Value::String(value.into())),
+        }),
+    }
+}
+
+fn any_value(value: Value) -> AnyValue {
+    let value = match value {
+        Value::Bool(value) => any_value::Value::Bool(value),
+        Value::Number(value) => value
+            .as_i64()
+            .map(any_value::Value::Int)
+            .unwrap_or_else(|| any_value::Value::Double(value.as_f64().unwrap_or_default())),
+        Value::String(value) => any_value::Value::String(value),
+        other => any_value::Value::String(other.to_string()),
+    };
+    AnyValue { value: Some(value) }
 }
 
 #[cfg(test)]
@@ -218,7 +345,7 @@ mod tests {
     }
 
     #[test]
-    fn otlp_json_contains_exactly_one_cloud_cell_span_with_stable_ids() {
+    fn cloud_trace_transport_uses_phoenix_supported_protobuf() {
         let span = CloudCellSpan::admitted(
             &identity(),
             "mlip-cell-mace",
@@ -230,22 +357,23 @@ mod tests {
                 duplicate: false,
             },
         );
-        let first = span.otlp_json("glim-think");
-        let second = span.otlp_json("glim-think");
-        let spans = first["resourceSpans"][0]["scopeSpans"][0]["spans"]
-            .as_array()
-            .unwrap();
+
+        let (content_type, body) = otlp_request(&span, "glim-think");
+        assert_eq!(content_type, "application/x-protobuf");
+        assert!(!body.is_empty());
+        assert_ne!(body[0], b'{', "Phoenix Cloud rejects OTLP/HTTP JSON");
+
+        let decoded = ExportTraceServiceRequest::decode(body.as_slice()).unwrap();
+        let spans = &decoded.resource_spans[0].scope_spans[0].spans;
         assert_eq!(spans.len(), 1);
-        assert_eq!(spans[0]["name"], "mlip.flywheel.cloud_cell");
-        assert_eq!(spans[0]["traceId"].as_str().unwrap().len(), 32);
-        assert_eq!(spans[0]["spanId"].as_str().unwrap().len(), 16);
-        assert_eq!(
-            spans[0]["traceId"],
-            second["resourceSpans"][0]["scopeSpans"][0]["spans"][0]["traceId"]
-        );
-        assert_eq!(
-            spans[0]["spanId"],
-            second["resourceSpans"][0]["scopeSpans"][0]["spans"][0]["spanId"]
-        );
+        assert_eq!(spans[0].name, "mlip.flywheel.cloud_cell");
+        assert_eq!(spans[0].trace_id.len(), 16);
+        assert_eq!(spans[0].span_id.len(), 8);
+
+        let (_, second_body) = otlp_request(&span, "glim-think");
+        let second = ExportTraceServiceRequest::decode(second_body.as_slice()).unwrap();
+        let second_span = &second.resource_spans[0].scope_spans[0].spans[0];
+        assert_eq!(spans[0].trace_id, second_span.trace_id);
+        assert_eq!(spans[0].span_id, second_span.span_id);
     }
 }
