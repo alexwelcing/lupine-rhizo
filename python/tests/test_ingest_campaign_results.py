@@ -512,6 +512,16 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "digest mismatch"):
                 module.enforce_path_minimums(root, tampered_manifest, make_bundle(), artifact, "skew-1")
 
+            # Manifests with multiple recorded inputs cannot be reconciled.
+            multi_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": manifest["preregistration"]["recorded_inputs"] * 2
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "exactly one locked recorded input"):
+                module.enforce_path_minimums(root, multi_manifest, make_bundle(), artifact, "skew-1")
+
             # Row identities, values, and statuses bind to the locked source.
             wrong_identity = [
                 row if row["path_index"] != 3 else {**row, "path_id": "mp-999999_0_0_0_0_0"}

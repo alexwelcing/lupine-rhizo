@@ -481,6 +481,11 @@ def enforce_path_minimums(
             f"measurement {row_id} requires a manifest with locked "
             "preregistration.recorded_inputs for the sign-skew family"
         )
+    if len(recorded_inputs) != 1:
+        raise ValueError(
+            f"measurement {row_id} requires exactly one locked recorded input; "
+            f"the sign-skew family cannot reconcile {len(recorded_inputs)}"
+        )
     if isinstance(recorded_inputs, list) and recorded_inputs:
         # Bind every coverage row to the locked source's path identity, recorded
         # status, and recorded value, so the receipt demonstrably measures the
