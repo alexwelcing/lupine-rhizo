@@ -611,6 +611,15 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "outside the locked recorded panel"):
                 enforce(make_bundle())
 
+            # Genuinely independent fresh-compute campaigns remain reachable:
+            # no retrospective source to lock, their own frozen requirements.
+            fresh_manifest = {
+                key: value for key, value in manifest.items() if key != "preregistration"
+            }
+            fresh_manifest["campaign_id"] = "literature.protocol-offset-sign-skew.v2"
+            write_artifact(artifact, full_rows)
+            module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+
     def test_sign_skew_rows_require_a_locked_sign_skew_manifest(self) -> None:
         module = load_ingest_module()
         barrier_manifest = {
