@@ -583,7 +583,7 @@
         }
       ],
       "campaign_id": "literature.protocol-offset-sign-skew.v1",
-      "content_hash": "sha256:8e97f12371efcd9ba1d06c612c31dc9b7a41adc6b2596fd834093734877bf656",
+      "content_hash": "sha256:28107e55320184b86584afc93b604b828b48035761c5c8145cf9ad3f7ed3324a",
       "demotion_conditions": [
         {
           "action": "demote",
@@ -665,7 +665,7 @@
         "frozen_before_execution": true,
         "input_document": {
           "path": "examples/literature-hypotheses/protocol-offset-sign-skew.json",
-          "sha256": "sha256:e0d915563547ab826e515126e6d632abf8d8e63dfa8d819513f10d6565fa9f46"
+          "sha256": "sha256:a3407c40c74e24c312789ebc9fc441e7f091239f8450a032e6da6fe84fffdb39"
         },
         "recorded_inputs": [
           {

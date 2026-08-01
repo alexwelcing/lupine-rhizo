@@ -13,7 +13,8 @@ from jsonschema import Draft202012Validator, FormatChecker
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "literature-hypothesis.v1.schema.json"
 EXAMPLES_DIR = ROOT / "examples" / "literature-hypotheses"
-MIGRATION_PATH = ROOT / "glim-think" / "migrations" / "0012_literature_hypotheses.sql"
+MIGRATIONS_DIR = ROOT / "glim-think" / "migrations"
+MIGRATION_PATH = MIGRATIONS_DIR / "0012_literature_hypotheses.sql"
 SCHEMA_SQL_PATH = ROOT / "glim-think" / "schema.sql"
 EXPECTED_TOP_LEVEL_FIELDS = {
     "source",
@@ -26,6 +27,7 @@ EXPECTED_TOP_LEVEL_FIELDS = {
     "status",
 }
 BARRIER_PREDICATE = "barrier_mae_mev<=40"
+SIGN_SKEW_PREDICATE = "signed_error_positive_fraction>0.5"
 SQLITE_MAX_INTEGER = 9_223_372_036_854_775_807
 
 
@@ -60,7 +62,8 @@ def test_hand_authored_examples_validate_deterministically(schema, examples) -> 
         validator.validate(example)
 
     assert {example["proposedExperiment"]["predicate"] for example in examples} == {
-        BARRIER_PREDICATE
+        BARRIER_PREDICATE,
+        SIGN_SKEW_PREDICATE,
     }
 
 
@@ -343,6 +346,59 @@ def test_d1_rejects_null_hypothesis_identifier(examples) -> None:
                 ) VALUES (NULL, ?)
                 """,
                 (json.dumps(examples[0], sort_keys=True),),
+            )
+    finally:
+        connection.close()
+
+
+def test_latest_migrations_admit_the_sign_skew_typed_predicate(examples) -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        for path in sorted(MIGRATIONS_DIR.glob("*.sql")):
+            connection.executescript(path.read_text(encoding="utf-8"))
+        skew = next(
+            example
+            for example in examples
+            if example["proposedExperiment"]["predicate"] == SIGN_SKEW_PREDICATE
+        )
+        connection.execute(
+            """
+            INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json)
+            VALUES (?, ?)
+            """,
+            (
+                "lit-hypothesis.protocol-offset-sign-skew.v1",
+                json.dumps(skew, sort_keys=True),
+            ),
+        )
+        assert connection.execute(
+            "SELECT proposed_experiment_predicate FROM literature_hypotheses"
+        ).fetchone() == (SIGN_SKEW_PREDICATE,)
+
+        invalid_predicate = deepcopy(skew)
+        invalid_predicate["proposedExperiment"]["predicate"] = (
+            "signed_error_positive_fraction>=0.5"
+        )
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                """
+                INSERT INTO literature_hypotheses (
+                  literature_hypothesis_id, contract_json
+                ) VALUES ('invalid-skew-predicate', ?)
+                """,
+                (json.dumps(invalid_predicate, sort_keys=True),),
+            )
+
+        invalid_metric = deepcopy(skew)
+        invalid_metric["proposedExperiment"]["metric"] = "signed_error"
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                """
+                INSERT INTO literature_hypotheses (
+                  literature_hypothesis_id, contract_json
+                ) VALUES ('invalid-skew-metric', ?)
+                """,
+                (json.dumps(invalid_metric, sort_keys=True),),
             )
     finally:
         connection.close()

@@ -76,7 +76,7 @@
     {
       "campaign": "literature.protocol-offset-sign-skew.v1",
       "campaign_manifest": "campaigns/v1/literature-protocol-offset-sign-skew.campaign-manifest.v1.json",
-      "campaign_manifest_hash": "sha256:5d6dd0b14d535067b6c7d25340a7b30900665768fa57ac11f81177ca0851be3b",
+      "campaign_manifest_hash": "sha256:74dc85962f9c99283fbd53de20f99e5d2cdfcc06cc062912dfb2f48967c57c5b",
       "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
       "artifact_hash": "sha256:f0e287b6f0e7e5c2a30b4fde66f15430f1f5c3ebf31b4bb401ba092c4e73272d",
@@ -100,8 +100,30 @@
         "outcome": "pass"
       },
       "sample_count": 22
+    },
+    {
+      "metric": "median_signed_error",
+      "value": 460.14,
+      "unit": "meV",
+      "acceptance_test": {
+        "comparator": "greater_than_or_equal",
+        "threshold": 400,
+        "outcome": "pass"
+      },
+      "sample_count": 22
+    },
+    {
+      "metric": "median_signed_error",
+      "value": 460.14,
+      "unit": "meV",
+      "acceptance_test": {
+        "comparator": "less_than_or_equal",
+        "threshold": 600,
+        "outcome": "pass"
+      },
+      "sample_count": 22
     }
   ],
   "supersedes": [],
-  "bundle_id": "sha256:e079337d3d60d2653dc93991be60ef6a70b6f03c06445c29b8e7326d873ecdc4"
+  "bundle_id": "sha256:8dc3073efc38fa91fb818d01ac5109f4483a3e598783fe46930478ca9a68a505"
 }

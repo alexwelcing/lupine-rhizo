@@ -9,17 +9,25 @@
   },
   "claim_text": "GPAW(PBE, h=0.2, Gamma-point) sparse-anchor migration barriers on the frozen Z1 panel exceed the nebDFT2k PBE CI-NEB reference in the majority of measured paths (positive signed skew, median approximately +0.4 to +0.6 eV), quantifying a systematic protocol offset rather than a functional difference; any correction layer must subtract this offset before treating literature barriers as ground truth.",
   "bindings": {
-    "errorTypes": ["T1"],
-    "materialClasses": ["MC4"],
-    "chains": ["C1"],
-    "acceptanceTests": ["Z1"]
+    "errorTypes": [
+      "T1"
+    ],
+    "materialClasses": [
+      "MC4"
+    ],
+    "chains": [
+      "C1"
+    ],
+    "acceptanceTests": [
+      "Z1"
+    ]
   },
   "epistemicMarker": "OBS",
   "readiness": "M (measured on the locked 23-path executed panel; replication on longer paths pending)",
   "confidence": "High",
   "proposedExperiment": {
-    "metric": "barrier_mae",
-    "predicate": "barrier_mae_mev<=40",
+    "metric": "signed_error_positive",
+    "predicate": "signed_error_positive_fraction>0.5",
     "panel_ref": "data/candidates/z1_nebdft2k_barriers.lock.json",
     "estimated_cells": 23,
     "estimated_gpu_hours": 0

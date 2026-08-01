@@ -117,6 +117,41 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_measurement_types_are_tied_to_the_claim_predicate(self) -> None:
+        barrier_bundle = load_json(
+            EXAMPLES_DIR / "hard-materials-z1-barrier-accuracy.json"
+        )
+        barrier_bundle["measurements"][0] = {
+            "metric": "signed_error_positive",
+            "value": 0.9,
+            "unit": "fraction",
+            "acceptance_test": {
+                "comparator": "greater_than",
+                "threshold": 0.5,
+                "outcome": "pass",
+            },
+            "sample_count": 22,
+        }
+
+        self.assertTrue(list(self.validator.iter_errors(barrier_bundle)))
+
+        skew_bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        skew_bundle["measurements"][0] = {
+            "metric": "barrier_mae",
+            "value": 30.0,
+            "unit": "meV",
+            "acceptance_test": {
+                "comparator": "less_than_or_equal",
+                "threshold": 40,
+                "outcome": "pass",
+            },
+            "sample_count": 8,
+        }
+
+        self.assertTrue(list(self.validator.iter_errors(skew_bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()

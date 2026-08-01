@@ -36,6 +36,10 @@ ALLOWED_ERROR_TYPES = ["T1", "T2", "T3"]  # T1 (reference-method bias) is the ba
 ALLOWED_ACCEPTANCE_TEST = "Z1"
 ALLOWED_METRIC = "barrier_mae"
 ALLOWED_PREDICATE = "barrier_mae_mev<=40"
+# T1 hypotheses must propose the typed sign-skew experiment they actually claim, so
+# the nightly feedback loop grades them from sign-skew receipts, not barrier-MAE ones.
+T1_METRIC = "signed_error_positive"
+T1_PREDICATE = "signed_error_positive_fraction>0.5"
 ALLOWED_PANEL = "data/candidates/z1_nebdft2k_barriers.lock.json"
 ALLOWED_STATUSES = {"proposed", "accepted"}
 TARGET_PREMISES_BY_CHAIN = {
@@ -284,11 +288,15 @@ def convert_hypothesis(
     )
 
     proposed = _require_mapping(hypothesis.get("proposedExperiment"), "proposedExperiment")
-    if proposed.get("metric") != ALLOWED_METRIC:
-        raise ConversionError(f"metric must be the existing {ALLOWED_METRIC!r} allowlist")
-    if proposed.get("predicate") != ALLOWED_PREDICATE:
+    if "T1" in declared_types:
+        expected_metric, expected_predicate = T1_METRIC, T1_PREDICATE
+    else:
+        expected_metric, expected_predicate = ALLOWED_METRIC, ALLOWED_PREDICATE
+    if proposed.get("metric") != expected_metric:
+        raise ConversionError(f"metric must be the existing {expected_metric!r} allowlist")
+    if proposed.get("predicate") != expected_predicate:
         raise ConversionError(
-            f"predicate must be the existing typed-measurement {ALLOWED_PREDICATE!r}"
+            f"predicate must be the existing typed-measurement {expected_predicate!r}"
         )
     panel_lock = _panel_lock(proposed, root)
     input_lock = _hypothesis_lock(

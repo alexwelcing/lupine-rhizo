@@ -32,11 +32,14 @@ from jsonschema import Draft202012Validator
 HASH_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 SCOPE_DIMENSIONS = ("structures", "chemistries", "properties")
 MEASUREMENT_FIELDS = ("metric", "value", "unit", "acceptance_test", "sample_count")
-# The EvidenceBundle schema defines typed measurements only as
-# barrierErrorMeasurement today; attaching typed measurements to any other
-# predicate would publish a bundle whose measurements cannot describe the
-# claim (Codex PR#41 P2). Reject instead of laundering.
-TYPED_MEASUREMENT_PREDICATES = frozenset({"barrier_mae_mev<=40"})
+# The EvidenceBundle schema defines typed measurements only for the predicates
+# listed here (barrierErrorMeasurement and signSkewFraction/medianSignedError
+# today); attaching typed measurements to any other predicate would publish a
+# bundle whose measurements cannot describe the claim (Codex PR#41 P2).
+# Reject instead of laundering.
+TYPED_MEASUREMENT_PREDICATES = frozenset(
+    {"barrier_mae_mev<=40", "signed_error_positive_fraction>0.5"}
+)
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",

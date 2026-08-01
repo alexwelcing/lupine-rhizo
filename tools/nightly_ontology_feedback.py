@@ -42,6 +42,16 @@ def _timestamp_date(value: Any) -> date | None:
         return None
 
 
+def _measurement_outcome(comparator: Any, value: float, threshold: float) -> str | None:
+    if comparator == "less_than_or_equal":
+        return "pass" if value <= threshold else "fail"
+    if comparator == "greater_than_or_equal":
+        return "pass" if value >= threshold else "fail"
+    if comparator == "greater_than":
+        return "pass" if value > threshold else "fail"
+    return None
+
+
 def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
     provenance = bundle.get("provenance")
     timestamp = provenance.get("timestamp") if isinstance(provenance, dict) else None
@@ -65,34 +75,34 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
         threshold = acceptance.get("threshold")
         comparator = acceptance.get("comparator")
         asserted_outcome = acceptance.get("outcome")
-        expected_comparator = (
-            PREDICATE_COMPARATORS[predicate_match.group("comparator")]
-            if predicate_match is not None
-            else None
-        )
         if (
             predicate_match is None
             or not isinstance(value, (int, float))
             or isinstance(value, bool)
             or not isinstance(threshold, (int, float))
             or isinstance(threshold, bool)
-            or comparator != expected_comparator
             or asserted_outcome not in {"pass", "fail"}
         ):
             raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
-        expected_threshold = float(predicate_match.group("threshold"))
-        if (
-            measurement.get("metric") != predicate_match.group("metric")
-            or str(measurement.get("unit", "")).lower() != predicate_match.group("unit")
-            or float(threshold) != expected_threshold
-        ):
-            raise ValueError(
-                "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
-            )
-        if comparator == "less_than_or_equal":
-            measured_outcome = "pass" if value <= threshold else "fail"
-        else:
-            measured_outcome = "pass" if value > threshold else "fail"
+        binds_predicate = (
+            measurement.get("metric") == predicate_match.group("metric")
+            and str(measurement.get("unit", "")).lower() == predicate_match.group("unit")
+        )
+        if binds_predicate:
+            # The predicate-bound measurement is validated strictly against the
+            # predicate it claims to satisfy.
+            expected_comparator = PREDICATE_COMPARATORS[predicate_match.group("comparator")]
+            if comparator != expected_comparator or float(threshold) != float(
+                predicate_match.group("threshold")
+            ):
+                raise ValueError(
+                    "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
+                )
+        # Auxiliary typed measurements (e.g. a frozen median band) carry their own
+        # comparator and threshold; only the outcome recomputation is enforced.
+        measured_outcome = _measurement_outcome(comparator, value, threshold)
+        if measured_outcome is None:
+            raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
         if asserted_outcome != measured_outcome:
             raise ValueError(
                 "EvidenceBundle asserted acceptance outcome disagrees with its measured value"

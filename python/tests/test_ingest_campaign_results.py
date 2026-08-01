@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -17,6 +18,14 @@ GENERATOR = ROOT / "tools" / "generate_assumptions.py"
 FIXTURE = ROOT / "python" / "tests" / "fixtures" / "round4_ingest"
 CLAIM_ID = "correction.same_class.a0.v1"
 PREMISE_ID = "round3_same_class_a0"
+
+
+def load_ingest_module():
+    spec = importlib.util.spec_from_file_location("ingest_campaign_results", INGESTER)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class CampaignResultIngestionTests(unittest.TestCase):
@@ -155,6 +164,45 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 2)
             self.assertIn("unsupported predicate", result.stderr)
+
+    def test_typed_measurements_admit_the_sign_skew_predicate(self) -> None:
+        module = load_ingest_module()
+        row = {
+            "row_id": "skew-1",
+            "claim_predicate": "signed_error_positive_fraction>0.5",
+            "measurements": [
+                {
+                    "metric": "signed_error_positive",
+                    "value": 0.9545,
+                    "unit": "fraction",
+                    "acceptance_test": {
+                        "comparator": "greater_than",
+                        "threshold": 0.5,
+                        "outcome": "pass",
+                    },
+                    "sample_count": 22,
+                },
+                {
+                    "metric": "median_signed_error",
+                    "value": 460.14,
+                    "unit": "meV",
+                    "acceptance_test": {
+                        "comparator": "greater_than_or_equal",
+                        "threshold": 400,
+                        "outcome": "pass",
+                    },
+                    "sample_count": 22,
+                },
+            ],
+        }
+
+        admitted = module.typed_measurements(row)
+
+        self.assertEqual(admitted, row["measurements"])
+
+        row["claim_predicate"] = "signed_error_positive_fraction>=0.5"
+        with self.assertRaisesRegex(ValueError, "unsupported predicate"):
+            module.typed_measurements(row)
 
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

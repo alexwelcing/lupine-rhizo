@@ -16,18 +16,46 @@
     "status"
   ],
   "properties": {
-    "source": { "$ref": "#/$defs/source" },
-    "claim_text": { "$ref": "#/$defs/non_empty_string" },
-    "bindings": { "$ref": "#/$defs/bindings" },
-    "epistemicMarker": { "enum": ["OBS", "INF", "TRN", "PRP", "FRC"] },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "claim_text": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "bindings": {
+      "$ref": "#/$defs/bindings"
+    },
+    "epistemicMarker": {
+      "enum": [
+        "OBS",
+        "INF",
+        "TRN",
+        "PRP",
+        "FRC"
+      ]
+    },
     "readiness": {
       "type": "string",
       "description": "Ontology readiness grade, optionally followed by a parenthesized annotation.",
       "pattern": "^(H|M|L)( \\([^()]*[^()\\s][^()]*\\))?$(?![\\s\\S])"
     },
-    "confidence": { "enum": ["High", "Medium"] },
-    "proposedExperiment": { "$ref": "#/$defs/proposed_experiment" },
-    "status": { "enum": ["proposed", "accepted", "rejected", "superseded"] }
+    "confidence": {
+      "enum": [
+        "High",
+        "Medium"
+      ]
+    },
+    "proposedExperiment": {
+      "$ref": "#/$defs/proposed_experiment"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "accepted",
+        "rejected",
+        "superseded"
+      ]
+    }
   },
   "$defs": {
     "non_empty_string": {
@@ -36,80 +64,165 @@
       "pattern": "\\S"
     },
     "nullable_external_id": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "minLength": 1,
       "pattern": "\\S"
     },
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["arxiv_id", "openalex_id", "ss_id", "doi", "url", "asOf"],
+      "required": [
+        "arxiv_id",
+        "openalex_id",
+        "ss_id",
+        "doi",
+        "url",
+        "asOf"
+      ],
       "properties": {
-        "arxiv_id": { "$ref": "#/$defs/nullable_external_id" },
-        "openalex_id": { "$ref": "#/$defs/nullable_external_id" },
-        "ss_id": { "$ref": "#/$defs/nullable_external_id" },
+        "arxiv_id": {
+          "$ref": "#/$defs/nullable_external_id"
+        },
+        "openalex_id": {
+          "$ref": "#/$defs/nullable_external_id"
+        },
+        "ss_id": {
+          "$ref": "#/$defs/nullable_external_id"
+        },
         "doi": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^10\\.[0-9]{4,9}/\\S+$"
         },
-        "url": { "type": "string", "format": "uri", "pattern": "^https://" },
-        "asOf": { "type": "string", "format": "date" }
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date"
+        }
       },
       "anyOf": [
-        { "properties": { "arxiv_id": { "type": "string" } } },
-        { "properties": { "openalex_id": { "type": "string" } } },
-        { "properties": { "ss_id": { "type": "string" } } },
-        { "properties": { "doi": { "type": "string" } } }
+        {
+          "properties": {
+            "arxiv_id": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "openalex_id": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "ss_id": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "doi": {
+              "type": "string"
+            }
+          }
+        }
       ]
     },
     "bindings": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["errorTypes", "materialClasses", "chains", "acceptanceTests"],
+      "required": [
+        "errorTypes",
+        "materialClasses",
+        "chains",
+        "acceptanceTests"
+      ],
       "properties": {
         "errorTypes": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^T[1-7]$" }
+          "items": {
+            "type": "string",
+            "pattern": "^T[1-7]$"
+          }
         },
         "materialClasses": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^MC[1-9]$" }
+          "items": {
+            "type": "string",
+            "pattern": "^MC[1-9]$"
+          }
         },
         "chains": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^C([1-9]|1[01])$" }
+          "items": {
+            "type": "string",
+            "pattern": "^C([1-9]|1[01])$"
+          }
         },
         "acceptanceTests": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^Z([1-9]|1[01])$" }
+          "items": {
+            "type": "string",
+            "pattern": "^Z([1-9]|1[01])$"
+          }
         }
       }
     },
     "proposed_experiment": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["metric", "predicate", "estimated_cells", "estimated_gpu_hours"],
+      "required": [
+        "metric",
+        "predicate",
+        "estimated_cells",
+        "estimated_gpu_hours"
+      ],
       "properties": {
-        "metric": { "const": "barrier_mae" },
-        "predicate": {
-          "description": "Existing typed-measurement whitelist; v1 intentionally adds no predicate.",
-          "const": "barrier_mae_mev<=40"
+        "metric": {
+          "enum": [
+            "barrier_mae",
+            "signed_error_positive"
+          ]
         },
-        "panel_ref": { "$ref": "#/$defs/non_empty_string" },
+        "predicate": {
+          "description": "Existing typed-measurement whitelist; each admission requires a typed EvidenceBundle measurement and a D1 migration.",
+          "enum": [
+            "barrier_mae_mev<=40",
+            "signed_error_positive_fraction>0.5"
+          ]
+        },
+        "panel_ref": {
+          "$ref": "#/$defs/non_empty_string"
+        },
         "estimated_cells": {
           "type": "integer",
           "minimum": 1,
           "maximum": 9223372036854775807
         },
-        "estimated_gpu_hours": { "type": "number", "minimum": 0 }
+        "estimated_gpu_hours": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     }
   }

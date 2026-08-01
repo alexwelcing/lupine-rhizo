@@ -57,6 +57,9 @@
           },
           {
             "$ref": "#/$defs/signSkewFractionMeasurement"
+          },
+          {
+            "$ref": "#/$defs/medianSignedErrorMeasurement"
           }
         ]
       }
@@ -78,7 +81,14 @@
         },
         "required": ["claim_predicate"]
       },
-      "then": { "required": ["measurements"] }
+      "then": {
+        "required": ["measurements"],
+        "properties": {
+          "measurements": {
+            "items": { "$ref": "#/$defs/barrierErrorMeasurement" }
+          }
+        }
+      }
     },
     {
       "if": {
@@ -87,7 +97,19 @@
         },
         "required": ["claim_predicate"]
       },
-      "then": { "required": ["measurements"] }
+      "then": {
+        "required": ["measurements"],
+        "properties": {
+          "measurements": {
+            "items": {
+              "oneOf": [
+                { "$ref": "#/$defs/signSkewFractionMeasurement" },
+                { "$ref": "#/$defs/medianSignedErrorMeasurement" }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "$defs": {
@@ -257,6 +279,33 @@
           "properties": {
             "comparator": { "const": "greater_than" },
             "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "outcome": { "enum": ["pass", "fail"] }
+          }
+        },
+        "sample_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "medianSignedErrorMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "value",
+        "unit",
+        "acceptance_test",
+        "sample_count"
+      ],
+      "properties": {
+        "metric": { "const": "median_signed_error" },
+        "value": { "type": "number" },
+        "unit": { "const": "meV" },
+        "acceptance_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["comparator", "threshold", "outcome"],
+          "properties": {
+            "comparator": { "enum": ["greater_than_or_equal", "less_than_or_equal"] },
+            "threshold": { "type": "number" },
             "outcome": { "enum": ["pass", "fail"] }
           }
         },
