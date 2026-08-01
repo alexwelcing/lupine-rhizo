@@ -1,0 +1,27 @@
+{
+  "source": {
+    "arxiv_id": "2601.00002",
+    "openalex_id": null,
+    "ss_id": null,
+    "doi": null,
+    "url": "https://arxiv.org/abs/2601.00002",
+    "asOf": "2026-08-01"
+  },
+  "claim_text": "Acquire dated spin-resolved evidence for the C2 magnetic-anisotropy acceptance gap.",
+  "bindings": {
+    "errorTypes": ["T1"],
+    "materialClasses": ["MC6"],
+    "chains": ["C2"],
+    "acceptanceTests": ["Z2"]
+  },
+  "epistemicMarker": "PRP",
+  "readiness": "L",
+  "confidence": "Medium",
+  "proposedExperiment": {
+    "metric": "barrier_mae",
+    "predicate": "barrier_mae_mev<=40",
+    "estimated_cells": 4,
+    "estimated_gpu_hours": 1
+  },
+  "status": "proposed"
+}

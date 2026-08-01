@@ -15,6 +15,11 @@ on:
   schedule:
     - cron: '0 8 * * *'   # 08:00 UTC nightly (~midnight US Pacific)
   workflow_dispatch:
+    inputs:
+      staging_fixture:
+        description: Run the complete ontology loop against checked-in staging data
+        type: boolean
+        default: false
 
 concurrency:
   group: evidence-nightly
@@ -110,4 +115,205 @@ jobs:
             cocoindex/eval_metrics.json
             cocoindex/data/publication_drift.jsonl
           if-no-files-found: warn
+          retention-days: 90
+
+  ontology-feedback:
+    name: ingest, gate, ontology feedback
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CYCLE_DATE: ${{ github.event_name == 'workflow_dispatch' && '2026-08-01' || '' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install feedback dependencies
+        run: python -m pip install jsonschema rfc8785
+
+      - name: Google Auth for daily campaign rows
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: shed-489901
+
+      - name: Select staging campaign rows
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
+        run: echo "CYCLE_FILE=python/tests/fixtures/nightly_cycle/cycle.json" >> "$GITHUB_ENV"
+
+      - name: Download the dated production cycle
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        run: |
+          cycle_date="$(date -u -d yesterday +%F)"
+          echo "CYCLE_DATE=$cycle_date" >> "$GITHUB_ENV"
+          mkdir -p nightly-input
+          gcloud storage cp --recursive \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date" nightly-input/
+          cycle_file="$(find nightly-input -name cycle.json -type f -print -quit)"
+          test -n "$cycle_file"
+          echo "CYCLE_FILE=$cycle_file" >> "$GITHUB_ENV"
+
+      - name: Rehydrate durable ontology corpus
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        run: |
+          state_uri="$(
+            gcloud storage ls \
+              'gs://shed-489901-atlas-outputs/evidence-nightly/ontology-state/*/corpus-*.tar.gz' \
+              2>/dev/null | sort | tail -n 1 || true
+          )"
+          if [ -n "$state_uri" ]; then
+            mkdir -p nightly-state/restored
+            gcloud storage cp "$state_uri" nightly-state/corpus.tar.gz
+            tar -xzf nightly-state/corpus.tar.gz -C nightly-state/restored \
+              --no-same-owner --no-same-permissions
+            test -d nightly-state/restored/registry/claims
+            test -d nightly-state/restored/evidence/v1/examples
+            # Merge, don't replace: the archive is the base state, but claims or
+            # evidence merged into the default branch since the last archive
+            # must survive (Codex P1 on PR #92). These dirs are append-only by
+            # design, so an ignore-existing overlay is the correct union.
+            rsync -a --ignore-existing nightly-state/restored/registry/claims/ registry/claims/
+            rsync -a --ignore-existing nightly-state/restored/evidence/v1/examples/ evidence/v1/examples/
+          fi
+
+      - name: Ingest rows and regenerate assumptions plus runtime gate
+        run: |
+          python tools/run_nightly_cycle.py \
+            --cycle "$CYCLE_FILE" \
+            --output-dir nightly-output
+
+      - name: Install D1 client
+        working-directory: glim-think
+        run: npm ci
+
+      - name: Seed staging D1 hypotheses
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
+        run: |
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          db = sqlite3.connect('nightly-output/staging.db')
+          db.execute('PRAGMA foreign_keys = ON')
+          for migration in sorted(Path('glim-think/migrations').glob('*.sql')):
+              db.executescript(migration.read_text())
+          for path in sorted(Path('examples/literature-hypotheses').glob('*.json')):
+              contract = json.loads(path.read_text())
+              db.execute(
+                  'INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json) VALUES (?, ?)',
+                  (path.stem, json.dumps(contract, separators=(',', ':'), sort_keys=True)),
+              )
+          path = Path('python/tests/fixtures/nightly_cycle/gap-hypothesis.json')
+          contract = json.loads(path.read_text())
+          db.execute(
+              'INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json) VALUES (?, ?)',
+              (path.stem, json.dumps(contract, separators=(',', ':'), sort_keys=True)),
+          )
+          rows = [
+              {'literature_hypothesis_id': row[0], 'contract_json': row[1]}
+              for row in db.execute(
+                  'SELECT literature_hypothesis_id, contract_json FROM literature_hypotheses ORDER BY literature_hypothesis_id'
+              )
+          ]
+          Path('nightly-output/hypotheses.json').write_text(json.dumps(rows, indent=2) + '\n')
+          Path('nightly-output/known-bundles.json').write_text('[]\n')
+          db.commit()
+          PY
+
+      - name: Migrate and export production D1 hypotheses
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        working-directory: glim-think
+        run: |
+          npx wrangler d1 migrations apply glim-ledger --remote
+          npx wrangler d1 execute glim-ledger --remote --json \
+            --command "SELECT literature_hypothesis_id, contract_json FROM literature_hypotheses ORDER BY literature_hypothesis_id" \
+            > ../nightly-output/hypotheses.json
+          npx wrangler d1 execute glim-ledger --remote --json \
+            --command "SELECT bundle_id FROM evidence_bundle ORDER BY bundle_id" \
+            > ../nightly-output/known-bundles.json
+
+      - name: Refresh ontology statuses and literature priority
+        run: |
+          python tools/nightly_ontology_feedback.py \
+            --atlas registry/ontology/atlas.v2.json \
+            --assumptions registry/assumptions.v1.json \
+            --evidence-dir evidence/v1/examples \
+            --hypotheses nightly-output/hypotheses.json \
+            --new-bundle-ids nightly-output/sync-candidates.json \
+            --known-bundle-ids nightly-output/known-bundles.json \
+            --as-of "$CYCLE_DATE" \
+            --out-sql nightly-output/feedback.sql \
+            --out-queue nightly-output/literature-queue.json \
+            --out-digest nightly-output/hermes-digest.md \
+            --out-card nightly-output/hermes-digest-card.json
+
+      - name: Apply feedback to staging D1
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
+        run: |
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          db = sqlite3.connect('nightly-output/staging.db')
+          db.execute('PRAGMA foreign_keys = ON')
+          db.executescript(Path('nightly-output/feedback.sql').read_text())
+          evidence = {
+              'hypotheses': db.execute(
+                  'SELECT literature_hypothesis_id, status, readiness FROM literature_hypotheses ORDER BY literature_hypothesis_id'
+              ).fetchall(),
+              'queue': db.execute(
+                  'SELECT chain_priority, chain_id, literature_hypothesis_id FROM literature_reprioritization_queue ORDER BY chain_priority, literature_hypothesis_id'
+              ).fetchall(),
+              'events': db.execute(
+                  "SELECT entity_id, to_status, evidence_bundle_id FROM status_event WHERE entity_type = 'literature_hypothesis' ORDER BY entity_id"
+              ).fetchall(),
+          }
+          Path('nightly-output/staging-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n')
+          PY
+
+      - name: Persist durable ontology corpus
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        run: |
+          archive="nightly-output/ontology-corpus.tar.gz"
+          run_id="$(printf '%020d' "$GITHUB_RUN_ID")"
+          run_attempt="$(printf '%04d' "$GITHUB_RUN_ATTEMPT")"
+          tar -czf "$archive" registry/claims evidence/v1/examples
+          gcloud storage cp "$archive" \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/ontology-state/$CYCLE_DATE/corpus-$run_id-$run_attempt.tar.gz"
+
+      - name: Apply feedback to production D1
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        working-directory: glim-think
+        run: npx wrangler d1 execute glim-ledger --remote --file ../nightly-output/feedback.sql
+
+      - name: Publish Hermes digest to job summary
+        if: always()
+        run: test ! -f nightly-output/hermes-digest.md || cat nightly-output/hermes-digest.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload nightly ontology evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ontology-feedback-${{ env.CYCLE_DATE }}
+          path: |
+            nightly-output/
+            registry/assumptions.v1.json
+            registry/claims/
+            registry/snapshots/current.lock.json
+            evidence/v1/examples/
+          if-no-files-found: error
           retention-days: 90

@@ -1,0 +1,8 @@
+{
+  "campaigns": [
+    {
+      "manifest": "../../../../campaigns/v1/z1.campaign-manifest.v1.json",
+      "measurements": "../../../../data/candidates/z1/measurements.jsonl"
+    }
+  ]
+}

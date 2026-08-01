@@ -701,3 +701,104 @@ CREATE INDEX IF NOT EXISTS idx_literature_hypotheses_readiness
   ON literature_hypotheses(readiness);
 CREATE INDEX IF NOT EXISTS idx_literature_hypotheses_predicate
   ON literature_hypotheses(proposed_experiment_predicate);
+
+-- Nightly evidence-to-ontology feedback (migration 0013).
+-- These two existing ledger tables originate in migration 0011; declare the
+-- subset consumed by the feedback trigger so schema.sql remains bootstrappable.
+CREATE TABLE IF NOT EXISTS evidence_bundle (
+  bundle_id TEXT PRIMARY KEY
+    CHECK (length(bundle_id) = 71 AND substr(bundle_id, 1, 7) = 'sha256:'
+      AND substr(bundle_id, 8) NOT GLOB '*[^0-9a-f]*'),
+  claim_predicate TEXT NOT NULL,
+  epistemic_status TEXT NOT NULL CHECK (
+    epistemic_status IN ('confirmatory', 'exploratory', 'descriptive', 'negative', 'unsupported')
+  ),
+  scope_json TEXT NOT NULL,
+  provenance_json TEXT NOT NULL,
+  supersedes_bundle_id TEXT REFERENCES evidence_bundle(bundle_id) ON DELETE RESTRICT,
+  supersedes_bundle_ids_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(supersedes_bundle_ids_json)),
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+CREATE TABLE IF NOT EXISTS status_event (
+  status_event_id TEXT PRIMARY KEY,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  from_status TEXT,
+  to_status TEXT NOT NULL,
+  evidence_bundle_id TEXT REFERENCES evidence_bundle(bundle_id) ON DELETE RESTRICT,
+  occurred_at TEXT NOT NULL,
+  actor TEXT,
+  metadata_json TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+-- Keep latest-state initialization aligned with migration 0011: evidence is
+-- content-addressed and transition history is append-only.
+CREATE TRIGGER IF NOT EXISTS evidence_bundle_immutable_update
+BEFORE UPDATE ON evidence_bundle
+BEGIN
+  SELECT RAISE(ABORT, 'evidence_bundle is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS evidence_bundle_immutable_delete
+BEFORE DELETE ON evidence_bundle
+BEGIN
+  SELECT RAISE(ABORT, 'evidence_bundle is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS status_event_append_only_update
+BEFORE UPDATE ON status_event
+BEGIN
+  SELECT RAISE(ABORT, 'status_event is append-only');
+END;
+
+CREATE TRIGGER IF NOT EXISTS status_event_append_only_delete
+BEFORE DELETE ON status_event
+BEGIN
+  SELECT RAISE(ABORT, 'status_event is append-only');
+END;
+
+CREATE TABLE IF NOT EXISTS literature_reprioritization_queue (
+  cycle_date TEXT NOT NULL,
+  literature_hypothesis_id TEXT NOT NULL
+    REFERENCES literature_hypotheses(literature_hypothesis_id) ON DELETE CASCADE,
+  chain_id TEXT NOT NULL CHECK (chain_id GLOB 'C[1-9]' OR chain_id GLOB 'C1[01]'),
+  chain_priority INTEGER NOT NULL CHECK (chain_priority BETWEEN 1 AND 11),
+  query TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  evidence_gap_json TEXT NOT NULL CHECK (json_valid(evidence_gap_json)),
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  PRIMARY KEY (cycle_date, literature_hypothesis_id, chain_id)
+);
+
+CREATE INDEX IF NOT EXISTS literature_reprioritization_priority_idx
+  ON literature_reprioritization_queue(cycle_date, chain_priority, literature_hypothesis_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS literature_hypothesis_status_bundle_once
+  ON status_event(entity_id, evidence_bundle_id)
+  WHERE entity_type = 'literature_hypothesis' AND evidence_bundle_id IS NOT NULL;
+
+CREATE TRIGGER IF NOT EXISTS literature_hypothesis_evidence_guard
+BEFORE UPDATE OF contract_json ON literature_hypotheses
+WHEN OLD.status <> json_extract(NEW.contract_json, '$.status')
+  OR OLD.readiness <> json_extract(NEW.contract_json, '$.readiness')
+BEGIN
+  SELECT CASE WHEN NOT EXISTS (
+    SELECT 1
+      FROM status_event AS event
+     WHERE event.entity_type = 'literature_hypothesis'
+       AND event.entity_id = OLD.literature_hypothesis_id
+       AND event.from_status = OLD.status
+       AND event.to_status = json_extract(NEW.contract_json, '$.status')
+       AND event.evidence_bundle_id IS NOT NULL
+       AND json_extract(event.metadata_json, '$.from_readiness') = OLD.readiness
+       AND json_extract(event.metadata_json, '$.to_readiness') = json_extract(NEW.contract_json, '$.readiness')
+       AND event.rowid = (
+         SELECT max(latest.rowid)
+           FROM status_event AS latest
+          WHERE latest.entity_type = 'literature_hypothesis'
+            AND latest.entity_id = OLD.literature_hypothesis_id
+       )
+  ) THEN RAISE(ABORT, 'literature hypothesis status/readiness change requires a new EvidenceBundle event') END;
+END;

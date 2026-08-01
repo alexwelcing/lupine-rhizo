@@ -49,13 +49,18 @@ def _refresh_registry(tmp_path: Path) -> None:
 
 
 def _add_a0_evidence(
-    tmp_path: Path, *, epistemic_status: str, condition_updates: dict | None = None
+    tmp_path: Path,
+    *,
+    epistemic_status: str,
+    condition_updates: dict | None = None,
+    scope_updates: dict | None = None,
 ) -> str:
     source = _REPO / "evidence" / "v1" / "examples" / "round3-a0-confirmatory.json"
     bundle = json.loads(source.read_text(encoding="utf-8"))
     bundle["epistemic_status"] = epistemic_status
     bundle["claim_predicate"] += f"_{epistemic_status}_fixture"
     bundle["scope"]["conditions"].update(condition_updates or {})
+    bundle["scope"].update(scope_updates or {})
     target = tmp_path / "evidence" / "v1" / "examples" / f"extra-{epistemic_status}.json"
     return _write_content_addressed(target, bundle, "bundle_id")
 
@@ -213,6 +218,88 @@ def test_at_least_policy_reports_insufficient_support_level(tmp_path: Path) -> N
     )
     assert gate["decision"] == "deny"
     assert gate["premises"][0]["status"] == "eligible"
+
+
+@pytest.mark.unit
+def test_any_policy_scope_excludes_lower_grade_disjoint_evidence(tmp_path: Path) -> None:
+    assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
+    bundle_id = _add_a0_evidence(
+        tmp_path,
+        epistemic_status="exploratory",
+        scope_updates={"chemistries": ["Cu"], "structures": ["bcc"]},
+    )
+    _add_a0_premise_reference(tmp_path, bundle_id, {"mode": "any"})
+
+    manifest = sync.compile_gate_manifest(assumptions, lock, claims, evidence)
+    gate = next(
+        row
+        for row in manifest["gates"]
+        if row["claim_contract"]["claim_id"] == "correction.same_class.a0.v1"
+    )
+
+    assert gate["decision"] == "allow"
+    assert "Cu" not in gate["scope"]["chemistries"]
+    assert "bcc" not in gate["scope"]["structures"]
+
+
+@pytest.mark.unit
+def test_any_policy_rejects_same_grade_correlated_scope_expansion(tmp_path: Path) -> None:
+    assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
+    bundle_id = _add_a0_evidence(
+        tmp_path,
+        epistemic_status="confirmatory",
+        scope_updates={"chemistries": ["Cu"], "structures": ["bcc"]},
+    )
+    _add_a0_premise_reference(tmp_path, bundle_id, {"mode": "any"})
+
+    with pytest.raises(sync.ManifestError, match="scope-correlated evidence"):
+        sync.compile_gate_manifest(assumptions, lock, claims, evidence)
+
+
+@pytest.mark.unit
+def test_scope_union_marks_axis_condition_cross_products_fail_closed() -> None:
+    scopes = [
+        {
+            "chemistries": ["Ni"],
+            "properties": ["barrier"],
+            "structures": ["fcc"],
+            "conditions": {"calibration": "same", "temperature_k": 300},
+        },
+        {
+            "chemistries": ["Cu"],
+            "properties": ["barrier"],
+            "structures": ["fcc"],
+            "conditions": {"calibration": "same", "temperature_k": 500},
+        },
+    ]
+
+    scope = sync._scope_union(scopes, "claim.correlated")  # noqa: SLF001
+
+    assert scope["requires_correlated_match"] is True
+    assert scope["correlated_scopes"] == scopes
+
+
+@pytest.mark.unit
+def test_correlated_conditions_force_runtime_gate_to_deny(tmp_path: Path) -> None:
+    assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
+    bundle_id = _add_a0_evidence(
+        tmp_path,
+        epistemic_status="confirmatory",
+        condition_updates={"sample_count": 999},
+        scope_updates={"chemistries": ["Cu"]},
+    )
+    _add_a0_premise_reference(tmp_path, bundle_id, {"mode": "any"})
+
+    manifest = sync.compile_gate_manifest(assumptions, lock, claims, evidence)
+    gate = next(
+        row
+        for row in manifest["gates"]
+        if row["claim_contract"]["claim_id"] == "correction.same_class.a0.v1"
+    )
+
+    assert gate["decision"] == "deny"
+    assert gate["reason"] == "scope_correlation_not_flattenable"
+    assert gate["scope"]["requires_correlated_match"] is True
 
 
 @pytest.mark.unit
