@@ -9,6 +9,10 @@ use crate::CloudCellTelemetry;
 
 #[axum::async_trait]
 pub trait TraceEmitter: Send + Sync {
+    fn is_enabled(&self) -> bool {
+        true
+    }
+
     async fn emit(&self, span: &CloudCellSpan) -> anyhow::Result<()>;
 }
 
@@ -16,6 +20,10 @@ pub struct NoopTraceEmitter;
 
 #[axum::async_trait]
 impl TraceEmitter for NoopTraceEmitter {
+    fn is_enabled(&self) -> bool {
+        false
+    }
+
     async fn emit(&self, _span: &CloudCellSpan) -> anyhow::Result<()> {
         Ok(())
     }
@@ -304,6 +312,11 @@ fn any_value(value: Value) -> AnyValue {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn noop_trace_emitter_reports_disabled() {
+        assert!(!TraceEmitter::is_enabled(&NoopTraceEmitter));
+    }
     use crate::budget::Admission;
     use crate::CloudCellTelemetry;
 
