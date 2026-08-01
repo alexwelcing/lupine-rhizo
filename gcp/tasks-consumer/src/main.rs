@@ -24,6 +24,7 @@ use serde::{Deserialize, Serialize};
 use tracing::{error, info, warn};
 
 mod auth;
+mod catalog;
 mod jobrun;
 
 use auth::{verify_oidc, OidcVerifier};
@@ -52,13 +53,13 @@ struct Cli {
     #[arg(long, env = "TARGET_JOB", default_value = "atlas-distill")]
     target_job: String,
 
-    /// Comma-separated allowlist of Cloud Run Jobs this service may trigger.
+    /// Runtime backend catalog. Supports a local path, https://, or gs:// URL.
     #[arg(
         long,
-        env = "ALLOWED_TARGET_JOBS",
-        default_value = "atlas-distill,mlip-cell-mace,mlip-cell-chgnet,mlip-cell-m3gnet,mlip-cell-orb,mlip-cell-sevennet,mlip-cell-uma"
+        env = "BACKEND_CATALOG_URL",
+        default_value = "gs://shed-489901-atlas-inputs/mlip-policies/backend_catalog.json"
     )]
-    allowed_target_jobs: String,
+    backend_catalog_url: String,
 
     /// Skip OIDC verification and use a no-op job runner. For local E2E only.
     #[arg(long, env = "DEV_MODE", default_value_t = false)]
@@ -168,8 +169,21 @@ async fn handle_run(
         .unwrap_or(&state.cfg.target_job)
         .trim()
         .to_string();
-    let allowed = parse_allowed_jobs(&state.cfg.allowed_target_jobs);
-    if !allowed.iter().any(|job| job == &target_job) {
+    let mut allowed = match catalog::allowed_target_jobs(&state.cfg.backend_catalog_url).await {
+        Ok(jobs) => jobs,
+        Err(e) => {
+            error!(task = task_name, error = %e, "backend catalog unavailable");
+            return (
+                StatusCode::SERVICE_UNAVAILABLE,
+                format!("backend catalog unavailable: {e}"),
+            )
+                .into_response();
+        }
+    };
+    // The control-plane job is not an MLIP backend and therefore remains an
+    // explicit singleton. Every mlip-cell-* target comes from the live catalog.
+    allowed.insert(state.cfg.target_job.clone());
+    if !allowed.contains(&target_job) {
         warn!(task = task_name, target_job = %target_job, allowed = ?allowed, "target job rejected");
         return (
             StatusCode::BAD_REQUEST,
@@ -231,14 +245,6 @@ async fn handle_run(
     }
 }
 
-fn parse_allowed_jobs(raw: &str) -> Vec<String> {
-    raw.split([',', '|'])
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .map(ToOwned::to_owned)
-        .collect()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -254,9 +260,10 @@ mod tests {
             project_id: "test-project".into(),
             region: "us-central1".into(),
             target_job: "atlas-distill".into(),
-            allowed_target_jobs:
-                "atlas-distill,mlip-cell-mace,mlip-cell-chgnet,mlip-cell-m3gnet,mlip-cell-orb,mlip-cell-sevennet,mlip-cell-uma"
-                    .into(),
+            backend_catalog_url: format!(
+                "{}/../mlip-cell-runner/backend_catalog.json",
+                env!("CARGO_MANIFEST_DIR")
+            ),
             dev_mode: true,
         }
     }
@@ -385,6 +392,41 @@ mod tests {
             )
             .await
             .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn catalog_entry_is_sufficient_to_allow_a_new_target_job() {
+        let path = std::env::temp_dir().join(format!(
+            "tasks-consumer-catalog-{}.json",
+            std::process::id()
+        ));
+        std::fs::write(
+            &path,
+            r#"{"schema":"lupine.mlip.backend_catalog.v1","backends":[{"mlip_id":"new-backend","target_job":"mlip-cell-new-backend"}]}"#,
+        )
+        .unwrap();
+        let mut cli = dev_cli();
+        cli.backend_catalog_url = path.to_string_lossy().into_owned();
+        let app = build_app(cli).await.unwrap();
+        let body = serde_json::json!({
+            "fixture_url": "gs://bucket/manifest.json",
+            "command": "run-cell",
+            "args": [],
+            "beat_emit_url": "https://glim-think.example.workers.dev/beat",
+            "target_job": "mlip-cell-new-backend"
+        });
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        std::fs::remove_file(path).unwrap();
         assert_eq!(res.status(), StatusCode::OK);
     }
 }

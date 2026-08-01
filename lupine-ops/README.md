@@ -13,10 +13,14 @@ reporter binary.
 
 Rust binary that authenticates to GCP, walks Cloud Run services and jobs
 in `--project / --region`, queries Cloud Monitoring for a 24h request
-proxy (true cost requires BigQuery billing export), and flags any service
-exceeding the idle (>10 min on a `CONDITION_SUCCEEDED` revision) or cost
-thresholds. Replaces the never-shipped `monitor_cloud_run.py` referenced
-in `docs/handoff/04_autonomous_handoff_protocol.md`.
+proxy (true cost requires BigQuery billing export), and queries
+`run.googleapis.com/container/billable_instance_time` for Cloud Run Jobs. It
+resolves active policy backends through `backend_catalog.json`, reports each
+schedule's measured GPU-hours against its daily cap, and flags cap excess in
+both the schedule and top-level report. Because the MLIP jobs allocate one GPU,
+billable instance seconds are the conservative GPU-time accounting unit.
+Replaces the never-shipped `monitor_cloud_run.py` referenced in
+`docs/handoff/04_autonomous_handoff_protocol.md`.
 
 ### Auth
 

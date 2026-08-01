@@ -7,6 +7,7 @@
 # Matches the §12.5 policy table row "nightly-baseline".
 schema: lupine.mlip.run_policy.v1
 name: nightly-baseline
+active: true
 description: >-
   Nightly accuracy baseline over the top-3 universal MLIP backends across the
   canonical single-element reference systems. Establishes the rolling baseline
@@ -20,7 +21,7 @@ trigger:
 run:
   level: 3
   backends:
-    - mace
+    - mace-mp-0
     - chgnet
     - sevennet
   systems:
@@ -34,6 +35,14 @@ run:
     - geometry_opt
     - nvt_md_300k
     - elastic_constants
+
+# 60 planned cells at the shared 60 s/cell estimate = 1 GPU-hour. The 3-hour
+# hard cap leaves bounded retry headroom but is only $1.95/day at the checked-in
+# $0.65/L4-hour estimate, well below one verified $14.65 Z1 cost unit.
+budget:
+  daily_gpu_hours: 3.0
+  cost_basis: z1-union-2026-07-24
+  retry: no-silent-retry
 
 results:
   sink: glim-think-rpc

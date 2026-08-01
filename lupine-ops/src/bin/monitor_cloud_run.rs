@@ -9,6 +9,8 @@
 //! structured payload to a report URL — intended to feed the
 //! `glim-think` CF Worker fleet dashboard.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration as StdDuration;
 
@@ -17,6 +19,7 @@ use clap::Parser;
 use gcp_auth::{Token, TokenProvider};
 use reqwest::{Client, StatusCode};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
 
@@ -52,6 +55,22 @@ struct Args {
     #[arg(long, default_value_t = 50.0, value_name = "USD")]
     cost_cap_usd: f64,
 
+    /// Directory containing lupine.mlip.run_policy.v1 YAML files.
+    #[arg(
+        long,
+        default_value = "gcp/mlip-cell-runner/policies",
+        value_name = "DIR"
+    )]
+    policy_dir: PathBuf,
+
+    /// Backend catalog used to resolve policy backend ids to Cloud Run jobs.
+    #[arg(
+        long,
+        default_value = "gcp/mlip-cell-runner/backend_catalog.json",
+        value_name = "FILE"
+    )]
+    backend_catalog: PathBuf,
+
     /// If set, POST the JSON-shaped summary to this URL after each poll
     /// (intended for the glim-think CF Worker ingestion endpoint).
     #[arg(long, value_name = "URL")]
@@ -60,6 +79,7 @@ struct Args {
 
 /// Minimal Cloud Run v2 service shape — only the fields we actually surface.
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct RunService {
     name: String,
     #[serde(default)]
@@ -71,6 +91,7 @@ struct RunService {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct RunJob {
     name: String,
     #[serde(default)]
@@ -82,6 +103,7 @@ struct RunJob {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct JobExecutionRef {
     #[serde(default)]
     name: Option<String>,
@@ -90,30 +112,35 @@ struct JobExecutionRef {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct TerminalCondition {
     #[serde(default)]
     state: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct ListServicesResponse {
     #[serde(default)]
     services: Vec<RunService>,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct ListJobsResponse {
     #[serde(default)]
     jobs: Vec<RunJob>,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct TimeSeriesResponse {
     #[serde(default)]
     time_series: Vec<TimeSeries>,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct TimeSeries {
     #[serde(default)]
     resource: Option<MonitoredResource>,
@@ -122,18 +149,21 @@ struct TimeSeries {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct MonitoredResource {
     #[serde(default)]
     labels: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct Point {
     #[serde(default)]
     value: PointValue,
 }
 
 #[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct PointValue {
     #[serde(default)]
     double_value: Option<f64>,
@@ -164,6 +194,94 @@ struct JobReport {
     flags: Vec<String>,
 }
 
+#[derive(Debug, Deserialize)]
+struct BackendCatalog {
+    schema: String,
+    backends: Vec<BackendCatalogEntry>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BackendCatalogEntry {
+    mlip_id: String,
+    target_job: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct SchedulePolicy {
+    name: String,
+    #[serde(default)]
+    active: bool,
+    run: PolicyRun,
+    #[serde(default)]
+    budget: Option<PolicyBudget>,
+}
+
+#[derive(Debug, Deserialize)]
+struct PolicyRun {
+    #[serde(default)]
+    backends: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct PolicyBudget {
+    daily_gpu_hours: f64,
+    cost_basis: String,
+    retry: String,
+    #[serde(default)]
+    owner_note: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CostBasis {
+    schema: String,
+    id: String,
+    status: String,
+    authoritative_ledger: AuthoritativeLedger,
+    conflicting_claim: ConflictingClaim,
+    gpu_estimate: GpuEstimate,
+    owner_note_gate: OwnerNoteGate,
+}
+
+#[derive(Debug, Deserialize)]
+struct AuthoritativeLedger {
+    path: PathBuf,
+    sha256: String,
+    anchors: u64,
+    cloud_equivalent_usd: f64,
+}
+
+#[derive(Debug, Deserialize)]
+struct ConflictingClaim {
+    anchors: u64,
+    cloud_equivalent_usd: f64,
+    disposition: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct GpuEstimate {
+    usd_per_gpu_hour: f64,
+}
+
+#[derive(Debug, Deserialize)]
+struct OwnerNoteGate {
+    multiple_of_verified_unit: f64,
+    usd: f64,
+    require_owner_note_above: bool,
+    silent_retry_allowed: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct ScheduleUsageReport {
+    name: String,
+    jobs: Vec<String>,
+    gpu_hours_24h: f64,
+    daily_gpu_hour_cap: f64,
+    utilization_percent: f64,
+    cost_basis: String,
+    retry: String,
+    flags: Vec<String>,
+}
+
 #[derive(Debug, Serialize)]
 struct PollSummary {
     project: String,
@@ -173,6 +291,7 @@ struct PollSummary {
     cost_metric_note: String,
     services: Vec<ServiceReport>,
     jobs: Vec<JobReport>,
+    schedules: Vec<ScheduleUsageReport>,
     flags: Vec<String>,
 }
 
@@ -244,13 +363,16 @@ async fn run_once(args: &Args, auth: &Auth, client: &Client) -> Result<()> {
 async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<PollSummary> {
     let token = auth.token().await?;
     let bearer = format!("Bearer {}", token.as_str());
+    let policies = load_active_policies(&args.policy_dir)?;
+    let backend_catalog = load_backend_catalog(&args.backend_catalog)?;
 
     // Cloud Run admin calls and the monitoring window query are independent —
     // fan them out concurrently and join.
-    let (services_res, jobs_res, requests_res) = tokio::join!(
+    let (services_res, jobs_res, requests_res, billable_res) = tokio::join!(
         list_services(client, &bearer, &args.project, &args.region),
         list_jobs(client, &bearer, &args.project, &args.region),
         fetch_request_counts(client, &bearer, &args.project),
+        fetch_billable_instance_seconds(client, &bearer, &args.project),
     );
 
     let services = services_res?;
@@ -259,6 +381,12 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
         eprintln!("warning: request-count metric unavailable: {e:#}");
         std::collections::BTreeMap::new()
     });
+    let billable_seconds_by_job = billable_res.unwrap_or_else(|e| {
+        eprintln!("warning: billable-instance-time metric unavailable: {e:#}");
+        BTreeMap::new()
+    });
+    let schedule_usage =
+        build_schedule_usage(&policies, &backend_catalog, &billable_seconds_by_job)?;
 
     let now = OffsetDateTime::now_utc();
     let mut summary = PollSummary {
@@ -272,6 +400,7 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
             .to_string(),
         services: Vec::with_capacity(services.len()),
         jobs: Vec::with_capacity(jobs.len()),
+        schedules: schedule_usage,
         flags: Vec::new(),
     };
 
@@ -353,6 +482,13 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
             summary.flags.push(format!("{}: {}", svc.short_name, f));
         }
     }
+    for schedule in &summary.schedules {
+        for flag in &schedule.flags {
+            summary
+                .flags
+                .push(format!("schedule {}: {}", schedule.name, flag));
+        }
+    }
 
     Ok(summary)
 }
@@ -416,7 +552,10 @@ async fn fetch_request_counts(
         .get(&url)
         .header("Authorization", bearer)
         .query(&[
-            ("filter", r#"metric.type="run.googleapis.com/request_count""#),
+            (
+                "filter",
+                r#"metric.type="run.googleapis.com/request_count""#,
+            ),
             ("interval.startTime", &start.format(&Rfc3339)?),
             ("interval.endTime", &now.format(&Rfc3339)?),
             ("aggregation.alignmentPeriod", "86400s"),
@@ -446,6 +585,274 @@ async fn fetch_request_counts(
         *out.entry(svc).or_insert(0.0) += total;
     }
     Ok(out)
+}
+
+async fn fetch_billable_instance_seconds(
+    client: &Client,
+    bearer: &str,
+    project: &str,
+) -> Result<BTreeMap<String, f64>> {
+    let now = OffsetDateTime::now_utc();
+    let start = now - time::Duration::hours(24);
+    let url = format!("{MONITORING_BASE}/projects/{project}/timeSeries");
+    let resp = client
+        .get(&url)
+        .header("Authorization", bearer)
+        .query(&[
+            (
+                "filter",
+                r#"metric.type="run.googleapis.com/container/billable_instance_time" AND resource.type="cloud_run_job""#,
+            ),
+            ("interval.startTime", &start.format(&Rfc3339)?),
+            ("interval.endTime", &now.format(&Rfc3339)?),
+            ("aggregation.alignmentPeriod", "86400s"),
+            ("aggregation.perSeriesAligner", "ALIGN_SUM"),
+            ("aggregation.crossSeriesReducer", "REDUCE_SUM"),
+            ("aggregation.groupByFields", "resource.label.job_name"),
+        ])
+        .send()
+        .await
+        .context("GET billable instance timeSeries")?;
+    let status = resp.status();
+    if !status.is_success() {
+        let body = resp.text().await.unwrap_or_default();
+        return Err(api_error(
+            "monitoring.billable_instance_time",
+            status,
+            &body,
+        ));
+    }
+    let parsed: TimeSeriesResponse = resp
+        .json()
+        .await
+        .context("decode billable instance timeSeries JSON")?;
+    let mut out = BTreeMap::new();
+    for ts in parsed.time_series {
+        let Some(job) = ts
+            .resource
+            .as_ref()
+            .and_then(|resource| resource.labels.get("job_name"))
+            .cloned()
+        else {
+            continue;
+        };
+        let total: f64 = ts
+            .points
+            .iter()
+            .map(|point| point_value(&point.value))
+            .sum();
+        *out.entry(job).or_insert(0.0) += total;
+    }
+    Ok(out)
+}
+
+fn load_backend_catalog(path: &Path) -> Result<BTreeMap<String, String>> {
+    let bytes = std::fs::read(path)
+        .with_context(|| format!("reading backend catalog {}", path.display()))?;
+    let catalog: BackendCatalog = serde_json::from_slice(&bytes)
+        .with_context(|| format!("decoding backend catalog {}", path.display()))?;
+    if catalog.schema != "lupine.mlip.backend_catalog.v1" {
+        return Err(anyhow!(
+            "unsupported backend catalog schema: {}",
+            catalog.schema
+        ));
+    }
+    let mut out = BTreeMap::new();
+    let mut targets = BTreeSet::new();
+    for backend in catalog.backends {
+        if !backend.target_job.starts_with("mlip-cell-")
+            || !targets.insert(backend.target_job.clone())
+        {
+            return Err(anyhow!(
+                "invalid or duplicate backend catalog target: {}",
+                backend.target_job
+            ));
+        }
+        if out
+            .insert(backend.mlip_id.clone(), backend.target_job)
+            .is_some()
+        {
+            return Err(anyhow!("duplicate backend catalog id: {}", backend.mlip_id));
+        }
+    }
+    Ok(out)
+}
+
+fn load_active_policies(dir: &Path) -> Result<Vec<SchedulePolicy>> {
+    let cost_basis_path = dir.join("cost-basis.json");
+    let cost_basis: CostBasis = serde_json::from_slice(
+        &std::fs::read(&cost_basis_path)
+            .with_context(|| format!("reading cost basis {}", cost_basis_path.display()))?,
+    )
+    .with_context(|| format!("decoding cost basis {}", cost_basis_path.display()))?;
+    validate_cost_basis(&cost_basis, dir)?;
+    let mut paths: Vec<PathBuf> = std::fs::read_dir(dir)
+        .with_context(|| format!("reading policy directory {}", dir.display()))?
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .filter(|path| {
+            matches!(
+                path.extension().and_then(|ext| ext.to_str()),
+                Some("yml" | "yaml")
+            )
+        })
+        .collect();
+    paths.sort();
+    let mut policies = Vec::new();
+    for path in paths {
+        let bytes = std::fs::read(&path)
+            .with_context(|| format!("reading schedule policy {}", path.display()))?;
+        let policy: SchedulePolicy = serde_yaml::from_slice(&bytes)
+            .with_context(|| format!("decoding schedule policy {}", path.display()))?;
+        if policy.active {
+            let budget = policy
+                .budget
+                .as_ref()
+                .ok_or_else(|| anyhow!("active policy {} has no budget", policy.name))?;
+            validate_budget(&policy.name, budget, &cost_basis)?;
+            policies.push(policy);
+        }
+    }
+    Ok(policies)
+}
+
+fn validate_cost_basis(basis: &CostBasis, policy_dir: &Path) -> Result<()> {
+    if basis.schema != "lupine.mlip.cost_basis.v1" || basis.status != "reconciled" {
+        return Err(anyhow!(
+            "cost basis {} is not a reconciled lupine.mlip.cost_basis.v1 artifact",
+            basis.id
+        ));
+    }
+    let ledger_path = policy_dir
+        .ancestors()
+        .map(|ancestor| ancestor.join(&basis.authoritative_ledger.path))
+        .find(|candidate| candidate.is_file())
+        .ok_or_else(|| {
+            anyhow!(
+                "authoritative cost ledger not found from policy directory {}: {}",
+                policy_dir.display(),
+                basis.authoritative_ledger.path.display()
+            )
+        })?;
+    let ledger = std::fs::read(&ledger_path).with_context(|| {
+        format!(
+            "reading authoritative cost ledger {}",
+            ledger_path.display()
+        )
+    })?;
+    let actual_hash = format!("{:x}", Sha256::digest(&ledger));
+    if actual_hash != basis.authoritative_ledger.sha256 {
+        return Err(anyhow!(
+            "authoritative cost ledger hash mismatch: expected {}, got {actual_hash}",
+            basis.authoritative_ledger.sha256
+        ));
+    }
+    if basis.authoritative_ledger.anchors == 0
+        || !basis.authoritative_ledger.cloud_equivalent_usd.is_finite()
+        || basis.authoritative_ledger.cloud_equivalent_usd <= 0.0
+    {
+        return Err(anyhow!("authoritative cost ledger unit is invalid"));
+    }
+    if basis.conflicting_claim.anchors == 0
+        || !basis.conflicting_claim.cloud_equivalent_usd.is_finite()
+        || basis.conflicting_claim.cloud_equivalent_usd <= 0.0
+        || basis.conflicting_claim.disposition.trim().is_empty()
+        || (basis.conflicting_claim.cloud_equivalent_usd
+            - basis.authoritative_ledger.cloud_equivalent_usd)
+            .abs()
+            < f64::EPSILON
+    {
+        return Err(anyhow!(
+            "cost basis must preserve the conflicting cost claim"
+        ));
+    }
+    let expected_gate = basis.authoritative_ledger.cloud_equivalent_usd
+        * basis.owner_note_gate.multiple_of_verified_unit;
+    if (basis.owner_note_gate.multiple_of_verified_unit - 10.0).abs() > f64::EPSILON
+        || (basis.owner_note_gate.usd - expected_gate).abs() > 0.005
+    {
+        return Err(anyhow!(
+            "owner-note gate must equal 10x the verified cost unit (${expected_gate:.2})"
+        ));
+    }
+    Ok(())
+}
+
+fn validate_budget(name: &str, budget: &PolicyBudget, basis: &CostBasis) -> Result<()> {
+    if budget.cost_basis != basis.id {
+        return Err(anyhow!(
+            "active policy {name} references unknown cost basis {}",
+            budget.cost_basis
+        ));
+    }
+    if budget.retry != "no-silent-retry" || basis.owner_note_gate.silent_retry_allowed {
+        return Err(anyhow!("active policy {name} must disable silent retry"));
+    }
+    let estimated_daily_usd = budget.daily_gpu_hours * basis.gpu_estimate.usd_per_gpu_hour;
+    if basis.owner_note_gate.require_owner_note_above
+        && estimated_daily_usd > basis.owner_note_gate.usd
+        && budget
+            .owner_note
+            .as_deref()
+            .is_none_or(|note| note.trim().is_empty())
+    {
+        return Err(anyhow!(
+            "active policy {name} estimates ${estimated_daily_usd:.2}/day above the ${:.2} owner-note gate",
+            basis.owner_note_gate.usd
+        ));
+    }
+    Ok(())
+}
+
+fn build_schedule_usage(
+    policies: &[SchedulePolicy],
+    catalog: &BTreeMap<String, String>,
+    billable_seconds_by_job: &BTreeMap<String, f64>,
+) -> Result<Vec<ScheduleUsageReport>> {
+    let mut reports = Vec::new();
+    for policy in policies.iter().filter(|policy| policy.active) {
+        let budget = policy
+            .budget
+            .as_ref()
+            .ok_or_else(|| anyhow!("active policy {} has no budget", policy.name))?;
+        if !budget.daily_gpu_hours.is_finite() || budget.daily_gpu_hours <= 0.0 {
+            return Err(anyhow!(
+                "active policy {} has invalid daily GPU-hour cap",
+                policy.name
+            ));
+        }
+        if budget.retry != "no-silent-retry" {
+            return Err(anyhow!(
+                "active policy {} must use no-silent-retry",
+                policy.name
+            ));
+        }
+        let mut jobs = BTreeSet::new();
+        for backend in &policy.run.backends {
+            jobs.insert(catalog.get(backend).cloned().ok_or_else(|| {
+                anyhow!("policy {} backend not in catalog: {backend}", policy.name)
+            })?);
+        }
+        let gpu_hours_24h = jobs
+            .iter()
+            .map(|job| billable_seconds_by_job.get(job).copied().unwrap_or(0.0))
+            .sum::<f64>()
+            / 3600.0;
+        let mut flags = Vec::new();
+        if gpu_hours_24h > budget.daily_gpu_hours {
+            flags.push("gpu_hour_cap_exceeded".to_string());
+        }
+        reports.push(ScheduleUsageReport {
+            name: policy.name.clone(),
+            jobs: jobs.into_iter().collect(),
+            gpu_hours_24h,
+            daily_gpu_hour_cap: budget.daily_gpu_hours,
+            utilization_percent: gpu_hours_24h / budget.daily_gpu_hours * 100.0,
+            cost_basis: budget.cost_basis.clone(),
+            retry: budget.retry.clone(),
+            flags,
+        });
+    }
+    Ok(reports)
 }
 
 fn point_value(v: &PointValue) -> f64 {
@@ -481,8 +888,14 @@ async fn post_report(client: &Client, url: &str, summary: &PollSummary) -> Resul
 }
 
 fn print_human(s: &PollSummary) {
-    println!("== Cloud Run poll: project={} region={} @ {} ==", s.project, s.region, s.polled_at);
-    println!("cost cap: ${:.2} USD/24h  | metric note: {}", s.cost_cap_usd, s.cost_metric_note);
+    println!(
+        "== Cloud Run poll: project={} region={} @ {} ==",
+        s.project, s.region, s.polled_at
+    );
+    println!(
+        "cost cap: ${:.2} USD/24h  | metric note: {}",
+        s.cost_cap_usd, s.cost_metric_note
+    );
     println!();
     println!("Services ({}):", s.services.len());
     if s.services.is_empty() {
@@ -496,7 +909,11 @@ fn print_human(s: &PollSummary) {
             svc.latest_revision.as_deref().unwrap_or("-"),
             svc.last_activity.as_deref().unwrap_or("-"),
             svc.proxy_metric_24h,
-            if svc.flags.is_empty() { "ok".to_string() } else { svc.flags.join(",") }
+            if svc.flags.is_empty() {
+                "ok".to_string()
+            } else {
+                svc.flags.join(",")
+            }
         );
     }
     println!();
@@ -511,6 +928,28 @@ fn print_human(s: &PollSummary) {
             job.status,
             job.last_activity.as_deref().unwrap_or("-"),
             job.latest_execution.as_deref().unwrap_or("-")
+        );
+    }
+    println!();
+    println!("Active schedule GPU budgets ({}):", s.schedules.len());
+    if s.schedules.is_empty() {
+        println!("  (none)");
+    }
+    for schedule in &s.schedules {
+        println!(
+            "  - {} | gpu_hours_24h={:.4}/{:.4} ({:.1}%) | jobs={} | cost_basis={} | retry={} | flags={}",
+            schedule.name,
+            schedule.gpu_hours_24h,
+            schedule.daily_gpu_hour_cap,
+            schedule.utilization_percent,
+            schedule.jobs.join(","),
+            schedule.cost_basis,
+            schedule.retry,
+            if schedule.flags.is_empty() {
+                "ok".to_string()
+            } else {
+                schedule.flags.join(",")
+            }
         );
     }
     if !s.flags.is_empty() {
@@ -574,6 +1013,16 @@ mod tests {
     }
 
     #[test]
+    fn monitoring_response_decodes_google_camel_case_fields() {
+        let parsed: TimeSeriesResponse = serde_json::from_str(
+            r#"{"timeSeries":[{"resource":{"labels":{"job_name":"mlip-cell-mace"}},"points":[{"value":{"doubleValue":58.5}}]}]}"#,
+        )
+        .unwrap();
+        assert_eq!(parsed.time_series.len(), 1);
+        assert!((point_value(&parsed.time_series[0].points[0].value) - 58.5).abs() < 1e-9);
+    }
+
+    #[test]
     fn idle_seconds_handles_missing_and_malformed_timestamps() {
         let now = OffsetDateTime::now_utc();
         assert_eq!(idle_seconds(&None, now), None);
@@ -584,5 +1033,88 @@ mod tests {
             .unwrap();
         let elapsed = idle_seconds(&Some(past), now).unwrap();
         assert!((690..=710).contains(&elapsed));
+    }
+
+    #[test]
+    fn schedule_usage_sums_catalog_jobs_and_flags_cap_excess() {
+        let policy = SchedulePolicy {
+            name: "nightly-baseline".into(),
+            active: true,
+            run: PolicyRun {
+                backends: vec!["mace-mp-0".into(), "chgnet".into()],
+            },
+            budget: Some(PolicyBudget {
+                daily_gpu_hours: 1.0,
+                cost_basis: "z1-union-2026-07-24".into(),
+                retry: "no-silent-retry".into(),
+                owner_note: None,
+            }),
+        };
+        let catalog = std::collections::BTreeMap::from([
+            ("mace-mp-0".into(), "mlip-cell-mace".into()),
+            ("chgnet".into(), "mlip-cell-chgnet".into()),
+        ]);
+        let seconds = std::collections::BTreeMap::from([
+            ("mlip-cell-mace".into(), 1800.0),
+            ("mlip-cell-chgnet".into(), 5400.0),
+        ]);
+        let usage = build_schedule_usage(&[policy], &catalog, &seconds).unwrap();
+        assert_eq!(usage.len(), 1);
+        assert!((usage[0].gpu_hours_24h - 2.0).abs() < 1e-9);
+        assert_eq!(usage[0].daily_gpu_hour_cap, 1.0);
+        assert!(
+            usage[0]
+                .flags
+                .iter()
+                .any(|flag| flag == "gpu_hour_cap_exceeded")
+        );
+    }
+
+    #[test]
+    fn policy_over_ten_verified_units_requires_owner_note() {
+        let basis = CostBasis {
+            schema: "lupine.mlip.cost_basis.v1".into(),
+            id: "z1-union-2026-07-24".into(),
+            status: "reconciled".into(),
+            authoritative_ledger: AuthoritativeLedger {
+                path: "unused-in-this-test".into(),
+                sha256: "unused-in-this-test".into(),
+                anchors: 129,
+                cloud_equivalent_usd: 14.65,
+            },
+            conflicting_claim: ConflictingClaim {
+                anchors: 129,
+                cloud_equivalent_usd: 4.65,
+                disposition: "unsupported".into(),
+            },
+            gpu_estimate: GpuEstimate {
+                usd_per_gpu_hour: 0.65,
+            },
+            owner_note_gate: OwnerNoteGate {
+                multiple_of_verified_unit: 10.0,
+                usd: 146.5,
+                require_owner_note_above: true,
+                silent_retry_allowed: false,
+            },
+        };
+        let budget = PolicyBudget {
+            daily_gpu_hours: 226.0,
+            cost_basis: basis.id.clone(),
+            retry: "no-silent-retry".into(),
+            owner_note: None,
+        };
+        assert!(validate_budget("too-large", &budget, &basis).is_err());
+    }
+
+    #[test]
+    fn checked_in_active_policies_require_verified_ledger_hash() {
+        let policy_dir =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../gcp/mlip-cell-runner/policies");
+        let policies = load_active_policies(&policy_dir).unwrap();
+        let names: BTreeSet<_> = policies.iter().map(|policy| policy.name.as_str()).collect();
+        assert_eq!(
+            names,
+            BTreeSet::from(["nightly-baseline", "on-proof-complete"])
+        );
     }
 }

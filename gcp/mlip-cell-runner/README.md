@@ -4,7 +4,10 @@
 and real `mlip-5x5x3` workflows in `glim-think`.
 
 Cloudflare owns the run ledger and dispatches signed Cloud Tasks to
-`tasks-consumer`. The consumer starts one of the allowlisted Cloud Run Jobs:
+`tasks-consumer`. The consumer fetches `backend_catalog.json` from the
+`mlip-policies` GCS prefix on every request and starts the catalog entry's Cloud
+Run Job. Adding a catalog entry and its job therefore needs no consumer
+revision. Catalog fetch or validation failure rejects the task closed.
 
 - `mlip-cell-mace`
 - `mlip-cell-chgnet`

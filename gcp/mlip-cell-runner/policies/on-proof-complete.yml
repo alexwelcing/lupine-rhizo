@@ -4,6 +4,7 @@
 # DECOMMISSION.md. Matches the §12.5 policy table row "on-proof-complete".
 schema: lupine.mlip.run_policy.v1
 name: on-proof-complete
+active: true
 description: >-
   Fired when a Lean proof closes. Runs a fast level-2 confirmation cell so the
   freshly proven theorem can be checked against measured MLIP behaviour while
@@ -18,13 +19,21 @@ trigger:
 run:
   level: 2
   backends:
-    - mace
+    - mace-mp-0
   systems:
     - Cu_fcc
     - Fe_bcc
   benchmarks:
     - static_energy
     - geometry_opt
+
+# Four default confirmation cells are expected to consume minutes. One GPU-hour
+# is a fail-closed daily envelope across proof events ($0.65/day estimated), not
+# permission to retry silently after a failed event.
+budget:
+  daily_gpu_hours: 1.0
+  cost_basis: z1-union-2026-07-24
+  retry: no-silent-retry
 
 results:
   sink: glim-think-rpc
