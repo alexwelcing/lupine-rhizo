@@ -14,11 +14,16 @@ reporter binary.
 Rust binary that authenticates to GCP, walks Cloud Run services and jobs
 in `--project / --region`, queries Cloud Monitoring for a 24h request
 proxy (true cost requires BigQuery billing export), and queries
-`run.googleapis.com/container/billable_instance_time` for Cloud Run Jobs. It
-resolves active policy backends through `backend_catalog.json`, reports each
-schedule's measured GPU-hours against its daily cap, and flags cap excess in
-both the schedule and top-level report. Because the MLIP jobs allocate one GPU,
-billable instance seconds are the conservative GPU-time accounting unit.
+`run.googleapis.com/container/billable_instance_time` for region-scoped Cloud
+Run Job telemetry. Schedule cap reporting reconciles measured UTC-day billable
+runtime against immutable Cloud Run execution templates. Scheduled dispatches
+carry `LUPINE_SCHEDULE_NAME`; the monitor uses each execution's bounded UTC-day
+duration to apportion the job-level billable metric exactly once. Owner-noted
+manual and legacy unscheduled execution durations stay in the denominator but
+are not charged to any schedule. The generation-matched GCS admission ledger
+remains the floor while work is in flight. A missing ledger object means no
+reservations today; API, permission, malformed-ledger, or missing execution
+provenance fails the poll instead of becoming a healthy-looking zero.
 Replaces the never-shipped `monitor_cloud_run.py` referenced in
 `docs/handoff/04_autonomous_handoff_protocol.md`.
 
@@ -30,8 +35,8 @@ Pick whichever fits where the binary runs:
 - **Cloud Run / GCE / GKE Workload Identity** — `gcp_auth` resolves the
   attached service account automatically.
 
-The service account needs `roles/run.viewer` and `roles/monitoring.viewer`
-on the target project at minimum.
+The service account needs `roles/run.viewer`, `roles/monitoring.viewer`, and
+read access to `gs://<project>-atlas-inputs/mlip-budget-ledgers/`.
 
 ### Build
 
@@ -61,6 +66,7 @@ cargo run --release --bin monitor_cloud_run -- --interval-secs 300
 ```
 monitor_cloud_run [--project shed-489901] [--region us-central1]
                   [--once] [--interval-secs 300]
+                  [--budget-ledger-url gs://.../mlip-budget-ledgers]
                   [--cost-cap-usd 50] [--report-url <url>]
 ```
 

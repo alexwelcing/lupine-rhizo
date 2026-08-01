@@ -18,6 +18,13 @@ steps:
           --role=roles/storage.objectAdmin
         gcloud storage cp gcp/mlip-cell-runner/backend_catalog.json \
           "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json"
+        gcloud storage cp \
+          gcp/mlip-cell-runner/policies/nightly-baseline.yml \
+          gcp/mlip-cell-runner/policies/on-proof-complete.yml \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/"
+        gcloud storage ls \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/nightly-baseline.yml" \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/on-proof-complete.yml"
 
   - name: 'rust:1.88-slim-bookworm'
     entrypoint: 'cargo'

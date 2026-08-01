@@ -142,6 +142,46 @@ struct ListJobsResponse {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+struct ListExecutionsResponse {
+    #[serde(default)]
+    executions: Vec<RunExecution>,
+    #[serde(default)]
+    next_page_token: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RunExecution {
+    job: String,
+    #[serde(default)]
+    start_time: Option<String>,
+    #[serde(default)]
+    completion_time: Option<String>,
+    #[serde(default)]
+    template: ExecutionTaskTemplate,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct ExecutionTaskTemplate {
+    #[serde(default)]
+    containers: Vec<ExecutionContainer>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct ExecutionContainer {
+    #[serde(default)]
+    env: Vec<ExecutionEnvVar>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ExecutionEnvVar {
+    name: String,
+    #[serde(default)]
+    value: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct TimeSeriesResponse {
     #[serde(default)]
     time_series: Vec<TimeSeries>,
@@ -285,7 +325,8 @@ struct OwnerNoteGate {
 struct ScheduleUsageReport {
     name: String,
     jobs: Vec<String>,
-    gpu_hours_24h: f64,
+    reserved_gpu_hours: f64,
+    gpu_hours_utc_day: f64,
     daily_gpu_hour_cap: f64,
     utilization_percent: f64,
     cost_basis: String,
@@ -300,6 +341,27 @@ struct BudgetLedgerDocument {
     schedule: String,
     utc_date: String,
     reserved_gpu_hours: f64,
+    #[serde(default)]
+    reservations: Vec<BudgetReservation>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BudgetReservation {
+    #[serde(default)]
+    target_job: String,
+    gpu_hours: f64,
+}
+
+#[derive(Debug, Default)]
+struct ScheduleReservations {
+    reserved_gpu_hours: f64,
+    legacy_unattributed_gpu_hours: f64,
+}
+
+#[derive(Debug, Default)]
+struct ExecutionUsage {
+    total_seconds_by_job: BTreeMap<String, f64>,
+    scheduled_seconds_by_schedule_job: BTreeMap<(String, String), f64>,
 }
 
 #[derive(Debug, Serialize)]
@@ -388,9 +450,10 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
 
     // Cloud Run admin calls and the monitoring window query are independent —
     // fan them out concurrently and join.
-    let (services_res, jobs_res, requests_res, billable_res, reservations_res) = tokio::join!(
+    let (services_res, jobs_res, executions_res, requests_res, billable_res, reservations_res) = tokio::join!(
         list_services(client, &bearer, &args.project, &args.region),
         list_jobs(client, &bearer, &args.project, &args.region),
+        list_executions(client, &bearer, &args.project, &args.region),
         fetch_request_counts(client, &bearer, &args.project),
         fetch_billable_instance_seconds(client, &bearer, &args.project, &args.region),
         fetch_schedule_reservations(client, &bearer, &args.budget_ledger_url, &policies),
@@ -398,18 +461,26 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
 
     let services = services_res?;
     let jobs = jobs_res?;
+    let executions = executions_res?;
     let requests_by_service = requests_res.unwrap_or_else(|e| {
         eprintln!("warning: request-count metric unavailable: {e:#}");
         std::collections::BTreeMap::new()
     });
     // Budget telemetry fails closed: an API/permission/schema failure must not
     // become a healthy-looking zero-usage report.
-    let _billable_seconds_by_job = billable_res?;
-    let reserved_gpu_hours_by_schedule = reservations_res?;
-    let schedule_usage =
-        build_schedule_usage(&policies, &backend_catalog, &reserved_gpu_hours_by_schedule)?;
-
+    let billable_seconds_by_job = billable_res?;
+    let reservations_by_schedule = reservations_res?;
     let now = OffsetDateTime::now_utc();
+    let execution_usage =
+        aggregate_execution_usage(&executions, now.replace_time(time::Time::MIDNIGHT), now)?;
+    let schedule_usage = build_schedule_usage(
+        &policies,
+        &backend_catalog,
+        &reservations_by_schedule,
+        &billable_seconds_by_job,
+        &execution_usage,
+    )?;
+
     let mut summary = PollSummary {
         project: args.project.clone(),
         region: args.region.clone(),
@@ -558,6 +629,85 @@ async fn list_jobs(
     Ok(parsed.jobs)
 }
 
+async fn list_executions(
+    client: &Client,
+    bearer: &str,
+    project: &str,
+    region: &str,
+) -> Result<Vec<RunExecution>> {
+    let url = format!("{CLOUD_RUN_BASE}/projects/{project}/locations/{region}/jobs/-/executions");
+    let mut executions = Vec::new();
+    let mut page_token: Option<String> = None;
+    loop {
+        let mut request = client
+            .get(&url)
+            .header("Authorization", bearer)
+            .query(&[("pageSize", "1000")]);
+        if let Some(token) = page_token.as_deref() {
+            request = request.query(&[("pageToken", token)]);
+        }
+        let response = request.send().await.with_context(|| format!("GET {url}"))?;
+        let status = response.status();
+        if !status.is_success() {
+            let body = response.text().await.unwrap_or_default();
+            return Err(api_error("list_executions", status, &body));
+        }
+        let page: ListExecutionsResponse = response
+            .json()
+            .await
+            .context("decode list_executions JSON")?;
+        executions.extend(page.executions);
+        page_token = page.next_page_token.filter(|token| !token.is_empty());
+        if page_token.is_none() {
+            return Ok(executions);
+        }
+    }
+}
+
+fn aggregate_execution_usage(
+    executions: &[RunExecution],
+    window_start: OffsetDateTime,
+    window_end: OffsetDateTime,
+) -> Result<ExecutionUsage> {
+    let mut usage = ExecutionUsage::default();
+    for execution in executions {
+        let Some(start_raw) = execution.start_time.as_deref() else {
+            continue;
+        };
+        let start = OffsetDateTime::parse(start_raw, &Rfc3339)
+            .with_context(|| format!("invalid execution startTime: {start_raw}"))?;
+        let end = match execution.completion_time.as_deref() {
+            Some(raw) => OffsetDateTime::parse(raw, &Rfc3339)
+                .with_context(|| format!("invalid execution completionTime: {raw}"))?,
+            None => window_end,
+        };
+        let bounded_start = start.max(window_start);
+        let bounded_end = end.min(window_end);
+        if bounded_end <= bounded_start {
+            continue;
+        }
+        let seconds = (bounded_end - bounded_start).as_seconds_f64();
+        let job = short_name(&execution.job);
+        *usage.total_seconds_by_job.entry(job.clone()).or_insert(0.0) += seconds;
+
+        let schedule = execution
+            .template
+            .containers
+            .iter()
+            .flat_map(|container| &container.env)
+            .find(|var| var.name == "LUPINE_SCHEDULE_NAME")
+            .map(|var| var.value.trim())
+            .filter(|value| !value.is_empty());
+        if let Some(schedule) = schedule {
+            *usage
+                .scheduled_seconds_by_schedule_job
+                .entry((schedule.to_string(), job))
+                .or_insert(0.0) += seconds;
+        }
+    }
+    Ok(usage)
+}
+
 /// Pulls 24h request-count totals per Cloud Run service via Cloud Monitoring.
 /// Used as a cheap activity/cost proxy until we have BQ billing export wired.
 async fn fetch_request_counts(
@@ -615,7 +765,9 @@ async fn fetch_billable_instance_seconds(
     region: &str,
 ) -> Result<BTreeMap<String, f64>> {
     let now = OffsetDateTime::now_utc();
-    let start = now - time::Duration::hours(24);
+    // The reservation ledger resets at UTC midnight; use the same window for
+    // billable runtime so a daily cap never mixes two ledger days.
+    let start = now.replace_time(time::Time::MIDNIGHT);
     let url = format!("{MONITORING_BASE}/projects/{project}/timeSeries");
     let filter = billable_instance_filter(region)?;
     let start_time = start.format(&Rfc3339)?;
@@ -686,7 +838,7 @@ async fn fetch_schedule_reservations(
     bearer: &str,
     ledger_url: &str,
     policies: &[SchedulePolicy],
-) -> Result<BTreeMap<String, f64>> {
+) -> Result<BTreeMap<String, ScheduleReservations>> {
     let rest = ledger_url
         .strip_prefix("gs://")
         .ok_or_else(|| anyhow!("budget ledger URL must use gs://"))?;
@@ -722,7 +874,7 @@ async fn fetch_schedule_reservations(
             .await
             .with_context(|| format!("GET budget ledger for {}", policy.name))?;
         if response.status() == StatusCode::NOT_FOUND {
-            usage.insert(policy.name.clone(), 0.0);
+            usage.insert(policy.name.clone(), ScheduleReservations::default());
             continue;
         }
         let status = response.status();
@@ -745,7 +897,43 @@ async fn fetch_schedule_reservations(
                 policy.name
             ));
         }
-        usage.insert(policy.name.clone(), document.reserved_gpu_hours);
+        let mut reservation_sum = 0.0;
+        let mut legacy_unattributed_gpu_hours = 0.0;
+        for reservation in document.reservations {
+            if !reservation.gpu_hours.is_finite() || reservation.gpu_hours <= 0.0 {
+                return Err(anyhow!(
+                    "invalid reservation provenance for schedule {}",
+                    policy.name
+                ));
+            }
+            reservation_sum += reservation.gpu_hours;
+            if reservation.target_job.is_empty() {
+                // Ledgers written before target-job provenance was added remain
+                // readable for the rest of that UTC day. Execution env metadata
+                // is authoritative for measured-runtime attribution.
+                legacy_unattributed_gpu_hours += reservation.gpu_hours;
+                continue;
+            }
+            if !reservation.target_job.starts_with("mlip-cell-") {
+                return Err(anyhow!(
+                    "invalid reservation target job for schedule {}",
+                    policy.name
+                ));
+            }
+        }
+        if (reservation_sum - document.reserved_gpu_hours).abs() > 1e-6 {
+            return Err(anyhow!(
+                "reservation total mismatch for schedule {}",
+                policy.name
+            ));
+        }
+        usage.insert(
+            policy.name.clone(),
+            ScheduleReservations {
+                reserved_gpu_hours: document.reserved_gpu_hours,
+                legacy_unattributed_gpu_hours,
+            },
+        );
     }
     Ok(usage)
 }
@@ -910,7 +1098,9 @@ fn validate_budget(name: &str, budget: &PolicyBudget, basis: &CostBasis) -> Resu
 fn build_schedule_usage(
     policies: &[SchedulePolicy],
     catalog: &BTreeMap<String, String>,
-    reserved_gpu_hours_by_schedule: &BTreeMap<String, f64>,
+    reservations_by_schedule: &BTreeMap<String, ScheduleReservations>,
+    billable_seconds_by_job: &BTreeMap<String, f64>,
+    execution_usage: &ExecutionUsage,
 ) -> Result<Vec<ScheduleUsageReport>> {
     let mut reports = Vec::new();
     for policy in policies.iter().filter(|policy| policy.active) {
@@ -940,23 +1130,62 @@ fn build_schedule_usage(
                 })?);
             }
         }
-        let gpu_hours_24h = reserved_gpu_hours_by_schedule
+        let reservations = reservations_by_schedule
             .get(&policy.name)
-            .copied()
             .ok_or_else(|| anyhow!("schedule {} reservation usage unavailable", policy.name))?;
+        let mut measured_gpu_hours = 0.0;
+        for job in &jobs {
+            let billable_seconds = billable_seconds_by_job.get(job).copied().unwrap_or(0.0);
+            if !billable_seconds.is_finite() || billable_seconds < 0.0 {
+                return Err(anyhow!("invalid billable runtime for job {job}"));
+            }
+            if billable_seconds <= 0.0 {
+                continue;
+            }
+            let total_execution_seconds = execution_usage
+                .total_seconds_by_job
+                .get(job)
+                .copied()
+                .unwrap_or(0.0);
+            if total_execution_seconds <= 0.0 {
+                return Err(anyhow!(
+                    "billable runtime for job {job} has no execution provenance"
+                ));
+            }
+            let scheduled_execution_seconds = execution_usage
+                .scheduled_seconds_by_schedule_job
+                .get(&(policy.name.clone(), job.clone()))
+                .copied()
+                .unwrap_or(0.0);
+            if scheduled_execution_seconds > total_execution_seconds + f64::EPSILON {
+                return Err(anyhow!(
+                    "scheduled execution time exceeds total execution time for job {job}"
+                ));
+            }
+            measured_gpu_hours +=
+                billable_seconds / 3600.0 * scheduled_execution_seconds / total_execution_seconds;
+        }
+        // Reservations account for admitted/in-flight work before Cloud
+        // Monitoring emits telemetry. Measured runtime takes over when actual
+        // execution exceeds the fixed admission estimate.
+        let gpu_hours_utc_day = measured_gpu_hours.max(reservations.reserved_gpu_hours);
         let mut flags = Vec::new();
-        if gpu_hours_24h > budget.daily_gpu_hours {
+        if reservations.legacy_unattributed_gpu_hours > 0.0 {
+            flags.push("legacy_reservation_provenance_missing".to_string());
+        }
+        if gpu_hours_utc_day > budget.daily_gpu_hours {
             flags.push("gpu_hour_cap_exceeded".to_string());
         }
         reports.push(ScheduleUsageReport {
             name: policy.name.clone(),
             jobs: jobs.into_iter().collect(),
-            gpu_hours_24h,
+            reserved_gpu_hours: reservations.reserved_gpu_hours,
+            gpu_hours_utc_day,
             daily_gpu_hour_cap: budget.daily_gpu_hours,
-            utilization_percent: gpu_hours_24h / budget.daily_gpu_hours * 100.0,
+            utilization_percent: gpu_hours_utc_day / budget.daily_gpu_hours * 100.0,
             cost_basis: budget.cost_basis.clone(),
             retry: budget.retry.clone(),
-            attribution: "atomic per-schedule admission reservation ledger; owner-noted manual runs are excluded".into(),
+            attribution: "measured_billable_runtime_reconciled_by_execution_env".into(),
             flags,
         });
     }
@@ -1045,11 +1274,12 @@ fn print_human(s: &PollSummary) {
     }
     for schedule in &s.schedules {
         println!(
-            "  - {} | gpu_hours_24h={:.4}/{:.4} ({:.1}%) | jobs={} | cost_basis={} | retry={} | attribution={} | flags={}",
+            "  - {} | gpu_hours_utc_day={:.4}/{:.4} ({:.1}%) | reserved={:.4} | jobs={} | cost_basis={} | retry={} | attribution={} | flags={}",
             schedule.name,
-            schedule.gpu_hours_24h,
+            schedule.gpu_hours_utc_day,
             schedule.daily_gpu_hour_cap,
             schedule.utilization_percent,
+            schedule.reserved_gpu_hours,
             schedule.jobs.join(","),
             schedule.cost_basis,
             schedule.retry,
@@ -1132,6 +1362,16 @@ mod tests {
     }
 
     #[test]
+    fn legacy_reservation_without_target_job_remains_readable() {
+        let reservation: BudgetReservation = serde_json::from_str(
+            r#"{"task_name":"legacy-task","gpu_hours":0.05,"reserved_at":"2026-08-01T00:00:00Z"}"#,
+        )
+        .unwrap();
+        assert!(reservation.target_job.is_empty());
+        assert_eq!(reservation.gpu_hours, 0.05);
+    }
+
+    #[test]
     fn idle_seconds_handles_missing_and_malformed_timestamps() {
         let now = OffsetDateTime::now_utc();
         assert_eq!(idle_seconds(&None, now), None);
@@ -1164,10 +1404,23 @@ mod tests {
             ("mace-mp-0".into(), "mlip-cell-mace".into()),
             ("chgnet".into(), "mlip-cell-chgnet".into()),
         ]);
-        let reservations = std::collections::BTreeMap::from([("nightly-baseline".into(), 2.0)]);
-        let usage = build_schedule_usage(&[policy], &catalog, &reservations).unwrap();
+        let reservations = BTreeMap::from([(
+            "nightly-baseline".into(),
+            ScheduleReservations {
+                reserved_gpu_hours: 2.0,
+                ..Default::default()
+            },
+        )]);
+        let usage = build_schedule_usage(
+            &[policy],
+            &catalog,
+            &reservations,
+            &BTreeMap::new(),
+            &ExecutionUsage::default(),
+        )
+        .unwrap();
         assert_eq!(usage.len(), 1);
-        assert!((usage[0].gpu_hours_24h - 2.0).abs() < 1e-9);
+        assert!((usage[0].gpu_hours_utc_day - 2.0).abs() < 1e-9);
         assert_eq!(usage[0].daily_gpu_hour_cap, 1.0);
         assert!(
             usage[0]
@@ -1175,6 +1428,198 @@ mod tests {
                 .iter()
                 .any(|flag| flag == "gpu_hour_cap_exceeded")
         );
+    }
+
+    #[test]
+    fn schedule_usage_reconciles_reservations_to_measured_billable_runtime() {
+        let policy = SchedulePolicy {
+            name: "nightly-baseline".into(),
+            active: true,
+            run: PolicyRun {
+                backends: vec!["mace-mp-0".into(), "chgnet".into()],
+                dynamic_catalog_backends: false,
+            },
+            budget: Some(PolicyBudget {
+                daily_gpu_hours: 3.0,
+                cost_basis: "z1-union-2026-07-24".into(),
+                retry: "no-silent-retry".into(),
+                owner_note: None,
+            }),
+        };
+        let catalog = BTreeMap::from([
+            ("mace-mp-0".into(), "mlip-cell-mace".into()),
+            ("chgnet".into(), "mlip-cell-chgnet".into()),
+        ]);
+        let reservations = BTreeMap::from([(
+            "nightly-baseline".into(),
+            ScheduleReservations {
+                reserved_gpu_hours: 0.1,
+                ..Default::default()
+            },
+        )]);
+        let billable_seconds = BTreeMap::from([
+            ("mlip-cell-mace".into(), 3600.0),
+            ("mlip-cell-chgnet".into(), 1800.0),
+        ]);
+        let execution_usage = ExecutionUsage {
+            total_seconds_by_job: billable_seconds.clone(),
+            scheduled_seconds_by_schedule_job: BTreeMap::from([
+                (("nightly-baseline".into(), "mlip-cell-mace".into()), 3600.0),
+                (
+                    ("nightly-baseline".into(), "mlip-cell-chgnet".into()),
+                    1800.0,
+                ),
+            ]),
+        };
+
+        let usage = build_schedule_usage(
+            &[policy],
+            &catalog,
+            &reservations,
+            &billable_seconds,
+            &execution_usage,
+        )
+        .unwrap();
+
+        assert!((usage[0].gpu_hours_utc_day - 1.5).abs() < 1e-9);
+        assert_eq!(usage[0].reserved_gpu_hours, 0.1);
+        assert_eq!(
+            usage[0].attribution,
+            "measured_billable_runtime_reconciled_by_execution_env"
+        );
+    }
+
+    #[test]
+    fn execution_provenance_excludes_manual_runtime_from_schedule_usage() {
+        let start = OffsetDateTime::parse("2026-08-01T00:00:00Z", &Rfc3339).unwrap();
+        let end = OffsetDateTime::parse("2026-08-01T03:00:00Z", &Rfc3339).unwrap();
+        let execution =
+            |start_time: &str, completion_time: &str, schedule: Option<&str>| RunExecution {
+                job: "projects/p/locations/us-central1/jobs/mlip-cell-mace".into(),
+                start_time: Some(start_time.into()),
+                completion_time: Some(completion_time.into()),
+                template: ExecutionTaskTemplate {
+                    containers: vec![ExecutionContainer {
+                        env: schedule
+                            .map(|value| {
+                                vec![ExecutionEnvVar {
+                                    name: "LUPINE_SCHEDULE_NAME".into(),
+                                    value: value.into(),
+                                }]
+                            })
+                            .unwrap_or_default(),
+                    }],
+                },
+            };
+        let executions = [
+            execution(
+                "2026-08-01T00:00:00Z",
+                "2026-08-01T01:00:00Z",
+                Some("nightly-baseline"),
+            ),
+            execution("2026-08-01T01:00:00Z", "2026-08-01T02:00:00Z", None),
+        ];
+        let execution_usage = aggregate_execution_usage(&executions, start, end).unwrap();
+        assert_eq!(
+            execution_usage.total_seconds_by_job["mlip-cell-mace"],
+            7200.0
+        );
+
+        let policy = SchedulePolicy {
+            name: "nightly-baseline".into(),
+            active: true,
+            run: PolicyRun {
+                backends: vec!["mace-mp-0".into()],
+                dynamic_catalog_backends: false,
+            },
+            budget: Some(PolicyBudget {
+                daily_gpu_hours: 3.0,
+                cost_basis: "z1-union-2026-07-24".into(),
+                retry: "no-silent-retry".into(),
+                owner_note: None,
+            }),
+        };
+        let catalog = BTreeMap::from([("mace-mp-0".into(), "mlip-cell-mace".into())]);
+        let reservations = BTreeMap::from([(
+            "nightly-baseline".into(),
+            ScheduleReservations {
+                reserved_gpu_hours: 0.05,
+                ..Default::default()
+            },
+        )]);
+        let billable_seconds = BTreeMap::from([("mlip-cell-mace".into(), 3600.0)]);
+
+        let usage = build_schedule_usage(
+            &[policy],
+            &catalog,
+            &reservations,
+            &billable_seconds,
+            &execution_usage,
+        )
+        .unwrap();
+
+        assert!((usage[0].gpu_hours_utc_day - 0.5).abs() < 1e-9);
+    }
+
+    #[test]
+    fn shared_job_billable_runtime_is_allocated_once_across_schedules() {
+        let make_policy = |name: &str| SchedulePolicy {
+            name: name.into(),
+            active: true,
+            run: PolicyRun {
+                backends: vec!["mace-mp-0".into()],
+                dynamic_catalog_backends: false,
+            },
+            budget: Some(PolicyBudget {
+                daily_gpu_hours: 3.0,
+                cost_basis: "z1-union-2026-07-24".into(),
+                retry: "no-silent-retry".into(),
+                owner_note: None,
+            }),
+        };
+        let policies = [
+            make_policy("nightly-baseline"),
+            make_policy("on-proof-complete"),
+        ];
+        let catalog = BTreeMap::from([("mace-mp-0".into(), "mlip-cell-mace".into())]);
+        let reservations = BTreeMap::from([
+            (
+                "nightly-baseline".into(),
+                ScheduleReservations {
+                    reserved_gpu_hours: 0.15,
+                    ..Default::default()
+                },
+            ),
+            (
+                "on-proof-complete".into(),
+                ScheduleReservations {
+                    reserved_gpu_hours: 0.05,
+                    ..Default::default()
+                },
+            ),
+        ]);
+        let billable_seconds = BTreeMap::from([("mlip-cell-mace".into(), 3600.0)]);
+        let execution_usage = ExecutionUsage {
+            total_seconds_by_job: BTreeMap::from([("mlip-cell-mace".into(), 3600.0)]),
+            scheduled_seconds_by_schedule_job: BTreeMap::from([
+                (("nightly-baseline".into(), "mlip-cell-mace".into()), 2700.0),
+                (("on-proof-complete".into(), "mlip-cell-mace".into()), 900.0),
+            ]),
+        };
+
+        let usage = build_schedule_usage(
+            &policies,
+            &catalog,
+            &reservations,
+            &billable_seconds,
+            &execution_usage,
+        )
+        .unwrap();
+
+        let total: f64 = usage.iter().map(|item| item.gpu_hours_utc_day).sum();
+        assert!((total - 1.0).abs() < 1e-9);
+        assert!((usage[0].gpu_hours_utc_day - 0.75).abs() < 1e-9);
+        assert!((usage[1].gpu_hours_utc_day - 0.25).abs() < 1e-9);
     }
 
     #[test]
@@ -1194,7 +1639,14 @@ mod tests {
             }),
         };
         let catalog = BTreeMap::from([("mace-mp-0".into(), "mlip-cell-mace".into())]);
-        let error = build_schedule_usage(&[policy], &catalog, &BTreeMap::new()).unwrap_err();
+        let error = build_schedule_usage(
+            &[policy],
+            &catalog,
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            &ExecutionUsage::default(),
+        )
+        .unwrap_err();
         assert!(error.to_string().contains("reservation usage unavailable"));
     }
 

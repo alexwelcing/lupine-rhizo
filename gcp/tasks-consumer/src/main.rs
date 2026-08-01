@@ -203,6 +203,17 @@ async fn handle_run(
         Ok(catalog) => catalog,
         Err(e) => {
             error!(task = task_name, error = %e, "backend catalog unavailable");
+            if let Some(schedule) = payload
+                .schedule_name
+                .as_deref()
+                .filter(|schedule| *schedule != "manual")
+            {
+                return no_retry_rejection(
+                    schedule,
+                    format!("backend_catalog_unavailable_no_retry: {e}"),
+                    None,
+                );
+            }
             return (
                 StatusCode::SERVICE_UNAVAILABLE,
                 format!("backend catalog unavailable: {e}"),
@@ -258,13 +269,19 @@ async fn handle_run(
                     "explicit owner-noted manual dispatch excluded from schedule ledger"
                 );
             }
-            Some("manual") | None => {
+            Some("manual") => {
                 return (
                     StatusCode::BAD_REQUEST,
-                    "MLIP dispatch requires schedule_name, or manual plus x-lupine-owner-note"
-                        .to_string(),
+                    "manual MLIP dispatch requires x-lupine-owner-note".to_string(),
                 )
                     .into_response();
+            }
+            None => {
+                info!(
+                    task = task_name,
+                    target_job,
+                    "legacy campaign dispatch has no schedule identity; admitting outside scheduled caps"
+                );
             }
             Some(schedule) => {
                 let policy =
@@ -272,11 +289,11 @@ async fn handle_run(
                         Ok(policy) => policy,
                         Err(error) => {
                             error!(task = task_name, error = %error, "schedule policy unavailable");
-                            return (
-                                StatusCode::SERVICE_UNAVAILABLE,
-                                format!("schedule policy unavailable: {error:#}"),
-                            )
-                                .into_response();
+                            return no_retry_rejection(
+                                schedule,
+                                format!("schedule_policy_unavailable_no_retry: {error:#}"),
+                                None,
+                            );
                         }
                     };
                 if let Err(error) = policy.validate(backend) {
@@ -304,7 +321,29 @@ async fn handle_run(
                     )
                         .into_response();
                 }
-                match state.budget_ledger.reserve(&policy, task_name).await {
+                match state
+                    .budget_ledger
+                    .reserve(&policy, task_name, &target_job)
+                    .await
+                {
+                    Ok(value) if value.duplicate => {
+                        warn!(
+                            task = task_name,
+                            schedule, "duplicate scheduled delivery acknowledged without dispatch"
+                        );
+                        return (
+                            StatusCode::OK,
+                            Json(RunResponse {
+                                accepted: false,
+                                operation_name: None,
+                                reason: Some("duplicate_schedule_reservation".into()),
+                                schedule: Some(value.schedule),
+                                reserved_gpu_hours: Some(value.reserved_gpu_hours),
+                                daily_gpu_hour_cap: Some(value.daily_gpu_hour_cap),
+                            }),
+                        )
+                            .into_response();
+                    }
                     Ok(value) => admission = Some(value),
                     Err(error) => {
                         warn!(task = task_name, schedule, error = %error, "fail-closed schedule budget admission rejected");
@@ -392,13 +431,64 @@ async fn handle_run(
     }
 }
 
+fn no_retry_rejection(
+    schedule: &str,
+    reason: String,
+    daily_gpu_hour_cap: Option<f64>,
+) -> axum::response::Response {
+    (
+        StatusCode::OK,
+        Json(RunResponse {
+            accepted: false,
+            operation_name: None,
+            reason: Some(reason),
+            schedule: Some(schedule.to_string()),
+            reserved_gpu_hours: None,
+            daily_gpu_hour_cap,
+        }),
+    )
+        .into_response()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use axum::body::Body;
     use axum::http::{Request, StatusCode};
     use http_body_util::BodyExt;
+    use std::sync::atomic::{AtomicUsize, Ordering};
     use tower::ServiceExt;
+
+    #[derive(Default)]
+    struct RecordingRunner {
+        calls: AtomicUsize,
+        fail: bool,
+    }
+
+    #[axum::async_trait]
+    impl JobRunner for RecordingRunner {
+        async fn run(&self, _req: &jobrun::JobRunRequest) -> anyhow::Result<String> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            if self.fail {
+                anyhow::bail!("synthetic runner failure");
+            }
+            Ok("operations/test".into())
+        }
+    }
+
+    struct RejectingLedger;
+
+    #[axum::async_trait]
+    impl budget::BudgetLedger for RejectingLedger {
+        async fn reserve(
+            &self,
+            _policy: &budget::SchedulePolicy,
+            _task_name: &str,
+            _target_job: &str,
+        ) -> anyhow::Result<budget::Admission> {
+            anyhow::bail!("synthetic cap exhausted")
+        }
+    }
 
     fn dev_cli() -> Cli {
         Cli {
@@ -418,6 +508,36 @@ mod tests {
             budget_ledger_url: "gs://unused/dev".into(),
             dev_mode: true,
         }
+    }
+
+    fn app_with_runner(cli: Cli, runner: Arc<dyn JobRunner>) -> Router {
+        app_with_dependencies(cli, runner, budget::memory_ledger())
+    }
+
+    fn app_with_dependencies(
+        cli: Cli,
+        runner: Arc<dyn JobRunner>,
+        budget_ledger: Arc<dyn budget::BudgetLedger>,
+    ) -> Router {
+        Router::new()
+            .route("/run", post(handle_run))
+            .with_state(AppState {
+                cfg: Arc::new(cli),
+                verifier: Arc::new(auth::DevModeVerifier),
+                runner,
+                budget_ledger,
+            })
+    }
+
+    fn scheduled_body() -> serde_json::Value {
+        serde_json::json!({
+            "fixture_url": "gs://bucket/manifest.json",
+            "command": "run-cell",
+            "args": [],
+            "beat_emit_url": "https://glim-think.example.workers.dev/beat",
+            "target_job": "mlip-cell-mace",
+            "schedule_name": "nightly-baseline"
+        })
     }
 
     #[tokio::test]
@@ -553,6 +673,198 @@ mod tests {
             "{}",
             String::from_utf8_lossy(&response_body)
         );
+    }
+
+    #[tokio::test]
+    async fn accepts_existing_unscheduled_mlip_campaign_path() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let mut body = scheduled_body();
+        body.as_object_mut().unwrap().remove("schedule_name");
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "legacy-campaign-task")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn policy_rejects_cloud_tasks_retry_without_dispatching() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let body = scheduled_body();
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskretrycount", "1")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        let bytes = res.into_body().collect().await.unwrap().to_bytes();
+        let parsed: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(parsed["accepted"], false);
+        assert_eq!(parsed["reason"], "cloud_tasks_retry_rejected_by_policy");
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn duplicate_schedule_delivery_dispatches_runner_once() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        for _ in 0..2 {
+            let res = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .method("POST")
+                        .uri("/run")
+                        .header("x-cloudtasks-taskname", "same-scheduled-task")
+                        .body(Body::from(scheduled_body().to_string()))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(res.status(), StatusCode::OK);
+        }
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn admitted_runner_failure_is_acknowledged_without_retry() {
+        let runner = Arc::new(RecordingRunner {
+            calls: AtomicUsize::new(0),
+            fail: true,
+        });
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "failing-scheduled-task")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        let bytes = res.into_body().collect().await.unwrap().to_bytes();
+        let parsed: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(parsed["accepted"], false);
+        assert!(parsed["reason"]
+            .as_str()
+            .unwrap()
+            .starts_with("upstream_job_run_failed_no_retry:"));
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn cap_rejection_is_acknowledged_without_dispatching() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_dependencies(dev_cli(), runner.clone(), Arc::new(RejectingLedger));
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "over-cap-task")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        let bytes = res.into_body().collect().await.unwrap().to_bytes();
+        let parsed: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(parsed["accepted"], false);
+        assert!(parsed["reason"]
+            .as_str()
+            .unwrap()
+            .starts_with("schedule_budget_rejected:"));
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn scheduled_catalog_failure_is_acknowledged_without_retry_or_dispatch() {
+        let runner = Arc::new(RecordingRunner::default());
+        let mut cli = dev_cli();
+        cli.backend_catalog_url = "/definitely/missing/backend_catalog.json".into();
+        let app = app_with_runner(cli, runner.clone());
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "catalog-failure-task")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        let body: serde_json::Value =
+            serde_json::from_slice(&res.into_body().collect().await.unwrap().to_bytes()).unwrap();
+        assert_eq!(body["accepted"], false);
+        assert!(body["reason"]
+            .as_str()
+            .unwrap()
+            .starts_with("backend_catalog_unavailable_no_retry:"));
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn scheduled_policy_failure_is_acknowledged_without_retry_or_dispatch() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let mut body = scheduled_body();
+        body["schedule_name"] = serde_json::Value::String("missing-policy".into());
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "policy-failure-task")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        let body: serde_json::Value =
+            serde_json::from_slice(&res.into_body().collect().await.unwrap().to_bytes()).unwrap();
+        assert_eq!(body["accepted"], false);
+        assert!(body["reason"]
+            .as_str()
+            .unwrap()
+            .starts_with("schedule_policy_unavailable_no_retry:"));
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[test]
+    fn checked_in_deploy_config_publishes_policies_and_disables_job_retries() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let consumer_build = std::fs::read_to_string(root.join("cloudbuild.yaml")).unwrap();
+        assert!(consumer_build.contains("policies/nightly-baseline.yml"));
+        assert!(consumer_build.contains("policies/on-proof-complete.yml"));
+
+        let runner_build =
+            std::fs::read_to_string(root.join("../mlip-cell-runner/cloudbuild.unified.yaml"))
+                .unwrap();
+        assert!(runner_build.contains("--max-retries=0"));
+        assert!(!runner_build.contains("--max-retries=1"));
     }
 
     #[tokio::test]

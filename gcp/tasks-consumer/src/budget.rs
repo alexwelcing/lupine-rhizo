@@ -34,6 +34,7 @@ pub struct PolicyRun {
 pub struct PolicyBudget {
     pub daily_gpu_hours: f64,
     pub reservation_gpu_hours: f64,
+    pub cost_basis: String,
     pub retry: String,
 }
 
@@ -65,6 +66,12 @@ impl SchedulePolicy {
                 self.name
             );
         }
+        if self.budget.cost_basis != "z1-union-2026-07-24" {
+            bail!(
+                "schedule policy {} does not use the reconciled cost basis",
+                self.name
+            );
+        }
         if let Some(backend) = requested_backend {
             if !self.run.allow_dynamic_backend
                 && !self.run.backends.iter().any(|allowed| allowed == backend)
@@ -85,11 +92,17 @@ pub struct Admission {
     pub reservation_gpu_hours: f64,
     pub reserved_gpu_hours: f64,
     pub daily_gpu_hour_cap: f64,
+    pub duplicate: bool,
 }
 
 #[async_trait]
 pub trait BudgetLedger: Send + Sync {
-    async fn reserve(&self, policy: &SchedulePolicy, task_name: &str) -> anyhow::Result<Admission>;
+    async fn reserve(
+        &self,
+        policy: &SchedulePolicy,
+        task_name: &str,
+        target_job: &str,
+    ) -> anyhow::Result<Admission>;
 }
 
 pub struct GcsBudgetLedger {
@@ -224,7 +237,12 @@ impl GcsBudgetLedger {
 
 #[async_trait]
 impl BudgetLedger for GcsBudgetLedger {
-    async fn reserve(&self, policy: &SchedulePolicy, task_name: &str) -> anyhow::Result<Admission> {
+    async fn reserve(
+        &self,
+        policy: &SchedulePolicy,
+        task_name: &str,
+        target_job: &str,
+    ) -> anyhow::Result<Admission> {
         let token = self.token().await?;
         let day = OffsetDateTime::now_utc().date().to_string();
         let object = self.object_name(&policy.name, &day);
@@ -243,7 +261,7 @@ impl BudgetLedger for GcsBudgetLedger {
                 .iter()
                 .any(|item| item.task_name == task_name)
             {
-                return Ok(admission(policy, document.reserved_gpu_hours));
+                return Ok(admission(policy, document.reserved_gpu_hours, true));
             }
             let next = document.reserved_gpu_hours + policy.budget.reservation_gpu_hours;
             if next > policy.budget.daily_gpu_hours + f64::EPSILON {
@@ -258,13 +276,14 @@ impl BudgetLedger for GcsBudgetLedger {
             document.reserved_gpu_hours = next;
             document.reservations.push(Reservation {
                 task_name: task_name.to_string(),
+                target_job: target_job.to_string(),
                 gpu_hours: policy.budget.reservation_gpu_hours,
                 reserved_at: OffsetDateTime::now_utc()
                     .format(&Iso8601::DEFAULT)
                     .unwrap_or_else(|_| OffsetDateTime::now_utc().to_string()),
             });
             if self.write(&token, &object, generation, &document).await? {
-                return Ok(admission(policy, next));
+                return Ok(admission(policy, next, false));
             }
         }
         bail!("budget ledger remained contended after 8 atomic CAS attempts")
@@ -295,6 +314,8 @@ impl BudgetLedgerDocument {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Reservation {
     pub task_name: String,
+    #[serde(default)]
+    pub target_job: String,
     pub gpu_hours: f64,
     pub reserved_at: String,
 }
@@ -304,12 +325,13 @@ struct ObjectMetadata {
     generation: String,
 }
 
-fn admission(policy: &SchedulePolicy, reserved: f64) -> Admission {
+fn admission(policy: &SchedulePolicy, reserved: f64, duplicate: bool) -> Admission {
     Admission {
         schedule: policy.name.clone(),
         reservation_gpu_hours: policy.budget.reservation_gpu_hours,
         reserved_gpu_hours: reserved,
         daily_gpu_hour_cap: policy.budget.daily_gpu_hours,
+        duplicate,
     }
 }
 
@@ -347,10 +369,15 @@ pub struct MemoryBudgetLedger {
 
 #[async_trait]
 impl BudgetLedger for MemoryBudgetLedger {
-    async fn reserve(&self, policy: &SchedulePolicy, task_name: &str) -> anyhow::Result<Admission> {
+    async fn reserve(
+        &self,
+        policy: &SchedulePolicy,
+        task_name: &str,
+        _target_job: &str,
+    ) -> anyhow::Result<Admission> {
         let mut state = self.reservations.lock().await;
         if state.1.contains(task_name) {
-            return Ok(admission(policy, state.0));
+            return Ok(admission(policy, state.0, true));
         }
         let next = state.0 + policy.budget.reservation_gpu_hours;
         if next > policy.budget.daily_gpu_hours + f64::EPSILON {
@@ -358,7 +385,7 @@ impl BudgetLedger for MemoryBudgetLedger {
         }
         state.0 = next;
         state.1.insert(task_name.to_string());
-        Ok(admission(policy, next))
+        Ok(admission(policy, next, false))
     }
 }
 
@@ -382,6 +409,7 @@ mod tests {
             budget: PolicyBudget {
                 daily_gpu_hours: cap,
                 reservation_gpu_hours: reservation,
+                cost_basis: "z1-union-2026-07-24".into(),
                 retry: "no-silent-retry".into(),
             },
         }
@@ -396,7 +424,9 @@ mod tests {
             let ledger = ledger.clone();
             let policy = policy.clone();
             tasks.push(tokio::spawn(async move {
-                ledger.reserve(&policy, &format!("task-{index}")).await
+                ledger
+                    .reserve(&policy, &format!("task-{index}"), "mlip-cell-mace")
+                    .await
             }));
         }
         let mut accepted = 0;
@@ -412,9 +442,17 @@ mod tests {
     async fn duplicate_task_is_idempotent() {
         let ledger = MemoryBudgetLedger::default();
         let policy = policy(1.0, 0.5);
-        let first = ledger.reserve(&policy, "same").await.unwrap();
-        let second = ledger.reserve(&policy, "same").await.unwrap();
+        let first = ledger
+            .reserve(&policy, "same", "mlip-cell-mace")
+            .await
+            .unwrap();
+        let second = ledger
+            .reserve(&policy, "same", "mlip-cell-mace")
+            .await
+            .unwrap();
         assert_eq!(first.reserved_gpu_hours, 0.5);
         assert_eq!(second.reserved_gpu_hours, 0.5);
+        assert!(!first.duplicate);
+        assert!(second.duplicate);
     }
 }

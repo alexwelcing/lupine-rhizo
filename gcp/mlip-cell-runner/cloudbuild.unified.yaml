@@ -68,7 +68,7 @@ steps:
       - --gpu-type=nvidia-l4
       - --no-gpu-zonal-redundancy
       - --tasks=1
-      - --max-retries=1
+      - --max-retries=0
       - --task-timeout=3600s
 
 images:

@@ -19,7 +19,7 @@ steps:
     args: ['push', '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-m3gnet:${_IMAGE_TAG}']
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: gcloud
-    args: ['run', 'jobs', 'deploy', 'mlip-cell-m3gnet', '--image=${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-m3gnet:${_IMAGE_TAG}', '--region=${_REGION}', '--project=${_PROJECT_ID}', '--service-account=${_RUNNER_SA}', '--cpu=4', '--memory=16Gi', '--gpu=1', '--gpu-type=nvidia-l4', '--no-gpu-zonal-redundancy', '--tasks=1', '--max-retries=1', '--task-timeout=3600s']
+    args: ['run', 'jobs', 'deploy', 'mlip-cell-m3gnet', '--image=${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-m3gnet:${_IMAGE_TAG}', '--region=${_REGION}', '--project=${_PROJECT_ID}', '--service-account=${_RUNNER_SA}', '--cpu=4', '--memory=16Gi', '--gpu=1', '--gpu-type=nvidia-l4', '--no-gpu-zonal-redundancy', '--tasks=1', '--max-retries=0', '--task-timeout=3600s']
 
   - name: gcr.io/cloud-builders/docker
     args: ['build', '-t', '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-orb:${_IMAGE_TAG}', '--build-arg', 'BACKEND=orb', '-f', 'gcp/mlip-cell-runner/Dockerfile', '.']
@@ -27,7 +27,7 @@ steps:
     args: ['push', '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-orb:${_IMAGE_TAG}']
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: gcloud
-    args: ['run', 'jobs', 'deploy', 'mlip-cell-orb', '--image=${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-orb:${_IMAGE_TAG}', '--region=${_REGION}', '--project=${_PROJECT_ID}', '--service-account=${_RUNNER_SA}', '--cpu=4', '--memory=16Gi', '--gpu=1', '--gpu-type=nvidia-l4', '--no-gpu-zonal-redundancy', '--tasks=1', '--max-retries=1', '--task-timeout=3600s']
+    args: ['run', 'jobs', 'deploy', 'mlip-cell-orb', '--image=${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-orb:${_IMAGE_TAG}', '--region=${_REGION}', '--project=${_PROJECT_ID}', '--service-account=${_RUNNER_SA}', '--cpu=4', '--memory=16Gi', '--gpu=1', '--gpu-type=nvidia-l4', '--no-gpu-zonal-redundancy', '--tasks=1', '--max-retries=0', '--task-timeout=3600s']
 
 images:
   - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/mlip-cell-m3gnet:${_IMAGE_TAG}'

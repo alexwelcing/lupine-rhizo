@@ -49,9 +49,12 @@ const LIGHT_RETRY: WorkflowStepConfig["retries"] = {
 };
 
 const DISPATCH_RETRY: WorkflowStepConfig["retries"] = {
-  limit: 5,
-  delay: "15 seconds",
-  backoff: "exponential",
+  // nightly-baseline is governed by retry: no-silent-retry. Any failed
+  // dispatch is surfaced in durable workflow state and requires a new,
+  // explicitly owner-initiated run rather than an automatic retry.
+  limit: 0,
+  // Cloudflare's type requires a delay even when the retry limit is zero.
+  delay: "1 second",
 };
 
 export class MlipBaselineGridWorkflow extends WorkflowEntrypoint<Env, MlipBaselineGridWorkflowParams> {
