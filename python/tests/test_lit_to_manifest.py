@@ -21,6 +21,7 @@ OUTPUTS = ROOT / "examples" / "lit-to-manifest"
 CAMPAIGN_SCHEMA = ROOT / "schemas" / "campaign-manifest.v1.schema.json"
 PANEL_PATH = "data/candidates/z1_nebdft2k_barriers.lock.json"
 PANEL_SHA256 = "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68"
+REGISTERED_AT = "2026-08-01T04:55:29Z"
 EXPECTED_OUTPUTS = [
     "deng-underbinding.campaign-manifest.v1.json",
     "lian-ts-finetuning.campaign-manifest.v1.json",
@@ -40,6 +41,16 @@ def load_converter():
     return module
 
 
+def convert(converter, hypothesis, *, hypothesis_id="deng-underbinding", root=ROOT):
+    return converter.convert_hypothesis(
+        hypothesis,
+        hypothesis_id=hypothesis_id,
+        hypothesis_ref=f"examples/literature-hypotheses/{hypothesis_id}.json",
+        registered_at=REGISTERED_AT,
+        root=root,
+    )
+
+
 def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> None:
     converter = load_converter()
     validator = Draft202012Validator(
@@ -51,15 +62,19 @@ def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> Non
     for input_path, output_path in zip(sorted(INPUTS.glob("*.json")), output_paths, strict=True):
         hypothesis = load_json(input_path)
         expected = load_json(output_path)
-        first = converter.convert_hypothesis(hypothesis, hypothesis_id=input_path.stem, root=ROOT)
-        second = converter.convert_hypothesis(
-            deepcopy(hypothesis), hypothesis_id=input_path.stem, root=ROOT
-        )
+        first = convert(converter, hypothesis, hypothesis_id=input_path.stem)
+        second = convert(converter, deepcopy(hypothesis), hypothesis_id=input_path.stem)
 
         assert first == second == expected
         validator.validate(first)
         assert hypothesis["bindings"]["materialClasses"] == ["MC4"]
         assert first["preregistration"]["frozen_before_execution"] is True
+        assert first["preregistration"]["registered_at"] == REGISTERED_AT
+        assert first["preregistration"]["source_as_of"] == hypothesis["source"]["asOf"]
+        assert first["preregistration"]["input_document"] == {
+            "path": f"examples/literature-hypotheses/{input_path.name}",
+            "sha256": "sha256:" + hashlib.sha256(input_path.read_bytes()).hexdigest(),
+        }
         assert first["frozen_hypotheses"] == [
             {
                 "hypothesis_id": f"lit-hypothesis.{input_path.stem}.v1",
@@ -88,14 +103,21 @@ def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> Non
         assert first["content_hash"] == "sha256:" + hashlib.sha256(canonical).hexdigest()
 
 
-def test_missing_panel_ref_uses_nearest_locked_panel() -> None:
+def test_missing_panel_ref_uses_nearest_locked_panel(tmp_path: Path) -> None:
     converter = load_converter()
     hypothesis = load_json(INPUTS / "deng-underbinding.json")
     del hypothesis["proposedExperiment"]["panel_ref"]
+    template = tmp_path / "campaigns" / "v1" / "z1.campaign-manifest.v1.json"
+    template.parent.mkdir(parents=True)
+    template.write_bytes((ROOT / "campaigns" / "v1" / template.name).read_bytes())
+    panel = tmp_path / PANEL_PATH
+    panel.parent.mkdir(parents=True)
+    panel.write_bytes((ROOT / PANEL_PATH).read_bytes())
+    source = tmp_path / "examples" / "literature-hypotheses" / "deng-underbinding.json"
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps(hypothesis), encoding="utf-8")
 
-    manifest = converter.convert_hypothesis(
-        hypothesis, hypothesis_id="deng-underbinding", root=ROOT
-    )
+    manifest = convert(converter, hypothesis, root=tmp_path)
 
     assert manifest["execution"]["candidate_panel"] == {
         "path": PANEL_PATH,
@@ -110,7 +132,7 @@ def test_converter_rejects_hypotheses_that_are_not_executable(status: str) -> No
     hypothesis["status"] = status
 
     with pytest.raises(converter.ConversionError, match="status"):
-        converter.convert_hypothesis(hypothesis, hypothesis_id="deng-underbinding", root=ROOT)
+        convert(converter, hypothesis)
 
 
 def test_bindings_drive_mapped_fields_even_if_template_semantics_drift(tmp_path: Path) -> None:
@@ -132,10 +154,11 @@ def test_bindings_drive_mapped_fields_even_if_template_semantics_drift(tmp_path:
     panel_path = tmp_path / PANEL_PATH
     panel_path.parent.mkdir(parents=True)
     panel_path.write_bytes((ROOT / PANEL_PATH).read_bytes())
+    source = tmp_path / "examples" / "literature-hypotheses" / "deng-underbinding.json"
+    source.parent.mkdir(parents=True)
+    source.write_bytes((INPUTS / "deng-underbinding.json").read_bytes())
 
-    manifest = converter.convert_hypothesis(
-        hypothesis, hypothesis_id="deng-underbinding", root=tmp_path
-    )
+    manifest = convert(converter, hypothesis, root=tmp_path)
 
     assert manifest["target_premises"] == [
         {
@@ -167,7 +190,7 @@ def test_converter_rejects_schema_invalid_literature_hypotheses(mutate) -> None:
     mutate(hypothesis)
 
     with pytest.raises(converter.ConversionError, match="LiteratureHypothesis schema"):
-        converter.convert_hypothesis(hypothesis, hypothesis_id="deng-underbinding", root=ROOT)
+        convert(converter, hypothesis)
 
 
 def test_converter_rejects_identifier_that_would_exceed_manifest_schema() -> None:
@@ -175,7 +198,7 @@ def test_converter_rejects_identifier_that_would_exceed_manifest_schema() -> Non
     hypothesis = load_json(INPUTS / "deng-underbinding.json")
 
     with pytest.raises(converter.ConversionError, match="CampaignManifest schema"):
-        converter.convert_hypothesis(hypothesis, hypothesis_id="x" * 160, root=ROOT)
+        convert(converter, hypothesis, hypothesis_id="x" * 160)
 
 
 def test_converter_rejects_panel_symlink_that_escapes_repo(tmp_path: Path) -> None:
@@ -188,12 +211,15 @@ def test_converter_rejects_panel_symlink_that_escapes_repo(tmp_path: Path) -> No
     )
     panel = tmp_path / PANEL_PATH
     panel.parent.mkdir(parents=True)
+    source = tmp_path / "examples" / "literature-hypotheses" / "deng-underbinding.json"
+    source.parent.mkdir(parents=True)
+    source.write_bytes((INPUTS / "deng-underbinding.json").read_bytes())
     outside = tmp_path.parent / "outside-panel.json"
     outside.write_text("{}", encoding="utf-8")
     panel.symlink_to(outside)
 
     with pytest.raises(converter.ConversionError, match="panel_ref escapes"):
-        converter.convert_hypothesis(hypothesis, hypothesis_id="deng-underbinding", root=tmp_path)
+        convert(converter, hypothesis, root=tmp_path)
 
 
 @pytest.mark.parametrize(
@@ -237,7 +263,51 @@ def test_converter_fails_closed_outside_existing_z1_allowlists(mutate, message) 
     mutate(hypothesis)
 
     with pytest.raises(converter.ConversionError, match=message):
-        converter.convert_hypothesis(hypothesis, hypothesis_id="deng-underbinding", root=ROOT)
+        convert(converter, hypothesis)
+
+
+def test_converter_requires_explicit_registration_event() -> None:
+    converter = load_converter()
+    hypothesis = load_json(INPUTS / "deng-underbinding.json")
+
+    with pytest.raises(converter.ConversionError, match="registered_at"):
+        converter.convert_hypothesis(
+            hypothesis,
+            hypothesis_id="deng-underbinding",
+            hypothesis_ref="examples/literature-hypotheses/deng-underbinding.json",
+            registered_at="2026-02-30T00:00:00Z",
+            root=ROOT,
+        )
+
+
+def test_converter_rejects_input_that_does_not_match_reviewed_artifact() -> None:
+    converter = load_converter()
+    hypothesis = load_json(INPUTS / "deng-underbinding.json")
+    hypothesis["claim_text"] = "Different unreviewed claim."
+
+    with pytest.raises(converter.ConversionError, match="does not match"):
+        convert(converter, hypothesis)
+
+
+def test_reviewed_artifact_comparison_distinguishes_booleans_from_numbers(
+    tmp_path: Path,
+) -> None:
+    converter = load_converter()
+    hypothesis = load_json(INPUTS / "deng-underbinding.json")
+    hypothesis["proposedExperiment"]["estimated_cells"] = 1
+    reviewed = deepcopy(hypothesis)
+    reviewed["proposedExperiment"]["estimated_cells"] = True
+    source = tmp_path / "examples" / "literature-hypotheses" / "deng-underbinding.json"
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps(reviewed), encoding="utf-8")
+
+    with pytest.raises(converter.ConversionError, match="does not match"):
+        converter._hypothesis_lock(
+            hypothesis,
+            hypothesis_id="deng-underbinding",
+            hypothesis_ref="examples/literature-hypotheses/deng-underbinding.json",
+            root=tmp_path,
+        )
 
 
 def test_cli_writes_canonical_fixture_bytes(tmp_path: Path) -> None:
@@ -247,6 +317,8 @@ def test_cli_writes_canonical_fixture_bytes(tmp_path: Path) -> None:
             sys.executable,
             str(CONVERTER_PATH),
             str(INPUTS / "deng-underbinding.json"),
+            "--registered-at",
+            REGISTERED_AT,
             "--output",
             str(output),
         ],

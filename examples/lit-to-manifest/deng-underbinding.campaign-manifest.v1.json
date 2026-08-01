@@ -28,7 +28,7 @@
     }
   ],
   "campaign_id": "literature.deng-underbinding.v1",
-  "content_hash": "sha256:0c836795cefc0d10f9a37a6836c2b64d4b3d25e1be1b07679f4d5ed153de0140",
+  "content_hash": "sha256:2a80d1556d163986b633631692b13895597c36c404e033576feda8d61b3b1c5f",
   "demotion_conditions": [
     {
       "action": "demote",
@@ -92,8 +92,13 @@
   ],
   "preregistration": {
     "frozen_before_execution": true,
-    "registered_at": "2026-07-20T00:00:00Z",
-    "source": "https://doi.org/10.1038/s41524-024-01500-6"
+    "input_document": {
+      "path": "examples/literature-hypotheses/deng-underbinding.json",
+      "sha256": "sha256:6702acc76e9b3a505f328aa2c2e466d3d949f509d4ef51746caa8eb742c30f10"
+    },
+    "registered_at": "2026-08-01T04:55:29Z",
+    "source": "https://doi.org/10.1038/s41524-024-01500-6",
+    "source_as_of": "2026-07-20"
   },
   "preregistration_id": "prereg.literature.deng-underbinding.v1",
   "target_premises": [

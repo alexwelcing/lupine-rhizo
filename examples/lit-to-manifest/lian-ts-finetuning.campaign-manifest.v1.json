@@ -28,7 +28,7 @@
     }
   ],
   "campaign_id": "literature.lian-ts-finetuning.v1",
-  "content_hash": "sha256:2d38bf685a540ee5cab9fa4a7d9369f4c0f42b726b516aa146fe2b84a72a1c0d",
+  "content_hash": "sha256:01718d1c92219b028bada547ebaa9c8bb51ad34de79edb3a658bbed3ebe0724a",
   "demotion_conditions": [
     {
       "action": "demote",
@@ -92,8 +92,13 @@
   ],
   "preregistration": {
     "frozen_before_execution": true,
-    "registered_at": "2026-07-20T00:00:00Z",
-    "source": "https://doi.org/10.1039/D5TA05355B"
+    "input_document": {
+      "path": "examples/literature-hypotheses/lian-ts-finetuning.json",
+      "sha256": "sha256:0f5c43385390b22ab0fc6bf9fbdd0e81a603528e6634eeabbc7b3c0d28bd8fe8"
+    },
+    "registered_at": "2026-08-01T04:55:29Z",
+    "source": "https://doi.org/10.1039/D5TA05355B",
+    "source_as_of": "2026-07-20"
   },
   "preregistration_id": "prereg.literature.lian-ts-finetuning.v1",
   "target_premises": [

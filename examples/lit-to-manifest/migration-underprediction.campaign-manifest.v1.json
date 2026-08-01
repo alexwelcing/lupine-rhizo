@@ -28,7 +28,7 @@
     }
   ],
   "campaign_id": "literature.migration-underprediction.v1",
-  "content_hash": "sha256:305750da14a82cd7656569b442d6ca38b6418e2bc3c31c25edd1ef5c3c8fb67e",
+  "content_hash": "sha256:9ecd71b207f6644a55b9ab4d3305db057154b7bdee8366328fef30f24167e9ef",
   "demotion_conditions": [
     {
       "action": "demote",
@@ -92,8 +92,13 @@
   ],
   "preregistration": {
     "frozen_before_execution": true,
-    "registered_at": "2026-07-20T00:00:00Z",
-    "source": "https://doi.org/10.1039/D5DD00534E"
+    "input_document": {
+      "path": "examples/literature-hypotheses/migration-underprediction.json",
+      "sha256": "sha256:9f9e1bf56ea303d1a9e1028f85b8122e48023889dcb01d47624fb6a127347c2f"
+    },
+    "registered_at": "2026-08-01T04:55:29Z",
+    "source": "https://doi.org/10.1039/D5DD00534E",
+    "source_as_of": "2026-07-20"
   },
   "preregistration_id": "prereg.literature.migration-underprediction.v1",
   "target_premises": [

@@ -14,6 +14,7 @@ import json
 import re
 import sys
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -113,8 +114,47 @@ def _content_hash(manifest: dict[str, Any]) -> str:
     return "sha256:" + hashlib.sha256(canonical).hexdigest()
 
 
+def _registration_timestamp(value: str) -> str:
+    try:
+        parsed = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except (TypeError, ValueError) as error:
+        raise ConversionError("registered_at must be an explicit UTC RFC 3339 timestamp") from error
+    return parsed.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _hypothesis_lock(
+    hypothesis: dict[str, Any], *, hypothesis_id: str, hypothesis_ref: str, root: Path
+) -> dict[str, str]:
+    expected = f"examples/literature-hypotheses/{hypothesis_id}.json"
+    relative = PurePosixPath(hypothesis_ref)
+    if relative.is_absolute() or ".." in relative.parts or hypothesis_ref != expected:
+        raise ConversionError(f"hypothesis_ref must be the reviewed A3 artifact {expected!r}")
+    root_path = root.resolve()
+    document_path = root_path.joinpath(*relative.parts)
+    try:
+        resolved_document = document_path.resolve(strict=True)
+        resolved_document.relative_to(root_path)
+        document_bytes = resolved_document.read_bytes()
+        reviewed = json.loads(document_bytes)
+    except ValueError as error:
+        raise ConversionError(f"hypothesis_ref escapes the repository root: {hypothesis_ref}") from error
+    except (OSError, json.JSONDecodeError) as error:
+        raise ConversionError(f"hypothesis_ref cannot be read: {hypothesis_ref}: {error}") from error
+    if rfc8785.dumps(reviewed) != rfc8785.dumps(hypothesis):
+        raise ConversionError("hypothesis does not match the reviewed A3 input artifact")
+    return {
+        "path": hypothesis_ref,
+        "sha256": "sha256:" + hashlib.sha256(document_bytes).hexdigest(),
+    }
+
+
 def convert_hypothesis(
-    hypothesis: dict[str, Any], *, hypothesis_id: str, root: Path = ROOT
+    hypothesis: dict[str, Any],
+    *,
+    hypothesis_id: str,
+    hypothesis_ref: str,
+    registered_at: str,
+    root: Path = ROOT,
 ) -> dict[str, Any]:
     """Map one allowlisted hypothesis to a deterministic frozen manifest skeleton."""
     if not isinstance(hypothesis, dict):
@@ -122,6 +162,8 @@ def convert_hypothesis(
     _validate_schema(hypothesis, LITERATURE_SCHEMA_PATH, "LiteratureHypothesis")
     if not IDENTIFIER_PATTERN.fullmatch(hypothesis_id):
         raise ConversionError("hypothesis_id must be a lowercase campaign identifier")
+    if len(f"prereg.literature.{hypothesis_id}.v1") > 160:
+        raise ConversionError("hypothesis_id is too long for the CampaignManifest schema")
     if hypothesis.get("status") not in ALLOWED_STATUSES:
         raise ConversionError("status must be proposed or accepted before conversion")
 
@@ -156,6 +198,13 @@ def convert_hypothesis(
         raise ConversionError(
             f"predicate must be the existing typed-measurement {ALLOWED_PREDICATE!r}"
         )
+    panel_lock = _panel_lock(proposed, root)
+    input_lock = _hypothesis_lock(
+        hypothesis,
+        hypothesis_id=hypothesis_id,
+        hypothesis_ref=hypothesis_ref,
+        root=root,
+    )
 
     template = _load_json(root / TEMPLATE_PATH, "Z1 campaign template")
     manifest = deepcopy(template)
@@ -163,8 +212,10 @@ def convert_hypothesis(
     manifest["campaign_id"] = f"literature.{hypothesis_id}.v1"
     manifest["preregistration_id"] = f"prereg.literature.{hypothesis_id}.v1"
     manifest["preregistration"] = {
-        "registered_at": f"{as_of}T00:00:00Z",
+        "registered_at": _registration_timestamp(registered_at),
         "source": source_url,
+        "source_as_of": as_of,
+        "input_document": input_lock,
         "frozen_before_execution": True,
     }
     manifest["frozen_hypotheses"] = [
@@ -177,7 +228,7 @@ def convert_hypothesis(
     manifest["target_premises"] = deepcopy(TARGET_PREMISES_BY_CHAIN[ALLOWED_CHAIN])
     manifest["acceptance_test"] = deepcopy(ACCEPTANCE_TEST_BY_ID[ALLOWED_ACCEPTANCE_TEST])
     manifest["execution"] = deepcopy(template["execution"])
-    manifest["execution"]["candidate_panel"] = _panel_lock(proposed, root)
+    manifest["execution"]["candidate_panel"] = panel_lock
     manifest["content_hash"] = _content_hash(manifest)
     _validate_schema(manifest, CAMPAIGN_SCHEMA_PATH, "CampaignManifest")
     return manifest
@@ -193,6 +244,11 @@ def canonical_document(manifest: dict[str, Any]) -> bytes:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path, help="LiteratureHypothesis v1 JSON")
+    parser.add_argument(
+        "--registered-at",
+        required=True,
+        help="actual preregistration event time as UTC RFC 3339 (YYYY-MM-DDTHH:MM:SSZ)",
+    )
     parser.add_argument("--output", type=Path, help="output path (defaults to stdout)")
     parser.add_argument(
         "--hypothesis-id",
@@ -208,6 +264,8 @@ def main(argv: list[str] | None = None) -> int:
         manifest = convert_hypothesis(
             hypothesis,
             hypothesis_id=args.hypothesis_id or args.input.stem,
+            hypothesis_ref=args.input.resolve().relative_to(ROOT.resolve()).as_posix(),
+            registered_at=args.registered_at,
             root=ROOT,
         )
         document = canonical_document(manifest)
@@ -216,7 +274,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             args.output.parent.mkdir(parents=True, exist_ok=True)
             args.output.write_bytes(document)
-    except ConversionError as error:
+    except (ConversionError, ValueError) as error:
         print(f"lit_to_manifest: {error}", file=sys.stderr)
         return 2
     return 0
