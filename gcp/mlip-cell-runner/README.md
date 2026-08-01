@@ -182,6 +182,35 @@ gcloud run jobs execute mlip-cell-chgnet \
 The Cloud Build config uses `gcloud run jobs deploy`, so first deployment and
 subsequent image updates use the same command path.
 
+### Unified MACE image and Z2 abstention smoke
+
+The managed path builds and deploys one backend at a time:
+
+```bash
+gcloud builds submit . \
+  --project=shed-489901 \
+  --config=gcp/mlip-cell-runner/cloudbuild.unified.yaml \
+  --substitutions=_BACKEND=mace
+```
+
+Prove GCS artifact and authenticated beat delivery without starting a model or
+the separately owner-gated Z2 SOC/Tc campaign:
+
+```bash
+RUN_ID="z2-abstention-smoke-$(date -u +%Y%m%dT%H%M%SZ)"
+gcloud run jobs execute mlip-cell-mace \
+  --project=shed-489901 \
+  --region=us-central1 \
+  --wait \
+  --args=run-z2-abstention-smoke,--run-id,"${RUN_ID}",--artifact-prefix,"gs://shed-489901-atlas-outputs/z2/unified-smoke/${RUN_ID}",--beat-emit-url,https://glim-think-v1.aw-ab5.workers.dev/feed/beats
+```
+
+This command replays exactly four hash-chained abstention rows. It records
+`scientific_executions: 0`; it is pipeline evidence, not a Z2 scientific result.
+The full Z1 panel also remains deferred. Before using Z1 as a cost unit, reconcile
+the owner-card value `4.65 / 129 anchors` with the checked-in ledger and command
+center value `$14.65 / 129 anchors`; do not extrapolate beyond one unit silently.
+
 UMA is wired as a separate cloud-first backend because `fairchem-core` uses its
 own torch-generation dependency stack. The default catalog id is `uma-s-1p1`,
 which is present in `fairchem-core==2.14.0`; override `UMA_MODEL_NAME` only when

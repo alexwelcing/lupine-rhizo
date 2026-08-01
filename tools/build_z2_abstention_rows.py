@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Build the four Z2 abstention measurement rows (RFC 8785, hash-chained).
+"""Build the four-row Z2 abstention pipeline smoke (RFC 8785, hash-chained).
 
-The Z2 spin-aware campaign cannot execute honestly: no declared available
-model exposes an SOC / magnetocrystalline-anisotropy / Tc measurement path
-(runner ROW_IDS are scalar energy/forces/stress-derived), no >=5-material
-SOC/Tc reference panel exists, the target ClaimContract is absent, and Tc
-has no preregistered metric. The frozen Z2 hypothesis h.z2.scalar-abstention
-requires scalar-only rows to abstain. These rows record that abstention:
-one `unsupported` row per declared available model, with zero cloud spend
-and no fabricated measurement.
+The spin-aware runner, reference panel, and ClaimContract now exist, but their
+scientific execution remains separately owner-gated. The B1 unified-runner
+proof deliberately performs no SOC/Tc calculation. The frozen Z2 hypothesis
+``h.z2.scalar-abstention`` requires such non-spin rows to abstain. These rows
+therefore exercise packaging, GCS, and beat delivery without fabricating a
+measurement or spending the scientific campaign budget.
 
 Reconstruction note: the original t_52df7aae workspace artifacts were lost
 with the kanban scratch workspace (2026-07-19). This builder recreates the
@@ -32,11 +30,11 @@ OUT_DIR = ROOT / "data/candidates/z2"
 
 MODELS = ("chgnet", "mace-mp-small", "mace-mp-medium", "mace-mpa-0-medium")
 ABSTENTION_RATIONALE = (
-    "No spin-orbit / non-collinear magnetocrystalline-anisotropy or Tc "
-    "measurement path exists among the declared available models (runner rows "
-    "are scalar energy/forces/stress-derived). Per frozen hypothesis "
-    "h.z2.scalar-abstention, scalar-only rows abstain and cannot count as "
-    "ranking successes."
+    "This zero-scientific-spend unified-runner smoke intentionally executes no "
+    "spin-orbit / non-collinear magnetocrystalline-anisotropy or Tc calculation. "
+    "Per frozen hypothesis h.z2.scalar-abstention, scalar-only rows abstain and "
+    "cannot count as ranking successes. The separate owner-gated SOC/Tc runner "
+    "and locked reference panel are not exercised by this smoke."
 )
 
 
@@ -74,10 +72,10 @@ def build_rows() -> list[dict]:
                 "reason": ABSTENTION_RATIONALE,
             },
             "scope": {
-                "panel": None,
-                "panel_reason": "no locked >=5-material SOC/Tc reference panel exists",
-                "claim_contract": None,
-                "claim_contract_reason": "registry/claims/discovery.z2.magnetic-anisotropy.v1.json is absent",
+                "panel": "data/candidates/z2_soc_tc_panel.lock.json",
+                "panel_reason": "locked panel exists but is deliberately not evaluated by this smoke",
+                "claim_contract": "registry/claims/discovery.z2.magnetic-anisotropy.v1.json",
+                "claim_contract_reason": "claim remains unsupported because this smoke emits no scientific measurement",
             },
             "cloud_executions": 0,
             "previous_row_hash": previous_hash,

@@ -26,6 +26,18 @@ def test_z2_cloud_build_deploys_isolated_job_without_executing_it() -> None:
     assert "jobs execute" not in cloudbuild
 
 
+def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:
+    dockerfile = (RUNNER / "Dockerfile.unified").read_text(encoding="utf-8")
+    assert "COPY data/candidates/z2/measurements.jsonl" in dockerfile
+    assert "COPY data/candidates/z2/artifact-manifest.json" in dockerfile
+    assert "COPY campaigns/v1/z2.campaign-manifest.v1.json" in dockerfile
+
+    cloudbuild = (RUNNER / "cloudbuild.unified.yaml").read_text(encoding="utf-8")
+    assert "gcr.io/${PROJECT_ID}/mlip-runner:${_BACKEND}" in cloudbuild
+    assert "jobs" in cloudbuild and "deploy" in cloudbuild
+    assert "jobs execute" not in cloudbuild
+
+
 def test_z2_endpoint_lock_binds_deployed_image_and_help_only_smoke() -> None:
     lock_path = RUNNER / "z2_endpoints.lock.json"
     lock = json.loads(lock_path.read_text(encoding="utf-8"))

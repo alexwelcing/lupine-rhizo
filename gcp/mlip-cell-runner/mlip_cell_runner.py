@@ -26,6 +26,7 @@ from typing import Any
 
 import numpy as np
 import requests
+import rfc8785
 from lupine_distill.fixture_contract import run_row, validate_manifest
 from z1_barrier import BARRIER_ROW_ID, load_campaign_panel, run_barrier_row
 from z1_sparse_dft import SPARSE_DFT_ROW_ID, run_sparse_dft_row
@@ -240,6 +241,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--operation-name", default=None)
     parser.add_argument("--dev-mode-bypass", action="store_true")
     parser.add_argument("--local-jsonl", default=None)
+    parser.add_argument(
+        "--z2-rows-url",
+        default=None,
+        help="Override the packaged Z2 abstention measurements for run-z2-abstention-smoke.",
+    )
+    parser.add_argument(
+        "--z2-artifact-manifest-url",
+        default=None,
+        help="Override the packaged Z2 abstention artifact manifest for the smoke.",
+    )
     parser.add_argument(
         "--checkpoint-mode",
         default="read-write",
@@ -1192,7 +1203,7 @@ def emit_beat(
     summary: str,
     dev_mode_bypass: bool,
     local_jsonl: str | None = None,
-) -> None:
+) -> dict[str, Any]:
     body = {
         "beat_id": f"{metrics.get('run_id', 'run')}:{metrics.get('cell_id', 'cell')}:{int(time.time())}",
         "agent": "gcp-mlip-runner",
@@ -1205,11 +1216,11 @@ def emit_beat(
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(body, sort_keys=True) + "\n")
-        return
+        return body
     if not beat_emit_url:
         # Offline / air-gapped lane: no beat endpoint and no local sink means
         # beats are intentionally skipped; the printed metrics stay the record.
-        return
+        return body
     endpoint = beat_emit_url.rstrip("/")
     if not endpoint.endswith("/feed/beats"):
         endpoint = endpoint + "/feed/beats"
@@ -1219,6 +1230,82 @@ def emit_beat(
         headers["Authorization"] = f"Bearer {metadata_identity_token(worker_base)}"
     response = requests.post(endpoint, headers=headers, data=json.dumps(body), timeout=60)
     response.raise_for_status()
+    return body
+
+
+def _packaged_z2_path(name: str) -> str:
+    packaged = pathlib.Path("/app/data/candidates/z2") / name
+    if packaged.exists():
+        return str(packaged)
+    return str(pathlib.Path(__file__).resolve().parents[2] / "data" / "candidates" / "z2" / name)
+
+
+def run_z2_abstention_smoke(args: argparse.Namespace) -> dict[str, Any]:
+    """Replay the four frozen abstention rows without loading an MLIP model."""
+    if not args.run_id:
+        raise ValueError("--run-id is required for run-z2-abstention-smoke")
+    if not args.artifact_prefix:
+        raise ValueError("--artifact-prefix is required for run-z2-abstention-smoke")
+
+    rows_url = args.z2_rows_url or _packaged_z2_path("measurements.jsonl")
+    manifest_url = args.z2_artifact_manifest_url or _packaged_z2_path("artifact-manifest.json")
+    rows_bytes = read_url(rows_url)
+    manifest_bytes = read_url(manifest_url)
+    rows = [json.loads(line) for line in rows_bytes.splitlines() if line.strip()]
+    manifest = json.loads(manifest_bytes)
+    expected_models = ["chgnet", "mace-mp-small", "mace-mp-medium", "mace-mpa-0-medium"]
+    if [row.get("model_id") for row in rows] != expected_models:
+        raise ValueError("Z2 abstention smoke requires the frozen four-model row order")
+    if manifest.get("row_count") != 4:
+        raise ValueError("Z2 abstention artifact manifest must declare four rows")
+    rows_hash = "sha256:" + hashlib.sha256(rows_bytes).hexdigest()
+    if manifest.get("artifacts", [{}])[0].get("sha256") != rows_hash:
+        raise ValueError("Z2 abstention measurements hash does not match artifact manifest")
+    previous_hash = None
+    for row in rows:
+        if row.get("previous_row_hash") != previous_hash:
+            raise ValueError("Z2 abstention row hash chain is broken")
+        row_body = {key: value for key, value in row.items() if key != "row_hash"}
+        computed_row_hash = "sha256:" + hashlib.sha256(rfc8785.dumps(row_body)).hexdigest()
+        if row.get("row_hash") != computed_row_hash:
+            raise ValueError("Z2 abstention row content hash is invalid")
+        if row.get("cloud_executions") != 0 or row.get("sample_count") != 0:
+            raise ValueError("Z2 abstention smoke rows must record zero scientific executions")
+        if row.get("acceptance_test", {}).get("outcome") != "abstained":
+            raise ValueError("Z2 abstention smoke row did not abstain")
+        previous_hash = row.get("row_hash")
+    if previous_hash != manifest.get("chain_tail"):
+        raise ValueError("Z2 abstention chain tail does not match artifact manifest")
+
+    measurements_uri = write_artifact_bytes(
+        args.artifact_prefix, "measurements.jsonl", rows_bytes, "application/x-ndjson"
+    )
+    artifact_manifest_uri = write_artifact_bytes(
+        args.artifact_prefix, "artifact-manifest.json", manifest_bytes, "application/json"
+    )
+    metrics = {
+        "schema": "lupine.z2.abstention_smoke.v1",
+        "status": "completed",
+        "run_id": args.run_id,
+        "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
+        "cell_id": "z2-abstention-smoke",
+        "row_count": 4,
+        "outcome": "abstained",
+        "scientific_executions": 0,
+        "artifact_uri": measurements_uri,
+        "artifact_hash": rows_hash,
+        "artifact_manifest_uri": artifact_manifest_uri,
+        "artifact_manifest_hash": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+        "chain_tail": previous_hash,
+    }
+    beat = emit_beat(
+        args.beat_emit_url,
+        metrics,
+        "unified MACE runner completed four-row Z2 abstention smoke (zero scientific executions)",
+        args.dev_mode_bypass,
+        args.local_jsonl,
+    )
+    return {**metrics, "beat_id": beat["beat_id"]}
 
 
 def failure_metrics(args: argparse.Namespace, exc: BaseException) -> dict[str, Any]:
@@ -1261,6 +1348,21 @@ def failure_metrics(args: argparse.Namespace, exc: BaseException) -> dict[str, A
 
 def main() -> int:
     args = parse_args()
+    if args.command == "run-z2-abstention-smoke":
+        try:
+            summary = run_z2_abstention_smoke(args)
+            print(json.dumps(summary, indent=2, sort_keys=True))
+            return 0
+        except Exception as exc:
+            print(json.dumps({
+                "schema": "lupine.z2.abstention_smoke.v1",
+                "status": "failed",
+                "run_id": args.run_id,
+                "error": str(exc),
+                "error_class": exc.__class__.__name__,
+                "traceback": traceback.format_exc(limit=8),
+            }, indent=2, sort_keys=True), file=sys.stderr)
+            return 1
     if args.command == "run-batch":
         try:
             summary = run_batch(args)
