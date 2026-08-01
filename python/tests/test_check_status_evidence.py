@@ -312,7 +312,9 @@ class AntiLaunderingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             atlas_path = root / "registry" / "ontology" / "atlas.v2.json"
+            lock_path = root / "snapshots" / "ontology.lock.json"
             atlas_path.parent.mkdir(parents=True)
+            lock_path.parent.mkdir(parents=True)
             subprocess.run(["git", "init", "-q", str(root)], check=True)
             subprocess.run(
                 ["git", "-C", str(root), "config", "user.email", "ci@example.test"],
@@ -322,6 +324,7 @@ class AntiLaunderingTests(unittest.TestCase):
                 ["git", "-C", str(root), "config", "user.name", "CI"], check=True
             )
             atlas_path.write_text(json.dumps(ontology("proposed", [OLD_HASH])))
+            lock_path.write_text(json.dumps({"artifact": "registry/ontology/atlas.v2.json"}))
             subprocess.run(["git", "-C", str(root), "add", "."], check=True)
             subprocess.run(
                 ["git", "-C", str(root), "commit", "-qm", "base"], check=True
@@ -361,6 +364,70 @@ class AntiLaunderingTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("registry/ontology/atlas.v2.json", result.stderr)
+        self.assertIn("no new EvidenceBundle hash", result.stderr)
+
+    def test_cli_compares_lock_selected_ontology_across_version_rollover(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            registry = root / "registry" / "ontology"
+            lock_path = root / "snapshots" / "ontology.lock.json"
+            registry.mkdir(parents=True)
+            lock_path.parent.mkdir(parents=True)
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "config", "user.email", "ci@example.test"],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(root), "config", "user.name", "CI"], check=True
+            )
+            (registry / "atlas.v1.json").write_text(
+                json.dumps(ontology("proposed", [OLD_HASH]))
+            )
+            lock_path.write_text(json.dumps({"artifact": "registry/ontology/atlas.v1.json"}))
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-qm", "base"], check=True
+            )
+            base = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            (registry / "atlas.v2.json").write_text(
+                json.dumps(ontology("active", [OLD_HASH]))
+            )
+            lock_path.write_text(json.dumps({"artifact": "registry/ontology/atlas.v2.json"}))
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-qm", "head"], check=True
+            )
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(CHECKER),
+                    "--git-root",
+                    str(root),
+                    "--base-ref",
+                    base,
+                    "--head-ref",
+                    head,
+                ],
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("atlas.v1.json -> registry/ontology/atlas.v2.json", result.stderr)
         self.assertIn("no new EvidenceBundle hash", result.stderr)
 
     def test_cli_allows_first_registry_introduction(self) -> None:
