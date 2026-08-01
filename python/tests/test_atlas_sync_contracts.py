@@ -243,6 +243,20 @@ def test_any_policy_scope_excludes_lower_grade_disjoint_evidence(tmp_path: Path)
 
 
 @pytest.mark.unit
+def test_any_policy_rejects_same_grade_correlated_scope_expansion(tmp_path: Path) -> None:
+    assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
+    bundle_id = _add_a0_evidence(
+        tmp_path,
+        epistemic_status="confirmatory",
+        scope_updates={"chemistries": ["Cu"], "structures": ["bcc"]},
+    )
+    _add_a0_premise_reference(tmp_path, bundle_id, {"mode": "any"})
+
+    with pytest.raises(sync.ManifestError, match="scope-correlated evidence"):
+        sync.compile_gate_manifest(assumptions, lock, claims, evidence)
+
+
+@pytest.mark.unit
 def test_contract_compiler_rejects_incompatible_scope_conditions(tmp_path: Path) -> None:
     assumptions, lock, claims, evidence = _copy_contract_inputs(tmp_path)
     bundle_id = _add_a0_evidence(

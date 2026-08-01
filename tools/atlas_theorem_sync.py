@@ -22,6 +22,7 @@ import sqlite3
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from itertools import product
 from pathlib import Path
 from typing import Any
 
@@ -234,9 +235,10 @@ def _scope_union(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> dict[str
     if not scopes:
         raise ManifestError(f"claim {claim_id} has no evidence scope")
     merged: dict[str, Any] = {}
-    for axis in ("chemistries", "properties", "structures"):
-        values: set[str] = set()
-        for scope in scopes:
+    scope_axes: list[dict[str, list[str]]] = []
+    for scope in scopes:
+        axes: dict[str, list[str]] = {}
+        for axis in ("chemistries", "properties", "structures"):
             raw = scope.get(axis)
             if (
                 not isinstance(raw, list)
@@ -244,8 +246,27 @@ def _scope_union(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> dict[str
                 or any(not isinstance(item, str) or not item for item in raw)
             ):
                 raise ManifestError(f"claim {claim_id} evidence scope has invalid {axis}")
-            values.update(raw)
+            axes[axis] = raw
+        scope_axes.append(axes)
+    for axis in ("chemistries", "properties", "structures"):
+        values: set[str] = set()
+        for axes in scope_axes:
+            values.update(axes[axis])
         merged[axis] = sorted(values)
+    observed = {
+        combination
+        for axes in scope_axes
+        for combination in product(
+            axes["chemistries"], axes["properties"], axes["structures"]
+        )
+    }
+    expanded = set(
+        product(merged["chemistries"], merged["properties"], merged["structures"])
+    )
+    if expanded != observed:
+        raise ManifestError(
+            f"claim {claim_id} has scope-correlated evidence that cannot be flattened safely"
+        )
     condition_values: dict[str, list[Any]] = {}
     for scope in scopes:
         current = _require_mapping(scope.get("conditions"), "scope.conditions")
