@@ -28,6 +28,9 @@ def test_z2_cloud_build_deploys_isolated_job_without_executing_it() -> None:
 
 def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:
     dockerfile = (RUNNER / "Dockerfile.unified").read_text(encoding="utf-8")
+    assert '"torch==2.4.1+cu121"' in dockerfile
+    assert '"numpy==1.26.4"' in dockerfile
+    assert "COPY gcp/mlip-cell-runner/z1_sparse_dft.py ./" in dockerfile
     assert "COPY data/candidates/z2/measurements.jsonl" in dockerfile
     assert "COPY data/candidates/z2/artifact-manifest.json" in dockerfile
     assert "COPY campaigns/v1/z2.campaign-manifest.v1.json" in dockerfile
