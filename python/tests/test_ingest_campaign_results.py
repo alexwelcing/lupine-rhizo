@@ -269,22 +269,22 @@ class CampaignResultIngestionTests(unittest.TestCase):
             # Aggregate-only artifacts cannot prove coverage, even with n_paths.
             write_artifact(artifact, [], n_paths=22)
             with self.assertRaisesRegex(ValueError, "no per-path rows"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # A self-reported aggregate must agree with the rows.
             write_artifact(artifact, full_rows, n_paths=23)
             with self.assertRaisesRegex(ValueError, "declares 23 recorded paths"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # Full coverage with matching statistics passes.
             write_artifact(artifact, full_rows, n_paths=22)
-            module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+            module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # Sample counts must equal the artifact's measured-path count.
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "does not equal"):
                 module.enforce_path_minimums(
-                    manifest, make_bundle(sample_count=6), artifact, "skew-1"
+                    Path(temporary_directory), manifest, make_bundle(sample_count=6), artifact, "skew-1"
                 )
 
             # Paths with every model failed cannot pad the panel: only paths
@@ -300,7 +300,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "paths with measurements"):
                 module.enforce_path_minimums(
-                    manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
+                    Path(temporary_directory), manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
                 )
 
             # Six paths measured by four models must not launder the minimum:
@@ -311,7 +311,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "distinct paths"):
                 module.enforce_path_minimums(
-                    manifest, make_bundle(sample_count=22), artifact, "skew-1"
+                    Path(temporary_directory), manifest, make_bundle(sample_count=22), artifact, "skew-1"
                 )
 
             # Twenty-two paths from a single model omit declared available models.
@@ -320,7 +320,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 [row for row in full_rows if row["model"] == "chgnet"],
             )
             with self.assertRaisesRegex(ValueError, "omits declared available models"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # Every (path, model) pair needs an observation or a disclosed failure.
             write_artifact(
@@ -332,7 +332,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ],
             )
             with self.assertRaisesRegex(ValueError, "path 13 model mace-mp-small"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # A disclosed failure satisfies the pair without entering statistics.
             write_artifact(
@@ -351,17 +351,17 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     }
                 ],
             )
-            module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+            module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # Submitted statistics must match the artifact's own rows.
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "recomputed value"):
                 module.enforce_path_minimums(
-                    manifest, make_bundle(fraction=0.9), artifact, "skew-1"
+                    Path(temporary_directory), manifest, make_bundle(fraction=0.9), artifact, "skew-1"
                 )
             with self.assertRaisesRegex(ValueError, "recomputed value"):
                 module.enforce_path_minimums(
-                    manifest, make_bundle(median=460.14), artifact, "skew-1"
+                    Path(temporary_directory), manifest, make_bundle(median=460.14), artifact, "skew-1"
                 )
 
             # Rows for models outside execution.model_selection are rejected.
@@ -378,7 +378,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ],
             )
             with self.assertRaisesRegex(ValueError, "undeclared models"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # Placeholder rows are not terminal observations or failures.
             write_artifact(
@@ -391,12 +391,12 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 + [{"path_index": 13, "model": "mace-mp-small"}],
             )
             with self.assertRaisesRegex(ValueError, "measured or an explicit failure"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
             # Duplicate (path, model) rows would double-vote the path median.
             write_artifact(artifact, full_rows + [dict(full_rows[0])])
             with self.assertRaisesRegex(ValueError, "duplicate observation"):
-                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
 
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

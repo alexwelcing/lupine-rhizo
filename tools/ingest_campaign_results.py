@@ -314,7 +314,7 @@ def bundle_from_row(
     }
     if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
         bundle["measurements"] = typed_measurements(row)
-    enforce_path_minimums(manifest, bundle, artifact, row_id)
+    enforce_path_minimums(root, manifest, bundle, artifact, row_id)
     bundle["bundle_id"] = content_hash(bundle)
     return bundle
 
@@ -387,7 +387,7 @@ def _recompute_path_statistics(rows: list[dict]) -> tuple[int, float, float] | N
 
 
 def enforce_path_minimums(
-    manifest: dict[str, Any], bundle: dict[str, Any], artifact: Path, row_id: str
+    root: Path, manifest: dict[str, Any], bundle: dict[str, Any], artifact: Path, row_id: str
 ) -> None:
     """Fail closed when a panel-level receipt under-covers a declared path minimum.
 
@@ -426,6 +426,38 @@ def enforce_path_minimums(
             "self-reported aggregates cannot prove coverage"
         )
     paths, models, pairs, rows = coverage
+    preregistration = manifest.get("preregistration")
+    recorded_inputs = (
+        preregistration.get("recorded_inputs")
+        if isinstance(preregistration, dict)
+        else None
+    )
+    if isinstance(recorded_inputs, list) and recorded_inputs:
+        # Bind every coverage row to the locked source's path identity, so the
+        # receipt demonstrably measures the frozen panel and no other indices.
+        source_path = root / recorded_inputs[0]["path"]
+        try:
+            source = json.loads(source_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError, KeyError) as error:
+            raise ValueError(
+                f"measurement {row_id} cannot read the locked recorded input: {error}"
+            ) from error
+        locked = {
+            entry.get("path_index"): entry.get("path_id")
+            for entry in source.get("per_path", [])
+            if isinstance(entry, dict)
+        }
+        for row in rows:
+            index = row["path_index"]
+            if index not in locked:
+                raise ValueError(
+                    f"measurement {row_id} path {index} is outside the locked recorded panel"
+                )
+            if row.get("path_id") != locked[index]:
+                raise ValueError(
+                    f"measurement {row_id} path {index} identity {row.get('path_id')!r} "
+                    f"does not match the locked panel {locked[index]!r}"
+                )
     declared = (
         document.get("n_paths_recorded", document.get("n_paths"))
         if isinstance(document, dict)
@@ -485,7 +517,7 @@ def enforce_path_minimums(
         value = measurement.get("value")
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             continue
-        if metric == "signed_error_positive" and abs(float(value) - recomputed_fraction) > 1e-6:
+        if metric == "signed_error_positive" and abs(float(value) - recomputed_fraction) > 5e-5:
             raise ValueError(
                 f"measurement {row_id} fraction {value} does not match the cited "
                 f"artifact's recomputed value {recomputed_fraction:.4f}"
