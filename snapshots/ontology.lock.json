@@ -1,11 +1,11 @@
 {
   "version": 2,
   "artifact": "registry/ontology/atlas.v2.json",
-  "sha256": "sha256:6c107e3854c14bd619d5769537657451f80f0f811ec20dd9e6bb833783e725bb",
+  "sha256": "sha256:bc7b89df9dc34731d3c211193f0a8c5105b900876a1eb274443ebb4c6e804ac4",
   "source": {
     "path": "lupine-ledger/content/ontology/lupine-ontology.json",
     "provenance": "lupine-ledger/content/ontology/PROVENANCE.sha256",
-    "sha256": "sha256:73b6143e57f1eed2f74e04328e193f819f80b094ce8ad4caba006c97f94b4d4f"
+    "sha256": "sha256:a3bbd74bbbac8fe506bfe70f60bdb8acd5f0eae99cad1f73db7cd1735475df5b"
   },
   "transformation": {
     "id": "add-namespaced-relation-labels-v1",

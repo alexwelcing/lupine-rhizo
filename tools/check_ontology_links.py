@@ -35,7 +35,7 @@ VERSIONED_ATLAS_HASHES = {
     "atlas.v2.json": None,
 }
 SOURCE_SHA256 = (
-    "sha256:73b6143e57f1eed2f74e04328e193f819f80b094ce8ad4caba006c97f94b4d4f"
+    "sha256:a3bbd74bbbac8fe506bfe70f60bdb8acd5f0eae99cad1f73db7cd1735475df5b"
 )
 TRANSFORMATION_CONTRACT = {
     "id": "add-namespaced-relation-labels-v1",
