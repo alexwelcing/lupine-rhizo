@@ -39,19 +39,9 @@ jobs:
           python/tests/test_check_status_evidence.py
           -v
       - name: Validate versioned ontology links and lock
-        # The checker and the status-evidence comparison below support exactly
-        # one atlas version (v1, pinned by the lock). Fail closed on any other
-        # atlas version instead of silently skipping its validation.
-        run: |
-          python3 tools/check_ontology_links.py
-          supported_atlas="registry/ontology/atlas.v1.json"
-          for atlas in registry/ontology/atlas.v*.json; do
-            if [ "$atlas" != "$supported_atlas" ]; then
-              echo "unsupported ontology atlas version: $atlas" >&2
-              echo "extend tools/check_ontology_links.py and snapshots/ontology.lock.json to cover it" >&2
-              exit 1
-            fi
-          done
+        # The checker pins historical v1 byte-for-byte, selects v2 through the
+        # current lock, and fails closed on missing or unimplemented versions.
+        run: python3 tools/check_ontology_links.py
       - name: Compare PR registry, ontology, and D1 status snapshots
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}

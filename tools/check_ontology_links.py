@@ -25,7 +25,18 @@ EXPECTED_CLASS_CHAINS: dict[str, tuple[str, ...]] = {
 }
 RELATION_NAMESPACE_ALIASES = {"any": "ontology", "CorrectionLever": "lever"}
 ATLAS_DATE = "2026-07-30"
-SOURCE_SHA256 = "sha256:27ba28a37749a1f7ca6495f1217dedaa2574db50dbaecc85b80cd68eda0a6ee2"
+LOCK_VERSION = 2
+ATLAS_ARTIFACT = "registry/ontology/atlas.v2.json"
+ATLAS_LOCK_PATH = "snapshots/ontology.lock.json"
+VERSIONED_ATLAS_HASHES = {
+    "atlas.v1.json": (
+        "sha256:e75a6825f78ad4ae6c32631fa7fa8ab649a62334f8fe9b646ede936611f1c46b"
+    ),
+    "atlas.v2.json": None,
+}
+SOURCE_SHA256 = (
+    "sha256:a3bbd74bbbac8fe506bfe70f60bdb8acd5f0eae99cad1f73db7cd1735475df5b"
+)
 TRANSFORMATION_CONTRACT = {
     "id": "add-namespaced-relation-labels-v1",
     "sourceSerialization": {
@@ -152,8 +163,10 @@ def validate_lock(atlas_bytes: bytes, atlas: object, lock: object) -> None:
     expected_hash = "sha256:" + hashlib.sha256(atlas_bytes).hexdigest()
     if lock.get("sha256") != expected_hash:
         raise OntologyError(f"sha256 mismatch: expected {expected_hash}")
-    if lock.get("artifact") != "registry/ontology/atlas.v1.json":
-        raise OntologyError("artifact must be registry/ontology/atlas.v1.json")
+    if lock.get("version") != LOCK_VERSION:
+        raise OntologyError(f"version must be {LOCK_VERSION}")
+    if lock.get("artifact") != ATLAS_ARTIFACT:
+        raise OntologyError(f"artifact must be {ATLAS_ARTIFACT}")
     if lock.get("transformation") != TRANSFORMATION_CONTRACT:
         raise OntologyError(
             "transformation must declare the additive relation-label contract"
@@ -251,6 +264,35 @@ def _load_json(path: Path) -> tuple[bytes, object]:
         raise OntologyError(f"cannot read {path}: {error}") from error
 
 
+def validate_versioned_atlas_inventory(registry_path: Path) -> None:
+    """Fail closed on unknown versions and mutations of historical atlases."""
+    atlas_paths = sorted(registry_path.glob("atlas.v*.json"))
+    actual_names = {path.name for path in atlas_paths}
+    expected_names = set(VERSIONED_ATLAS_HASHES)
+    if actual_names != expected_names:
+        missing = sorted(expected_names - actual_names)
+        unsupported = sorted(actual_names - expected_names)
+        details = []
+        if missing:
+            details.append(f"missing versioned ontology atlas: {', '.join(missing)}")
+        if unsupported:
+            details.append(f"unsupported ontology atlas version: {', '.join(unsupported)}")
+        raise OntologyError("; ".join(details))
+
+    for atlas_path in atlas_paths:
+        expected_hash = VERSIONED_ATLAS_HASHES[atlas_path.name]
+        if expected_hash is None:
+            continue
+        actual_hash = (
+            "sha256:" + hashlib.sha256(atlas_path.read_bytes()).hexdigest()
+        )
+        if actual_hash != expected_hash:
+            raise OntologyError(
+                f"historical ontology atlas {atlas_path.name} is not immutable: "
+                f"expected {expected_hash}, got {actual_hash}"
+            )
+
+
 def check_files(atlas_path: Path, lock_path: Path) -> None:
     atlas_bytes, atlas = _load_json(atlas_path)
     _, lock = _load_json(lock_path)
@@ -261,10 +303,10 @@ def check_files(atlas_path: Path, lock_path: Path) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--atlas", type=Path, default=Path("registry/ontology/atlas.v1.json")
+        "--atlas", type=Path, default=Path(ATLAS_ARTIFACT)
     )
     parser.add_argument(
-        "--lock", type=Path, default=Path("snapshots/ontology.lock.json")
+        "--lock", type=Path, default=Path(ATLAS_LOCK_PATH)
     )
     return parser.parse_args()
 
@@ -272,6 +314,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
+        if args.atlas == Path(ATLAS_ARTIFACT) and args.lock == Path(ATLAS_LOCK_PATH):
+            validate_versioned_atlas_inventory(args.atlas.parent)
         check_files(args.atlas, args.lock)
     except OntologyError as error:
         print(f"ontology link check failed: {error}", file=sys.stderr)

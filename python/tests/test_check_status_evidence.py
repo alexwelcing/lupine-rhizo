@@ -311,7 +311,7 @@ class AntiLaunderingTests(unittest.TestCase):
     def test_cli_compares_ontology_statuses_between_git_revisions(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            atlas_path = root / "registry" / "ontology" / "atlas.v1.json"
+            atlas_path = root / "registry" / "ontology" / "atlas.v2.json"
             atlas_path.parent.mkdir(parents=True)
             subprocess.run(["git", "init", "-q", str(root)], check=True)
             subprocess.run(
@@ -360,7 +360,7 @@ class AntiLaunderingTests(unittest.TestCase):
             )
 
         self.assertEqual(result.returncode, 1)
-        self.assertIn("registry/ontology/atlas.v1.json", result.stderr)
+        self.assertIn("registry/ontology/atlas.v2.json", result.stderr)
         self.assertIn("no new EvidenceBundle hash", result.stderr)
 
     def test_cli_allows_first_registry_introduction(self) -> None:
