@@ -90,6 +90,15 @@
       "properties": {
         "registered_at": { "type": "string", "format": "date-time" },
         "source": { "$ref": "#/$defs/non_empty_string" },
+        "source_as_of": {
+          "description": "Freshness date of the source literature; distinct from the preregistration event time.",
+          "type": "string",
+          "format": "date"
+        },
+        "input_document": {
+          "description": "RFC 8785 content lock for the exact reviewed input document.",
+          "$ref": "#/$defs/artifact_lock"
+        },
         "frozen_before_execution": { "const": true }
       }
     },

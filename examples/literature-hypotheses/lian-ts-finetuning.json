@@ -10,7 +10,7 @@
   "claim_text": "Transition-state-inclusive fine-tuning can reduce held-out barrier MAE, but the reported roughly three-thousand-label intervention must be tested against the locked cross-chemistry acceptance gate.",
   "bindings": {
     "errorTypes": ["T2", "T3"],
-    "materialClasses": ["MC1"],
+    "materialClasses": ["MC4"],
     "chains": ["C1"],
     "acceptanceTests": ["Z1"]
   },
