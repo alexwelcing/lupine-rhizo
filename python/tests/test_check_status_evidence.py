@@ -9,8 +9,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.check_status_evidence import find_unbacked_status_changes
-
+from tools.check_status_evidence import (
+    CheckError,
+    find_unbacked_ontology_status_changes,
+    find_unbacked_status_changes,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 CHECKER = ROOT / "tools" / "check_status_evidence.py"
@@ -44,6 +47,16 @@ def events(status: str, hashes: list[str]) -> dict:
             for index, bundle_hash in enumerate(hashes)
         ]
     }
+
+
+def ontology(status: str | None, hashes: list[str]) -> dict:
+    record = {
+        "id": "chain.C1",
+        "evidence": [{"bundle_id": bundle_hash} for bundle_hash in hashes],
+    }
+    if status is not None:
+        record["status"] = status
+    return {"discoveryChains": [record]}
 
 
 class AntiLaunderingTests(unittest.TestCase):
@@ -129,6 +142,92 @@ class AntiLaunderingTests(unittest.TestCase):
         self.assertEqual(len(violations), 1)
         self.assertIn("epistemic_status", violations[0])
 
+    def test_ontology_status_changes_require_a_new_bundle_hash(self) -> None:
+        violations = find_unbacked_ontology_status_changes(
+            ontology("proposed", [OLD_HASH]),
+            ontology("active", [OLD_HASH]),
+            source="registry/ontology/atlas.v1.json",
+        )
+
+        self.assertEqual(len(violations), 1)
+        self.assertIn("chain.C1", violations[0])
+        self.assertIn("no new EvidenceBundle hash", violations[0])
+        self.assertEqual(
+            find_unbacked_ontology_status_changes(
+                ontology("proposed", [OLD_HASH]),
+                ontology("active", [OLD_HASH, NEW_HASH]),
+                source="registry/ontology/atlas.v1.json",
+            ),
+            [],
+        )
+
+    def test_removing_an_ontology_status_without_new_evidence_fails_closed(self) -> None:
+        violations = find_unbacked_ontology_status_changes(
+            ontology("proposed", [OLD_HASH]),
+            ontology(None, [OLD_HASH]),
+            source="registry/ontology/atlas.v1.json",
+        )
+
+        self.assertEqual(len(violations), 1)
+        self.assertIn("status", violations[0])
+
+    def test_ontology_readiness_regrades_are_status_changes(self) -> None:
+        before = {
+            "discoveryChains": [
+                {"id": "C1", "readiness": "L", "evidence": [{"bundle_id": OLD_HASH}]}
+            ]
+        }
+        after = {
+            "discoveryChains": [
+                {"id": "C1", "readiness": "M", "evidence": [{"bundle_id": OLD_HASH}]}
+            ]
+        }
+
+        violations = find_unbacked_ontology_status_changes(
+            before, after, source="registry/ontology/atlas.v1.json"
+        )
+
+        self.assertEqual(len(violations), 1)
+        self.assertIn("readiness", violations[0])
+
+    def test_hash_reused_from_another_ontology_record_is_not_new_evidence(self) -> None:
+        before = {
+            "discoveryChains": [
+                {"id": "C1", "status": "proposed", "evidence": [{"bundle_id": OLD_HASH}]},
+                {"id": "C2", "status": "active", "evidence": [{"bundle_id": NEW_HASH}]},
+            ]
+        }
+        after = {
+            "discoveryChains": [
+                {
+                    "id": "C1",
+                    "status": "active",
+                    "evidence": [{"bundle_id": OLD_HASH}, {"bundle_id": NEW_HASH}],
+                },
+                {"id": "C2", "status": "active", "evidence": [{"bundle_id": NEW_HASH}]},
+            ]
+        }
+
+        violations = find_unbacked_ontology_status_changes(
+            before, after, source="registry/ontology/atlas.v1.json"
+        )
+
+        self.assertEqual(len(violations), 1)
+        self.assertIn("must be globally new", violations[0])
+
+    def test_duplicate_ontology_identities_fail_closed(self) -> None:
+        duplicate = {
+            "discoveryChains": [
+                {"id": "C1", "status": "proposed"},
+                {"id": "C1", "status": "active"},
+            ]
+        }
+
+        with self.assertRaisesRegex(CheckError, "duplicate ontology identity"):
+            find_unbacked_ontology_status_changes(
+                duplicate, duplicate, source="registry/ontology/atlas.v1.json"
+            )
+
     def test_cli_fails_and_passes_for_file_pairs(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -207,6 +306,61 @@ class AntiLaunderingTests(unittest.TestCase):
             )
 
         self.assertEqual(result.returncode, 1)
+        self.assertIn("no new EvidenceBundle hash", result.stderr)
+
+    def test_cli_compares_ontology_statuses_between_git_revisions(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            atlas_path = root / "registry" / "ontology" / "atlas.v1.json"
+            atlas_path.parent.mkdir(parents=True)
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "config", "user.email", "ci@example.test"],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(root), "config", "user.name", "CI"], check=True
+            )
+            atlas_path.write_text(json.dumps(ontology("proposed", [OLD_HASH])))
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-qm", "base"], check=True
+            )
+            base = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            atlas_path.write_text(json.dumps(ontology("active", [OLD_HASH])))
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-qm", "head"], check=True
+            )
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(CHECKER),
+                    "--git-root",
+                    str(root),
+                    "--base-ref",
+                    base,
+                    "--head-ref",
+                    head,
+                ],
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("registry/ontology/atlas.v1.json", result.stderr)
         self.assertIn("no new EvidenceBundle hash", result.stderr)
 
     def test_cli_allows_first_registry_introduction(self) -> None:
