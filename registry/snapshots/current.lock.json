@@ -4,7 +4,7 @@
       "content_hash": "sha256:1707a3de9c8fe0b6ba395d530c98b79c2cb8d9f6f88a4fc99f36859290c62280"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:6f04b53f1e029a44878fa37e79fe162d5578b68449949c14d8a0fd061bc680ed"
+      "content_hash": "sha256:c7c1726af0a781cd6994912e80f5a4859fa9fe71dc2af2598f6a16d6548f64b3"
     }
   },
   "inputs": {
@@ -28,6 +28,10 @@
       {
         "campaign_id": "discovery.round-5.z1-correction-train.v1",
         "content_hash": "sha256:4ee27414ebf561043980c92b4e10507ae8631c6790ba753875285ff369260e40"
+      },
+      {
+        "campaign_id": "literature.protocol-offset-sign-skew.v1",
+        "content_hash": "sha256:1b404aa18a25a7a21e6021dfe1c4b8e45381d6326d216dc7a967a82e955dc7cb"
       }
     ],
     "claim_contracts": [
@@ -69,6 +73,7 @@
       "sha256:52a03d8159e92166f4f236ba01beab7e4665065d56475f0d1058cd4c9dde9285",
       "sha256:54fd5b2a796386ebca206cc3892db50fd967184feee1f3d2767f6f3da1e7726b",
       "sha256:6524462c811124e94be191327dd6095ce785892ae9a71f019585b9bde052e3c2",
+      "sha256:974754db55b4f2c1b2af78831fa70d1c43da4a3bdff90aeed9b95f6da3d133b8",
       "sha256:990fed4734d55eb8e7a40573ac4ba1dadb5475e2ef445c1292df275e5e990946",
       "sha256:a584270a3168b27f0bf6cf39b9ea566820037880808a783ef56a82cbc70c3f57",
       "sha256:a7c3f472d9774ae49fe48b6562e8eccf394db5ed2f40134d9c4e596268e0aaa5",

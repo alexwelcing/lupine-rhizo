@@ -1,0 +1,172 @@
+{
+ "measurement": "protocol_offset_sign_skew.v1",
+ "source_artifact": "data/candidates/z1-union-campaign.json",
+ "source_sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2",
+ "n_paths": 22,
+ "positive_skew_fraction": 0.9545,
+ "median_signed_error_mev": 460.14,
+ "mean_signed_error_mev": 689.96,
+ "min_mev": -33.4,
+ "max_mev": 4212.26,
+ "outlier_path": {
+  "path_index": 0,
+  "chemical_system": "Ag-F-Li",
+  "signed_error_mev": 4212.2603
+ },
+ "per_path": [
+  {
+   "path_index": 0,
+   "path_id": "mp-761269_2_1_1_-1_0",
+   "chemical_system": "Ag-F-Li",
+   "model": "chgnet",
+   "signed_error_mev": 4212.2603
+  },
+  {
+   "path_index": 1,
+   "path_id": "mp-556655_0_7_0_1_-1",
+   "chemical_system": "Al-B-Li-O",
+   "model": "chgnet",
+   "signed_error_mev": 269.3671
+  },
+  {
+   "path_index": 3,
+   "path_id": "mp-770551_3_4_0_0_1",
+   "chemical_system": "Al-Li-Mn-O",
+   "model": "chgnet",
+   "signed_error_mev": 1177.3646
+  },
+  {
+   "path_index": 4,
+   "path_id": "mp-1222469_0_0_0_1_0",
+   "chemical_system": "Al-Li-O-Si",
+   "model": "chgnet",
+   "signed_error_mev": 1126.4482
+  },
+  {
+   "path_index": 5,
+   "path_id": "mp-754923_0_2_0_0_1",
+   "chemical_system": "Al-Li-O-V",
+   "model": "chgnet",
+   "signed_error_mev": 767.744
+  },
+  {
+   "path_index": 6,
+   "path_id": "mp-754292_0_3_0_0_0",
+   "chemical_system": "As-B-Cr-Li-O",
+   "model": "chgnet",
+   "signed_error_mev": 1055.8369
+  },
+  {
+   "path_index": 7,
+   "path_id": "mp-770939_10_1_1_0_1",
+   "chemical_system": "As-C-Fe-Li-O",
+   "model": "chgnet",
+   "signed_error_mev": 114.4499
+  },
+  {
+   "path_index": 9,
+   "path_id": "mp-752707_0_2_0_0_0",
+   "chemical_system": "B-Co-Li-O",
+   "model": "chgnet",
+   "signed_error_mev": 310.9867
+  },
+  {
+   "path_index": 11,
+   "path_id": "mp-3635_0_3_0_0_0",
+   "chemical_system": "B-Li-O",
+   "model": "chgnet",
+   "signed_error_mev": 144.0131
+  },
+  {
+   "path_index": 12,
+   "path_id": "mp-759667_2_1_1_1_0",
+   "chemical_system": "B-Li-O-Sn",
+   "model": "chgnet",
+   "signed_error_mev": 793.9096
+  },
+  {
+   "path_index": 13,
+   "path_id": "mp-770749_2_4_0_0_0",
+   "chemical_system": "B-Li-O-Ti",
+   "model": "chgnet",
+   "signed_error_mev": 335.3848
+  },
+  {
+   "path_index": 15,
+   "path_id": "mp-1222404_0_0_0_1_-1",
+   "chemical_system": "Bi-Li-S",
+   "model": "chgnet",
+   "signed_error_mev": 658.965
+  },
+  {
+   "path_index": 16,
+   "path_id": "mp-760344_10_4_0_1_0",
+   "chemical_system": "C-Co-Li-Na-O-P",
+   "model": "chgnet",
+   "signed_error_mev": 32.7297
+  },
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "chemical_system": "C-Cr-Li-O",
+   "model": "chgnet",
+   "signed_error_mev": 116.1818
+  },
+  {
+   "path_index": 19,
+   "path_id": "mp-772851_6_10_0_1_0",
+   "chemical_system": "C-Fe-Li-Na-O-P",
+   "model": "chgnet",
+   "signed_error_mev": 679.5391
+  },
+  {
+   "path_index": 21,
+   "path_id": "mp-768508_3_7_0_0_0",
+   "chemical_system": "C-Fe-Li-O-P",
+   "model": "chgnet",
+   "signed_error_mev": 320.4436
+  },
+  {
+   "path_index": 22,
+   "path_id": "mp-771011_2_1_1_-1_0",
+   "chemical_system": "C-Fe-Li-O-S",
+   "model": "chgnet",
+   "signed_error_mev": 562.0573
+  },
+  {
+   "path_index": 24,
+   "path_id": "mp-753882_0_1_1_0_-1",
+   "chemical_system": "C-Li-Mn-O-P-V",
+   "model": "chgnet",
+   "signed_error_mev": 358.2319
+  },
+  {
+   "path_index": 25,
+   "path_id": "mp-25463_4_10_1_0_0",
+   "chemical_system": "C-Li-O-P-V",
+   "model": "chgnet",
+   "signed_error_mev": 1228.9909
+  },
+  {
+   "path_index": 26,
+   "path_id": "mp-772542_0_2_0_0_0",
+   "chemical_system": "C-Li-O-Si-V",
+   "model": "chgnet",
+   "signed_error_mev": 885.0128
+  },
+  {
+   "path_index": 27,
+   "path_id": "mp-752552_0_7_0_0_1",
+   "chemical_system": "C-Li-O-V",
+   "model": "chgnet",
+   "signed_error_mev": -33.4001
+  },
+  {
+   "path_index": 29,
+   "path_id": "mp-567474_0_1_0_0_0",
+   "chemical_system": "Cl-Cr-Li",
+   "model": "chgnet",
+   "signed_error_mev": 62.6475
+  }
+ ]
+}

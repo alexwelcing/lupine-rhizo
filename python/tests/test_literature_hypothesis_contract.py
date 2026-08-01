@@ -47,11 +47,12 @@ def examples() -> list[dict[str, object]]:
         "deng-underbinding.json",
         "lian-ts-finetuning.json",
         "migration-underprediction.json",
+        "protocol-offset-sign-skew.json",
     ]
     return [load_json(path) for path in paths]
 
 
-def test_three_hand_authored_examples_validate_deterministically(schema, examples) -> None:
+def test_hand_authored_examples_validate_deterministically(schema, examples) -> None:
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
 
     for example in examples:

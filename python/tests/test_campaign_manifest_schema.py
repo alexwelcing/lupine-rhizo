@@ -52,7 +52,7 @@ class CampaignManifestSchemaTests(unittest.TestCase):
         paths = sorted((ROOT / "campaigns" / "v1").glob("*.json"))
         self.assertEqual(
             [path.stem.split(".")[0] for path in paths],
-            ["correction-round4", "z1", "z1r5", "z2", "z3"],
+            ["correction-round4", "literature-protocol-offset-sign-skew", "z1", "z1r5", "z2", "z3"],
         )
 
         for path in paths:

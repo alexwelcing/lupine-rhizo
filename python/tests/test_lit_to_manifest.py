@@ -26,6 +26,7 @@ EXPECTED_OUTPUTS = [
     "deng-underbinding.campaign-manifest.v1.json",
     "lian-ts-finetuning.campaign-manifest.v1.json",
     "migration-underprediction.campaign-manifest.v1.json",
+    "protocol-offset-sign-skew.campaign-manifest.v1.json",
 ]
 
 
@@ -244,7 +245,7 @@ def test_converter_rejects_panel_symlink_that_escapes_repo(tmp_path: Path) -> No
             "materialClasses",
         ),
         (
-            lambda value: value["bindings"].__setitem__("errorTypes", ["T1"]),
+            lambda value: value["bindings"].__setitem__("errorTypes", ["T6"]),
             "errorTypes",
         ),
         (
