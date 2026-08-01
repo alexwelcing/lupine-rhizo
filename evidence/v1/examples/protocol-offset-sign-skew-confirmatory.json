@@ -61,15 +61,21 @@
       "protocol_reference": "DFT(PBE) climbing-image NEB, nebDFT2k test split (doi:10.1038/s41524-025-01571-z)",
       "signed_error_definition": "sparse-anchor GPAW barrier minus nebDFT2k reference barrier per path; path-level quantity identical across models",
       "n_paths": 22,
-      "positive_skew_fraction": 0.9545,
-      "median_signed_error_mev": 460.14,
-      "mean_signed_error_mev": 689.96,
+      "n_rows": 86,
+      "positive_skew_fraction": 0.9302,
+      "median_signed_error_mev": 562.06,
+      "mean_signed_error_mev": 694.91,
       "min_signed_error_mev": -33.4,
       "max_signed_error_mev": 4212.26,
-      "outlier_path": "mp-761269_2_1_1_-1_0 (Ag-F-Li) +4212.2603 meV",
+      "outlier_path": "mp-761269_2_1_1_-1_0 (Ag-F-Li) +4212.26 meV",
+      "per_model_chgnet": "22 rows, fraction 0.9545, median +460.14 meV",
+      "per_model_mace-mp-medium": "22 rows, fraction 0.9545, median +460.14 meV",
+      "per_model_mace-mp-small": "21 rows, fraction 0.9048, median +562.06 meV",
+      "per_model_mace-mpa-0-medium": "21 rows, fraction 0.9048, median +562.06 meV",
+      "sign_flip_paths": "mp-758282_0_2_0_0_0 (C-Cr-Li): -25.82 meV (small/mpa-0 anchors) to +116.18 meV (chgnet/medium anchors); disclosed without imputation",
       "retrospective_inputs": "Inputs recorded 2026-07-24 (Z1 union campaign); hypothesis and analysis plan frozen 2026-08-01T04:55:29Z before the analysis run at 2026-08-01T12:06Z; no fresh compute",
       "hypothesis_prediction": "majority of paths positive, median approximately +400 to +600 meV",
-      "hypothesis_outcome": "confirmed: 21/22 positive (0.9545), median +460.14 meV"
+      "hypothesis_outcome": "confirmed: pooled 80/86 positive (0.9302), median +562.06 meV; every model individually confirms (fraction >= 0.9048)"
     }
   },
   "evidence_refs": [
@@ -79,7 +85,7 @@
       "campaign_manifest_hash": "sha256:74dc85962f9c99283fbd53de20f99e5d2cdfcc06cc062912dfb2f48967c57c5b",
       "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
-      "artifact_hash": "sha256:f0e287b6f0e7e5c2a30b4fde66f15430f1f5c3ebf31b4bb401ba092c4e73272d",
+      "artifact_hash": "sha256:b7d84827e935f7eb5f2b711f962ea3dcc4323e3d1cece9e97752bc6d8dcdc56b",
       "thresholds_version": "hard-materials-z1.v1"
     }
   ],
@@ -92,38 +98,38 @@
   "measurements": [
     {
       "metric": "signed_error_positive",
-      "value": 0.9545,
+      "value": 0.9302,
       "unit": "fraction",
       "acceptance_test": {
         "comparator": "greater_than",
         "threshold": 0.5,
         "outcome": "pass"
       },
-      "sample_count": 22
+      "sample_count": 86
     },
     {
       "metric": "median_signed_error",
-      "value": 460.14,
+      "value": 562.06,
       "unit": "meV",
       "acceptance_test": {
         "comparator": "greater_than_or_equal",
         "threshold": 400,
         "outcome": "pass"
       },
-      "sample_count": 22
+      "sample_count": 86
     },
     {
       "metric": "median_signed_error",
-      "value": 460.14,
+      "value": 562.06,
       "unit": "meV",
       "acceptance_test": {
         "comparator": "less_than_or_equal",
         "threshold": 600,
         "outcome": "pass"
       },
-      "sample_count": 22
+      "sample_count": 86
     }
   ],
   "supersedes": [],
-  "bundle_id": "sha256:8dc3073efc38fa91fb818d01ac5109f4483a3e598783fe46930478ca9a68a505"
+  "bundle_id": "sha256:e7f414852ea11b0cc9a682a9ac9aa8bc599d33c52f7b5834afd012440a929545"
 }

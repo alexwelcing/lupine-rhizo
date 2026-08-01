@@ -106,7 +106,39 @@
                 { "$ref": "#/$defs/signSkewFractionMeasurement" },
                 { "$ref": "#/$defs/medianSignedErrorMeasurement" }
               ]
-            }
+            },
+            "allOf": [
+              {
+                "contains": { "$ref": "#/$defs/signSkewFractionMeasurement" },
+                "description": "The complete frozen acceptance suite is required: the majority fraction plus both median-band bounds, so an omitted failing bound cannot promote the claim."
+              },
+              {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "metric": { "const": "median_signed_error" },
+                    "acceptance_test": {
+                      "properties": { "comparator": { "const": "greater_than_or_equal" } },
+                      "required": ["comparator"]
+                    }
+                  },
+                  "required": ["metric", "acceptance_test"]
+                }
+              },
+              {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "metric": { "const": "median_signed_error" },
+                    "acceptance_test": {
+                      "properties": { "comparator": { "const": "less_than_or_equal" } },
+                      "required": ["comparator"]
+                    }
+                  },
+                  "required": ["metric", "acceptance_test"]
+                }
+              }
+            ]
           }
         }
       }

@@ -382,7 +382,29 @@ class NightlyFeedbackTests(unittest.TestCase):
                     "outcome": "pass",
                 },
                 "sample_count": 22,
-            }
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "less_than_or_equal",
+                    "threshold": 600,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
         ]
 
         plan = build_feedback_plan(
@@ -596,6 +618,69 @@ class NightlyFeedbackTests(unittest.TestCase):
                 as_of="2026-08-01",
             )
 
+    def test_incomplete_acceptance_suite_is_rejected(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 720.0,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "incomplete acceptance suite"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: skew},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.incomplete-suite",
+                        "contract_json": hypothesis(
+                            "C1",
+                            "Z1",
+                            metric="signed_error_positive",
+                            predicate="signed_error_positive_fraction>0.5",
+                        ),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
     def test_sign_skew_receipt_promotes_the_sign_skew_hypothesis(self) -> None:
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
@@ -701,6 +786,17 @@ class NightlyFeedbackTests(unittest.TestCase):
                 "acceptance_test": {
                     "comparator": "greater_than",
                     "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 720.0,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
                     "outcome": "pass",
                 },
                 "sample_count": 22,

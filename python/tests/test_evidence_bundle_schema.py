@@ -152,6 +152,29 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(skew_bundle)))
 
+    def test_sign_skew_requires_the_complete_acceptance_suite(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        fraction_only = [item for item in bundle["measurements"] if item["metric"] == "signed_error_positive"]
+        bundle["measurements"] = fraction_only
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"] = [
+            item
+            for item in bundle["measurements"]
+            if not (
+                item["metric"] == "median_signed_error"
+                and item["acceptance_test"]["comparator"] == "less_than_or_equal"
+            )
+        ]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()

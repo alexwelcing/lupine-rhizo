@@ -313,8 +313,44 @@ def bundle_from_row(
     }
     if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
         bundle["measurements"] = typed_measurements(row)
+    enforce_path_minimums(manifest, bundle, row_id)
     bundle["bundle_id"] = content_hash(bundle)
     return bundle
+
+
+def enforce_path_minimums(manifest: dict[str, Any], bundle: dict[str, Any], row_id: str) -> None:
+    """Fail closed when a panel-level receipt under-samples a declared path minimum.
+
+    Panel-level predicates (the sign-skew family) define their acceptance over
+    the whole recorded panel, so every typed measurement must cover at least
+    the manifest's neb-path-set minimum. Per-model barrier receipts instead
+    disclose honest per-path failures, so their sample_count legitimately
+    falls below the panel size and is not gated here.
+    """
+    predicate = bundle.get("claim_predicate")
+    if not isinstance(predicate, str) or not predicate.startswith(
+        "signed_error_positive_fraction"
+    ):
+        return
+    minimums = [
+        requirement["minimum_count"]
+        for requirement in manifest.get("evidence_requirements", [])
+        if isinstance(requirement, dict)
+        and requirement.get("artifact_type") == "neb-path-set"
+        and isinstance(requirement.get("minimum_count"), int)
+    ]
+    if not minimums:
+        return
+    floor = max(minimums)
+    for measurement in bundle.get("measurements", []):
+        if not isinstance(measurement, dict):
+            continue
+        sample_count = measurement.get("sample_count")
+        if isinstance(sample_count, int) and sample_count < floor:
+            raise ValueError(
+                f"measurement {row_id} sample_count {sample_count} is below the "
+                f"manifest's recorded-path minimum {floor}"
+            )
 
 
 def safe_filename(campaign_id: str, row_id: str) -> str:

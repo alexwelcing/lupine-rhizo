@@ -208,6 +208,41 @@ class CampaignResultIngestionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported predicate"):
             module.typed_measurements(row)
 
+    def test_recorded_path_minimum_is_enforced(self) -> None:
+        module = load_ingest_module()
+        manifest = {
+            "evidence_requirements": [
+                {
+                    "requirement_id": "e.z1.recorded-path-set",
+                    "artifact_type": "neb-path-set",
+                    "description": "recorded rows",
+                    "minimum_count": 22,
+                }
+            ]
+        }
+        bundle = {
+            "claim_predicate": "signed_error_positive_fraction>0.5",
+            "measurements": [
+                {
+                    "metric": "signed_error_positive",
+                    "value": 0.9545,
+                    "unit": "fraction",
+                    "acceptance_test": {
+                        "comparator": "greater_than",
+                        "threshold": 0.5,
+                        "outcome": "pass",
+                    },
+                    "sample_count": 1,
+                }
+            ]
+        }
+
+        with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
+            module.enforce_path_minimums(manifest, bundle, "skew-1")
+
+        bundle["measurements"][0]["sample_count"] = 86
+        module.enforce_path_minimums(manifest, bundle, "skew-1")
+
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

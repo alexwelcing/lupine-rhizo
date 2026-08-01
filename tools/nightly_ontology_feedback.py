@@ -76,6 +76,7 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
         else None
     )
     outcomes: list[str] = []
+    covered: set[tuple[Any, ...]] = set()
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):
             continue
@@ -132,6 +133,31 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
                 "EvidenceBundle asserted acceptance outcome disagrees with its measured value"
             )
         outcomes.append(measured_outcome)
+        covered.add(
+            (
+                measurement.get("metric"),
+                str(measurement.get("unit", "")).lower(),
+                comparator,
+                float(threshold),
+            )
+        )
+    if predicate in AUXILIARY_ACCEPTANCE_SUITES and outcomes:
+        # The frozen acceptance suite is conjunctive: the predicate-bound
+        # measurement plus every canonical auxiliary bound must be present, so
+        # an omitted failing bound cannot count as a pass.
+        required = set(AUXILIARY_ACCEPTANCE_SUITES[predicate])
+        required.add(
+            (
+                predicate_match.group("metric"),
+                predicate_match.group("unit"),
+                PREDICATE_COMPARATORS[predicate_match.group("comparator")],
+                float(predicate_match.group("threshold")),
+            )
+        )
+        if covered < required:
+            raise ValueError(
+                "EvidenceBundle carries an incomplete acceptance suite for its bound predicate"
+            )
     return outcomes
 
 
