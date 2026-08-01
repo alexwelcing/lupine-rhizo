@@ -92,7 +92,7 @@ steps:
           --format='value(status.url)')
         gcloud run services update tasks-consumer \
           --region=${_REGION} --project=${_PROJECT_ID} \
-          --set-env-vars="SERVICE_URL=$$URL,GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers,OTLP_RELAY_URL=${_OTLP_RELAY_URL},OTLP_PROJECT_NAME=glim-think"
+          --update-env-vars="SERVICE_URL=$$URL"
 
 substitutions:
   _PROJECT_ID: shed-489901

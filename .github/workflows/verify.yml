@@ -70,6 +70,30 @@ jobs:
       - name: Cargo test workspace
         run: cargo test --workspace --manifest-path atlas-distill/Cargo.toml
 
+  tasks-consumer:
+    name: Tasks consumer fmt + clippy + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gcp/tasks-consumer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust stable with formatting and lint components
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Lint all targets
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Test all targets
+        run: cargo test --all-targets --all-features
+
   diff-hygiene:
     name: Diff whitespace hygiene
     runs-on: ubuntu-latest
@@ -112,6 +136,7 @@ jobs:
           python -m pytest tools/test_mlip_regime_filter.py -q
           python -m pytest tools/test_mlip_local_promotion.py -q
           python -m pytest tools/test_mlip_phoenix_trace.py -q
+          python -m pytest gcp/mlip-cell-runner/test_identity_args.py -q
           python -m pytest gcp/mlip-cell-runner/test_distill_runtime.py -q
           python -m pytest gcp/mlip-cell-runner/test_openinference_patcher.py -q
           python -m pytest gcp/mlip-cell-runner/test_runner_observability.py -q

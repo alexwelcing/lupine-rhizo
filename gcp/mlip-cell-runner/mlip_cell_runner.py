@@ -192,7 +192,10 @@ def normalize_checkpoint_context(context: Any) -> dict[str, str] | None:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="MLIP baseline grid cell runner")
+    parser = argparse.ArgumentParser(
+        description="MLIP baseline grid cell runner",
+        allow_abbrev=False,
+    )
     parser.add_argument("command", nargs="?", default="run-cell")
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--cell-id", default=None)
@@ -264,7 +267,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--phoenix-trace-id", default=None)
     parser.add_argument("--phoenix-span-id", default=None)
-    return parser.parse_args(argv)
+    effective_argv = list(sys.argv[1:] if argv is None else argv)
+    for flag in ("--run-id", "--cell-id", "--row-id", "--mlip-id"):
+        count = sum(
+            token == flag or token.startswith(f"{flag}=")
+            for token in effective_argv
+        )
+        if count > 1:
+            parser.error(f"duplicate {flag} argument")
+    return parser.parse_args(effective_argv)
 
 
 def package_version(name: str) -> str | None:

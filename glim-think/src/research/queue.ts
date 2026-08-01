@@ -572,6 +572,15 @@ export function buildMlipCellRunPayload(
     args,
     beat_emit_url: beatEmitUrl,
     target_job: targetJob,
+    telemetry: {
+      schema: "lupine.mlip.cloud_cell_span.v1",
+      origin: "cloud",
+      correlation_id: task.campaign_id?.trim() || task.run_id,
+      run_id: task.run_id,
+      cell_id: task.cell_id,
+      row_id: rowId,
+      mlip_id: task.mlip_id,
+    },
   };
 }
 

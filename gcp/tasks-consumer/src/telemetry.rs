@@ -87,19 +87,22 @@ pub struct CloudCellSpan {
 }
 
 impl CloudCellSpan {
-    pub fn admitted(
+    pub fn dispatched(
         identity: &CloudCellTelemetry,
         target_job: &str,
-        admission: &Admission,
+        admission: Option<&Admission>,
+        dispatch_status: &str,
     ) -> Self {
         Self {
             identity: identity.clone(),
             target_job: target_job.to_string(),
-            schedule_name: admission.schedule.clone(),
-            dispatch_status: "admitted".into(),
-            reservation_gpu_hours: admission.reservation_gpu_hours,
-            reserved_gpu_hours: admission.reserved_gpu_hours,
-            daily_gpu_hour_cap: admission.daily_gpu_hour_cap,
+            schedule_name: admission
+                .map(|value| value.schedule.clone())
+                .unwrap_or_else(|| "unscheduled-campaign".into()),
+            dispatch_status: dispatch_status.into(),
+            reservation_gpu_hours: admission.map_or(0.0, |value| value.reservation_gpu_hours),
+            reserved_gpu_hours: admission.map_or(0.0, |value| value.reserved_gpu_hours),
+            daily_gpu_hour_cap: admission.map_or(0.0, |value| value.daily_gpu_hour_cap),
         }
     }
 
@@ -318,16 +321,17 @@ mod tests {
 
     #[test]
     fn cloud_span_matches_python_local_parity_contract() {
-        let span = CloudCellSpan::admitted(
+        let span = CloudCellSpan::dispatched(
             &identity(),
             "mlip-cell-mace",
-            &Admission {
+            Some(&Admission {
                 schedule: "nightly-baseline".into(),
                 reservation_gpu_hours: 0.5,
                 reserved_gpu_hours: 1.0,
                 daily_gpu_hour_cap: 2.0,
                 duplicate: false,
-            },
+            }),
+            "admitted",
         );
         let attrs = span.attributes();
         assert_eq!(attrs["mlip.schema"], "lupine.mlip.cloud_cell_span.v1");
@@ -346,16 +350,17 @@ mod tests {
 
     #[test]
     fn cloud_trace_transport_uses_phoenix_supported_protobuf() {
-        let span = CloudCellSpan::admitted(
+        let span = CloudCellSpan::dispatched(
             &identity(),
             "mlip-cell-mace",
-            &Admission {
+            Some(&Admission {
                 schedule: "nightly-baseline".into(),
                 reservation_gpu_hours: 0.5,
                 reserved_gpu_hours: 1.0,
                 daily_gpu_hour_cap: 2.0,
                 duplicate: false,
-            },
+            }),
+            "admitted",
         );
 
         let (content_type, body) = otlp_request(&span, "glim-think");
