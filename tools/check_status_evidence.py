@@ -235,6 +235,23 @@ def _load_git(root: Path, revision: str, path: str, *, required: bool) -> Any | 
         raise CheckError(f"invalid JSON in {path} at {revision}: {error}") from error
 
 
+def _locked_ontology(root: Path, revision: str) -> tuple[str | None, Any | None]:
+    lock_path = "snapshots/ontology.lock.json"
+    lock = _load_git(root, revision, lock_path, required=False)
+    if lock is None:
+        return None, None
+    if not isinstance(lock, dict):
+        raise CheckError(f"{lock_path} at {revision} must be a JSON object")
+    artifact = lock.get("artifact")
+    if not isinstance(artifact, str) or re.fullmatch(
+        r"registry/ontology/atlas\.v[1-9][0-9]*\.json", artifact
+    ) is None:
+        raise CheckError(
+            f"{lock_path} at {revision} has an invalid ontology artifact path"
+        )
+    return artifact, _load_git(root, revision, artifact, required=True)
+
+
 def _git_pairs(root: Path, base_ref: str, head_ref: str) -> list[str]:
     registry_path = "registry/assumptions.v1.json"
     before_registry = _load_git(root, base_ref, registry_path, required=False)
@@ -267,20 +284,22 @@ def _git_pairs(root: Path, base_ref: str, head_ref: str) -> list[str]:
             )
         )
 
-    ontology_path = "registry/ontology/atlas.v2.json"
-    before_ontology = _load_git(root, base_ref, ontology_path, required=False)
-    after_ontology = _load_git(root, head_ref, ontology_path, required=False)
+    before_ontology_path, before_ontology = _locked_ontology(root, base_ref)
+    after_ontology_path, after_ontology = _locked_ontology(root, head_ref)
     if before_ontology is not None and after_ontology is None:
         raise CheckError(
-            f"{ontology_path} was deleted in this change; removing the tracked "
+            f"{before_ontology_path} was deleted in this change; removing the tracked "
             "ontology is not allowed without new evidence"
         )
     if before_ontology is not None and after_ontology is not None:
+        source = str(after_ontology_path)
+        if before_ontology_path != after_ontology_path:
+            source = f"{before_ontology_path} -> {after_ontology_path}"
         violations.extend(
             find_unbacked_ontology_status_changes(
                 before_ontology,
                 after_ontology,
-                source=ontology_path,
+                source=source,
             )
         )
     return violations
