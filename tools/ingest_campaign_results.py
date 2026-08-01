@@ -313,19 +313,39 @@ def bundle_from_row(
     }
     if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
         bundle["measurements"] = typed_measurements(row)
-    enforce_path_minimums(manifest, bundle, row_id)
+    enforce_path_minimums(manifest, bundle, artifact, row_id)
     bundle["bundle_id"] = content_hash(bundle)
     return bundle
 
 
-def enforce_path_minimums(manifest: dict[str, Any], bundle: dict[str, Any], row_id: str) -> None:
-    """Fail closed when a panel-level receipt under-samples a declared path minimum.
+def _distinct_paths(document: Any) -> int | None:
+    if isinstance(document, dict):
+        n_paths = document.get("n_paths")
+        if isinstance(n_paths, int) and not isinstance(n_paths, bool) and n_paths >= 1:
+            return n_paths
+        rows = document.get("per_row")
+        if isinstance(rows, list) and rows:
+            indices = {
+                row.get("path_index")
+                for row in rows
+                if isinstance(row, dict) and isinstance(row.get("path_index"), int)
+            }
+            if indices:
+                return len(indices)
+    return None
+
+
+def enforce_path_minimums(
+    manifest: dict[str, Any], bundle: dict[str, Any], artifact: Path, row_id: str
+) -> None:
+    """Fail closed when a panel-level receipt under-covers a declared path minimum.
 
     Panel-level predicates (the sign-skew family) define their acceptance over
-    the whole recorded panel, so every typed measurement must cover at least
-    the manifest's neb-path-set minimum. Per-model barrier receipts instead
-    disclose honest per-path failures, so their sample_count legitimately
-    falls below the panel size and is not gated here.
+    the whole recorded panel, so the cited artifact must document at least the
+    manifest's neb-path-set minimum of DISTINCT paths, and every typed
+    measurement must cover that many samples. Per-model barrier receipts
+    instead disclose honest per-path failures, so their sample_count
+    legitimately falls below the panel size and is not gated here.
     """
     predicate = bundle.get("claim_predicate")
     if not isinstance(predicate, str) or not predicate.startswith(
@@ -342,6 +362,18 @@ def enforce_path_minimums(manifest: dict[str, Any], bundle: dict[str, Any], row_
     if not minimums:
         return
     floor = max(minimums)
+    try:
+        document = json.loads(artifact.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(
+            f"measurement {row_id} cites an artifact that cannot prove path coverage: {error}"
+        ) from error
+    distinct = _distinct_paths(document)
+    if distinct is None or distinct < floor:
+        raise ValueError(
+            f"measurement {row_id} documents {distinct if distinct is not None else 'no'} "
+            f"distinct paths, below the manifest's recorded-path minimum {floor}"
+        )
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):
             continue

@@ -117,6 +117,13 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"][0]["acceptance_test"]["threshold"] = 0.1
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
     def test_measurement_types_are_tied_to_the_claim_predicate(self) -> None:
         barrier_bundle = load_json(
             EXAMPLES_DIR / "hard-materials-z1-barrier-accuracy.json"

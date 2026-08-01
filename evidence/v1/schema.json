@@ -310,7 +310,7 @@
           "required": ["comparator", "threshold", "outcome"],
           "properties": {
             "comparator": { "const": "greater_than" },
-            "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "threshold": { "const": 0.5 },
             "outcome": { "enum": ["pass", "fail"] }
           }
         },

@@ -237,11 +237,31 @@ class CampaignResultIngestionTests(unittest.TestCase):
             ]
         }
 
-        with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
-            module.enforce_path_minimums(manifest, bundle, "skew-1")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            artifact = Path(temporary_directory) / "artifact.json"
+            artifact.write_text(json.dumps({"n_paths": 22, "per_row": []}))
+            with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
+                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
 
-        bundle["measurements"][0]["sample_count"] = 86
-        module.enforce_path_minimums(manifest, bundle, "skew-1")
+            bundle["measurements"][0]["sample_count"] = 86
+            module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+
+            # Six paths measured by four models must not launder the minimum:
+            # distinct path coverage, not raw sample_count, is the gate.
+            artifact.write_text(
+                json.dumps(
+                    {
+                        "per_row": [
+                            {"path_index": index, "model": model}
+                            for index in range(6)
+                            for model in ("a", "b", "c", "d")
+                        ]
+                    }
+                )
+            )
+            bundle["measurements"][0]["sample_count"] = 24
+            with self.assertRaisesRegex(ValueError, "distinct paths"):
+                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
 
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
