@@ -1,0 +1,106 @@
+{
+  "acceptance_test": {
+    "metric": "barrier_mae",
+    "operator": "lte",
+    "threshold": 40,
+    "unit": "meV"
+  },
+  "available_models": [
+    {
+      "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+      "model_id": "chgnet",
+      "version": "chgnet 0.4.2"
+    },
+    {
+      "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+      "model_id": "mace-mp-small",
+      "version": "mace-torch 0.3.16 / small"
+    },
+    {
+      "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+      "model_id": "mace-mp-medium",
+      "version": "mace-torch 0.3.16 / medium"
+    },
+    {
+      "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+      "model_id": "mace-mpa-0-medium",
+      "version": "mace-torch 0.3.16 / mpa-0 medium"
+    }
+  ],
+  "campaign_id": "literature.deng-underbinding.v1",
+  "content_hash": "sha256:0c836795cefc0d10f9a37a6836c2b64d4b3d25e1be1b07679f4d5ed153de0140",
+  "demotion_conditions": [
+    {
+      "action": "demote",
+      "condition_id": "demote.z1.barrier-mae",
+      "metric": "barrier_mae",
+      "operator": "gt",
+      "threshold": 40,
+      "unit": "meV"
+    }
+  ],
+  "evidence_requirements": [
+    {
+      "artifact_type": "neb-path-set",
+      "description": "Fresh held-out paths with endpoint and saddle energies, convergence metadata, and reference provenance.",
+      "minimum_count": 30,
+      "requirement_id": "e.z1.held-out-paths"
+    },
+    {
+      "artifact_type": "model-measurements",
+      "description": "Per-path predictions from every available model, including signed errors and failures without imputation.",
+      "minimum_count": 1,
+      "requirement_id": "e.z1.model-results"
+    }
+  ],
+  "exclusions": [
+    {
+      "disposition": "excluded",
+      "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models.",
+      "subject": "uma-family"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Exclude comparisons mixing neutral and charged defects, different hop mechanisms, or unmatched reference paths.",
+      "subject": "mechanism-or-charge-mismatch"
+    }
+  ],
+  "execution": {
+    "candidate_panel": {
+      "path": "data/candidates/z1_nebdft2k_barriers.lock.json",
+      "sha256": "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68"
+    },
+    "excluded_models_block_execution": false,
+    "lane": "round4.available-models",
+    "model_selection": "available_models"
+  },
+  "frozen_hypotheses": [
+    {
+      "frozen": true,
+      "hypothesis_id": "lit-hypothesis.deng-underbinding.v1",
+      "statement": "Near-equilibrium-biased universal MLIPs systematically underpredict energies and forces for barriers and other high-energy configurations, so signed barrier error should be measured before correction."
+    }
+  ],
+  "kill_conditions": [
+    {
+      "action": "kill",
+      "condition_id": "kill.z1.reference-leakage",
+      "metric": "reference_paths_seen_during_training",
+      "operator": "gt",
+      "threshold": 0
+    }
+  ],
+  "preregistration": {
+    "frozen_before_execution": true,
+    "registered_at": "2026-07-20T00:00:00Z",
+    "source": "https://doi.org/10.1038/s41524-024-01500-6"
+  },
+  "preregistration_id": "prereg.literature.deng-underbinding.v1",
+  "target_premises": [
+    {
+      "claim_id": "discovery.z1.barrier-accuracy.v1",
+      "premise_id": "chemistry-held-out-neb"
+    }
+  ],
+  "version": 1
+}

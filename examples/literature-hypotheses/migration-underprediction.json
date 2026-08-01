@@ -10,7 +10,7 @@
   "claim_text": "The majority-direction migration-barrier underprediction reported for CHGNet and M3GNet should recur as a signed-error imbalance unless a barrier-targeted correction clears the Z1 gate.",
   "bindings": {
     "errorTypes": ["T2", "T3"],
-    "materialClasses": ["MC1"],
+    "materialClasses": ["MC4"],
     "chains": ["C1"],
     "acceptanceTests": ["Z1"]
   },
