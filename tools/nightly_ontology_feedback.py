@@ -12,6 +12,9 @@ from pathlib import Path
 from typing import Any
 
 HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+ACCEPTANCE_PREDICATE_RE = re.compile(
+    r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev)<=(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
+)
 READINESS_RANK = {"L": 0, "M": 1, "H": 2}
 
 
@@ -44,6 +47,12 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
     measured_on = _timestamp_date(timestamp)
     if measured_on is None or measured_on > as_of:
         return []
+    predicate = bundle.get("claim_predicate")
+    predicate_match = (
+        ACCEPTANCE_PREDICATE_RE.fullmatch(predicate)
+        if isinstance(predicate, str)
+        else None
+    )
     outcomes: list[str] = []
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):
@@ -51,9 +60,35 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
         acceptance = measurement.get("acceptance_test")
         if not isinstance(acceptance, dict):
             continue
-        outcome = acceptance.get("outcome")
-        if outcome in {"pass", "fail"}:
-            outcomes.append(outcome)
+        value = measurement.get("value")
+        threshold = acceptance.get("threshold")
+        comparator = acceptance.get("comparator")
+        asserted_outcome = acceptance.get("outcome")
+        if (
+            predicate_match is None
+            or not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not isinstance(threshold, (int, float))
+            or isinstance(threshold, bool)
+            or comparator != "less_than_or_equal"
+            or asserted_outcome not in {"pass", "fail"}
+        ):
+            raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
+        expected_threshold = float(predicate_match.group("threshold"))
+        if (
+            measurement.get("metric") != predicate_match.group("metric")
+            or str(measurement.get("unit", "")).lower() != predicate_match.group("unit")
+            or float(threshold) != expected_threshold
+        ):
+            raise ValueError(
+                "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
+            )
+        measured_outcome = "pass" if value <= threshold else "fail"
+        if asserted_outcome != measured_outcome:
+            raise ValueError(
+                "EvidenceBundle asserted acceptance outcome disagrees with its measured value"
+            )
+        outcomes.append(measured_outcome)
     return outcomes
 
 

@@ -255,6 +255,101 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"][0]["evidence_bundle_id"], BUNDLE_B)
         self.assertEqual(plan["queue"], [])
 
+    def test_readiness_rejects_an_asserted_outcome_that_disagrees_with_the_measurement(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        inconsistent = bundle(
+            BUNDLE_A,
+            outcome="pass",
+            campaign="one",
+            status="confirmatory",
+        )
+        inconsistent["measurements"][0]["value"] = 70
+
+        with self.assertRaisesRegex(ValueError, "asserted acceptance outcome"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: inconsistent},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.inconsistent",
+                        "contract_json": hypothesis("C1", "Z1"),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
+    def test_readiness_rejects_a_threshold_that_disagrees_with_the_bound_predicate(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        inconsistent = bundle(
+            BUNDLE_A,
+            outcome="pass",
+            campaign="one",
+            status="confirmatory",
+        )
+        inconsistent["measurements"][0]["value"] = 70
+        inconsistent["measurements"][0]["acceptance_test"]["threshold"] = 80
+
+        with self.assertRaisesRegex(ValueError, "acceptance threshold"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: inconsistent},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.inconsistent-threshold",
+                        "contract_json": hypothesis("C1", "Z1"),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
+    def test_workflow_rehydrates_and_persists_the_complete_nightly_corpus(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
+
+        restore = workflow.index("Rehydrate durable ontology corpus")
+        ingest = workflow.index("Ingest rows and regenerate assumptions plus runtime gate")
+        apply_feedback = workflow.index("Apply feedback to production D1")
+        persist = workflow.index("Persist durable ontology corpus")
+        self.assertLess(restore, ingest)
+        self.assertLess(apply_feedback, persist)
+        self.assertIn("registry/claims", workflow)
+        self.assertIn("evidence/v1/examples", workflow)
+        self.assertIn("ontology-state/$CYCLE_DATE/corpus-", workflow)
+        self.assertIn("printf '%020d' \"$GITHUB_RUN_ID\"", workflow)
+        self.assertIn("tar -xzf nightly-state/corpus.tar.gz -C nightly-state/restored", workflow)
+        self.assertIn("rm -rf registry/claims evidence/v1/examples", workflow)
+
     def test_d1_status_change_fails_closed_without_fresh_bundle_event(self) -> None:
         connection = sqlite3.connect(":memory:")
         self.addCleanup(connection.close)
@@ -308,6 +403,89 @@ class NightlyFeedbackTests(unittest.TestCase):
                     "hyp.one",
                 ),
             )
+
+    def test_d1_guard_cannot_reuse_an_old_event_when_a_transition_repeats(self) -> None:
+        connection = sqlite3.connect(":memory:")
+        self.addCleanup(connection.close)
+        apply_migrations(connection)
+        proposed = hypothesis("C1", "Z1")
+        accepted = {**proposed, "status": "accepted"}
+        connection.execute(
+            "INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json) VALUES (?, ?)",
+            ("hyp.replay", json.dumps(proposed, separators=(",", ":"), sort_keys=True)),
+        )
+
+        def transition(
+            *,
+            from_contract: dict,
+            to_contract: dict,
+            evidence: dict,
+            as_of: str,
+        ) -> None:
+            connection.executescript(
+                render_feedback_sql(
+                    {
+                        "as_of": as_of,
+                        "updates": [
+                            {
+                                "hypothesis_id": "hyp.replay",
+                                "from_status": from_contract["status"],
+                                "to_status": to_contract["status"],
+                                "from_readiness": from_contract["readiness"],
+                                "to_readiness": to_contract["readiness"],
+                                "evidence_bundle_id": evidence["bundle_id"],
+                                "contract_json": to_contract,
+                            }
+                        ],
+                        "queue": [],
+                        "evidence": [evidence],
+                    }
+                )
+            )
+
+        transition(
+            from_contract=proposed,
+            to_contract=accepted,
+            evidence=bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory"),
+            as_of="2026-08-01",
+        )
+        transition(
+            from_contract=accepted,
+            to_contract=proposed,
+            evidence=bundle(BUNDLE_B, outcome="fail", campaign="two", status="negative"),
+            as_of="2026-08-02",
+        )
+
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "new EvidenceBundle"):
+            connection.execute(
+                "UPDATE literature_hypotheses SET contract_json = ? WHERE literature_hypothesis_id = ?",
+                (
+                    json.dumps(accepted, separators=(",", ":"), sort_keys=True),
+                    "hyp.replay",
+                ),
+            )
+
+    def test_0014_replaces_the_trigger_on_an_already_migrated_database(self) -> None:
+        connection = sqlite3.connect(":memory:")
+        self.addCleanup(connection.close)
+        connection.execute("PRAGMA foreign_keys = ON")
+        for path in sorted(MIGRATIONS.glob("*.sql")):
+            if path.name >= "0014_":
+                continue
+            connection.executescript(path.read_text(encoding="utf-8"))
+        before = connection.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'trigger' AND name = ?",
+            ("literature_hypothesis_evidence_guard",),
+        ).fetchone()[0]
+        self.assertNotIn("max(latest.rowid)", before)
+
+        migration = MIGRATIONS / "0014_nightly_ontology_event_freshness.sql"
+        connection.executescript(migration.read_text(encoding="utf-8"))
+        after = connection.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'trigger' AND name = ?",
+            ("literature_hypothesis_evidence_guard",),
+        ).fetchone()[0]
+        self.assertIn("max(latest.rowid)", after)
 
 
 if __name__ == "__main__":

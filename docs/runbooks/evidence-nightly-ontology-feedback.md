@@ -28,29 +28,38 @@ Missing input, broken row hashes, scope drift, or missing artifacts fail the job
 
 ## Ordered stages
 
-1. `tools/run_nightly_cycle.py` ingests every row set through
+1. Production runs rehydrate the latest immutable ontology-corpus archive from
+   `evidence-nightly/ontology-state/`. The archive contains the complete
+   `registry/claims` and `evidence/v1/examples` corpus from the last successful
+   D1 cycle, so independent demonstrations remain available across fresh runners.
+2. `tools/run_nightly_cycle.py` ingests every row set through
    `ingest_campaign_results.py`, regenerates the assumption registry, and compiles
    the runtime gate through `atlas_theorem_sync.py`.
-2. Wrangler applies D1 migrations and exports the current
+3. Wrangler applies D1 migrations and exports the current
    `literature_hypotheses` plus the set of bundle hashes already known to D1.
-3. `tools/nightly_ontology_feedback.py` computes monotonic readiness upgrades
-   from dated, typed acceptance outcomes. One passing campaign permits `L→M`;
-   two independent passing campaigns permit `M→H`. A discovery-chain assumption
-   with negative evidence supersedes hypotheses bound to that chain.
-4. The generated SQL inserts the new EvidenceBundle, appends a `status_event`,
+4. `tools/nightly_ontology_feedback.py` validates each asserted acceptance outcome
+   against its typed comparator, measured value, and threshold before computing
+   monotonic readiness upgrades. One passing campaign permits `L→M`; two
+   independent passing campaigns permit `M→H`. A discovery-chain assumption with
+   negative evidence supersedes hypotheses bound to that chain.
+5. The generated SQL inserts the new EvidenceBundle, appends a `status_event`,
    updates the hypothesis, and refreshes `literature_reprioritization_queue` in
    one transaction. Queue rows follow `discoveryChains` order in atlas v2.
-5. Wrangler applies that SQL to the existing `glim-ledger` D1 database. The job
-   uploads the SQL, queue JSON, runtime gate, staging evidence (when selected),
-   Markdown digest, and machine-readable `hermes.digest-card.v1` card.
+6. Wrangler applies that SQL to the existing `glim-ledger` D1 database. Only after
+   that transaction succeeds, the job writes a run-addressed immutable corpus
+   archive back to the existing GCS output bucket. The job also uploads the SQL,
+   queue JSON, runtime gate, complete claim/evidence corpus, staging evidence
+   (when selected), Markdown digest, and machine-readable
+   `hermes.digest-card.v1` card.
 
 ## Anti-laundering invariant
 
 A status or readiness update is eligible only when its authorizing bundle was
-created by the current ingest and was absent from D1 before the cycle. Migration
-0013 additionally requires a matching append-only `status_event` and prevents a
-hypothesis from reusing the same bundle hash for another transition. There is no
-manual override or exception path.
+created by the current ingest and was absent from D1 before the cycle. Migrations
+0013–0014 require a matching append-only `status_event` and prevent a hypothesis
+from reusing the same bundle hash for another transition. The event must be the
+latest event appended for that hypothesis, so an older transition receipt cannot
+authorize a repeated state edge. There is no manual override or exception path.
 
 ## Staging verification
 

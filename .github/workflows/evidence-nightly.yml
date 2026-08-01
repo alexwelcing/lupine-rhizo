@@ -169,6 +169,26 @@ jobs:
           test -n "$cycle_file"
           echo "CYCLE_FILE=$cycle_file" >> "$GITHUB_ENV"
 
+      - name: Rehydrate durable ontology corpus
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        run: |
+          state_uri="$(
+            gcloud storage ls \
+              'gs://shed-489901-atlas-outputs/evidence-nightly/ontology-state/*/corpus-*.tar.gz' \
+              2>/dev/null | sort | tail -n 1 || true
+          )"
+          if [ -n "$state_uri" ]; then
+            mkdir -p nightly-state/restored
+            gcloud storage cp "$state_uri" nightly-state/corpus.tar.gz
+            tar -xzf nightly-state/corpus.tar.gz -C nightly-state/restored \
+              --no-same-owner --no-same-permissions
+            test -d nightly-state/restored/registry/claims
+            test -d nightly-state/restored/evidence/v1/examples
+            rm -rf registry/claims evidence/v1/examples
+            mv nightly-state/restored/registry/claims registry/claims
+            mv nightly-state/restored/evidence/v1/examples evidence/v1/examples
+          fi
+
       - name: Ingest rows and regenerate assumptions plus runtime gate
         run: |
           python tools/run_nightly_cycle.py \
@@ -267,6 +287,16 @@ jobs:
         working-directory: glim-think
         run: npx wrangler d1 execute glim-ledger --remote --file ../nightly-output/feedback.sql
 
+      - name: Persist durable ontology corpus
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        run: |
+          archive="nightly-output/ontology-corpus.tar.gz"
+          run_id="$(printf '%020d' "$GITHUB_RUN_ID")"
+          run_attempt="$(printf '%04d' "$GITHUB_RUN_ATTEMPT")"
+          tar -czf "$archive" registry/claims evidence/v1/examples
+          gcloud storage cp "$archive" \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/ontology-state/$CYCLE_DATE/corpus-$run_id-$run_attempt.tar.gz"
+
       - name: Publish Hermes digest to job summary
         if: always()
         run: test ! -f nightly-output/hermes-digest.md || cat nightly-output/hermes-digest.md >> "$GITHUB_STEP_SUMMARY"
@@ -279,6 +309,8 @@ jobs:
           path: |
             nightly-output/
             registry/assumptions.v1.json
+            registry/claims/
             registry/snapshots/current.lock.json
+            evidence/v1/examples/
           if-no-files-found: error
           retention-days: 90

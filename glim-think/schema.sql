@@ -767,5 +767,11 @@ BEGIN
        AND event.evidence_bundle_id IS NOT NULL
        AND json_extract(event.metadata_json, '$.from_readiness') = OLD.readiness
        AND json_extract(event.metadata_json, '$.to_readiness') = json_extract(NEW.contract_json, '$.readiness')
+       AND event.rowid = (
+         SELECT max(latest.rowid)
+           FROM status_event AS latest
+          WHERE latest.entity_type = 'literature_hypothesis'
+            AND latest.entity_id = OLD.literature_hypothesis_id
+       )
   ) THEN RAISE(ABORT, 'literature hypothesis status/readiness change requires a new EvidenceBundle event') END;
 END;

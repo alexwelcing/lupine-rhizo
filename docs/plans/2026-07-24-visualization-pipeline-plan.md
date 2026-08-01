@@ -1,7 +1,7 @@
 # From science run to citable visualization
 
-Date: 2026-07-24  
-Status: proposed architecture  
+Date: 2026-07-24
+Status: proposed architecture
 Scope: Lupine science outputs rendered and inspected in Lupi, from the current Z1 campaign to roughly one million runs
 
 ## Decision in one page
