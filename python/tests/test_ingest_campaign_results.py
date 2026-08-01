@@ -283,6 +283,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             (root / "locked.json").write_bytes(locked_bytes)
             set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
             manifest = {
+                "campaign_id": "literature.protocol-offset-sign-skew.v1",
                 "available_models": [{"model_id": model} for model in models],
                 "acceptance_test": {
                     "metric": "signed_error_positive",
@@ -509,6 +510,12 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "finite numeric"):
                 enforce(make_bundle())
+
+            # A cloned manifest under a fresh campaign_id is not replication.
+            write_artifact(artifact, full_rows)
+            clone_manifest = {**manifest, "campaign_id": "literature.clone.v1"}
+            with self.assertRaisesRegex(ValueError, "not the canonical"):
+                module.enforce_path_minimums(root, clone_manifest, make_bundle(), artifact, "skew-1")
 
             # A manifest pointing at anything but the canonical source is rejected.
             write_artifact(artifact, full_rows)

@@ -51,6 +51,9 @@ CANONICAL_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
 CANONICAL_RECORDED_DIGEST = (
     "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2"
 )
+# The frozen family's single campaign identity. Cloned manifests under a fresh
+# campaign_id would count as independent replication in readiness grading.
+CANONICAL_CAMPAIGN_ID = "literature.protocol-offset-sign-skew.v1"
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",
@@ -456,6 +459,12 @@ def enforce_path_minimums(
         "signed_error_positive_fraction"
     ):
         return
+    if manifest.get("campaign_id") != CANONICAL_CAMPAIGN_ID:
+        raise ValueError(
+            f"measurement {row_id} manifest campaign {manifest.get('campaign_id')!r} "
+            f"is not the canonical {CANONICAL_CAMPAIGN_ID!r}; cloned campaigns do "
+            "not count as independent replication"
+        )
     minimums = [
         requirement["minimum_count"]
         for requirement in manifest.get("evidence_requirements", [])
