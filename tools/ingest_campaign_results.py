@@ -318,21 +318,25 @@ def bundle_from_row(
     return bundle
 
 
-def _distinct_paths(document: Any) -> int | None:
-    if isinstance(document, dict):
-        n_paths = document.get("n_paths")
-        if isinstance(n_paths, int) and not isinstance(n_paths, bool) and n_paths >= 1:
-            return n_paths
-        rows = document.get("per_row")
-        if isinstance(rows, list) and rows:
-            indices = {
-                row.get("path_index")
-                for row in rows
-                if isinstance(row, dict) and isinstance(row.get("path_index"), int)
-            }
-            if indices:
-                return len(indices)
-    return None
+def _coverage(document: Any) -> tuple[set[int], set[str]] | None:
+    """Derive (path indices, models) from artifact rows; never from aggregates."""
+    if not isinstance(document, dict):
+        return None
+    rows = document.get("per_row") or document.get("per_path")
+    if not isinstance(rows, list) or not rows:
+        return None
+    paths: set[int] = set()
+    models: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        index = row.get("path_index")
+        if isinstance(index, int) and not isinstance(index, bool):
+            paths.add(index)
+        model = row.get("model")
+        if isinstance(model, str):
+            models.add(model)
+    return paths, models
 
 
 def enforce_path_minimums(
@@ -341,11 +345,11 @@ def enforce_path_minimums(
     """Fail closed when a panel-level receipt under-covers a declared path minimum.
 
     Panel-level predicates (the sign-skew family) define their acceptance over
-    the whole recorded panel, so the cited artifact must document at least the
-    manifest's neb-path-set minimum of DISTINCT paths, and every typed
-    measurement must cover that many samples. Per-model barrier receipts
-    instead disclose honest per-path failures, so their sample_count
-    legitimately falls below the panel size and is not gated here.
+    the whole recorded panel, so the cited artifact's own rows must document at
+    least the manifest's neb-path-set minimum of DISTINCT paths, must cover
+    every model the manifest declares available, and any self-reported n_paths
+    aggregate must agree with the rows. Per-model barrier receipts instead
+    disclose honest per-path failures, so they are not gated here.
     """
     predicate = bundle.get("claim_predicate")
     if not isinstance(predicate, str) or not predicate.startswith(
@@ -368,11 +372,33 @@ def enforce_path_minimums(
         raise ValueError(
             f"measurement {row_id} cites an artifact that cannot prove path coverage: {error}"
         ) from error
-    distinct = _distinct_paths(document)
-    if distinct is None or distinct < floor:
+    coverage = _coverage(document)
+    if coverage is None:
         raise ValueError(
-            f"measurement {row_id} documents {distinct if distinct is not None else 'no'} "
-            f"distinct paths, below the manifest's recorded-path minimum {floor}"
+            f"measurement {row_id} cites an artifact with no per-path rows; "
+            "self-reported aggregates cannot prove coverage"
+        )
+    paths, models = coverage
+    declared = document.get("n_paths") if isinstance(document, dict) else None
+    if isinstance(declared, int) and declared != len(paths):
+        raise ValueError(
+            f"measurement {row_id} artifact declares n_paths {declared} but its "
+            f"rows document {len(paths)} distinct paths"
+        )
+    if len(paths) < floor:
+        raise ValueError(
+            f"measurement {row_id} documents {len(paths)} distinct paths, below "
+            f"the manifest's recorded-path minimum {floor}"
+        )
+    required_models = {
+        model["model_id"]
+        for model in manifest.get("available_models", [])
+        if isinstance(model, dict) and isinstance(model.get("model_id"), str)
+    }
+    missing_models = sorted(required_models - models)
+    if missing_models:
+        raise ValueError(
+            f"measurement {row_id} omits declared available models: {', '.join(missing_models)}"
         )
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):

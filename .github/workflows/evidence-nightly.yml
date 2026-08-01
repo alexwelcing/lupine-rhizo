@@ -240,6 +240,20 @@ jobs:
         working-directory: glim-think
         run: |
           npx wrangler d1 migrations apply glim-ledger --remote
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          statements = []
+          for path in sorted(Path('../examples/literature-hypotheses').glob('*.json')):
+              contract = json.loads(path.read_text())
+              canonical = json.dumps(contract, separators=(',', ':'), sort_keys=True)
+              statements.append(
+                  "INSERT OR IGNORE INTO literature_hypotheses (literature_hypothesis_id, contract_json) "
+                  f"VALUES ('{path.stem}', '{canonical.replace(chr(39), chr(39) * 2)}');"
+              )
+          Path('../nightly-output/seed-hypotheses.sql').write_text('\n'.join(statements) + '\n')
+          PY
+          npx wrangler d1 execute glim-ledger --remote --file ../nightly-output/seed-hypotheses.sql
           npx wrangler d1 execute glim-ledger --remote --json \
             --command "SELECT literature_hypothesis_id, contract_json FROM literature_hypotheses ORDER BY literature_hypothesis_id" \
             > ../nightly-output/hypotheses.json

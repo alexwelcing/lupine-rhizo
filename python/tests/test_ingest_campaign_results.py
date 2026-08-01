@@ -210,7 +210,9 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
     def test_recorded_path_minimum_is_enforced(self) -> None:
         module = load_ingest_module()
+        models = ["chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium"]
         manifest = {
+            "available_models": [{"model_id": model} for model in models],
             "evidence_requirements": [
                 {
                     "requirement_id": "e.z1.recorded-path-set",
@@ -218,7 +220,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     "description": "recorded rows",
                     "minimum_count": 22,
                 }
-            ]
+            ],
         }
         bundle = {
             "claim_predicate": "signed_error_positive_fraction>0.5",
@@ -237,30 +239,58 @@ class CampaignResultIngestionTests(unittest.TestCase):
             ]
         }
 
+        def write_artifact(path: Path, rows: list[dict], **extra: object) -> None:
+            document = {"per_row": rows}
+            document.update(extra)
+            path.write_text(json.dumps(document))
+
+        full_rows = [
+            {"path_index": index, "model": model}
+            for index in range(22)
+            for model in models
+        ]
+
         with tempfile.TemporaryDirectory() as temporary_directory:
             artifact = Path(temporary_directory) / "artifact.json"
-            artifact.write_text(json.dumps({"n_paths": 22, "per_row": []}))
-            with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
+
+            # Aggregate-only artifacts cannot prove coverage, even with n_paths.
+            write_artifact(artifact, [], n_paths=22)
+            with self.assertRaisesRegex(ValueError, "no per-path rows"):
                 module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
 
-            bundle["measurements"][0]["sample_count"] = 86
+            # A self-reported aggregate must agree with the rows.
+            write_artifact(artifact, full_rows, n_paths=23)
+            with self.assertRaisesRegex(ValueError, "n_paths 23"):
+                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+
+            # Full coverage passes once the sample_count meets the floor.
+            write_artifact(artifact, full_rows, n_paths=22)
+            with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
+                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+            bundle["measurements"][0]["sample_count"] = 88
             module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
 
             # Six paths measured by four models must not launder the minimum:
             # distinct path coverage, not raw sample_count, is the gate.
-            artifact.write_text(
-                json.dumps(
-                    {
-                        "per_row": [
-                            {"path_index": index, "model": model}
-                            for index in range(6)
-                            for model in ("a", "b", "c", "d")
-                        ]
-                    }
-                )
+            write_artifact(
+                artifact,
+                [
+                    {"path_index": index, "model": model}
+                    for index in range(6)
+                    for model in models
+                ],
             )
             bundle["measurements"][0]["sample_count"] = 24
             with self.assertRaisesRegex(ValueError, "distinct paths"):
+                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+
+            # Twenty-two paths from a single model omit declared available models.
+            write_artifact(
+                artifact,
+                [{"path_index": index, "model": "chgnet"} for index in range(22)],
+            )
+            bundle["measurements"][0]["sample_count"] = 88
+            with self.assertRaisesRegex(ValueError, "omits declared available models"):
                 module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
 
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
