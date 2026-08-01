@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import mlip_cell_runner as runner
+import rfc8785
 
 ROOT = Path(__file__).resolve().parents[2]
 ROWS = ROOT / "data" / "candidates" / "z2" / "measurements.jsonl"
@@ -67,6 +68,8 @@ def test_z2_abstention_smoke_fails_closed_on_tampered_rows(
             "z2-smoke-tampered",
             "--artifact-prefix",
             str(tmp_path / "artifacts"),
+            "--local-jsonl",
+            str(tmp_path / "beats.jsonl"),
             "--z2-rows-url",
             str(rows),
             "--z2-artifact-manifest-url",
@@ -77,5 +80,70 @@ def test_z2_abstention_smoke_fails_closed_on_tampered_rows(
     assert runner.main() == 1
     failure = json.loads(capsys.readouterr().err)
     assert failure["status"] == "failed"
-    assert "hash does not match" in failure["error"]
+    assert "frozen packaged" in failure["error"]
+    assert not (tmp_path / "artifacts").exists()
+
+
+def test_z2_abstention_smoke_rejects_self_consistent_override(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    rows = [json.loads(line) for line in ROWS.read_text(encoding="utf-8").splitlines()]
+    previous_hash = None
+    for row in rows:
+        row["metric"] = "tampered_metric"
+        row["previous_row_hash"] = previous_hash
+        row_body = {key: value for key, value in row.items() if key != "row_hash"}
+        row["row_hash"] = "sha256:" + hashlib.sha256(rfc8785.dumps(row_body)).hexdigest()
+        previous_hash = row["row_hash"]
+    rows_bytes = b"\n".join(rfc8785.dumps(row) for row in rows) + b"\n"
+    rows_path = tmp_path / "measurements.jsonl"
+    rows_path.write_bytes(rows_bytes)
+
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    manifest["artifacts"][0]["sha256"] = "sha256:" + hashlib.sha256(rows_bytes).hexdigest()
+    manifest["chain_head"] = rows[0]["row_hash"]
+    manifest["chain_tail"] = rows[-1]["row_hash"]
+    manifest_path = tmp_path / "artifact-manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "mlip_cell_runner.py",
+            "run-z2-abstention-smoke",
+            "--run-id",
+            "z2-smoke-self-consistent-tamper",
+            "--artifact-prefix",
+            str(tmp_path / "artifacts"),
+            "--local-jsonl",
+            str(tmp_path / "beats.jsonl"),
+            "--z2-rows-url",
+            str(rows_path),
+            "--z2-artifact-manifest-url",
+            str(manifest_path),
+        ],
+    )
+
+    assert runner.main() == 1
+    failure = json.loads(capsys.readouterr().err)
+    assert "frozen packaged" in failure["error"]
+    assert not (tmp_path / "artifacts").exists()
+
+
+def test_z2_abstention_smoke_requires_beat_sink(tmp_path: Path, monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "mlip_cell_runner.py",
+            "run-z2-abstention-smoke",
+            "--run-id",
+            "z2-smoke-no-beat-sink",
+            "--artifact-prefix",
+            str(tmp_path / "artifacts"),
+        ],
+    )
+
+    assert runner.main() == 1
+    failure = json.loads(capsys.readouterr().err)
+    assert "beat sink" in failure["error"]
     assert not (tmp_path / "artifacts").exists()

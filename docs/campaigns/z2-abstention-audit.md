@@ -2,7 +2,7 @@
 
 **Status:** content-addressed audit · scope amended to abstention by director/owner decision 2026-07-19
 **Campaign:** `discovery.round-4.z2-magnetic-anisotropy.v1` (`campaigns/v1/z2.campaign-manifest.v1.json`, content hash `sha256:` per manifest)
-**Rows:** `data/candidates/z2/measurements.jsonl` (4 rows, RFC 8785, hash chain tail `sha256:05d3b087…`), `data/candidates/z2/artifact-manifest.json`
+**Rows:** `data/candidates/z2/measurements.jsonl` (4 rows, RFC 8785, hash chain tail `sha256:1019cff0…`), `data/candidates/z2/artifact-manifest.json`
 **Reconstruction note:** the original t_52df7aae deliverable was lost with its kanban scratch workspace. The findings below are re-derived from repository state and match the original audit's claims; the original blocker document's SHA-256 was `c0c0e31773fa06d51d7310ffe19de42a59e1db95870ac32636d31e1d5bb450c3`. No original content hashes are claimed here; all artifacts in this package carry their own, new content addresses.
 
 ## Question

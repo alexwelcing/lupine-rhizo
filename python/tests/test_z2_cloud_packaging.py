@@ -40,6 +40,30 @@ def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:
     assert "jobs" in cloudbuild and "deploy" in cloudbuild
     assert "jobs execute" not in cloudbuild
 
+    requirements = (RUNNER / "requirements-common.txt").read_text(encoding="utf-8")
+    assert "rfc8785" in requirements
+
+
+def test_z2_abstention_audit_tracks_current_chain_tail() -> None:
+    manifest = json.loads(
+        (ROOT / "data" / "candidates" / "z2" / "artifact-manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    chain_tail_prefix = manifest["chain_tail"][:15] + "…"
+    for path in (
+        ROOT / "docs" / "campaigns" / "z2-abstention-audit.md",
+        ROOT
+        / "exports"
+        / "library-content"
+        / "latest"
+        / "articles"
+        / "docs"
+        / "campaigns"
+        / "z2-abstention-audit.md",
+    ):
+        assert chain_tail_prefix in path.read_text(encoding="utf-8")
+
 
 def test_z2_endpoint_lock_binds_deployed_image_and_help_only_smoke() -> None:
     lock_path = RUNNER / "z2_endpoints.lock.json"

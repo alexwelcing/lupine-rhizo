@@ -1246,11 +1246,23 @@ def run_z2_abstention_smoke(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("--run-id is required for run-z2-abstention-smoke")
     if not args.artifact_prefix:
         raise ValueError("--artifact-prefix is required for run-z2-abstention-smoke")
+    if not args.beat_emit_url and not args.local_jsonl:
+        raise ValueError(
+            "run-z2-abstention-smoke requires a beat sink via --beat-emit-url or --local-jsonl"
+        )
 
-    rows_url = args.z2_rows_url or _packaged_z2_path("measurements.jsonl")
-    manifest_url = args.z2_artifact_manifest_url or _packaged_z2_path("artifact-manifest.json")
+    packaged_rows_url = _packaged_z2_path("measurements.jsonl")
+    packaged_manifest_url = _packaged_z2_path("artifact-manifest.json")
+    rows_url = args.z2_rows_url or packaged_rows_url
+    manifest_url = args.z2_artifact_manifest_url or packaged_manifest_url
     rows_bytes = read_url(rows_url)
     manifest_bytes = read_url(manifest_url)
+    packaged_rows_hash = hashlib.sha256(read_url(packaged_rows_url)).digest()
+    packaged_manifest_hash = hashlib.sha256(read_url(packaged_manifest_url)).digest()
+    if hashlib.sha256(rows_bytes).digest() != packaged_rows_hash:
+        raise ValueError("Z2 abstention rows do not match the frozen packaged artifact")
+    if hashlib.sha256(manifest_bytes).digest() != packaged_manifest_hash:
+        raise ValueError("Z2 abstention manifest does not match the frozen packaged artifact")
     rows = [json.loads(line) for line in rows_bytes.splitlines() if line.strip()]
     manifest = json.loads(manifest_bytes)
     expected_models = ["chgnet", "mace-mp-small", "mace-mp-medium", "mace-mpa-0-medium"]
@@ -1273,6 +1285,14 @@ def run_z2_abstention_smoke(args: argparse.Namespace) -> dict[str, Any]:
             raise ValueError("Z2 abstention smoke rows must record zero scientific executions")
         if row.get("acceptance_test", {}).get("outcome") != "abstained":
             raise ValueError("Z2 abstention smoke row did not abstain")
+        if (
+            row.get("campaign_manifest") != "campaigns/v1/z2.campaign-manifest.v1.json"
+            or row.get("campaign_manifest_hash") != manifest.get("campaign_manifest_hash")
+            or row.get("metric") != "magnetocrystalline_anisotropy_ranking"
+            or row.get("epistemic_status") != "unsupported"
+            or row.get("value") is not None
+        ):
+            raise ValueError("Z2 abstention row semantics do not match the frozen campaign")
         previous_hash = row.get("row_hash")
     if previous_hash != manifest.get("chain_tail"):
         raise ValueError("Z2 abstention chain tail does not match artifact manifest")
