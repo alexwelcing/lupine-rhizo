@@ -27,6 +27,7 @@ EXPECTED_TABLES = {
     "status_event",
     "registry_snapshot",
     "literature_hypotheses",
+    "literature_reprioritization_queue",
 }
 
 

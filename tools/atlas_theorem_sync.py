@@ -228,6 +228,42 @@ def _scope_intersection(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> d
     return merged
 
 
+def _scope_union(scopes: Sequence[Mapping[str, Any]], claim_id: str) -> dict[str, Any]:
+    """Union evidence rows inside one premise without hiding gate-policy drift."""
+
+    if not scopes:
+        raise ManifestError(f"claim {claim_id} has no evidence scope")
+    merged: dict[str, Any] = {}
+    for axis in ("chemistries", "properties", "structures"):
+        values: set[str] = set()
+        for scope in scopes:
+            raw = scope.get(axis)
+            if (
+                not isinstance(raw, list)
+                or not raw
+                or any(not isinstance(item, str) or not item for item in raw)
+            ):
+                raise ManifestError(f"claim {claim_id} evidence scope has invalid {axis}")
+            values.update(raw)
+        merged[axis] = sorted(values)
+    condition_values: dict[str, list[Any]] = {}
+    for scope in scopes:
+        current = _require_mapping(scope.get("conditions"), "scope.conditions")
+        for key, value in current.items():
+            condition_items = condition_values.setdefault(key, [])
+            if value not in condition_items:
+                condition_items.append(value)
+    # Calibration defines how a correction is licensed. Unlike measured
+    # outcomes, it cannot vary across rows without changing the gate itself.
+    if len(condition_values.get("calibration", [])) > 1:
+        raise ManifestError(f"claim {claim_id} has scope-incompatible evidence conditions")
+    merged["conditions"] = {
+        key: values[0] if len(values) == 1 else values
+        for key, values in sorted(condition_values.items())
+    }
+    return merged
+
+
 def _theorem_dependency(
     claim: Mapping[str, Any],
     claim_id: str,
@@ -303,6 +339,7 @@ def _compile_claim_gate(
         evidence_by_id[bundle_id] = evidence
 
     premise_rows: list[dict[str, Any]] = []
+    premise_scopes: list[dict[str, Any]] = []
     referenced: set[str] = set()
     for raw in _require_sequence(claim.get("premises"), f"claim {claim_id} premises"):
         premise = _require_mapping(raw, f"claim {claim_id} premise")
@@ -363,14 +400,22 @@ def _compile_claim_gate(
                 "evidence": bundle_ids,
             }
         )
+        premise_scopes.append(
+            _scope_union(
+                [
+                    _require_mapping(
+                        evidence_by_id[bundle_id]["scope"],
+                        f"claim {claim_id} evidence scope",
+                    )
+                    for bundle_id in bundle_ids
+                ],
+                claim_id,
+            )
+        )
     if referenced != set(evidence_by_id):
         raise ManifestError(f"claim {claim_id} assumption evidence is stale or unreferenced")
 
-    scopes = [
-        _require_mapping(evidence["scope"], f"claim {claim_id} evidence scope")
-        for evidence in evidence_by_id.values()
-    ]
-    scope = _scope_intersection(scopes, claim_id)
+    scope = _scope_intersection(premise_scopes, claim_id)
     contradiction = any(
         evidence["epistemic_status"] == "negative" for evidence in evidence_by_id.values()
     )
