@@ -134,10 +134,25 @@ def _chain_state(
     campaigns: set[str] = set()
     for bundle_id in bundle_ids:
         bundle = evidence_by_id[bundle_id]
+        provenance = bundle.get("provenance")
+        measured_on = _timestamp_date(
+            provenance.get("timestamp") if isinstance(provenance, dict) else None
+        )
+        if (
+            assumption.get("disposition") == "refuted"
+            and bundle.get("epistemic_status") == "negative"
+            and measured_on is not None
+            and measured_on <= as_of
+        ):
+            # Refutation receipts need dated provenance but need not use an
+            # acceptance measurement schema. Their role is supersession, not
+            # readiness promotion.
+            defined.append(bundle_id)
         outcomes = _acceptance_outcomes(bundle, as_of)
         if not outcomes:
             continue
-        defined.append(bundle_id)
+        if bundle_id not in defined:
+            defined.append(bundle_id)
         if (
             bundle.get("claim_predicate") == expected_predicate
             and all(outcome == "pass" for outcome in outcomes)

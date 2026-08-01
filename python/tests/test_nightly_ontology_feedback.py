@@ -182,6 +182,48 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("hyp.refuted", plan["digest_markdown"])
         self.assertIn("hyp.gap", plan["digest_markdown"])
 
+    def test_dated_untyped_negative_bundle_supersedes_refuted_hypothesis(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "refuted",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "negative"}
+                    ],
+                }
+            ]
+        }
+        negative = bundle(
+            BUNDLE_A,
+            outcome="fail",
+            campaign="one",
+            status="negative",
+        )
+        del negative["measurements"]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: negative},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.untyped-negative",
+                    "contract_json": hypothesis("C1", "Z1"),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(len(plan["updates"]), 1)
+        self.assertEqual(plan["updates"][0]["to_status"], "superseded")
+        self.assertEqual(plan["updates"][0]["evidence_bundle_id"], BUNDLE_A)
+
     def test_fresh_bundle_is_synced_to_d1_even_without_a_hypothesis_transition(self) -> None:
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
