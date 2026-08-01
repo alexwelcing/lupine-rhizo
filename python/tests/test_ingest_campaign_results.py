@@ -652,6 +652,38 @@ class CampaignResultIngestionTests(unittest.TestCase):
             write_artifact(artifact, fresh_rows)
             module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
 
+            # Independent campaigns must still measure the frozen 22-path claim.
+            lax_fresh = {
+                **fresh_manifest,
+                "evidence_requirements": [
+                    {
+                        "requirement_id": "e.z1.recorded-path-set",
+                        "artifact_type": "neb-path-set",
+                        "description": "recorded rows",
+                        "minimum_count": 1,
+                    }
+                ],
+            }
+            with self.assertRaisesRegex(ValueError, "frozen sign-skew claim"):
+                module.enforce_path_minimums(root, lax_fresh, make_bundle(), artifact, "skew-1")
+
+            # A reserialized copy of the same observations is the same dataset.
+            module.CANONICAL_SOURCE_FINGERPRINT = module._source_fingerprint(locked_document)
+            copy_manifest = {
+                **manifest,
+                "campaign_id": "literature.copy.v1",
+                "preregistration": {
+                    "recorded_inputs": [{"path": "copy.json", "sha256": "sha256:" + "1" * 64}]
+                },
+            }
+            (root / "copy.json").write_text(json.dumps(locked_document, indent=2, sort_keys=True))
+            copy_manifest["preregistration"]["recorded_inputs"][0]["sha256"] = (
+                "sha256:" + hashlib.sha256((root / "copy.json").read_bytes()).hexdigest()
+            )
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "reserializes the canonical dataset"):
+                module.enforce_path_minimums(root, copy_manifest, make_bundle(), artifact, "skew-1")
+
     def test_sign_skew_rows_require_a_locked_sign_skew_manifest(self) -> None:
         module = load_ingest_module()
         barrier_manifest = {

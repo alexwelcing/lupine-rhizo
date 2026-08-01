@@ -54,6 +54,30 @@ CANONICAL_RECORDED_DIGEST = (
 # The frozen family's single campaign identity. Cloned manifests under a fresh
 # campaign_id would count as independent replication in readiness grading.
 CANONICAL_CAMPAIGN_ID = "literature.protocol-offset-sign-skew.v1"
+# Content fingerprint of the canonical dataset's observations (status and value
+# per path/model), so a reserialized copy is recognized as the same dataset.
+CANONICAL_SOURCE_FINGERPRINT = (
+    "sha256:e41d658e48dc58b0358519f14dce30a6b0b9064e4a3c35d024e269aeda325732"
+)
+
+
+def _source_fingerprint(source: Any) -> str | None:
+    if not isinstance(source, dict):
+        return None
+    observations = []
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        index = entry.get("path_index")
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if value is not None and record.get("complete", False):
+                observations.append([index, model, "measured", round(float(value), 4)])
+        for model in (entry.get("models_missing") or {}):
+            observations.append([index, model, "failed"])
+    observations.sort()
+    canonical = json.dumps(observations, separators=(",", ":")).encode()
+    return "sha256:" + hashlib.sha256(canonical).hexdigest()
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",
@@ -502,12 +526,6 @@ def enforce_path_minimums(
                 f"is not the canonical {CANONICAL_CAMPAIGN_ID!r}; cloned campaigns do "
                 "not count as independent replication"
             )
-        floor = max(minimums)
-        if floor != FROZEN_PANEL_PATH_MINIMUM:
-            raise ValueError(
-                f"measurement {row_id} manifest declares a neb-path-set minimum of {floor}; "
-                f"the frozen sign-skew panel requires exactly {FROZEN_PANEL_PATH_MINIMUM}"
-            )
     else:
         if declared_pair[0] == CANONICAL_RECORDED_SOURCE or declared_pair[1] == CANONICAL_RECORDED_DIGEST:
             raise ValueError(
@@ -515,9 +533,13 @@ def enforce_path_minimums(
                 "locked source; declare it exactly or use a distinct dataset"
             )
         # A distinct locked dataset is an independent campaign: its digest is
-        # verified and every row binds to it below, and its own frozen
-        # requirements set the floor.
-        floor = max(minimums)
+        # verified and every row binds to it below.
+    floor = max(minimums)
+    if floor != FROZEN_PANEL_PATH_MINIMUM:
+        raise ValueError(
+            f"measurement {row_id} manifest declares a neb-path-set minimum of {floor}; "
+            f"the frozen sign-skew claim requires exactly {FROZEN_PANEL_PATH_MINIMUM}"
+        )
     try:
         document = json.loads(artifact.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -552,6 +574,13 @@ def enforce_path_minimums(
             raise ValueError(
                 f"measurement {row_id} cannot read the locked recorded input: {error}"
             ) from error
+        if declared_pair != (CANONICAL_RECORDED_SOURCE, CANONICAL_RECORDED_DIGEST):
+            fingerprint = _source_fingerprint(source)
+            if fingerprint == CANONICAL_SOURCE_FINGERPRINT:
+                raise ValueError(
+                    f"measurement {row_id} recorded input reserializes the canonical "
+                    "dataset; independence requires distinct observations"
+                )
         locked = {}
         expected: dict[tuple[int, str], tuple[str, float | None]] = {}
         for entry in source.get("per_path", []):
