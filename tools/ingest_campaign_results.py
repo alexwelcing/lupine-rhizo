@@ -433,20 +433,37 @@ def enforce_path_minimums(
         else None
     )
     if isinstance(recorded_inputs, list) and recorded_inputs:
-        # Bind every coverage row to the locked source's path identity, so the
-        # receipt demonstrably measures the frozen panel and no other indices.
+        # Bind every coverage row to the locked source's path identity, recorded
+        # status, and recorded value, so the receipt demonstrably measures the
+        # frozen panel and nothing else. The source bytes must match the
+        # preregistered digest before they are read.
         source_path = root / recorded_inputs[0]["path"]
+        expected_digest = recorded_inputs[0].get("sha256")
+        actual_digest = bytes_hash(source_path)
+        if expected_digest != actual_digest:
+            raise ValueError(
+                f"measurement {row_id} locked recorded input digest mismatch: "
+                f"expected {expected_digest}, found {actual_digest}"
+            )
         try:
             source = json.loads(source_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError, KeyError) as error:
             raise ValueError(
                 f"measurement {row_id} cannot read the locked recorded input: {error}"
             ) from error
-        locked = {
-            entry.get("path_index"): entry.get("path_id")
-            for entry in source.get("per_path", [])
-            if isinstance(entry, dict)
-        }
+        locked = {}
+        expected: dict[tuple[int, str], tuple[str, float | None]] = {}
+        for entry in source.get("per_path", []):
+            if not isinstance(entry, dict):
+                continue
+            index = entry.get("path_index")
+            locked[index] = entry.get("path_id")
+            for model, record in (entry.get("per_model") or {}).items():
+                value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+                if value is not None and record.get("complete", False):
+                    expected[(index, model)] = ("measured", float(value))
+            for model in (entry.get("models_missing") or {}):
+                expected[(index, model)] = ("failed", None)
         for row in rows:
             index = row["path_index"]
             if index not in locked:
@@ -457,6 +474,24 @@ def enforce_path_minimums(
                 raise ValueError(
                     f"measurement {row_id} path {index} identity {row.get('path_id')!r} "
                     f"does not match the locked panel {locked[index]!r}"
+                )
+            pair = (index, row["model"])
+            wanted = expected.get(pair)
+            if wanted is None:
+                raise ValueError(
+                    f"measurement {row_id} path {index} model {row['model']} has no "
+                    "recorded counterpart in the locked source"
+                )
+            expected_status, source_value = wanted
+            if row["status"] != expected_status:
+                raise ValueError(
+                    f"measurement {row_id} path {index} model {row['model']} status "
+                    f"{row['status']!r} disagrees with the locked source {expected_status!r}"
+                )
+            if expected_status == "measured" and abs(row["signed_error_mev"] - source_value) > 5e-5:
+                raise ValueError(
+                    f"measurement {row_id} path {index} model {row['model']} value "
+                    f"{row['signed_error_mev']} disagrees with the locked source {source_value}"
                 )
     declared = (
         document.get("n_paths_recorded", document.get("n_paths"))
