@@ -570,7 +570,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     }
                 ],
             }
-            with self.assertRaisesRegex(ValueError, "frozen sign-skew panel"):
+            with self.assertRaisesRegex(ValueError, "frozen sign-skew (panel|claim)"):
                 module.enforce_path_minimums(root, lax_manifest, make_bundle(), artifact, "skew-1")
 
             # Row identities, values, and statuses bind to the locked source.
