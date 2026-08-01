@@ -3,7 +3,9 @@
 -- adding another typed predicate requires a separate schema migration.
 
 CREATE TABLE IF NOT EXISTS literature_hypotheses (
-  literature_hypothesis_id TEXT PRIMARY KEY,
+  -- TEXT PRIMARY KEY on a rowid table does not imply NOT NULL in SQLite/D1;
+  -- declare it so the stable identifier can never be NULL.
+  literature_hypothesis_id TEXT PRIMARY KEY NOT NULL,
   contract_json TEXT NOT NULL
     CHECK (json_valid(contract_json) AND json_type(contract_json) = 'object'),
   source_json TEXT GENERATED ALWAYS AS
@@ -172,7 +174,43 @@ BEGIN
         OR instr(json_extract(NEW.contract_json, '$.source.doi'), char(12288)) > 0
       )
     )
+    -- The JSON Schema also constrains source.url with format "uri". D1 cannot
+    -- parse URIs, so reject the malformed shapes that pass a bare prefix
+    -- check: empty host, whitespace/control characters, and bracketed
+    -- IP-literal hosts (out of scope for provenance links).
     OR substr(json_extract(NEW.contract_json, '$.source.url'), 1, 8) <> 'https://'
+    OR length(json_extract(NEW.contract_json, '$.source.url')) = 8
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(9)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(10)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(11)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(12)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(13)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(28)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(29)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(30)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(31)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(32)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(133)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(160)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(5760)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8192)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8193)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8194)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8195)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8196)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8197)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8198)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8199)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8200)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8201)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8202)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8232)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8233)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8239)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(8287)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), char(12288)) > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), '[') > 0
+    OR instr(json_extract(NEW.contract_json, '$.source.url'), ']') > 0
     OR length(json_extract(NEW.contract_json, '$.source.asOf')) <> 10
     OR json_extract(NEW.contract_json, '$.source.asOf')
       GLOB '*[^0-9-]*'

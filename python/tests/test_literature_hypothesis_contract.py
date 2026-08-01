@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "literature-hypothesis.v1.schema.json"
 EXAMPLES_DIR = ROOT / "examples" / "literature-hypotheses"
 MIGRATION_PATH = ROOT / "glim-think" / "migrations" / "0012_literature_hypotheses.sql"
+SCHEMA_SQL_PATH = ROOT / "glim-think" / "schema.sql"
 EXPECTED_TOP_LEVEL_FIELDS = {
     "source",
     "claim_text",
@@ -227,6 +228,15 @@ def test_d1_migration_persists_contract_and_enforces_enums(examples) -> None:
         uppercase_scheme = deepcopy(example)
         uppercase_scheme["source"]["url"] = "HTTPS://doi.org/example"
         invalid_contracts.append(uppercase_scheme)
+        empty_host_url = deepcopy(example)
+        empty_host_url["source"]["url"] = "https://"
+        invalid_contracts.append(empty_host_url)
+        whitespace_url = deepcopy(example)
+        whitespace_url["source"]["url"] = "https:// space"
+        invalid_contracts.append(whitespace_url)
+        bracket_url = deepcopy(example)
+        bracket_url["source"]["url"] = "https://["
+        invalid_contracts.append(bracket_url)
         trailing_newline_readiness = deepcopy(example)
         trailing_newline_readiness["readiness"] += "\n"
         invalid_contracts.append(trailing_newline_readiness)
@@ -315,6 +325,58 @@ def test_d1_migration_persists_contract_and_enforces_enums(examples) -> None:
                 WHERE literature_hypothesis_id = 'lit-hypothesis.deng-underbinding.v1'
                 """,
                 (json.dumps(too_large_update),),
+            )
+    finally:
+        connection.close()
+
+
+def test_d1_rejects_null_hypothesis_identifier(examples) -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        connection.executescript(MIGRATION_PATH.read_text(encoding="utf-8"))
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                """
+                INSERT INTO literature_hypotheses (
+                  literature_hypothesis_id, contract_json
+                ) VALUES (NULL, ?)
+                """,
+                (json.dumps(examples[0], sort_keys=True),),
+            )
+    finally:
+        connection.close()
+
+
+def test_latest_state_schema_sql_mirrors_literature_hypotheses(examples) -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        connection.executescript(SCHEMA_SQL_PATH.read_text(encoding="utf-8"))
+        connection.execute(
+            """
+            INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json)
+            VALUES ('latest-state.deng-underbinding.v1', ?)
+            """,
+            (json.dumps(examples[0], sort_keys=True),),
+        )
+        invalid_status = deepcopy(examples[0])
+        invalid_status["status"] = "testing"
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                """
+                INSERT INTO literature_hypotheses (
+                  literature_hypothesis_id, contract_json
+                ) VALUES ('latest-state.invalid-status', ?)
+                """,
+                (json.dumps(invalid_status, sort_keys=True),),
+            )
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                """
+                INSERT INTO literature_hypotheses (
+                  literature_hypothesis_id, contract_json
+                ) VALUES (NULL, ?)
+                """,
+                (json.dumps(examples[0], sort_keys=True),),
             )
     finally:
         connection.close()
