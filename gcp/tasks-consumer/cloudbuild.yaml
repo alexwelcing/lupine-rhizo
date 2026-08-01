@@ -4,6 +4,28 @@
 # dispatches to it is the service).
 
 steps:
+  # Publish the catalog separately from the service image. The consumer reads
+  # this object at request time, so a catalog-only backend onboarding does not
+  # require a consumer revision.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: bash
+    args:
+      - '-ceu'
+      - |
+        gcloud storage buckets add-iam-policy-binding \
+          "gs://${_PROJECT_ID}-atlas-inputs" \
+          --member="serviceAccount:tasks-consumer-runner@${_PROJECT_ID}.iam.gserviceaccount.com" \
+          --role=roles/storage.objectAdmin
+        gcloud storage cp gcp/mlip-cell-runner/backend_catalog.json \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json"
+        gcloud storage cp \
+          gcp/mlip-cell-runner/policies/nightly-baseline.yml \
+          gcp/mlip-cell-runner/policies/on-proof-complete.yml \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/"
+        gcloud storage ls \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/nightly-baseline.yml" \
+          "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/on-proof-complete.yml"
+
   - name: 'rust:1.88-slim-bookworm'
     entrypoint: 'cargo'
     args: ['test', '--release', '--manifest-path', 'gcp/tasks-consumer/Cargo.toml']
@@ -46,7 +68,7 @@ steps:
       - '--region=${_REGION}'
       - '--project=${_PROJECT_ID}'
       - '--service-account=tasks-consumer-runner@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--set-env-vars=GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,ALLOWED_TARGET_JOBS=atlas-distill|mlip-cell-mace|mlip-cell-mace-mp-small|mlip-cell-mace-mp-medium|mlip-cell-mace-mpa-0-medium|mlip-cell-chgnet|mlip-cell-m3gnet|mlip-cell-orb|mlip-cell-sevennet|mlip-cell-uma'
+      - '--set-env-vars=GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers'
       - '--no-allow-unauthenticated'
       - '--memory=256Mi'
       - '--cpu=1'
@@ -65,7 +87,7 @@ steps:
           --format='value(status.url)')
         gcloud run services update tasks-consumer \
           --region=${_REGION} --project=${_PROJECT_ID} \
-          --set-env-vars="SERVICE_URL=$$URL,GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,ALLOWED_TARGET_JOBS=atlas-distill|mlip-cell-mace|mlip-cell-mace-mp-small|mlip-cell-mace-mp-medium|mlip-cell-mace-mpa-0-medium|mlip-cell-chgnet|mlip-cell-m3gnet|mlip-cell-orb|mlip-cell-sevennet|mlip-cell-uma"
+          --set-env-vars="SERVICE_URL=$$URL,GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers"
 
 substitutions:
   _PROJECT_ID: shed-489901

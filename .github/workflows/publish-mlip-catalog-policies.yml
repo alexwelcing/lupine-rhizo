@@ -1,0 +1,42 @@
+name: publish-mlip-catalog-policies
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - gcp/mlip-cell-runner/backend_catalog.json
+      - gcp/mlip-cell-runner/policies/nightly-baseline.yml
+      - gcp/mlip-cell-runner/policies/on-proof-complete.yml
+      - gcp/mlip-cell-runner/policies/cost-basis.json
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  GCP_PROJECT_ID: shed-489901
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Publish runtime catalog and active policy budgets
+        run: |
+          gcloud storage cp gcp/mlip-cell-runner/backend_catalog.json \
+            "gs://${GCP_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json"
+          gcloud storage cp \
+            gcp/mlip-cell-runner/policies/nightly-baseline.yml \
+            gcp/mlip-cell-runner/policies/on-proof-complete.yml \
+            gcp/mlip-cell-runner/policies/cost-basis.json \
+            "gs://${GCP_PROJECT_ID}-atlas-inputs/mlip-policies/"
