@@ -648,7 +648,7 @@ export const CATALOG = {
       "id": "z2-abstention-audit-round4",
       "source": "docs/campaigns/z2-abstention-audit.md",
       "title": "Z2 Spin-Aware Campaign — Abstention Audit",
-      "subtitle": "No spin-capable runner, panel, or contract exists; four hash-chained abstention rows, zero cloud spend. Full scope returns with a spin runner.",
+      "subtitle": "Spin runner, locked panel, and ClaimContract exist; this four-row pipeline smoke deliberately abstains with zero scientific executions while the SOC/Tc campaign remains owner-gated.",
       "category": "validation",
       "tags": [
         "z2",

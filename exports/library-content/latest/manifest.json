@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-07-24T20:51:11.386Z",
+  "generatedAt": "2026-08-01T08:07:11.368Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "2ead4a1e2d9c3bd9e0dcc57efbb018f13168deaa",
+    "commit": "1a2b63245e1c2c4e2c4585b5889e3591acf0e2ef",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -673,7 +673,7 @@
         "id": "z2-abstention-audit-round4",
         "source": "articles/docs/campaigns/z2-abstention-audit.md",
         "title": "Z2 Spin-Aware Campaign — Abstention Audit",
-        "subtitle": "No spin-capable runner, panel, or contract exists; four hash-chained abstention rows, zero cloud spend. Full scope returns with a spin runner.",
+        "subtitle": "Spin runner, locked panel, and ClaimContract exist; this four-row pipeline smoke deliberately abstains with zero scientific executions while the SOC/Tc campaign remains owner-gated.",
         "category": "validation",
         "tags": [
           "z2",
