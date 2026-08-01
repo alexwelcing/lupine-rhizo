@@ -611,6 +611,29 @@ def enforce_path_minimums(
                 f"measurement {row_id} median {value} does not match the cited "
                 f"artifact's recomputed value {recomputed_median:.2f}"
             )
+        acceptance = measurement.get("acceptance_test")
+        if isinstance(acceptance, dict):
+            comparator = acceptance.get("comparator")
+            threshold = acceptance.get("threshold")
+            asserted = acceptance.get("outcome")
+            if (
+                isinstance(threshold, (int, float))
+                and not isinstance(threshold, bool)
+                and asserted in {"pass", "fail"}
+            ):
+                if comparator == "greater_than":
+                    expected_outcome = "pass" if value > threshold else "fail"
+                elif comparator == "greater_than_or_equal":
+                    expected_outcome = "pass" if value >= threshold else "fail"
+                elif comparator == "less_than_or_equal":
+                    expected_outcome = "pass" if value <= threshold else "fail"
+                else:
+                    expected_outcome = None
+                if expected_outcome is not None and asserted != expected_outcome:
+                    raise ValueError(
+                        f"measurement {row_id} asserts outcome {asserted!r} but its "
+                        f"value {value} {comparator} {threshold} measures {expected_outcome!r}"
+                    )
         sample_count = measurement.get("sample_count")
         if isinstance(sample_count, int) and sample_count != measured_paths:
             raise ValueError(

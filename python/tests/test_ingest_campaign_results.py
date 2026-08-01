@@ -450,6 +450,13 @@ class CampaignResultIngestionTests(unittest.TestCase):
             # The exact unrounded ratio and the declared 4-decimal rounding both pass.
             enforce(make_bundle(fraction=1.0))
 
+            # An asserted outcome that contradicts its own value is rejected here,
+            # not left to abort the downstream nightly feedback.
+            lying = make_bundle()
+            lying["measurements"][0]["acceptance_test"]["outcome"] = "fail"
+            with self.assertRaisesRegex(ValueError, "asserts outcome"):
+                enforce(lying)
+
             # Rows for models outside execution.model_selection are rejected.
             write_artifact(
                 artifact,
