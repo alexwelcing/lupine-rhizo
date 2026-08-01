@@ -3,10 +3,24 @@
  "source_artifact": "data/candidates/z1-union-campaign.json",
  "source_sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2",
  "unit_semantics": "per-(path, model) sparse-anchor GPAW(PBE, h=0.2, Gamma) barrier minus nebDFT2k PBE CI-NEB reference, meV; anchor sets are model-dependent; failures disclosed without imputation",
- "reduction": "path-level: median of measured model values per path; claim statistics computed over the 22 path medians",
+ "reduction": "path-level: median of measured model values per path; claim statistics computed over the measured path medians",
+ "n_paths_recorded": 23,
  "n_paths": 22,
  "n_rows_measured": 86,
  "n_rows_failed": 6,
+ "all_failed_paths": [
+  {
+   "path_index": 14,
+   "path_id": "mp-756912_1_1_1_0_0",
+   "chemical_system": "B-Li-O-Zn",
+   "failed_models": [
+    "chgnet",
+    "mace-mp-medium",
+    "mace-mp-small",
+    "mace-mpa-0-medium"
+   ]
+  }
+ ],
  "positive_skew_fraction": 0.9545,
  "median_signed_error_mev": 460.14,
  "mean_signed_error_mev": 686.73,

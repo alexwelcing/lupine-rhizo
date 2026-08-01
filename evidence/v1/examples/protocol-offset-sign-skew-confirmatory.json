@@ -63,9 +63,10 @@
       "protocol_reference": "DFT(PBE) climbing-image NEB, nebDFT2k test split (doi:10.1038/s41524-025-01571-z)",
       "signed_error_definition": "path-level reduction: per path, median of measured per-model sparse-anchor GPAW minus nebDFT2k reference signed errors (meV); model-dependent anchor sets preserved; failed models disclosed without imputation",
       "n_paths": 22,
+      "n_paths_recorded": 23,
       "n_rows_measured": 86,
       "n_rows_failed": 6,
-      "reduction": "median of measured model values per path; claim statistics over 22 path medians",
+      "reduction": "median of measured model values per path; claim statistics over the 22 measured path medians (23 recorded)",
       "positive_skew_fraction": 0.9545,
       "median_signed_error_mev": 460.14,
       "mean_signed_error_mev": 686.73,
@@ -77,6 +78,7 @@
       "per_model_mace-mp-small": "21 measured + failures disclosed, fraction 0.9048, median +562.06 meV",
       "per_model_mace-mpa-0-medium": "21 measured + failures disclosed, fraction 0.9048, median +562.06 meV",
       "sign_flip_paths": "mp-758282_0_2_0_0_0 (C-Cr-Li): -25.82 meV (small/mpa-0 anchors) to +116.18 meV (chgnet/medium anchors); disclosed without imputation",
+      "all_failed_paths": "mp-756912_1_1_1_0_0 (B-Li-O-Zn): all four models failed; disclosed, excluded from statistics",
       "retrospective_inputs": "Inputs recorded 2026-07-24 (Z1 union campaign); hypothesis and analysis plan frozen 2026-08-01T04:55:29Z before the analysis run at 2026-08-01T12:06Z; no fresh compute",
       "hypothesis_prediction": "majority of paths positive, median approximately +400 to +600 meV",
       "hypothesis_outcome": "confirmed: 21/22 path medians positive (0.9545), median +460.14 meV; every model individually confirms (fraction >= 0.9048)"
@@ -89,7 +91,7 @@
       "campaign_manifest_hash": "sha256:74dc85962f9c99283fbd53de20f99e5d2cdfcc06cc062912dfb2f48967c57c5b",
       "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
-      "artifact_hash": "sha256:ba2c22266d01ede5750aecd59afb9b8d6e5dc27c7367b6dd25aed201952e5fea",
+      "artifact_hash": "sha256:d56347e61a677ec85e06f2e9b008e99284f42c18728c8e429cb8e31c23aba866",
       "thresholds_version": "hard-materials-z1.v1"
     }
   ],
@@ -135,5 +137,5 @@
     }
   ],
   "supersedes": [],
-  "bundle_id": "sha256:ff121247565e84534d546efece9bcba3d0a0decbd3187eb3ecd2f719d7f4abdb"
+  "bundle_id": "sha256:4a942d26d631351b46b2694b0a8f0c93eff5fbe815718bd695992c16ba552288"
 }

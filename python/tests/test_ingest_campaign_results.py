@@ -273,18 +273,34 @@ class CampaignResultIngestionTests(unittest.TestCase):
 
             # A self-reported aggregate must agree with the rows.
             write_artifact(artifact, full_rows, n_paths=23)
-            with self.assertRaisesRegex(ValueError, "n_paths 23"):
+            with self.assertRaisesRegex(ValueError, "declares 23 recorded paths"):
                 module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
 
             # Full coverage with matching statistics passes.
             write_artifact(artifact, full_rows, n_paths=22)
             module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
 
-            # Sample counts below the path floor are rejected.
+            # Sample counts must equal the artifact's measured-path count.
             write_artifact(artifact, full_rows)
-            with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
+            with self.assertRaisesRegex(ValueError, "does not equal"):
                 module.enforce_path_minimums(
                     manifest, make_bundle(sample_count=6), artifact, "skew-1"
+                )
+
+            # Paths with every model failed cannot pad the panel: only paths
+            # with measurements count toward the floor.
+            write_artifact(
+                artifact,
+                [row for row in full_rows if row["path_index"] == 0]
+                + [
+                    {"path_index": index, "model": model, "status": "failed", "reason": "failed"}
+                    for index in range(1, 22)
+                    for model in models
+                ],
+            )
+            with self.assertRaisesRegex(ValueError, "paths with measurements"):
+                module.enforce_path_minimums(
+                    manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
                 )
 
             # Six paths measured by four models must not launder the minimum:

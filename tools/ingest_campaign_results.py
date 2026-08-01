@@ -343,7 +343,7 @@ def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], 
     return paths, models, pairs, rows
 
 
-def _recompute_path_statistics(rows: list[dict]) -> tuple[float, float] | None:
+def _recompute_path_statistics(rows: list[dict]) -> tuple[int, float, float] | None:
     """Reduce measured rows to the path-level claim statistics."""
     per_path: dict[int, list[float]] = {}
     for row in rows:
@@ -363,7 +363,7 @@ def _recompute_path_statistics(rows: list[dict]) -> tuple[float, float] | None:
         return None
     path_values = [statistics.median(values) for values in per_path.values()]
     fraction = sum(1 for value in path_values if value > 0) / len(path_values)
-    return fraction, statistics.median(path_values)
+    return len(per_path), fraction, statistics.median(path_values)
 
 
 def enforce_path_minimums(
@@ -406,10 +406,14 @@ def enforce_path_minimums(
             "self-reported aggregates cannot prove coverage"
         )
     paths, models, pairs, rows = coverage
-    declared = document.get("n_paths") if isinstance(document, dict) else None
+    declared = (
+        document.get("n_paths_recorded", document.get("n_paths"))
+        if isinstance(document, dict)
+        else None
+    )
     if isinstance(declared, int) and declared != len(paths):
         raise ValueError(
-            f"measurement {row_id} artifact declares n_paths {declared} but its "
+            f"measurement {row_id} artifact declares {declared} recorded paths but its "
             f"rows document {len(paths)} distinct paths"
         )
     if len(paths) < floor:
@@ -441,7 +445,12 @@ def enforce_path_minimums(
         raise ValueError(
             f"measurement {row_id} artifact rows carry no measured signed errors to recompute"
         )
-    recomputed_fraction, recomputed_median = recomputed
+    measured_paths, recomputed_fraction, recomputed_median = recomputed
+    if measured_paths < floor:
+        raise ValueError(
+            f"measurement {row_id} has {measured_paths} paths with measurements, below "
+            f"the manifest's recorded-path minimum {floor}"
+        )
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):
             continue
@@ -460,10 +469,10 @@ def enforce_path_minimums(
                 f"artifact's recomputed value {recomputed_median:.2f}"
             )
         sample_count = measurement.get("sample_count")
-        if isinstance(sample_count, int) and sample_count < floor:
+        if isinstance(sample_count, int) and sample_count != measured_paths:
             raise ValueError(
-                f"measurement {row_id} sample_count {sample_count} is below the "
-                f"manifest's recorded-path minimum {floor}"
+                f"measurement {row_id} sample_count {sample_count} does not equal the "
+                f"artifact's {measured_paths} measured paths"
             )
 
 
