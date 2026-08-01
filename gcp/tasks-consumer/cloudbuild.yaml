@@ -25,6 +25,10 @@ steps:
         gcloud storage ls \
           "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/nightly-baseline.yml" \
           "gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/on-proof-complete.yml"
+        gcloud secrets add-iam-policy-binding PHOENIX_RELAY_TOKEN \
+          --project=${_PROJECT_ID} \
+          --member="serviceAccount:tasks-consumer-runner@${_PROJECT_ID}.iam.gserviceaccount.com" \
+          --role=roles/secretmanager.secretAccessor
 
   - name: 'rust:1.88-slim-bookworm'
     entrypoint: 'cargo'
@@ -68,7 +72,8 @@ steps:
       - '--region=${_REGION}'
       - '--project=${_PROJECT_ID}'
       - '--service-account=tasks-consumer-runner@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--set-env-vars=GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers'
+      - '--set-env-vars=GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers,OTLP_RELAY_URL=${_OTLP_RELAY_URL},OTLP_PROJECT_NAME=glim-think'
+      - '--set-secrets=OTLP_RELAY_TOKEN=PHOENIX_RELAY_TOKEN:latest'
       - '--no-allow-unauthenticated'
       - '--memory=256Mi'
       - '--cpu=1'
@@ -87,13 +92,14 @@ steps:
           --format='value(status.url)')
         gcloud run services update tasks-consumer \
           --region=${_REGION} --project=${_PROJECT_ID} \
-          --set-env-vars="SERVICE_URL=$$URL,GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers"
+          --set-env-vars="SERVICE_URL=$$URL,GCP_PROJECT_ID=${_PROJECT_ID},GCP_REGION=${_REGION},TARGET_JOB=atlas-distill,BACKEND_CATALOG_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies/backend_catalog.json,SCHEDULE_POLICY_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-policies,BUDGET_LEDGER_URL=gs://${_PROJECT_ID}-atlas-inputs/mlip-budget-ledgers,OTLP_RELAY_URL=${_OTLP_RELAY_URL},OTLP_PROJECT_NAME=glim-think"
 
 substitutions:
   _PROJECT_ID: shed-489901
   _REGION: us-central1
   _REPOSITORY: cloud-run-source-deploy
   _IMAGE_TAG: manual
+  _OTLP_RELAY_URL: https://glim-otlp-relay-edbhtpvina-uc.a.run.app
 
 options:
   logging: CLOUD_LOGGING_ONLY

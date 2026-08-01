@@ -27,6 +27,7 @@ mod auth;
 mod budget;
 mod catalog;
 mod jobrun;
+mod telemetry;
 
 use auth::{verify_oidc, OidcVerifier};
 use jobrun::{run_job, JobRunner, RealJobRunner};
@@ -78,6 +79,18 @@ struct Cli {
     )]
     budget_ledger_url: String,
 
+    /// Existing glim-think OTLP relay base URL. Optional for local/manual paths.
+    #[arg(long, env = "OTLP_RELAY_URL")]
+    otlp_relay_url: Option<String>,
+
+    /// Shared x-relay-token for the glim-think OTLP relay.
+    #[arg(long, env = "OTLP_RELAY_TOKEN")]
+    otlp_relay_token: Option<String>,
+
+    /// Phoenix project receiving cloud campaign-cell traces.
+    #[arg(long, env = "OTLP_PROJECT_NAME", default_value = "glim-think")]
+    otlp_project_name: String,
+
     /// Skip OIDC verification and use a no-op job runner. For local E2E only.
     #[arg(long, env = "DEV_MODE", default_value_t = false)]
     dev_mode: bool,
@@ -95,6 +108,20 @@ pub struct TaskPayload {
     pub target_job: Option<String>,
     #[serde(default)]
     pub schedule_name: Option<String>,
+    #[serde(default)]
+    pub telemetry: Option<CloudCellTelemetry>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct CloudCellTelemetry {
+    pub schema: String,
+    pub origin: String,
+    pub correlation_id: String,
+    pub run_id: String,
+    pub cell_id: String,
+    pub row_id: String,
+    pub mlip_id: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -113,6 +140,7 @@ struct AppState {
     verifier: Arc<dyn OidcVerifier>,
     runner: Arc<dyn JobRunner>,
     budget_ledger: Arc<dyn budget::BudgetLedger>,
+    trace_emitter: Arc<dyn telemetry::TraceEmitter>,
 }
 
 #[tokio::main]
@@ -162,11 +190,22 @@ async fn build_app(cli: Cli) -> anyhow::Result<Router> {
     } else {
         Arc::new(budget::GcsBudgetLedger::from_url(&cli.budget_ledger_url)?)
     };
+    let trace_emitter: Arc<dyn telemetry::TraceEmitter> =
+        match (cli.otlp_relay_url.clone(), cli.otlp_relay_token.clone()) {
+            (Some(endpoint), Some(token)) => Arc::new(telemetry::HttpTraceEmitter::new(
+                endpoint,
+                token,
+                cli.otlp_project_name.clone(),
+            )?),
+            (None, None) => Arc::new(telemetry::NoopTraceEmitter),
+            _ => anyhow::bail!("OTLP_RELAY_URL and OTLP_RELAY_TOKEN must be configured together"),
+        };
     let state = AppState {
         cfg: Arc::new(cli),
         verifier,
         runner,
         budget_ledger,
+        trace_emitter,
     };
     Ok(Router::new()
         .route("/healthz", get(|| async { "ok" }))
@@ -191,6 +230,15 @@ async fn handle_run(
         .get("x-cloudtasks-taskname")
         .and_then(|h| h.to_str().ok())
         .unwrap_or("(unknown)");
+
+    if let Err(error) = validate_cloud_telemetry(&payload) {
+        warn!(task = task_name, error = %error, "invalid cloud cell telemetry envelope");
+        return (
+            StatusCode::BAD_REQUEST,
+            format!("invalid telemetry: {error}"),
+        )
+            .into_response();
+    }
 
     let target_job = payload
         .target_job
@@ -260,6 +308,15 @@ async fn handle_run(
         .and_then(|value| value.to_str().ok())
         .is_some_and(|value| !value.trim().is_empty());
     let backend = catalog.backend_by_job.get(&target_job).map(String::as_str);
+    if let (Some(backend), Some(identity)) = (backend, payload.telemetry.as_ref()) {
+        if backend != identity.mlip_id {
+            return (
+                StatusCode::BAD_REQUEST,
+                "target_job backend does not match telemetry mlip_id".to_string(),
+            )
+                .into_response();
+        }
+    }
     let mut admission = None;
     if backend.is_some() {
         match payload.schedule_name.as_deref() {
@@ -389,6 +446,13 @@ async fn handle_run(
         container_env,
     };
 
+    if let (Some(admission), Some(identity)) = (admission.as_ref(), payload.telemetry.as_ref()) {
+        let span = telemetry::CloudCellSpan::admitted(identity, &req.job_name, admission);
+        if let Err(error) = state.trace_emitter.emit(&span).await {
+            error!(task = task_name, error = %error, "cloud cell OTLP export failed; dispatch continues");
+        }
+    }
+
     match run_job(state.runner.as_ref(), &req).await {
         Ok(op) => {
             info!(task = task_name, operation = %op, "job run accepted");
@@ -431,6 +495,53 @@ async fn handle_run(
     }
 }
 
+fn validate_cloud_telemetry(payload: &TaskPayload) -> anyhow::Result<()> {
+    let Some(schedule) = payload.schedule_name.as_deref() else {
+        return Ok(());
+    };
+    if schedule == "manual" {
+        return Ok(());
+    }
+    let telemetry = payload
+        .telemetry
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("scheduled cloud cell requires telemetry"))?;
+    if telemetry.schema != "lupine.mlip.cloud_cell_span.v1" {
+        anyhow::bail!("schema must be lupine.mlip.cloud_cell_span.v1");
+    }
+    if telemetry.origin != "cloud" {
+        anyhow::bail!("origin must be cloud");
+    }
+    for (name, value) in [
+        ("correlation_id", telemetry.correlation_id.as_str()),
+        ("run_id", telemetry.run_id.as_str()),
+        ("cell_id", telemetry.cell_id.as_str()),
+        ("row_id", telemetry.row_id.as_str()),
+        ("mlip_id", telemetry.mlip_id.as_str()),
+    ] {
+        if value.trim().is_empty() {
+            anyhow::bail!("{name} must be non-empty");
+        }
+    }
+    for (flag, expected) in [
+        ("--run-id", telemetry.run_id.as_str()),
+        ("--cell-id", telemetry.cell_id.as_str()),
+        ("--row-id", telemetry.row_id.as_str()),
+        ("--mlip-id", telemetry.mlip_id.as_str()),
+    ] {
+        let actual = payload
+            .args
+            .windows(2)
+            .find(|pair| pair[0] == flag)
+            .map(|pair| pair[1].as_str())
+            .ok_or_else(|| anyhow::anyhow!("missing {flag} argument"))?;
+        if actual != expected {
+            anyhow::bail!("{flag} does not match telemetry envelope");
+        }
+    }
+    Ok(())
+}
+
 fn no_retry_rejection(
     schedule: &str,
     reason: String,
@@ -456,7 +567,9 @@ mod tests {
     use axum::body::Body;
     use axum::http::{Request, StatusCode};
     use http_body_util::BodyExt;
+    use std::collections::BTreeMap;
     use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Mutex;
     use tower::ServiceExt;
 
     #[derive(Default)]
@@ -490,6 +603,28 @@ mod tests {
         }
     }
 
+    #[derive(Default)]
+    struct RecordingTraceEmitter {
+        spans: Mutex<Vec<BTreeMap<String, serde_json::Value>>>,
+    }
+
+    #[axum::async_trait]
+    impl telemetry::TraceEmitter for RecordingTraceEmitter {
+        async fn emit(&self, span: &telemetry::CloudCellSpan) -> anyhow::Result<()> {
+            self.spans.lock().unwrap().push(span.attributes());
+            Ok(())
+        }
+    }
+
+    struct FailingTraceEmitter;
+
+    #[axum::async_trait]
+    impl telemetry::TraceEmitter for FailingTraceEmitter {
+        async fn emit(&self, _span: &telemetry::CloudCellSpan) -> anyhow::Result<()> {
+            anyhow::bail!("synthetic relay outage")
+        }
+    }
+
     fn dev_cli() -> Cli {
         Cli {
             port: 0,
@@ -506,6 +641,9 @@ mod tests {
                 env!("CARGO_MANIFEST_DIR")
             ),
             budget_ledger_url: "gs://unused/dev".into(),
+            otlp_relay_url: None,
+            otlp_relay_token: None,
+            otlp_project_name: "glim-think".into(),
             dev_mode: true,
         }
     }
@@ -526,6 +664,23 @@ mod tests {
                 verifier: Arc::new(auth::DevModeVerifier),
                 runner,
                 budget_ledger,
+                trace_emitter: Arc::new(telemetry::NoopTraceEmitter),
+            })
+    }
+
+    fn app_with_trace_emitter(
+        cli: Cli,
+        runner: Arc<dyn JobRunner>,
+        trace_emitter: Arc<dyn telemetry::TraceEmitter>,
+    ) -> Router {
+        Router::new()
+            .route("/run", post(handle_run))
+            .with_state(AppState {
+                cfg: Arc::new(cli),
+                verifier: Arc::new(auth::DevModeVerifier),
+                runner,
+                budget_ledger: budget::memory_ledger(),
+                trace_emitter,
             })
     }
 
@@ -533,11 +688,114 @@ mod tests {
         serde_json::json!({
             "fixture_url": "gs://bucket/manifest.json",
             "command": "run-cell",
-            "args": [],
             "beat_emit_url": "https://glim-think.example.workers.dev/beat",
             "target_job": "mlip-cell-mace",
-            "schedule_name": "nightly-baseline"
+            "schedule_name": "nightly-baseline",
+            "telemetry": {
+                "schema": "lupine.mlip.cloud_cell_span.v1",
+                "origin": "cloud",
+                "correlation_id": "workflow-nightly-1",
+                "run_id": "nightly-run-1",
+                "cell_id": "nightly-run-1:baseline:energy_volume:mace-mp-0",
+                "row_id": "energy_volume",
+                "mlip_id": "mace-mp-0"
+            },
+            "args": [
+                "--run-id", "nightly-run-1",
+                "--cell-id", "nightly-run-1:baseline:energy_volume:mace-mp-0",
+                "--row-id", "energy_volume",
+                "--mlip-id", "mace-mp-0"
+            ]
         })
+    }
+
+    #[tokio::test]
+    async fn scheduled_cloud_cell_without_telemetry_fails_closed() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let mut body = scheduled_body();
+        body.as_object_mut().unwrap().remove("telemetry");
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "missing-telemetry")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn scheduled_cloud_cell_with_mismatched_ids_fails_closed() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let mut body = scheduled_body();
+        body["telemetry"]["cell_id"] = serde_json::Value::String("different-cell".into());
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "mismatched-telemetry")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn admitted_scheduled_cell_emits_exactly_one_cost_capped_span() {
+        let runner = Arc::new(RecordingRunner::default());
+        let emitter = Arc::new(RecordingTraceEmitter::default());
+        let app = app_with_trace_emitter(dev_cli(), runner.clone(), emitter.clone());
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "telemetry-cell-1")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+        let spans = emitter.spans.lock().unwrap();
+        assert_eq!(spans.len(), 1);
+        assert_eq!(
+            spans[0]["mlip.cell_id"],
+            scheduled_body()["telemetry"]["cell_id"]
+        );
+        assert_eq!(spans[0]["mlip.dispatch.status"], "admitted");
+        assert_eq!(spans[0]["mlip.cost.daily_gpu_hour_cap"], 3.0);
+    }
+
+    #[tokio::test]
+    async fn telemetry_transport_failure_does_not_block_an_admitted_cell() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_trace_emitter(dev_cli(), runner.clone(), Arc::new(FailingTraceEmitter));
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "telemetry-outage-cell")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
     }
 
     #[tokio::test]
@@ -650,10 +908,19 @@ mod tests {
         let body = serde_json::json!({
             "fixture_url": "gs://bucket/manifest.json",
             "command": "run-cell",
-            "args": ["--run-id", "r1"],
+            "args": ["--run-id", "r1", "--cell-id", "cell-chgnet", "--row-id", "row-1", "--mlip-id", "chgnet"],
             "beat_emit_url": "https://glim-think.example.workers.dev/beat",
             "target_job": "mlip-cell-chgnet",
-            "schedule_name": "nightly-baseline"
+            "schedule_name": "nightly-baseline",
+            "telemetry": {
+                "schema": "lupine.mlip.cloud_cell_span.v1",
+                "origin": "cloud",
+                "correlation_id": "r1",
+                "run_id": "r1",
+                "cell_id": "cell-chgnet",
+                "row_id": "row-1",
+                "mlip_id": "chgnet"
+            }
         });
         let res = app
             .oneshot(
@@ -859,6 +1126,8 @@ mod tests {
         let consumer_build = std::fs::read_to_string(root.join("cloudbuild.yaml")).unwrap();
         assert!(consumer_build.contains("policies/nightly-baseline.yml"));
         assert!(consumer_build.contains("policies/on-proof-complete.yml"));
+        assert!(consumer_build.contains("OTLP_RELAY_URL=${_OTLP_RELAY_URL}"));
+        assert!(consumer_build.contains("OTLP_RELAY_TOKEN=PHOENIX_RELAY_TOKEN:latest"));
 
         let runner_build =
             std::fs::read_to_string(root.join("../mlip-cell-runner/cloudbuild.unified.yaml"))

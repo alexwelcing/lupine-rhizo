@@ -621,6 +621,15 @@ function buildCellPayload(run: MlipBaselineRunRecord, cell: MlipBaselineCellReco
     command: "run-cell",
     beat_emit_url: workerBeatEmitUrl(env),
     schedule_name: "nightly-baseline",
+    telemetry: {
+      schema: "lupine.mlip.cloud_cell_span.v1",
+      origin: "cloud",
+      correlation_id: run.workflow_instance_id?.trim() || run.run_id,
+      run_id: run.run_id,
+      cell_id: cell.cell_id,
+      row_id: cell.row_id,
+      mlip_id: cell.mlip_id,
+    },
     args: [
       "--run-id",
       run.run_id,
