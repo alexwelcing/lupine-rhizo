@@ -267,7 +267,7 @@ def _git_pairs(root: Path, base_ref: str, head_ref: str) -> list[str]:
             )
         )
 
-    ontology_path = "registry/ontology/atlas.v1.json"
+    ontology_path = "registry/ontology/atlas.v2.json"
     before_ontology = _load_git(root, base_ref, ontology_path, required=False)
     after_ontology = _load_git(root, head_ref, ontology_path, required=False)
     if before_ontology is not None and after_ontology is None:

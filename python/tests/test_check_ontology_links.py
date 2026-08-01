@@ -102,7 +102,7 @@ class OntologyLinkTests(unittest.TestCase):
                 "system": "Lean 4 + Mathlib",
                 "inventoryAsOf": "2026-08-01",
                 "modules": 79,
-                "theorems": 262,
+                "theorems": 271,
                 "declarations": 499,
                 "sorryCount": 0,
                 "families": [
