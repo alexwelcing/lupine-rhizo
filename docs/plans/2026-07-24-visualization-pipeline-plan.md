@@ -387,3 +387,17 @@ Repository sources checked by the swarm include:
 - Lupine-rhizo `cloudflare/cdn-proxy/src/worker.ts`
 
 Scientific framing follows climbing-image and improved-tangent NEB conventions: Henkelman, Uberuaga, and Jónsson, *J. Chem. Phys.* 113 (2000), DOI `10.1063/1.1329672`; Henkelman and Jónsson, *J. Chem. Phys.* 113 (2000), DOI `10.1063/1.1323224`. Record design should remain compatible with FAIR's machine-actionable principles: Wilkinson et al., *Scientific Data* 3, 160018 (2016), DOI `10.1038/sdata.2016.18`.
+
+---
+
+## Codex review notes (2026-08-01, appended at merge)
+
+Open design items carried into the next revision (VIS-3 implementation):
+
+1. **Exact canonical encoding** (Codex P1): the bundle's canonical byte form needs a normative spec — field order, float precision, coordinate frame, and digest domain separation for manifest vs. assets vs. derivatives. To be fixed in the `lupine.visualization-bundle.v1` schema itself.
+2. **Durable publication wiring** (Codex P1): the publisher's write order (assets → index → manifest-last) must be implemented against the GCS content-addressed layout with the query-index update as a separate, recoverable step; reconciliation on partial failure is required.
+3. **Deterministic `created_at`** (Codex P2): bundle timestamps derive from source content, not wall clock, so identical inputs yield identical digests.
+4. **Compatibility derivatives** (Codex P2): figure/movie derivatives live in a separate tree with their own digests; the manifest references, never embeds.
+5. **Bundle tooling phases** (Codex P2): builder → validator → publisher ship as separate tools so the contract is checkable before publication exists.
+
+These do not change the plan's direction; they define the precision the first implementation (VIS-3) must reach.
