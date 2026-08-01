@@ -216,13 +216,13 @@ jobs:
               contract = json.loads(path.read_text())
               db.execute(
                   'INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json) VALUES (?, ?)',
-                  (path.stem, json.dumps(contract, separators=(',', ':'), sort_keys=True)),
+                  (f'lit-hypothesis.{path.stem}.v1', json.dumps(contract, separators=(',', ':'), sort_keys=True)),
               )
           path = Path('python/tests/fixtures/nightly_cycle/gap-hypothesis.json')
           contract = json.loads(path.read_text())
           db.execute(
               'INSERT INTO literature_hypotheses (literature_hypothesis_id, contract_json) VALUES (?, ?)',
-              (path.stem, json.dumps(contract, separators=(',', ':'), sort_keys=True)),
+              (f'lit-hypothesis.{path.stem}.v1', json.dumps(contract, separators=(',', ':'), sort_keys=True)),
           )
           rows = [
               {'literature_hypothesis_id': row[0], 'contract_json': row[1]}
@@ -249,7 +249,7 @@ jobs:
               canonical = json.dumps(contract, separators=(',', ':'), sort_keys=True)
               statements.append(
                   "INSERT OR IGNORE INTO literature_hypotheses (literature_hypothesis_id, contract_json) "
-                  f"VALUES ('{path.stem}', '{canonical.replace(chr(39), chr(39) * 2)}');"
+                  f"VALUES ('lit-hypothesis.{path.stem}.v1', '{canonical.replace(chr(39), chr(39) * 2)}');"
               )
           Path('../nightly-output/seed-hypotheses.sql').write_text('\n'.join(statements) + '\n')
           PY

@@ -314,9 +314,48 @@ def bundle_from_row(
     }
     if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
         bundle["measurements"] = typed_measurements(row)
+        enforce_predicate_manifest_alignment(manifest, bundle, row_id)
     enforce_path_minimums(root, manifest, bundle, artifact, row_id)
     bundle["bundle_id"] = content_hash(bundle)
     return bundle
+
+
+PREDICATE_SHAPE_RE = re.compile(
+    r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev|fraction)(?P<comparator><=|>)(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
+)
+PREDICATE_OPERATORS = {"<=": "lte", ">": "gt"}
+
+
+def enforce_predicate_manifest_alignment(
+    manifest: dict[str, Any], bundle: dict[str, Any], row_id: str
+) -> None:
+    """Bind a typed row's claim predicate to its manifest's acceptance test."""
+    predicate = bundle.get("claim_predicate")
+    match = PREDICATE_SHAPE_RE.fullmatch(predicate) if isinstance(predicate, str) else None
+    if match is None:
+        return
+    acceptance = manifest.get("acceptance_test")
+    expected = {
+        "metric": match.group("metric"),
+        "operator": PREDICATE_OPERATORS[match.group("comparator")],
+        "threshold": float(match.group("threshold")),
+        "unit": match.group("unit"),
+    }
+    actual = (
+        {
+            "metric": acceptance.get("metric"),
+            "operator": acceptance.get("operator"),
+            "threshold": float(acceptance.get("threshold", -1)),
+            "unit": str(acceptance.get("unit", "")).lower(),
+        }
+        if isinstance(acceptance, dict)
+        else {}
+    )
+    if actual != expected:
+        raise ValueError(
+            f"measurement {row_id} predicate {predicate!r} does not match the "
+            "manifest's acceptance test"
+        )
 
 
 def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], list[dict]] | None:
@@ -432,6 +471,11 @@ def enforce_path_minimums(
         if isinstance(preregistration, dict)
         else None
     )
+    if not (isinstance(recorded_inputs, list) and recorded_inputs):
+        raise ValueError(
+            f"measurement {row_id} requires a manifest with locked "
+            "preregistration.recorded_inputs for the sign-skew family"
+        )
     if isinstance(recorded_inputs, list) and recorded_inputs:
         # Bind every coverage row to the locked source's path identity, recorded
         # status, and recorded value, so the receipt demonstrably measures the

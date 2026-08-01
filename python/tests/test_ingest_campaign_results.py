@@ -211,17 +211,6 @@ class CampaignResultIngestionTests(unittest.TestCase):
     def test_recorded_path_minimum_is_enforced(self) -> None:
         module = load_ingest_module()
         models = ["chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium"]
-        manifest = {
-            "available_models": [{"model_id": model} for model in models],
-            "evidence_requirements": [
-                {
-                    "requirement_id": "e.z1.recorded-path-set",
-                    "artifact_type": "neb-path-set",
-                    "description": "recorded rows",
-                    "minimum_count": 22,
-                }
-            ],
-        }
 
         def make_bundle(fraction: float = 1.0, median: float = 500.0, sample_count: int = 22) -> dict:
             return {
@@ -258,49 +247,133 @@ class CampaignResultIngestionTests(unittest.TestCase):
             path.write_text(json.dumps(document))
 
         full_rows = [
-            {"path_index": index, "model": model, "status": "measured", "signed_error_mev": 500.0}
+            {
+                "path_index": index,
+                "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                "model": model,
+                "status": "measured",
+                "signed_error_mev": 500.0,
+            }
             for index in range(22)
             for model in models
         ]
 
         with tempfile.TemporaryDirectory() as temporary_directory:
-            artifact = Path(temporary_directory) / "artifact.json"
+            root = Path(temporary_directory)
+            artifact = root / "artifact.json"
+            locked_document = {
+                "per_path": [
+                    {
+                        "path_index": index,
+                        "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                        "per_model": {
+                            model: {"vasp_signed_error_mev": 500.0, "complete": True}
+                            for model in models
+                        },
+                        "models_missing": {},
+                    }
+                    for index in range(22)
+                ]
+            }
+            locked_bytes = json.dumps(locked_document).encode()
+            (root / "locked.json").write_bytes(locked_bytes)
+            manifest = {
+                "available_models": [{"model_id": model} for model in models],
+                "acceptance_test": {
+                    "metric": "signed_error_positive",
+                    "operator": "gt",
+                    "threshold": 0.5,
+                    "unit": "fraction",
+                },
+                "evidence_requirements": [
+                    {
+                        "requirement_id": "e.z1.recorded-path-set",
+                        "artifact_type": "neb-path-set",
+                        "description": "recorded rows",
+                        "minimum_count": 22,
+                    }
+                ],
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "locked.json",
+                            "sha256": "sha256:" + hashlib.sha256(locked_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+
+            def enforce(bundle: dict) -> None:
+                module.enforce_path_minimums(root, manifest, bundle, artifact, "skew-1")
 
             # Aggregate-only artifacts cannot prove coverage, even with n_paths.
             write_artifact(artifact, [], n_paths=22)
             with self.assertRaisesRegex(ValueError, "no per-path rows"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+                enforce(make_bundle())
 
             # A self-reported aggregate must agree with the rows.
             write_artifact(artifact, full_rows, n_paths=23)
             with self.assertRaisesRegex(ValueError, "declares 23 recorded paths"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+                enforce(make_bundle())
 
             # Full coverage with matching statistics passes.
             write_artifact(artifact, full_rows, n_paths=22)
-            module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+            enforce(make_bundle())
 
             # Sample counts must equal the artifact's measured-path count.
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "does not equal"):
-                module.enforce_path_minimums(
-                    Path(temporary_directory), manifest, make_bundle(sample_count=6), artifact, "skew-1"
-                )
+                enforce(make_bundle(sample_count=6))
 
             # Paths with every model failed cannot pad the panel: only paths
-            # with measurements count toward the floor.
+            # with measurements count toward the floor. The locked source here
+            # records path 0 measured and paths 1-21 all-failed.
+            failed_document = {
+                "per_path": [
+                    {
+                        "path_index": index,
+                        "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                        "per_model": (
+                            {
+                                model: {"vasp_signed_error_mev": 500.0, "complete": True}
+                                for model in models
+                            }
+                            if index == 0
+                            else {}
+                        ),
+                        "models_missing": (
+                            {} if index == 0 else {model: "failed" for model in models}
+                        ),
+                    }
+                    for index in range(22)
+                ]
+            }
+            failed_bytes = json.dumps(failed_document).encode()
+            (root / "locked-failed.json").write_bytes(failed_bytes)
+            failed_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "locked-failed.json",
+                            "sha256": "sha256:" + hashlib.sha256(failed_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
             write_artifact(
                 artifact,
                 [row for row in full_rows if row["path_index"] == 0]
                 + [
-                    {"path_index": index, "model": model, "status": "failed", "reason": "failed"}
+                    {"path_index": index, "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                     "model": model, "status": "failed", "reason": "failed"}
                     for index in range(1, 22)
                     for model in models
                 ],
             )
             with self.assertRaisesRegex(ValueError, "paths with measurements"):
                 module.enforce_path_minimums(
-                    Path(temporary_directory), manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
+                    root, failed_manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
                 )
 
             # Six paths measured by four models must not launder the minimum:
@@ -310,9 +383,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 [row for row in full_rows if row["path_index"] < 6],
             )
             with self.assertRaisesRegex(ValueError, "distinct paths"):
-                module.enforce_path_minimums(
-                    Path(temporary_directory), manifest, make_bundle(sample_count=22), artifact, "skew-1"
-                )
+                enforce(make_bundle(sample_count=22))
 
             # Twenty-two paths from a single model omit declared available models.
             write_artifact(
@@ -320,7 +391,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 [row for row in full_rows if row["model"] == "chgnet"],
             )
             with self.assertRaisesRegex(ValueError, "omits declared available models"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+                enforce(make_bundle())
 
             # Every (path, model) pair needs an observation or a disclosed failure.
             write_artifact(
@@ -332,9 +403,25 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ],
             )
             with self.assertRaisesRegex(ValueError, "path 13 model mace-mp-small"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+                enforce(make_bundle())
 
             # A disclosed failure satisfies the pair without entering statistics.
+            pair_document = json.loads(locked_bytes)
+            pair_document["per_path"][13]["per_model"].pop("mace-mp-small")
+            pair_document["per_path"][13]["models_missing"] = {"mace-mp-small": "failed"}
+            pair_bytes = json.dumps(pair_document).encode()
+            (root / "locked-pair.json").write_bytes(pair_bytes)
+            pair_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "locked-pair.json",
+                            "sha256": "sha256:" + hashlib.sha256(pair_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
             write_artifact(
                 artifact,
                 [
@@ -345,24 +432,23 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 + [
                     {
                         "path_index": 13,
+                        "path_id": "mp-1013_0_0_0_0_0",
                         "model": "mace-mp-small",
                         "status": "failed",
                         "reason": "failed",
                     }
                 ],
             )
-            module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+            module.enforce_path_minimums(root, pair_manifest, make_bundle(), artifact, "skew-1")
 
             # Submitted statistics must match the artifact's own rows.
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "recomputed value"):
-                module.enforce_path_minimums(
-                    Path(temporary_directory), manifest, make_bundle(fraction=0.9), artifact, "skew-1"
-                )
+                enforce(make_bundle(fraction=0.9))
             with self.assertRaisesRegex(ValueError, "recomputed value"):
-                module.enforce_path_minimums(
-                    Path(temporary_directory), manifest, make_bundle(median=460.14), artifact, "skew-1"
-                )
+                enforce(make_bundle(median=460.14))
+            # The exact unrounded ratio and the declared 4-decimal rounding both pass.
+            enforce(make_bundle(fraction=1.0))
 
             # Rows for models outside execution.model_selection are rejected.
             write_artifact(
@@ -371,14 +457,15 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 + [
                     {
                         "path_index": 0,
+                        "path_id": "mp-1000_0_0_0_0_0",
                         "model": "uma",
                         "status": "measured",
                         "signed_error_mev": 500.0,
                     }
                 ],
             )
-            with self.assertRaisesRegex(ValueError, "undeclared models"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+            with self.assertRaisesRegex(ValueError, "no recorded counterpart"):
+                enforce(make_bundle())
 
             # Placeholder rows are not terminal observations or failures.
             write_artifact(
@@ -388,15 +475,99 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     for row in full_rows
                     if not (row["path_index"] == 13 and row["model"] == "mace-mp-small")
                 ]
-                + [{"path_index": 13, "model": "mace-mp-small"}],
+                + [{"path_index": 13, "path_id": "mp-1013_0_0_0_0_0", "model": "mace-mp-small"}],
             )
             with self.assertRaisesRegex(ValueError, "measured or an explicit failure"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+                enforce(make_bundle())
 
             # Duplicate (path, model) rows would double-vote the path median.
             write_artifact(artifact, full_rows + [dict(full_rows[0])])
             with self.assertRaisesRegex(ValueError, "duplicate observation"):
-                module.enforce_path_minimums(Path(temporary_directory), manifest, make_bundle(), artifact, "skew-1")
+                enforce(make_bundle())
+
+            # The locked source digest is verified before any binding.
+            write_artifact(artifact, full_rows)
+            tampered_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [{"path": "locked.json", "sha256": "sha256:" + "0" * 64}]
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "digest mismatch"):
+                module.enforce_path_minimums(root, tampered_manifest, make_bundle(), artifact, "skew-1")
+
+            # Row identities, values, and statuses bind to the locked source.
+            wrong_identity = [
+                row if row["path_index"] != 3 else {**row, "path_id": "mp-999999_0_0_0_0_0"}
+                for row in full_rows
+            ]
+            write_artifact(artifact, wrong_identity)
+            with self.assertRaisesRegex(ValueError, "does not match the locked panel"):
+                enforce(make_bundle())
+
+            invented_values = [
+                row if row["path_index"] != 5 else {**row, "signed_error_mev": 999.0}
+                for row in full_rows
+            ]
+            write_artifact(artifact, invented_values)
+            with self.assertRaisesRegex(ValueError, "disagrees with the locked source"):
+                enforce(make_bundle())
+
+            wrong_status = [
+                {key: value for key, value in row.items() if key != "signed_error_mev"}
+                if row["path_index"] == 7
+                else row
+                for row in full_rows
+            ]
+            wrong_status = [
+                {**row, "status": "failed"} if row["path_index"] == 7 else row
+                for row in wrong_status
+            ]
+            write_artifact(artifact, wrong_status)
+            with self.assertRaisesRegex(ValueError, "disagrees with the locked source"):
+                enforce(make_bundle())
+
+            outside_rows = [
+                {**row, "path_index": row["path_index"] + 100} for row in full_rows
+            ]
+            write_artifact(artifact, outside_rows)
+            with self.assertRaisesRegex(ValueError, "outside the locked recorded panel"):
+                enforce(make_bundle())
+
+    def test_sign_skew_rows_require_a_locked_sign_skew_manifest(self) -> None:
+        module = load_ingest_module()
+        barrier_manifest = {
+            "available_models": [{"model_id": "chgnet"}],
+            "acceptance_test": {"metric": "barrier_mae", "operator": "lte", "threshold": 40, "unit": "meV"},
+            "evidence_requirements": [
+                {
+                    "requirement_id": "e.z1.held-out-paths",
+                    "artifact_type": "neb-path-set",
+                    "description": "fresh paths",
+                    "minimum_count": 30,
+                }
+            ],
+        }
+        bundle = {
+            "claim_predicate": "signed_error_positive_fraction>0.5",
+            "measurements": [
+                {
+                    "metric": "signed_error_positive",
+                    "value": 1.0,
+                    "unit": "fraction",
+                    "acceptance_test": {"comparator": "greater_than", "threshold": 0.5, "outcome": "pass"},
+                    "sample_count": 22,
+                }
+            ],
+        }
+
+        with self.assertRaisesRegex(ValueError, "does not match the manifest's acceptance test"):
+            module.enforce_predicate_manifest_alignment(barrier_manifest, bundle, "skew-1")
+
+        aligned_manifest = {
+            "acceptance_test": {"metric": "signed_error_positive", "operator": "gt", "threshold": 0.5, "unit": "fraction"},
+        }
+        module.enforce_predicate_manifest_alignment(aligned_manifest, bundle, "skew-1")
 
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
