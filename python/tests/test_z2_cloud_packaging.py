@@ -35,6 +35,8 @@ def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:
     assert "https://download.pytorch.org/whl/cu118" in dockerfile
     assert '"${BACKEND}" = "orb"' in dockerfile
     assert '"${BACKEND}" = "uma"' in dockerfile
+    assert dockerfile.count('"pydantic>=2.0,<3"') == 2
+    assert dockerfile.count('"jsonschema>=4.0,<5"') == 2
     assert "COPY gcp/mlip-cell-runner/z1_sparse_dft.py ./" in dockerfile
     assert "COPY data/candidates/z2/measurements.jsonl" in dockerfile
     assert "COPY data/candidates/z2/artifact-manifest.json" in dockerfile
