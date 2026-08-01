@@ -450,6 +450,152 @@ class NightlyFeedbackTests(unittest.TestCase):
                 as_of="2026-08-01",
             )
 
+    def test_negative_barrier_receipt_does_not_supersede_the_sign_skew_hypothesis(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "refuted",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "negative"}
+                    ],
+                }
+            ]
+        }
+        negative = bundle(BUNDLE_A, outcome="fail", campaign="one", status="negative")
+        del negative["measurements"]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: negative},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.cross-predicate-negative",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
+
+    def test_negative_sign_skew_receipt_supersedes_the_sign_skew_hypothesis(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "refuted",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "negative"}
+                    ],
+                }
+            ]
+        }
+        negative = bundle(BUNDLE_A, outcome="fail", campaign="one", status="negative")
+        negative["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        del negative["measurements"]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: negative},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.own-predicate-negative",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(len(plan["updates"]), 1)
+        self.assertEqual(plan["updates"][0]["to_status"], "superseded")
+        self.assertEqual(plan["updates"][0]["evidence_bundle_id"], BUNDLE_A)
+
+    def test_permissive_auxiliary_median_thresholds_are_rejected(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 300,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "outside the frozen acceptance suite"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: skew},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.permissive-aux",
+                        "contract_json": hypothesis(
+                            "C1",
+                            "Z1",
+                            metric="signed_error_positive",
+                            predicate="signed_error_positive_fraction>0.5",
+                        ),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
     def test_sign_skew_receipt_promotes_the_sign_skew_hypothesis(self) -> None:
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],

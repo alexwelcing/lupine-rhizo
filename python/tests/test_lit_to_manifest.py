@@ -42,6 +42,23 @@ def load_converter():
     return module
 
 
+def load_feedback():
+    feedback_path = CONVERTER_PATH.parent / "nightly_ontology_feedback.py"
+    spec = importlib.util.spec_from_file_location("nightly_ontology_feedback", feedback_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_t1_median_band_matches_the_frozen_feedback_suite() -> None:
+    converter = load_converter()
+    feedback = load_feedback()
+    suite = feedback.AUXILIARY_ACCEPTANCE_SUITES[converter.T1_PREDICATE]
+    thresholds = {entry[3] for entry in suite}
+    assert thresholds == {float(bound) for bound in converter.T1_MEDIAN_BAND_MEV}
+
+
 def convert(converter, hypothesis, *, hypothesis_id="deng-underbinding", root=ROOT):
     return converter.convert_hypothesis(
         hypothesis,

@@ -223,7 +223,53 @@
           "type": "number",
           "minimum": 0
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "const": "barrier_mae_mev<=40"
+              }
+            },
+            "required": [
+              "predicate"
+            ]
+          },
+          "then": {
+            "properties": {
+              "metric": {
+                "const": "barrier_mae"
+              }
+            },
+            "required": [
+              "metric"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "predicate": {
+                "const": "signed_error_positive_fraction>0.5"
+              }
+            },
+            "required": [
+              "predicate"
+            ]
+          },
+          "then": {
+            "properties": {
+              "metric": {
+                "const": "signed_error_positive"
+              }
+            },
+            "required": [
+              "metric"
+            ]
+          }
+        }
+      ]
     }
   }
 }

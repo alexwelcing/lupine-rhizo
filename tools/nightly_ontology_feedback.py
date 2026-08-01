@@ -16,6 +16,17 @@ ACCEPTANCE_PREDICATE_RE = re.compile(
     r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev|fraction)(?P<comparator><=|>)(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
 )
 PREDICATE_COMPARATORS = {"<=": "less_than_or_equal", ">": "greater_than"}
+# Canonical auxiliary acceptance suite per predicate family: the exact frozen
+# secondary measurements a receipt may carry. Must mirror the T1 demotion band
+# in tools/lit_to_manifest.py (T1_MEDIAN_BAND_MEV). Auxiliary measurements
+# outside the suite are rejected so permissive per-receipt thresholds cannot
+# launder a falsified frozen prediction.
+AUXILIARY_ACCEPTANCE_SUITES = {
+    "signed_error_positive_fraction>0.5": {
+        ("median_signed_error", "mev", "greater_than_or_equal", 400.0),
+        ("median_signed_error", "mev", "less_than_or_equal", 600.0),
+    }
+}
 READINESS_RANK = {"L": 0, "M": 1, "H": 2}
 
 
@@ -98,8 +109,21 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
                 raise ValueError(
                     "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
                 )
-        # Auxiliary typed measurements (e.g. a frozen median band) carry their own
-        # comparator and threshold; only the outcome recomputation is enforced.
+        else:
+            # Auxiliary typed measurements (e.g. a frozen median band) must be
+            # part of the predicate family's canonical frozen acceptance suite;
+            # arbitrary per-receipt thresholds are rejected.
+            suite = AUXILIARY_ACCEPTANCE_SUITES.get(predicate, set())
+            aux_key = (
+                measurement.get("metric"),
+                str(measurement.get("unit", "")).lower(),
+                comparator,
+                float(threshold),
+            )
+            if aux_key not in suite:
+                raise ValueError(
+                    "EvidenceBundle auxiliary measurement is outside the frozen acceptance suite"
+                )
         measured_outcome = _measurement_outcome(comparator, value, threshold)
         if measured_outcome is None:
             raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
@@ -261,6 +285,10 @@ def build_feedback_plan(
             for bundle_id in state["bundle_ids"]
             if bundle_id in new_bundle_ids
             and evidence_by_id[bundle_id].get("epistemic_status") == "negative"
+            # Supersession requires negative evidence on the hypothesis's own
+            # predicate; a failure on a shared premise's other predicate must
+            # not reject it.
+            and evidence_by_id[bundle_id].get("claim_predicate") == expected_predicate
         )
         if old_status not in {"rejected", "superseded"} and negative_new:
             new_status = "superseded"

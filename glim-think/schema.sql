@@ -643,7 +643,14 @@ BEGIN
       )
     )
     OR json_type(NEW.contract_json, '$.proposedExperiment.metric') IS NOT 'text'
-    OR json_extract(NEW.contract_json, '$.proposedExperiment.metric') NOT IN ('barrier_mae', 'signed_error_positive')
+    OR (
+      json_extract(NEW.contract_json, '$.proposedExperiment.predicate') = 'barrier_mae_mev<=40'
+      AND json_extract(NEW.contract_json, '$.proposedExperiment.metric') <> 'barrier_mae'
+    )
+    OR (
+      json_extract(NEW.contract_json, '$.proposedExperiment.predicate') = 'signed_error_positive_fraction>0.5'
+      AND json_extract(NEW.contract_json, '$.proposedExperiment.metric') <> 'signed_error_positive'
+    )
     OR json_type(NEW.contract_json, '$.proposedExperiment.predicate') IS NOT 'text'
     OR json_type(NEW.contract_json, '$.proposedExperiment.estimated_cells') IS NULL
     OR (

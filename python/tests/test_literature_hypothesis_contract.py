@@ -77,6 +77,28 @@ def test_schema_rejects_predicates_outside_existing_barrier_whitelist(schema, ex
     assert any(BARRIER_PREDICATE in error.message for error in errors)
 
 
+def test_schema_couples_metric_to_its_predicate(schema, examples) -> None:
+    skew = next(
+        example
+        for example in examples
+        if example["proposedExperiment"]["predicate"] == SIGN_SKEW_PREDICATE
+    )
+    validator = Draft202012Validator(schema)
+
+    mismatched_metric = deepcopy(skew)
+    mismatched_metric["proposedExperiment"]["metric"] = "barrier_mae"
+    assert list(validator.iter_errors(mismatched_metric))
+
+    barrier = next(
+        example
+        for example in examples
+        if example["proposedExperiment"]["predicate"] == BARRIER_PREDICATE
+    )
+    mismatched_barrier = deepcopy(barrier)
+    mismatched_barrier["proposedExperiment"]["metric"] = "signed_error_positive"
+    assert list(validator.iter_errors(mismatched_barrier))
+
+
 def test_schema_rejects_untyped_bindings_and_unannotated_readiness(schema, examples) -> None:
     invalid_binding = deepcopy(examples[0])
     invalid_binding["bindings"]["chains"] = ["chain-1"]
@@ -399,6 +421,18 @@ def test_latest_migrations_admit_the_sign_skew_typed_predicate(examples) -> None
                 ) VALUES ('invalid-skew-metric', ?)
                 """,
                 (json.dumps(invalid_metric, sort_keys=True),),
+            )
+
+        mismatched_pair = deepcopy(skew)
+        mismatched_pair["proposedExperiment"]["metric"] = "barrier_mae"
+        with pytest.raises(sqlite3.IntegrityError):
+            connection.execute(
+                """
+                INSERT INTO literature_hypotheses (
+                  literature_hypothesis_id, contract_json
+                ) VALUES ('mismatched-metric-predicate', ?)
+                """,
+                (json.dumps(mismatched_pair, sort_keys=True),),
             )
     finally:
         connection.close()
