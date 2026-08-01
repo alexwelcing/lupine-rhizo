@@ -1,2 +1,3 @@
 -r requirements-common.txt
 sevenn==0.12.1
+rfc8785>=0.1,<1
