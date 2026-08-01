@@ -183,8 +183,8 @@ function readableSpans(request) {
         ]), field);
         rejectPresent(span, "traceState", field);
         const flags = uint32(span.flags, `${field}.flags`);
-        if (flags !== 0) {
-          throw new Error(`${field}.flags are not supported by JSON transcoding`);
+        if ((flags & ~0xff) !== 0) {
+          throw new Error(`${field}.flags contain bits not supported by JSON transcoding`);
         }
         if (!span || typeof span !== "object" || typeof span.name !== "string" || !span.name) {
           throw new Error(`${field}.name must be a non-empty string`);

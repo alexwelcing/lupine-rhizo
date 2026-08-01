@@ -127,7 +127,7 @@ test("fails closed instead of silently dropping unsupported OTLP JSON fields", (
     },
     (request) => { request.resourceSpans[0].scopeSpans[0].scope.droppedAttributesCount = 1; },
     (request) => { request.resourceSpans[0].scopeSpans[0].spans[0].traceState = "vendor=value"; },
-    (request) => { request.resourceSpans[0].scopeSpans[0].spans[0].flags = 1; },
+    (request) => { request.resourceSpans[0].scopeSpans[0].spans[0].flags = 0x100; },
     (request) => {
       request.resourceSpans[0].resource.attributes = [
         { key: "duplicate", value: { stringValue: "first" } },
@@ -188,5 +188,16 @@ test("preserves an explicit zero trace-flags value", () => {
     Buffer.from(JSON.stringify(request)),
   );
   const span = decodeFirstSpan(forwarded.body);
-  assert.equal(span.get(16), undefined, "protobuf default flags=0 must remain omitted");
+  assert.equal(span.get(16)[0].readUInt32LE() & 0xff, 0);
+});
+
+test("preserves the sampled bit from OTLP JSON trace flags", () => {
+  const request = JSON.parse(JSON_TRACE.toString());
+  request.resourceSpans[0].scopeSpans[0].spans[0].flags = 1;
+  const forwarded = forwardOtlpPayload(
+    "application/json",
+    Buffer.from(JSON.stringify(request)),
+  );
+  const span = decodeFirstSpan(forwarded.body);
+  assert.equal(span.get(16)[0].readUInt32LE() & 0xff, 1);
 });

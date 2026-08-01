@@ -1494,6 +1494,7 @@ mod tests {
         assert!(consumer_build.contains("OTLP_RELAY_TOKEN=PHOENIX_RELAY_TOKEN:latest"));
         assert!(consumer_build.contains("--update-env-vars=\"SERVICE_URL=$$URL\""));
         assert_eq!(consumer_build.matches("--set-env-vars=").count(), 1);
+        assert!(consumer_build.contains("--no-cpu-throttling"));
 
         let runner_build =
             std::fs::read_to_string(root.join("../mlip-cell-runner/cloudbuild.unified.yaml"))
