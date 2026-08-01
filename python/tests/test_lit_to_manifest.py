@@ -244,6 +244,10 @@ def test_converter_rejects_panel_symlink_that_escapes_repo(tmp_path: Path) -> No
             "materialClasses",
         ),
         (
+            lambda value: value["bindings"].__setitem__("errorTypes", ["T1"]),
+            "errorTypes",
+        ),
+        (
             lambda value: value["proposedExperiment"].__setitem__(
                 "panel_ref", "data/candidates/round4_targets.lock.json"
             ),

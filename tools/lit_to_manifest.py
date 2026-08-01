@@ -27,6 +27,7 @@ LITERATURE_SCHEMA_PATH = ROOT / "schemas" / "literature-hypothesis.v1.schema.jso
 CAMPAIGN_SCHEMA_PATH = ROOT / "schemas" / "campaign-manifest.v1.schema.json"
 ALLOWED_CHAIN = "C1"
 ALLOWED_MATERIAL_CLASS = "MC4"
+ALLOWED_ERROR_TYPES = ["T2", "T3"]
 ALLOWED_ACCEPTANCE_TEST = "Z1"
 ALLOWED_METRIC = "barrier_mae"
 ALLOWED_PREDICATE = "barrier_mae_mev<=40"
@@ -179,6 +180,10 @@ def convert_hypothesis(
         raise ConversionError("claim_text must be a non-empty string")
 
     bindings = _require_mapping(hypothesis.get("bindings"), "bindings")
+    if bindings.get("errorTypes") != ALLOWED_ERROR_TYPES:
+        raise ConversionError(
+            f"bindings.errorTypes must be the existing {ALLOWED_ERROR_TYPES!r} allowlist"
+        )
     _require_exact_list(bindings.get("chains"), ALLOWED_CHAIN, "bindings.chains")
     _require_exact_list(
         bindings.get("materialClasses"),
