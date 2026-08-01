@@ -388,6 +388,49 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
         self.assertEqual(plan["queue"][0]["evidence_gap"]["current_readiness"], "L")
 
+    def test_readiness_requires_hypothesis_bound_acceptance_predicate(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        self_authorized = bundle(
+            BUNDLE_A,
+            outcome="pass",
+            campaign="one",
+            status="confirmatory",
+        )
+        self_authorized["claim_predicate"] = "barrier_mae_mev<=999"
+        self_authorized["measurements"][0]["value"] = 70
+        self_authorized["measurements"][0]["acceptance_test"]["threshold"] = 999
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: self_authorized},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.threshold-launder",
+                    "contract_json": hypothesis("C1", "Z1"),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
+        self.assertEqual(plan["queue"][0]["evidence_gap"]["current_readiness"], "L")
+
     def test_workflow_rehydrates_and_persists_the_complete_nightly_corpus(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
 

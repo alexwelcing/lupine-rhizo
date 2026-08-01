@@ -114,6 +114,7 @@ def _chain_state(
     assumptions: list[dict[str, Any]],
     evidence_by_id: dict[str, dict[str, Any]],
     as_of: date,
+    expected_predicate: str,
 ) -> dict[str, Any]:
     assumption = _chain_claim(chain, assumptions)
     if assumption is None:
@@ -137,7 +138,10 @@ def _chain_state(
         if not outcomes:
             continue
         defined.append(bundle_id)
-        if outcomes and all(outcome == "pass" for outcome in outcomes):
+        if (
+            bundle.get("claim_predicate") == expected_predicate
+            and all(outcome == "pass" for outcome in outcomes)
+        ):
             passing.append(bundle_id)
             for reference in bundle.get("evidence_refs", []):
                 if isinstance(reference, dict) and isinstance(reference.get("campaign"), str):
@@ -169,10 +173,6 @@ def build_feedback_plan(
         raise ValueError("atlas and assumptions have invalid collections")
     priority = {row["id"]: index for index, row in enumerate(chains, 1)}
     acceptance_to_chain = {row["id"]: row["chain"] for row in acceptance}
-    chain_states = {
-        chain: _chain_state(chain, assumption_rows, evidence_by_id, cycle_date)
-        for chain in priority
-    }
     missing_new_bundles = sorted(new_bundle_ids - evidence_by_id.keys())
     if missing_new_bundles:
         raise ValueError(
@@ -193,7 +193,26 @@ def build_feedback_plan(
         if any(acceptance_to_chain.get(test) not in bound_chains for test in bound_acceptance):
             raise ValueError(f"{hypothesis_id} acceptance tests do not match chain bindings")
 
-        states = [chain_states[chain] for chain in bound_chains]
+        proposed_experiment = contract.get("proposedExperiment")
+        expected_predicate = (
+            proposed_experiment.get("predicate")
+            if isinstance(proposed_experiment, dict)
+            else None
+        )
+        if not isinstance(expected_predicate, str) or not ACCEPTANCE_PREDICATE_RE.fullmatch(
+            expected_predicate
+        ):
+            raise ValueError(f"{hypothesis_id} has an invalid acceptance predicate")
+        states = [
+            _chain_state(
+                chain,
+                assumption_rows,
+                evidence_by_id,
+                cycle_date,
+                expected_predicate,
+            )
+            for chain in bound_chains
+        ]
         old_status = contract["status"]
         old_readiness = contract["readiness"]
         old_grade = old_readiness[0]
