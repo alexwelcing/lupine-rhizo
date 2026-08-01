@@ -12,9 +12,9 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-
 HASH_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 STATUS_FIELDS = ("status", "epistemic_status", "assurance")
+ONTOLOGY_STATUS_FIELDS = (*STATUS_FIELDS, "readiness")
 IDENTITY_FIELDS = (
     "claim_version_id",
     "claim_id",
@@ -77,6 +77,74 @@ def _bundle_hashes(value: Any, parent_key: str | None = None) -> set[str]:
     ):
         hashes.add(value)
     return hashes
+
+
+def _ontology_path_component(value: Any, index: int) -> str:
+    if isinstance(value, dict):
+        for field in IDENTITY_FIELDS:
+            identity = value.get(field)
+            if isinstance(identity, (str, int)) and str(identity):
+                return f"[{field}={identity}]"
+    return f"[{index}]"
+
+
+def _ontology_states(
+    document: Any, source: str
+) -> tuple[dict[str, dict[str, Any]], dict[str, set[str]]]:
+    if not isinstance(document, (dict, list)):
+        raise CheckError(f"{source}: ontology atlas must be a JSON object or array")
+    statuses: dict[str, dict[str, Any]] = {}
+    owners: dict[str, set[str]] = {}
+
+    def walk(value: Any, path: str) -> None:
+        if isinstance(value, dict):
+            if path in owners:
+                raise CheckError(f"{source}: duplicate ontology identity at {path}")
+            owners[path] = _bundle_hashes(value)
+            for key, child in value.items():
+                child_path = f"{path}.{key}"
+                if key in ONTOLOGY_STATUS_FIELDS:
+                    statuses[child_path] = {
+                        "value": child,
+                        "owner": path,
+                    }
+                walk(child, child_path)
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                walk(child, f"{path}{_ontology_path_component(child, index)}")
+
+    walk(document, "$atlas")
+    return statuses, owners
+
+
+def find_unbacked_ontology_status_changes(
+    before: Any, after: Any, *, source: str
+) -> list[str]:
+    """Return every ontology status change that lacks a new local bundle hash."""
+    before_statuses, before_owners = _ontology_states(before, source)
+    after_statuses, after_owners = _ontology_states(after, source)
+    globally_new_hashes = _bundle_hashes(after) - _bundle_hashes(before)
+    violations = []
+    for path in sorted(before_statuses.keys() | after_statuses.keys()):
+        old = before_statuses.get(path)
+        new = after_statuses.get(path)
+        if old is not None and new is not None and old["value"] == new["value"]:
+            continue
+        if new is not None:
+            owner = new["owner"]
+        elif old is not None:
+            owner = old["owner"]
+        else:  # Defensive: the path came from the union above.
+            continue
+        locally_new_hashes = after_owners.get(owner, set()) - before_owners.get(
+            owner, set()
+        )
+        if not locally_new_hashes & globally_new_hashes:
+            violations.append(
+                f"{source}: {path} changed with no new EvidenceBundle hash "
+                "(the authorizing hash must be globally new)"
+            )
+    return violations
 
 
 def _records(document: Any, source: str) -> tuple[list[dict[str, Any]], bool]:
@@ -196,6 +264,23 @@ def _git_pairs(root: Path, base_ref: str, head_ref: str) -> list[str]:
         violations.extend(
             find_unbacked_status_changes(
                 before_events, after_events, source="D1 status_event"
+            )
+        )
+
+    ontology_path = "registry/ontology/atlas.v1.json"
+    before_ontology = _load_git(root, base_ref, ontology_path, required=False)
+    after_ontology = _load_git(root, head_ref, ontology_path, required=False)
+    if before_ontology is not None and after_ontology is None:
+        raise CheckError(
+            f"{ontology_path} was deleted in this change; removing the tracked "
+            "ontology is not allowed without new evidence"
+        )
+    if before_ontology is not None and after_ontology is not None:
+        violations.extend(
+            find_unbacked_ontology_status_changes(
+                before_ontology,
+                after_ontology,
+                source=ontology_path,
             )
         )
     return violations
