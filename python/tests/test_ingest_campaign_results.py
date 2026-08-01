@@ -24,7 +24,11 @@ def load_ingest_module():
     spec = importlib.util.spec_from_file_location("ingest_campaign_results", INGESTER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    sys.path.insert(0, str(INGESTER.parent))
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.path.remove(str(INGESTER.parent))
     return module
 
 
