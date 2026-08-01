@@ -3,10 +3,9 @@
 # Unified, managed MLIP cell-runner image.
 #
 # ONE image definition for every universal-MLIP backend. The backend is chosen
-# at build time via the BACKEND ARG, which selects the matching optional-deps
-# group from pyproject.toml ([project.optional-dependencies].<backend>). This
-# replaces the per-backend requirements-*.txt + the single CUDA-runtime
-# Dockerfile (see DECOMMISSION.md).
+# at build time via the BACKEND ARG. Most stacks use the matching optional-deps
+# group from pyproject.toml; ORB and UMA retain their proven isolated pins until
+# their incompatible torch/numpy generations are consolidated (DECOMMISSION.md).
 #
 # Build:  docker build --build-arg BACKEND=mace -f gcp/mlip-cell-runner/Dockerfile.unified -t mlip-runner:mace .
 # Backends: mace | chgnet | sevennet | orb | matgl | uma
@@ -59,6 +58,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY python/pyproject.toml python/README.md ./
 COPY python/lupine_distill ./lupine_distill
 COPY python/lupine_distill_runtime ./lupine_distill_runtime
+COPY gcp/mlip-cell-runner/requirements-orb.txt ./requirements-orb.txt
+COPY gcp/mlip-cell-runner/requirements-uma.txt ./requirements-uma.txt
 # The runner entrypoint and telemetry/loop seam modules live in the GCP subtree;
 # copy them so the image can run mlip_cell_runner.py directly.
 COPY gcp/mlip-cell-runner/mlip_cell_runner.py ./
@@ -74,16 +75,30 @@ COPY campaigns/v1/z2.campaign-manifest.v1.json ./campaigns/v1/z2.campaign-manife
 COPY data/candidates/z2/measurements.jsonl ./data/candidates/z2/measurements.jsonl
 COPY data/candidates/z2/artifact-manifest.json ./data/candidates/z2/artifact-manifest.json
 
-# Install core + the selected backend's extra in one resolver pass. The matgl
-# backend additionally needs the DGL find-links index.
+# Install core + the selected backend's extra in one resolver pass. ORB's
+# torch 2.6/cu118 and UMA's NumPy 2.2/torch 2.8-era stacks are deliberately
+# isolated from the common MACE-compatible pins. The matgl backend additionally
+# needs the DGL find-links index.
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
-    && python3 -m pip install --no-cache-dir \
-         "ase==3.28.0" \
-         "numpy==1.26.4" \
-         "requests==2.32.5" \
-         "torch==2.4.1+cu121" \
+    && if [ "${BACKEND}" = "orb" ]; then \
+         PIP_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu118 \
+           python3 -m pip install --no-cache-dir -r requirements-orb.txt \
+             "rfc8785>=0.1,<1"; \
+       elif [ "${BACKEND}" = "uma" ]; then \
+         PIP_EXTRA_INDEX_URL= \
+           python3 -m pip install --no-cache-dir -r requirements-uma.txt \
+             "rfc8785>=0.1,<1"; \
+       else \
+         python3 -m pip install --no-cache-dir \
+           "ase==3.28.0" \
+           "numpy==1.26.4" \
+           "requests==2.32.5" \
+           "torch==2.4.1+cu121"; \
+       fi \
     && if [ "${BACKEND}" = "matgl" ]; then \
          python3 -m pip install --no-cache-dir --find-links "${DGL_FIND_LINKS}" ".[matgl]"; \
+       elif [ "${BACKEND}" = "orb" ] || [ "${BACKEND}" = "uma" ]; then \
+         python3 -m pip install --no-cache-dir --no-deps .; \
        else \
          python3 -m pip install --no-cache-dir ".[${BACKEND}]"; \
        fi
