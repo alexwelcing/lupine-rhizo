@@ -42,6 +42,9 @@ MEASUREMENT_FIELDS = ("metric", "value", "unit", "acceptance_test", "sample_coun
 TYPED_MEASUREMENT_PREDICATES = frozenset(
     {"barrier_mae_mev<=40", "signed_error_positive_fraction>0.5"}
 )
+# The sign-skew family's frozen panel: 22 measured paths from the locked Z1 union
+# campaign. The floor is pinned here, not derived from a caller-controlled manifest.
+FROZEN_PANEL_PATH_MINIMUM = 22
 EPISTEMIC_STATUSES = {
     "confirmatory",
     "exploratory",
@@ -457,6 +460,11 @@ def enforce_path_minimums(
     if not minimums:
         return
     floor = max(minimums)
+    if floor != FROZEN_PANEL_PATH_MINIMUM:
+        raise ValueError(
+            f"measurement {row_id} manifest declares a neb-path-set minimum of {floor}; "
+            f"the frozen sign-skew panel requires exactly {FROZEN_PANEL_PATH_MINIMUM}"
+        )
     try:
         document = json.loads(artifact.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:

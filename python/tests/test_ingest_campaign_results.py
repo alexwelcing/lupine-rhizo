@@ -522,6 +522,21 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "exactly one locked recorded input"):
                 module.enforce_path_minimums(root, multi_manifest, make_bundle(), artifact, "skew-1")
 
+            # The path floor is pinned to the frozen panel, not the caller's manifest.
+            lax_manifest = {
+                **manifest,
+                "evidence_requirements": [
+                    {
+                        "requirement_id": "e.z1.recorded-path-set",
+                        "artifact_type": "neb-path-set",
+                        "description": "recorded rows",
+                        "minimum_count": 1,
+                    }
+                ],
+            }
+            with self.assertRaisesRegex(ValueError, "frozen sign-skew panel"):
+                module.enforce_path_minimums(root, lax_manifest, make_bundle(), artifact, "skew-1")
+
             # Row identities, values, and statuses bind to the locked source.
             wrong_identity = [
                 row if row["path_index"] != 3 else {**row, "path_id": "mp-999999_0_0_0_0_0"}
