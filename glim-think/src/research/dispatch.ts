@@ -34,6 +34,7 @@ export interface TaskPayload {
   args?: string[];
   beat_emit_url: string;
   target_job?: string;
+  schedule_name?: "nightly-baseline" | "on-proof-complete" | "manual";
 }
 
 export interface DispatchEnv {
@@ -170,6 +171,8 @@ function validatePayload(payload: TaskPayload): void {
     throw new Error("args must be an array of strings if provided");
   if (payload.target_job !== undefined && typeof payload.target_job !== "string")
     throw new Error("target_job must be a string if provided");
+  if (payload.schedule_name !== undefined && typeof payload.schedule_name !== "string")
+    throw new Error("schedule_name must be a string if provided");
 }
 
 /**

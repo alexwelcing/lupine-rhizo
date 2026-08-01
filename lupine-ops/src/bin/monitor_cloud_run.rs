@@ -71,6 +71,14 @@ struct Args {
     )]
     backend_catalog: PathBuf,
 
+    /// GCS prefix containing atomic per-schedule daily reservation ledgers.
+    #[arg(
+        long,
+        default_value = "gs://shed-489901-atlas-inputs/mlip-budget-ledgers",
+        value_name = "GS_URL"
+    )]
+    budget_ledger_url: String,
+
     /// If set, POST the JSON-shaped summary to this URL after each poll
     /// (intended for the glim-think CF Worker ingestion endpoint).
     #[arg(long, value_name = "URL")]
@@ -220,6 +228,9 @@ struct SchedulePolicy {
 struct PolicyRun {
     #[serde(default)]
     backends: Vec<String>,
+    #[serde(default)]
+    #[serde(alias = "allow_dynamic_backend")]
+    dynamic_catalog_backends: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -279,7 +290,16 @@ struct ScheduleUsageReport {
     utilization_percent: f64,
     cost_basis: String,
     retry: String,
+    attribution: String,
     flags: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BudgetLedgerDocument {
+    schema: String,
+    schedule: String,
+    utc_date: String,
+    reserved_gpu_hours: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -368,11 +388,12 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
 
     // Cloud Run admin calls and the monitoring window query are independent —
     // fan them out concurrently and join.
-    let (services_res, jobs_res, requests_res, billable_res) = tokio::join!(
+    let (services_res, jobs_res, requests_res, billable_res, reservations_res) = tokio::join!(
         list_services(client, &bearer, &args.project, &args.region),
         list_jobs(client, &bearer, &args.project, &args.region),
         fetch_request_counts(client, &bearer, &args.project),
-        fetch_billable_instance_seconds(client, &bearer, &args.project),
+        fetch_billable_instance_seconds(client, &bearer, &args.project, &args.region),
+        fetch_schedule_reservations(client, &bearer, &args.budget_ledger_url, &policies),
     );
 
     let services = services_res?;
@@ -381,12 +402,12 @@ async fn collect_summary(args: &Args, auth: &Auth, client: &Client) -> Result<Po
         eprintln!("warning: request-count metric unavailable: {e:#}");
         std::collections::BTreeMap::new()
     });
-    let billable_seconds_by_job = billable_res.unwrap_or_else(|e| {
-        eprintln!("warning: billable-instance-time metric unavailable: {e:#}");
-        BTreeMap::new()
-    });
+    // Budget telemetry fails closed: an API/permission/schema failure must not
+    // become a healthy-looking zero-usage report.
+    let _billable_seconds_by_job = billable_res?;
+    let reserved_gpu_hours_by_schedule = reservations_res?;
     let schedule_usage =
-        build_schedule_usage(&policies, &backend_catalog, &billable_seconds_by_job)?;
+        build_schedule_usage(&policies, &backend_catalog, &reserved_gpu_hours_by_schedule)?;
 
     let now = OffsetDateTime::now_utc();
     let mut summary = PollSummary {
@@ -591,20 +612,21 @@ async fn fetch_billable_instance_seconds(
     client: &Client,
     bearer: &str,
     project: &str,
+    region: &str,
 ) -> Result<BTreeMap<String, f64>> {
     let now = OffsetDateTime::now_utc();
     let start = now - time::Duration::hours(24);
     let url = format!("{MONITORING_BASE}/projects/{project}/timeSeries");
+    let filter = billable_instance_filter(region)?;
+    let start_time = start.format(&Rfc3339)?;
+    let end_time = now.format(&Rfc3339)?;
     let resp = client
         .get(&url)
         .header("Authorization", bearer)
         .query(&[
-            (
-                "filter",
-                r#"metric.type="run.googleapis.com/container/billable_instance_time" AND resource.type="cloud_run_job""#,
-            ),
-            ("interval.startTime", &start.format(&Rfc3339)?),
-            ("interval.endTime", &now.format(&Rfc3339)?),
+            ("filter", filter.as_str()),
+            ("interval.startTime", start_time.as_str()),
+            ("interval.endTime", end_time.as_str()),
             ("aggregation.alignmentPeriod", "86400s"),
             ("aggregation.perSeriesAligner", "ALIGN_SUM"),
             ("aggregation.crossSeriesReducer", "REDUCE_SUM"),
@@ -644,6 +666,88 @@ async fn fetch_billable_instance_seconds(
         *out.entry(job).or_insert(0.0) += total;
     }
     Ok(out)
+}
+
+fn billable_instance_filter(region: &str) -> Result<String> {
+    if region.is_empty()
+        || !region
+            .bytes()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+    {
+        return Err(anyhow!("invalid Cloud Run region for metric filter"));
+    }
+    Ok(format!(
+        r#"metric.type="run.googleapis.com/container/billable_instance_time" AND resource.type="cloud_run_job" AND resource.label.location="{region}""#
+    ))
+}
+
+async fn fetch_schedule_reservations(
+    client: &Client,
+    bearer: &str,
+    ledger_url: &str,
+    policies: &[SchedulePolicy],
+) -> Result<BTreeMap<String, f64>> {
+    let rest = ledger_url
+        .strip_prefix("gs://")
+        .ok_or_else(|| anyhow!("budget ledger URL must use gs://"))?;
+    let (bucket, prefix) = rest.split_once('/').unwrap_or((rest, ""));
+    if bucket.is_empty() {
+        return Err(anyhow!("budget ledger URL has no bucket"));
+    }
+    let day = OffsetDateTime::now_utc().date().to_string();
+    let mut usage = BTreeMap::new();
+    for policy in policies.iter().filter(|policy| policy.active) {
+        let object = format!(
+            "{}{}/{}.json",
+            if prefix.trim_matches('/').is_empty() {
+                String::new()
+            } else {
+                format!("{}/", prefix.trim_matches('/'))
+            },
+            policy.name,
+            day
+        );
+        let mut url = reqwest::Url::parse(&format!(
+            "https://storage.googleapis.com/storage/v1/b/{bucket}/o/"
+        ))?;
+        url.path_segments_mut()
+            .map_err(|_| anyhow!("invalid GCS budget ledger URL"))?
+            .pop_if_empty()
+            .push(&object);
+        url.query_pairs_mut().append_pair("alt", "media");
+        let response = client
+            .get(url)
+            .header("Authorization", bearer)
+            .send()
+            .await
+            .with_context(|| format!("GET budget ledger for {}", policy.name))?;
+        if response.status() == StatusCode::NOT_FOUND {
+            usage.insert(policy.name.clone(), 0.0);
+            continue;
+        }
+        let status = response.status();
+        if !status.is_success() {
+            let body = response.text().await.unwrap_or_default();
+            return Err(api_error("gcs.schedule_budget_ledger", status, &body));
+        }
+        let document: BudgetLedgerDocument = response
+            .json()
+            .await
+            .context("decode schedule budget ledger JSON")?;
+        if document.schema != "lupine.mlip.schedule_budget_ledger.v1"
+            || document.schedule != policy.name
+            || document.utc_date != day
+            || !document.reserved_gpu_hours.is_finite()
+            || document.reserved_gpu_hours < 0.0
+        {
+            return Err(anyhow!(
+                "invalid schedule budget ledger for {}",
+                policy.name
+            ));
+        }
+        usage.insert(policy.name.clone(), document.reserved_gpu_hours);
+    }
+    Ok(usage)
 }
 
 fn load_backend_catalog(path: &Path) -> Result<BTreeMap<String, String>> {
@@ -806,7 +910,7 @@ fn validate_budget(name: &str, budget: &PolicyBudget, basis: &CostBasis) -> Resu
 fn build_schedule_usage(
     policies: &[SchedulePolicy],
     catalog: &BTreeMap<String, String>,
-    billable_seconds_by_job: &BTreeMap<String, f64>,
+    reserved_gpu_hours_by_schedule: &BTreeMap<String, f64>,
 ) -> Result<Vec<ScheduleUsageReport>> {
     let mut reports = Vec::new();
     for policy in policies.iter().filter(|policy| policy.active) {
@@ -827,16 +931,19 @@ fn build_schedule_usage(
             ));
         }
         let mut jobs = BTreeSet::new();
-        for backend in &policy.run.backends {
-            jobs.insert(catalog.get(backend).cloned().ok_or_else(|| {
-                anyhow!("policy {} backend not in catalog: {backend}", policy.name)
-            })?);
+        if policy.run.dynamic_catalog_backends {
+            jobs.extend(catalog.values().cloned());
+        } else {
+            for backend in &policy.run.backends {
+                jobs.insert(catalog.get(backend).cloned().ok_or_else(|| {
+                    anyhow!("policy {} backend not in catalog: {backend}", policy.name)
+                })?);
+            }
         }
-        let gpu_hours_24h = jobs
-            .iter()
-            .map(|job| billable_seconds_by_job.get(job).copied().unwrap_or(0.0))
-            .sum::<f64>()
-            / 3600.0;
+        let gpu_hours_24h = reserved_gpu_hours_by_schedule
+            .get(&policy.name)
+            .copied()
+            .ok_or_else(|| anyhow!("schedule {} reservation usage unavailable", policy.name))?;
         let mut flags = Vec::new();
         if gpu_hours_24h > budget.daily_gpu_hours {
             flags.push("gpu_hour_cap_exceeded".to_string());
@@ -849,6 +956,7 @@ fn build_schedule_usage(
             utilization_percent: gpu_hours_24h / budget.daily_gpu_hours * 100.0,
             cost_basis: budget.cost_basis.clone(),
             retry: budget.retry.clone(),
+            attribution: "atomic per-schedule admission reservation ledger; owner-noted manual runs are excluded".into(),
             flags,
         });
     }
@@ -937,7 +1045,7 @@ fn print_human(s: &PollSummary) {
     }
     for schedule in &s.schedules {
         println!(
-            "  - {} | gpu_hours_24h={:.4}/{:.4} ({:.1}%) | jobs={} | cost_basis={} | retry={} | flags={}",
+            "  - {} | gpu_hours_24h={:.4}/{:.4} ({:.1}%) | jobs={} | cost_basis={} | retry={} | attribution={} | flags={}",
             schedule.name,
             schedule.gpu_hours_24h,
             schedule.daily_gpu_hour_cap,
@@ -945,6 +1053,7 @@ fn print_human(s: &PollSummary) {
             schedule.jobs.join(","),
             schedule.cost_basis,
             schedule.retry,
+            schedule.attribution,
             if schedule.flags.is_empty() {
                 "ok".to_string()
             } else {
@@ -1042,6 +1151,7 @@ mod tests {
             active: true,
             run: PolicyRun {
                 backends: vec!["mace-mp-0".into(), "chgnet".into()],
+                dynamic_catalog_backends: false,
             },
             budget: Some(PolicyBudget {
                 daily_gpu_hours: 1.0,
@@ -1054,11 +1164,8 @@ mod tests {
             ("mace-mp-0".into(), "mlip-cell-mace".into()),
             ("chgnet".into(), "mlip-cell-chgnet".into()),
         ]);
-        let seconds = std::collections::BTreeMap::from([
-            ("mlip-cell-mace".into(), 1800.0),
-            ("mlip-cell-chgnet".into(), 5400.0),
-        ]);
-        let usage = build_schedule_usage(&[policy], &catalog, &seconds).unwrap();
+        let reservations = std::collections::BTreeMap::from([("nightly-baseline".into(), 2.0)]);
+        let usage = build_schedule_usage(&[policy], &catalog, &reservations).unwrap();
         assert_eq!(usage.len(), 1);
         assert!((usage[0].gpu_hours_24h - 2.0).abs() < 1e-9);
         assert_eq!(usage[0].daily_gpu_hour_cap, 1.0);
@@ -1068,6 +1175,34 @@ mod tests {
                 .iter()
                 .any(|flag| flag == "gpu_hour_cap_exceeded")
         );
+    }
+
+    #[test]
+    fn schedule_usage_fails_closed_when_reservation_usage_is_missing() {
+        let policy = SchedulePolicy {
+            name: "on-proof-complete".into(),
+            active: true,
+            run: PolicyRun {
+                backends: vec!["mace-mp-0".into()],
+                dynamic_catalog_backends: true,
+            },
+            budget: Some(PolicyBudget {
+                daily_gpu_hours: 1.0,
+                cost_basis: "z1-union-2026-07-24".into(),
+                retry: "no-silent-retry".into(),
+                owner_note: None,
+            }),
+        };
+        let catalog = BTreeMap::from([("mace-mp-0".into(), "mlip-cell-mace".into())]);
+        let error = build_schedule_usage(&[policy], &catalog, &BTreeMap::new()).unwrap_err();
+        assert!(error.to_string().contains("reservation usage unavailable"));
+    }
+
+    #[test]
+    fn billable_metric_filter_is_region_scoped_and_rejects_injection() {
+        let filter = billable_instance_filter("us-central1").unwrap();
+        assert!(filter.contains("resource.label.location=\"us-central1\""));
+        assert!(billable_instance_filter("us-central1\" OR true").is_err());
     }
 
     #[test]

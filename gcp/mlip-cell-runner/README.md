@@ -9,6 +9,17 @@ Cloudflare owns the run ledger and dispatches signed Cloud Tasks to
 Run Job. Adding a catalog entry and its job therefore needs no consumer
 revision. Catalog fetch or validation failure rejects the task closed.
 
+Scheduled MLIP payloads also carry `schedule_name`. Before invoking a GPU job,
+`tasks-consumer` loads the matching active policy and atomically reserves its
+`budget.reservation_gpu_hours` in a generation-matched daily GCS ledger under
+`mlip-budget-ledgers/<schedule>/`. A reservation that would exceed
+`daily_gpu_hours`, missing policy/catalog/ledger telemetry, or a Cloud Tasks
+retry is acknowledged without starting another GPU execution. Manual MLIP runs
+must use `schedule_name: manual` plus an explicit `x-lupine-owner-note` header;
+they are intentionally excluded from schedule ledgers. The monitor reports
+these per-schedule reservations against the caps while separately requiring
+the regional Cloud Monitoring billable-time query to succeed.
+
 - `mlip-cell-mace`
 - `mlip-cell-chgnet`
 - `mlip-cell-m3gnet`

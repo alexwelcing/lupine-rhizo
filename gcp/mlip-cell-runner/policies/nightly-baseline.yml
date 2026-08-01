@@ -24,6 +24,7 @@ run:
     - mace-mp-0
     - chgnet
     - sevennet
+  allow_dynamic_backend: false
   systems:
     - Cu_fcc
     - Fe_bcc
@@ -41,6 +42,8 @@ run:
 # $0.65/L4-hour estimate, well below one verified $14.65 Z1 cost unit.
 budget:
   daily_gpu_hours: 3.0
+  # Admission reserves a conservative three minutes per dispatched GPU cell.
+  reservation_gpu_hours: 0.05
   cost_basis: z1-union-2026-07-24
   retry: no-silent-retry
 

@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use anyhow::{anyhow, bail, Context};
 use serde::Deserialize;
@@ -24,14 +24,20 @@ struct TokenResponse {
     access_token: String,
 }
 
-pub async fn allowed_target_jobs(source: &str) -> anyhow::Result<BTreeSet<String>> {
-    let bytes = read_catalog(source).await?;
+#[derive(Debug)]
+pub struct ValidatedCatalog {
+    pub jobs: BTreeSet<String>,
+    pub backend_by_job: BTreeMap<String, String>,
+}
+
+pub async fn load_catalog(source: &str) -> anyhow::Result<ValidatedCatalog> {
+    let bytes = read_object(source).await?;
     let catalog: BackendCatalog = serde_json::from_slice(&bytes)
         .with_context(|| format!("decoding backend catalog from {source}"))?;
     validate_catalog(catalog)
 }
 
-async fn read_catalog(source: &str) -> anyhow::Result<Vec<u8>> {
+pub async fn read_object(source: &str) -> anyhow::Result<Vec<u8>> {
     if let Some(rest) = source.strip_prefix("gs://") {
         let (bucket, object) = rest
             .split_once('/')
@@ -91,7 +97,7 @@ async fn read_catalog(source: &str) -> anyhow::Result<Vec<u8>> {
     std::fs::read(source).with_context(|| format!("reading backend catalog {source}"))
 }
 
-fn validate_catalog(catalog: BackendCatalog) -> anyhow::Result<BTreeSet<String>> {
+fn validate_catalog(catalog: BackendCatalog) -> anyhow::Result<ValidatedCatalog> {
     if catalog.schema != CATALOG_SCHEMA {
         bail!(
             "backend catalog schema must be {CATALOG_SCHEMA}, got {}",
@@ -104,6 +110,7 @@ fn validate_catalog(catalog: BackendCatalog) -> anyhow::Result<BTreeSet<String>>
 
     let mut ids = BTreeSet::new();
     let mut jobs = BTreeSet::new();
+    let mut backend_by_job = BTreeMap::new();
     for backend in catalog.backends {
         if !ids.insert(backend.mlip_id.clone()) {
             bail!("duplicate backend catalog mlip_id: {}", backend.mlip_id);
@@ -121,8 +128,12 @@ fn validate_catalog(catalog: BackendCatalog) -> anyhow::Result<BTreeSet<String>>
                 backend.target_job
             );
         }
+        backend_by_job.insert(backend.target_job, backend.mlip_id);
     }
-    Ok(jobs)
+    Ok(ValidatedCatalog {
+        jobs,
+        backend_by_job,
+    })
 }
 
 fn valid_cloud_run_job_name(value: &str) -> bool {

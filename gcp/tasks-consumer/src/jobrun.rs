@@ -22,6 +22,7 @@ pub struct JobRunRequest {
     pub region: String,
     pub job_name: String,
     pub container_args: Vec<String>,
+    pub container_env: Vec<(String, String)>,
 }
 
 #[async_trait]
@@ -100,6 +101,13 @@ struct Overrides<'a> {
 #[derive(Serialize)]
 struct ContainerOverride<'a> {
     args: &'a [String],
+    env: Vec<EnvVar<'a>>,
+}
+
+#[derive(Serialize)]
+struct EnvVar<'a> {
+    name: &'a str,
+    value: &'a str,
 }
 
 #[derive(Deserialize)]
@@ -119,6 +127,11 @@ impl JobRunner for RealJobRunner {
             overrides: Overrides {
                 container_overrides: vec![ContainerOverride {
                     args: &req.container_args,
+                    env: req
+                        .container_env
+                        .iter()
+                        .map(|(name, value)| EnvVar { name, value })
+                        .collect(),
                 }],
             },
         };
@@ -155,6 +168,7 @@ mod tests {
             region: "us-central1".into(),
             job_name: "atlas-distill".into(),
             container_args: vec!["auto-research".into(), "--element".into(), "Al".into()],
+            container_env: Vec::new(),
         };
         let op = r.run(&req).await.unwrap();
         assert!(op.contains("projects/p/locations/us-central1/operations/"));
@@ -165,7 +179,10 @@ mod tests {
         let args = vec!["auto-research".to_string(), "--element".into(), "Al".into()];
         let body = RunJobRequestBody {
             overrides: Overrides {
-                container_overrides: vec![ContainerOverride { args: &args }],
+                container_overrides: vec![ContainerOverride {
+                    args: &args,
+                    env: Vec::new(),
+                }],
             },
         };
         let json = serde_json::to_value(&body).unwrap();
@@ -173,9 +190,6 @@ mod tests {
             json["overrides"]["containerOverrides"][0]["args"][0],
             "auto-research"
         );
-        assert_eq!(
-            json["overrides"]["containerOverrides"][0]["args"][2],
-            "Al"
-        );
+        assert_eq!(json["overrides"]["containerOverrides"][0]["args"][2], "Al");
     }
 }

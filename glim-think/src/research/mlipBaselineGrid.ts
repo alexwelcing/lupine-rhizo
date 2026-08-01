@@ -620,6 +620,7 @@ function buildCellPayload(run: MlipBaselineRunRecord, cell: MlipBaselineCellReco
     target_job: cell.target_job ?? undefined,
     command: "run-cell",
     beat_emit_url: workerBeatEmitUrl(env),
+    schedule_name: "nightly-baseline",
     args: [
       "--run-id",
       run.run_id,

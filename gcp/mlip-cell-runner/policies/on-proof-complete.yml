@@ -18,8 +18,13 @@ trigger:
 
 run:
   level: 2
+  # Proof events may select any catalog backend; the list below is the default
+  # when the event omits one. Monitoring therefore charges all catalog jobs to
+  # this cap conservatively rather than silently omitting dynamic selections.
+  allow_dynamic_backend: true
   backends:
     - mace-mp-0
+
   systems:
     - Cu_fcc
     - Fe_bcc
@@ -32,6 +37,7 @@ run:
 # permission to retry silently after a failed event.
 budget:
   daily_gpu_hours: 1.0
+  reservation_gpu_hours: 0.05
   cost_basis: z1-union-2026-07-24
   retry: no-silent-retry
 
