@@ -15,6 +15,7 @@ from tools.check_ontology_links import (
     parse_readiness,
     validate_atlas,
     validate_lock,
+    validate_versioned_atlas_inventory,
 )
 
 CLASS_CHAINS = {
@@ -30,7 +31,7 @@ CLASS_CHAINS = {
 }
 ROOT = Path(__file__).resolve().parents[2]
 CHECKER = ROOT / "tools" / "check_ontology_links.py"
-ATLAS_PATH = ROOT / "registry" / "ontology" / "atlas.v1.json"
+ATLAS_PATH = ROOT / "registry" / "ontology" / "atlas.v2.json"
 LOCK_PATH = ROOT / "snapshots" / "ontology.lock.json"
 
 
@@ -92,6 +93,36 @@ class ReadinessParsingTests(unittest.TestCase):
 
 
 class OntologyLinkTests(unittest.TestCase):
+    def test_formal_proof_inventory_matches_the_current_lean_snapshot(self) -> None:
+        _, atlas, _ = repository_atlas()
+
+        self.assertEqual(
+            atlas["formalProof"],
+            {
+                "system": "Lean 4 + Mathlib",
+                "inventoryAsOf": "2026-08-01",
+                "modules": 79,
+                "theorems": 262,
+                "declarations": 499,
+                "sorryCount": 0,
+                "families": [
+                    "ordering claims (kernel-checked inequalities)",
+                    "isotonic correction bounds",
+                    "impossibility proofs with counterexample witnesses",
+                ],
+                "kernelRejectedClaim": (
+                    "27/36 → 26/36 at 10⁻⁴ J/m² integer precision "
+                    "(one cell margin exactly zero)"
+                ),
+                "barrierTheorems": (
+                    "Conditional: under ErrorField decomposition + "
+                    "coordination-ordering hypotheses, softened models provably "
+                    "under-read barriers; corrected barriers provably equal reference"
+                ),
+                "repository": "github.com/alexwelcing/lupine-rhizo (AGPL-3.0)",
+            },
+        )
+
     def test_material_class_chains_resolve_with_a1_identifier_parity(self) -> None:
         validate_atlas(valid_atlas())
 
@@ -146,11 +177,36 @@ class OntologyLinkTests(unittest.TestCase):
 
 
 class OntologyLockTests(unittest.TestCase):
+    def test_version_inventory_pins_v1_and_fails_closed_on_future_versions(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            registry = Path(directory)
+            for version in (1, 2):
+                source = ROOT / "registry" / "ontology" / f"atlas.v{version}.json"
+                (registry / source.name).write_bytes(source.read_bytes())
+
+            validate_versioned_atlas_inventory(registry)
+
+            v1_path = registry / "atlas.v1.json"
+            v1_path.write_bytes(v1_path.read_bytes() + b"\n")
+            with self.assertRaisesRegex(OntologyError, "v1.*not immutable"):
+                validate_versioned_atlas_inventory(registry)
+
+            v1_path.write_bytes(
+                (ROOT / "registry" / "ontology" / "atlas.v1.json").read_bytes()
+            )
+            (registry / "atlas.v3.json").write_text("{}")
+            with self.assertRaisesRegex(OntologyError, "unsupported.*atlas.v3"):
+                validate_versioned_atlas_inventory(registry)
+
     def test_lock_binds_artifact_source_date_and_freshness_layer(self) -> None:
         atlas_bytes, atlas, lock = repository_atlas()
         validate_lock(atlas_bytes, atlas, lock)
 
         for field, bad_value in (
+            ("version", 1),
+            ("artifact", "registry/ontology/atlas.v1.json"),
             ("sha256", "sha256:" + "0" * 64),
             ("transformation", {"id": "unreviewed-rewrite"}),
             ("atlasDate", "2026-07-29"),
