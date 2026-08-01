@@ -222,22 +222,35 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 }
             ],
         }
-        bundle = {
-            "claim_predicate": "signed_error_positive_fraction>0.5",
-            "measurements": [
-                {
-                    "metric": "signed_error_positive",
-                    "value": 0.9545,
-                    "unit": "fraction",
-                    "acceptance_test": {
-                        "comparator": "greater_than",
-                        "threshold": 0.5,
-                        "outcome": "pass",
+
+        def make_bundle(fraction: float = 1.0, median: float = 500.0, sample_count: int = 22) -> dict:
+            return {
+                "claim_predicate": "signed_error_positive_fraction>0.5",
+                "measurements": [
+                    {
+                        "metric": "signed_error_positive",
+                        "value": fraction,
+                        "unit": "fraction",
+                        "acceptance_test": {
+                            "comparator": "greater_than",
+                            "threshold": 0.5,
+                            "outcome": "pass",
+                        },
+                        "sample_count": sample_count,
                     },
-                    "sample_count": 1,
-                }
-            ]
-        }
+                    {
+                        "metric": "median_signed_error",
+                        "value": median,
+                        "unit": "meV",
+                        "acceptance_test": {
+                            "comparator": "greater_than_or_equal",
+                            "threshold": 400,
+                            "outcome": "pass",
+                        },
+                        "sample_count": sample_count,
+                    },
+                ],
+            }
 
         def write_artifact(path: Path, rows: list[dict], **extra: object) -> None:
             document = {"per_row": rows}
@@ -245,7 +258,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             path.write_text(json.dumps(document))
 
         full_rows = [
-            {"path_index": index, "model": model}
+            {"path_index": index, "model": model, "status": "measured", "signed_error_mev": 500.0}
             for index in range(22)
             for model in models
         ]
@@ -256,42 +269,84 @@ class CampaignResultIngestionTests(unittest.TestCase):
             # Aggregate-only artifacts cannot prove coverage, even with n_paths.
             write_artifact(artifact, [], n_paths=22)
             with self.assertRaisesRegex(ValueError, "no per-path rows"):
-                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
 
             # A self-reported aggregate must agree with the rows.
             write_artifact(artifact, full_rows, n_paths=23)
             with self.assertRaisesRegex(ValueError, "n_paths 23"):
-                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
 
-            # Full coverage passes once the sample_count meets the floor.
+            # Full coverage with matching statistics passes.
             write_artifact(artifact, full_rows, n_paths=22)
+            module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
+            # Sample counts below the path floor are rejected.
+            write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "recorded-path minimum"):
-                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
-            bundle["measurements"][0]["sample_count"] = 88
-            module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+                module.enforce_path_minimums(
+                    manifest, make_bundle(sample_count=6), artifact, "skew-1"
+                )
 
             # Six paths measured by four models must not launder the minimum:
             # distinct path coverage, not raw sample_count, is the gate.
             write_artifact(
                 artifact,
-                [
-                    {"path_index": index, "model": model}
-                    for index in range(6)
-                    for model in models
-                ],
+                [row for row in full_rows if row["path_index"] < 6],
             )
-            bundle["measurements"][0]["sample_count"] = 24
             with self.assertRaisesRegex(ValueError, "distinct paths"):
-                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+                module.enforce_path_minimums(
+                    manifest, make_bundle(sample_count=22), artifact, "skew-1"
+                )
 
             # Twenty-two paths from a single model omit declared available models.
             write_artifact(
                 artifact,
-                [{"path_index": index, "model": "chgnet"} for index in range(22)],
+                [row for row in full_rows if row["model"] == "chgnet"],
             )
-            bundle["measurements"][0]["sample_count"] = 88
             with self.assertRaisesRegex(ValueError, "omits declared available models"):
-                module.enforce_path_minimums(manifest, bundle, artifact, "skew-1")
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
+            # Every (path, model) pair needs an observation or a disclosed failure.
+            write_artifact(
+                artifact,
+                [
+                    row
+                    for row in full_rows
+                    if not (row["path_index"] == 13 and row["model"] == "mace-mp-small")
+                ],
+            )
+            with self.assertRaisesRegex(ValueError, "path 13 model mace-mp-small"):
+                module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
+            # A disclosed failure satisfies the pair without entering statistics.
+            write_artifact(
+                artifact,
+                [
+                    row
+                    for row in full_rows
+                    if not (row["path_index"] == 13 and row["model"] == "mace-mp-small")
+                ]
+                + [
+                    {
+                        "path_index": 13,
+                        "model": "mace-mp-small",
+                        "status": "failed",
+                        "reason": "failed",
+                    }
+                ],
+            )
+            module.enforce_path_minimums(manifest, make_bundle(), artifact, "skew-1")
+
+            # Submitted statistics must match the artifact's own rows.
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "recomputed value"):
+                module.enforce_path_minimums(
+                    manifest, make_bundle(fraction=0.9), artifact, "skew-1"
+                )
+            with self.assertRaisesRegex(ValueError, "recomputed value"):
+                module.enforce_path_minimums(
+                    manifest, make_bundle(median=460.14), artifact, "skew-1"
+                )
 
     def test_manifest_that_violates_round4_schema_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

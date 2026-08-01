@@ -21,7 +21,7 @@
     "outcome": "contradicted",
     "strength": "predictive"
   },
-  "content_hash": "sha256:d898d59acc5be47da78ab28b6369b70af112687246416dd1e234791df99bf410",
+  "content_hash": "sha256:2b14ed3921f0e1d62bdf64cf5332069aec059fbab1aab15089610cf820e8c9e0",
   "excluded_scope": [
     "Barrier accuracy for models other than the declared available models (chgnet, mace-mp-small, mace-mp-medium, mace-mpa-0-medium)",
     "Structures or chemistries outside the 30-path held-out LiTraj nebDFT2k panel",
@@ -48,7 +48,7 @@
           "bundle_id": "sha256:e09dec9e5dbc4a08144a728456afd58d776199db1f679155602bf81add00d8e0"
         },
         {
-          "bundle_id": "sha256:e7f414852ea11b0cc9a682a9ac9aa8bc599d33c52f7b5834afd012440a929545"
+          "bundle_id": "sha256:ff121247565e84534d546efece9bcba3d0a0decbd3187eb3ecd2f719d7f4abdb"
         }
       ],
       "premise_id": "chemistry-held-out-neb",

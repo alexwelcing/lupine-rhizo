@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import statistics
 import re
 import shutil
 import sys
@@ -318,8 +319,8 @@ def bundle_from_row(
     return bundle
 
 
-def _coverage(document: Any) -> tuple[set[int], set[str]] | None:
-    """Derive (path indices, models) from artifact rows; never from aggregates."""
+def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], list[dict]] | None:
+    """Derive (path indices, models, disclosed pairs, rows) from artifact rows."""
     if not isinstance(document, dict):
         return None
     rows = document.get("per_row") or document.get("per_path")
@@ -327,16 +328,42 @@ def _coverage(document: Any) -> tuple[set[int], set[str]] | None:
         return None
     paths: set[int] = set()
     models: set[str] = set()
+    pairs: set[tuple[int, str]] = set()
     for row in rows:
         if not isinstance(row, dict):
             continue
         index = row.get("path_index")
+        model = row.get("model")
         if isinstance(index, int) and not isinstance(index, bool):
             paths.add(index)
-        model = row.get("model")
+            if isinstance(model, str):
+                pairs.add((index, model))
         if isinstance(model, str):
             models.add(model)
-    return paths, models
+    return paths, models, pairs, rows
+
+
+def _recompute_path_statistics(rows: list[dict]) -> tuple[float, float] | None:
+    """Reduce measured rows to the path-level claim statistics."""
+    per_path: dict[int, list[float]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if row.get("status") == "failed":
+            continue
+        value = row.get("signed_error_mev")
+        index = row.get("path_index")
+        if (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and isinstance(index, int)
+        ):
+            per_path.setdefault(index, []).append(float(value))
+    if not per_path:
+        return None
+    path_values = [statistics.median(values) for values in per_path.values()]
+    fraction = sum(1 for value in path_values if value > 0) / len(path_values)
+    return fraction, statistics.median(path_values)
 
 
 def enforce_path_minimums(
@@ -378,7 +405,7 @@ def enforce_path_minimums(
             f"measurement {row_id} cites an artifact with no per-path rows; "
             "self-reported aggregates cannot prove coverage"
         )
-    paths, models = coverage
+    paths, models, pairs, rows = coverage
     declared = document.get("n_paths") if isinstance(document, dict) else None
     if isinstance(declared, int) and declared != len(paths):
         raise ValueError(
@@ -400,9 +427,38 @@ def enforce_path_minimums(
         raise ValueError(
             f"measurement {row_id} omits declared available models: {', '.join(missing_models)}"
         )
+    missing_pairs = sorted(
+        (path, model) for path in paths for model in required_models if (path, model) not in pairs
+    )
+    if missing_pairs:
+        path, model = missing_pairs[0]
+        raise ValueError(
+            f"measurement {row_id} omits an observation or disclosed failure for "
+            f"path {path} model {model}"
+        )
+    recomputed = _recompute_path_statistics(rows)
+    if recomputed is None:
+        raise ValueError(
+            f"measurement {row_id} artifact rows carry no measured signed errors to recompute"
+        )
+    recomputed_fraction, recomputed_median = recomputed
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):
             continue
+        metric = measurement.get("metric")
+        value = measurement.get("value")
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            continue
+        if metric == "signed_error_positive" and abs(float(value) - recomputed_fraction) > 1e-6:
+            raise ValueError(
+                f"measurement {row_id} fraction {value} does not match the cited "
+                f"artifact's recomputed value {recomputed_fraction:.4f}"
+            )
+        if metric == "median_signed_error" and abs(float(value) - recomputed_median) > 0.01:
+            raise ValueError(
+                f"measurement {row_id} median {value} does not match the cited "
+                f"artifact's recomputed value {recomputed_median:.2f}"
+            )
         sample_count = measurement.get("sample_count")
         if isinstance(sample_count, int) and sample_count < floor:
             raise ValueError(
