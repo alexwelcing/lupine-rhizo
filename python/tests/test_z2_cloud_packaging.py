@@ -49,6 +49,11 @@ def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:
 
     requirements = (RUNNER / "requirements-common.txt").read_text(encoding="utf-8")
     assert "rfc8785" in requirements
+    for backend in ("m3gnet", "orb", "uma"):
+        isolated = (RUNNER / f"requirements-{backend}.txt").read_text(encoding="utf-8")
+        assert "pydantic" in isolated
+        assert "jsonschema" in isolated
+        assert "rfc8785" in isolated
 
 
 def test_z2_abstention_audit_tracks_current_chain_tail() -> None:

@@ -1374,14 +1374,28 @@ def main() -> int:
             print(json.dumps(summary, indent=2, sort_keys=True))
             return 0
         except Exception as exc:
-            print(json.dumps({
+            metrics = {
                 "schema": "lupine.z2.abstention_smoke.v1",
                 "status": "failed",
                 "run_id": args.run_id,
+                "campaign_id": "discovery.round-4.z2-magnetic-anisotropy.v1",
+                "cell_id": "z2-abstention-smoke",
+                "scientific_executions": 0,
                 "error": str(exc),
                 "error_class": exc.__class__.__name__,
                 "traceback": traceback.format_exc(limit=8),
-            }, indent=2, sort_keys=True), file=sys.stderr)
+            }
+            try:
+                emit_beat(
+                    args.beat_emit_url,
+                    metrics,
+                    f"unified MACE runner Z2 abstention smoke failed: {exc}",
+                    args.dev_mode_bypass,
+                    args.local_jsonl,
+                )
+            except Exception as beat_exc:
+                print(f"failed to emit Z2 smoke failure beat: {beat_exc}", file=sys.stderr)
+            print(json.dumps(metrics, indent=2, sort_keys=True), file=sys.stderr)
             return 1
     if args.command == "run-batch":
         try:

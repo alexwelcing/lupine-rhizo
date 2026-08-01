@@ -81,6 +81,10 @@ def test_z2_abstention_smoke_fails_closed_on_tampered_rows(
     failure = json.loads(capsys.readouterr().err)
     assert failure["status"] == "failed"
     assert "frozen packaged" in failure["error"]
+    failure_beat = json.loads((tmp_path / "beats.jsonl").read_text(encoding="utf-8"))
+    assert failure_beat["metrics"]["status"] == "failed"
+    assert failure_beat["metrics"]["scientific_executions"] == 0
+    assert "frozen packaged" in failure_beat["metrics"]["error"]
     assert not (tmp_path / "artifacts").exists()
 
 
