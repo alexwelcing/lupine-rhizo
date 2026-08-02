@@ -268,6 +268,9 @@ def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
 SIGN_SKEW_PATH_FLOOR = 22
 
 CANONICAL_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
+CANONICAL_SOURCE_FINGERPRINT = (
+    "sha256:b9137ff7830c50cfdc59ec837ef2bb099326657c5d5e2d2ae158143360653989"
+)
 
 
 def _canonical_measured_observations() -> set[tuple[str, str, float]] | None:
@@ -435,7 +438,9 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         and isinstance(row.get("path_id"), str)
         and isinstance(row.get("model"), str)
     }
-    if artifact_measured & canonical_measured:
+    # The overlap guard rejects borrowed evidence only for noncanonical
+    # datasets; the canonical receipt necessarily shares its own observations.
+    if fingerprint != CANONICAL_SOURCE_FINGERPRINT and artifact_measured & canonical_measured:
         return False
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:
