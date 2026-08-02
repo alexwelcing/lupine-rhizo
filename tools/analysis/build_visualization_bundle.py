@@ -54,9 +54,7 @@ import jsonschema
 # tools/analysis is not a package; this script's own directory holds t1_wander.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from t1_wander import (  # noqa: E402
-    VERDICT_CLEAN,
     VERDICT_CONTAMINATED,
-    VERDICT_INSUFFICIENT_DATA,
     analyze_offsets,
 )
 
@@ -1403,7 +1401,7 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
             len(series["values"]) == n and len(series["value_status"]) == n,
             f"{series['series_id']}: trajectory/profile cardinality mismatch",
         )
-        for value, status in zip(series["values"], series["value_status"]):
+        for value, status in zip(series["values"], series["value_status"], strict=True):
             if status == "evaluated":
                 check(
                     isinstance(value, (int, float)) and math.isfinite(value),
