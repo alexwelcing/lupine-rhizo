@@ -282,8 +282,22 @@ class CampaignResultIngestionTests(unittest.TestCase):
             locked_bytes = json.dumps(locked_document).encode()
             (root / "locked.json").write_bytes(locked_bytes)
             set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
+            panel_bytes = json.dumps(
+                {
+                    "paths": [
+                        {"path_id": f"mp-{1000 + index}_0_0_0_0_0"} for index in range(24)
+                    ]
+                }
+            ).encode()
+            (root / "panel.json").write_bytes(panel_bytes)
             manifest = {
                 "campaign_id": "literature.protocol-offset-sign-skew.v1",
+                "execution": {
+                    "candidate_panel": {
+                        "path": "panel.json",
+                        "sha256": "sha256:" + hashlib.sha256(panel_bytes).hexdigest(),
+                    }
+                },
                 "available_models": [{"model_id": model} for model in models],
                 "acceptance_test": {
                     "metric": "signed_error_positive",
@@ -760,6 +774,16 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     }
                 ]
             }
+            fresh_panel_bytes = json.dumps(
+                {"paths": [{"path_id": f"mp-{2000 + index}_0_0_0_0_0"} for index in range(22)]}
+            ).encode()
+            (root / "fresh-panel.json").write_bytes(fresh_panel_bytes)
+            fresh_manifest["execution"] = {
+                "candidate_panel": {
+                    "path": "fresh-panel.json",
+                    "sha256": "sha256:" + hashlib.sha256(fresh_panel_bytes).hexdigest(),
+                }
+            }
             fresh_rows = [
                 {**row, "path_id": f"mp-{2000 + row['path_index']}_0_0_0_0_0"}
                 for row in full_rows
@@ -819,6 +843,37 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 generated["evidence_refs"][0]["dataset_fingerprint"],
                 module._source_fingerprint(fresh_document),
             )
+
+            # A renamed clone is caught by panel reconciliation; the panel digest
+            # itself is verified against the manifest pin.
+            renamed_document = json.loads(locked_bytes)
+            renamed_document["per_path"][0]["path_id"] = "mp-9999_0_0_0_0_0"
+            renamed_bytes = json.dumps(renamed_document).encode()
+            (root / "renamed.json").write_bytes(renamed_bytes)
+            renamed_manifest = {
+                **manifest,
+                "campaign_id": "literature.renamed.v1",
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "renamed.json",
+                            "sha256": "sha256:" + hashlib.sha256(renamed_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "frozen candidate panel"):
+                module.enforce_path_minimums(root, renamed_manifest, make_bundle(), artifact, "skew-1")
+
+            bad_panel_manifest = {
+                **manifest,
+                "execution": {
+                    "candidate_panel": {"path": "panel.json", "sha256": "sha256:" + "2" * 64}
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "panel digest mismatch"):
+                module.enforce_path_minimums(root, bad_panel_manifest, make_bundle(), artifact, "skew-1")
 
             # Independent campaigns must still measure the frozen 22-path claim.
             lax_fresh = {

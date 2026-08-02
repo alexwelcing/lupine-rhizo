@@ -639,6 +639,43 @@ def enforce_path_minimums(
                     expected[(index, model)] = ("measured", float(value))
             for model in (entry.get("models_missing") or {}):
                 expected[(index, model)] = ("failed", None)
+        panel_lock = (
+            manifest.get("execution", {}).get("candidate_panel")
+            if isinstance(manifest.get("execution"), dict)
+            else None
+        )
+        if isinstance(panel_lock, dict) and panel_lock.get("path"):
+            # Reconcile source identities with the sha-pinned candidate panel, so
+            # a renamed clone cannot change its dataset fingerprint.
+            panel_path = root / panel_lock["path"]
+            if bytes_hash(panel_path) != panel_lock.get("sha256"):
+                raise ValueError(
+                    f"measurement {row_id} candidate panel digest mismatch with the manifest"
+                )
+            try:
+                panel = json.loads(panel_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as error:
+                raise ValueError(
+                    f"measurement {row_id} cannot read the locked candidate panel: {error}"
+                ) from error
+            panel_rows = panel.get("per_path") or panel.get("paths") or []
+            panel_identities = {}
+            for position, entry in enumerate(panel_rows):
+                if not isinstance(entry, dict):
+                    continue
+                key = entry.get("path_index", position)
+                panel_identities[key] = entry.get("path_id")
+            inconsistent = {
+                index: (identity, panel_identities.get(index))
+                for index, identity in locked.items()
+                if panel_identities.get(index) != identity
+            }
+            if inconsistent:
+                index, (identity, expected_identity) = next(iter(inconsistent.items()))
+                raise ValueError(
+                    f"measurement {row_id} locked source path {index} identity {identity!r} "
+                    f"does not match the frozen candidate panel {expected_identity!r}"
+                )
         for row in rows:
             index = row["path_index"]
             if index not in locked:
