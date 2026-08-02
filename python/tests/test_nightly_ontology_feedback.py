@@ -532,6 +532,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                         {
                             "path_index": 0,
                             "path_id": "mp-canonical_0_0_0_0_0",
+                            "reference_barrier_ev": 9.99,
                             "per_model": {
                                 "chgnet": {"vasp_signed_error_mev": 999.0, "complete": True}
                             },
@@ -596,6 +597,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                         "path_index": index,
                         "path_id": f"mp-{1000 + index}_0_0_0_0_0",
                         "chemical_system": f"Chem-{index}",
+                        "reference_barrier_ev": round(5.0 + index * 0.01, 9),
                         "per_model": {
                             model: {"vasp_signed_error_mev": value, "complete": True}
                             for model in models
@@ -1070,6 +1072,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                         {
                             "path_index": 0,
                             "path_id": "mp-canonical_0_0_0_0_0",
+                            "reference_barrier_ev": 9.99,
                             "per_model": {
                                 "chgnet": {"vasp_signed_error_mev": 999.0, "complete": True}
                             },

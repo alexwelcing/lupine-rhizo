@@ -291,6 +291,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                         "path_index": index,
                         "path_id": f"mp-{1000 + index}_0_0_0_0_0",
                         "chemical_system": f"Chem-{index}",
+                        "reference_barrier_ev": round(5.0 + index * 0.01, 9),
                         "per_model": {
                             model: {"vasp_signed_error_mev": 500.0, "complete": True}
                             for model in models
@@ -311,6 +312,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                         "path_index": index,
                         "path_id": f"mp-{7000 + index}_0_0_0_0_0",
                         "chemical_system": f"Li-{index}",
+                        "reference_barrier_ev": round(9.0 + index * 0.01, 9),
                         "per_model": {
                             model: {"vasp_signed_error_mev": 999.0, "complete": True}
                             for model in models
@@ -406,6 +408,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                         "path_index": index,
                         "path_id": f"mp-{1000 + index}_0_0_0_0_0",
                         "chemical_system": f"Chem-{index}",
+                        "reference_barrier_ev": round(5.0 + index * 0.01, 9),
                         "per_model": (
                             {
                                 model: {"vasp_signed_error_mev": 500.0, "complete": True}
@@ -813,6 +816,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                         "path_index": index,
                         "path_id": f"mp-{2000 + index}_0_0_0_0_0",
                         "chemical_system": f"Fresh-{index}",
+                        "reference_barrier_ev": round(7.0 + index * 0.01, 9),
                         "per_model": {
                             model: {"vasp_signed_error_mev": 500.0, "complete": True}
                             for model in models

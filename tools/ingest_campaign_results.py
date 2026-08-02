@@ -99,6 +99,20 @@ def _measured_observations(source: Any) -> set[tuple[str, str, float]]:
     return observations
 
 
+def _reference_barriers(source: Any) -> set[float]:
+    """Immutable transition provenance: exact reference barrier values."""
+    barriers: set[float] = set()
+    if not isinstance(source, dict):
+        return barriers
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        value = entry.get("reference_barrier_ev")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            barriers.add(round(float(value), 9))
+    return barriers
+
+
 def _chemical_model_pairs(source: Any, row_id: str = "") -> set[tuple[str, str]]:
     """Immutable physical provenance: chemical system and model, not renamable ids."""
     pairs: set[tuple[str, str]] = set()
@@ -681,11 +695,17 @@ def enforce_path_minimums(
                     f"measurement {row_id} recorded input reuses canonical path/model "
                     "provenance; independence requires disjoint path panels"
                 )
+            if _reference_barriers(source) & _reference_barriers(canonical_source):
+                raise ValueError(
+                    f"measurement {row_id} recorded input shares reference barriers "
+                    "with the canonical dataset; independence requires new transitions"
+                )
         else:
             fingerprint = CANONICAL_SOURCE_FINGERPRINT
         examples_dir = root / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
             candidate_pairs = _chemical_model_pairs(source, row_id)
+            candidate_barriers = _reference_barriers(source)
             for prior_path in sorted(examples_dir.glob("*.json")):
                 try:
                     prior = json.loads(prior_path.read_text(encoding="utf-8"))
@@ -730,6 +750,30 @@ def enforce_path_minimums(
                                 f"measurement {row_id} shares measured observations with the "
                                 "accepted dataset of another campaign; independence requires disjoint evidence"
                             )
+                        prior_manifest = None
+                        prior_manifest_rel = reference.get("campaign_manifest")
+                        if isinstance(prior_manifest_rel, str):
+                            try:
+                                prior_manifest = json.loads((root / prior_manifest_rel).read_text(encoding="utf-8"))
+                            except (OSError, json.JSONDecodeError):
+                                prior_manifest = None
+                        prior_inputs = (
+                            prior_manifest.get("preregistration", {}).get("recorded_inputs")
+                            if isinstance(prior_manifest, dict)
+                            else None
+                        )
+                        if isinstance(prior_inputs, list) and prior_inputs:
+                            try:
+                                prior_source = json.loads(
+                                    (root / prior_inputs[0]["path"]).read_text(encoding="utf-8")
+                                )
+                            except (OSError, json.JSONDecodeError, KeyError):
+                                prior_source = None
+                            if isinstance(prior_source, dict) and candidate_barriers & _reference_barriers(prior_source):
+                                raise ValueError(
+                                    f"measurement {row_id} shares reference barriers with the "
+                                    "accepted dataset of another campaign"
+                                )
         locked = {}
         expected: dict[tuple[int, str], tuple[str, float | None]] = {}
         seen_identities: set[str] = set()

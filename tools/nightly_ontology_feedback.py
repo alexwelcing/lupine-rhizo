@@ -306,6 +306,19 @@ CANONICAL_MODEL_ENTRIES = {
 }
 
 
+def _reference_barriers(source: Any) -> set[float]:
+    barriers: set[float] = set()
+    if not isinstance(source, dict):
+        return barriers
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        value = entry.get("reference_barrier_ev")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            barriers.add(round(float(value), 9))
+    return barriers
+
+
 def _locked_source_rows(
     manifest: dict[str, Any], row_label: str
 ) -> tuple[dict[tuple[str, str], tuple[str, float | None]], dict[int, str]] | None:
@@ -450,12 +463,28 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     }
     # The overlap guard rejects borrowed evidence only for noncanonical
     # datasets; the canonical receipt necessarily shares its own observations.
+    candidate_source = None
+    preregistration_for_overlap = manifest.get("preregistration")
+    inputs_for_overlap = (
+        preregistration_for_overlap.get("recorded_inputs")
+        if isinstance(preregistration_for_overlap, dict)
+        else None
+    )
+    if isinstance(inputs_for_overlap, list) and inputs_for_overlap:
+        try:
+            candidate_source = json.loads(
+                (_REPO_ROOT / inputs_for_overlap[0]["path"]).read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError, KeyError):
+            candidate_source = None
+    candidate_barriers = _reference_barriers(candidate_source)
     if fingerprint != CANONICAL_SOURCE_FINGERPRINT:
         used_pairs = set()
         try:
             canonical_source = json.loads((_REPO_ROOT / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return False
+        used_barriers = _reference_barriers(canonical_source)
         for entry in canonical_source.get("per_path", []):
             if not isinstance(entry, dict) or not isinstance(entry.get("chemical_system"), str):
                 continue
@@ -494,7 +523,40 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
                                 ):
                                     if isinstance(prior_row.get("chemical_system"), str):
                                         used_pairs.add((prior_row["chemical_system"], prior_row["model"]))
-        if artifact_pairs & used_pairs:
+        for prior in (examples_dir.glob("*.json") if examples_dir.is_dir() else []):
+            try:
+                prior_bundle = json.loads(prior.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(prior_bundle.get("claim_predicate"), str) or not prior_bundle[
+                "claim_predicate"
+            ].startswith("signed_error_positive_fraction"):
+                continue
+            for reference in prior_bundle.get("evidence_refs", []):
+                if not isinstance(reference, dict) or reference.get("campaign") == campaign_id:
+                    continue
+                prior_manifest_rel = reference.get("campaign_manifest")
+                if not isinstance(prior_manifest_rel, str):
+                    continue
+                try:
+                    prior_manifest = json.loads((_REPO_ROOT / prior_manifest_rel).read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                prior_inputs = (
+                    prior_manifest.get("preregistration", {}).get("recorded_inputs")
+                    if isinstance(prior_manifest, dict)
+                    else None
+                )
+                if isinstance(prior_inputs, list) and prior_inputs:
+                    try:
+                        prior_source = json.loads(
+                            (_REPO_ROOT / prior_inputs[0]["path"]).read_text(encoding="utf-8")
+                        )
+                    except (OSError, json.JSONDecodeError, KeyError):
+                        prior_source = None
+                    if isinstance(prior_source, dict):
+                        used_barriers |= _reference_barriers(prior_source)
+        if artifact_pairs & used_pairs or candidate_barriers & used_barriers:
             return False
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:
