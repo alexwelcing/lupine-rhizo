@@ -430,8 +430,8 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     canonical_measured = _canonical_measured_observations()
     if canonical_measured is None:
         return False
-    artifact_measured = {
-        (row.get("path_id"), row.get("model"), round(float(row.get("signed_error_mev", float("nan"))), 4))
+    artifact_pairs = {
+        (row.get("path_id"), row.get("model"))
         for row in rows
         if isinstance(row, dict)
         and row.get("status") == "measured"
@@ -441,7 +441,7 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     # The overlap guard rejects borrowed evidence only for noncanonical
     # datasets; the canonical receipt necessarily shares its own observations.
     if fingerprint != CANONICAL_SOURCE_FINGERPRINT:
-        used_measured = set(canonical_measured)
+        used_pairs = {(identity, model) for identity, model, _ in canonical_measured}
         examples_dir = _REPO_ROOT / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
             for prior_path in sorted(examples_dir.glob("*.json")):
@@ -471,14 +471,8 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
                                     and isinstance(prior_row.get("path_id"), str)
                                     and isinstance(prior_row.get("model"), str)
                                 ):
-                                    used_measured.add(
-                                        (
-                                            prior_row["path_id"],
-                                            prior_row["model"],
-                                            round(float(prior_row.get("signed_error_mev", float("nan"))), 4),
-                                        )
-                                    )
-        if artifact_measured & used_measured:
+                                    used_pairs.add((prior_row["path_id"], prior_row["model"]))
+        if artifact_pairs & used_pairs:
             return False
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:

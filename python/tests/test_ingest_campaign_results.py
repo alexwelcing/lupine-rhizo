@@ -953,7 +953,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 },
             }
             write_artifact(artifact, fresh_rows)
-            with self.assertRaisesRegex(ValueError, "shares measured observations"):
+            with self.assertRaisesRegex(ValueError, "reuses canonical path/model provenance"):
                 module.enforce_path_minimums(root, registered(root, subset_manifest), make_bundle(), artifact, "skew-1")
 
             superset_document = json.loads(json.dumps(canonical_document))
@@ -978,7 +978,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     ]
                 },
             }
-            with self.assertRaisesRegex(ValueError, "shares measured observations"):
+            with self.assertRaisesRegex(ValueError, "reuses canonical path/model provenance"):
                 module.enforce_path_minimums(root, registered(root, superset_manifest), make_bundle(), artifact, "skew-1")
 
             # A reserialized copy of the same observations is the same dataset.

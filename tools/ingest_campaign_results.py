@@ -652,18 +652,24 @@ def enforce_path_minimums(
                 raise ValueError(
                     f"measurement {row_id} cannot read the canonical recorded source: {error}"
                 ) from error
-            canonical_measured = _measured_observations(canonical_source)
-            candidate_measured = _measured_observations(source)
-            if candidate_measured & canonical_measured:
+            canonical_pairs = {
+                (identity, model) for identity, model, _ in _measured_observations(canonical_source)
+            }
+            candidate_pairs = {
+                (identity, model) for identity, model, _ in _measured_observations(source)
+            }
+            if candidate_pairs & canonical_pairs:
                 raise ValueError(
-                    f"measurement {row_id} recorded input shares measured observations "
-                    "with the canonical dataset; independence requires disjoint evidence"
+                    f"measurement {row_id} recorded input reuses canonical path/model "
+                    "provenance; independence requires disjoint path panels"
                 )
         else:
             fingerprint = CANONICAL_SOURCE_FINGERPRINT
         examples_dir = root / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
-            candidate_measured = _measured_observations(source)
+            candidate_pairs = {
+                (identity, model) for identity, model, _ in _measured_observations(source)
+            }
             for prior_path in sorted(examples_dir.glob("*.json")):
                 try:
                     prior = json.loads(prior_path.read_text(encoding="utf-8"))
@@ -695,20 +701,15 @@ def enforce_path_minimums(
                             if isinstance(prior_document, dict)
                             else []
                         )
-                        prior_measured = {
-                            (
-                                prior_row["path_id"],
-                                prior_row["model"],
-                                round(float(prior_row["signed_error_mev"]), 4),
-                            )
+                        prior_pairs = {
+                            (prior_row["path_id"], prior_row["model"])
                             for prior_row in prior_rows
                             if isinstance(prior_row, dict)
                             and prior_row.get("status") == "measured"
                             and isinstance(prior_row.get("path_id"), str)
                             and isinstance(prior_row.get("model"), str)
-                            and isinstance(prior_row.get("signed_error_mev"), (int, float))
                         }
-                        if candidate_measured & prior_measured:
+                        if candidate_pairs & prior_pairs:
                             raise ValueError(
                                 f"measurement {row_id} shares measured observations with the "
                                 "accepted dataset of another campaign; independence requires disjoint evidence"
