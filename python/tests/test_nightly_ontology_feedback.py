@@ -512,6 +512,91 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         self.assertEqual(plan["updates"], [])
 
+    def test_h_readiness_counts_distinct_dataset_fingerprints_not_campaigns(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"},
+                        {"bundle_id": BUNDLE_B, "epistemic_status": "confirmatory"},
+                    ],
+                }
+            ]
+        }
+
+        def skew(bundle_id: str, campaign: str, fingerprint: str) -> dict:
+            receipt = bundle(BUNDLE_A, outcome="pass", campaign=campaign, status="confirmatory")
+            receipt["bundle_id"] = bundle_id
+            receipt["claim_predicate"] = "signed_error_positive_fraction>0.5"
+            receipt["measurements"] = [
+                {
+                    "metric": "signed_error_positive",
+                    "value": 0.9545,
+                    "unit": "fraction",
+                    "acceptance_test": {"comparator": "greater_than", "threshold": 0.5, "outcome": "pass"},
+                    "sample_count": 22,
+                },
+                {
+                    "metric": "median_signed_error",
+                    "value": 460.14,
+                    "unit": "meV",
+                    "acceptance_test": {"comparator": "greater_than_or_equal", "threshold": 400, "outcome": "pass"},
+                    "sample_count": 22,
+                },
+                {
+                    "metric": "median_signed_error",
+                    "value": 460.14,
+                    "unit": "meV",
+                    "acceptance_test": {"comparator": "less_than_or_equal", "threshold": 600, "outcome": "pass"},
+                    "sample_count": 22,
+                },
+            ]
+            receipt["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
+            return receipt
+
+        hypothesis_row = {
+            "literature_hypothesis_id": "hyp.sign-skew-h-grade",
+            "contract_json": hypothesis(
+                "C1", "Z1", readiness="M",
+                metric="signed_error_positive",
+                predicate="signed_error_positive_fraction>0.5",
+            ),
+        }
+        same_dataset = {
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", "sha256:" + "a" * 64),
+        }
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id=same_dataset,
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A, BUNDLE_B},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(plan["updates"], [])
+
+        distinct_datasets = {
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", "sha256:" + "b" * 64),
+        }
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id=distinct_datasets,
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A, BUNDLE_B},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(len(plan["updates"]), 1)
+        self.assertEqual(plan["updates"][0]["to_readiness"], "H")
+
     def test_mislabeled_negative_receipt_with_passing_suite_does_not_supersede(self) -> None:
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],

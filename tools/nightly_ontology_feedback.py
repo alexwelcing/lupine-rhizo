@@ -241,7 +241,16 @@ def _chain_state(
         ):
             passing.append(bundle_id)
             for reference in bundle.get("evidence_refs", []):
-                if isinstance(reference, dict) and isinstance(reference.get("campaign"), str):
+                if not isinstance(reference, dict):
+                    continue
+                if expected_predicate.startswith("signed_error_positive_fraction"):
+                    # Independence is the dataset, not the campaign name: count
+                    # distinct fingerprints; family receipts without one cannot
+                    # contribute to H readiness.
+                    fingerprint = reference.get("dataset_fingerprint")
+                    if isinstance(fingerprint, str) and HASH_RE.fullmatch(fingerprint):
+                        campaigns.add(("dataset", fingerprint))
+                elif isinstance(reference.get("campaign"), str):
                     campaigns.add(reference["campaign"])
     grade = "H" if len(campaigns) >= 2 else "M" if passing else "L"
     return {

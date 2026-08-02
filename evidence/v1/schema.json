@@ -181,6 +181,14 @@
                 }
               }
             ]
+          },
+          "evidence_refs": {
+            "items": {
+              "required": [
+                "dataset_fingerprint"
+              ]
+            },
+            "description": "Sign-skew receipts must carry the analyzed dataset fingerprint so readiness grading can count distinct datasets rather than campaign names."
           }
         }
       }

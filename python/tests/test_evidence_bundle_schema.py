@@ -182,6 +182,14 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_sign_skew_receipts_must_carry_the_dataset_fingerprint(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        del bundle["evidence_refs"][0]["dataset_fingerprint"]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
     def test_sign_skew_predicate_is_the_single_frozen_const(self) -> None:
         bundle = load_json(
             EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
