@@ -100,14 +100,16 @@ impl CloudCellSpan {
         identity: &CloudCellTelemetry,
         target_job: &str,
         admission: Option<&Admission>,
+        schedule_name: Option<&str>,
         dispatch_status: &str,
         dispatch_attempt: u32,
     ) -> Self {
         Self {
             identity: identity.clone(),
             target_job: target_job.to_string(),
-            schedule_name: admission
-                .map(|value| value.schedule.clone())
+            schedule_name: schedule_name
+                .map(str::to_owned)
+                .or_else(|| admission.map(|value| value.schedule.clone()))
                 .unwrap_or_else(|| "unscheduled-campaign".into()),
             dispatch_status: dispatch_status.into(),
             dispatch_attempt,
@@ -360,6 +362,7 @@ mod tests {
                 daily_gpu_hour_cap: 2.0,
                 duplicate: false,
             }),
+            None,
             "admitted",
             0,
         );
@@ -379,6 +382,20 @@ mod tests {
     }
 
     #[test]
+    fn manual_schedule_identity_is_preserved_without_budget_admission() {
+        let span = CloudCellSpan::dispatched(
+            &identity(),
+            "mlip-cell-mace",
+            None,
+            Some("manual"),
+            "admitted",
+            0,
+        );
+
+        assert_eq!(span.attributes()["mlip.schedule.name"], "manual");
+    }
+
+    #[test]
     fn cloud_trace_transport_uses_phoenix_supported_protobuf() {
         let span = CloudCellSpan::dispatched(
             &identity(),
@@ -390,6 +407,7 @@ mod tests {
                 daily_gpu_hour_cap: 2.0,
                 duplicate: false,
             }),
+            None,
             "admitted",
             0,
         );
@@ -416,10 +434,22 @@ mod tests {
 
     #[test]
     fn retry_attempts_share_a_trace_but_use_distinct_span_ids() {
-        let first =
-            CloudCellSpan::dispatched(&identity(), "mlip-cell-mace", None, "dispatch_failed", 0);
-        let retry =
-            CloudCellSpan::dispatched(&identity(), "mlip-cell-mace", None, "dispatch_failed", 1);
+        let first = CloudCellSpan::dispatched(
+            &identity(),
+            "mlip-cell-mace",
+            None,
+            None,
+            "dispatch_failed",
+            0,
+        );
+        let retry = CloudCellSpan::dispatched(
+            &identity(),
+            "mlip-cell-mace",
+            None,
+            None,
+            "dispatch_failed",
+            1,
+        );
 
         assert_eq!(
             first.delivery_id("cloud-task-1"),

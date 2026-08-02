@@ -476,6 +476,7 @@ async fn handle_run(
                     identity,
                     &req.job_name,
                     admission.as_ref(),
+                    payload.schedule_name.as_deref(),
                     "admitted",
                     dispatch_attempt,
                 );
@@ -508,6 +509,7 @@ async fn handle_run(
                     identity,
                     &req.job_name,
                     admission.as_ref(),
+                    payload.schedule_name.as_deref(),
                     "dispatch_failed",
                     dispatch_attempt,
                 );
@@ -540,6 +542,7 @@ async fn handle_run(
                     identity,
                     &req.job_name,
                     None,
+                    payload.schedule_name.as_deref(),
                     "dispatch_failed",
                     dispatch_attempt,
                 );
