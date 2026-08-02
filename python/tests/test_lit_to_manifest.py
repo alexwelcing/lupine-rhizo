@@ -26,6 +26,7 @@ EXPECTED_OUTPUTS = [
     "deng-underbinding.campaign-manifest.v1.json",
     "lian-ts-finetuning.campaign-manifest.v1.json",
     "migration-underprediction.campaign-manifest.v1.json",
+    "protocol-offset-sign-skew.campaign-manifest.v1.json",
 ]
 
 
@@ -41,6 +42,23 @@ def load_converter():
     return module
 
 
+def load_feedback():
+    feedback_path = CONVERTER_PATH.parent / "nightly_ontology_feedback.py"
+    spec = importlib.util.spec_from_file_location("nightly_ontology_feedback", feedback_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_t1_median_band_matches_the_frozen_feedback_suite() -> None:
+    converter = load_converter()
+    feedback = load_feedback()
+    suite = feedback.AUXILIARY_ACCEPTANCE_SUITES[converter.T1_PREDICATE]
+    thresholds = {entry[3] for entry in suite}
+    assert thresholds == {float(bound) for bound in converter.T1_MEDIAN_BAND_MEV}
+
+
 def convert(converter, hypothesis, *, hypothesis_id="deng-underbinding", root=ROOT):
     return converter.convert_hypothesis(
         hypothesis,
@@ -51,7 +69,7 @@ def convert(converter, hypothesis, *, hypothesis_id="deng-underbinding", root=RO
     )
 
 
-def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> None:
+def test_a3_examples_convert_to_checked_in_deterministic_fixtures() -> None:
     converter = load_converter()
     validator = Draft202012Validator(
         load_json(CAMPAIGN_SCHEMA), format_checker=FormatChecker()
@@ -88,12 +106,28 @@ def test_three_a3_examples_convert_to_checked_in_deterministic_fixtures() -> Non
                 "premise_id": "chemistry-held-out-neb",
             }
         ]
-        assert first["acceptance_test"] == {
-            "metric": "barrier_mae",
-            "operator": "lte",
-            "threshold": 40,
-            "unit": "meV",
-        }
+        if "T1" in hypothesis["bindings"]["errorTypes"]:
+            assert first["acceptance_test"] == {
+                "metric": "signed_error_positive",
+                "operator": "gt",
+                "threshold": 0.5,
+                "unit": "fraction",
+            }
+            recorded_source = ROOT / "data/candidates/z1-union-campaign.json"
+            assert first["preregistration"]["recorded_inputs"] == [
+                {
+                    "path": "data/candidates/z1-union-campaign.json",
+                    "sha256": "sha256:"
+                    + hashlib.sha256(recorded_source.read_bytes()).hexdigest(),
+                }
+            ]
+        else:
+            assert first["acceptance_test"] == {
+                "metric": "barrier_mae",
+                "operator": "lte",
+                "threshold": 40,
+                "unit": "meV",
+            }
         assert first["execution"]["candidate_panel"] == {
             "path": PANEL_PATH,
             "sha256": PANEL_SHA256,
@@ -123,6 +157,23 @@ def test_missing_panel_ref_uses_nearest_locked_panel(tmp_path: Path) -> None:
         "path": PANEL_PATH,
         "sha256": PANEL_SHA256,
     }
+
+
+def test_t1_conversion_is_locked_to_the_canonical_hypothesis(tmp_path: Path) -> None:
+    converter = load_converter()
+    hypothesis = load_json(INPUTS / "protocol-offset-sign-skew.json")
+    template = tmp_path / "campaigns" / "v1" / "z1.campaign-manifest.v1.json"
+    template.parent.mkdir(parents=True)
+    template.write_bytes((ROOT / "campaigns" / "v1" / template.name).read_bytes())
+    panel = tmp_path / PANEL_PATH
+    panel.parent.mkdir(parents=True)
+    panel.write_bytes((ROOT / PANEL_PATH).read_bytes())
+    source = tmp_path / "examples" / "literature-hypotheses" / "some-other-t1.json"
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps(hypothesis), encoding="utf-8")
+
+    with pytest.raises(converter.ConversionError, match="canonical retrospective"):
+        convert(converter, hypothesis, hypothesis_id="some-other-t1", root=tmp_path)
 
 
 @pytest.mark.parametrize("status", ["rejected", "superseded"])
@@ -244,7 +295,7 @@ def test_converter_rejects_panel_symlink_that_escapes_repo(tmp_path: Path) -> No
             "materialClasses",
         ),
         (
-            lambda value: value["bindings"].__setitem__("errorTypes", ["T1"]),
+            lambda value: value["bindings"].__setitem__("errorTypes", ["T6"]),
             "errorTypes",
         ),
         (

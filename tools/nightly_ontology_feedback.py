@@ -6,15 +6,31 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
+import statistics
+
+import rfc8785
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 ACCEPTANCE_PREDICATE_RE = re.compile(
-    r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev)<=(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
+    r"^(?P<metric>[a-z0-9_]+)_(?P<unit>mev|fraction)(?P<comparator><=|>)(?P<threshold>[0-9]+(?:\.[0-9]+)?)$"
 )
+PREDICATE_COMPARATORS = {"<=": "less_than_or_equal", ">": "greater_than"}
+# Canonical auxiliary acceptance suite per predicate family: the exact frozen
+# secondary measurements a receipt may carry. Must mirror the T1 demotion band
+# in tools/lit_to_manifest.py (T1_MEDIAN_BAND_MEV). Auxiliary measurements
+# outside the suite are rejected so permissive per-receipt thresholds cannot
+# launder a falsified frozen prediction.
+AUXILIARY_ACCEPTANCE_SUITES = {
+    "signed_error_positive_fraction>0.5": {
+        ("median_signed_error", "mev", "greater_than_or_equal", 400.0),
+        ("median_signed_error", "mev", "less_than_or_equal", 600.0),
+    }
+}
 READINESS_RANK = {"L": 0, "M": 1, "H": 2}
 
 
@@ -41,6 +57,16 @@ def _timestamp_date(value: Any) -> date | None:
         return None
 
 
+def _measurement_outcome(comparator: Any, value: float, threshold: float) -> str | None:
+    if comparator == "less_than_or_equal":
+        return "pass" if value <= threshold else "fail"
+    if comparator == "greater_than_or_equal":
+        return "pass" if value >= threshold else "fail"
+    if comparator == "greater_than":
+        return "pass" if value > threshold else "fail"
+    return None
+
+
 def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
     provenance = bundle.get("provenance")
     timestamp = provenance.get("timestamp") if isinstance(provenance, dict) else None
@@ -54,6 +80,7 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
         else None
     )
     outcomes: list[str] = []
+    covered: set[tuple[Any, ...]] = set()
     for measurement in bundle.get("measurements", []):
         if not isinstance(measurement, dict):
             continue
@@ -70,26 +97,613 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
             or isinstance(value, bool)
             or not isinstance(threshold, (int, float))
             or isinstance(threshold, bool)
-            or comparator != "less_than_or_equal"
+            or not math.isfinite(value)
+            or not math.isfinite(threshold)
             or asserted_outcome not in {"pass", "fail"}
         ):
             raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
-        expected_threshold = float(predicate_match.group("threshold"))
-        if (
-            measurement.get("metric") != predicate_match.group("metric")
-            or str(measurement.get("unit", "")).lower() != predicate_match.group("unit")
-            or float(threshold) != expected_threshold
-        ):
-            raise ValueError(
-                "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
+        binds_predicate = (
+            measurement.get("metric") == predicate_match.group("metric")
+            and str(measurement.get("unit", "")).lower() == predicate_match.group("unit")
+        )
+        if binds_predicate:
+            # The predicate-bound measurement is validated strictly against the
+            # predicate it claims to satisfy.
+            expected_comparator = PREDICATE_COMPARATORS[predicate_match.group("comparator")]
+            if comparator != expected_comparator or float(threshold) != float(
+                predicate_match.group("threshold")
+            ):
+                raise ValueError(
+                    "EvidenceBundle acceptance threshold or metric disagrees with its bound predicate"
+                )
+        else:
+            # Auxiliary typed measurements (e.g. a frozen median band) must be
+            # part of the predicate family's canonical frozen acceptance suite;
+            # arbitrary per-receipt thresholds are rejected.
+            suite = AUXILIARY_ACCEPTANCE_SUITES.get(predicate, set())
+            aux_key = (
+                measurement.get("metric"),
+                str(measurement.get("unit", "")).lower(),
+                comparator,
+                float(threshold),
             )
-        measured_outcome = "pass" if value <= threshold else "fail"
+            if aux_key not in suite:
+                raise ValueError(
+                    "EvidenceBundle auxiliary measurement is outside the frozen acceptance suite"
+                )
+        measured_outcome = _measurement_outcome(comparator, value, threshold)
+        if measured_outcome is None:
+            raise ValueError("EvidenceBundle contains an invalid acceptance measurement")
         if asserted_outcome != measured_outcome:
             raise ValueError(
                 "EvidenceBundle asserted acceptance outcome disagrees with its measured value"
             )
         outcomes.append(measured_outcome)
+        covered.add(
+            (
+                measurement.get("metric"),
+                str(measurement.get("unit", "")).lower(),
+                comparator,
+                float(threshold),
+            )
+        )
+    if predicate in AUXILIARY_ACCEPTANCE_SUITES and outcomes:
+        # The frozen acceptance suite is conjunctive: the predicate-bound
+        # measurement plus every canonical auxiliary bound must be present, so
+        # an omitted failing bound cannot count as a pass.
+        required = set(AUXILIARY_ACCEPTANCE_SUITES[predicate])
+        required.add(
+            (
+                predicate_match.group("metric"),
+                predicate_match.group("unit"),
+                PREDICATE_COMPARATORS[predicate_match.group("comparator")],
+                float(predicate_match.group("threshold")),
+            )
+        )
+        if covered < required:
+            raise ValueError(
+                "EvidenceBundle carries an incomplete acceptance suite for its bound predicate"
+            )
     return outcomes
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _artifact_rows(path: Path) -> list[dict] | None:
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    rows = (document.get("per_row") or document.get("per_path")) if isinstance(document, dict) else None
+    if not isinstance(rows, list) or not rows:
+        return None
+    return rows
+
+
+def _fingerprint_from_rows(rows: list[dict]) -> str | None:
+    observations = []
+    seen: set[tuple[str, str]] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            return None
+        identity = row.get("path_id")
+        model = row.get("model")
+        status = row.get("status")
+        if not isinstance(identity, str) or not isinstance(model, str):
+            return None
+        if (identity, model) in seen:
+            return None
+        seen.add((identity, model))
+        if status == "measured":
+            value = row.get("signed_error_mev")
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(value)
+            ):
+                return None
+            observations.append([identity, model, "measured", round(float(value), 4)])
+        elif status != "failed":
+            return None
+    observations.sort()
+    canonical = json.dumps(observations, separators=(",", ":")).encode()
+    return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
+def _artifact_fingerprint(path: Path) -> str | None:
+    """Recompute a sign-skew dataset fingerprint from a cited artifact's rows."""
+    rows = _artifact_rows(path)
+    if rows is None:
+        return None
+    return _fingerprint_from_rows(rows)
+
+
+def _artifact_path_statistics(rows: list[dict]) -> tuple[int, float, float] | None:
+    per_path: dict[str, list[float]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or row.get("status") != "measured":
+            continue
+        value = row.get("signed_error_mev")
+        identity = row.get("path_id")
+        if (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and isinstance(identity, str)
+        ):
+            per_path.setdefault(identity, []).append(float(value))
+    if not per_path:
+        return None
+    path_values = [statistics.median(values) for values in per_path.values()]
+    fraction = sum(1 for value in path_values if value > 0) / len(path_values)
+    return len(per_path), fraction, statistics.median(path_values)
+
+
+def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
+    """Ingestion-grade reconciliation of typed measurements with artifact rows."""
+    stats = _artifact_path_statistics(rows)
+    if stats is None:
+        return False
+    measured_paths, fraction, median = stats
+    for measurement in bundle.get("measurements", []):
+        if not isinstance(measurement, dict):
+            return False
+        metric = measurement.get("metric")
+        value = measurement.get("value")
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+        ):
+            return False
+        if metric == "signed_error_positive" and abs(float(value) - fraction) > 5e-5:
+            return False
+        if metric == "median_signed_error" and abs(float(value) - median) > 0.01:
+            return False
+        if measurement.get("sample_count") != measured_paths:
+            return False
+    return True
+
+
+SIGN_SKEW_PATH_FLOOR = 22
+
+CANONICAL_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
+CANONICAL_SOURCE_FINGERPRINT = (
+    "sha256:b9137ff7830c50cfdc59ec837ef2bb099326657c5d5e2d2ae158143360653989"
+)
+
+
+def _canonical_measured_observations() -> set[tuple[str, str, float]] | None:
+    try:
+        source = json.loads((_REPO_ROOT / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    observations: set[tuple[str, str, float]] = set()
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        identity = entry.get("path_id")
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if (
+                value is not None
+                and record.get("complete", False)
+                and isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(value)
+            ):
+                observations.add((identity, model, round(float(value), 4)))
+    return observations
+
+# The sign-skew family's canonical model identities. Model ids are caller-controlled
+# strings, so authentication binds the full (id, artifact hash, version) triple;
+# a consistently renamed clone cannot keep these.
+CANONICAL_MODEL_ENTRIES = {
+    ("chgnet", "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890", "chgnet 0.4.2"),
+    ("mace-mp-small", "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694", "mace-torch 0.3.16 / small"),
+    ("mace-mp-medium", "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3", "mace-torch 0.3.16 / medium"),
+    ("mace-mpa-0-medium", "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9", "mace-torch 0.3.16 / mpa-0 medium"),
+}
+
+
+def _reference_barriers(source: Any) -> set[float]:
+    barriers: set[float] = set()
+    if not isinstance(source, dict):
+        return barriers
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        value = entry.get("reference_barrier_ev")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            barriers.add(round(float(value), 9))
+    return barriers
+
+
+def _locked_source_rows(
+    manifest: dict[str, Any], row_label: str
+) -> tuple[dict[tuple[str, str], tuple[str, float | None]], dict[int, str]] | None:
+    """Load the manifest's locked recorded input as expectations and identities."""
+    preregistration = manifest.get("preregistration")
+    recorded_inputs = (
+        preregistration.get("recorded_inputs")
+        if isinstance(preregistration, dict)
+        else None
+    )
+    if not isinstance(recorded_inputs, list) or len(recorded_inputs) != 1:
+        return None
+    declared = recorded_inputs[0]
+    if not isinstance(declared, dict) or not isinstance(declared.get("path"), str):
+        return None
+    source_path = _REPO_ROOT / declared["path"]
+    try:
+        if "sha256:" + hashlib.sha256(source_path.read_bytes()).hexdigest() != declared.get("sha256"):
+            return None
+        source = json.loads(source_path.read_text(encoding="utf-8"))
+    except OSError:
+        return None
+    except json.JSONDecodeError:
+        return None
+    expected: dict[tuple[str, str], tuple[str, float | None]] = {}
+    identities: dict[int, str] = {}
+    chemistries: dict[int, str] = {}
+    seen_identities: set[str] = set()
+    for position, entry in enumerate(source.get("per_path", [])):
+        if not isinstance(entry, dict) or not isinstance(entry.get("path_id"), str):
+            continue
+        identity = entry["path_id"]
+        index = entry.get("path_index", position)
+        if not isinstance(index, int) or index in identities or identity in seen_identities:
+            return None
+        seen_identities.add(identity)
+        identities[index] = identity
+        if isinstance(entry.get("chemical_system"), str):
+            chemistries[index] = entry["chemical_system"]
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if (
+                value is not None
+                and record.get("complete", False)
+                and isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(value)
+            ):
+                expected[(identity, model)] = ("measured", float(value))
+        for model in (entry.get("models_missing") or {}):
+            expected[(identity, model)] = ("failed", None)
+    return expected, identities, chemistries
+
+
+PREDICATE_MANIFEST_OPERATORS = {"<=": "lte", ">": "gt"}
+
+
+def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -> bool:
+    """Ingestion-grade authentication of one sign-skew dataset reference."""
+    fingerprint = reference.get("dataset_fingerprint")
+    artifact = reference.get("artifact")
+    if not (
+        isinstance(fingerprint, str)
+        and HASH_RE.fullmatch(fingerprint)
+        and isinstance(artifact, str)
+    ):
+        return False
+    rows = _artifact_rows(_REPO_ROOT / artifact)
+    if rows is None or _fingerprint_from_rows(rows) != fingerprint:
+        return False
+    try:
+        artifact_digest = "sha256:" + hashlib.sha256((_REPO_ROOT / artifact).read_bytes()).hexdigest()
+    except OSError:
+        return False
+    if reference.get("artifact_hash") != artifact_digest:
+        return False
+    stats = _artifact_path_statistics(rows)
+    if stats is None or stats[0] < SIGN_SKEW_PATH_FLOOR:
+        return False
+    manifest_rel = reference.get("campaign_manifest")
+    if not isinstance(manifest_rel, str):
+        return False
+    manifest_path = _REPO_ROOT / manifest_rel
+    try:
+        manifest_bytes = manifest_path.read_bytes()
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return False
+    if reference.get("campaign_manifest_hash") != (
+        "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
+    ):
+        return False
+    if reference.get("campaign") != manifest.get("campaign_id"):
+        return False
+    try:
+        registry = json.loads((_REPO_ROOT / "registry" / "campaigns.v1.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    unhashed = {key: value for key, value in manifest.items() if key != "content_hash"}
+    recomputed = "sha256:" + hashlib.sha256(rfc8785.dumps(unhashed)).hexdigest()
+    if manifest.get("content_hash") != recomputed:
+        return False
+    campaign_id = manifest.get("campaign_id")
+    if not any(
+        isinstance(entry, dict)
+        and entry.get("campaign_id") == campaign_id
+        and entry.get("content_hash") == recomputed
+        for entry in registry.get("campaigns", [])
+    ):
+        return False
+    predicate = bundle.get("claim_predicate")
+    predicate_match = (
+        ACCEPTANCE_PREDICATE_RE.fullmatch(predicate) if isinstance(predicate, str) else None
+    )
+    acceptance = manifest.get("acceptance_test")
+    if (
+        predicate_match is None
+        or not isinstance(acceptance, dict)
+        or acceptance.get("metric") != predicate_match.group("metric")
+        or acceptance.get("operator") != PREDICATE_MANIFEST_OPERATORS[predicate_match.group("comparator")]
+        or float(acceptance.get("threshold", -1)) != float(predicate_match.group("threshold"))
+        or str(acceptance.get("unit", "")).lower() != predicate_match.group("unit")
+    ):
+        return False
+    canonical_measured = _canonical_measured_observations()
+    if canonical_measured is None:
+        return False
+    if any(
+        isinstance(row, dict)
+        and row.get("status") == "measured"
+        and not (isinstance(row.get("chemical_system"), str) and row.get("chemical_system", "").strip())
+        for row in rows
+    ):
+        return False
+    artifact_pairs = {
+        (row.get("chemical_system"), row.get("model"))
+        for row in rows
+        if isinstance(row, dict)
+        and row.get("status") == "measured"
+        and isinstance(row.get("chemical_system"), str)
+        and isinstance(row.get("model"), str)
+    }
+    # The overlap guard rejects borrowed evidence only for noncanonical
+    # datasets; the canonical receipt necessarily shares its own observations.
+    candidate_source = None
+    preregistration_for_overlap = manifest.get("preregistration")
+    inputs_for_overlap = (
+        preregistration_for_overlap.get("recorded_inputs")
+        if isinstance(preregistration_for_overlap, dict)
+        else None
+    )
+    if isinstance(inputs_for_overlap, list) and inputs_for_overlap:
+        try:
+            candidate_source = json.loads(
+                (_REPO_ROOT / inputs_for_overlap[0]["path"]).read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError, KeyError):
+            candidate_source = None
+    candidate_barriers = _reference_barriers(candidate_source)
+    if fingerprint != CANONICAL_SOURCE_FINGERPRINT:
+        used_pairs = set()
+        try:
+            canonical_source = json.loads((_REPO_ROOT / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        used_barriers = _reference_barriers(canonical_source)
+        for entry in canonical_source.get("per_path", []):
+            if not isinstance(entry, dict) or not isinstance(entry.get("chemical_system"), str):
+                continue
+            for model, record in (entry.get("per_model") or {}).items():
+                value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+                if value is not None and record.get("complete", False):
+                    used_pairs.add((entry["chemical_system"], model))
+        examples_dir = _REPO_ROOT / "evidence" / "v1" / "examples"
+        if examples_dir.is_dir():
+            for prior_path in sorted(examples_dir.glob("*.json")):
+                try:
+                    prior = json.loads(prior_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                if not isinstance(prior.get("claim_predicate"), str) or not prior[
+                    "claim_predicate"
+                ].startswith("signed_error_positive_fraction"):
+                    continue
+                for reference in prior.get("evidence_refs", []):
+                    if not isinstance(reference, dict):
+                        continue
+                    if reference.get("campaign") == campaign_id:
+                        continue
+                    if reference.get("dataset_fingerprint") == fingerprint:
+                        continue
+                    prior_artifact = reference.get("artifact")
+                    if isinstance(prior_artifact, str):
+                        prior_rows = _artifact_rows(_REPO_ROOT / prior_artifact)
+                        if prior_rows:
+                            for prior_row in prior_rows:
+                                if (
+                                    isinstance(prior_row, dict)
+                                    and prior_row.get("status") == "measured"
+                                    and isinstance(prior_row.get("path_id"), str)
+                                    and isinstance(prior_row.get("model"), str)
+                                ):
+                                    if isinstance(prior_row.get("chemical_system"), str):
+                                        used_pairs.add((prior_row["chemical_system"], prior_row["model"]))
+        for prior in (examples_dir.glob("*.json") if examples_dir.is_dir() else []):
+            try:
+                prior_bundle = json.loads(prior.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(prior_bundle.get("claim_predicate"), str) or not prior_bundle[
+                "claim_predicate"
+            ].startswith("signed_error_positive_fraction"):
+                continue
+            for reference in prior_bundle.get("evidence_refs", []):
+                if not isinstance(reference, dict) or reference.get("campaign") == campaign_id:
+                    continue
+                prior_manifest_rel = reference.get("campaign_manifest")
+                if not isinstance(prior_manifest_rel, str):
+                    continue
+                try:
+                    prior_manifest = json.loads((_REPO_ROOT / prior_manifest_rel).read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                prior_inputs = (
+                    prior_manifest.get("preregistration", {}).get("recorded_inputs")
+                    if isinstance(prior_manifest, dict)
+                    else None
+                )
+                if isinstance(prior_inputs, list) and prior_inputs:
+                    try:
+                        prior_source = json.loads(
+                            (_REPO_ROOT / prior_inputs[0]["path"]).read_text(encoding="utf-8")
+                        )
+                    except (OSError, json.JSONDecodeError, KeyError):
+                        prior_source = None
+                    if isinstance(prior_source, dict):
+                        used_barriers |= _reference_barriers(prior_source)
+        if artifact_pairs & used_pairs or candidate_barriers & used_barriers:
+            return False
+    locked_result = _locked_source_rows(manifest, "receipt")
+    if locked_result is None:
+        return False
+    expected, locked_identities, locked_chemistries = locked_result
+    panel_lock = (
+        manifest.get("execution", {}).get("candidate_panel")
+        if isinstance(manifest.get("execution"), dict)
+        else None
+    )
+    if not isinstance(panel_lock, dict) or not isinstance(panel_lock.get("path"), str):
+        return False
+    panel_path = _REPO_ROOT / panel_lock["path"]
+    try:
+        if "sha256:" + hashlib.sha256(panel_path.read_bytes()).hexdigest() != panel_lock.get("sha256"):
+            return False
+        panel = json.loads(panel_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    panel_rows = panel.get("per_path") or panel.get("paths") or []
+    panel_identities = {}
+    panel_chemistries = {}
+    for position, entry in enumerate(panel_rows):
+        if isinstance(entry, dict):
+            key = entry.get("path_index", position)
+            if isinstance(key, int):
+                panel_identities[key] = entry.get("path_id")
+                panel_chemistries[key] = entry.get("chemical_system")
+    source_chemistries: dict[int, str] = {}
+    preregistration = manifest.get("preregistration")
+    recorded_inputs = (
+        preregistration.get("recorded_inputs")
+        if isinstance(preregistration, dict)
+        else None
+    )
+    source_for_chemistry = None
+    if isinstance(recorded_inputs, list) and recorded_inputs:
+        try:
+            source_for_chemistry = json.loads(
+                (_REPO_ROOT / recorded_inputs[0]["path"]).read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError, KeyError):
+            source_for_chemistry = None
+    if isinstance(source_for_chemistry, dict):
+        for position, entry in enumerate(source_for_chemistry.get("per_path", [])):
+            if isinstance(entry, dict):
+                key = entry.get("path_index", position)
+                if isinstance(key, int) and isinstance(entry.get("chemical_system"), str):
+                    source_chemistries[key] = entry["chemical_system"]
+    if any(panel_identities.get(index) != identity for index, identity in locked_identities.items()):
+        return False
+    if any(
+        panel_chemistries.get(index) != source_chemistries.get(index)
+        for index in locked_identities
+    ):
+        return False
+    required_models = {
+        model.get("model_id")
+        for model in manifest.get("available_models", [])
+        if isinstance(model, dict)
+    }
+    required_models.discard(None)
+    declared_entries = {
+        (model.get("model_id"), model.get("artifact_hash"), model.get("version"))
+        for model in manifest.get("available_models", [])
+        if isinstance(model, dict)
+    }
+    if declared_entries != CANONICAL_MODEL_ENTRIES:
+        return False
+    if required_models:
+        pairs = {
+            (row.get("path_id"), row.get("model"))
+            for row in rows
+            if isinstance(row, dict)
+            and isinstance(row.get("path_id"), str)
+            and isinstance(row.get("model"), str)
+        }
+        models_in_rows = {model for _, model in pairs}
+        if any(model not in required_models for model in models_in_rows):
+            return False
+        paths = {path for path, _ in pairs}
+        if any(
+            (path, model) not in pairs
+            for path in paths
+            for model in required_models
+        ):
+            return False
+    row_by_pair = {
+        (row.get("path_id"), row.get("model")): row
+        for row in rows
+        if isinstance(row, dict)
+    }
+    if set(row_by_pair) != set(expected):
+        return False
+    for key, (status, value) in expected.items():
+        row = row_by_pair.get(key)
+        if row is None or row.get("status") != status:
+            return False
+        identity_index = next(
+            (index for index, identity in locked_identities.items() if identity == key[0]),
+            None,
+        )
+        if identity_index is not None and row.get("chemical_system") != locked_chemistries.get(identity_index):
+            return False
+        if status == "measured" and (
+            not isinstance(row.get("signed_error_mev"), (int, float))
+            or round(row["signed_error_mev"], 4) != round(value, 4)
+        ):
+            return False
+    return _receipt_matches_artifact(bundle, rows)
+
+
+def _confirms_instead(bundle: dict[str, Any], as_of: date) -> bool:
+    """True when a self-labeled negative receipt's typed suite actually passes."""
+    measurements = bundle.get("measurements")
+    if not isinstance(measurements, list) or not measurements:
+        return False
+    outcomes = _acceptance_outcomes(bundle, as_of)
+    return bool(outcomes) and all(outcome == "pass" for outcome in outcomes)
+
+
+def _falsifies_consistently(bundle: dict[str, Any], as_of: date) -> bool:
+    """A negative sign-skew receipt must reconcile with an artifact whose suite fails.
+
+    Untyped dated refutation receipts remain supported; typed receipts must
+    authenticate against their artifact and carry a genuinely failing outcome.
+    """
+    measurements = bundle.get("measurements")
+    if not isinstance(measurements, list) or not measurements:
+        return True
+    if _confirms_instead(bundle, as_of):
+        return False
+    predicate = bundle.get("claim_predicate")
+    if not isinstance(predicate, str) or not predicate.startswith(
+        "signed_error_positive_fraction"
+    ):
+        return True
+    outcomes = _acceptance_outcomes(bundle, as_of)
+    if not outcomes or not any(outcome == "fail" for outcome in outcomes):
+        return False
+    # A typed negative must pass the full ingestion-grade authenticator: floor,
+    # model coverage, campaign manifest, locked-source binding, and reconciled
+    # statistics — falsification may not come from an invented artifact either.
+    return any(
+        isinstance(reference, dict) and _authenticate_sign_skew(bundle, reference)
+        for reference in bundle.get("evidence_refs", [])
+    )
 
 
 def _chain_claim(chain: str, assumptions: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -153,13 +767,31 @@ def _chain_state(
             continue
         if bundle_id not in defined:
             defined.append(bundle_id)
+        family_authenticated: bool | None = None
+        if expected_predicate.startswith("signed_error_positive_fraction"):
+            family_authenticated = any(
+                isinstance(reference, dict)
+                and _authenticate_sign_skew(bundle, reference)
+                for reference in bundle.get("evidence_refs", [])
+            )
         if (
             bundle.get("claim_predicate") == expected_predicate
+            and bundle.get("epistemic_status") == "confirmatory"
             and all(outcome == "pass" for outcome in outcomes)
+            and family_authenticated is not False
         ):
             passing.append(bundle_id)
+            counted_identity = False
             for reference in bundle.get("evidence_refs", []):
-                if isinstance(reference, dict) and isinstance(reference.get("campaign"), str):
+                if not isinstance(reference, dict):
+                    continue
+                if expected_predicate.startswith("signed_error_positive_fraction"):
+                    # Independence is the dataset, not the campaign name: count
+                    # at most one authenticated fingerprint per evaluated bundle.
+                    if not counted_identity and _authenticate_sign_skew(bundle, reference):
+                        campaigns.add(("dataset", reference["dataset_fingerprint"]))
+                        counted_identity = True
+                elif isinstance(reference.get("campaign"), str):
                     campaigns.add(reference["campaign"])
     grade = "H" if len(campaigns) >= 2 else "M" if passing else "L"
     return {
@@ -242,6 +874,14 @@ def build_feedback_plan(
             for bundle_id in state["bundle_ids"]
             if bundle_id in new_bundle_ids
             and evidence_by_id[bundle_id].get("epistemic_status") == "negative"
+            # Supersession requires negative evidence on the hypothesis's own
+            # predicate; a failure on a shared premise's other predicate must
+            # not reject it.
+            and evidence_by_id[bundle_id].get("claim_predicate") == expected_predicate
+            # A mislabeled receipt whose typed suite actually passes is a
+            # confirmation, not a refutation; a typed negative must reconcile
+            # with an artifact whose suite genuinely fails.
+            and _falsifies_consistently(evidence_by_id[bundle_id], cycle_date)
         )
         if old_status not in {"rejected", "superseded"} and negative_new:
             new_status = "superseded"

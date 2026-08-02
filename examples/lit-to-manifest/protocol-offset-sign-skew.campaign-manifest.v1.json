@@ -1,0 +1,133 @@
+{
+  "acceptance_test": {
+    "metric": "signed_error_positive",
+    "operator": "gt",
+    "threshold": 0.5,
+    "unit": "fraction"
+  },
+  "available_models": [
+    {
+      "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+      "model_id": "chgnet",
+      "version": "chgnet 0.4.2"
+    },
+    {
+      "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+      "model_id": "mace-mp-small",
+      "version": "mace-torch 0.3.16 / small"
+    },
+    {
+      "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+      "model_id": "mace-mp-medium",
+      "version": "mace-torch 0.3.16 / medium"
+    },
+    {
+      "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+      "model_id": "mace-mpa-0-medium",
+      "version": "mace-torch 0.3.16 / mpa-0 medium"
+    }
+  ],
+  "campaign_id": "literature.protocol-offset-sign-skew.v1",
+  "content_hash": "sha256:28107e55320184b86584afc93b604b828b48035761c5c8145cf9ad3f7ed3324a",
+  "demotion_conditions": [
+    {
+      "action": "demote",
+      "condition_id": "demote.z1.protocol-offset-sign-skew.fraction",
+      "metric": "signed_error_positive",
+      "operator": "lte",
+      "threshold": 0.5,
+      "unit": "fraction"
+    },
+    {
+      "action": "demote",
+      "condition_id": "demote.z1.protocol-offset-sign-skew.median-low",
+      "metric": "median_signed_error_mev",
+      "operator": "lt",
+      "threshold": 400,
+      "unit": "meV"
+    },
+    {
+      "action": "demote",
+      "condition_id": "demote.z1.protocol-offset-sign-skew.median-high",
+      "metric": "median_signed_error_mev",
+      "operator": "gt",
+      "threshold": 600,
+      "unit": "meV"
+    }
+  ],
+  "evidence_requirements": [
+    {
+      "artifact_type": "neb-path-set",
+      "description": "Recorded per-path sparse-anchor and reference barrier measurements from the locked Z1 union campaign artifact; the analysis reuses recorded rows and requires no fresh held-out compute.",
+      "minimum_count": 22,
+      "requirement_id": "e.z1.recorded-path-set"
+    },
+    {
+      "artifact_type": "model-measurements",
+      "description": "Per-path predictions from every available model, including signed errors and failures without imputation.",
+      "minimum_count": 1,
+      "requirement_id": "e.z1.model-results"
+    }
+  ],
+  "exclusions": [
+    {
+      "disposition": "excluded",
+      "rationale": "No reproducible UMA runtime and checkpoint are frozen. Its absence narrows scope but cannot block available models.",
+      "subject": "uma-family"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Exclude comparisons mixing neutral and charged defects, different hop mechanisms, or unmatched reference paths.",
+      "subject": "mechanism-or-charge-mismatch"
+    }
+  ],
+  "execution": {
+    "candidate_panel": {
+      "path": "data/candidates/z1_nebdft2k_barriers.lock.json",
+      "sha256": "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68"
+    },
+    "excluded_models_block_execution": false,
+    "lane": "round4.available-models",
+    "model_selection": "available_models"
+  },
+  "frozen_hypotheses": [
+    {
+      "frozen": true,
+      "hypothesis_id": "lit-hypothesis.protocol-offset-sign-skew.v1",
+      "statement": "GPAW(PBE, h=0.2, Gamma-point) sparse-anchor migration barriers on the frozen Z1 panel exceed the nebDFT2k PBE CI-NEB reference in the majority of measured paths (positive signed skew, median approximately +0.4 to +0.6 eV), quantifying a systematic protocol offset rather than a functional difference; any correction layer must subtract this offset before treating literature barriers as ground truth."
+    }
+  ],
+  "kill_conditions": [
+    {
+      "action": "kill",
+      "condition_id": "kill.z1.reference-leakage",
+      "metric": "reference_paths_seen_during_training",
+      "operator": "gt",
+      "threshold": 0
+    }
+  ],
+  "preregistration": {
+    "frozen_before_execution": true,
+    "input_document": {
+      "path": "examples/literature-hypotheses/protocol-offset-sign-skew.json",
+      "sha256": "sha256:a3407c40c74e24c312789ebc9fc441e7f091239f8450a032e6da6fe84fffdb39"
+    },
+    "recorded_inputs": [
+      {
+        "path": "data/candidates/z1-union-campaign.json",
+        "sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2"
+      }
+    ],
+    "registered_at": "2026-08-01T04:55:29Z",
+    "source": "https://doi.org/10.1038/s41524-025-01571-z",
+    "source_as_of": "2026-08-01"
+  },
+  "preregistration_id": "prereg.literature.protocol-offset-sign-skew.v1",
+  "target_premises": [
+    {
+      "claim_id": "discovery.z1.barrier-accuracy.v1",
+      "premise_id": "chemistry-held-out-neb"
+    }
+  ],
+  "version": 1
+}

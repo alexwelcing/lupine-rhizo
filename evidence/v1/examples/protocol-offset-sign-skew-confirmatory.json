@@ -1,0 +1,142 @@
+{
+  "claim_predicate": "signed_error_positive_fraction>0.5",
+  "epistemic_status": "confirmatory",
+  "scope": {
+    "structures": [
+      "mp-1222404",
+      "mp-1222469",
+      "mp-25463",
+      "mp-3635",
+      "mp-556655",
+      "mp-567474",
+      "mp-752552",
+      "mp-752707",
+      "mp-753882",
+      "mp-754292",
+      "mp-754923",
+      "mp-756912",
+      "mp-758282",
+      "mp-759667",
+      "mp-760344",
+      "mp-761269",
+      "mp-768508",
+      "mp-770551",
+      "mp-770749",
+      "mp-770939",
+      "mp-771011",
+      "mp-772542",
+      "mp-772851"
+    ],
+    "chemistries": [
+      "Ag-F-Li",
+      "Al-B-Li-O",
+      "Al-Li-Mn-O",
+      "Al-Li-O-Si",
+      "Al-Li-O-V",
+      "As-B-Cr-Li-O",
+      "As-C-Fe-Li-O",
+      "B-Co-Li-O",
+      "B-Li-O",
+      "B-Li-O-Sn",
+      "B-Li-O-Ti",
+      "B-Li-O-Zn",
+      "Bi-Li-S",
+      "C-Co-Li-Na-O-P",
+      "C-Cr-Li-O",
+      "C-Fe-Li-Na-O-P",
+      "C-Fe-Li-O-P",
+      "C-Fe-Li-O-S",
+      "C-Li-Mn-O-P-V",
+      "C-Li-O-P-V",
+      "C-Li-O-Si-V",
+      "C-Li-O-V",
+      "Cl-Cr-Li"
+    ],
+    "properties": [
+      "migration_barrier"
+    ],
+    "conditions": {
+      "panel_id": "z1-nebdft2k-chemistry-held-out-v1",
+      "candidate_panel": "data/candidates/z1_nebdft2k_barriers.lock.json",
+      "candidate_panel_sha256": "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68",
+      "protocol_sparse": "GPAW PBE h=0.2 Gamma-point sparse anchors (Z1 union campaign)",
+      "protocol_reference": "DFT(PBE) climbing-image NEB, nebDFT2k test split (doi:10.1038/s41524-025-01571-z)",
+      "signed_error_definition": "path-level reduction: per path, median of measured per-model sparse-anchor GPAW minus nebDFT2k reference signed errors (meV); model-dependent anchor sets preserved; failed models disclosed without imputation",
+      "n_paths": 22,
+      "n_paths_recorded": 23,
+      "n_rows_measured": 86,
+      "n_rows_failed": 6,
+      "reduction": "median of measured model values per path; claim statistics over the 22 measured path medians (23 recorded)",
+      "positive_skew_fraction": 0.9545,
+      "median_signed_error_mev": 460.14,
+      "mean_signed_error_mev": 686.73,
+      "min_signed_error_mev": -33.4,
+      "max_signed_error_mev": 4212.26,
+      "outlier_path": "mp-761269_2_1_1_-1_0 (Ag-F-Li) +4212.26 meV",
+      "per_model_chgnet": "22 rows, fraction 0.9545, median +460.14 meV",
+      "per_model_mace-mp-medium": "22 rows, fraction 0.9545, median +460.14 meV",
+      "per_model_mace-mp-small": "21 measured + failures disclosed, fraction 0.9048, median +562.06 meV",
+      "per_model_mace-mpa-0-medium": "21 measured + failures disclosed, fraction 0.9048, median +562.06 meV",
+      "sign_flip_paths": "mp-758282_0_2_0_0_0 (C-Cr-Li): -25.82 meV (small/mpa-0 anchors) to +116.18 meV (chgnet/medium anchors); disclosed without imputation",
+      "all_failed_paths": "mp-756912_1_1_1_0_0 (B-Li-O-Zn): all four models failed; disclosed, excluded from statistics",
+      "retrospective_inputs": "Inputs recorded 2026-07-24 (Z1 union campaign); hypothesis and analysis plan frozen 2026-08-01T04:55:29Z before the analysis run at 2026-08-01T12:06Z; no fresh compute",
+      "hypothesis_prediction": "majority of paths positive, median approximately +400 to +600 meV",
+      "hypothesis_outcome": "confirmed: 21/22 path medians positive (0.9545), median +460.14 meV; every model individually confirms (fraction >= 0.9048)"
+    }
+  },
+  "evidence_refs": [
+    {
+      "campaign": "literature.protocol-offset-sign-skew.v1",
+      "campaign_manifest": "campaigns/v1/literature-protocol-offset-sign-skew.campaign-manifest.v1.json",
+      "campaign_manifest_hash": "sha256:74dc85962f9c99283fbd53de20f99e5d2cdfcc06cc062912dfb2f48967c57c5b",
+      "run_id": "protocol-offset-sign-skew-2026-08-01T12:06Z",
+      "artifact": "data/candidates/protocol-offset-sign-skew.json",
+      "artifact_hash": "sha256:d56347e61a677ec85e06f2e9b008e99284f42c18728c8e429cb8e31c23aba866",
+      "thresholds_version": "hard-materials-z1.v1",
+      "dataset_fingerprint": "sha256:b9137ff7830c50cfdc59ec837ef2bb099326657c5d5e2d2ae158143360653989"
+    }
+  ],
+  "provenance": {
+    "agent": "director literature-cycle v1 (tools/lit_to_manifest.py + recorded Z1 union campaign artifacts)",
+    "human": "Alex Welcing (director)",
+    "timestamp": "2026-08-01T12:06:00Z",
+    "preregistration_id": "prereg.literature.protocol-offset-sign-skew.v1"
+  },
+  "measurements": [
+    {
+      "metric": "signed_error_positive",
+      "value": 0.9545,
+      "unit": "fraction",
+      "acceptance_test": {
+        "comparator": "greater_than",
+        "threshold": 0.5,
+        "outcome": "pass"
+      },
+      "sample_count": 22
+    },
+    {
+      "metric": "median_signed_error",
+      "value": 460.14,
+      "unit": "meV",
+      "acceptance_test": {
+        "comparator": "greater_than_or_equal",
+        "threshold": 400,
+        "outcome": "pass"
+      },
+      "sample_count": 22
+    },
+    {
+      "metric": "median_signed_error",
+      "value": 460.14,
+      "unit": "meV",
+      "acceptance_test": {
+        "comparator": "less_than_or_equal",
+        "threshold": 600,
+        "outcome": "pass"
+      },
+      "sample_count": 22
+    }
+  ],
+  "supersedes": [],
+  "bundle_id": "sha256:8371bad9be5e54c25e7a1295bbc2e176abb8fbbe0fb2f69d95a094e7f38aa708"
+}

@@ -92,6 +92,112 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_sign_skew_predicate_requires_typed_measurement(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        del bundle["measurements"]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+    def test_sign_skew_measurement_rejects_wrong_unit_and_comparator(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"][0]["unit"] = "meV"
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"][0]["acceptance_test"]["comparator"] = (
+            "less_than_or_equal"
+        )
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"][0]["acceptance_test"]["threshold"] = 0.1
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+    def test_measurement_types_are_tied_to_the_claim_predicate(self) -> None:
+        barrier_bundle = load_json(
+            EXAMPLES_DIR / "hard-materials-z1-barrier-accuracy.json"
+        )
+        barrier_bundle["measurements"][0] = {
+            "metric": "signed_error_positive",
+            "value": 0.9,
+            "unit": "fraction",
+            "acceptance_test": {
+                "comparator": "greater_than",
+                "threshold": 0.5,
+                "outcome": "pass",
+            },
+            "sample_count": 22,
+        }
+
+        self.assertTrue(list(self.validator.iter_errors(barrier_bundle)))
+
+        skew_bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        skew_bundle["measurements"][0] = {
+            "metric": "barrier_mae",
+            "value": 30.0,
+            "unit": "meV",
+            "acceptance_test": {
+                "comparator": "less_than_or_equal",
+                "threshold": 40,
+                "outcome": "pass",
+            },
+            "sample_count": 8,
+        }
+
+        self.assertTrue(list(self.validator.iter_errors(skew_bundle)))
+
+    def test_sign_skew_requires_the_complete_acceptance_suite(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        fraction_only = [item for item in bundle["measurements"] if item["metric"] == "signed_error_positive"]
+        bundle["measurements"] = fraction_only
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["measurements"] = [
+            item
+            for item in bundle["measurements"]
+            if not (
+                item["metric"] == "median_signed_error"
+                and item["acceptance_test"]["comparator"] == "less_than_or_equal"
+            )
+        ]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+    def test_sign_skew_receipts_must_carry_the_dataset_fingerprint(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        del bundle["evidence_refs"][0]["dataset_fingerprint"]
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
+    def test_sign_skew_predicate_is_the_single_frozen_const(self) -> None:
+        bundle = load_json(
+            EXAMPLES_DIR / "protocol-offset-sign-skew-confirmatory.json"
+        )
+        bundle["claim_predicate"] = "signed_error_positive_fraction>0.6"
+
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()

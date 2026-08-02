@@ -429,7 +429,7 @@ CREATE TABLE IF NOT EXISTS literature_hypotheses (
     CHECK (json_type(contract_json, '$.proposedExperiment') = 'object'),
   proposed_experiment_predicate TEXT GENERATED ALWAYS AS
     (json_extract(contract_json, '$.proposedExperiment.predicate')) STORED NOT NULL
-    CHECK (proposed_experiment_predicate IN ('barrier_mae_mev<=40')),
+    CHECK (proposed_experiment_predicate IN ('barrier_mae_mev<=40', 'signed_error_positive_fraction>0.5')),
   status TEXT GENERATED ALWAYS AS
     (json_extract(contract_json, '$.status')) STORED NOT NULL
     CHECK (status IN ('proposed', 'accepted', 'rejected', 'superseded')),
@@ -643,7 +643,14 @@ BEGIN
       )
     )
     OR json_type(NEW.contract_json, '$.proposedExperiment.metric') IS NOT 'text'
-    OR json_extract(NEW.contract_json, '$.proposedExperiment.metric') <> 'barrier_mae'
+    OR (
+      json_extract(NEW.contract_json, '$.proposedExperiment.predicate') = 'barrier_mae_mev<=40'
+      AND json_extract(NEW.contract_json, '$.proposedExperiment.metric') <> 'barrier_mae'
+    )
+    OR (
+      json_extract(NEW.contract_json, '$.proposedExperiment.predicate') = 'signed_error_positive_fraction>0.5'
+      AND json_extract(NEW.contract_json, '$.proposedExperiment.metric') <> 'signed_error_positive'
+    )
     OR json_type(NEW.contract_json, '$.proposedExperiment.predicate') IS NOT 'text'
     OR json_type(NEW.contract_json, '$.proposedExperiment.estimated_cells') IS NULL
     OR (

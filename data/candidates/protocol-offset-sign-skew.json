@@ -1,0 +1,1663 @@
+{
+ "measurement": "protocol_offset_sign_skew.v3",
+ "source_artifact": "data/candidates/z1-union-campaign.json",
+ "source_sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2",
+ "unit_semantics": "per-(path, model) sparse-anchor GPAW(PBE, h=0.2, Gamma) barrier minus nebDFT2k PBE CI-NEB reference, meV; anchor sets are model-dependent; failures disclosed without imputation",
+ "reduction": "path-level: median of measured model values per path; claim statistics computed over the measured path medians",
+ "n_paths_recorded": 23,
+ "n_paths": 22,
+ "n_rows_measured": 86,
+ "n_rows_failed": 6,
+ "all_failed_paths": [
+  {
+   "path_index": 14,
+   "path_id": "mp-756912_1_1_1_0_0",
+   "chemical_system": "B-Li-O-Zn",
+   "failed_models": [
+    "chgnet",
+    "mace-mp-medium",
+    "mace-mp-small",
+    "mace-mpa-0-medium"
+   ]
+  }
+ ],
+ "positive_skew_fraction": 0.9545,
+ "median_signed_error_mev": 460.14,
+ "mean_signed_error_mev": 686.73,
+ "min_mev": -33.4,
+ "max_mev": 4212.26,
+ "per_model": {
+  "chgnet": {
+   "n": 22,
+   "positive_fraction": 0.9545,
+   "median_mev": 460.14
+  },
+  "mace-mp-medium": {
+   "n": 22,
+   "positive_fraction": 0.9545,
+   "median_mev": 460.14
+  },
+  "mace-mp-small": {
+   "n": 21,
+   "positive_fraction": 0.9048,
+   "median_mev": 562.06
+  },
+  "mace-mpa-0-medium": {
+   "n": 21,
+   "positive_fraction": 0.9048,
+   "median_mev": 562.06
+  }
+ },
+ "sign_flip_paths": [
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "min_mev": -25.82,
+   "max_mev": 116.18
+  }
+ ],
+ "per_path_reduction": [
+  {
+   "path_index": 0,
+   "path_id": "mp-761269_2_1_1_-1_0",
+   "chemical_system": "Ag-F-Li",
+   "model_values_mev": {
+    "chgnet": 4212.2603,
+    "mace-mp-medium": 4212.2603,
+    "mace-mp-small": 4212.2603,
+    "mace-mpa-0-medium": 4212.2603
+   },
+   "path_median_mev": 4212.26
+  },
+  {
+   "path_index": 1,
+   "path_id": "mp-556655_0_7_0_1_-1",
+   "chemical_system": "Al-B-Li-O",
+   "model_values_mev": {
+    "chgnet": 269.3671,
+    "mace-mp-medium": 269.3671,
+    "mace-mp-small": 269.3671,
+    "mace-mpa-0-medium": 269.3671
+   },
+   "path_median_mev": 269.37
+  },
+  {
+   "path_index": 3,
+   "path_id": "mp-770551_3_4_0_0_1",
+   "chemical_system": "Al-Li-Mn-O",
+   "model_values_mev": {
+    "chgnet": 1177.3646,
+    "mace-mp-medium": 1177.3646,
+    "mace-mp-small": 1177.3646,
+    "mace-mpa-0-medium": 1177.3646
+   },
+   "path_median_mev": 1177.36
+  },
+  {
+   "path_index": 4,
+   "path_id": "mp-1222469_0_0_0_1_0",
+   "chemical_system": "Al-Li-O-Si",
+   "model_values_mev": {
+    "chgnet": 1126.4482,
+    "mace-mp-medium": 1126.4482,
+    "mace-mp-small": 1126.4482,
+    "mace-mpa-0-medium": 1126.4482
+   },
+   "path_median_mev": 1126.45
+  },
+  {
+   "path_index": 5,
+   "path_id": "mp-754923_0_2_0_0_1",
+   "chemical_system": "Al-Li-O-V",
+   "model_values_mev": {
+    "chgnet": 767.744,
+    "mace-mp-medium": 767.744,
+    "mace-mp-small": 767.744,
+    "mace-mpa-0-medium": 767.744
+   },
+   "path_median_mev": 767.74
+  },
+  {
+   "path_index": 6,
+   "path_id": "mp-754292_0_3_0_0_0",
+   "chemical_system": "As-B-Cr-Li-O",
+   "model_values_mev": {
+    "chgnet": 1055.8369,
+    "mace-mp-medium": 1055.8369,
+    "mace-mp-small": 1055.8369,
+    "mace-mpa-0-medium": 1055.8369
+   },
+   "path_median_mev": 1055.84
+  },
+  {
+   "path_index": 7,
+   "path_id": "mp-770939_10_1_1_0_1",
+   "chemical_system": "As-C-Fe-Li-O",
+   "model_values_mev": {
+    "chgnet": 114.4499,
+    "mace-mp-medium": 114.4499,
+    "mace-mp-small": 114.4499,
+    "mace-mpa-0-medium": 114.4499
+   },
+   "path_median_mev": 114.45
+  },
+  {
+   "path_index": 9,
+   "path_id": "mp-752707_0_2_0_0_0",
+   "chemical_system": "B-Co-Li-O",
+   "model_values_mev": {
+    "chgnet": 310.9867,
+    "mace-mp-medium": 310.9867,
+    "mace-mp-small": 310.9867,
+    "mace-mpa-0-medium": 310.9867
+   },
+   "path_median_mev": 310.99
+  },
+  {
+   "path_index": 11,
+   "path_id": "mp-3635_0_3_0_0_0",
+   "chemical_system": "B-Li-O",
+   "model_values_mev": {
+    "chgnet": 144.0131,
+    "mace-mp-medium": 144.0131,
+    "mace-mp-small": 144.0131,
+    "mace-mpa-0-medium": 144.0131
+   },
+   "path_median_mev": 144.01
+  },
+  {
+   "path_index": 12,
+   "path_id": "mp-759667_2_1_1_1_0",
+   "chemical_system": "B-Li-O-Sn",
+   "model_values_mev": {
+    "chgnet": 793.9096,
+    "mace-mp-medium": 793.9096,
+    "mace-mp-small": 793.9096,
+    "mace-mpa-0-medium": 793.9096
+   },
+   "path_median_mev": 793.91
+  },
+  {
+   "path_index": 13,
+   "path_id": "mp-770749_2_4_0_0_0",
+   "chemical_system": "B-Li-O-Ti",
+   "model_values_mev": {
+    "chgnet": 335.3848,
+    "mace-mp-medium": 335.3848
+   },
+   "path_median_mev": 335.38
+  },
+  {
+   "path_index": 15,
+   "path_id": "mp-1222404_0_0_0_1_-1",
+   "chemical_system": "Bi-Li-S",
+   "model_values_mev": {
+    "chgnet": 658.965,
+    "mace-mp-medium": 658.965,
+    "mace-mp-small": 658.965,
+    "mace-mpa-0-medium": 658.965
+   },
+   "path_median_mev": 658.97
+  },
+  {
+   "path_index": 16,
+   "path_id": "mp-760344_10_4_0_1_0",
+   "chemical_system": "C-Co-Li-Na-O-P",
+   "model_values_mev": {
+    "chgnet": 32.7297,
+    "mace-mp-medium": 32.7297,
+    "mace-mp-small": 32.7297,
+    "mace-mpa-0-medium": 32.7297
+   },
+   "path_median_mev": 32.73
+  },
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "chemical_system": "C-Cr-Li-O",
+   "model_values_mev": {
+    "chgnet": 116.1818,
+    "mace-mp-medium": 116.1818,
+    "mace-mp-small": -25.817,
+    "mace-mpa-0-medium": -25.817
+   },
+   "path_median_mev": 45.18
+  },
+  {
+   "path_index": 19,
+   "path_id": "mp-772851_6_10_0_1_0",
+   "chemical_system": "C-Fe-Li-Na-O-P",
+   "model_values_mev": {
+    "chgnet": 679.5391,
+    "mace-mp-medium": 679.5391,
+    "mace-mp-small": 679.5391,
+    "mace-mpa-0-medium": 679.5391
+   },
+   "path_median_mev": 679.54
+  },
+  {
+   "path_index": 21,
+   "path_id": "mp-768508_3_7_0_0_0",
+   "chemical_system": "C-Fe-Li-O-P",
+   "model_values_mev": {
+    "chgnet": 320.4436,
+    "mace-mp-medium": 320.4436,
+    "mace-mp-small": 320.4436,
+    "mace-mpa-0-medium": 320.4436
+   },
+   "path_median_mev": 320.44
+  },
+  {
+   "path_index": 22,
+   "path_id": "mp-771011_2_1_1_-1_0",
+   "chemical_system": "C-Fe-Li-O-S",
+   "model_values_mev": {
+    "chgnet": 562.0573,
+    "mace-mp-medium": 562.0573,
+    "mace-mp-small": 562.0573,
+    "mace-mpa-0-medium": 562.0573
+   },
+   "path_median_mev": 562.06
+  },
+  {
+   "path_index": 24,
+   "path_id": "mp-753882_0_1_1_0_-1",
+   "chemical_system": "C-Li-Mn-O-P-V",
+   "model_values_mev": {
+    "chgnet": 358.2319,
+    "mace-mp-medium": 358.2319,
+    "mace-mp-small": 358.2319,
+    "mace-mpa-0-medium": 358.2319
+   },
+   "path_median_mev": 358.23
+  },
+  {
+   "path_index": 25,
+   "path_id": "mp-25463_4_10_1_0_0",
+   "chemical_system": "C-Li-O-P-V",
+   "model_values_mev": {
+    "chgnet": 1228.9909,
+    "mace-mp-medium": 1228.9909,
+    "mace-mp-small": 1228.9909,
+    "mace-mpa-0-medium": 1228.9909
+   },
+   "path_median_mev": 1228.99
+  },
+  {
+   "path_index": 26,
+   "path_id": "mp-772542_0_2_0_0_0",
+   "chemical_system": "C-Li-O-Si-V",
+   "model_values_mev": {
+    "chgnet": 885.0128,
+    "mace-mp-medium": 885.0128,
+    "mace-mp-small": 885.0128,
+    "mace-mpa-0-medium": 885.0128
+   },
+   "path_median_mev": 885.01
+  },
+  {
+   "path_index": 27,
+   "path_id": "mp-752552_0_7_0_0_1",
+   "chemical_system": "C-Li-O-V",
+   "model_values_mev": {
+    "chgnet": -33.4001,
+    "mace-mp-medium": -33.4001,
+    "mace-mp-small": -33.4001,
+    "mace-mpa-0-medium": -33.4001
+   },
+   "path_median_mev": -33.4
+  },
+  {
+   "path_index": 29,
+   "path_id": "mp-567474_0_1_0_0_0",
+   "chemical_system": "Cl-Cr-Li",
+   "model_values_mev": {
+    "chgnet": 62.6475,
+    "mace-mp-medium": 62.6475,
+    "mace-mp-small": 62.6475,
+    "mace-mpa-0-medium": 62.6475
+   },
+   "path_median_mev": 62.65
+  }
+ ],
+ "per_row": [
+  {
+   "path_index": 0,
+   "path_id": "mp-761269_2_1_1_-1_0",
+   "chemical_system": "Ag-F-Li",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 4212.2603
+  },
+  {
+   "path_index": 0,
+   "path_id": "mp-761269_2_1_1_-1_0",
+   "chemical_system": "Ag-F-Li",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 4212.2603
+  },
+  {
+   "path_index": 0,
+   "path_id": "mp-761269_2_1_1_-1_0",
+   "chemical_system": "Ag-F-Li",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 4212.2603
+  },
+  {
+   "path_index": 0,
+   "path_id": "mp-761269_2_1_1_-1_0",
+   "chemical_system": "Ag-F-Li",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 4212.2603
+  },
+  {
+   "path_index": 1,
+   "path_id": "mp-556655_0_7_0_1_-1",
+   "chemical_system": "Al-B-Li-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 269.3671
+  },
+  {
+   "path_index": 1,
+   "path_id": "mp-556655_0_7_0_1_-1",
+   "chemical_system": "Al-B-Li-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 269.3671
+  },
+  {
+   "path_index": 1,
+   "path_id": "mp-556655_0_7_0_1_-1",
+   "chemical_system": "Al-B-Li-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 269.3671
+  },
+  {
+   "path_index": 1,
+   "path_id": "mp-556655_0_7_0_1_-1",
+   "chemical_system": "Al-B-Li-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 269.3671
+  },
+  {
+   "path_index": 3,
+   "path_id": "mp-770551_3_4_0_0_1",
+   "chemical_system": "Al-Li-Mn-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1177.3646
+  },
+  {
+   "path_index": 3,
+   "path_id": "mp-770551_3_4_0_0_1",
+   "chemical_system": "Al-Li-Mn-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1177.3646
+  },
+  {
+   "path_index": 3,
+   "path_id": "mp-770551_3_4_0_0_1",
+   "chemical_system": "Al-Li-Mn-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1177.3646
+  },
+  {
+   "path_index": 3,
+   "path_id": "mp-770551_3_4_0_0_1",
+   "chemical_system": "Al-Li-Mn-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1177.3646
+  },
+  {
+   "path_index": 4,
+   "path_id": "mp-1222469_0_0_0_1_0",
+   "chemical_system": "Al-Li-O-Si",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 1126.4482
+  },
+  {
+   "path_index": 4,
+   "path_id": "mp-1222469_0_0_0_1_0",
+   "chemical_system": "Al-Li-O-Si",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 1126.4482
+  },
+  {
+   "path_index": 4,
+   "path_id": "mp-1222469_0_0_0_1_0",
+   "chemical_system": "Al-Li-O-Si",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 1126.4482
+  },
+  {
+   "path_index": 4,
+   "path_id": "mp-1222469_0_0_0_1_0",
+   "chemical_system": "Al-Li-O-Si",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    6
+   ],
+   "signed_error_mev": 1126.4482
+  },
+  {
+   "path_index": 5,
+   "path_id": "mp-754923_0_2_0_0_1",
+   "chemical_system": "Al-Li-O-V",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 767.744
+  },
+  {
+   "path_index": 5,
+   "path_id": "mp-754923_0_2_0_0_1",
+   "chemical_system": "Al-Li-O-V",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 767.744
+  },
+  {
+   "path_index": 5,
+   "path_id": "mp-754923_0_2_0_0_1",
+   "chemical_system": "Al-Li-O-V",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 767.744
+  },
+  {
+   "path_index": 5,
+   "path_id": "mp-754923_0_2_0_0_1",
+   "chemical_system": "Al-Li-O-V",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 767.744
+  },
+  {
+   "path_index": 6,
+   "path_id": "mp-754292_0_3_0_0_0",
+   "chemical_system": "As-B-Cr-Li-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "signed_error_mev": 1055.8369
+  },
+  {
+   "path_index": 6,
+   "path_id": "mp-754292_0_3_0_0_0",
+   "chemical_system": "As-B-Cr-Li-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 1055.8369
+  },
+  {
+   "path_index": 6,
+   "path_id": "mp-754292_0_3_0_0_0",
+   "chemical_system": "As-B-Cr-Li-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 1055.8369
+  },
+  {
+   "path_index": 6,
+   "path_id": "mp-754292_0_3_0_0_0",
+   "chemical_system": "As-B-Cr-Li-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 1055.8369
+  },
+  {
+   "path_index": 7,
+   "path_id": "mp-770939_10_1_1_0_1",
+   "chemical_system": "As-C-Fe-Li-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    4
+   ],
+   "signed_error_mev": 114.4499
+  },
+  {
+   "path_index": 7,
+   "path_id": "mp-770939_10_1_1_0_1",
+   "chemical_system": "As-C-Fe-Li-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 114.4499
+  },
+  {
+   "path_index": 7,
+   "path_id": "mp-770939_10_1_1_0_1",
+   "chemical_system": "As-C-Fe-Li-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 114.4499
+  },
+  {
+   "path_index": 7,
+   "path_id": "mp-770939_10_1_1_0_1",
+   "chemical_system": "As-C-Fe-Li-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 114.4499
+  },
+  {
+   "path_index": 9,
+   "path_id": "mp-752707_0_2_0_0_0",
+   "chemical_system": "B-Co-Li-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 310.9867
+  },
+  {
+   "path_index": 9,
+   "path_id": "mp-752707_0_2_0_0_0",
+   "chemical_system": "B-Co-Li-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 310.9867
+  },
+  {
+   "path_index": 9,
+   "path_id": "mp-752707_0_2_0_0_0",
+   "chemical_system": "B-Co-Li-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 310.9867
+  },
+  {
+   "path_index": 9,
+   "path_id": "mp-752707_0_2_0_0_0",
+   "chemical_system": "B-Co-Li-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 310.9867
+  },
+  {
+   "path_index": 11,
+   "path_id": "mp-3635_0_3_0_0_0",
+   "chemical_system": "B-Li-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 144.0131
+  },
+  {
+   "path_index": 11,
+   "path_id": "mp-3635_0_3_0_0_0",
+   "chemical_system": "B-Li-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 144.0131
+  },
+  {
+   "path_index": 11,
+   "path_id": "mp-3635_0_3_0_0_0",
+   "chemical_system": "B-Li-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 144.0131
+  },
+  {
+   "path_index": 11,
+   "path_id": "mp-3635_0_3_0_0_0",
+   "chemical_system": "B-Li-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 144.0131
+  },
+  {
+   "path_index": 12,
+   "path_id": "mp-759667_2_1_1_1_0",
+   "chemical_system": "B-Li-O-Sn",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 793.9096
+  },
+  {
+   "path_index": 12,
+   "path_id": "mp-759667_2_1_1_1_0",
+   "chemical_system": "B-Li-O-Sn",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 793.9096
+  },
+  {
+   "path_index": 12,
+   "path_id": "mp-759667_2_1_1_1_0",
+   "chemical_system": "B-Li-O-Sn",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 793.9096
+  },
+  {
+   "path_index": 12,
+   "path_id": "mp-759667_2_1_1_1_0",
+   "chemical_system": "B-Li-O-Sn",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 793.9096
+  },
+  {
+   "path_index": 13,
+   "path_id": "mp-770749_2_4_0_0_0",
+   "chemical_system": "B-Li-O-Ti",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 335.3848
+  },
+  {
+   "path_index": 13,
+   "path_id": "mp-770749_2_4_0_0_0",
+   "chemical_system": "B-Li-O-Ti",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 335.3848
+  },
+  {
+   "path_index": 13,
+   "path_id": "mp-770749_2_4_0_0_0",
+   "chemical_system": "B-Li-O-Ti",
+   "model": "mace-mp-small",
+   "status": "failed",
+   "reason": "failed"
+  },
+  {
+   "path_index": 13,
+   "path_id": "mp-770749_2_4_0_0_0",
+   "chemical_system": "B-Li-O-Ti",
+   "model": "mace-mpa-0-medium",
+   "status": "failed",
+   "reason": "failed"
+  },
+  {
+   "path_index": 14,
+   "path_id": "mp-756912_1_1_1_0_0",
+   "chemical_system": "B-Li-O-Zn",
+   "model": "chgnet",
+   "status": "failed",
+   "reason": "failed"
+  },
+  {
+   "path_index": 14,
+   "path_id": "mp-756912_1_1_1_0_0",
+   "chemical_system": "B-Li-O-Zn",
+   "model": "mace-mp-medium",
+   "status": "failed",
+   "reason": "failed"
+  },
+  {
+   "path_index": 14,
+   "path_id": "mp-756912_1_1_1_0_0",
+   "chemical_system": "B-Li-O-Zn",
+   "model": "mace-mp-small",
+   "status": "failed",
+   "reason": "failed"
+  },
+  {
+   "path_index": 14,
+   "path_id": "mp-756912_1_1_1_0_0",
+   "chemical_system": "B-Li-O-Zn",
+   "model": "mace-mpa-0-medium",
+   "status": "failed",
+   "reason": "failed"
+  },
+  {
+   "path_index": 15,
+   "path_id": "mp-1222404_0_0_0_1_-1",
+   "chemical_system": "Bi-Li-S",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 658.965
+  },
+  {
+   "path_index": 15,
+   "path_id": "mp-1222404_0_0_0_1_-1",
+   "chemical_system": "Bi-Li-S",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 658.965
+  },
+  {
+   "path_index": 15,
+   "path_id": "mp-1222404_0_0_0_1_-1",
+   "chemical_system": "Bi-Li-S",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 658.965
+  },
+  {
+   "path_index": 15,
+   "path_id": "mp-1222404_0_0_0_1_-1",
+   "chemical_system": "Bi-Li-S",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 658.965
+  },
+  {
+   "path_index": 16,
+   "path_id": "mp-760344_10_4_0_1_0",
+   "chemical_system": "C-Co-Li-Na-O-P",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 32.7297
+  },
+  {
+   "path_index": 16,
+   "path_id": "mp-760344_10_4_0_1_0",
+   "chemical_system": "C-Co-Li-Na-O-P",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 32.7297
+  },
+  {
+   "path_index": 16,
+   "path_id": "mp-760344_10_4_0_1_0",
+   "chemical_system": "C-Co-Li-Na-O-P",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 32.7297
+  },
+  {
+   "path_index": 16,
+   "path_id": "mp-760344_10_4_0_1_0",
+   "chemical_system": "C-Co-Li-Na-O-P",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 32.7297
+  },
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "chemical_system": "C-Cr-Li-O",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    6
+   ],
+   "signed_error_mev": 116.1818
+  },
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "chemical_system": "C-Cr-Li-O",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    6
+   ],
+   "signed_error_mev": 116.1818
+  },
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "chemical_system": "C-Cr-Li-O",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    6
+   ],
+   "signed_error_mev": -25.817
+  },
+  {
+   "path_index": 17,
+   "path_id": "mp-758282_0_2_0_0_0",
+   "chemical_system": "C-Cr-Li-O",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    6
+   ],
+   "signed_error_mev": -25.817
+  },
+  {
+   "path_index": 19,
+   "path_id": "mp-772851_6_10_0_1_0",
+   "chemical_system": "C-Fe-Li-Na-O-P",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "signed_error_mev": 679.5391
+  },
+  {
+   "path_index": 19,
+   "path_id": "mp-772851_6_10_0_1_0",
+   "chemical_system": "C-Fe-Li-Na-O-P",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 679.5391
+  },
+  {
+   "path_index": 19,
+   "path_id": "mp-772851_6_10_0_1_0",
+   "chemical_system": "C-Fe-Li-Na-O-P",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 679.5391
+  },
+  {
+   "path_index": 19,
+   "path_id": "mp-772851_6_10_0_1_0",
+   "chemical_system": "C-Fe-Li-Na-O-P",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 679.5391
+  },
+  {
+   "path_index": 21,
+   "path_id": "mp-768508_3_7_0_0_0",
+   "chemical_system": "C-Fe-Li-O-P",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 320.4436
+  },
+  {
+   "path_index": 21,
+   "path_id": "mp-768508_3_7_0_0_0",
+   "chemical_system": "C-Fe-Li-O-P",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 320.4436
+  },
+  {
+   "path_index": 21,
+   "path_id": "mp-768508_3_7_0_0_0",
+   "chemical_system": "C-Fe-Li-O-P",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 320.4436
+  },
+  {
+   "path_index": 21,
+   "path_id": "mp-768508_3_7_0_0_0",
+   "chemical_system": "C-Fe-Li-O-P",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 320.4436
+  },
+  {
+   "path_index": 22,
+   "path_id": "mp-771011_2_1_1_-1_0",
+   "chemical_system": "C-Fe-Li-O-S",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    6
+   ],
+   "signed_error_mev": 562.0573
+  },
+  {
+   "path_index": 22,
+   "path_id": "mp-771011_2_1_1_-1_0",
+   "chemical_system": "C-Fe-Li-O-S",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    2,
+    3,
+    4,
+    6
+   ],
+   "signed_error_mev": 562.0573
+  },
+  {
+   "path_index": 22,
+   "path_id": "mp-771011_2_1_1_-1_0",
+   "chemical_system": "C-Fe-Li-O-S",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    6
+   ],
+   "signed_error_mev": 562.0573
+  },
+  {
+   "path_index": 22,
+   "path_id": "mp-771011_2_1_1_-1_0",
+   "chemical_system": "C-Fe-Li-O-S",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    3,
+    4,
+    5,
+    6
+   ],
+   "signed_error_mev": 562.0573
+  },
+  {
+   "path_index": 24,
+   "path_id": "mp-753882_0_1_1_0_-1",
+   "chemical_system": "C-Li-Mn-O-P-V",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 358.2319
+  },
+  {
+   "path_index": 24,
+   "path_id": "mp-753882_0_1_1_0_-1",
+   "chemical_system": "C-Li-Mn-O-P-V",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 358.2319
+  },
+  {
+   "path_index": 24,
+   "path_id": "mp-753882_0_1_1_0_-1",
+   "chemical_system": "C-Li-Mn-O-P-V",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 358.2319
+  },
+  {
+   "path_index": 24,
+   "path_id": "mp-753882_0_1_1_0_-1",
+   "chemical_system": "C-Li-Mn-O-P-V",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 358.2319
+  },
+  {
+   "path_index": 25,
+   "path_id": "mp-25463_4_10_1_0_0",
+   "chemical_system": "C-Li-O-P-V",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1228.9909
+  },
+  {
+   "path_index": 25,
+   "path_id": "mp-25463_4_10_1_0_0",
+   "chemical_system": "C-Li-O-P-V",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1228.9909
+  },
+  {
+   "path_index": 25,
+   "path_id": "mp-25463_4_10_1_0_0",
+   "chemical_system": "C-Li-O-P-V",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1228.9909
+  },
+  {
+   "path_index": 25,
+   "path_id": "mp-25463_4_10_1_0_0",
+   "chemical_system": "C-Li-O-P-V",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 1228.9909
+  },
+  {
+   "path_index": 26,
+   "path_id": "mp-772542_0_2_0_0_0",
+   "chemical_system": "C-Li-O-Si-V",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 885.0128
+  },
+  {
+   "path_index": 26,
+   "path_id": "mp-772542_0_2_0_0_0",
+   "chemical_system": "C-Li-O-Si-V",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 885.0128
+  },
+  {
+   "path_index": 26,
+   "path_id": "mp-772542_0_2_0_0_0",
+   "chemical_system": "C-Li-O-Si-V",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 885.0128
+  },
+  {
+   "path_index": 26,
+   "path_id": "mp-772542_0_2_0_0_0",
+   "chemical_system": "C-Li-O-Si-V",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 885.0128
+  },
+  {
+   "path_index": 27,
+   "path_id": "mp-752552_0_7_0_0_1",
+   "chemical_system": "C-Li-O-V",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": -33.4001
+  },
+  {
+   "path_index": 27,
+   "path_id": "mp-752552_0_7_0_0_1",
+   "chemical_system": "C-Li-O-V",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": -33.4001
+  },
+  {
+   "path_index": 27,
+   "path_id": "mp-752552_0_7_0_0_1",
+   "chemical_system": "C-Li-O-V",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": -33.4001
+  },
+  {
+   "path_index": 27,
+   "path_id": "mp-752552_0_7_0_0_1",
+   "chemical_system": "C-Li-O-V",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": -33.4001
+  },
+  {
+   "path_index": 29,
+   "path_id": "mp-567474_0_1_0_0_0",
+   "chemical_system": "Cl-Cr-Li",
+   "model": "chgnet",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 62.6475
+  },
+  {
+   "path_index": 29,
+   "path_id": "mp-567474_0_1_0_0_0",
+   "chemical_system": "Cl-Cr-Li",
+   "model": "mace-mp-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 62.6475
+  },
+  {
+   "path_index": 29,
+   "path_id": "mp-567474_0_1_0_0_0",
+   "chemical_system": "Cl-Cr-Li",
+   "model": "mace-mp-small",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 62.6475
+  },
+  {
+   "path_index": 29,
+   "path_id": "mp-567474_0_1_0_0_0",
+   "chemical_system": "Cl-Cr-Li",
+   "model": "mace-mpa-0-medium",
+   "status": "measured",
+   "anchor_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "signed_error_mev": 62.6475
+  }
+ ]
+}

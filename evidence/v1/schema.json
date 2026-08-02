@@ -51,7 +51,17 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/$defs/barrierErrorMeasurement"
+        "oneOf": [
+          {
+            "$ref": "#/$defs/barrierErrorMeasurement"
+          },
+          {
+            "$ref": "#/$defs/signSkewFractionMeasurement"
+          },
+          {
+            "$ref": "#/$defs/medianSignedErrorMeasurement"
+          }
+        ]
       }
     },
     "supersedes": {
@@ -67,11 +77,134 @@
     {
       "if": {
         "properties": {
-          "claim_predicate": { "const": "barrier_mae_mev<=40" }
+          "claim_predicate": {
+            "const": "barrier_mae_mev<=40"
+          }
         },
-        "required": ["claim_predicate"]
+        "required": [
+          "claim_predicate"
+        ]
       },
-      "then": { "required": ["measurements"] }
+      "then": {
+        "required": [
+          "measurements"
+        ],
+        "properties": {
+          "measurements": {
+            "items": {
+              "$ref": "#/$defs/barrierErrorMeasurement"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "claim_predicate": {
+            "const": "signed_error_positive_fraction>0.5"
+          }
+        },
+        "required": [
+          "claim_predicate"
+        ]
+      },
+      "then": {
+        "required": [
+          "measurements"
+        ],
+        "properties": {
+          "measurements": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/signSkewFractionMeasurement"
+                },
+                {
+                  "$ref": "#/$defs/medianSignedErrorMeasurement"
+                }
+              ]
+            },
+            "allOf": [
+              {
+                "contains": {
+                  "$ref": "#/$defs/signSkewFractionMeasurement"
+                },
+                "description": "The complete frozen acceptance suite is required: the majority fraction plus both median-band bounds, so an omitted failing bound cannot promote the claim."
+              },
+              {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "metric": {
+                      "const": "median_signed_error"
+                    },
+                    "acceptance_test": {
+                      "properties": {
+                        "comparator": {
+                          "const": "greater_than_or_equal"
+                        }
+                      },
+                      "required": [
+                        "comparator"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "metric",
+                    "acceptance_test"
+                  ]
+                }
+              },
+              {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "metric": {
+                      "const": "median_signed_error"
+                    },
+                    "acceptance_test": {
+                      "properties": {
+                        "comparator": {
+                          "const": "less_than_or_equal"
+                        }
+                      },
+                      "required": [
+                        "comparator"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "metric",
+                    "acceptance_test"
+                  ]
+                }
+              }
+            ]
+          },
+          "evidence_refs": {
+            "items": {
+              "required": [
+                "dataset_fingerprint"
+              ]
+            },
+            "description": "Sign-skew receipts must carry the analyzed dataset fingerprint so readiness grading can count distinct datasets rather than campaign names."
+          }
+        }
+      }
+    },
+    {
+      "not": {
+        "properties": {
+          "claim_predicate": {
+            "pattern": "^signed_error_positive_fraction>(?!0\\.5$)",
+            "description": "Only the single frozen sign-skew predicate is admissible; other thresholds would desynchronize the typed measurement from its bound predicate."
+          }
+        },
+        "required": [
+          "claim_predicate"
+        ]
+      }
     }
   ],
   "$defs": {
@@ -190,6 +323,10 @@
         "thresholds_version": {
           "type": "string",
           "minLength": 1
+        },
+        "dataset_fingerprint": {
+          "$ref": "#/$defs/contentHash",
+          "description": "Content fingerprint of the analyzed dataset observations; two campaigns sharing a fingerprint are not independent replication."
         }
       }
     },
@@ -204,20 +341,194 @@
         "sample_count"
       ],
       "properties": {
-        "metric": { "const": "barrier_mae" },
-        "value": { "type": "number", "minimum": 0 },
-        "unit": { "const": "meV" },
+        "metric": {
+          "const": "barrier_mae"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "const": "meV"
+        },
         "acceptance_test": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["comparator", "threshold", "outcome"],
+          "required": [
+            "comparator",
+            "threshold",
+            "outcome"
+          ],
           "properties": {
-            "comparator": { "const": "less_than_or_equal" },
-            "threshold": { "type": "number", "minimum": 0 },
-            "outcome": { "enum": ["pass", "fail"] }
+            "comparator": {
+              "const": "less_than_or_equal"
+            },
+            "threshold": {
+              "type": "number",
+              "minimum": 0
+            },
+            "outcome": {
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
           }
         },
-        "sample_count": { "type": "integer", "minimum": 1 }
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "signSkewFractionMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "value",
+        "unit",
+        "acceptance_test",
+        "sample_count"
+      ],
+      "properties": {
+        "metric": {
+          "const": "signed_error_positive"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "unit": {
+          "const": "fraction"
+        },
+        "acceptance_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "comparator",
+            "threshold",
+            "outcome"
+          ],
+          "properties": {
+            "comparator": {
+              "const": "greater_than"
+            },
+            "threshold": {
+              "const": 0.5
+            },
+            "outcome": {
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          }
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "medianSignedErrorMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "value",
+        "unit",
+        "acceptance_test",
+        "sample_count"
+      ],
+      "properties": {
+        "metric": {
+          "const": "median_signed_error"
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "const": "meV"
+        },
+        "acceptance_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "comparator",
+            "threshold",
+            "outcome"
+          ],
+          "properties": {
+            "comparator": {
+              "enum": [
+                "greater_than_or_equal",
+                "less_than_or_equal"
+              ]
+            },
+            "threshold": {
+              "type": "number"
+            },
+            "outcome": {
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "comparator": {
+                    "const": "greater_than_or_equal"
+                  }
+                },
+                "required": [
+                  "comparator"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "threshold": {
+                    "const": 400
+                  }
+                },
+                "required": [
+                  "threshold"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "comparator": {
+                    "const": "less_than_or_equal"
+                  }
+                },
+                "required": [
+                  "comparator"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "threshold": {
+                    "const": 600
+                  }
+                },
+                "required": [
+                  "threshold"
+                ]
+              }
+            }
+          ],
+          "description": "Thresholds are the frozen T1 median band (400/600 meV) mirrored from tools/lit_to_manifest.py T1_MEDIAN_BAND_MEV; arbitrary per-receipt bounds are not representable."
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "provenance": {

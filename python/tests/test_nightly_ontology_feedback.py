@@ -23,7 +23,14 @@ def apply_migrations(connection: sqlite3.Connection) -> None:
         connection.executescript(path.read_text(encoding="utf-8"))
 
 
-def hypothesis(chain: str, acceptance: str, *, readiness: str = "L") -> dict:
+def hypothesis(
+    chain: str,
+    acceptance: str,
+    *,
+    readiness: str = "L",
+    metric: str = "barrier_mae",
+    predicate: str = "barrier_mae_mev<=40",
+) -> dict:
     return {
         "source": {
             "arxiv_id": "2601.00001",
@@ -44,8 +51,8 @@ def hypothesis(chain: str, acceptance: str, *, readiness: str = "L") -> dict:
         "readiness": readiness,
         "confidence": "Medium",
         "proposedExperiment": {
-            "metric": "barrier_mae",
-            "predicate": "barrier_mae_mev<=40",
+            "metric": metric,
+            "predicate": predicate,
             "estimated_cells": 4,
             "estimated_gpu_hours": 1,
         },
@@ -345,6 +352,989 @@ class NightlyFeedbackTests(unittest.TestCase):
                 new_bundle_ids={BUNDLE_A},
                 as_of="2026-08-01",
             )
+
+    def test_sign_skew_bundle_yields_typed_outcomes_without_promoting_barrier_predicate(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "less_than_or_equal",
+                    "threshold": 600,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: skew},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.sign-skew",
+                    "contract_json": hypothesis("C1", "Z1"),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        # The skew receipt is dated and defined, but it must not count as a passing
+        # barrier_mae_mev<=40 demonstration for the bound hypothesis.
+        self.assertEqual(plan["updates"], [])
+
+    def test_sign_skew_bundle_rejects_an_asserted_outcome_that_disagrees(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.4,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "asserted acceptance outcome"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: skew},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.sign-skew-inconsistent",
+                        "contract_json": hypothesis("C1", "Z1"),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
+    def test_negative_barrier_receipt_does_not_supersede_the_sign_skew_hypothesis(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "refuted",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "negative"}
+                    ],
+                }
+            ]
+        }
+        negative = bundle(BUNDLE_A, outcome="fail", campaign="one", status="negative")
+        del negative["measurements"]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: negative},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.cross-predicate-negative",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
+
+    def test_h_readiness_counts_distinct_dataset_fingerprints_not_campaigns(self, tmp_path=None) -> None:
+        import tempfile
+
+        import tools.nightly_ontology_feedback as feedback_module
+
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        artifact_root = Path(temporary.name)
+        original_root = feedback_module._REPO_ROOT
+        self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
+        feedback_module._REPO_ROOT = artifact_root
+        canonical_dir = artifact_root / "data" / "candidates"
+        canonical_dir.mkdir(parents=True, exist_ok=True)
+        (canonical_dir / "z1-union-campaign.json").write_text(
+            json.dumps(
+                {
+                    "per_path": [
+                        {
+                            "path_index": 0,
+                            "path_id": "mp-canonical_0_0_0_0_0",
+                            "reference_barrier_ev": 9.99,
+                            "per_model": {
+                                "chgnet": {"vasp_signed_error_mev": 999.0, "complete": True}
+                            },
+                            "models_missing": {},
+                        }
+                    ]
+                }
+            )
+        )
+        manifest_dir = artifact_root / "campaigns" / "v1"
+        manifest_dir.mkdir(parents=True)
+        (manifest_dir / "staging.json").write_text(
+            json.dumps(
+                {
+                    "available_models": [
+                        {"model_id": model}
+                        for model in ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+                    ]
+                }
+            )
+        )
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"},
+                        {"bundle_id": BUNDLE_B, "epistemic_status": "confirmatory"},
+                    ],
+                }
+            ]
+        }
+
+        def write_artifact(name: str, value: float) -> str:
+            rows = [
+                {
+                    "path_index": index,
+                    "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                    "chemical_system": f"Chem-{index}",
+                    "model": model,
+                    "status": "measured",
+                    "signed_error_mev": value,
+                }
+                for index in range(22)
+                for model in ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+            ]
+            (artifact_root / name).write_text(json.dumps({"per_row": rows}))
+            return feedback_module._artifact_fingerprint(artifact_root / name)
+
+        import hashlib as _hashlib
+
+        def write_manifest(name: str, value: float, campaign_id: str) -> tuple[str, str]:
+            models = ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+            locked_source = {
+                "per_path": [
+                    {
+                        "path_index": index,
+                        "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                        "chemical_system": f"Chem-{index}",
+                        "reference_barrier_ev": round(5.0 + index * 0.01, 9),
+                        "per_model": {
+                            model: {"vasp_signed_error_mev": value, "complete": True}
+                            for model in models
+                        },
+                        "models_missing": {},
+                    }
+                    for index in range(22)
+                ]
+            }
+            locked_bytes = json.dumps(locked_source).encode()
+            (artifact_root / f"locked-{name}").write_bytes(locked_bytes)
+            panel_bytes = json.dumps(
+                {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0", "chemical_system": f"Chem-{index}"} for index in range(22)]}
+            ).encode()
+            (artifact_root / f"panel-{name}").write_bytes(panel_bytes)
+            document = {
+                "campaign_id": campaign_id,
+                "acceptance_test": {
+                    "metric": "signed_error_positive",
+                    "operator": "gt",
+                    "threshold": 0.5,
+                    "unit": "fraction",
+                },
+                "execution": {
+                    "candidate_panel": {
+                        "path": f"panel-{name}",
+                        "sha256": "sha256:" + _hashlib.sha256(panel_bytes).hexdigest(),
+                    }
+                },
+                "available_models": [
+                        {
+                            "model_id": model,
+                            "artifact_hash": {
+                                "chgnet": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+                                "mace-mp-small": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+                                "mace-mp-medium": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+                                "mace-mpa-0-medium": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+                            }[model],
+                            "version": {
+                                "chgnet": "chgnet 0.4.2",
+                                "mace-mp-small": "mace-torch 0.3.16 / small",
+                                "mace-mp-medium": "mace-torch 0.3.16 / medium",
+                                "mace-mpa-0-medium": "mace-torch 0.3.16 / mpa-0 medium",
+                            }[model],
+                        }
+                        for model in models
+                    ],
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": f"locked-{name}",
+                            "sha256": "sha256:" + _hashlib.sha256(locked_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            payload = json.dumps(document, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+            document["content_hash"] = "sha256:" + _hashlib.sha256(payload).hexdigest()
+            raw = json.dumps(document).encode()
+            manifest_dir = artifact_root / "campaigns" / "v1"
+            manifest_dir.mkdir(parents=True, exist_ok=True)
+            (manifest_dir / name).write_bytes(raw)
+            registry_file = artifact_root / "registry" / "campaigns.v1.json"
+            registry_file.parent.mkdir(parents=True, exist_ok=True)
+            registry = (
+                json.loads(registry_file.read_text())
+                if registry_file.exists()
+                else {"campaigns": []}
+            )
+            registry["campaigns"].append(
+                {"campaign_id": campaign_id, "content_hash": document["content_hash"]}
+            )
+            registry_file.write_text(json.dumps(registry))
+            return f"campaigns/v1/{name}", "sha256:" + _hashlib.sha256(raw).hexdigest()
+
+        manifest_one, manifest_one_hash = write_manifest("staging-one.json", 500.0, "campaign-one")
+        manifest_two, manifest_two_hash = write_manifest("staging-two.json", 520.0, "campaign-two")
+
+        def skew(bundle_id: str, campaign: str, fingerprint: str, artifact_name: str, median: float, manifest: str = "", manifest_hash: str = "") -> dict:
+            receipt = bundle(BUNDLE_A, outcome="pass", campaign=campaign, status="confirmatory")
+            receipt["bundle_id"] = bundle_id
+            receipt["claim_predicate"] = "signed_error_positive_fraction>0.5"
+            receipt["evidence_refs"][0]["artifact"] = artifact_name
+            receipt["evidence_refs"][0]["artifact_hash"] = (
+                "sha256:" + _hashlib.sha256((artifact_root / artifact_name).read_bytes()).hexdigest()
+            )
+            if manifest:
+                receipt["evidence_refs"][0]["campaign_manifest"] = manifest
+                receipt["evidence_refs"][0]["campaign_manifest_hash"] = manifest_hash
+            receipt["measurements"] = [
+                {
+                    "metric": "signed_error_positive",
+                    "value": 1.0,
+                    "unit": "fraction",
+                    "acceptance_test": {"comparator": "greater_than", "threshold": 0.5, "outcome": "pass"},
+                    "sample_count": 22,
+                },
+                {
+                    "metric": "median_signed_error",
+                    "value": median,
+                    "unit": "meV",
+                    "acceptance_test": {"comparator": "greater_than_or_equal", "threshold": 400, "outcome": "pass"},
+                    "sample_count": 22,
+                },
+                {
+                    "metric": "median_signed_error",
+                    "value": median,
+                    "unit": "meV",
+                    "acceptance_test": {"comparator": "less_than_or_equal", "threshold": 600, "outcome": "pass"},
+                    "sample_count": 22,
+                },
+            ]
+            receipt["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
+            return receipt
+
+        fingerprint_one = write_artifact("art-one.json", 500.0)
+        fingerprint_two = write_artifact("art-two.json", 520.0)
+
+        hypothesis_row = {
+            "literature_hypothesis_id": "hyp.sign-skew-h-grade",
+            "contract_json": hypothesis(
+                "C1", "Z1", readiness="M",
+                metric="signed_error_positive",
+                predicate="signed_error_positive_fraction>0.5",
+            ),
+        }
+        same_dataset = {
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
+        }
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id=same_dataset,
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A, BUNDLE_B},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(plan["updates"], [])
+
+        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash)
+        two_refs_one_bundle["evidence_refs"].append(
+            dict(two_refs_one_bundle["evidence_refs"][0], dataset_fingerprint=fingerprint_two)
+        )
+        single_bundle_assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"},
+                    ],
+                }
+            ]
+        }
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=single_bundle_assumptions,
+            evidence_by_id={BUNDLE_A: two_refs_one_bundle},
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(plan["updates"], [])
+
+        duplicated_artifact = artifact_root / "art-dupe.json"
+        duplicated_artifact.write_text(
+            json.dumps(
+                {
+                    "per_row": [
+                        {
+                            "path_index": 0,
+                            "path_id": "mp-1000_0_0_0_0_0",
+                            "model": "chgnet",
+                            "status": "measured",
+                            "signed_error_mev": 500.0,
+                        }
+                    ]
+                    * 2
+                }
+            )
+        )
+        self.assertIsNone(feedback_module._artifact_fingerprint(duplicated_artifact))
+
+        fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json", 500.0, manifest_one, manifest_one_hash)
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=single_bundle_assumptions,
+            evidence_by_id={BUNDLE_A: fabricated},
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(plan["updates"], [])
+
+        distinct_datasets = {
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json", 520.0, manifest_two, manifest_two_hash),
+        }
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id=distinct_datasets,
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A, BUNDLE_B},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(len(plan["updates"]), 1)
+        self.assertEqual(plan["updates"][0]["to_readiness"], "H")
+
+    def test_mislabeled_negative_receipt_with_passing_suite_does_not_supersede(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "refuted",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "negative"}
+                    ],
+                }
+            ]
+        }
+        mislabeled = bundle(BUNDLE_A, outcome="pass", campaign="one", status="negative")
+        mislabeled["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        mislabeled["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "less_than_or_equal",
+                    "threshold": 600,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: mislabeled},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.mislabeled-negative",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
+
+    def test_negative_sign_skew_receipt_supersedes_the_sign_skew_hypothesis(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "refuted",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "negative"}
+                    ],
+                }
+            ]
+        }
+        negative = bundle(BUNDLE_A, outcome="fail", campaign="one", status="negative")
+        negative["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        del negative["measurements"]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: negative},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.own-predicate-negative",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(len(plan["updates"]), 1)
+        self.assertEqual(plan["updates"][0]["to_status"], "superseded")
+        self.assertEqual(plan["updates"][0]["evidence_bundle_id"], BUNDLE_A)
+
+    def test_permissive_auxiliary_median_thresholds_are_rejected(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 300,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "outside the frozen acceptance suite"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: skew},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.permissive-aux",
+                        "contract_json": hypothesis(
+                            "C1",
+                            "Z1",
+                            metric="signed_error_positive",
+                            predicate="signed_error_positive_fraction>0.5",
+                        ),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
+    def test_incomplete_acceptance_suite_is_rejected(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 720.0,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "incomplete acceptance suite"):
+            build_feedback_plan(
+                atlas=atlas,
+                assumptions=assumptions,
+                evidence_by_id={BUNDLE_A: skew},
+                hypotheses=[
+                    {
+                        "literature_hypothesis_id": "hyp.incomplete-suite",
+                        "contract_json": hypothesis(
+                            "C1",
+                            "Z1",
+                            metric="signed_error_positive",
+                            predicate="signed_error_positive_fraction>0.5",
+                        ),
+                    }
+                ],
+                new_bundle_ids={BUNDLE_A},
+                as_of="2026-08-01",
+            )
+
+    def test_sign_skew_receipt_promotes_the_sign_skew_hypothesis(self) -> None:
+        import tempfile
+
+        import tools.nightly_ontology_feedback as feedback_module
+
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        artifact_root = Path(temporary.name)
+        original_root = feedback_module._REPO_ROOT
+        self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
+        feedback_module._REPO_ROOT = artifact_root
+        canonical_dir = artifact_root / "data" / "candidates"
+        canonical_dir.mkdir(parents=True, exist_ok=True)
+        (canonical_dir / "z1-union-campaign.json").write_text(
+            json.dumps(
+                {
+                    "per_path": [
+                        {
+                            "path_index": 0,
+                            "path_id": "mp-canonical_0_0_0_0_0",
+                            "reference_barrier_ev": 9.99,
+                            "per_model": {
+                                "chgnet": {"vasp_signed_error_mev": 999.0, "complete": True}
+                            },
+                            "models_missing": {},
+                        }
+                    ]
+                }
+            )
+        )
+        models = ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+        rows = [
+            {
+                "path_index": index,
+                "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                "chemical_system": f"Chem-{index}",
+                "model": model,
+                "status": "measured",
+                "signed_error_mev": 460.14,
+            }
+            for index in range(22)
+            for model in models
+        ]
+        (artifact_root / "data").mkdir(exist_ok=True)
+        (artifact_root / "data" / "staging.json").write_text(json.dumps({"per_row": rows}))
+        locked_source = {
+            "per_path": [
+                {
+                    "path_index": index,
+                    "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                    "chemical_system": f"Chem-{index}",
+                    "per_model": {
+                        model: {"vasp_signed_error_mev": 460.14, "complete": True}
+                        for model in models
+                    },
+                    "models_missing": {},
+                }
+                for index in range(22)
+            ]
+        }
+        locked_bytes = json.dumps(locked_source).encode()
+        (artifact_root / "locked-source.json").write_bytes(locked_bytes)
+        manifest_dir = artifact_root / "campaigns" / "v1"
+        manifest_dir.mkdir(parents=True)
+        import hashlib as _hashlib
+
+        panel_bytes = json.dumps(
+            {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0", "chemical_system": f"Chem-{index}"} for index in range(22)]}
+        ).encode()
+        (artifact_root / "panel.json").write_bytes(panel_bytes)
+        document = {
+            "campaign_id": "one",
+            "acceptance_test": {
+                "metric": "signed_error_positive",
+                "operator": "gt",
+                "threshold": 0.5,
+                "unit": "fraction",
+            },
+            "execution": {
+                "candidate_panel": {
+                    "path": "panel.json",
+                    "sha256": "sha256:" + _hashlib.sha256(panel_bytes).hexdigest(),
+                }
+            },
+            "available_models": [
+                        {
+                            "model_id": model,
+                            "artifact_hash": {
+                                "chgnet": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+                                "mace-mp-small": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+                                "mace-mp-medium": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+                                "mace-mpa-0-medium": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+                            }[model],
+                            "version": {
+                                "chgnet": "chgnet 0.4.2",
+                                "mace-mp-small": "mace-torch 0.3.16 / small",
+                                "mace-mp-medium": "mace-torch 0.3.16 / medium",
+                                "mace-mpa-0-medium": "mace-torch 0.3.16 / mpa-0 medium",
+                            }[model],
+                        }
+                        for model in models
+                    ],
+            "preregistration": {
+                "recorded_inputs": [
+                    {
+                        "path": "locked-source.json",
+                        "sha256": "sha256:" + _hashlib.sha256(locked_bytes).hexdigest(),
+                    }
+                ]
+            },
+        }
+        payload = json.dumps(document, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+        document["content_hash"] = "sha256:" + _hashlib.sha256(payload).hexdigest()
+        manifest_raw = json.dumps(document).encode()
+        (manifest_dir / "staging.json").write_bytes(manifest_raw)
+        registry_file = artifact_root / "registry" / "campaigns.v1.json"
+        registry_file.parent.mkdir(parents=True, exist_ok=True)
+        registry_file.write_text(
+            json.dumps(
+                {"campaigns": [{"campaign_id": "one", "content_hash": document["content_hash"]}]}
+            )
+        )
+        fingerprint = feedback_module._artifact_fingerprint(artifact_root / "data" / "staging.json")
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
+        skew["evidence_refs"][0]["campaign_manifest_hash"] = (
+            "sha256:" + _hashlib.sha256(manifest_raw).hexdigest()
+        )
+        skew["evidence_refs"][0]["artifact_hash"] = (
+            "sha256:"
+            + _hashlib.sha256((artifact_root / "data" / "staging.json").read_bytes()).hexdigest()
+        )
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 1.0,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 460.14,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "less_than_or_equal",
+                    "threshold": 600,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: skew},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.sign-skew-promotion",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(len(plan["updates"]), 1)
+        update = plan["updates"][0]
+        self.assertEqual(update["hypothesis_id"], "hyp.sign-skew-promotion")
+        self.assertEqual(update["to_readiness"], "M")
+        self.assertEqual(update["evidence_bundle_id"], BUNDLE_A)
+
+    def test_sign_skew_receipt_with_out_of_band_median_does_not_promote(self) -> None:
+        atlas = {
+            "discoveryChains": [{"id": "C1", "readiness": "L"}],
+            "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
+        }
+        assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"}
+                    ],
+                }
+            ]
+        }
+        skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
+        skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["measurements"] = [
+            {
+                "metric": "signed_error_positive",
+                "value": 0.9545,
+                "unit": "fraction",
+                "acceptance_test": {
+                    "comparator": "greater_than",
+                    "threshold": 0.5,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 720.0,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "greater_than_or_equal",
+                    "threshold": 400,
+                    "outcome": "pass",
+                },
+                "sample_count": 22,
+            },
+            {
+                "metric": "median_signed_error",
+                "value": 720.0,
+                "unit": "meV",
+                "acceptance_test": {
+                    "comparator": "less_than_or_equal",
+                    "threshold": 600,
+                    "outcome": "fail",
+                },
+                "sample_count": 22,
+            },
+        ]
+
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=assumptions,
+            evidence_by_id={BUNDLE_A: skew},
+            hypotheses=[
+                {
+                    "literature_hypothesis_id": "hyp.sign-skew-band",
+                    "contract_json": hypothesis(
+                        "C1",
+                        "Z1",
+                        metric="signed_error_positive",
+                        predicate="signed_error_positive_fraction>0.5",
+                    ),
+                }
+            ],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+
+        self.assertEqual(plan["updates"], [])
 
     def test_readiness_rejects_a_threshold_that_disagrees_with_the_bound_predicate(self) -> None:
         atlas = {
