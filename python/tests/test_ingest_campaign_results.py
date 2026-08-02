@@ -440,6 +440,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 [row for row in full_rows if row["path_index"] == 0]
                 + [
                     {"path_index": index, "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                     "chemical_system": f"Chem-{index}",
                      "model": model, "status": "failed", "reason": "failed"}
                     for index in range(1, 22)
                     for model in models
@@ -510,6 +511,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": 13,
                         "path_id": "mp-1013_0_0_0_0_0",
+                        "chemical_system": "Chem-13",
                         "model": "mace-mp-small",
                         "status": "failed",
                         "reason": "failed",
@@ -543,6 +545,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": 0,
                         "path_id": "mp-1000_0_0_0_0_0",
+                        "chemical_system": "Chem-0",
                         "model": "uma",
                         "status": "measured",
                         "signed_error_mev": 500.0,

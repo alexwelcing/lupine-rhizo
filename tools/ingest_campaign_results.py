@@ -479,6 +479,7 @@ def _coverage(document: Any) -> tuple[set[int], set[str], set[tuple[int, str]], 
             raise ValueError("coverage rows must be objects")
         index = row.get("path_index")
         model = row.get("model")
+        # (chemistry binding applied later, against the locked source)
         if (
             not isinstance(index, int)
             or isinstance(index, bool)
@@ -812,11 +813,20 @@ def enforce_path_minimums(
                     f"measurement {row_id} locked source path {index} identity {identity!r} "
                     f"does not match the frozen candidate panel {expected_identity!r}"
                 )
+        source_chemistries = {
+            entry.get("path_index", position): entry.get("chemical_system")
+            for position, entry in enumerate(source.get("per_path", []))
+            if isinstance(entry, dict)
+        }
         for row in rows:
             index = row["path_index"]
             if index not in locked:
                 raise ValueError(
                     f"measurement {row_id} path {index} is outside the locked recorded panel"
+                )
+            if row.get("chemical_system") != source_chemistries.get(index):
+                raise ValueError(
+                    f"measurement {row_id} path {index} chemistry does not match the locked source"
                 )
             if row.get("path_id") != locked[index]:
                 raise ValueError(

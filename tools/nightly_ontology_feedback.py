@@ -332,6 +332,7 @@ def _locked_source_rows(
         return None
     expected: dict[tuple[str, str], tuple[str, float | None]] = {}
     identities: dict[int, str] = {}
+    chemistries: dict[int, str] = {}
     seen_identities: set[str] = set()
     for position, entry in enumerate(source.get("per_path", [])):
         if not isinstance(entry, dict) or not isinstance(entry.get("path_id"), str):
@@ -342,6 +343,8 @@ def _locked_source_rows(
             return None
         seen_identities.add(identity)
         identities[index] = identity
+        if isinstance(entry.get("chemical_system"), str):
+            chemistries[index] = entry["chemical_system"]
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if (
@@ -354,7 +357,7 @@ def _locked_source_rows(
                 expected[(identity, model)] = ("measured", float(value))
         for model in (entry.get("models_missing") or {}):
             expected[(identity, model)] = ("failed", None)
-    return expected, identities
+    return expected, identities, chemistries
 
 
 PREDICATE_MANIFEST_OPERATORS = {"<=": "lte", ">": "gt"}
@@ -496,7 +499,7 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:
         return False
-    expected, locked_identities = locked_result
+    expected, locked_identities, locked_chemistries = locked_result
     panel_lock = (
         manifest.get("execution", {}).get("candidate_panel")
         if isinstance(manifest.get("execution"), dict)
@@ -589,6 +592,12 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     for key, (status, value) in expected.items():
         row = row_by_pair.get(key)
         if row is None or row.get("status") != status:
+            return False
+        identity_index = next(
+            (index for index, identity in locked_identities.items() if identity == key[0]),
+            None,
+        )
+        if identity_index is not None and row.get("chemical_system") != locked_chemistries.get(identity_index):
             return False
         if status == "measured" and (
             not isinstance(row.get("signed_error_mev"), (int, float))
