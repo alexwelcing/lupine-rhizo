@@ -268,8 +268,10 @@ def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
 SIGN_SKEW_PATH_FLOOR = 22
 
 
-def _locked_source_rows(manifest: dict[str, Any], row_label: str) -> dict[tuple[str, str], tuple[str, float | None]] | None:
-    """Load the manifest's locked recorded input as (path_id, model) expectations."""
+def _locked_source_rows(
+    manifest: dict[str, Any], row_label: str
+) -> tuple[dict[tuple[str, str], tuple[str, float | None]], dict[int, str]] | None:
+    """Load the manifest's locked recorded input as expectations and identities."""
     preregistration = manifest.get("preregistration")
     recorded_inputs = (
         preregistration.get("recorded_inputs")
@@ -291,10 +293,15 @@ def _locked_source_rows(manifest: dict[str, Any], row_label: str) -> dict[tuple[
     except json.JSONDecodeError:
         return None
     expected: dict[tuple[str, str], tuple[str, float | None]] = {}
-    for entry in source.get("per_path", []):
+    identities: dict[int, str] = {}
+    for position, entry in enumerate(source.get("per_path", [])):
         if not isinstance(entry, dict) or not isinstance(entry.get("path_id"), str):
             continue
         identity = entry["path_id"]
+        index = entry.get("path_index", position)
+        if not isinstance(index, int):
+            continue
+        identities[index] = identity
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if (
@@ -307,7 +314,10 @@ def _locked_source_rows(manifest: dict[str, Any], row_label: str) -> dict[tuple[
                 expected[(identity, model)] = ("measured", float(value))
         for model in (entry.get("models_missing") or {}):
             expected[(identity, model)] = ("failed", None)
-    return expected
+    return expected, identities
+
+
+PREDICATE_MANIFEST_OPERATORS = {"<=": "lte", ">": "gt"}
 
 
 def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -> bool:
@@ -364,6 +374,47 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         for entry in registry.get("campaigns", [])
     ):
         return False
+    predicate = bundle.get("claim_predicate")
+    predicate_match = (
+        ACCEPTANCE_PREDICATE_RE.fullmatch(predicate) if isinstance(predicate, str) else None
+    )
+    acceptance = manifest.get("acceptance_test")
+    if (
+        predicate_match is None
+        or not isinstance(acceptance, dict)
+        or acceptance.get("metric") != predicate_match.group("metric")
+        or acceptance.get("operator") != PREDICATE_MANIFEST_OPERATORS[predicate_match.group("comparator")]
+        or float(acceptance.get("threshold", -1)) != float(predicate_match.group("threshold"))
+        or str(acceptance.get("unit", "")).lower() != predicate_match.group("unit")
+    ):
+        return False
+    locked_result = _locked_source_rows(manifest, "receipt")
+    if locked_result is None:
+        return False
+    expected, locked_identities = locked_result
+    panel_lock = (
+        manifest.get("execution", {}).get("candidate_panel")
+        if isinstance(manifest.get("execution"), dict)
+        else None
+    )
+    if not isinstance(panel_lock, dict) or not isinstance(panel_lock.get("path"), str):
+        return False
+    panel_path = _REPO_ROOT / panel_lock["path"]
+    try:
+        if "sha256:" + hashlib.sha256(panel_path.read_bytes()).hexdigest() != panel_lock.get("sha256"):
+            return False
+        panel = json.loads(panel_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    panel_rows = panel.get("per_path") or panel.get("paths") or []
+    panel_identities = {}
+    for position, entry in enumerate(panel_rows):
+        if isinstance(entry, dict):
+            key = entry.get("path_index", position)
+            if isinstance(key, int):
+                panel_identities[key] = entry.get("path_id")
+    if any(panel_identities.get(index) != identity for index, identity in locked_identities.items()):
+        return False
     required_models = {
         model.get("model_id")
         for model in manifest.get("available_models", [])
@@ -388,9 +439,6 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
             for model in required_models
         ):
             return False
-    expected = _locked_source_rows(manifest, "receipt")
-    if expected is None:
-        return False
     row_by_pair = {
         (row.get("path_id"), row.get("model")): row
         for row in rows

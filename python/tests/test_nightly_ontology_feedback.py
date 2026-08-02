@@ -587,8 +587,24 @@ class NightlyFeedbackTests(unittest.TestCase):
             }
             locked_bytes = json.dumps(locked_source).encode()
             (artifact_root / f"locked-{name}").write_bytes(locked_bytes)
+            panel_bytes = json.dumps(
+                {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0"} for index in range(22)]}
+            ).encode()
+            (artifact_root / f"panel-{name}").write_bytes(panel_bytes)
             document = {
                 "campaign_id": campaign_id,
+                "acceptance_test": {
+                    "metric": "signed_error_positive",
+                    "operator": "gt",
+                    "threshold": 0.5,
+                    "unit": "fraction",
+                },
+                "execution": {
+                    "candidate_panel": {
+                        "path": f"panel-{name}",
+                        "sha256": "sha256:" + _hashlib.sha256(panel_bytes).hexdigest(),
+                    }
+                },
                 "available_models": [{"model_id": model} for model in models],
                 "preregistration": {
                     "recorded_inputs": [
@@ -1042,8 +1058,24 @@ class NightlyFeedbackTests(unittest.TestCase):
         manifest_dir.mkdir(parents=True)
         import hashlib as _hashlib
 
+        panel_bytes = json.dumps(
+            {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0"} for index in range(22)]}
+        ).encode()
+        (artifact_root / "panel.json").write_bytes(panel_bytes)
         document = {
             "campaign_id": "one",
+            "acceptance_test": {
+                "metric": "signed_error_positive",
+                "operator": "gt",
+                "threshold": 0.5,
+                "unit": "fraction",
+            },
+            "execution": {
+                "candidate_panel": {
+                    "path": "panel.json",
+                    "sha256": "sha256:" + _hashlib.sha256(panel_bytes).hexdigest(),
+                }
+            },
             "available_models": [{"model_id": model} for model in models],
             "preregistration": {
                 "recorded_inputs": [
