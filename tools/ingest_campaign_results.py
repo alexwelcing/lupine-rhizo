@@ -65,16 +65,20 @@ def _source_fingerprint(source: Any) -> str | None:
     if not isinstance(source, dict):
         return None
     observations = []
+    identities = []
     for entry in source.get("per_path", []):
         if not isinstance(entry, dict):
             continue
         identity = entry.get("path_id")
+        identities.append(identity)
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if value is not None and record.get("complete", False):
                 observations.append([identity, model, "measured", round(float(value), 4)])
         for model in (entry.get("models_missing") or {}):
             observations.append([identity, model, "failed"])
+    if len(identities) != len(set(identities)):
+        raise ValueError("locked source contains duplicate stable path identities")
     observations.sort()
     canonical = json.dumps(observations, separators=(",", ":")).encode()
     return "sha256:" + hashlib.sha256(canonical).hexdigest()
@@ -611,11 +615,18 @@ def enforce_path_minimums(
                         )
         locked = {}
         expected: dict[tuple[int, str], tuple[str, float | None]] = {}
+        seen_identities: set[str] = set()
         for entry in source.get("per_path", []):
             if not isinstance(entry, dict):
                 continue
             index = entry.get("path_index")
-            locked[index] = entry.get("path_id")
+            identity = entry.get("path_id")
+            if identity in seen_identities:
+                raise ValueError(
+                    "locked source contains duplicate stable path identities"
+                )
+            seen_identities.add(identity)
+            locked[index] = identity
             for model, record in (entry.get("per_model") or {}).items():
                 value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
                 if value is not None and record.get("complete", False):

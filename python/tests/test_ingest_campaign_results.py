@@ -522,6 +522,33 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "non-finite"):
                 module.enforce_path_minimums(root, nan_manifest, make_bundle(), artifact, "skew-1")
 
+            # Duplicate stable path identities cannot inflate a copied dataset.
+            dupe_document = json.loads(locked_bytes)
+            dupe_document["per_path"].append(
+                {
+                    "path_index": 99,
+                    "path_id": "mp-1000_0_0_0_0_0",
+                    "per_model": {},
+                    "models_missing": {model: "failed" for model in models},
+                }
+            )
+            dupe_bytes = json.dumps(dupe_document).encode()
+            (root / "dupe-locked.json").write_bytes(dupe_bytes)
+            dupe_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "dupe-locked.json",
+                            "sha256": "sha256:" + hashlib.sha256(dupe_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "duplicate stable path identities"):
+                module.enforce_path_minimums(root, dupe_manifest, make_bundle(), artifact, "skew-1")
+
             # The artifact must disclose the locked source's complete pair set.
             large_document = json.loads(locked_bytes)
             for extra in (22, 23):
