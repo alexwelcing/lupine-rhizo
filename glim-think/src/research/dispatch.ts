@@ -178,22 +178,59 @@ function validatePayload(payload: TaskPayload): void {
     throw new Error("command required");
   if (typeof payload.beat_emit_url !== "string" || !payload.beat_emit_url)
     throw new Error("beat_emit_url required");
-  if (payload.args !== undefined && !Array.isArray(payload.args))
+  if (
+    payload.args !== undefined &&
+    (!Array.isArray(payload.args) || payload.args.some((arg) => typeof arg !== "string"))
+  )
     throw new Error("args must be an array of strings if provided");
   if (payload.target_job !== undefined && typeof payload.target_job !== "string")
     throw new Error("target_job must be a string if provided");
   if (payload.schedule_name !== undefined && typeof payload.schedule_name !== "string")
     throw new Error("schedule_name must be a string if provided");
-  if (payload.schedule_name && payload.schedule_name !== "manual") {
-    const telemetry = payload.telemetry;
-    if (!telemetry || typeof telemetry !== "object")
-      throw new Error("scheduled cloud cells require telemetry");
+  const telemetry = payload.telemetry;
+  if (payload.schedule_name && payload.schedule_name !== "manual" && (!telemetry || typeof telemetry !== "object"))
+    throw new Error("scheduled cloud cells require telemetry");
+  if (telemetry !== undefined) {
+    if (!telemetry || typeof telemetry !== "object") throw new Error("telemetry must be an object");
     if (telemetry.schema !== "lupine.mlip.cloud_cell_span.v1")
       throw new Error("telemetry.schema must be lupine.mlip.cloud_cell_span.v1");
     if (telemetry.origin !== "cloud") throw new Error("telemetry.origin must be cloud");
     for (const field of ["correlation_id", "run_id", "cell_id", "row_id", "mlip_id"] as const) {
       if (typeof telemetry[field] !== "string" || !telemetry[field].trim())
         throw new Error(`telemetry.${field} must be a non-empty string`);
+    }
+    const args = payload.args ?? [];
+    const identityArgs = [
+      ["--run-id", telemetry.run_id],
+      ["--cell-id", telemetry.cell_id],
+      ["--row-id", telemetry.row_id],
+      ["--mlip-id", telemetry.mlip_id],
+    ] as const;
+    const identityFlags = identityArgs.map(([flag]) => flag);
+    for (const arg of args) {
+      const candidate = arg.split("=", 1)[0];
+      if (
+        candidate.startsWith("--") &&
+        !identityFlags.includes(candidate as typeof identityFlags[number]) &&
+        identityFlags.some((flag) => flag.startsWith(candidate))
+      ) {
+        throw new Error(`${candidate} is an abbreviated identity argument`);
+      }
+    }
+    for (const [flag, expected] of identityArgs) {
+      const matches: Array<{ index: number; inlineValue: string | undefined }> = [];
+      args.forEach((arg, index) => {
+        if (arg === flag) matches.push({ index, inlineValue: undefined });
+        else if (arg.startsWith(`${flag}=`)) {
+          matches.push({ index, inlineValue: arg.slice(flag.length + 1) });
+        }
+      });
+      if (matches.length === 0) throw new Error(`missing ${flag} argument`);
+      if (matches.length > 1) throw new Error(`duplicate ${flag} argument`);
+      const actual = matches[0].inlineValue ?? args[matches[0].index + 1];
+      if (actual === undefined) throw new Error(`missing ${flag} argument`);
+      if (actual !== expected)
+        throw new Error(`${flag} does not match telemetry envelope`);
     }
   }
 }

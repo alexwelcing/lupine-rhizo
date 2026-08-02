@@ -11,5 +11,10 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "dependencies": {
+    "@opentelemetry/api": "1.9.0",
+    "@opentelemetry/otlp-transformer": "0.221.0"
+  },
+  "overrides": {}
 }

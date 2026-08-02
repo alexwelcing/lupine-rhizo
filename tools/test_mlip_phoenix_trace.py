@@ -210,6 +210,28 @@ def test_cloud_cell_span_matches_local_identity_and_cost_contract():
     assert attrs["mlip.cost.daily_gpu_hour_cap"] == 2.0
 
 
+def test_unscheduled_cloud_cell_span_matches_rust_and_node_contract():
+    attrs = cloud_cell_span_to_attributes({
+        "schema": "lupine.mlip.cloud_cell_span.v1",
+        "origin": "cloud",
+        "correlation_id": "campaign-a",
+        "run_id": "run-a",
+        "cell_id": "run-a:distill_accuracy:forces:mace-mp-0",
+        "row_id": "forces",
+        "mlip_id": "mace-mp-0",
+        "schedule_name": "unscheduled-campaign",
+        "dispatch_status": "admitted",
+        "target_job": "mlip-cell-mace",
+        "reserved_gpu_hours": 0.0,
+        "reservation_gpu_hours": 0.0,
+        "daily_gpu_hour_cap": 0.0,
+    })
+
+    assert attrs["mlip.correlation_id"] == "campaign-a"
+    assert attrs["mlip.schedule.name"] == "unscheduled-campaign"
+    assert attrs["mlip.cost.reservation_gpu_hours"] == 0.0
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [
@@ -219,6 +241,8 @@ def test_cloud_cell_span_matches_local_identity_and_cost_contract():
         ("run_id", None),
         ("cell_id", 42),
         ("reserved_gpu_hours", float("nan")),
+        ("reservation_gpu_hours", -0.1),
+        ("daily_gpu_hour_cap", True),
     ],
 )
 def test_cloud_cell_span_rejects_malformed_envelopes(field: str, value: object):

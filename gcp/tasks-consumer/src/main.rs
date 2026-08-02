@@ -213,6 +213,21 @@ async fn build_app(cli: Cli) -> anyhow::Result<Router> {
         .with_state(state))
 }
 
+fn cloud_tasks_retry_count(headers: &HeaderMap) -> Result<u32, &'static str> {
+    let mut values = headers.get_all("x-cloudtasks-taskretrycount").iter();
+    let Some(value) = values.next() else {
+        return Ok(0);
+    };
+    if values.next().is_some() {
+        return Err("duplicate x-cloudtasks-taskretrycount header");
+    }
+    value
+        .to_str()
+        .ok()
+        .and_then(|value| value.parse::<u32>().ok())
+        .ok_or("x-cloudtasks-taskretrycount must be an unsigned integer")
+}
+
 async fn handle_run(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -230,6 +245,13 @@ async fn handle_run(
         .get("x-cloudtasks-taskname")
         .and_then(|h| h.to_str().ok())
         .unwrap_or("(unknown)");
+    let dispatch_attempt = match cloud_tasks_retry_count(&headers) {
+        Ok(value) => value,
+        Err(error) => {
+            warn!(task = task_name, error, "invalid Cloud Tasks retry count");
+            return (StatusCode::BAD_REQUEST, error).into_response();
+        }
+    };
 
     if let Err(error) = validate_cloud_telemetry(&payload) {
         warn!(task = task_name, error = %error, "invalid cloud cell telemetry envelope");
@@ -446,16 +468,27 @@ async fn handle_run(
         container_env,
     };
 
-    if let (Some(admission), Some(identity)) = (admission.as_ref(), payload.telemetry.as_ref()) {
-        let span = telemetry::CloudCellSpan::admitted(identity, &req.job_name, admission);
-        if let Err(error) = state.trace_emitter.emit(&span).await {
-            error!(task = task_name, error = %error, "cloud cell OTLP export failed; dispatch continues");
-        }
-    }
-
     match run_job(state.runner.as_ref(), &req).await {
         Ok(op) => {
             info!(task = task_name, operation = %op, "job run accepted");
+            if let Some(identity) = payload.telemetry.as_ref() {
+                let span = telemetry::CloudCellSpan::dispatched(
+                    identity,
+                    &req.job_name,
+                    admission.as_ref(),
+                    payload.schedule_name.as_deref(),
+                    "admitted",
+                    dispatch_attempt,
+                );
+                emit_trace_off_path(
+                    state.trace_emitter.clone(),
+                    span,
+                    task_name.to_string(),
+                    identity.run_id.clone(),
+                    identity.cell_id.clone(),
+                    "cloud cell OTLP export failed after dispatch; failure retained in Cloud Logging",
+                );
+            }
             (
                 StatusCode::OK,
                 Json(RunResponse {
@@ -471,6 +504,24 @@ async fn handle_run(
         }
         Err(e) if admission.is_some() => {
             error!(task = task_name, error = %e, "job run failed; no-silent-retry policy consumed reservation");
+            if let Some(identity) = payload.telemetry.as_ref() {
+                let span = telemetry::CloudCellSpan::dispatched(
+                    identity,
+                    &req.job_name,
+                    admission.as_ref(),
+                    payload.schedule_name.as_deref(),
+                    "dispatch_failed",
+                    dispatch_attempt,
+                );
+                emit_trace_off_path(
+                    state.trace_emitter.clone(),
+                    span,
+                    task_name.to_string(),
+                    identity.run_id.clone(),
+                    identity.cell_id.clone(),
+                    "cloud cell OTLP failure-span export failed; failure retained in Cloud Logging",
+                );
+            }
             (
                 StatusCode::OK,
                 Json(RunResponse {
@@ -486,6 +537,24 @@ async fn handle_run(
         }
         Err(e) => {
             error!(task = task_name, error = %e, "job run failed");
+            if let Some(identity) = payload.telemetry.as_ref() {
+                let span = telemetry::CloudCellSpan::dispatched(
+                    identity,
+                    &req.job_name,
+                    None,
+                    payload.schedule_name.as_deref(),
+                    "dispatch_failed",
+                    dispatch_attempt,
+                );
+                emit_trace_off_path(
+                    state.trace_emitter.clone(),
+                    span,
+                    task_name.to_string(),
+                    identity.run_id.clone(),
+                    identity.cell_id.clone(),
+                    "unscheduled cloud cell failure-span export failed; failure retained in Cloud Logging",
+                );
+            }
             (
                 StatusCode::BAD_GATEWAY,
                 format!("upstream job run failed: {e}"),
@@ -495,17 +564,69 @@ async fn handle_run(
     }
 }
 
-fn validate_cloud_telemetry(payload: &TaskPayload) -> anyhow::Result<()> {
-    let Some(schedule) = payload.schedule_name.as_deref() else {
-        return Ok(());
-    };
-    if schedule == "manual" {
-        return Ok(());
+fn emit_trace_off_path(
+    emitter: Arc<dyn telemetry::TraceEmitter>,
+    span: telemetry::CloudCellSpan,
+    task_name: String,
+    run_id: String,
+    cell_id: String,
+    failure_message: &'static str,
+) {
+    let telemetry_delivery_id = span.delivery_id(&task_name);
+    if !emitter.enabled() {
+        info!(
+            task = task_name,
+            run_id,
+            cell_id,
+            telemetry_delivery_id,
+            telemetry_delivery_state = "disabled",
+            "cloud cell OTLP export disabled by configuration"
+        );
+        return;
     }
-    let telemetry = payload
-        .telemetry
-        .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("scheduled cloud cell requires telemetry"))?;
+    info!(
+        task = task_name,
+        run_id,
+        cell_id,
+        telemetry_delivery_id,
+        telemetry_delivery_state = "pending",
+        "cloud cell OTLP export queued; stale pending record denotes undelivered telemetry"
+    );
+    tokio::spawn(async move {
+        match emitter.emit(&span).await {
+            Ok(()) => info!(
+                task = task_name,
+                run_id,
+                cell_id,
+                telemetry_delivery_id,
+                telemetry_delivery_state = "delivered",
+                "cloud cell OTLP export delivered"
+            ),
+            Err(error) => error!(
+                task = task_name,
+                run_id,
+                cell_id,
+                telemetry_delivery_id,
+                telemetry_delivery_state = "failed",
+                error = %error,
+                failure_message
+            ),
+        }
+    });
+}
+
+fn validate_cloud_telemetry(payload: &TaskPayload) -> anyhow::Result<()> {
+    let telemetry = match payload.telemetry.as_ref() {
+        Some(telemetry) => telemetry,
+        None if payload
+            .schedule_name
+            .as_deref()
+            .is_some_and(|schedule| schedule != "manual") =>
+        {
+            anyhow::bail!("scheduled cloud cell requires telemetry")
+        }
+        None => return Ok(()),
+    };
     if telemetry.schema != "lupine.mlip.cloud_cell_span.v1" {
         anyhow::bail!("schema must be lupine.mlip.cloud_cell_span.v1");
     }
@@ -523,17 +644,49 @@ fn validate_cloud_telemetry(payload: &TaskPayload) -> anyhow::Result<()> {
             anyhow::bail!("{name} must be non-empty");
         }
     }
-    for (flag, expected) in [
+    let identity_args = [
         ("--run-id", telemetry.run_id.as_str()),
         ("--cell-id", telemetry.cell_id.as_str()),
         ("--row-id", telemetry.row_id.as_str()),
         ("--mlip-id", telemetry.mlip_id.as_str()),
-    ] {
-        let actual = payload
+    ];
+    for value in &payload.args {
+        let candidate = value
+            .split_once('=')
+            .map_or(value.as_str(), |(name, _)| name);
+        if candidate.starts_with("--")
+            && !identity_args.iter().any(|(flag, _)| *flag == candidate)
+            && identity_args
+                .iter()
+                .any(|(flag, _)| flag.starts_with(candidate))
+        {
+            anyhow::bail!("{candidate} is an abbreviated identity argument");
+        }
+    }
+    for (flag, expected) in identity_args {
+        let inline_prefix = format!("{flag}=");
+        let matches = payload
             .args
-            .windows(2)
-            .find(|pair| pair[0] == flag)
-            .map(|pair| pair[1].as_str())
+            .iter()
+            .enumerate()
+            .filter_map(|(index, value)| {
+                if value == flag {
+                    Some((index, None))
+                } else {
+                    value
+                        .strip_prefix(&inline_prefix)
+                        .map(|inline| (index, Some(inline)))
+                }
+            })
+            .collect::<Vec<_>>();
+        let Some((position, inline_value)) = matches.first().copied() else {
+            anyhow::bail!("missing {flag} argument")
+        };
+        if matches.len() != 1 {
+            anyhow::bail!("duplicate {flag} argument");
+        }
+        let actual = inline_value
+            .or_else(|| payload.args.get(position + 1).map(String::as_str))
             .ok_or_else(|| anyhow::anyhow!("missing {flag} argument"))?;
         if actual != expected {
             anyhow::bail!("{flag} does not match telemetry envelope");
@@ -616,12 +769,53 @@ mod tests {
         }
     }
 
+    async fn wait_for_spans(
+        emitter: &RecordingTraceEmitter,
+    ) -> Vec<BTreeMap<String, serde_json::Value>> {
+        tokio::time::timeout(std::time::Duration::from_secs(1), async {
+            loop {
+                let spans = emitter.spans.lock().unwrap().clone();
+                if !spans.is_empty() {
+                    return spans;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .expect("background telemetry export did not run")
+    }
+
     struct FailingTraceEmitter;
 
     #[axum::async_trait]
     impl telemetry::TraceEmitter for FailingTraceEmitter {
         async fn emit(&self, _span: &telemetry::CloudCellSpan) -> anyhow::Result<()> {
             anyhow::bail!("synthetic relay outage")
+        }
+    }
+
+    struct DispatchOrderTraceEmitter {
+        runner: Arc<RecordingRunner>,
+    }
+
+    #[axum::async_trait]
+    impl telemetry::TraceEmitter for DispatchOrderTraceEmitter {
+        async fn emit(&self, _span: &telemetry::CloudCellSpan) -> anyhow::Result<()> {
+            assert_eq!(
+                self.runner.calls.load(Ordering::SeqCst),
+                1,
+                "optional relay I/O must start only after compute dispatch"
+            );
+            Ok(())
+        }
+    }
+
+    struct HangingTraceEmitter;
+
+    #[axum::async_trait]
+    impl telemetry::TraceEmitter for HangingTraceEmitter {
+        async fn emit(&self, _span: &telemetry::CloudCellSpan) -> anyhow::Result<()> {
+            std::future::pending().await
         }
     }
 
@@ -752,6 +946,107 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn duplicate_identity_flags_fail_closed_before_dispatch() {
+        for flag in ["--run-id", "--cell-id", "--row-id", "--mlip-id"] {
+            let runner = Arc::new(RecordingRunner::default());
+            let app = app_with_runner(dev_cli(), runner.clone());
+            let mut body = scheduled_body();
+            body["args"].as_array_mut().unwrap().extend([
+                serde_json::Value::String(flag.into()),
+                serde_json::Value::String("attacker-controlled".into()),
+            ]);
+            let res = app
+                .oneshot(
+                    Request::builder()
+                        .method("POST")
+                        .uri("/run")
+                        .header("x-cloudtasks-taskname", format!("duplicate-{flag}"))
+                        .body(Body::from(body.to_string()))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(res.status(), StatusCode::BAD_REQUEST, "flag={flag}");
+            assert_eq!(runner.calls.load(Ordering::SeqCst), 0, "flag={flag}");
+        }
+    }
+
+    #[tokio::test]
+    async fn mixed_form_duplicate_identity_flags_fail_closed_before_dispatch() {
+        for flag in ["--run-id", "--cell-id", "--row-id", "--mlip-id"] {
+            let runner = Arc::new(RecordingRunner::default());
+            let app = app_with_runner(dev_cli(), runner.clone());
+            let mut body = scheduled_body();
+            body["args"]
+                .as_array_mut()
+                .unwrap()
+                .push(serde_json::Value::String(format!(
+                    "{flag}=attacker-controlled"
+                )));
+            let res = app
+                .oneshot(
+                    Request::builder()
+                        .method("POST")
+                        .uri("/run")
+                        .header("x-cloudtasks-taskname", format!("mixed-duplicate-{flag}"))
+                        .body(Body::from(body.to_string()))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(res.status(), StatusCode::BAD_REQUEST, "flag={flag}");
+            assert_eq!(runner.calls.load(Ordering::SeqCst), 0, "flag={flag}");
+        }
+    }
+
+    #[tokio::test]
+    async fn dangling_identity_flag_fails_closed_before_dispatch() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_runner(dev_cli(), runner.clone());
+        let mut body = scheduled_body();
+        body["args"] = serde_json::json!(["--run-id"]);
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "dangling-run-id")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn abbreviated_identity_flags_fail_closed_before_dispatch() {
+        for flag in ["--run-i", "--cell-i", "--row-i", "--mlip-i"] {
+            let runner = Arc::new(RecordingRunner::default());
+            let app = app_with_runner(dev_cli(), runner.clone());
+            let mut body = scheduled_body();
+            body["args"].as_array_mut().unwrap().extend([
+                serde_json::Value::String(flag.into()),
+                serde_json::Value::String("attacker-controlled".into()),
+            ]);
+            let res = app
+                .oneshot(
+                    Request::builder()
+                        .method("POST")
+                        .uri("/run")
+                        .header("x-cloudtasks-taskname", format!("abbreviated-{flag}"))
+                        .body(Body::from(body.to_string()))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(res.status(), StatusCode::BAD_REQUEST, "flag={flag}");
+            assert_eq!(runner.calls.load(Ordering::SeqCst), 0, "flag={flag}");
+        }
+    }
+
+    #[tokio::test]
     async fn admitted_scheduled_cell_emits_exactly_one_cost_capped_span() {
         let runner = Arc::new(RecordingRunner::default());
         let emitter = Arc::new(RecordingTraceEmitter::default());
@@ -769,7 +1064,7 @@ mod tests {
             .unwrap();
         assert_eq!(res.status(), StatusCode::OK);
         assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
-        let spans = emitter.spans.lock().unwrap();
+        let spans = wait_for_spans(&emitter).await;
         assert_eq!(spans.len(), 1);
         assert_eq!(
             spans[0]["mlip.cell_id"],
@@ -777,6 +1072,131 @@ mod tests {
         );
         assert_eq!(spans[0]["mlip.dispatch.status"], "admitted");
         assert_eq!(spans[0]["mlip.cost.daily_gpu_hour_cap"], 3.0);
+    }
+
+    #[tokio::test]
+    async fn telemetry_io_starts_after_compute_dispatch() {
+        let runner = Arc::new(RecordingRunner::default());
+        let emitter = Arc::new(DispatchOrderTraceEmitter {
+            runner: runner.clone(),
+        });
+        let app = app_with_trace_emitter(dev_cli(), runner.clone(), emitter);
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "dispatch-before-telemetry")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn telemetry_io_does_not_delay_dispatch_response() {
+        let runner = Arc::new(RecordingRunner::default());
+        let app = app_with_trace_emitter(dev_cli(), runner.clone(), Arc::new(HangingTraceEmitter));
+        let response = tokio::time::timeout(
+            std::time::Duration::from_millis(100),
+            app.oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "nonblocking-telemetry")
+                    .body(Body::from(scheduled_body().to_string()))
+                    .unwrap(),
+            ),
+        )
+        .await
+        .expect("optional relay I/O must not delay the dispatch response")
+        .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+    }
+
+    #[test]
+    fn off_path_telemetry_records_durable_pending_and_terminal_states() {
+        let source = include_str!("main.rs");
+        assert!(source.contains("telemetry_delivery_state = \"pending\""));
+        assert!(source.contains("telemetry_delivery_state = \"delivered\""));
+        assert!(source.contains("telemetry_delivery_state = \"failed\""));
+        assert!(source.contains("telemetry_delivery_state = \"disabled\""));
+        assert!(source.contains("stale pending record denotes undelivered telemetry"));
+    }
+
+    #[test]
+    fn retry_count_header_rejects_malformed_and_duplicate_values() {
+        for value in ["-1", "not-a-number", "4294967296"] {
+            let mut headers = HeaderMap::new();
+            headers.insert("x-cloudtasks-taskretrycount", value.parse().unwrap());
+            assert!(cloud_tasks_retry_count(&headers).is_err(), "value={value}");
+        }
+
+        let mut headers = HeaderMap::new();
+        headers.append("x-cloudtasks-taskretrycount", "1".parse().unwrap());
+        headers.append("x-cloudtasks-taskretrycount", "2".parse().unwrap());
+        assert!(cloud_tasks_retry_count(&headers).is_err());
+    }
+
+    #[tokio::test]
+    async fn unscheduled_campaign_cell_emits_telemetry_after_dispatch() {
+        let runner = Arc::new(RecordingRunner::default());
+        let emitter = Arc::new(RecordingTraceEmitter::default());
+        let app = app_with_trace_emitter(dev_cli(), runner.clone(), emitter.clone());
+        let mut body = scheduled_body();
+        body.as_object_mut().unwrap().remove("schedule_name");
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "unscheduled-campaign-cell")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+        let spans = wait_for_spans(&emitter).await;
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0]["mlip.schedule.name"], "unscheduled-campaign");
+        assert_eq!(spans[0]["mlip.cost.reservation_gpu_hours"], 0.0);
+    }
+
+    #[tokio::test]
+    async fn unscheduled_campaign_dispatch_failure_emits_failure_telemetry() {
+        let runner = Arc::new(RecordingRunner {
+            calls: AtomicUsize::new(0),
+            fail: true,
+        });
+        let emitter = Arc::new(RecordingTraceEmitter::default());
+        let app = app_with_trace_emitter(dev_cli(), runner.clone(), emitter.clone());
+        let mut body = scheduled_body();
+        body.as_object_mut().unwrap().remove("schedule_name");
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/run")
+                    .header("x-cloudtasks-taskname", "unscheduled-campaign-failure")
+                    .header("x-cloudtasks-taskretrycount", "3")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
+        assert_eq!(runner.calls.load(Ordering::SeqCst), 1);
+        let spans = wait_for_spans(&emitter).await;
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0]["mlip.dispatch.status"], "dispatch_failed");
+        assert_eq!(spans[0]["mlip.dispatch.attempt"], 3);
+        assert_eq!(spans[0]["mlip.schedule.name"], "unscheduled-campaign");
     }
 
     #[tokio::test]
@@ -1128,6 +1548,9 @@ mod tests {
         assert!(consumer_build.contains("policies/on-proof-complete.yml"));
         assert!(consumer_build.contains("OTLP_RELAY_URL=${_OTLP_RELAY_URL}"));
         assert!(consumer_build.contains("OTLP_RELAY_TOKEN=PHOENIX_RELAY_TOKEN:latest"));
+        assert!(consumer_build.contains("--update-env-vars=\"SERVICE_URL=$$URL\""));
+        assert_eq!(consumer_build.matches("--set-env-vars=").count(), 1);
+        assert!(consumer_build.contains("--no-cpu-throttling"));
 
         let runner_build =
             std::fs::read_to_string(root.join("../mlip-cell-runner/cloudbuild.unified.yaml"))

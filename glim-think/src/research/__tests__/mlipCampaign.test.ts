@@ -142,6 +142,16 @@ describe("mlipCampaign", () => {
 
     expect(payload.command).toBe("run-cell");
     expect(payload.target_job).toBe("mlip-cell-mace");
+    expect(payload.schedule_name).toBeUndefined();
+    expect(payload.telemetry).toEqual({
+      schema: "lupine.mlip.cloud_cell_span.v1",
+      origin: "cloud",
+      correlation_id: "run-a",
+      run_id: "run-a",
+      cell_id: "run-a:distill_accuracy:forces:mace-mp-0",
+      row_id: "forces",
+      mlip_id: "mace-mp-0",
+    });
     expect(payload.args).toContain("--distill-profile");
     expect(payload.args).toContain("accuracy");
     expect(payload.args).toContain("--support-manifest-url");
