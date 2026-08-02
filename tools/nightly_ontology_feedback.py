@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 import re
+import statistics
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -167,8 +168,7 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _artifact_fingerprint(path: Path) -> str | None:
-    """Recompute a sign-skew dataset fingerprint from a cited artifact's rows."""
+def _artifact_rows(path: Path) -> list[dict] | None:
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -176,6 +176,10 @@ def _artifact_fingerprint(path: Path) -> str | None:
     rows = document.get("per_row") if isinstance(document, dict) else None
     if not isinstance(rows, list) or not rows:
         return None
+    return rows
+
+
+def _fingerprint_from_rows(rows: list[dict]) -> str | None:
     observations = []
     seen: set[tuple[str, str]] = set()
     for row in rows:
@@ -205,6 +209,60 @@ def _artifact_fingerprint(path: Path) -> str | None:
     observations.sort()
     canonical = json.dumps(observations, separators=(",", ":")).encode()
     return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
+def _artifact_fingerprint(path: Path) -> str | None:
+    """Recompute a sign-skew dataset fingerprint from a cited artifact's rows."""
+    rows = _artifact_rows(path)
+    if rows is None:
+        return None
+    return _fingerprint_from_rows(rows)
+
+
+def _artifact_path_statistics(rows: list[dict]) -> tuple[int, float, float] | None:
+    per_path: dict[str, list[float]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or row.get("status") != "measured":
+            continue
+        value = row.get("signed_error_mev")
+        identity = row.get("path_id")
+        if (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and isinstance(identity, str)
+        ):
+            per_path.setdefault(identity, []).append(float(value))
+    if not per_path:
+        return None
+    path_values = [statistics.median(values) for values in per_path.values()]
+    fraction = sum(1 for value in path_values if value > 0) / len(path_values)
+    return len(per_path), fraction, statistics.median(path_values)
+
+
+def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
+    """Ingestion-grade reconciliation of typed measurements with artifact rows."""
+    stats = _artifact_path_statistics(rows)
+    if stats is None:
+        return False
+    measured_paths, fraction, median = stats
+    for measurement in bundle.get("measurements", []):
+        if not isinstance(measurement, dict):
+            return False
+        metric = measurement.get("metric")
+        value = measurement.get("value")
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+        ):
+            return False
+        if metric == "signed_error_positive" and abs(float(value) - fraction) > 5e-5:
+            return False
+        if metric == "median_signed_error" and abs(float(value) - median) > 0.01:
+            return False
+        if measurement.get("sample_count") != measured_paths:
+            return False
+    return True
 
 
 def _confirms_instead(bundle: dict[str, Any], as_of: date) -> bool:
@@ -289,16 +347,23 @@ def _chain_state(
                     continue
                 if expected_predicate.startswith("signed_error_positive_fraction"):
                     # Independence is the dataset, not the campaign name: count
-                    # at most one fingerprint per evaluated bundle, and only after
-                    # recomputing it from the cited artifact's own rows.
+                    # at most one fingerprint per evaluated bundle, authenticated
+                    # against the cited artifact's rows, with the receipt's typed
+                    # statistics reconciled against those same rows.
                     fingerprint = reference.get("dataset_fingerprint")
                     artifact = reference.get("artifact")
+                    rows = (
+                        _artifact_rows(_REPO_ROOT / artifact)
+                        if isinstance(artifact, str)
+                        else None
+                    )
                     if (
                         not counted_identity
                         and isinstance(fingerprint, str)
                         and HASH_RE.fullmatch(fingerprint)
-                        and isinstance(artifact, str)
-                        and _artifact_fingerprint(_REPO_ROOT / artifact) == fingerprint
+                        and rows is not None
+                        and _fingerprint_from_rows(rows) == fingerprint
+                        and _receipt_matches_artifact(bundle, rows)
                     ):
                         campaigns.add(("dataset", fingerprint))
                         counted_identity = True

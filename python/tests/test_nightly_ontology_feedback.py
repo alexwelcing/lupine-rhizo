@@ -555,7 +555,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             (artifact_root / name).write_text(json.dumps({"per_row": rows}))
             return feedback_module._artifact_fingerprint(artifact_root / name)
 
-        def skew(bundle_id: str, campaign: str, fingerprint: str, artifact_name: str) -> dict:
+        def skew(bundle_id: str, campaign: str, fingerprint: str, artifact_name: str, median: float) -> dict:
             receipt = bundle(BUNDLE_A, outcome="pass", campaign=campaign, status="confirmatory")
             receipt["bundle_id"] = bundle_id
             receipt["claim_predicate"] = "signed_error_positive_fraction>0.5"
@@ -563,21 +563,21 @@ class NightlyFeedbackTests(unittest.TestCase):
             receipt["measurements"] = [
                 {
                     "metric": "signed_error_positive",
-                    "value": 0.9545,
+                    "value": 1.0,
                     "unit": "fraction",
                     "acceptance_test": {"comparator": "greater_than", "threshold": 0.5, "outcome": "pass"},
                     "sample_count": 22,
                 },
                 {
                     "metric": "median_signed_error",
-                    "value": 460.14,
+                    "value": median,
                     "unit": "meV",
                     "acceptance_test": {"comparator": "greater_than_or_equal", "threshold": 400, "outcome": "pass"},
                     "sample_count": 22,
                 },
                 {
                     "metric": "median_signed_error",
-                    "value": 460.14,
+                    "value": median,
                     "unit": "meV",
                     "acceptance_test": {"comparator": "less_than_or_equal", "threshold": 600, "outcome": "pass"},
                     "sample_count": 22,
@@ -598,8 +598,8 @@ class NightlyFeedbackTests(unittest.TestCase):
             ),
         }
         same_dataset = {
-            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json"),
-            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json"),
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json", 500.0),
         }
         plan = build_feedback_plan(
             atlas=atlas,
@@ -611,7 +611,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertEqual(plan["updates"], [])
 
-        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json")
+        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0)
         two_refs_one_bundle["evidence_refs"].append(
             dict(two_refs_one_bundle["evidence_refs"][0], dataset_fingerprint=fingerprint_two)
         )
@@ -655,7 +655,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertIsNone(feedback_module._artifact_fingerprint(duplicated_artifact))
 
-        fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json")
+        fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json", 500.0)
         plan = build_feedback_plan(
             atlas=atlas,
             assumptions=single_bundle_assumptions,
@@ -667,8 +667,8 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
 
         distinct_datasets = {
-            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json"),
-            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json"),
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json", 520.0),
         }
         plan = build_feedback_plan(
             atlas=atlas,
