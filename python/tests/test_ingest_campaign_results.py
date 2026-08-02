@@ -549,6 +549,36 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate stable path identities"):
                 module.enforce_path_minimums(root, dupe_manifest, make_bundle(), artifact, "skew-1")
 
+            # Duplicate path indices with different identities are rejected too.
+            dupe_index_document = json.loads(locked_bytes)
+            dupe_index_document["per_path"].append(
+                {
+                    "path_index": 0,
+                    "path_id": "mp-5555_0_0_0_0_0",
+                    "per_model": {
+                        model: {"vasp_signed_error_mev": 999.0, "complete": True}
+                        for model in models
+                    },
+                    "models_missing": {},
+                }
+            )
+            dupe_index_bytes = json.dumps(dupe_index_document).encode()
+            (root / "dupe-index-locked.json").write_bytes(dupe_index_bytes)
+            dupe_index_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "dupe-index-locked.json",
+                            "sha256": "sha256:" + hashlib.sha256(dupe_index_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "duplicate stable path identities"):
+                module.enforce_path_minimums(root, dupe_index_manifest, make_bundle(), artifact, "skew-1")
+
             # The artifact must disclose the locked source's complete pair set.
             large_document = json.loads(locked_bytes)
             for extra in (22, 23):

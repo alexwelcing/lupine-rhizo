@@ -66,18 +66,20 @@ def _source_fingerprint(source: Any) -> str | None:
         return None
     observations = []
     identities = []
+    indices = []
     for entry in source.get("per_path", []):
         if not isinstance(entry, dict):
             continue
         identity = entry.get("path_id")
         identities.append(identity)
+        indices.append(entry.get("path_index"))
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if value is not None and record.get("complete", False):
                 observations.append([identity, model, "measured", round(float(value), 4)])
         for model in (entry.get("models_missing") or {}):
             observations.append([identity, model, "failed"])
-    if len(identities) != len(set(identities)):
+    if len(identities) != len(set(identities)) or len(indices) != len(set(indices)):
         raise ValueError("locked source contains duplicate stable path identities")
     observations.sort()
     canonical = json.dumps(observations, separators=(",", ":")).encode()
@@ -621,7 +623,7 @@ def enforce_path_minimums(
                 continue
             index = entry.get("path_index")
             identity = entry.get("path_id")
-            if identity in seen_identities:
+            if identity in seen_identities or index in locked:
                 raise ValueError(
                     "locked source contains duplicate stable path identities"
                 )
