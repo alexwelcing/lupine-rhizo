@@ -1,0 +1,33 @@
+{
+  "as_of": "2026-08-01",
+  "scope": "Direct live reopening of all claim-level external URLs used by tier-1 and tier-2 records.",
+  "selected_records": 93,
+  "unique_claim_urls_checked": 254,
+  "http_2xx": 217,
+  "http_restricted_or_transient": 24,
+  "transport_or_http_errors": 37,
+  "records_official_source_validated": 33,
+  "records_needs_verification": 60,
+  "field_status_counts": {
+    "program_or_facility": {
+      "official-source-validated": 56,
+      "needs-verification": 37
+    },
+    "decision_maker_or_team": {
+      "official-source-validated": 50,
+      "needs-verification": 43
+    },
+    "recent_trigger": {
+      "official-source-validated": 49,
+      "needs-verification": 44
+    }
+  },
+  "audit_artifact": "live-source-audit.json",
+  "policy": "Official pages must be directly reopened and semantically decisive. Search snippets are not proof. Missing or generic claim evidence is labeled needs-verification.",
+  "merged_override_manifests": [
+    "kanban attachment t_81a3cd12/batch-2-research.json",
+    "kanban attachment t_f8c60113/batch-3-research.json",
+    "PARTNER-3B workspace/batch-4-research.json",
+    "PARTNER-3B workspace/batch-5-research.json"
+  ]
+}

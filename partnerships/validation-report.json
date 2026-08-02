@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 1973,
+  "errors": [],
+  "records": 136,
+  "tier_1": 34,
+  "tier_2": 59,
+  "validated_triggers": 49,
+  "needs_verification_triggers": 44,
+  "official_source_validated_records": 33,
+  "needs_verification_records": 60
+}
