@@ -636,6 +636,25 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertEqual(plan["updates"], [])
 
+        duplicated_artifact = artifact_root / "art-dupe.json"
+        duplicated_artifact.write_text(
+            json.dumps(
+                {
+                    "per_row": [
+                        {
+                            "path_index": 0,
+                            "path_id": "mp-1000_0_0_0_0_0",
+                            "model": "chgnet",
+                            "status": "measured",
+                            "signed_error_mev": 500.0,
+                        }
+                    ]
+                    * 2
+                }
+            )
+        )
+        self.assertIsNone(feedback_module._artifact_fingerprint(duplicated_artifact))
+
         fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json")
         plan = build_feedback_plan(
             atlas=atlas,

@@ -177,6 +177,7 @@ def _artifact_fingerprint(path: Path) -> str | None:
     if not isinstance(rows, list) or not rows:
         return None
     observations = []
+    seen: set[tuple[str, str]] = set()
     for row in rows:
         if not isinstance(row, dict):
             return None
@@ -185,6 +186,9 @@ def _artifact_fingerprint(path: Path) -> str | None:
         status = row.get("status")
         if not isinstance(identity, str) or not isinstance(model, str):
             return None
+        if (identity, model) in seen:
+            return None
+        seen.add((identity, model))
         if status == "measured":
             value = row.get("signed_error_mev")
             if (
