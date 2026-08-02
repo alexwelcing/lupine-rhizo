@@ -655,6 +655,13 @@ def enforce_path_minimums(
                     f"measurement {row_id} path {index} model {row['model']} value "
                     f"{row['signed_error_mev']} disagrees with the locked source {source_value}"
                 )
+        undisclosed = sorted(set(expected) - pairs)
+        if undisclosed:
+            path, model = undisclosed[0]
+            raise ValueError(
+                f"measurement {row_id} cherry-picks the locked source: path {path} "
+                f"model {model} is recorded but not disclosed in the artifact"
+            )
     declared = (
         document.get("n_paths_recorded", document.get("n_paths"))
         if isinstance(document, dict)
@@ -714,6 +721,10 @@ def enforce_path_minimums(
         value = measurement.get("value")
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             continue
+        if not math.isfinite(value):
+            raise ValueError(
+                f"measurement {row_id} carries a non-finite typed value for {metric}"
+            )
         if metric == "signed_error_positive" and abs(float(value) - recomputed_fraction) > 5e-5:
             raise ValueError(
                 f"measurement {row_id} fraction {value} does not match the cited "

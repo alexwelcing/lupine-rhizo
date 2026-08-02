@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 from datetime import date, datetime
 from pathlib import Path
@@ -93,6 +94,8 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
             or isinstance(value, bool)
             or not isinstance(threshold, (int, float))
             or isinstance(threshold, bool)
+            or not math.isfinite(value)
+            or not math.isfinite(threshold)
             or asserted_outcome not in {"pass", "fail"}
         ):
             raise ValueError("EvidenceBundle contains an invalid acceptance measurement")

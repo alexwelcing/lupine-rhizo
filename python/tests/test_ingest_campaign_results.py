@@ -385,20 +385,21 @@ class CampaignResultIngestionTests(unittest.TestCase):
             set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
 
             # Six paths measured by four models must not launder the minimum:
-            # distinct path coverage, not raw sample_count, is the gate.
+            # the locked source's remaining pairs are undisclosed.
             write_artifact(
                 artifact,
                 [row for row in full_rows if row["path_index"] < 6],
             )
-            with self.assertRaisesRegex(ValueError, "distinct paths"):
+            with self.assertRaisesRegex(ValueError, "cherry-picks the locked source"):
                 enforce(make_bundle(sample_count=22))
 
-            # Twenty-two paths from a single model omit declared available models.
+            # Twenty-two paths from a single model leave the locked source's
+            # other model records undisclosed.
             write_artifact(
                 artifact,
                 [row for row in full_rows if row["model"] == "chgnet"],
             )
-            with self.assertRaisesRegex(ValueError, "omits declared available models"):
+            with self.assertRaisesRegex(ValueError, "cherry-picks the locked source"):
                 enforce(make_bundle())
 
             # Every (path, model) pair needs an observation or a disclosed failure.
@@ -520,6 +521,44 @@ class CampaignResultIngestionTests(unittest.TestCase):
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "non-finite"):
                 module.enforce_path_minimums(root, nan_manifest, make_bundle(), artifact, "skew-1")
+
+            # The artifact must disclose the locked source's complete pair set.
+            large_document = json.loads(locked_bytes)
+            for extra in (22, 23):
+                large_document["per_path"].append(
+                    {
+                        "path_index": extra,
+                        "path_id": f"mp-{1000 + extra}_0_0_0_0_0",
+                        "per_model": {
+                            model: {"vasp_signed_error_mev": -900.0, "complete": True}
+                            for model in models
+                        },
+                        "models_missing": {},
+                    }
+                )
+            large_bytes = json.dumps(large_document).encode()
+            (root / "large-locked.json").write_bytes(large_bytes)
+            large_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "large-locked.json",
+                            "sha256": "sha256:" + hashlib.sha256(large_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "cherry-picks the locked source"):
+                module.enforce_path_minimums(root, large_manifest, make_bundle(), artifact, "skew-1")
+
+            # Typed receipt values must be finite numbers.
+            write_artifact(artifact, full_rows)
+            nan_bundle = make_bundle()
+            nan_bundle["measurements"][0]["value"] = float("nan")
+            with self.assertRaisesRegex(ValueError, "non-finite typed value"):
+                enforce(nan_bundle)
 
             # Non-finite signed errors are rejected before any comparison.
             artifact.write_text(
