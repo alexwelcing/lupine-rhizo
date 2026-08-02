@@ -81,6 +81,7 @@ pub struct CloudCellSpan {
     target_job: String,
     schedule_name: String,
     dispatch_status: String,
+    dispatch_attempt: u32,
     reservation_gpu_hours: f64,
     reserved_gpu_hours: f64,
     daily_gpu_hour_cap: f64,
@@ -92,6 +93,7 @@ impl CloudCellSpan {
         target_job: &str,
         admission: Option<&Admission>,
         dispatch_status: &str,
+        dispatch_attempt: u32,
     ) -> Self {
         Self {
             identity: identity.clone(),
@@ -100,6 +102,7 @@ impl CloudCellSpan {
                 .map(|value| value.schedule.clone())
                 .unwrap_or_else(|| "unscheduled-campaign".into()),
             dispatch_status: dispatch_status.into(),
+            dispatch_attempt,
             reservation_gpu_hours: admission.map_or(0.0, |value| value.reservation_gpu_hours),
             reserved_gpu_hours: admission.map_or(0.0, |value| value.reserved_gpu_hours),
             daily_gpu_hour_cap: admission.map_or(0.0, |value| value.daily_gpu_hour_cap),
@@ -120,6 +123,7 @@ impl CloudCellSpan {
             ("mlip.triplet.mlip_id".into(), json!(self.identity.mlip_id)),
             ("mlip.schedule.name".into(), json!(self.schedule_name)),
             ("mlip.dispatch.status".into(), json!(self.dispatch_status)),
+            ("mlip.dispatch.attempt".into(), json!(self.dispatch_attempt)),
             ("mlip.dispatch.target_job".into(), json!(self.target_job)),
             (
                 "mlip.cost.reserved_gpu_hours".into(),
@@ -141,7 +145,12 @@ impl CloudCellSpan {
             "{}\0{}\0{}",
             self.identity.correlation_id, self.identity.run_id, self.identity.cell_id
         );
-        let digest = Sha256::digest(seed.as_bytes());
+        let trace_digest = Sha256::digest(seed.as_bytes());
+        let span_seed = format!(
+            "{seed}\0{}\0{}",
+            self.dispatch_attempt, self.dispatch_status
+        );
+        let span_digest = Sha256::digest(span_seed.as_bytes());
         let now = time::OffsetDateTime::now_utc().unix_timestamp_nanos() as u64;
         let attributes = self
             .attributes()
@@ -167,8 +176,8 @@ impl CloudCellSpan {
                         version: String::new(),
                     }),
                     spans: vec![ProtoSpan {
-                        trace_id: digest[..16].to_vec(),
-                        span_id: digest[16..24].to_vec(),
+                        trace_id: trace_digest[..16].to_vec(),
+                        span_id: span_digest[..8].to_vec(),
                         name: "mlip.flywheel.cloud_cell".into(),
                         kind: 1,
                         start_time_unix_nano: now,
@@ -332,6 +341,7 @@ mod tests {
                 duplicate: false,
             }),
             "admitted",
+            0,
         );
         let attrs = span.attributes();
         assert_eq!(attrs["mlip.schema"], "lupine.mlip.cloud_cell_span.v1");
@@ -361,6 +371,7 @@ mod tests {
                 duplicate: false,
             }),
             "admitted",
+            0,
         );
 
         let (content_type, body) = otlp_request(&span, "glim-think");
@@ -380,5 +391,21 @@ mod tests {
         let second_span = &second.resource_spans[0].scope_spans[0].spans[0];
         assert_eq!(spans[0].trace_id, second_span.trace_id);
         assert_eq!(spans[0].span_id, second_span.span_id);
+    }
+
+    #[test]
+    fn retry_attempts_share_a_trace_but_use_distinct_span_ids() {
+        let first =
+            CloudCellSpan::dispatched(&identity(), "mlip-cell-mace", None, "dispatch_failed", 0);
+        let retry =
+            CloudCellSpan::dispatched(&identity(), "mlip-cell-mace", None, "dispatch_failed", 1);
+
+        let first = first.otlp_protobuf("glim-think");
+        let retry = retry.otlp_protobuf("glim-think");
+        let first_span = &first.resource_spans[0].scope_spans[0].spans[0];
+        let retry_span = &retry.resource_spans[0].scope_spans[0].spans[0];
+
+        assert_eq!(first_span.trace_id, retry_span.trace_id);
+        assert_ne!(first_span.span_id, retry_span.span_id);
     }
 }

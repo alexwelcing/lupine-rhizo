@@ -213,6 +213,21 @@ async fn build_app(cli: Cli) -> anyhow::Result<Router> {
         .with_state(state))
 }
 
+fn cloud_tasks_retry_count(headers: &HeaderMap) -> Result<u32, &'static str> {
+    let mut values = headers.get_all("x-cloudtasks-taskretrycount").iter();
+    let Some(value) = values.next() else {
+        return Ok(0);
+    };
+    if values.next().is_some() {
+        return Err("duplicate x-cloudtasks-taskretrycount header");
+    }
+    value
+        .to_str()
+        .ok()
+        .and_then(|value| value.parse::<u32>().ok())
+        .ok_or("x-cloudtasks-taskretrycount must be an unsigned integer")
+}
+
 async fn handle_run(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -230,6 +245,13 @@ async fn handle_run(
         .get("x-cloudtasks-taskname")
         .and_then(|h| h.to_str().ok())
         .unwrap_or("(unknown)");
+    let dispatch_attempt = match cloud_tasks_retry_count(&headers) {
+        Ok(value) => value,
+        Err(error) => {
+            warn!(task = task_name, error, "invalid Cloud Tasks retry count");
+            return (StatusCode::BAD_REQUEST, error).into_response();
+        }
+    };
 
     if let Err(error) = validate_cloud_telemetry(&payload) {
         warn!(task = task_name, error = %error, "invalid cloud cell telemetry envelope");
@@ -455,6 +477,7 @@ async fn handle_run(
                     &req.job_name,
                     admission.as_ref(),
                     "admitted",
+                    dispatch_attempt,
                 );
                 emit_trace_off_path(
                     state.trace_emitter.clone(),
@@ -486,6 +509,7 @@ async fn handle_run(
                     &req.job_name,
                     admission.as_ref(),
                     "dispatch_failed",
+                    dispatch_attempt,
                 );
                 emit_trace_off_path(
                     state.trace_emitter.clone(),
@@ -517,6 +541,7 @@ async fn handle_run(
                     &req.job_name,
                     None,
                     "dispatch_failed",
+                    dispatch_attempt,
                 );
                 emit_trace_off_path(
                     state.trace_emitter.clone(),
@@ -1088,6 +1113,20 @@ mod tests {
         assert!(source.contains("stale pending record denotes undelivered telemetry"));
     }
 
+    #[test]
+    fn retry_count_header_rejects_malformed_and_duplicate_values() {
+        for value in ["-1", "not-a-number", "4294967296"] {
+            let mut headers = HeaderMap::new();
+            headers.insert("x-cloudtasks-taskretrycount", value.parse().unwrap());
+            assert!(cloud_tasks_retry_count(&headers).is_err(), "value={value}");
+        }
+
+        let mut headers = HeaderMap::new();
+        headers.append("x-cloudtasks-taskretrycount", "1".parse().unwrap());
+        headers.append("x-cloudtasks-taskretrycount", "2".parse().unwrap());
+        assert!(cloud_tasks_retry_count(&headers).is_err());
+    }
+
     #[tokio::test]
     async fn unscheduled_campaign_cell_emits_telemetry_after_dispatch() {
         let runner = Arc::new(RecordingRunner::default());
@@ -1130,6 +1169,7 @@ mod tests {
                     .method("POST")
                     .uri("/run")
                     .header("x-cloudtasks-taskname", "unscheduled-campaign-failure")
+                    .header("x-cloudtasks-taskretrycount", "3")
                     .body(Body::from(body.to_string()))
                     .unwrap(),
             )
@@ -1140,6 +1180,7 @@ mod tests {
         let spans = wait_for_spans(&emitter).await;
         assert_eq!(spans.len(), 1);
         assert_eq!(spans[0]["mlip.dispatch.status"], "dispatch_failed");
+        assert_eq!(spans[0]["mlip.dispatch.attempt"], 3);
         assert_eq!(spans[0]["mlip.schedule.name"], "unscheduled-campaign");
     }
 
