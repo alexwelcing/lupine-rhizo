@@ -512,7 +512,17 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         self.assertEqual(plan["updates"], [])
 
-    def test_h_readiness_counts_distinct_dataset_fingerprints_not_campaigns(self) -> None:
+    def test_h_readiness_counts_distinct_dataset_fingerprints_not_campaigns(self, tmp_path=None) -> None:
+        import tempfile
+
+        import tools.nightly_ontology_feedback as feedback_module
+
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        artifact_root = Path(temporary.name)
+        original_root = feedback_module._REPO_ROOT
+        self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
+        feedback_module._REPO_ROOT = artifact_root
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
@@ -530,10 +540,26 @@ class NightlyFeedbackTests(unittest.TestCase):
             ]
         }
 
-        def skew(bundle_id: str, campaign: str, fingerprint: str) -> dict:
+        def write_artifact(name: str, value: float) -> str:
+            rows = [
+                {
+                    "path_index": index,
+                    "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                    "model": model,
+                    "status": "measured",
+                    "signed_error_mev": value,
+                }
+                for index in range(22)
+                for model in ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+            ]
+            (artifact_root / name).write_text(json.dumps({"per_row": rows}))
+            return feedback_module._artifact_fingerprint(artifact_root / name)
+
+        def skew(bundle_id: str, campaign: str, fingerprint: str, artifact_name: str) -> dict:
             receipt = bundle(BUNDLE_A, outcome="pass", campaign=campaign, status="confirmatory")
             receipt["bundle_id"] = bundle_id
             receipt["claim_predicate"] = "signed_error_positive_fraction>0.5"
+            receipt["evidence_refs"][0]["artifact"] = artifact_name
             receipt["measurements"] = [
                 {
                     "metric": "signed_error_positive",
@@ -560,6 +586,9 @@ class NightlyFeedbackTests(unittest.TestCase):
             receipt["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
             return receipt
 
+        fingerprint_one = write_artifact("art-one.json", 500.0)
+        fingerprint_two = write_artifact("art-two.json", 520.0)
+
         hypothesis_row = {
             "literature_hypothesis_id": "hyp.sign-skew-h-grade",
             "contract_json": hypothesis(
@@ -569,8 +598,8 @@ class NightlyFeedbackTests(unittest.TestCase):
             ),
         }
         same_dataset = {
-            BUNDLE_A: skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64),
-            BUNDLE_B: skew(BUNDLE_B, "campaign-two", "sha256:" + "a" * 64),
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json"),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json"),
         }
         plan = build_feedback_plan(
             atlas=atlas,
@@ -582,9 +611,9 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertEqual(plan["updates"], [])
 
-        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64)
+        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json")
         two_refs_one_bundle["evidence_refs"].append(
-            dict(two_refs_one_bundle["evidence_refs"][0], dataset_fingerprint="sha256:" + "b" * 64)
+            dict(two_refs_one_bundle["evidence_refs"][0], dataset_fingerprint=fingerprint_two)
         )
         single_bundle_assumptions = {
             "assumptions": [
@@ -607,9 +636,20 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertEqual(plan["updates"], [])
 
+        fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json")
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=single_bundle_assumptions,
+            evidence_by_id={BUNDLE_A: fabricated},
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(plan["updates"], [])
+
         distinct_datasets = {
-            BUNDLE_A: skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64),
-            BUNDLE_B: skew(BUNDLE_B, "campaign-two", "sha256:" + "b" * 64),
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json"),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json"),
         }
         plan = build_feedback_plan(
             atlas=atlas,

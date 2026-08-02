@@ -164,6 +164,45 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
     return outcomes
 
 
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _artifact_fingerprint(path: Path) -> str | None:
+    """Recompute a sign-skew dataset fingerprint from a cited artifact's rows."""
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    rows = document.get("per_row") if isinstance(document, dict) else None
+    if not isinstance(rows, list) or not rows:
+        return None
+    observations = []
+    for row in rows:
+        if not isinstance(row, dict):
+            return None
+        identity = row.get("path_id")
+        model = row.get("model")
+        status = row.get("status")
+        if not isinstance(identity, str) or not isinstance(model, str):
+            return None
+        if status == "measured":
+            value = row.get("signed_error_mev")
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(value)
+            ):
+                return None
+            observations.append([identity, model, "measured", round(float(value), 4)])
+        elif status == "failed":
+            observations.append([identity, model, "failed"])
+        else:
+            return None
+    observations.sort()
+    canonical = json.dumps(observations, separators=(",", ":")).encode()
+    return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
 def _confirms_instead(bundle: dict[str, Any], as_of: date) -> bool:
     """True when a self-labeled negative receipt's typed suite actually passes."""
     measurements = bundle.get("measurements")
@@ -246,13 +285,16 @@ def _chain_state(
                     continue
                 if expected_predicate.startswith("signed_error_positive_fraction"):
                     # Independence is the dataset, not the campaign name: count
-                    # at most one fingerprint per evaluated bundle; a bundle
-                    # listing two datasets does not prove two independent passes.
+                    # at most one fingerprint per evaluated bundle, and only after
+                    # recomputing it from the cited artifact's own rows.
                     fingerprint = reference.get("dataset_fingerprint")
+                    artifact = reference.get("artifact")
                     if (
                         not counted_identity
                         and isinstance(fingerprint, str)
                         and HASH_RE.fullmatch(fingerprint)
+                        and isinstance(artifact, str)
+                        and _artifact_fingerprint(_REPO_ROOT / artifact) == fingerprint
                     ):
                         campaigns.add(("dataset", fingerprint))
                         counted_identity = True
