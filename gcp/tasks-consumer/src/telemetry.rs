@@ -9,6 +9,10 @@ use crate::CloudCellTelemetry;
 
 #[axum::async_trait]
 pub trait TraceEmitter: Send + Sync {
+    fn enabled(&self) -> bool {
+        true
+    }
+
     async fn emit(&self, span: &CloudCellSpan) -> anyhow::Result<()>;
 }
 
@@ -16,6 +20,10 @@ pub struct NoopTraceEmitter;
 
 #[axum::async_trait]
 impl TraceEmitter for NoopTraceEmitter {
+    fn enabled(&self) -> bool {
+        false
+    }
+
     async fn emit(&self, _span: &CloudCellSpan) -> anyhow::Result<()> {
         Ok(())
     }
@@ -160,6 +168,11 @@ impl CloudCellSpan {
                 value: Some(any_value(value)),
             })
             .collect();
+        let (status_code, status_message) = if self.dispatch_status == "dispatch_failed" {
+            (2, "Cloud Run job dispatch failed")
+        } else {
+            (1, "")
+        };
 
         ExportTraceServiceRequest {
             resource_spans: vec![ResourceSpans {
@@ -184,8 +197,8 @@ impl CloudCellSpan {
                         end_time_unix_nano: now,
                         attributes,
                         status: Some(Status {
-                            message: String::new(),
-                            code: 1,
+                            message: status_message.into(),
+                            code: status_code,
                         }),
                     }],
                 }],
@@ -385,6 +398,7 @@ mod tests {
         assert_eq!(spans[0].name, "mlip.flywheel.cloud_cell");
         assert_eq!(spans[0].trace_id.len(), 16);
         assert_eq!(spans[0].span_id.len(), 8);
+        assert_eq!(spans[0].status.as_ref().unwrap().code, 1);
 
         let (_, second_body) = otlp_request(&span, "glim-think");
         let second = ExportTraceServiceRequest::decode(second_body.as_slice()).unwrap();
@@ -407,5 +421,6 @@ mod tests {
 
         assert_eq!(first_span.trace_id, retry_span.trace_id);
         assert_ne!(first_span.span_id, retry_span.span_id);
+        assert_eq!(first_span.status.as_ref().unwrap().code, 2);
     }
 }

@@ -570,6 +570,17 @@ fn emit_trace_off_path(
     failure_message: &'static str,
 ) {
     let telemetry_delivery_id = format!("{task_name}:{cell_id}");
+    if !emitter.enabled() {
+        info!(
+            task = task_name,
+            run_id,
+            cell_id,
+            telemetry_delivery_id,
+            telemetry_delivery_state = "disabled",
+            "cloud cell OTLP export disabled by configuration"
+        );
+        return;
+    }
     info!(
         task = task_name,
         run_id,
@@ -1110,6 +1121,7 @@ mod tests {
         assert!(source.contains("telemetry_delivery_state = \"pending\""));
         assert!(source.contains("telemetry_delivery_state = \"delivered\""));
         assert!(source.contains("telemetry_delivery_state = \"failed\""));
+        assert!(source.contains("telemetry_delivery_state = \"disabled\""));
         assert!(source.contains("stale pending record denotes undelivered telemetry"));
     }
 
