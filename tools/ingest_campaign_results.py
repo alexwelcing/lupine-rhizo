@@ -99,6 +99,24 @@ def _measured_observations(source: Any) -> set[tuple[str, str, float]]:
     return observations
 
 
+def _chemical_model_pairs(source: Any) -> set[tuple[str, str]]:
+    """Immutable physical provenance: chemical system and model, not renamable ids."""
+    pairs: set[tuple[str, str]] = set()
+    if not isinstance(source, dict):
+        return pairs
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        chemistry = entry.get("chemical_system")
+        if not isinstance(chemistry, str):
+            continue
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if value is not None and record.get("complete", False):
+                pairs.add((chemistry, model))
+    return pairs
+
+
 def _source_fingerprint(source: Any) -> str | None:
     if not isinstance(source, dict):
         return None
@@ -652,12 +670,8 @@ def enforce_path_minimums(
                 raise ValueError(
                     f"measurement {row_id} cannot read the canonical recorded source: {error}"
                 ) from error
-            canonical_pairs = {
-                (identity, model) for identity, model, _ in _measured_observations(canonical_source)
-            }
-            candidate_pairs = {
-                (identity, model) for identity, model, _ in _measured_observations(source)
-            }
+            canonical_pairs = _chemical_model_pairs(canonical_source)
+            candidate_pairs = _chemical_model_pairs(source)
             if candidate_pairs & canonical_pairs:
                 raise ValueError(
                     f"measurement {row_id} recorded input reuses canonical path/model "
@@ -667,9 +681,7 @@ def enforce_path_minimums(
             fingerprint = CANONICAL_SOURCE_FINGERPRINT
         examples_dir = root / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
-            candidate_pairs = {
-                (identity, model) for identity, model, _ in _measured_observations(source)
-            }
+            candidate_pairs = _chemical_model_pairs(source)
             for prior_path in sorted(examples_dir.glob("*.json")):
                 try:
                     prior = json.loads(prior_path.read_text(encoding="utf-8"))
@@ -702,11 +714,11 @@ def enforce_path_minimums(
                             else []
                         )
                         prior_pairs = {
-                            (prior_row["path_id"], prior_row["model"])
+                            (prior_row["chemical_system"], prior_row["model"])
                             for prior_row in prior_rows
                             if isinstance(prior_row, dict)
                             and prior_row.get("status") == "measured"
-                            and isinstance(prior_row.get("path_id"), str)
+                            and isinstance(prior_row.get("chemical_system"), str)
                             and isinstance(prior_row.get("model"), str)
                         }
                         if candidate_pairs & prior_pairs:

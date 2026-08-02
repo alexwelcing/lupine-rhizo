@@ -308,6 +308,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": index,
                         "path_id": f"mp-{7000 + index}_0_0_0_0_0",
+                        "chemical_system": f"Li-{index}",
                         "per_model": {
                             model: {"vasp_signed_error_mev": 999.0, "complete": True}
                             for model in models
@@ -944,8 +945,17 @@ class CampaignResultIngestionTests(unittest.TestCase):
             subset_document["per_path"][0]["per_model"].pop("chgnet")
             subset_bytes = json.dumps(subset_document).encode()
             (root / "subset.json").write_bytes(subset_bytes)
+            canonical_panel_bytes = json.dumps(
+                {"paths": [{"path_id": f"mp-{7000 + index}_0_0_0_0_0"} for index in range(23)]}
+            ).encode()
+            (root / "canonical-panel.json").write_bytes(canonical_panel_bytes)
+            canonical_panel_lock = {
+                "path": "canonical-panel.json",
+                "sha256": "sha256:" + hashlib.sha256(canonical_panel_bytes).hexdigest(),
+            }
             subset_manifest = {
                 **fresh_manifest,
+                "execution": {"candidate_panel": canonical_panel_lock},
                 "preregistration": {
                     "recorded_inputs": [
                         {"path": "subset.json", "sha256": "sha256:" + hashlib.sha256(subset_bytes).hexdigest()}
@@ -955,7 +965,6 @@ class CampaignResultIngestionTests(unittest.TestCase):
             write_artifact(artifact, fresh_rows)
             with self.assertRaisesRegex(ValueError, "reuses canonical path/model provenance"):
                 module.enforce_path_minimums(root, registered(root, subset_manifest), make_bundle(), artifact, "skew-1")
-
             superset_document = json.loads(json.dumps(canonical_document))
             superset_document["per_path"].append(
                 {
@@ -972,12 +981,14 @@ class CampaignResultIngestionTests(unittest.TestCase):
             (root / "superset.json").write_bytes(superset_bytes)
             superset_manifest = {
                 **fresh_manifest,
+                "execution": {"candidate_panel": canonical_panel_lock},
                 "preregistration": {
                     "recorded_inputs": [
                         {"path": "superset.json", "sha256": "sha256:" + hashlib.sha256(superset_bytes).hexdigest()}
                     ]
                 },
             }
+            write_artifact(artifact, fresh_rows)
             with self.assertRaisesRegex(ValueError, "reuses canonical path/model provenance"):
                 module.enforce_path_minimums(root, registered(root, superset_manifest), make_bundle(), artifact, "skew-1")
 

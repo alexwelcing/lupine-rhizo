@@ -431,17 +431,28 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     if canonical_measured is None:
         return False
     artifact_pairs = {
-        (row.get("path_id"), row.get("model"))
+        (row.get("chemical_system"), row.get("model"))
         for row in rows
         if isinstance(row, dict)
         and row.get("status") == "measured"
-        and isinstance(row.get("path_id"), str)
+        and isinstance(row.get("chemical_system"), str)
         and isinstance(row.get("model"), str)
     }
     # The overlap guard rejects borrowed evidence only for noncanonical
     # datasets; the canonical receipt necessarily shares its own observations.
     if fingerprint != CANONICAL_SOURCE_FINGERPRINT:
-        used_pairs = {(identity, model) for identity, model, _ in canonical_measured}
+        used_pairs = set()
+        try:
+            canonical_source = json.loads((_REPO_ROOT / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        for entry in canonical_source.get("per_path", []):
+            if not isinstance(entry, dict) or not isinstance(entry.get("chemical_system"), str):
+                continue
+            for model, record in (entry.get("per_model") or {}).items():
+                value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+                if value is not None and record.get("complete", False):
+                    used_pairs.add((entry["chemical_system"], model))
         examples_dir = _REPO_ROOT / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
             for prior_path in sorted(examples_dir.glob("*.json")):
@@ -471,7 +482,8 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
                                     and isinstance(prior_row.get("path_id"), str)
                                     and isinstance(prior_row.get("model"), str)
                                 ):
-                                    used_pairs.add((prior_row["path_id"], prior_row["model"]))
+                                    if isinstance(prior_row.get("chemical_system"), str):
+                                        used_pairs.add((prior_row["chemical_system"], prior_row["model"]))
         if artifact_pairs & used_pairs:
             return False
     locked_result = _locked_source_rows(manifest, "receipt")
