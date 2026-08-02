@@ -1,8 +1,8 @@
 # Lupine Science Partner Prospects
 
-**As of:** 2026-08-01  
-**Organizations:** 136  
-**Outreach-ready tier-1/2 records:** 33 of 93  
+**As of:** 2026-08-01
+**Organizations:** 136
+**Outreach-ready tier-1/2 records:** 33 of 93
 **Needs verification before outreach:** 60 of 93
 
 > Economics guardrail: use only **72.4% fewer DFT evaluations** and **$14.65 per 129 anchors**. Search snippets, generic pages, earnings/calendar items, future targets, and inferred routing functions are not accepted as evidence.
