@@ -345,12 +345,18 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         registry = json.loads((_REPO_ROOT / "registry" / "campaigns.v1.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return False
-    registered = {
-        campaign.get("content_hash")
-        for campaign in registry.get("campaigns", [])
-        if isinstance(campaign, dict)
-    }
-    if manifest.get("content_hash") not in registered:
+    unhashed = {key: value for key, value in manifest.items() if key != "content_hash"}
+    canonical = json.dumps(unhashed, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+    recomputed = "sha256:" + hashlib.sha256(canonical).hexdigest()
+    if manifest.get("content_hash") != recomputed:
+        return False
+    campaign_id = manifest.get("campaign_id")
+    if not any(
+        isinstance(entry, dict)
+        and entry.get("campaign_id") == campaign_id
+        and entry.get("content_hash") == recomputed
+        for entry in registry.get("campaigns", [])
+    ):
         return False
     required_models = {
         model.get("model_id")
