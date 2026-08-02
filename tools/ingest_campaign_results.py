@@ -654,10 +654,10 @@ def enforce_path_minimums(
                 ) from error
             canonical_measured = _measured_observations(canonical_source)
             candidate_measured = _measured_observations(source)
-            if candidate_measured < canonical_measured or canonical_measured < candidate_measured:
+            if candidate_measured & canonical_measured:
                 raise ValueError(
-                    f"measurement {row_id} recorded input clones canonical observations; "
-                    "independence requires new observations, not a subset or superset"
+                    f"measurement {row_id} recorded input shares measured observations "
+                    "with the canonical dataset; independence requires disjoint evidence"
                 )
         else:
             fingerprint = CANONICAL_SOURCE_FINGERPRINT
