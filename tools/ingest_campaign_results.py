@@ -69,6 +69,9 @@ CANONICAL_MODEL_ENTRIES = frozenset(
         ("mace-mpa-0-medium", "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9", "mace-torch 0.3.16 / mpa-0 medium"),
     }
 )
+# The canonical dataset file the near-clone guard compares against; independent
+# from the identity-lock constant so tests can override them separately.
+DEDUPE_CANONICAL_SOURCE = "data/candidates/z1-union-campaign.json"
 # Content fingerprint of the canonical dataset's observations (status and value
 # per path/model), so a reserialized copy is recognized as the same dataset.
 CANONICAL_SOURCE_FINGERPRINT = (
@@ -643,17 +646,18 @@ def enforce_path_minimums(
                 )
             try:
                 canonical_source = json.loads(
-                    (root / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8")
+                    (root / DEDUPE_CANONICAL_SOURCE).read_text(encoding="utf-8")
                 )
             except (OSError, json.JSONDecodeError) as error:
                 raise ValueError(
                     f"measurement {row_id} cannot read the canonical recorded source: {error}"
                 ) from error
             canonical_measured = _measured_observations(canonical_source)
-            if _measured_observations(source) < canonical_measured:
+            candidate_measured = _measured_observations(source)
+            if candidate_measured < canonical_measured or canonical_measured < candidate_measured:
                 raise ValueError(
-                    f"measurement {row_id} recorded input is a near-clone subset of the "
-                    "canonical dataset; independence requires new observations"
+                    f"measurement {row_id} recorded input clones canonical observations; "
+                    "independence requires new observations, not a subset or superset"
                 )
         else:
             fingerprint = CANONICAL_SOURCE_FINGERPRINT

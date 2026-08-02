@@ -435,7 +435,7 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         and isinstance(row.get("path_id"), str)
         and isinstance(row.get("model"), str)
     }
-    if artifact_measured < canonical_measured:
+    if artifact_measured < canonical_measured or canonical_measured < artifact_measured:
         return False
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:

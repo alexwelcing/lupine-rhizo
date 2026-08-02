@@ -301,6 +301,23 @@ class CampaignResultIngestionTests(unittest.TestCase):
             locked_bytes = json.dumps(locked_document).encode()
             (root / "locked.json").write_bytes(locked_bytes)
             set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
+            canonical_dir = root / "data" / "candidates"
+            canonical_dir.mkdir(parents=True)
+            canonical_document = {
+                "per_path": [
+                    {
+                        "path_index": index,
+                        "path_id": f"mp-{7000 + index}_0_0_0_0_0",
+                        "per_model": {
+                            model: {"vasp_signed_error_mev": 999.0, "complete": True}
+                            for model in models
+                        },
+                        "models_missing": {},
+                    }
+                    for index in range(22)
+                ]
+            }
+            (canonical_dir / "z1-union-campaign.json").write_text(json.dumps(canonical_document))
             panel_bytes = json.dumps(
                 {
                     "paths": [
@@ -921,6 +938,48 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             with self.assertRaisesRegex(ValueError, "frozen sign-skew claim"):
                 module.enforce_path_minimums(root, registered(root, lax_fresh), make_bundle(), artifact, "skew-1")
+
+            # Near-clones of the canonical dataset are rejected in both directions.
+            subset_document = json.loads(json.dumps(canonical_document))
+            subset_document["per_path"][0]["per_model"].pop("chgnet")
+            subset_bytes = json.dumps(subset_document).encode()
+            (root / "subset.json").write_bytes(subset_bytes)
+            subset_manifest = {
+                **fresh_manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {"path": "subset.json", "sha256": "sha256:" + hashlib.sha256(subset_bytes).hexdigest()}
+                    ]
+                },
+            }
+            write_artifact(artifact, fresh_rows)
+            with self.assertRaisesRegex(ValueError, "clones canonical observations"):
+                module.enforce_path_minimums(root, registered(root, subset_manifest), make_bundle(), artifact, "skew-1")
+
+            superset_document = json.loads(json.dumps(canonical_document))
+            superset_document["per_path"].append(
+                {
+                    "path_index": 22,
+                    "path_id": "mp-7022_0_0_0_0_0",
+                    "per_model": {
+                        model: {"vasp_signed_error_mev": 999.0, "complete": True}
+                        for model in models
+                    },
+                    "models_missing": {},
+                }
+            )
+            superset_bytes = json.dumps(superset_document).encode()
+            (root / "superset.json").write_bytes(superset_bytes)
+            superset_manifest = {
+                **fresh_manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {"path": "superset.json", "sha256": "sha256:" + hashlib.sha256(superset_bytes).hexdigest()}
+                    ]
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "clones canonical observations"):
+                module.enforce_path_minimums(root, registered(root, superset_manifest), make_bundle(), artifact, "skew-1")
 
             # A reserialized copy of the same observations is the same dataset.
             module.CANONICAL_SOURCE_FINGERPRINT = module._source_fingerprint(locked_document)
