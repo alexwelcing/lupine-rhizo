@@ -57,7 +57,7 @@ CANONICAL_CAMPAIGN_ID = "literature.protocol-offset-sign-skew.v1"
 # Content fingerprint of the canonical dataset's observations (status and value
 # per path/model), so a reserialized copy is recognized as the same dataset.
 CANONICAL_SOURCE_FINGERPRINT = (
-    "sha256:e41d658e48dc58b0358519f14dce30a6b0b9064e4a3c35d024e269aeda325732"
+    "sha256:3a068e048f5e156a72ce58a293f7cb029497cd1ff17411936281fa6ea866434b"
 )
 
 
@@ -68,13 +68,13 @@ def _source_fingerprint(source: Any) -> str | None:
     for entry in source.get("per_path", []):
         if not isinstance(entry, dict):
             continue
-        index = entry.get("path_index")
+        identity = entry.get("path_id")
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if value is not None and record.get("complete", False):
-                observations.append([index, model, "measured", round(float(value), 4)])
+                observations.append([identity, model, "measured", round(float(value), 4)])
         for model in (entry.get("models_missing") or {}):
-            observations.append([index, model, "failed"])
+            observations.append([identity, model, "failed"])
     observations.sort()
     canonical = json.dumps(observations, separators=(",", ":")).encode()
     return "sha256:" + hashlib.sha256(canonical).hexdigest()
