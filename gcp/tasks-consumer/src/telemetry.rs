@@ -148,6 +148,13 @@ impl CloudCellSpan {
         ])
     }
 
+    pub fn delivery_id(&self, task_name: &str) -> String {
+        format!(
+            "{task_name}:{}:attempt={}:status={}",
+            self.identity.cell_id, self.dispatch_attempt, self.dispatch_status
+        )
+    }
+
     fn otlp_protobuf(&self, project: &str) -> ExportTraceServiceRequest {
         let seed = format!(
             "{}\0{}\0{}",
@@ -413,6 +420,15 @@ mod tests {
             CloudCellSpan::dispatched(&identity(), "mlip-cell-mace", None, "dispatch_failed", 0);
         let retry =
             CloudCellSpan::dispatched(&identity(), "mlip-cell-mace", None, "dispatch_failed", 1);
+
+        assert_eq!(
+            first.delivery_id("cloud-task-1"),
+            "cloud-task-1:nightly-run-1:baseline:energy_volume:mace-mp-0:attempt=0:status=dispatch_failed"
+        );
+        assert_ne!(
+            first.delivery_id("cloud-task-1"),
+            retry.delivery_id("cloud-task-1")
+        );
 
         let first = first.otlp_protobuf("glim-think");
         let retry = retry.otlp_protobuf("glim-think");

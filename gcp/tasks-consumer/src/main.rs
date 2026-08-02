@@ -569,7 +569,7 @@ fn emit_trace_off_path(
     cell_id: String,
     failure_message: &'static str,
 ) {
-    let telemetry_delivery_id = format!("{task_name}:{cell_id}");
+    let telemetry_delivery_id = span.delivery_id(&task_name);
     if !emitter.enabled() {
         info!(
             task = task_name,
