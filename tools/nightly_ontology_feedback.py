@@ -440,8 +440,46 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     }
     # The overlap guard rejects borrowed evidence only for noncanonical
     # datasets; the canonical receipt necessarily shares its own observations.
-    if fingerprint != CANONICAL_SOURCE_FINGERPRINT and artifact_measured & canonical_measured:
-        return False
+    if fingerprint != CANONICAL_SOURCE_FINGERPRINT:
+        used_measured = set(canonical_measured)
+        examples_dir = _REPO_ROOT / "evidence" / "v1" / "examples"
+        if examples_dir.is_dir():
+            for prior_path in sorted(examples_dir.glob("*.json")):
+                try:
+                    prior = json.loads(prior_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                if not isinstance(prior.get("claim_predicate"), str) or not prior[
+                    "claim_predicate"
+                ].startswith("signed_error_positive_fraction"):
+                    continue
+                for reference in prior.get("evidence_refs", []):
+                    if not isinstance(reference, dict):
+                        continue
+                    if reference.get("campaign") == campaign_id:
+                        continue
+                    if reference.get("dataset_fingerprint") == fingerprint:
+                        continue
+                    prior_artifact = reference.get("artifact")
+                    if isinstance(prior_artifact, str):
+                        prior_rows = _artifact_rows(_REPO_ROOT / prior_artifact)
+                        if prior_rows:
+                            for prior_row in prior_rows:
+                                if (
+                                    isinstance(prior_row, dict)
+                                    and prior_row.get("status") == "measured"
+                                    and isinstance(prior_row.get("path_id"), str)
+                                    and isinstance(prior_row.get("model"), str)
+                                ):
+                                    used_measured.add(
+                                        (
+                                            prior_row["path_id"],
+                                            prior_row["model"],
+                                            round(float(prior_row.get("signed_error_mev", float("nan"))), 4),
+                                        )
+                                    )
+        if artifact_measured & used_measured:
+            return False
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:
         return False

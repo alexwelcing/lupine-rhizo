@@ -663,6 +663,7 @@ def enforce_path_minimums(
             fingerprint = CANONICAL_SOURCE_FINGERPRINT
         examples_dir = root / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
+            candidate_measured = _measured_observations(source)
             for prior_path in sorted(examples_dir.glob("*.json")):
                 try:
                     prior = json.loads(prior_path.read_text(encoding="utf-8"))
@@ -674,15 +675,29 @@ def enforce_path_minimums(
                 ):
                     continue
                 for reference in prior.get("evidence_refs", []):
-                    if (
-                        isinstance(reference, dict)
-                        and reference.get("campaign") != manifest.get("campaign_id")
-                        and reference.get("dataset_fingerprint") == fingerprint
-                    ):
+                    if not isinstance(reference, dict):
+                        continue
+                    if reference.get("campaign") == manifest.get("campaign_id"):
+                        continue
+                    if reference.get("dataset_fingerprint") == fingerprint:
                         raise ValueError(
                             f"measurement {row_id} dataset already supports campaign "
                             f"{reference.get('campaign')!r}; one dataset is not independent replication"
                         )
+                    prior_artifact = reference.get("artifact")
+                    if isinstance(prior_artifact, str):
+                        try:
+                            prior_document = json.loads((root / prior_artifact).read_text(encoding="utf-8"))
+                        except (OSError, json.JSONDecodeError):
+                            continue
+                        prior_measured = _measured_observations(
+                            {"per_path": prior_document.get("per_row") or prior_document.get("per_path") or []}
+                        ) if isinstance(prior_document, dict) else set()
+                        if candidate_measured & prior_measured:
+                            raise ValueError(
+                                f"measurement {row_id} shares measured observations with the "
+                                "accepted dataset of another campaign; independence requires disjoint evidence"
+                            )
         locked = {}
         expected: dict[tuple[int, str], tuple[str, float | None]] = {}
         seen_identities: set[str] = set()
