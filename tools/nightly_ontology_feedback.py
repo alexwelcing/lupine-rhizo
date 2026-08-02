@@ -161,6 +161,15 @@ def _acceptance_outcomes(bundle: dict[str, Any], as_of: date) -> list[str]:
     return outcomes
 
 
+def _confirms_instead(bundle: dict[str, Any], as_of: date) -> bool:
+    """True when a self-labeled negative receipt's typed suite actually passes."""
+    measurements = bundle.get("measurements")
+    if not isinstance(measurements, list) or not measurements:
+        return False
+    outcomes = _acceptance_outcomes(bundle, as_of)
+    return bool(outcomes) and all(outcome == "pass" for outcome in outcomes)
+
+
 def _chain_claim(chain: str, assumptions: list[dict[str, Any]]) -> dict[str, Any] | None:
     number = chain.removeprefix("C")
     marker = f".z{number}."
@@ -224,6 +233,7 @@ def _chain_state(
             defined.append(bundle_id)
         if (
             bundle.get("claim_predicate") == expected_predicate
+            and bundle.get("epistemic_status") != "negative"
             and all(outcome == "pass" for outcome in outcomes)
         ):
             passing.append(bundle_id)
@@ -315,6 +325,9 @@ def build_feedback_plan(
             # predicate; a failure on a shared premise's other predicate must
             # not reject it.
             and evidence_by_id[bundle_id].get("claim_predicate") == expected_predicate
+            # A mislabeled receipt whose typed suite actually passes is a
+            # confirmation, not a refutation.
+            and not _confirms_instead(evidence_by_id[bundle_id], cycle_date)
         )
         if old_status not in {"rejected", "superseded"} and negative_new:
             new_status = "superseded"

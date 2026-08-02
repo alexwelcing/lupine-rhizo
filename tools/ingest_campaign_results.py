@@ -619,6 +619,10 @@ def enforce_path_minimums(
             for model, record in (entry.get("per_model") or {}).items():
                 value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
                 if value is not None and record.get("complete", False):
+                    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+                        raise ValueError(
+                            f"locked source path {index} model {model} carries a non-finite signed error"
+                        )
                     expected[(index, model)] = ("measured", float(value))
             for model in (entry.get("models_missing") or {}):
                 expected[(index, model)] = ("failed", None)

@@ -502,6 +502,25 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate observation"):
                 enforce(make_bundle())
 
+            # Non-finite values inside the locked source are rejected too.
+            nan_source = json.loads(locked_bytes)
+            nan_source["per_path"][0]["per_model"]["chgnet"]["vasp_signed_error_mev"] = float("nan")
+            (root / "nan-locked.json").write_text(json.dumps(nan_source))
+            nan_manifest = {
+                **manifest,
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": "nan-locked.json",
+                            "sha256": "sha256:" + hashlib.sha256((root / "nan-locked.json").read_bytes()).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            write_artifact(artifact, full_rows)
+            with self.assertRaisesRegex(ValueError, "non-finite"):
+                module.enforce_path_minimums(root, nan_manifest, make_bundle(), artifact, "skew-1")
+
             # Non-finite signed errors are rejected before any comparison.
             artifact.write_text(
                 json.dumps({"per_row": full_rows}).replace(
