@@ -267,6 +267,31 @@ def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
 
 SIGN_SKEW_PATH_FLOOR = 22
 
+CANONICAL_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
+
+
+def _canonical_measured_observations() -> set[tuple[str, str, float]] | None:
+    try:
+        source = json.loads((_REPO_ROOT / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    observations: set[tuple[str, str, float]] = set()
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        identity = entry.get("path_id")
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if (
+                value is not None
+                and record.get("complete", False)
+                and isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(value)
+            ):
+                observations.add((identity, model, round(float(value), 4)))
+    return observations
+
 # The sign-skew family's canonical model identities. Model ids are caller-controlled
 # strings, so authentication binds the full (id, artifact hash, version) triple;
 # a consistently renamed clone cannot keep these.
@@ -398,6 +423,19 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         or float(acceptance.get("threshold", -1)) != float(predicate_match.group("threshold"))
         or str(acceptance.get("unit", "")).lower() != predicate_match.group("unit")
     ):
+        return False
+    canonical_measured = _canonical_measured_observations()
+    if canonical_measured is None:
+        return False
+    artifact_measured = {
+        (row.get("path_id"), row.get("model"), round(float(row.get("signed_error_mev", float("nan"))), 4))
+        for row in rows
+        if isinstance(row, dict)
+        and row.get("status") == "measured"
+        and isinstance(row.get("path_id"), str)
+        and isinstance(row.get("model"), str)
+    }
+    if artifact_measured < canonical_measured:
         return False
     locked_result = _locked_source_rows(manifest, "receipt")
     if locked_result is None:

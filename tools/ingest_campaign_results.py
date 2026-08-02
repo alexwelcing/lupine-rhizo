@@ -76,6 +76,26 @@ CANONICAL_SOURCE_FINGERPRINT = (
 )
 
 
+def _measured_observations(source: Any) -> set[tuple[str, str, float]]:
+    observations: set[tuple[str, str, float]] = set()
+    if not isinstance(source, dict):
+        return observations
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict):
+            continue
+        identity = entry.get("path_id")
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if (
+                value is not None
+                and record.get("complete", False)
+                and isinstance(value, (int, float))
+                and not isinstance(value, bool)
+            ):
+                observations.add((identity, model, round(float(value), 4)))
+    return observations
+
+
 def _source_fingerprint(source: Any) -> str | None:
     if not isinstance(source, dict):
         return None
@@ -620,6 +640,20 @@ def enforce_path_minimums(
                 raise ValueError(
                     f"measurement {row_id} recorded input reserializes the canonical "
                     "dataset; independence requires distinct observations"
+                )
+            try:
+                canonical_source = json.loads(
+                    (root / CANONICAL_RECORDED_SOURCE).read_text(encoding="utf-8")
+                )
+            except (OSError, json.JSONDecodeError) as error:
+                raise ValueError(
+                    f"measurement {row_id} cannot read the canonical recorded source: {error}"
+                ) from error
+            canonical_measured = _measured_observations(canonical_source)
+            if _measured_observations(source) < canonical_measured:
+                raise ValueError(
+                    f"measurement {row_id} recorded input is a near-clone subset of the "
+                    "canonical dataset; independence requires new observations"
                 )
         else:
             fingerprint = CANONICAL_SOURCE_FINGERPRINT

@@ -523,6 +523,24 @@ class NightlyFeedbackTests(unittest.TestCase):
         original_root = feedback_module._REPO_ROOT
         self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
         feedback_module._REPO_ROOT = artifact_root
+        canonical_dir = artifact_root / "data" / "candidates"
+        canonical_dir.mkdir(parents=True, exist_ok=True)
+        (canonical_dir / "z1-union-campaign.json").write_text(
+            json.dumps(
+                {
+                    "per_path": [
+                        {
+                            "path_index": 0,
+                            "path_id": "mp-canonical_0_0_0_0_0",
+                            "per_model": {
+                                "chgnet": {"vasp_signed_error_mev": 999.0, "complete": True}
+                            },
+                            "models_missing": {},
+                        }
+                    ]
+                }
+            )
+        )
         manifest_dir = artifact_root / "campaigns" / "v1"
         manifest_dir.mkdir(parents=True)
         (manifest_dir / "staging.json").write_text(
@@ -1041,6 +1059,24 @@ class NightlyFeedbackTests(unittest.TestCase):
         original_root = feedback_module._REPO_ROOT
         self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
         feedback_module._REPO_ROOT = artifact_root
+        canonical_dir = artifact_root / "data" / "candidates"
+        canonical_dir.mkdir(parents=True, exist_ok=True)
+        (canonical_dir / "z1-union-campaign.json").write_text(
+            json.dumps(
+                {
+                    "per_path": [
+                        {
+                            "path_index": 0,
+                            "path_id": "mp-canonical_0_0_0_0_0",
+                            "per_model": {
+                                "chgnet": {"vasp_signed_error_mev": 999.0, "complete": True}
+                            },
+                            "models_missing": {},
+                        }
+                    ]
+                }
+            )
+        )
         models = ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
         rows = [
             {
@@ -1053,7 +1089,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             for index in range(22)
             for model in models
         ]
-        (artifact_root / "data").mkdir()
+        (artifact_root / "data").mkdir(exist_ok=True)
         (artifact_root / "data" / "staging.json").write_text(json.dumps({"per_row": rows}))
         locked_source = {
             "per_path": [
