@@ -9,6 +9,8 @@ import json
 import math
 import re
 import statistics
+
+import rfc8785
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -294,13 +296,15 @@ def _locked_source_rows(
         return None
     expected: dict[tuple[str, str], tuple[str, float | None]] = {}
     identities: dict[int, str] = {}
+    seen_identities: set[str] = set()
     for position, entry in enumerate(source.get("per_path", [])):
         if not isinstance(entry, dict) or not isinstance(entry.get("path_id"), str):
             continue
         identity = entry["path_id"]
         index = entry.get("path_index", position)
-        if not isinstance(index, int):
-            continue
+        if not isinstance(index, int) or index in identities or identity in seen_identities:
+            return None
+        seen_identities.add(identity)
         identities[index] = identity
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
@@ -362,8 +366,7 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     except (OSError, json.JSONDecodeError):
         return False
     unhashed = {key: value for key, value in manifest.items() if key != "content_hash"}
-    canonical = json.dumps(unhashed, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
-    recomputed = "sha256:" + hashlib.sha256(canonical).hexdigest()
+    recomputed = "sha256:" + hashlib.sha256(rfc8785.dumps(unhashed)).hexdigest()
     if manifest.get("content_hash") != recomputed:
         return False
     campaign_id = manifest.get("campaign_id")
