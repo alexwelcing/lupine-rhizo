@@ -4,7 +4,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-ROOT = Path('/home/alex/Dev/lupine/partnerships')
+ROOT = Path(__file__).resolve().parent
 DATA = json.loads((ROOT / 'partner-prospects.json').read_text())
 LIVE = json.loads((ROOT / 'live-source-audit.json').read_text())
 errors = []
@@ -24,6 +24,25 @@ require(len(ids) == len(set(ids)) == 136, 'all 136 IDs are unique')
 require(all(re.fullmatch(r'P\d{3}', value or '') for value in ids), 'all IDs retain PNNN format')
 require(Counter(item['priority_tier'] for item in selected) == Counter({1: 34, 2: 59}), 'tier coverage is 34 tier-1 and 59 tier-2')
 require(set(LIVE.get('records', {})) == {item['id'] for item in selected}, 'live audit covers all 93 tier-1/2 IDs')
+
+probed_urls = set()
+for audit_record in LIVE.get('records', {}).values():
+    for field_result in audit_record.values():
+        if isinstance(field_result, dict) and 'requested_url' in field_result:
+            probed_urls.add(field_result['requested_url'])
+validated = [item for item in prospects if item.get('claim_validation', {}).get('status') == 'official-source-validated']
+unprobed = []
+for item in validated:
+    top_url = item.get('official_source')
+    if top_url and top_url not in probed_urls:
+        unprobed.append(f"{item['id']}:official_source")
+    for field_name in ('program_or_facility', 'decision_maker_or_team', 'recent_trigger', 'lupine_pipeline_mapping'):
+        field = item.get(field_name)
+        if isinstance(field, dict):
+            field_url = field.get('official_source') or field.get('url')
+            if field_url and field_url not in probed_urls:
+                unprobed.append(f"{item['id']}:{field_name}")
+require(not unprobed, f"every validated claim URL is probed in live-source-audit.json (missing: {unprobed[:5]})")
 
 allowed_status = {'official-source-validated', 'needs-verification'}
 verified_dates = 0

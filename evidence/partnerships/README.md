@@ -16,7 +16,7 @@ lupine.science.
   team, dated 2024–2026 event, prospect-specific Lupine mapping, claim URLs). Nothing is
   promoted from search snippets alone.
 - Mechanical validator: `validate_partnerships.py` — 1,973 checks, 0 errors
-  (`python partnerships/validate_partnerships.py`; see `validation-report.json`).
+  (`python evidence/partnerships/validate_partnerships.py`; see `validation-report.json`).
 - Independent review: `independent-review.json` (ACCEPT on the fail-closed basis).
 - Full per-URL probe: `live-source-audit.json` (254 claim URLs re-opened).
 
@@ -42,5 +42,5 @@ Use only these figures: **72.4% fewer DFT evaluations** (558 naive → 154 union
 
 Continuation work (see board card): complete claim-level verification for the 60
 `needs-verification` tier-1/2 records using the same standard; then outreach sequencing
-for the 35 validated records. Any edit must keep the 136 IDs stable, keep the economics
+for the 33 validated records. Any edit must keep the 136 IDs stable, keep the economics
 guardrail, and re-run `validate_partnerships.py`.
