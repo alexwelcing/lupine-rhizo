@@ -575,6 +575,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                 {
                     "path_index": index,
                     "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                    "chemical_system": f"Chem-{index}",
                     "model": model,
                     "status": "measured",
                     "signed_error_mev": value,
@@ -594,6 +595,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                     {
                         "path_index": index,
                         "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                        "chemical_system": f"Chem-{index}",
                         "per_model": {
                             model: {"vasp_signed_error_mev": value, "complete": True}
                             for model in models
@@ -606,7 +608,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             locked_bytes = json.dumps(locked_source).encode()
             (artifact_root / f"locked-{name}").write_bytes(locked_bytes)
             panel_bytes = json.dumps(
-                {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0"} for index in range(22)]}
+                {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0", "chemical_system": f"Chem-{index}"} for index in range(22)]}
             ).encode()
             (artifact_root / f"panel-{name}").write_bytes(panel_bytes)
             document = {
@@ -1082,6 +1084,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             {
                 "path_index": index,
                 "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                "chemical_system": f"Chem-{index}",
                 "model": model,
                 "status": "measured",
                 "signed_error_mev": 460.14,
@@ -1096,6 +1099,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                 {
                     "path_index": index,
                     "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                    "chemical_system": f"Chem-{index}",
                     "per_model": {
                         model: {"vasp_signed_error_mev": 460.14, "complete": True}
                         for model in models
@@ -1112,7 +1116,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         import hashlib as _hashlib
 
         panel_bytes = json.dumps(
-            {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0"} for index in range(22)]}
+            {"paths": [{"path_id": f"mp-{1000 + index}_0_0_0_0_0", "chemical_system": f"Chem-{index}"} for index in range(22)]}
         ).encode()
         (artifact_root / "panel.json").write_bytes(panel_bytes)
         document = {

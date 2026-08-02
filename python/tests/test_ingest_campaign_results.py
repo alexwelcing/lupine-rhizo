@@ -273,6 +273,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             {
                 "path_index": index,
                 "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                "chemical_system": f"Chem-{index}",
                 "model": model,
                 "status": "measured",
                 "signed_error_mev": 500.0,
@@ -289,6 +290,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": index,
                         "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                        "chemical_system": f"Chem-{index}",
                         "per_model": {
                             model: {"vasp_signed_error_mev": 500.0, "complete": True}
                             for model in models
@@ -322,7 +324,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             panel_bytes = json.dumps(
                 {
                     "paths": [
-                        {"path_id": f"mp-{1000 + index}_0_0_0_0_0"} for index in range(24)
+                        {"path_id": f"mp-{1000 + index}_0_0_0_0_0", "chemical_system": f"Chem-{index}"} for index in range(24)
                     ]
                 }
             ).encode()
@@ -403,6 +405,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": index,
                         "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                        "chemical_system": f"Chem-{index}",
                         "per_model": (
                             {
                                 model: {"vasp_signed_error_mev": 500.0, "complete": True}
@@ -650,6 +653,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": extra,
                         "path_id": f"mp-{1000 + extra}_0_0_0_0_0",
+                        "chemical_system": f"Chem-{extra}",
                         "per_model": {
                             model: {"vasp_signed_error_mev": -900.0, "complete": True}
                             for model in models
@@ -805,6 +809,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     {
                         "path_index": index,
                         "path_id": f"mp-{2000 + index}_0_0_0_0_0",
+                        "chemical_system": f"Fresh-{index}",
                         "per_model": {
                             model: {"vasp_signed_error_mev": 500.0, "complete": True}
                             for model in models
@@ -825,7 +830,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ]
             }
             fresh_panel_bytes = json.dumps(
-                {"paths": [{"path_id": f"mp-{2000 + index}_0_0_0_0_0"} for index in range(22)]}
+                {"paths": [{"path_id": f"mp-{2000 + index}_0_0_0_0_0", "chemical_system": f"Fresh-{index}"} for index in range(22)]}
             ).encode()
             (root / "fresh-panel.json").write_bytes(fresh_panel_bytes)
             fresh_manifest["execution"] = {
@@ -835,7 +840,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 }
             }
             fresh_rows = [
-                {**row, "path_id": f"mp-{2000 + row['path_index']}_0_0_0_0_0"}
+                {**row, "path_id": f"mp-{2000 + row['path_index']}_0_0_0_0_0", "chemical_system": f"Fresh-{row['path_index']}"}
                 for row in full_rows
             ]
             write_artifact(artifact, fresh_rows)
@@ -970,6 +975,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 {
                     "path_index": 22,
                     "path_id": "mp-7022_0_0_0_0_0",
+                    "chemical_system": "Li-22",
                     "per_model": {
                         model: {"vasp_signed_error_mev": 999.0, "complete": True}
                         for model in models

@@ -430,6 +430,13 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     canonical_measured = _canonical_measured_observations()
     if canonical_measured is None:
         return False
+    if any(
+        isinstance(row, dict)
+        and row.get("status") == "measured"
+        and not (isinstance(row.get("chemical_system"), str) and row.get("chemical_system", "").strip())
+        for row in rows
+    ):
+        return False
     artifact_pairs = {
         (row.get("chemical_system"), row.get("model"))
         for row in rows
@@ -506,12 +513,40 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         return False
     panel_rows = panel.get("per_path") or panel.get("paths") or []
     panel_identities = {}
+    panel_chemistries = {}
     for position, entry in enumerate(panel_rows):
         if isinstance(entry, dict):
             key = entry.get("path_index", position)
             if isinstance(key, int):
                 panel_identities[key] = entry.get("path_id")
+                panel_chemistries[key] = entry.get("chemical_system")
+    source_chemistries: dict[int, str] = {}
+    preregistration = manifest.get("preregistration")
+    recorded_inputs = (
+        preregistration.get("recorded_inputs")
+        if isinstance(preregistration, dict)
+        else None
+    )
+    source_for_chemistry = None
+    if isinstance(recorded_inputs, list) and recorded_inputs:
+        try:
+            source_for_chemistry = json.loads(
+                (_REPO_ROOT / recorded_inputs[0]["path"]).read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError, KeyError):
+            source_for_chemistry = None
+    if isinstance(source_for_chemistry, dict):
+        for position, entry in enumerate(source_for_chemistry.get("per_path", [])):
+            if isinstance(entry, dict):
+                key = entry.get("path_index", position)
+                if isinstance(key, int) and isinstance(entry.get("chemical_system"), str):
+                    source_chemistries[key] = entry["chemical_system"]
     if any(panel_identities.get(index) != identity for index, identity in locked_identities.items()):
+        return False
+    if any(
+        panel_chemistries.get(index) != source_chemistries.get(index)
+        for index in locked_identities
+    ):
         return False
     required_models = {
         model.get("model_id")

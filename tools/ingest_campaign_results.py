@@ -99,7 +99,7 @@ def _measured_observations(source: Any) -> set[tuple[str, str, float]]:
     return observations
 
 
-def _chemical_model_pairs(source: Any) -> set[tuple[str, str]]:
+def _chemical_model_pairs(source: Any, row_id: str = "") -> set[tuple[str, str]]:
     """Immutable physical provenance: chemical system and model, not renamable ids."""
     pairs: set[tuple[str, str]] = set()
     if not isinstance(source, dict):
@@ -108,11 +108,14 @@ def _chemical_model_pairs(source: Any) -> set[tuple[str, str]]:
         if not isinstance(entry, dict):
             continue
         chemistry = entry.get("chemical_system")
-        if not isinstance(chemistry, str):
-            continue
         for model, record in (entry.get("per_model") or {}).items():
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if value is not None and record.get("complete", False):
+                if not isinstance(chemistry, str) or not chemistry.strip():
+                    raise ValueError(
+                        f"measurement {row_id} source path {entry.get('path_id')!r} lacks "
+                        "the chemical_system identity the overlap guard requires"
+                    )
                 pairs.add((chemistry, model))
     return pairs
 
@@ -670,8 +673,8 @@ def enforce_path_minimums(
                 raise ValueError(
                     f"measurement {row_id} cannot read the canonical recorded source: {error}"
                 ) from error
-            canonical_pairs = _chemical_model_pairs(canonical_source)
-            candidate_pairs = _chemical_model_pairs(source)
+            canonical_pairs = _chemical_model_pairs(canonical_source, row_id)
+            candidate_pairs = _chemical_model_pairs(source, row_id)
             if candidate_pairs & canonical_pairs:
                 raise ValueError(
                     f"measurement {row_id} recorded input reuses canonical path/model "
@@ -681,7 +684,7 @@ def enforce_path_minimums(
             fingerprint = CANONICAL_SOURCE_FINGERPRINT
         examples_dir = root / "evidence" / "v1" / "examples"
         if examples_dir.is_dir():
-            candidate_pairs = _chemical_model_pairs(source)
+            candidate_pairs = _chemical_model_pairs(source, row_id)
             for prior_path in sorted(examples_dir.glob("*.json")):
                 try:
                     prior = json.loads(prior_path.read_text(encoding="utf-8"))
@@ -776,16 +779,33 @@ def enforce_path_minimums(
                 ) from error
             panel_rows = panel.get("per_path") or panel.get("paths") or []
             panel_identities = {}
+            panel_chemistries = {}
             for position, entry in enumerate(panel_rows):
                 if not isinstance(entry, dict):
                     continue
                 key = entry.get("path_index", position)
                 panel_identities[key] = entry.get("path_id")
+                panel_chemistries[key] = entry.get("chemical_system")
+            source_chemistries = {
+                entry.get("path_index", position): entry.get("chemical_system")
+                for position, entry in enumerate(source.get("per_path", []))
+                if isinstance(entry, dict)
+            }
             inconsistent = {
                 index: (identity, panel_identities.get(index))
                 for index, identity in locked.items()
                 if panel_identities.get(index) != identity
             }
+            chemistry_mismatch = any(
+                not isinstance(source_chemistries.get(index), str)
+                or panel_chemistries.get(index) != source_chemistries[index]
+                for index in locked
+            )
+            if chemistry_mismatch:
+                raise ValueError(
+                    f"measurement {row_id} locked source chemistry does not match the "
+                    "frozen candidate panel"
+                )
             if inconsistent:
                 index, (identity, expected_identity) = next(iter(inconsistent.items()))
                 raise ValueError(
