@@ -661,6 +661,11 @@ def enforce_path_minimums(
             if isinstance(manifest.get("execution"), dict)
             else None
         )
+        if not (isinstance(panel_lock, dict) and panel_lock.get("path")):
+            raise ValueError(
+                f"measurement {row_id} manifest lacks the execution.candidate_panel "
+                "lock the nightly feedback loop requires"
+            )
         if isinstance(panel_lock, dict) and panel_lock.get("path"):
             # Reconcile source identities with the sha-pinned candidate panel, so
             # a renamed clone cannot change its dataset fingerprint.
@@ -717,7 +722,7 @@ def enforce_path_minimums(
                     f"measurement {row_id} path {index} model {row['model']} status "
                     f"{row['status']!r} disagrees with the locked source {expected_status!r}"
                 )
-            if expected_status == "measured" and abs(row["signed_error_mev"] - source_value) > 5e-5:
+            if expected_status == "measured" and round(row["signed_error_mev"], 4) != round(source_value, 4):
                 raise ValueError(
                     f"measurement {row_id} path {index} model {row['model']} value "
                     f"{row['signed_error_mev']} disagrees with the locked source {source_value}"
