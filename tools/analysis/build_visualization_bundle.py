@@ -238,6 +238,14 @@ def git_head() -> str | None:
     return out.stdout.strip() or None
 
 
+def artifact_uri(path: Path) -> str:
+    """Deterministic, checkout-independent locator: repo-relative when possible."""
+    try:
+        return path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.name
+
+
 def source_artifact(role: str, uri: str, path: Path, schema: str | None) -> dict:
     payload = path.read_bytes()
     return {
@@ -1832,13 +1840,13 @@ def build_bundle(
         "retraction": None,
         "source_artifacts": [
             source_artifact(
-                "campaign_record", str(campaign_path), campaign_path, CAMPAIGN_SCHEMA
+                "campaign_record", artifact_uri(campaign_path), campaign_path, CAMPAIGN_SCHEMA
             ),
-            source_artifact("barrier_panel", str(panel_path), panel_path, PANEL_SCHEMA),
+            source_artifact("barrier_panel", artifact_uri(panel_path), panel_path, PANEL_SCHEMA),
             *(
                 source_artifact(
                     "anchor_receipt",
-                    str(receipts[i]["__file__"]),
+                    artifact_uri(receipts[i]["__file__"]),
                     receipts[i]["__file__"],
                     ANCHOR_SCHEMA,
                 )
@@ -1847,7 +1855,7 @@ def build_bundle(
             *(
                 source_artifact(
                     "model_cell_result",
-                    str(models_root / model / "cell_result.json"),
+                    artifact_uri(models_root / model / "cell_result.json"),
                     models_root / model / "cell_result.json",
                     MODEL_CELL_SCHEMA,
                 )
@@ -1855,7 +1863,7 @@ def build_bundle(
                 if models_root is not None and (models_root / model / "cell_result.json").is_file()
             ),
             *(
-                source_artifact("electronic_diagnostic", str(file), file, None)
+                source_artifact("electronic_diagnostic", artifact_uri(file), file, None)
                 for _, file, _ in diagnostic_files
             ),
         ],
