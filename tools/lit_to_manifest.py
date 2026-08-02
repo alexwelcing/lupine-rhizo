@@ -97,6 +97,9 @@ T1_DEMOTION_CONDITIONS = [
     },
 ]
 T1_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
+# The single retrospective hypothesis the T1 branch may convert: it is the only one
+# ingestion can bind to the canonical campaign identity and locked dataset.
+T1_CANONICAL_HYPOTHESIS_ID = "protocol-offset-sign-skew"
 # Executed union-campaign rows carrying a usable per-path signed error (of the 23 locked).
 T1_RECORDED_PATHS_MINIMUM = 22
 T1_EVIDENCE_REQUIREMENTS = [
@@ -328,6 +331,12 @@ def convert_hypothesis(
     manifest["target_premises"] = deepcopy(TARGET_PREMISES_BY_CHAIN[ALLOWED_CHAIN])
     manifest["acceptance_test"] = deepcopy(ACCEPTANCE_TEST_BY_ID[ALLOWED_ACCEPTANCE_TEST])
     if "T1" in declared_types:
+        if hypothesis_id != T1_CANONICAL_HYPOTHESIS_ID:
+            raise ConversionError(
+                "T1 conversion currently supports only the canonical retrospective "
+                f"hypothesis {T1_CANONICAL_HYPOTHESIS_ID!r} over the locked union "
+                "campaign; additional T1 hypotheses require a distinct registered dataset"
+            )
         manifest["acceptance_test"] = deepcopy(T1_ACCEPTANCE_TEST)
         manifest["demotion_conditions"] = deepcopy(T1_DEMOTION_CONDITIONS)
         manifest["evidence_requirements"] = deepcopy(T1_EVIDENCE_REQUIREMENTS)

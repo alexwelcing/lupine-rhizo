@@ -159,6 +159,23 @@ def test_missing_panel_ref_uses_nearest_locked_panel(tmp_path: Path) -> None:
     }
 
 
+def test_t1_conversion_is_locked_to_the_canonical_hypothesis(tmp_path: Path) -> None:
+    converter = load_converter()
+    hypothesis = load_json(INPUTS / "protocol-offset-sign-skew.json")
+    template = tmp_path / "campaigns" / "v1" / "z1.campaign-manifest.v1.json"
+    template.parent.mkdir(parents=True)
+    template.write_bytes((ROOT / "campaigns" / "v1" / template.name).read_bytes())
+    panel = tmp_path / PANEL_PATH
+    panel.parent.mkdir(parents=True)
+    panel.write_bytes((ROOT / PANEL_PATH).read_bytes())
+    source = tmp_path / "examples" / "literature-hypotheses" / "some-other-t1.json"
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps(hypothesis), encoding="utf-8")
+
+    with pytest.raises(converter.ConversionError, match="canonical retrospective"):
+        convert(converter, hypothesis, hypothesis_id="some-other-t1", root=tmp_path)
+
+
 @pytest.mark.parametrize("status", ["rejected", "superseded"])
 def test_converter_rejects_hypotheses_that_are_not_executable(status: str) -> None:
     converter = load_converter()
