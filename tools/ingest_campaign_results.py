@@ -690,9 +690,24 @@ def enforce_path_minimums(
                             prior_document = json.loads((root / prior_artifact).read_text(encoding="utf-8"))
                         except (OSError, json.JSONDecodeError):
                             continue
-                        prior_measured = _measured_observations(
-                            {"per_path": prior_document.get("per_row") or prior_document.get("per_path") or []}
-                        ) if isinstance(prior_document, dict) else set()
+                        prior_rows = (
+                            prior_document.get("per_row") or prior_document.get("per_path") or []
+                            if isinstance(prior_document, dict)
+                            else []
+                        )
+                        prior_measured = {
+                            (
+                                prior_row["path_id"],
+                                prior_row["model"],
+                                round(float(prior_row["signed_error_mev"]), 4),
+                            )
+                            for prior_row in prior_rows
+                            if isinstance(prior_row, dict)
+                            and prior_row.get("status") == "measured"
+                            and isinstance(prior_row.get("path_id"), str)
+                            and isinstance(prior_row.get("model"), str)
+                            and isinstance(prior_row.get("signed_error_mev"), (int, float))
+                        }
                         if candidate_measured & prior_measured:
                             raise ValueError(
                                 f"measurement {row_id} shares measured observations with the "
