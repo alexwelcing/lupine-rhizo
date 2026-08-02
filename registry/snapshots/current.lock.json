@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "registry/assumptions.v1.json": {
-      "content_hash": "sha256:8df39764c09fa1f8a9b4d0c2bd2ebe2ae726c5db1c506a2337d98e0d8934f087"
+      "content_hash": "sha256:fef058adc8827cf965746b9915389e5c91c2e1592b9032dbe6325ccc25199aa8"
     },
     "registry/campaigns.v1.json": {
       "content_hash": "sha256:5d95bddfa47f7c1e0d92fd5faacb477a63847703afb07cbeeda8c4b727e6810a"
@@ -49,7 +49,7 @@
       },
       {
         "claim_id": "discovery.z1.barrier-accuracy.v1",
-        "content_hash": "sha256:878110dc727cc44a71baded454c16f4af044619b5531864cbd1a4fdc7244e118"
+        "content_hash": "sha256:e08fdc85c30e00e6962182a23c50b0ea4415718099045363096e619a5bd75d9d"
       },
       {
         "claim_id": "discovery.z2.magnetic-anisotropy.v1",
@@ -73,8 +73,8 @@
       "sha256:52a03d8159e92166f4f236ba01beab7e4665065d56475f0d1058cd4c9dde9285",
       "sha256:54fd5b2a796386ebca206cc3892db50fd967184feee1f3d2767f6f3da1e7726b",
       "sha256:6524462c811124e94be191327dd6095ce785892ae9a71f019585b9bde052e3c2",
+      "sha256:8371bad9be5e54c25e7a1295bbc2e176abb8fbbe0fb2f69d95a094e7f38aa708",
       "sha256:990fed4734d55eb8e7a40573ac4ba1dadb5475e2ef445c1292df275e5e990946",
-      "sha256:9d2d9d877ad7948e53c37e909ece739fecbcb5afa12c12df31f9bfd780b02a18",
       "sha256:a584270a3168b27f0bf6cf39b9ea566820037880808a783ef56a82cbc70c3f57",
       "sha256:a7c3f472d9774ae49fe48b6562e8eccf394db5ed2f40134d9c4e596268e0aaa5",
       "sha256:bfb1481cc6cdb547f4e438eb13c2a10489b48679280c1c46abab4364ebb83f78",

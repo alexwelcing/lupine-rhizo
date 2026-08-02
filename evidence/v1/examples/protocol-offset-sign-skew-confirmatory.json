@@ -93,7 +93,7 @@
       "artifact": "data/candidates/protocol-offset-sign-skew.json",
       "artifact_hash": "sha256:d56347e61a677ec85e06f2e9b008e99284f42c18728c8e429cb8e31c23aba866",
       "thresholds_version": "hard-materials-z1.v1",
-      "dataset_fingerprint": "sha256:3a068e048f5e156a72ce58a293f7cb029497cd1ff17411936281fa6ea866434b"
+      "dataset_fingerprint": "sha256:b9137ff7830c50cfdc59ec837ef2bb099326657c5d5e2d2ae158143360653989"
     }
   ],
   "provenance": {
@@ -138,5 +138,5 @@
     }
   ],
   "supersedes": [],
-  "bundle_id": "sha256:9d2d9d877ad7948e53c37e909ece739fecbcb5afa12c12df31f9bfd780b02a18"
+  "bundle_id": "sha256:8371bad9be5e54c25e7a1295bbc2e176abb8fbbe0fb2f69d95a094e7f38aa708"
 }

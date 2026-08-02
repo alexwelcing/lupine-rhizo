@@ -204,9 +204,7 @@ def _fingerprint_from_rows(rows: list[dict]) -> str | None:
             ):
                 return None
             observations.append([identity, model, "measured", round(float(value), 4)])
-        elif status == "failed":
-            observations.append([identity, model, "failed"])
-        else:
+        elif status != "failed":
             return None
     observations.sort()
     canonical = json.dumps(observations, separators=(",", ":")).encode()
@@ -568,7 +566,7 @@ def _chain_state(
             )
         if (
             bundle.get("claim_predicate") == expected_predicate
-            and bundle.get("epistemic_status") != "negative"
+            and bundle.get("epistemic_status") == "confirmatory"
             and all(outcome == "pass" for outcome in outcomes)
             and family_authenticated is not False
         ):

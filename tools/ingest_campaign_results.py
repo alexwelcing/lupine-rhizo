@@ -57,7 +57,7 @@ CANONICAL_CAMPAIGN_ID = "literature.protocol-offset-sign-skew.v1"
 # Content fingerprint of the canonical dataset's observations (status and value
 # per path/model), so a reserialized copy is recognized as the same dataset.
 CANONICAL_SOURCE_FINGERPRINT = (
-    "sha256:3a068e048f5e156a72ce58a293f7cb029497cd1ff17411936281fa6ea866434b"
+    "sha256:b9137ff7830c50cfdc59ec837ef2bb099326657c5d5e2d2ae158143360653989"
 )
 
 
@@ -77,8 +77,6 @@ def _source_fingerprint(source: Any) -> str | None:
             value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
             if value is not None and record.get("complete", False):
                 observations.append([identity, model, "measured", round(float(value), 4)])
-        for model in (entry.get("models_missing") or {}):
-            observations.append([identity, model, "failed"])
     if len(identities) != len(set(identities)) or len(indices) != len(set(indices)):
         raise ValueError("locked source contains duplicate stable path identities")
     observations.sort()
