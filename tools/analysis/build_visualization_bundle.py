@@ -239,11 +239,17 @@ def git_head() -> str | None:
 
 
 def artifact_uri(path: Path) -> str:
-    """Deterministic, checkout-independent locator: repo-relative when possible."""
+    """Deterministic, checkout-independent locator: repo-relative when possible.
+
+    External artifacts fall back to their last two components so identically
+    named files from different parents (e.g. per-model cell_result.json)
+    remain distinguishable.
+    """
     try:
         return path.resolve().relative_to(REPO_ROOT).as_posix()
     except ValueError:
-        return path.name
+        parts = path.parts
+        return "/".join(parts[-2:]) if len(parts) >= 2 else path.name
 
 
 def source_artifact(role: str, uri: str, path: Path, schema: str | None) -> dict:
