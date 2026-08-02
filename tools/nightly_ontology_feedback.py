@@ -265,6 +265,56 @@ def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
     return True
 
 
+SIGN_SKEW_PATH_FLOOR = 22
+
+
+def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -> bool:
+    """Ingestion-grade authentication of one sign-skew dataset reference."""
+    fingerprint = reference.get("dataset_fingerprint")
+    artifact = reference.get("artifact")
+    if not (
+        isinstance(fingerprint, str)
+        and HASH_RE.fullmatch(fingerprint)
+        and isinstance(artifact, str)
+    ):
+        return False
+    rows = _artifact_rows(_REPO_ROOT / artifact)
+    if rows is None or _fingerprint_from_rows(rows) != fingerprint:
+        return False
+    stats = _artifact_path_statistics(rows)
+    if stats is None or stats[0] < SIGN_SKEW_PATH_FLOOR:
+        return False
+    manifest_rel = reference.get("campaign_manifest")
+    if not isinstance(manifest_rel, str):
+        return False
+    try:
+        manifest = json.loads((_REPO_ROOT / manifest_rel).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    required_models = {
+        model.get("model_id")
+        for model in manifest.get("available_models", [])
+        if isinstance(model, dict)
+    }
+    required_models.discard(None)
+    if required_models:
+        pairs = {
+            (row.get("path_id"), row.get("model"))
+            for row in rows
+            if isinstance(row, dict)
+            and isinstance(row.get("path_id"), str)
+            and isinstance(row.get("model"), str)
+        }
+        paths = {path for path, _ in pairs}
+        if any(
+            (path, model) not in pairs
+            for path in paths
+            for model in required_models
+        ):
+            return False
+    return _receipt_matches_artifact(bundle, rows)
+
+
 def _confirms_instead(bundle: dict[str, Any], as_of: date) -> bool:
     """True when a self-labeled negative receipt's typed suite actually passes."""
     measurements = bundle.get("measurements")
@@ -335,10 +385,18 @@ def _chain_state(
             continue
         if bundle_id not in defined:
             defined.append(bundle_id)
+        family_authenticated: bool | None = None
+        if expected_predicate.startswith("signed_error_positive_fraction"):
+            family_authenticated = any(
+                isinstance(reference, dict)
+                and _authenticate_sign_skew(bundle, reference)
+                for reference in bundle.get("evidence_refs", [])
+            )
         if (
             bundle.get("claim_predicate") == expected_predicate
             and bundle.get("epistemic_status") != "negative"
             and all(outcome == "pass" for outcome in outcomes)
+            and family_authenticated is not False
         ):
             passing.append(bundle_id)
             counted_identity = False
@@ -347,25 +405,9 @@ def _chain_state(
                     continue
                 if expected_predicate.startswith("signed_error_positive_fraction"):
                     # Independence is the dataset, not the campaign name: count
-                    # at most one fingerprint per evaluated bundle, authenticated
-                    # against the cited artifact's rows, with the receipt's typed
-                    # statistics reconciled against those same rows.
-                    fingerprint = reference.get("dataset_fingerprint")
-                    artifact = reference.get("artifact")
-                    rows = (
-                        _artifact_rows(_REPO_ROOT / artifact)
-                        if isinstance(artifact, str)
-                        else None
-                    )
-                    if (
-                        not counted_identity
-                        and isinstance(fingerprint, str)
-                        and HASH_RE.fullmatch(fingerprint)
-                        and rows is not None
-                        and _fingerprint_from_rows(rows) == fingerprint
-                        and _receipt_matches_artifact(bundle, rows)
-                    ):
-                        campaigns.add(("dataset", fingerprint))
+                    # at most one authenticated fingerprint per evaluated bundle.
+                    if not counted_identity and _authenticate_sign_skew(bundle, reference):
+                        campaigns.add(("dataset", reference["dataset_fingerprint"]))
                         counted_identity = True
                 elif isinstance(reference.get("campaign"), str):
                     campaigns.add(reference["campaign"])

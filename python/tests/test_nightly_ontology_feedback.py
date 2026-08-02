@@ -523,6 +523,18 @@ class NightlyFeedbackTests(unittest.TestCase):
         original_root = feedback_module._REPO_ROOT
         self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
         feedback_module._REPO_ROOT = artifact_root
+        manifest_dir = artifact_root / "campaigns" / "v1"
+        manifest_dir.mkdir(parents=True)
+        (manifest_dir / "staging.json").write_text(
+            json.dumps(
+                {
+                    "available_models": [
+                        {"model_id": model}
+                        for model in ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+                    ]
+                }
+            )
+        )
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
@@ -926,6 +938,36 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
 
     def test_sign_skew_receipt_promotes_the_sign_skew_hypothesis(self) -> None:
+        import tempfile
+
+        import tools.nightly_ontology_feedback as feedback_module
+
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        artifact_root = Path(temporary.name)
+        original_root = feedback_module._REPO_ROOT
+        self.addCleanup(setattr, feedback_module, "_REPO_ROOT", original_root)
+        feedback_module._REPO_ROOT = artifact_root
+        models = ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
+        rows = [
+            {
+                "path_index": index,
+                "path_id": f"mp-{1000 + index}_0_0_0_0_0",
+                "model": model,
+                "status": "measured",
+                "signed_error_mev": 460.14,
+            }
+            for index in range(22)
+            for model in models
+        ]
+        (artifact_root / "data").mkdir()
+        (artifact_root / "data" / "staging.json").write_text(json.dumps({"per_row": rows}))
+        manifest_dir = artifact_root / "campaigns" / "v1"
+        manifest_dir.mkdir(parents=True)
+        (manifest_dir / "staging.json").write_text(
+            json.dumps({"available_models": [{"model_id": model} for model in models]})
+        )
+        fingerprint = feedback_module._artifact_fingerprint(artifact_root / "data" / "staging.json")
         atlas = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
@@ -943,10 +985,11 @@ class NightlyFeedbackTests(unittest.TestCase):
         }
         skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
         skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
+        skew["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
         skew["measurements"] = [
             {
                 "metric": "signed_error_positive",
-                "value": 0.9545,
+                "value": 1.0,
                 "unit": "fraction",
                 "acceptance_test": {
                     "comparator": "greater_than",
