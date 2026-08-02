@@ -493,6 +493,23 @@ def enforce_path_minimums(
         "signed_error_positive_fraction"
     ):
         return None
+    registry_path = root / "registry" / "campaigns.v1.json"
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(
+            f"measurement {row_id} cannot read the campaign registry: {error}"
+        ) from error
+    registered = {
+        campaign.get("content_hash")
+        for campaign in registry.get("campaigns", [])
+        if isinstance(campaign, dict)
+    }
+    if manifest.get("content_hash") not in registered:
+        raise ValueError(
+            f"measurement {row_id} manifest is not registered in campaigns.v1.json; "
+            "unreviewed caller manifests cannot prove independence"
+        )
     minimums = [
         requirement["minimum_count"]
         for requirement in manifest.get("evidence_requirements", [])
@@ -795,6 +812,21 @@ def enforce_path_minimums(
                 and not isinstance(threshold, bool)
                 and asserted in {"pass", "fail"}
             ):
+                # Auxiliary thresholds are pinned to the frozen acceptance suite,
+                # so ingestion never materializes a bundle the nightly would reject.
+                if metric == "signed_error_positive" and (
+                    comparator != "greater_than" or float(threshold) != 0.5
+                ):
+                    raise ValueError(
+                        f"measurement {row_id} fraction acceptance must be greater_than 0.5"
+                    )
+                if metric == "median_signed_error" and (comparator, float(threshold)) not in {
+                    ("greater_than_or_equal", 400.0),
+                    ("less_than_or_equal", 600.0),
+                }:
+                    raise ValueError(
+                        f"measurement {row_id} median acceptance is outside the frozen 400/600 meV suite"
+                    )
                 if comparator == "greater_than":
                     expected_outcome = "pass" if value > threshold else "fail"
                 elif comparator == "greater_than_or_equal":

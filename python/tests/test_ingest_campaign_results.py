@@ -250,6 +250,25 @@ class CampaignResultIngestionTests(unittest.TestCase):
             document.update(extra)
             path.write_text(json.dumps(document))
 
+        def registered(root: Path, doc: dict) -> dict:
+            doc = dict(doc)
+            payload = {key: value for key, value in doc.items() if key != "content_hash"}
+            doc["content_hash"] = "sha256:" + hashlib.sha256(
+                json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+            ).hexdigest()
+            registry_file = root / "registry" / "campaigns.v1.json"
+            registry_file.parent.mkdir(parents=True, exist_ok=True)
+            existing = (
+                json.loads(registry_file.read_text())
+                if registry_file.exists()
+                else {"campaigns": []}
+            )
+            existing["campaigns"].append(
+                {"campaign_id": doc.get("campaign_id"), "content_hash": doc["content_hash"]}
+            )
+            registry_file.write_text(json.dumps(existing))
+            return doc
+
         full_rows = [
             {
                 "path_index": index,
@@ -324,7 +343,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
 
             def enforce(bundle: dict) -> None:
-                module.enforce_path_minimums(root, manifest, bundle, artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, manifest), bundle, artifact, "skew-1")
 
             # Aggregate-only artifacts cannot prove coverage, even with n_paths.
             write_artifact(artifact, [], n_paths=22)
@@ -394,7 +413,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "paths with measurements"):
                 module.enforce_path_minimums(
-                    root, failed_manifest, make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
+                    root, registered(root, failed_manifest), make_bundle(fraction=1.0, sample_count=1), artifact, "skew-1"
                 )
             set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
 
@@ -463,7 +482,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     }
                 ],
             )
-            module.enforce_path_minimums(root, pair_manifest, make_bundle(), artifact, "skew-1")
+            module.enforce_path_minimums(root, registered(root, pair_manifest), make_bundle(), artifact, "skew-1")
             set_canonical("locked.json", "sha256:" + hashlib.sha256(locked_bytes).hexdigest())
 
             # Submitted statistics must match the artifact's own rows.
@@ -534,7 +553,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "non-finite"):
-                module.enforce_path_minimums(root, nan_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, nan_manifest), make_bundle(), artifact, "skew-1")
 
             # Duplicate stable path identities cannot inflate a copied dataset.
             dupe_document = json.loads(locked_bytes)
@@ -561,7 +580,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "duplicate stable path identities"):
-                module.enforce_path_minimums(root, dupe_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, dupe_manifest), make_bundle(), artifact, "skew-1")
 
             # Duplicate path indices with different identities are rejected too.
             dupe_index_document = json.loads(locked_bytes)
@@ -591,7 +610,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "duplicate stable path identities"):
-                module.enforce_path_minimums(root, dupe_index_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, dupe_index_manifest), make_bundle(), artifact, "skew-1")
 
             # The artifact must disclose the locked source's complete pair set.
             large_document = json.loads(locked_bytes)
@@ -622,7 +641,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "cherry-picks the locked source"):
-                module.enforce_path_minimums(root, large_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, large_manifest), make_bundle(), artifact, "skew-1")
 
             # Typed receipt values must be finite numbers.
             write_artifact(artifact, full_rows)
@@ -644,7 +663,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             write_artifact(artifact, full_rows)
             clone_manifest = {**manifest, "campaign_id": "literature.clone.v1"}
             with self.assertRaisesRegex(ValueError, "not the canonical"):
-                module.enforce_path_minimums(root, clone_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, clone_manifest), make_bundle(), artifact, "skew-1")
 
             # A manifest pointing at anything but the canonical source is rejected.
             write_artifact(artifact, full_rows)
@@ -655,7 +674,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 },
             }
             with self.assertRaisesRegex(ValueError, "partially matches the canonical"):
-                module.enforce_path_minimums(root, foreign_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, foreign_manifest), make_bundle(), artifact, "skew-1")
 
             # The canonical digest is verified against the actual source bytes.
             tampered_manifest = {
@@ -665,17 +684,17 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 },
             }
             with self.assertRaisesRegex(ValueError, "partially matches the canonical"):
-                module.enforce_path_minimums(root, tampered_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, tampered_manifest), make_bundle(), artifact, "skew-1")
             (root / "locked.json").write_bytes(b"{}")
             with self.assertRaisesRegex(ValueError, "digest mismatch"):
-                module.enforce_path_minimums(root, manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, manifest), make_bundle(), artifact, "skew-1")
             (root / "locked.json").write_bytes(locked_bytes)
 
             # The canonical neb-path-set requirement itself must be present.
             write_artifact(artifact, full_rows)
             bare_manifest = {**manifest, "evidence_requirements": []}
             with self.assertRaisesRegex(ValueError, "lacks the canonical neb-path-set"):
-                module.enforce_path_minimums(root, bare_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, bare_manifest), make_bundle(), artifact, "skew-1")
 
             # Manifests with multiple recorded inputs cannot be reconciled.
             multi_manifest = {
@@ -685,7 +704,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 },
             }
             with self.assertRaisesRegex(ValueError, "exactly one locked recorded input"):
-                module.enforce_path_minimums(root, multi_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, multi_manifest), make_bundle(), artifact, "skew-1")
 
             # The path floor is pinned to the frozen panel, not the caller's manifest.
             lax_manifest = {
@@ -700,7 +719,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ],
             }
             with self.assertRaisesRegex(ValueError, "frozen sign-skew (panel|claim)"):
-                module.enforce_path_minimums(root, lax_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, lax_manifest), make_bundle(), artifact, "skew-1")
 
             # Row identities, values, and statuses bind to the locked source.
             wrong_identity = [
@@ -748,7 +767,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             fresh_manifest["campaign_id"] = "literature.protocol-offset-sign-skew.v2"
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "omitted lock"):
-                module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, fresh_manifest), make_bundle(), artifact, "skew-1")
 
             fresh_document = {
                 "per_path": [
@@ -789,7 +808,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 for row in full_rows
             ]
             write_artifact(artifact, fresh_rows)
-            module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+            module.enforce_path_minimums(root, registered(root, fresh_manifest), make_bundle(), artifact, "skew-1")
 
             # A second campaign over the same independent dataset is not replication.
             prior_dir = root / "evidence" / "v1" / "examples"
@@ -809,9 +828,9 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             duplicate_manifest = {**fresh_manifest, "campaign_id": "literature.dup.v3"}
             with self.assertRaisesRegex(ValueError, "not independent replication"):
-                module.enforce_path_minimums(root, duplicate_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, duplicate_manifest), make_bundle(), artifact, "skew-1")
             # The same campaign re-ingesting its own dataset remains idempotent.
-            returned = module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+            returned = module.enforce_path_minimums(root, registered(root, fresh_manifest), make_bundle(), artifact, "skew-1")
             self.assertEqual(returned, module._source_fingerprint(fresh_document))
 
             # Generated bundles persist the fingerprint for later deduplication.
@@ -838,7 +857,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 },
                 "measurements": make_bundle()["measurements"],
             }
-            generated = module.bundle_from_row(root, manifest_path, {**fresh_manifest, "preregistration_id": "prereg.test.v1"}, row)
+            generated = module.bundle_from_row(root, manifest_path, registered(root, {**fresh_manifest, "preregistration_id": "prereg.test.v1"}), row)
             self.assertEqual(
                 generated["evidence_refs"][0]["dataset_fingerprint"],
                 module._source_fingerprint(fresh_document),
@@ -864,7 +883,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             }
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "frozen candidate panel"):
-                module.enforce_path_minimums(root, renamed_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, renamed_manifest), make_bundle(), artifact, "skew-1")
 
             bad_panel_manifest = {
                 **manifest,
@@ -873,7 +892,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 },
             }
             with self.assertRaisesRegex(ValueError, "panel digest mismatch"):
-                module.enforce_path_minimums(root, bad_panel_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, bad_panel_manifest), make_bundle(), artifact, "skew-1")
 
             # Independent campaigns must still measure the frozen 22-path claim.
             lax_fresh = {
@@ -888,7 +907,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 ],
             }
             with self.assertRaisesRegex(ValueError, "frozen sign-skew claim"):
-                module.enforce_path_minimums(root, lax_fresh, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, lax_fresh), make_bundle(), artifact, "skew-1")
 
             # A reserialized copy of the same observations is the same dataset.
             module.CANONICAL_SOURCE_FINGERPRINT = module._source_fingerprint(locked_document)
@@ -905,7 +924,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             )
             write_artifact(artifact, full_rows)
             with self.assertRaisesRegex(ValueError, "reserializes the canonical dataset"):
-                module.enforce_path_minimums(root, copy_manifest, make_bundle(), artifact, "skew-1")
+                module.enforce_path_minimums(root, registered(root, copy_manifest), make_bundle(), artifact, "skew-1")
 
     def test_sign_skew_rows_require_a_locked_sign_skew_manifest(self) -> None:
         module = load_ingest_module()
