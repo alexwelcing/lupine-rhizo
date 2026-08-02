@@ -58,6 +58,17 @@ CANONICAL_CAMPAIGN_ID = "literature.protocol-offset-sign-skew.v1"
 CANONICAL_MODEL_IDS = frozenset(
     {"chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium"}
 )
+# Model ids are caller-controlled; bind the full provenance triple so a manifest
+# keeping the ids but altering hashes or versions is rejected exactly as in the
+# nightly feedback authenticator.
+CANONICAL_MODEL_ENTRIES = frozenset(
+    {
+        ("chgnet", "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890", "chgnet 0.4.2"),
+        ("mace-mp-small", "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694", "mace-torch 0.3.16 / small"),
+        ("mace-mp-medium", "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3", "mace-torch 0.3.16 / medium"),
+        ("mace-mpa-0-medium", "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9", "mace-torch 0.3.16 / mpa-0 medium"),
+    }
+)
 # Content fingerprint of the canonical dataset's observations (status and value
 # per path/model), so a reserialized copy is recognized as the same dataset.
 CANONICAL_SOURCE_FINGERPRINT = (
@@ -756,7 +767,12 @@ def enforce_path_minimums(
         for model in manifest.get("available_models", [])
         if isinstance(model, dict) and isinstance(model.get("model_id"), str)
     }
-    if required_models != CANONICAL_MODEL_IDS:
+    declared_entries = {
+        (model.get("model_id"), model.get("artifact_hash"), model.get("version"))
+        for model in manifest.get("available_models", [])
+        if isinstance(model, dict)
+    }
+    if required_models != CANONICAL_MODEL_IDS or declared_entries != CANONICAL_MODEL_ENTRIES:
         raise ValueError(
             f"measurement {row_id} manifest must declare the full frozen four-model panel"
         )
