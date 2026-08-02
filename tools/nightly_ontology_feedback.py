@@ -175,7 +175,7 @@ def _artifact_rows(path: Path) -> list[dict] | None:
         document = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    rows = document.get("per_row") if isinstance(document, dict) else None
+    rows = (document.get("per_row") or document.get("per_path")) if isinstance(document, dict) else None
     if not isinstance(rows, list) or not rows:
         return None
     return rows
