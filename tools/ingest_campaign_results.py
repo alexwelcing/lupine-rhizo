@@ -352,7 +352,9 @@ def bundle_from_row(
     if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
         bundle["measurements"] = typed_measurements(row)
         enforce_predicate_manifest_alignment(manifest, bundle, row_id)
-    enforce_path_minimums(root, manifest, bundle, artifact, row_id)
+    dataset_fingerprint = enforce_path_minimums(root, manifest, bundle, artifact, row_id)
+    if dataset_fingerprint is not None:
+        bundle["evidence_refs"][0]["dataset_fingerprint"] = dataset_fingerprint
     bundle["bundle_id"] = content_hash(bundle)
     return bundle
 
@@ -468,7 +470,7 @@ def _recompute_path_statistics(rows: list[dict]) -> tuple[int, float, float] | N
 
 def enforce_path_minimums(
     root: Path, manifest: dict[str, Any], bundle: dict[str, Any], artifact: Path, row_id: str
-) -> None:
+) -> str | None:
     """Fail closed when a panel-level receipt under-covers a declared path minimum.
 
     Panel-level predicates (the sign-skew family) define their acceptance over
@@ -476,13 +478,15 @@ def enforce_path_minimums(
     least the manifest's neb-path-set minimum of DISTINCT paths, must cover
     every model the manifest declares available, and any self-reported n_paths
     aggregate must agree with the rows. Per-model barrier receipts instead
-    disclose honest per-path failures, so they are not gated here.
+    disclose honest per-path failures, so they are not gated here. Returns the
+    dataset fingerprint for persistence on the generated bundle, or None when
+    the family gate does not apply.
     """
     predicate = bundle.get("claim_predicate")
     if not isinstance(predicate, str) or not predicate.startswith(
         "signed_error_positive_fraction"
     ):
-        return
+        return None
     minimums = [
         requirement["minimum_count"]
         for requirement in manifest.get("evidence_requirements", [])
@@ -745,6 +749,7 @@ def enforce_path_minimums(
                 f"measurement {row_id} sample_count {sample_count} does not equal the "
                 f"artifact's {measured_paths} measured paths"
             )
+    return fingerprint
 
 
 def safe_filename(campaign_id: str, row_id: str) -> str:

@@ -672,7 +672,38 @@ class CampaignResultIngestionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "not independent replication"):
                 module.enforce_path_minimums(root, duplicate_manifest, make_bundle(), artifact, "skew-1")
             # The same campaign re-ingesting its own dataset remains idempotent.
-            module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+            returned = module.enforce_path_minimums(root, fresh_manifest, make_bundle(), artifact, "skew-1")
+            self.assertEqual(returned, module._source_fingerprint(fresh_document))
+
+            # Generated bundles persist the fingerprint for later deduplication.
+            manifest_path = root / "manifest.json"
+            manifest_path.write_text(json.dumps({**fresh_manifest, "preregistration_id": "prereg.test.v1"}))
+            row = {
+                "row_id": "skew-1",
+                "claim_predicate": "signed_error_positive_fraction>0.5",
+                "epistemic_status": "confirmatory",
+                "artifact": "artifact.json",
+                "artifact_hash": "sha256:" + hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                "run_id": "run-skew-1",
+                "thresholds_version": "v1",
+                "scope": {
+                    "structures": ["mp-2000"],
+                    "chemistries": ["Li"],
+                    "properties": ["migration_barrier"],
+                    "conditions": {"panel": "fresh"},
+                },
+                "provenance": {
+                    "agent": "test",
+                    "human": "test",
+                    "timestamp": "2026-08-01T00:00:00Z",
+                },
+                "measurements": make_bundle()["measurements"],
+            }
+            generated = module.bundle_from_row(root, manifest_path, {**fresh_manifest, "preregistration_id": "prereg.test.v1"}, row)
+            self.assertEqual(
+                generated["evidence_refs"][0]["dataset_fingerprint"],
+                module._source_fingerprint(fresh_document),
+            )
 
             # Independent campaigns must still measure the frozen 22-path claim.
             lax_fresh = {
