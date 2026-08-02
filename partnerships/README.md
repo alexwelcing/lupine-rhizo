@@ -10,7 +10,7 @@ lupine.science.
   18, university groups 18, climate-tech ventures 16, national labs 14, automotive 12,
   industrial gas/energy 10, compute/cloud 8, semiconductor/hardware 8, defense/aerospace 6,
   pharma/catalysis 6).
-- Tier-1/2 records (93): **35 official-source-validated**, 58 explicitly
+- Tier-1/2 records (93): **33 official-source-validated**, 60 explicitly
   `needs-verification`. Fail-closed standard: a record is promoted only with claim-level
   official-source proof (named program/facility, named decision-maker or officially named
   team, dated 2024–2026 event, prospect-specific Lupine mapping, claim URLs). Nothing is
@@ -40,7 +40,7 @@ Use only these figures: **72.4% fewer DFT evaluations** (558 naive → 154 union
 
 ## Working this list further
 
-Continuation work (see board card): complete claim-level verification for the 58
+Continuation work (see board card): complete claim-level verification for the 60
 `needs-verification` tier-1/2 records using the same standard; then outreach sequencing
 for the 35 validated records. Any edit must keep the 136 IDs stable, keep the economics
 guardrail, and re-run `validate_partnerships.py`.
