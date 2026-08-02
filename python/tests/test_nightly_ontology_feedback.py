@@ -567,9 +567,9 @@ class NightlyFeedbackTests(unittest.TestCase):
             (artifact_root / name).write_text(json.dumps({"per_row": rows}))
             return feedback_module._artifact_fingerprint(artifact_root / name)
 
-        def write_manifest(name: str, value: float) -> str:
-            import hashlib as _hashlib
+        import hashlib as _hashlib
 
+        def write_manifest(name: str, value: float, campaign_id: str) -> tuple[str, str]:
             models = ("chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium")
             locked_source = {
                 "per_path": [
@@ -587,35 +587,48 @@ class NightlyFeedbackTests(unittest.TestCase):
             }
             locked_bytes = json.dumps(locked_source).encode()
             (artifact_root / f"locked-{name}").write_bytes(locked_bytes)
+            document = {
+                "campaign_id": campaign_id,
+                "available_models": [{"model_id": model} for model in models],
+                "preregistration": {
+                    "recorded_inputs": [
+                        {
+                            "path": f"locked-{name}",
+                            "sha256": "sha256:" + _hashlib.sha256(locked_bytes).hexdigest(),
+                        }
+                    ]
+                },
+            }
+            payload = json.dumps(document, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+            document["content_hash"] = "sha256:" + _hashlib.sha256(payload).hexdigest()
+            raw = json.dumps(document).encode()
             manifest_dir = artifact_root / "campaigns" / "v1"
             manifest_dir.mkdir(parents=True, exist_ok=True)
-            (manifest_dir / name).write_text(
-                json.dumps(
-                    {
-                        "available_models": [{"model_id": model} for model in models],
-                        "preregistration": {
-                            "recorded_inputs": [
-                                {
-                                    "path": f"locked-{name}",
-                                    "sha256": "sha256:" + _hashlib.sha256(locked_bytes).hexdigest(),
-                                }
-                            ]
-                        },
-                    }
-                )
+            (manifest_dir / name).write_bytes(raw)
+            registry_file = artifact_root / "registry" / "campaigns.v1.json"
+            registry_file.parent.mkdir(parents=True, exist_ok=True)
+            registry = (
+                json.loads(registry_file.read_text())
+                if registry_file.exists()
+                else {"campaigns": []}
             )
-            return f"campaigns/v1/{name}"
+            registry["campaigns"].append(
+                {"campaign_id": campaign_id, "content_hash": document["content_hash"]}
+            )
+            registry_file.write_text(json.dumps(registry))
+            return f"campaigns/v1/{name}", "sha256:" + _hashlib.sha256(raw).hexdigest()
 
-        manifest_one = write_manifest("staging-one.json", 500.0)
-        manifest_two = write_manifest("staging-two.json", 520.0)
+        manifest_one, manifest_one_hash = write_manifest("staging-one.json", 500.0, "campaign-one")
+        manifest_two, manifest_two_hash = write_manifest("staging-two.json", 520.0, "campaign-two")
 
-        def skew(bundle_id: str, campaign: str, fingerprint: str, artifact_name: str, median: float, manifest: str = "") -> dict:
+        def skew(bundle_id: str, campaign: str, fingerprint: str, artifact_name: str, median: float, manifest: str = "", manifest_hash: str = "") -> dict:
             receipt = bundle(BUNDLE_A, outcome="pass", campaign=campaign, status="confirmatory")
             receipt["bundle_id"] = bundle_id
             receipt["claim_predicate"] = "signed_error_positive_fraction>0.5"
             receipt["evidence_refs"][0]["artifact"] = artifact_name
             if manifest:
                 receipt["evidence_refs"][0]["campaign_manifest"] = manifest
+                receipt["evidence_refs"][0]["campaign_manifest_hash"] = manifest_hash
             receipt["measurements"] = [
                 {
                     "metric": "signed_error_positive",
@@ -654,8 +667,8 @@ class NightlyFeedbackTests(unittest.TestCase):
             ),
         }
         same_dataset = {
-            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one),
-            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json", 500.0, manifest_one),
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
         }
         plan = build_feedback_plan(
             atlas=atlas,
@@ -667,7 +680,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertEqual(plan["updates"], [])
 
-        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one)
+        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash)
         two_refs_one_bundle["evidence_refs"].append(
             dict(two_refs_one_bundle["evidence_refs"][0], dataset_fingerprint=fingerprint_two)
         )
@@ -711,7 +724,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertIsNone(feedback_module._artifact_fingerprint(duplicated_artifact))
 
-        fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json", 500.0, manifest_one)
+        fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json", 500.0, manifest_one, manifest_one_hash)
         plan = build_feedback_plan(
             atlas=atlas,
             assumptions=single_bundle_assumptions,
@@ -723,8 +736,8 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
 
         distinct_datasets = {
-            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one),
-            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json", 520.0, manifest_two),
+            BUNDLE_A: skew(BUNDLE_A, "campaign-one", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
+            BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json", 520.0, manifest_two, manifest_two_hash),
         }
         plan = build_feedback_plan(
             atlas=atlas,
@@ -1026,19 +1039,27 @@ class NightlyFeedbackTests(unittest.TestCase):
         manifest_dir.mkdir(parents=True)
         import hashlib as _hashlib
 
-        (manifest_dir / "staging.json").write_text(
+        document = {
+            "campaign_id": "one",
+            "available_models": [{"model_id": model} for model in models],
+            "preregistration": {
+                "recorded_inputs": [
+                    {
+                        "path": "locked-source.json",
+                        "sha256": "sha256:" + _hashlib.sha256(locked_bytes).hexdigest(),
+                    }
+                ]
+            },
+        }
+        payload = json.dumps(document, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+        document["content_hash"] = "sha256:" + _hashlib.sha256(payload).hexdigest()
+        manifest_raw = json.dumps(document).encode()
+        (manifest_dir / "staging.json").write_bytes(manifest_raw)
+        registry_file = artifact_root / "registry" / "campaigns.v1.json"
+        registry_file.parent.mkdir(parents=True, exist_ok=True)
+        registry_file.write_text(
             json.dumps(
-                {
-                    "available_models": [{"model_id": model} for model in models],
-                    "preregistration": {
-                        "recorded_inputs": [
-                            {
-                                "path": "locked-source.json",
-                                "sha256": "sha256:" + _hashlib.sha256(locked_bytes).hexdigest(),
-                            }
-                        ]
-                    },
-                }
+                {"campaigns": [{"campaign_id": "one", "content_hash": document["content_hash"]}]}
             )
         )
         fingerprint = feedback_module._artifact_fingerprint(artifact_root / "data" / "staging.json")
@@ -1060,6 +1081,9 @@ class NightlyFeedbackTests(unittest.TestCase):
         skew = bundle(BUNDLE_A, outcome="pass", campaign="one", status="confirmatory")
         skew["claim_predicate"] = "signed_error_positive_fraction>0.5"
         skew["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
+        skew["evidence_refs"][0]["campaign_manifest_hash"] = (
+            "sha256:" + _hashlib.sha256(manifest_raw).hexdigest()
+        )
         skew["measurements"] = [
             {
                 "metric": "signed_error_positive",

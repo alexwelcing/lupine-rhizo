@@ -329,9 +329,28 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     manifest_rel = reference.get("campaign_manifest")
     if not isinstance(manifest_rel, str):
         return False
+    manifest_path = _REPO_ROOT / manifest_rel
     try:
-        manifest = json.loads((_REPO_ROOT / manifest_rel).read_text(encoding="utf-8"))
+        manifest_bytes = manifest_path.read_bytes()
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return False
+    if reference.get("campaign_manifest_hash") != (
+        "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
+    ):
+        return False
+    if reference.get("campaign") != manifest.get("campaign_id"):
+        return False
+    try:
+        registry = json.loads((_REPO_ROOT / "registry" / "campaigns.v1.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
+        return False
+    registered = {
+        campaign.get("content_hash")
+        for campaign in registry.get("campaigns", [])
+        if isinstance(campaign, dict)
+    }
+    if manifest.get("content_hash") not in registered:
         return False
     required_models = {
         model.get("model_id")
@@ -371,7 +390,10 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         row = row_by_pair.get(key)
         if row is None or row.get("status") != status:
             return False
-        if status == "measured" and abs(row.get("signed_error_mev", float("nan")) - value) > 5e-5:
+        if status == "measured" and (
+            not isinstance(row.get("signed_error_mev"), (int, float))
+            or round(row["signed_error_mev"], 4) != round(value, 4)
+        ):
             return False
     return _receipt_matches_artifact(bundle, rows)
 
