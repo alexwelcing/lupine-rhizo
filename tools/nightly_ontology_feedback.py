@@ -365,6 +365,8 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         for row in rows
         if isinstance(row, dict)
     }
+    if set(row_by_pair) != set(expected):
+        return False
     for key, (status, value) in expected.items():
         row = row_by_pair.get(key)
         if row is None or row.get("status") != status:
@@ -402,23 +404,13 @@ def _falsifies_consistently(bundle: dict[str, Any], as_of: date) -> bool:
     outcomes = _acceptance_outcomes(bundle, as_of)
     if not outcomes or not any(outcome == "fail" for outcome in outcomes):
         return False
-    for reference in bundle.get("evidence_refs", []):
-        if not isinstance(reference, dict):
-            continue
-        artifact = reference.get("artifact")
-        fingerprint = reference.get("dataset_fingerprint")
-        if not (
-            isinstance(artifact, str)
-            and isinstance(fingerprint, str)
-            and HASH_RE.fullmatch(fingerprint)
-        ):
-            continue
-        rows = _artifact_rows(_REPO_ROOT / artifact)
-        if rows is None or _fingerprint_from_rows(rows) != fingerprint:
-            continue
-        if _receipt_matches_artifact(bundle, rows):
-            return True
-    return False
+    # A typed negative must pass the full ingestion-grade authenticator: floor,
+    # model coverage, campaign manifest, locked-source binding, and reconciled
+    # statistics — falsification may not come from an invented artifact either.
+    return any(
+        isinstance(reference, dict) and _authenticate_sign_skew(bundle, reference)
+        for reference in bundle.get("evidence_refs", [])
+    )
 
 
 def _chain_claim(chain: str, assumptions: list[dict[str, Any]]) -> dict[str, Any] | None:
