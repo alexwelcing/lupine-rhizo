@@ -268,6 +268,48 @@ def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
 SIGN_SKEW_PATH_FLOOR = 22
 
 
+def _locked_source_rows(manifest: dict[str, Any], row_label: str) -> dict[tuple[str, str], tuple[str, float | None]] | None:
+    """Load the manifest's locked recorded input as (path_id, model) expectations."""
+    preregistration = manifest.get("preregistration")
+    recorded_inputs = (
+        preregistration.get("recorded_inputs")
+        if isinstance(preregistration, dict)
+        else None
+    )
+    if not isinstance(recorded_inputs, list) or len(recorded_inputs) != 1:
+        return None
+    declared = recorded_inputs[0]
+    if not isinstance(declared, dict) or not isinstance(declared.get("path"), str):
+        return None
+    source_path = _REPO_ROOT / declared["path"]
+    try:
+        if "sha256:" + hashlib.sha256(source_path.read_bytes()).hexdigest() != declared.get("sha256"):
+            return None
+        source = json.loads(source_path.read_text(encoding="utf-8"))
+    except OSError:
+        return None
+    except json.JSONDecodeError:
+        return None
+    expected: dict[tuple[str, str], tuple[str, float | None]] = {}
+    for entry in source.get("per_path", []):
+        if not isinstance(entry, dict) or not isinstance(entry.get("path_id"), str):
+            continue
+        identity = entry["path_id"]
+        for model, record in (entry.get("per_model") or {}).items():
+            value = record.get("vasp_signed_error_mev") if isinstance(record, dict) else None
+            if (
+                value is not None
+                and record.get("complete", False)
+                and isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(value)
+            ):
+                expected[(identity, model)] = ("measured", float(value))
+        for model in (entry.get("models_missing") or {}):
+            expected[(identity, model)] = ("failed", None)
+    return expected
+
+
 def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -> bool:
     """Ingestion-grade authentication of one sign-skew dataset reference."""
     fingerprint = reference.get("dataset_fingerprint")
@@ -305,12 +347,29 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
             and isinstance(row.get("path_id"), str)
             and isinstance(row.get("model"), str)
         }
+        models_in_rows = {model for _, model in pairs}
+        if any(model not in required_models for model in models_in_rows):
+            return False
         paths = {path for path, _ in pairs}
         if any(
             (path, model) not in pairs
             for path in paths
             for model in required_models
         ):
+            return False
+    expected = _locked_source_rows(manifest, "receipt")
+    if expected is None:
+        return False
+    row_by_pair = {
+        (row.get("path_id"), row.get("model")): row
+        for row in rows
+        if isinstance(row, dict)
+    }
+    for key, (status, value) in expected.items():
+        row = row_by_pair.get(key)
+        if row is None or row.get("status") != status:
+            return False
+        if status == "measured" and abs(row.get("signed_error_mev", float("nan")) - value) > 5e-5:
             return False
     return _receipt_matches_artifact(bundle, rows)
 
@@ -322,6 +381,44 @@ def _confirms_instead(bundle: dict[str, Any], as_of: date) -> bool:
         return False
     outcomes = _acceptance_outcomes(bundle, as_of)
     return bool(outcomes) and all(outcome == "pass" for outcome in outcomes)
+
+
+def _falsifies_consistently(bundle: dict[str, Any], as_of: date) -> bool:
+    """A negative sign-skew receipt must reconcile with an artifact whose suite fails.
+
+    Untyped dated refutation receipts remain supported; typed receipts must
+    authenticate against their artifact and carry a genuinely failing outcome.
+    """
+    measurements = bundle.get("measurements")
+    if not isinstance(measurements, list) or not measurements:
+        return True
+    if _confirms_instead(bundle, as_of):
+        return False
+    predicate = bundle.get("claim_predicate")
+    if not isinstance(predicate, str) or not predicate.startswith(
+        "signed_error_positive_fraction"
+    ):
+        return True
+    outcomes = _acceptance_outcomes(bundle, as_of)
+    if not outcomes or not any(outcome == "fail" for outcome in outcomes):
+        return False
+    for reference in bundle.get("evidence_refs", []):
+        if not isinstance(reference, dict):
+            continue
+        artifact = reference.get("artifact")
+        fingerprint = reference.get("dataset_fingerprint")
+        if not (
+            isinstance(artifact, str)
+            and isinstance(fingerprint, str)
+            and HASH_RE.fullmatch(fingerprint)
+        ):
+            continue
+        rows = _artifact_rows(_REPO_ROOT / artifact)
+        if rows is None or _fingerprint_from_rows(rows) != fingerprint:
+            continue
+        if _receipt_matches_artifact(bundle, rows):
+            return True
+    return False
 
 
 def _chain_claim(chain: str, assumptions: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -497,8 +594,9 @@ def build_feedback_plan(
             # not reject it.
             and evidence_by_id[bundle_id].get("claim_predicate") == expected_predicate
             # A mislabeled receipt whose typed suite actually passes is a
-            # confirmation, not a refutation.
-            and not _confirms_instead(evidence_by_id[bundle_id], cycle_date)
+            # confirmation, not a refutation; a typed negative must reconcile
+            # with an artifact whose suite genuinely fails.
+            and _falsifies_consistently(evidence_by_id[bundle_id], cycle_date)
         )
         if old_status not in {"rejected", "superseded"} and negative_new:
             new_status = "superseded"
