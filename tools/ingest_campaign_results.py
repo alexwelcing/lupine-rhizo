@@ -54,6 +54,10 @@ CANONICAL_RECORDED_DIGEST = (
 # The frozen family's single campaign identity. Cloned manifests under a fresh
 # campaign_id would count as independent replication in readiness grading.
 CANONICAL_CAMPAIGN_ID = "literature.protocol-offset-sign-skew.v1"
+# The frozen family measures all four models; a reduced panel is not the claim.
+CANONICAL_MODEL_IDS = frozenset(
+    {"chgnet", "mace-mp-medium", "mace-mp-small", "mace-mpa-0-medium"}
+)
 # Content fingerprint of the canonical dataset's observations (status and value
 # per path/model), so a reserialized copy is recognized as the same dataset.
 CANONICAL_SOURCE_FINGERPRINT = (
@@ -752,6 +756,10 @@ def enforce_path_minimums(
         for model in manifest.get("available_models", [])
         if isinstance(model, dict) and isinstance(model.get("model_id"), str)
     }
+    if required_models != CANONICAL_MODEL_IDS:
+        raise ValueError(
+            f"measurement {row_id} manifest must declare the full frozen four-model panel"
+        )
     missing_models = sorted(required_models - models)
     if missing_models:
         raise ValueError(

@@ -437,7 +437,7 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         for model in manifest.get("available_models", [])
         if isinstance(model, dict)
     }
-    if not declared_entries or not declared_entries <= CANONICAL_MODEL_ENTRIES:
+    if declared_entries != CANONICAL_MODEL_ENTRIES:
         return False
     if required_models:
         pairs = {
