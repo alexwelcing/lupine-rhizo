@@ -582,6 +582,31 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertEqual(plan["updates"], [])
 
+        two_refs_one_bundle = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64)
+        two_refs_one_bundle["evidence_refs"].append(
+            dict(two_refs_one_bundle["evidence_refs"][0], dataset_fingerprint="sha256:" + "b" * 64)
+        )
+        single_bundle_assumptions = {
+            "assumptions": [
+                {
+                    "claim_id": "discovery.z1.barrier-accuracy.v1",
+                    "disposition": "supported",
+                    "evidence": [
+                        {"bundle_id": BUNDLE_A, "epistemic_status": "confirmatory"},
+                    ],
+                }
+            ]
+        }
+        plan = build_feedback_plan(
+            atlas=atlas,
+            assumptions=single_bundle_assumptions,
+            evidence_by_id={BUNDLE_A: two_refs_one_bundle},
+            hypotheses=[hypothesis_row],
+            new_bundle_ids={BUNDLE_A},
+            as_of="2026-08-01",
+        )
+        self.assertEqual(plan["updates"], [])
+
         distinct_datasets = {
             BUNDLE_A: skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64),
             BUNDLE_B: skew(BUNDLE_B, "campaign-two", "sha256:" + "b" * 64),

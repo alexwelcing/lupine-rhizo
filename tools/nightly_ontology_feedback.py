@@ -240,16 +240,22 @@ def _chain_state(
             and all(outcome == "pass" for outcome in outcomes)
         ):
             passing.append(bundle_id)
+            counted_identity = False
             for reference in bundle.get("evidence_refs", []):
                 if not isinstance(reference, dict):
                     continue
                 if expected_predicate.startswith("signed_error_positive_fraction"):
                     # Independence is the dataset, not the campaign name: count
-                    # distinct fingerprints; family receipts without one cannot
-                    # contribute to H readiness.
+                    # at most one fingerprint per evaluated bundle; a bundle
+                    # listing two datasets does not prove two independent passes.
                     fingerprint = reference.get("dataset_fingerprint")
-                    if isinstance(fingerprint, str) and HASH_RE.fullmatch(fingerprint):
+                    if (
+                        not counted_identity
+                        and isinstance(fingerprint, str)
+                        and HASH_RE.fullmatch(fingerprint)
+                    ):
                         campaigns.add(("dataset", fingerprint))
+                        counted_identity = True
                 elif isinstance(reference.get("campaign"), str):
                     campaigns.add(reference["campaign"])
     grade = "H" if len(campaigns) >= 2 else "M" if passing else "L"
