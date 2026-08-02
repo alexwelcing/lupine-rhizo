@@ -605,7 +605,24 @@ class NightlyFeedbackTests(unittest.TestCase):
                         "sha256": "sha256:" + _hashlib.sha256(panel_bytes).hexdigest(),
                     }
                 },
-                "available_models": [{"model_id": model} for model in models],
+                "available_models": [
+                        {
+                            "model_id": model,
+                            "artifact_hash": {
+                                "chgnet": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+                                "mace-mp-small": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+                                "mace-mp-medium": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+                                "mace-mpa-0-medium": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+                            }[model],
+                            "version": {
+                                "chgnet": "chgnet 0.4.2",
+                                "mace-mp-small": "mace-torch 0.3.16 / small",
+                                "mace-mp-medium": "mace-torch 0.3.16 / medium",
+                                "mace-mpa-0-medium": "mace-torch 0.3.16 / mpa-0 medium",
+                            }[model],
+                        }
+                        for model in models
+                    ],
                 "preregistration": {
                     "recorded_inputs": [
                         {
@@ -1076,7 +1093,24 @@ class NightlyFeedbackTests(unittest.TestCase):
                     "sha256": "sha256:" + _hashlib.sha256(panel_bytes).hexdigest(),
                 }
             },
-            "available_models": [{"model_id": model} for model in models],
+            "available_models": [
+                        {
+                            "model_id": model,
+                            "artifact_hash": {
+                                "chgnet": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+                                "mace-mp-small": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+                                "mace-mp-medium": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+                                "mace-mpa-0-medium": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+                            }[model],
+                            "version": {
+                                "chgnet": "chgnet 0.4.2",
+                                "mace-mp-small": "mace-torch 0.3.16 / small",
+                                "mace-mp-medium": "mace-torch 0.3.16 / medium",
+                                "mace-mpa-0-medium": "mace-torch 0.3.16 / mpa-0 medium",
+                            }[model],
+                        }
+                        for model in models
+                    ],
             "preregistration": {
                 "recorded_inputs": [
                     {

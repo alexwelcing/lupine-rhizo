@@ -267,6 +267,16 @@ def _receipt_matches_artifact(bundle: dict[str, Any], rows: list[dict]) -> bool:
 
 SIGN_SKEW_PATH_FLOOR = 22
 
+# The sign-skew family's canonical model identities. Model ids are caller-controlled
+# strings, so authentication binds the full (id, artifact hash, version) triple;
+# a consistently renamed clone cannot keep these.
+CANONICAL_MODEL_ENTRIES = {
+    ("chgnet", "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890", "chgnet 0.4.2"),
+    ("mace-mp-small", "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694", "mace-torch 0.3.16 / small"),
+    ("mace-mp-medium", "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3", "mace-torch 0.3.16 / medium"),
+    ("mace-mpa-0-medium", "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9", "mace-torch 0.3.16 / mpa-0 medium"),
+}
+
 
 def _locked_source_rows(
     manifest: dict[str, Any], row_label: str
@@ -422,6 +432,13 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
         if isinstance(model, dict)
     }
     required_models.discard(None)
+    declared_entries = {
+        (model.get("model_id"), model.get("artifact_hash"), model.get("version"))
+        for model in manifest.get("available_models", [])
+        if isinstance(model, dict)
+    }
+    if not declared_entries or not declared_entries <= CANONICAL_MODEL_ENTRIES:
+        return False
     if required_models:
         pairs = {
             (row.get("path_id"), row.get("model"))
