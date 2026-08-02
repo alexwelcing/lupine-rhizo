@@ -323,6 +323,12 @@ def _authenticate_sign_skew(bundle: dict[str, Any], reference: dict[str, Any]) -
     rows = _artifact_rows(_REPO_ROOT / artifact)
     if rows is None or _fingerprint_from_rows(rows) != fingerprint:
         return False
+    try:
+        artifact_digest = "sha256:" + hashlib.sha256((_REPO_ROOT / artifact).read_bytes()).hexdigest()
+    except OSError:
+        return False
+    if reference.get("artifact_hash") != artifact_digest:
+        return False
     stats = _artifact_path_statistics(rows)
     if stats is None or stats[0] < SIGN_SKEW_PATH_FLOOR:
         return False

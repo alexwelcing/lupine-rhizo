@@ -626,6 +626,9 @@ class NightlyFeedbackTests(unittest.TestCase):
             receipt["bundle_id"] = bundle_id
             receipt["claim_predicate"] = "signed_error_positive_fraction>0.5"
             receipt["evidence_refs"][0]["artifact"] = artifact_name
+            receipt["evidence_refs"][0]["artifact_hash"] = (
+                "sha256:" + _hashlib.sha256((artifact_root / artifact_name).read_bytes()).hexdigest()
+            )
             if manifest:
                 receipt["evidence_refs"][0]["campaign_manifest"] = manifest
                 receipt["evidence_refs"][0]["campaign_manifest_hash"] = manifest_hash
@@ -1083,6 +1086,10 @@ class NightlyFeedbackTests(unittest.TestCase):
         skew["evidence_refs"][0]["dataset_fingerprint"] = fingerprint
         skew["evidence_refs"][0]["campaign_manifest_hash"] = (
             "sha256:" + _hashlib.sha256(manifest_raw).hexdigest()
+        )
+        skew["evidence_refs"][0]["artifact_hash"] = (
+            "sha256:"
+            + _hashlib.sha256((artifact_root / "data" / "staging.json").read_bytes()).hexdigest()
         )
         skew["measurements"] = [
             {
