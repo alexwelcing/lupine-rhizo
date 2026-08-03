@@ -468,6 +468,15 @@ def test_verify_pins_complete_reviewed_path0_manifest(tmp_path, surface):
     assert any("reviewed manifest identity" in failure for failure in failures), failures
 
 
+def test_verify_rejects_relabelled_path0_manifest(tmp_path):
+    def mutate(manifest):
+        manifest["path_index"] = 1
+        manifest["quality"]["warnings"].append("Wavefunctions remain unconverged.")
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed path-0 evidence" in failure for failure in failures), failures
+
+
 def test_verify_rejects_off_by_one_profile(tmp_path):
     def mutate(manifest):
         series = next(s for s in manifest["series"] if s["series_id"] == "gpaw_total_energy")

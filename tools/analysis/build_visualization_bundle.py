@@ -98,6 +98,8 @@ USABLE_RECEIPT_STATUSES = {"completed", "imported"}
 # Path 0 is locked to the contradiction-free manifest reviewed for VIS-2.
 DIAGNOSTIC_PATH_INDEX = 0
 PATH0_REVIEWED_BUNDLE_ID = "sha256:820f8270a46adb77a0689423ff3e6b364f2c82c05fa9363cd233b4b68d634c6d"
+PATH0_REVIEWED_PATH_ID = "mp-761269_2_1_1_-1_0"
+PATH0_REVIEWED_PANEL_ASSET = "sha256:76381646f4ca5649f788d99f57ac739339f4b743616042ca801b260c0899d019"
 
 UNITS_ANGSTROM = "angstrom"
 REACTION_COORDINATE_DEFINITION = (
@@ -1336,7 +1338,20 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
             f"source artifact URI {uri!r} is not checkout-independent",
         )
 
-    if manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX:
+    path0_evidence = (
+        manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX
+        or manifest.get("path_id") == PATH0_REVIEWED_PATH_ID
+        or any(asset.get("sha256") == PATH0_REVIEWED_PANEL_ASSET for asset in manifest.get("assets", []))
+        or any(
+            str(source.get("uri", "")).startswith("path-0/")
+            for source in manifest.get("source_artifacts", [])
+        )
+    )
+    if path0_evidence:
+        check(
+            manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX,
+            "reviewed path-0 evidence is relabelled as another path",
+        )
         check(
             manifest.get("bundle_id") == PATH0_REVIEWED_BUNDLE_ID,
             "path 0 does not match the reviewed manifest identity",
