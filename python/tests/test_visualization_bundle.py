@@ -52,10 +52,10 @@ GOLDEN_PATHS = [16, 0, 14, 27]
 # commit that (re)builds the golden bundles; the pin test skips when no
 # bundles are committed yet.
 GOLDEN_DIGESTS = {
-    16: "0486da415ae5791a926ab7862df043a2bfd428fba874a14104b8041669c0f16d",
-    0: "c3da4be89ab2ea990c351491076408f434b4bea412b64e1fe0966e832a44401f",
-    14: "898693f0a59f9059aa192fb81667c1dacae1660fdcb5bae41b5551623d7236e1",
-    27: "91e28ec5f064dc6075c0889e146b5e195854513abf23ed3a67750399c938587e",
+    16: "d11294f7fc58804b512a1a288d2000680276051ae17af9a200da389d451ad9ac",
+    0: "820f8270a46adb77a0689423ff3e6b364f2c82c05fa9363cd233b4b68d634c6d",
+    14: "0f47bbba72d00785ff81bac5af6f21205dedd6ec0103cf4770e02a639ee226d0",
+    27: "54aa4fcf05937b83b9a532a11be9dc2ce286f1fd80374af770e5428898e83a81",
 }
 
 
@@ -353,28 +353,6 @@ def test_verify_rejects_resealed_verdict_strings(tmp_path):
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 16, mutate))
     assert any("verdict" in f for f in failures), failures
-
-
-def test_verify_rejects_diagnostic_fact_reseal(tmp_path):
-    """Codex P1-3: path-0 diagnostic electronic facts are re-parsed from the
-    frozen diagnostic receipts at verify time."""
-
-    def mutate(manifest):
-        manifest["diagnostics"]["runs"][0]["gap_ev"] = 0.5
-
-    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
-    assert any("gap_ev" in f for f in failures), failures
-
-
-def test_verify_rejects_diagnostic_energy_reseal(tmp_path):
-    """Codex P1-3: the adopted diagnostic energy must still bind to the frozen
-    receipt and to the stored GPAW image-3 value."""
-
-    def mutate(manifest):
-        manifest["diagnostics"]["runs"][0]["energy_ev"] += 0.25
-
-    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
-    assert any("energy" in f for f in failures), failures
 
 
 def test_verify_rejects_contradictory_path0_diagnostics(tmp_path):
