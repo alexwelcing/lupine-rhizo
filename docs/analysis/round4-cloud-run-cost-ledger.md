@@ -13,7 +13,8 @@ This follows the measured-time × allocated-resource × rate structure used by `
 
 For each successful registered execution:
 
-- billable duration is the Cloud Run reported successful execution duration (`Completed` condition message), rounded as reported to 0.01 s;
+- the source duration is the Cloud Run reported successful execution duration (`Completed` condition message), recorded to 0.01 s;
+- billable duration rounds each source duration up independently to the nearest 100 ms, as required by Cloud Run resource-usage billing granularity;
 - allocation is 4 vCPU, 16 GiB memory, and one NVIDIA L4 without zonal redundancy;
 - rate inputs are the default Cloud Run Jobs rates shown for Iowa (`us-central1`) on the official Cloud Run pricing page, read 2026-08-03:
   - CPU: $0.000018 per vCPU-second;
@@ -26,13 +27,13 @@ This is a gross list-price estimate before the Cloud Run free tier, credits, com
 
 ## Measured executions
 
-| Model | Cloud Run execution | Successful duration (s) | vCPU-h | GiB-h | L4 GPU-h | Gross list-price estimate (USD) |
+| Model | Cloud Run execution | Billable duration (s) | vCPU-h | GiB-h | L4 GPU-h | Gross list-price estimate (USD) |
 |---|---|---:|---:|---:|---:|---:|
-| CHGNet | `mlip-cell-chgnet-round4-8bbp8` | 83.15 | 0.092389 | 0.369556 | 0.023097 | 0.024171705 |
-| MACE-MP small | `mlip-cell-mace-round4-mp-small-k94mk` | 173.72 | 0.193022 | 0.772089 | 0.048256 | 0.050500404 |
-| MACE-MP medium | `mlip-cell-mace-round4-mp-medium-mmcjq` | 143.83 | 0.159811 | 0.639244 | 0.039953 | 0.041811381 |
-| MACE-MPA-0 medium | `mlip-cell-mace-round4-mpa-0-medium-6979j` | 123.95 | 0.137722 | 0.550889 | 0.034431 | 0.036032265 |
-| **Total** | 4 successful executions / 32 model×material cells | **524.65** | **0.582944** | **2.331778** | **0.145736** | **0.152515755** |
+| CHGNet | `mlip-cell-chgnet-round4-8bbp8` | 83.2 | 0.092444 | 0.369778 | 0.023111 | 0.024186240 |
+| MACE-MP small | `mlip-cell-mace-round4-mp-small-k94mk` | 173.8 | 0.193111 | 0.772444 | 0.048278 | 0.050523660 |
+| MACE-MP medium | `mlip-cell-mace-round4-mp-medium-mmcjq` | 143.9 | 0.159889 | 0.639556 | 0.039972 | 0.041831730 |
+| MACE-MPA-0 medium | `mlip-cell-mace-round4-mpa-0-medium-6979j` | 124.0 | 0.137778 | 0.551111 | 0.034444 | 0.036046800 |
+| **Total** | 4 successful executions / 32 model×material cells | **524.9** | **0.583222** | **2.332889** | **0.145806** | **0.152588430** |
 
 ## Evidence receipts
 
