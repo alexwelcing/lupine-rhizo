@@ -9,7 +9,8 @@ single Z1 path from the verified sources only:
 - barrier panel    `data/candidates/z1_nebdft2k_barriers.lock.json` (coordinates)
 - anchor receipts  `<anchors-root>/path-<i>/anchor-<j>.json`        (GPAW + VASP energies)
 - model artifacts  `<models-root>/<model>/cell_result.json`         (uMLIP provenance/profiles)
-- path-0 only      `<diagnostics-root>/img3-adopted.{json,txt}`, `img3-h018.{json,txt}`
+- electronic diagnostics are absent unless a reviewed source contract is added;
+  the legacy path-0 receipts conflict with `docs/analysis/t1-wander-mechanism.md`
 
 Contract highlights (the plan is law):
 
@@ -23,7 +24,8 @@ Contract highlights (the plan is law):
   cardinality mismatch, changed atom identity/species/order across frames,
   absent cell or undeclared units, non-monotone declared path coordinate,
   derived scalars that do not recompute, evaluated anchors outside the allowed
-  image set, missing source pointers, or a diagnostic that does not bind.
+  image set, missing source pointers, stale checkout-dependent source locators,
+  or path-0 diagnostics that contradict the reviewed mechanism document.
 
 Derived scalars are recomputed from the raw sources with the frozen protocol
 (`select_extrema` / `build_anchor_set` mirrored from
@@ -59,7 +61,7 @@ from t1_wander import (  # noqa: E402
 )
 
 SCHEMA_ID = "lupine.visualization-bundle.v1"
-TOOL_VERSION = "1.1.0"  # 1.1.0: verify dereferences series source pointers, derives verdicts from numeric errors, and revalidates diagnostic receipts; diagnostic source assets are digest-bound
+TOOL_VERSION = "1.2.0"  # 1.2.0: path-0 diagnostics absent/not-implied; stale checkout-dependent source locators are rejected
 TOOL_PATH = "tools/analysis/build_visualization_bundle.py"
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -948,81 +950,21 @@ def build_diagnostics(
     diagnostics_root: Path | None,
     pool: dict[int, dict],
 ) -> tuple[dict, list[tuple[str, Path, str]]]:
-    """Path-0 metallic-saddle SCF evidence; absent (status+null) otherwise.
+    """Record diagnostics as absent until a reviewed contract resolves path 0.
 
-    Returns (diagnostics_block, [(role, file, media_type)]) with the files to
-    freeze. Any other path than DIAGNOSTIC_PATH_INDEX records absent.
+    ``diagnostics_root`` remains an accepted CLI input for compatibility, but
+    no bytes are read or frozen. The previous h=0.18 receipt claimed convergence
+    in 37 steps while the reviewed mechanism document records 454 iterations,
+    non-convergence, and an unusable energy.
     """
-    if path_index != DIAGNOSTIC_PATH_INDEX:
-        return (
-            missing(
-                "absent",
-                "no separately bound diagnostic receipts for this path; electronic "
-                "diagnostics must not be inferred from the campaign record",
-            ),
-            [],
-        )
-    if diagnostics_root is None:
-        raise BundleError("path 0 requires --diagnostics-root with the bound receipts")
-
-    runs = []
-    files: list[tuple[str, Path, str]] = []
-    for label, json_name, txt_name in DIAGNOSTIC_FILES:
-        json_path = diagnostics_root / json_name
-        txt_path = diagnostics_root / txt_name
-        if not json_path.is_file() or not txt_path.is_file():
-            raise BundleError(f"path 0 diagnostic receipt missing: {json_path} / {txt_path}")
-        energy_record = load_json_strict(json_path)
-        log_text = txt_path.read_text(encoding="utf-8")
-        parsed = parse_diagnostic_log(log_text)
-        energy_ev = energy_record.get("energy_ev")
-        if not isinstance(energy_ev, (int, float)) or not math.isfinite(energy_ev):
-            raise BundleError(f"{json_path}: absent or non-finite energy_ev")
-        runs.append(
-            {
-                "label": label,
-                "params": energy_record.get("params"),
-                "energy_ev": energy_ev,
-                **parsed,
-                "source_assets": [
-                    {
-                        "filename": json_name,
-                        "media_type": "application/json",
-                        "sha256": digest_id(sha256_file(json_path)),
-                    },
-                    {
-                        "filename": txt_name,
-                        "media_type": "text/plain",
-                        "sha256": digest_id(sha256_file(txt_path)),
-                    },
-                ],
-            }
-        )
-        files.append(("electronic_diagnostic", json_path, "application/json"))
-        files.append(("electronic_diagnostic", txt_path, "text/plain"))
-
-    # The adopted-settings receipt must bind to the campaign's image-3 anchor.
-    adopted = runs[0]
-    anchor3 = pool.get(DIAGNOSTIC_IMAGE_INDEX)
-    if anchor3 is None:
-        raise BundleError("path 0 image 3 anchor missing; cannot bind diagnostics")
-    if adopted["energy_ev"] != anchor3["gpaw_energy_ev"]:
-        raise BundleError(
-            f"adopted diagnostic energy {adopted['energy_ev']} does not bind to "
-            f"anchor-3 GPAW energy {anchor3['gpaw_energy_ev']}"
-        )
+    del diagnostics_root, pool
     return (
-        {
-            "status": "bound",
-            "image_index": DIAGNOSTIC_IMAGE_INDEX,
-            "note": (
-                "Separately bound diagnostic receipts for path-0 image 3 "
-                "(metallic-saddle SCF evidence). These are NOT part of the "
-                "campaign record and are bound only for path 0."
-            ),
-            "runs": runs,
-        },
-        files,
+        missing(
+            "absent",
+            "no reviewed, contradiction-free diagnostic contract is bound for "
+            f"path {path_index}; electronic diagnostics must not be inferred",
+        ),
+        [],
     )
 
 
@@ -1384,6 +1326,39 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
     def check(condition: bool, message: str) -> None:
         if not condition:
             failures.append(message)
+
+    for source in manifest.get("source_artifacts", []):
+        uri = source.get("uri")
+        checkout_independent = (
+            isinstance(uri, str)
+            and bool(uri)
+            and not Path(uri).is_absolute()
+            and ".." not in Path(uri).parts
+        )
+        check(
+            checkout_independent,
+            f"source artifact URI {uri!r} is not checkout-independent",
+        )
+
+    if manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX:
+        diagnostics = manifest.get("diagnostics")
+        check(
+            isinstance(diagnostics, dict) and diagnostics.get("status") == "absent",
+            "path 0 violates the reviewed path-0 evidence policy: diagnostics must be absent",
+        )
+        check(
+            not any(asset.get("role") == "electronic_diagnostic" for asset in manifest.get("assets", [])),
+            "path 0 violates the reviewed path-0 evidence policy: diagnostic assets are forbidden",
+        )
+        check(
+            not any(source.get("role") == "electronic_diagnostic" for source in manifest.get("source_artifacts", [])),
+            "path 0 violates the reviewed path-0 evidence policy: diagnostic sources are forbidden",
+        )
+        warnings = manifest.get("quality", {}).get("warnings", [])
+        check(
+            not any("diagnostic" in str(warning).lower() for warning in warnings),
+            "path 0 violates the reviewed path-0 evidence policy: diagnostics are implied by a warning",
+        )
 
     coordinates = manifest["coordinates"]
     frames = coordinates["frames"]
