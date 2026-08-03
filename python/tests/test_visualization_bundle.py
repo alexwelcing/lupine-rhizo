@@ -392,14 +392,42 @@ def test_verify_rejects_contradictory_path0_diagnostics(tmp_path):
     assert any("reviewed path-0 evidence policy" in failure for failure in failures), failures
 
 
-def test_verify_rejects_pre_checkout_independent_source_uris(tmp_path):
-    """Pre-#102 absolute source locators remain stale even after resealing."""
+@pytest.mark.parametrize(
+    "stale_uri",
+    [
+        "/tmp/stale/z1-union-campaign.json",
+        "https://example.invalid/source.json",
+        "file:///etc/passwd",
+        r"C:\old-checkout\source.json",
+        "../other-checkout/source.json",
+    ],
+)
+def test_verify_rejects_pre_checkout_independent_source_uris(tmp_path, stale_uri):
+    """Pre-#102 and active source locators remain stale even after resealing."""
 
     def mutate(manifest):
-        manifest["source_artifacts"][0]["uri"] = "/tmp/stale/z1-union-campaign.json"
+        manifest["source_artifacts"][0]["uri"] = stale_uri
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 16, mutate))
     assert any("checkout-independent" in failure for failure in failures), failures
+
+
+def test_verify_rejects_path0_scf_warning_implication(tmp_path):
+    def mutate(manifest):
+        manifest["quality"]["warnings"].append("Electronic SCF not converged at h=0.18")
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("must not imply electronic diagnostics" in failure for failure in failures), failures
+
+
+def test_verify_rejects_relabelled_path0_diagnostic_source(tmp_path):
+    def mutate(manifest):
+        disguised = dict(manifest["source_artifacts"][0])
+        disguised["uri"] = "adopted-h018/results.json"
+        manifest["source_artifacts"].append(disguised)
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed source set" in failure for failure in failures), failures
 
 
 def test_verify_rejects_off_by_one_profile(tmp_path):

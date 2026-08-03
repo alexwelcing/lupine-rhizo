@@ -1332,6 +1332,8 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
         checkout_independent = (
             isinstance(uri, str)
             and bool(uri)
+            and "\\" not in uri
+            and re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", uri) is None
             and not Path(uri).is_absolute()
             and ".." not in Path(uri).parts
         )
@@ -1341,23 +1343,47 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
         )
 
     if manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX:
+        expected_sources = {
+            ("campaign_record", "data/candidates/z1-union-campaign.json"),
+            ("barrier_panel", "data/candidates/z1_nebdft2k_barriers.lock.json"),
+            *(("anchor_receipt", f"path-0/anchor-{i}.json") for i in range(7)),
+            *(("model_cell_result", f"{model}/cell_result.json") for model in MODELS),
+        }
+        actual_source_records = manifest.get("source_artifacts", [])
+        actual_sources = {
+            (source.get("role"), source.get("uri")) for source in actual_source_records
+        }
         diagnostics = manifest.get("diagnostics")
         check(
             isinstance(diagnostics, dict) and diagnostics.get("status") == "absent",
             "path 0 violates the reviewed path-0 evidence policy: diagnostics must be absent",
         )
         check(
-            not any(asset.get("role") == "electronic_diagnostic" for asset in manifest.get("assets", [])),
+            not any(
+                "diagnostic" in str(asset.get("role", "")).lower()
+                for asset in manifest.get("assets", [])
+            ),
             "path 0 violates the reviewed path-0 evidence policy: diagnostic assets are forbidden",
         )
         check(
-            not any(source.get("role") == "electronic_diagnostic" for source in manifest.get("source_artifacts", [])),
+            len(actual_source_records) == len(expected_sources) and actual_sources == expected_sources,
+            "path 0 source artifacts do not match the reviewed source set",
+        )
+        check(
+            not any(
+                "diagnostic" in str(source.get("role", "")).lower()
+                for source in actual_source_records
+            ),
             "path 0 violates the reviewed path-0 evidence policy: diagnostic sources are forbidden",
         )
         warnings = manifest.get("quality", {}).get("warnings", [])
+        warning_text = " ".join(str(warning).lower() for warning in warnings)
         check(
-            not any("diagnostic" in str(warning).lower() for warning in warnings),
-            "path 0 violates the reviewed path-0 evidence policy: diagnostics are implied by a warning",
+            not any(
+                marker in warning_text
+                for marker in ("diagnostic", "electronic", "scf", "h=0.18", "h0.18", "h018")
+            ),
+            "path 0 warnings must not imply electronic diagnostics",
         )
 
     coordinates = manifest["coordinates"]
