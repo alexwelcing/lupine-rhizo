@@ -1343,6 +1343,10 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
         )
 
     if manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX:
+        expected_asset_roles = sorted(
+            ["campaign_record", "panel_path_excerpt", *(["anchor_receipt"] * 7)]
+            + [f"model_cell_excerpt/{model}" for model in MODELS]
+        )
         expected_sources = {
             ("campaign_record", "data/candidates/z1-union-campaign.json"),
             ("barrier_panel", "data/candidates/z1_nebdft2k_barriers.lock.json"),
@@ -1366,6 +1370,11 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
             "path 0 violates the reviewed path-0 evidence policy: diagnostic assets are forbidden",
         )
         check(
+            sorted(str(asset.get("role", "")) for asset in manifest.get("assets", []))
+            == expected_asset_roles,
+            "path 0 assets do not match the reviewed asset-role inventory",
+        )
+        check(
             len(actual_source_records) == len(expected_sources) and actual_sources == expected_sources,
             "path 0 source artifacts do not match the reviewed source set",
         )
@@ -1377,6 +1386,18 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
             "path 0 violates the reviewed path-0 evidence policy: diagnostic sources are forbidden",
         )
         warnings = manifest.get("quality", {}).get("warnings", [])
+        expected_warnings = [
+            "T1 convention-wander gate FAILED: cross-engine (VASP-referenced) numbers are "
+            "convention-contaminated; the same-engine basis is primary (amendment A1).",
+            "Dense extension active on a <= 7-image path: sparse ≡ nearly dense by "
+            "construction; same-engine verdicts are partly structural (gate-power caveat).",
+            "Images are a reaction-path sequence (NEB image index); never display the index "
+            "as time, dynamics, or temperature.",
+        ]
+        check(
+            warnings == expected_warnings,
+            "path 0 warnings do not match the reviewed warning set",
+        )
         warning_text = " ".join(str(warning).lower() for warning in warnings)
         check(
             not any(

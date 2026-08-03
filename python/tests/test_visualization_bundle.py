@@ -420,6 +420,16 @@ def test_verify_rejects_path0_scf_warning_implication(tmp_path):
     assert any("must not imply electronic diagnostics" in failure for failure in failures), failures
 
 
+def test_verify_rejects_semantically_disguised_path0_diagnostic_warning(tmp_path):
+    def mutate(manifest):
+        manifest["quality"]["warnings"].append(
+            "Wavefunctions remain unconverged at the selected grid spacing."
+        )
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed warning set" in failure for failure in failures), failures
+
+
 def test_verify_rejects_relabelled_path0_diagnostic_source(tmp_path):
     def mutate(manifest):
         disguised = dict(manifest["source_artifacts"][0])
@@ -428,6 +438,16 @@ def test_verify_rejects_relabelled_path0_diagnostic_source(tmp_path):
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
     assert any("reviewed source set" in failure for failure in failures), failures
+
+
+def test_verify_rejects_relabelled_path0_diagnostic_asset(tmp_path):
+    def mutate(manifest):
+        disguised = dict(manifest["assets"][0])
+        disguised["role"] = "campaign_record"
+        manifest["assets"].append(disguised)
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed asset-role inventory" in failure for failure in failures), failures
 
 
 def test_verify_rejects_off_by_one_profile(tmp_path):
