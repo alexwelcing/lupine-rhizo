@@ -173,12 +173,12 @@ Every claim uses a claim-level official URL. `NEEDS VERIFICATION` is a fail-clos
 - **Pilot ask:** Choose one electrochemical DAC candidate family; theorem-gate separation/stability predictions before duplicate reference work and issue receipts.
 
 ### P096 — DCVC [needs-verification]
-- **Program/facility (official-source-validated):** [DCVC Deep Tech Opportunities report 2026](https://www.dcvc.com/reports/deep-tech-opportunities-report-2026/) — The reopened official page identifies the named asset “DCVC Deep Tech Opportunities report 2026” (page title: “DCVC | DCVC Deep Tech Opportunities report 2026”).
+- **Program/facility (needs-verification):** [NEEDS VERIFICATION — named DCVC program or facility](https://www.dcvc.com/reports/deep-tech-opportunities-report-2026/) — The reopened official page identifies a 2026 report, not a named operating program or facility. No qualifying program/facility claim is promoted.
 - **Named target (official-source-validated):** [Dr. Rachel Slaybaugh](https://www.dcvc.com/team/rachel-slaybaugh/) — General Partner focused on climate, sustainability, and energy. The reopened official organization page identifies Dr. Rachel Slaybaugh as General Partner focused on climate, sustainability, and energy.
 - **Trigger (NEEDS VERIFICATION; needs-verification):** NEEDS VERIFICATION — no reopened substantive dated 2024–2026 event. ([official source](https://www.dcvc.com/news-insights/dcvc-2026-q2-update/))
-- **Prospect-specific Lupine fit:** DCVC invests in deep-technology companies, including computational and industrial climate technologies. Within DCVC Deep Tech Opportunities report 2026, Lupine would gate portfolio diligence candidates before duplicate reference calculations or downstream experiments.
+- **Prospect-specific Lupine fit:** For NEEDS VERIFICATION — named DCVC program or facility: DCVC-specific program need was not fully proven in this reopen.
 - **Lupine proof:** [72.4% fewer DFT evaluations; measured execution guardrail: $14.65 per 129 anchors](https://lupine.science/articles/the-savings-stack/); [Z1 union cost ledger](https://library.lupine.science/#/read/z1-union-cost-ledger).
-- **Pilot ask:** Use one candidate family from DCVC's DCVC Deep Tech Opportunities report 2026; evaluate the existing model against the portfolio diligence failure mode, apply runtime theorem gates, and issue a provenance and reference-compute receipt.
+- **Pilot ask:** After a qualifying official program or facility is reopened, scope one candidate family for theorem-gated portfolio diligence before duplicate reference calculations.
 
 ### P097 — Energy Impact Partners [needs-verification]
 - **Program/facility (needs-verification):** [NEEDS VERIFICATION — named program or facility](https://www.energyimpactpartners.com/_portfolio/) — No qualifying named program/facility claim promoted.

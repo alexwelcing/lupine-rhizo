@@ -15,9 +15,10 @@ lupine.science.
   official-source proof (named program/facility, named decision-maker or officially named
   team, dated 2024–2026 event, prospect-specific Lupine mapping, claim URLs). Nothing is
   promoted from search snippets alone.
-- Mechanical validator: `validate_partnerships.py` — 1,973 checks, 0 errors
+- Mechanical validator: `validate_partnerships.py` — 2,071 checks, 0 errors
   (`python evidence/partnerships/validate_partnerships.py`; see `validation-report.json`).
-- Independent review: `independent-review.json` (ACCEPT on the fail-closed basis).
+- Independent review: `independent-review.json` and `partner-4-batch-review.json`
+  (ACCEPT on the fail-closed basis after three 20-record batch reviews).
 - Full per-URL probe: `live-source-audit.json` (254 claim URLs re-opened).
 
 ## Economics guardrail (binding for all outreach text)
@@ -36,7 +37,7 @@ Use only these figures: **72.4% fewer DFT evaluations** (558 naive → 154 union
 - `source-verification.json` — reachability summary for all 136 official sources.
 - `live-source-audit.json` — per-URL probe results.
 - `validate_partnerships.py` — mechanical validator (run after any edit).
-- `validation-report.json`, `independent-review.json` — audit receipts.
+- `validation-report.json`, `independent-review.json`, `partner-4-batch-review.json` — audit receipts.
 
 ## Working this list further
 

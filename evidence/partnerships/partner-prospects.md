@@ -1105,10 +1105,10 @@ The JSON is authoritative. Each tier-1/2 record contains field-level `evidence_a
 - **What they do:** Invests in deep-technology companies, including computational and industrial climate technologies.
 - **Official source:** [https://www.dcvc.com/](https://www.dcvc.com/)
 - **Evidence status:** `needs-verification`
-- **Named asset:** [DCVC Deep Tech Opportunities report 2026](https://www.dcvc.com/reports/deep-tech-opportunities-report-2026/) — `official-source-validated`
+- **Named asset:** [NEEDS VERIFICATION — named DCVC program or facility](https://www.dcvc.com/reports/deep-tech-opportunities-report-2026/) — `needs-verification`
 - **Named person/team:** [Dr. Rachel Slaybaugh](https://www.dcvc.com/team/rachel-slaybaugh/) — `official-source-validated`
 - **Dated event:** NEEDS VERIFICATION — [official source](https://www.dcvc.com/news-insights/dcvc-2026-q2-update/) — `needs-verification`
-- **Prospect-specific mapping:** DCVC invests in deep-technology companies, including computational and industrial climate technologies. Within DCVC Deep Tech Opportunities report 2026, Lupine would gate portfolio diligence candidates before duplicate reference calculations or downstream experiments.
+- **Prospect-specific mapping:** For NEEDS VERIFICATION — named DCVC program or facility: DCVC-specific program need was not fully proven in this reopen.
 - **Lupine proof:** [72.4% fewer DFT evaluations](https://lupine.science/articles/the-savings-stack/); [$14.65 per 129 anchors](https://library.lupine.science/#/read/z1-union-cost-ledger).
 
 ### P097 — Energy Impact Partners

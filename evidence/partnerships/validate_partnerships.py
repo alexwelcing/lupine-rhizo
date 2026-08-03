@@ -15,6 +15,16 @@ def require(condition, message):
     if not condition:
         errors.append(message)
 
+def strings(value):
+    if isinstance(value, dict):
+        for child in value.values():
+            yield from strings(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from strings(child)
+    elif isinstance(value, str):
+        yield value
+
 prospects = DATA.get('prospects', [])
 ids = [item.get('id') for item in prospects]
 selected = [item for item in prospects if item.get('priority_tier') in (1, 2)]
@@ -24,6 +34,24 @@ require(len(ids) == len(set(ids)) == 136, 'all 136 IDs are unique')
 require(all(re.fullmatch(r'P\d{3}', value or '') for value in ids), 'all IDs retain PNNN format')
 require(Counter(item['priority_tier'] for item in selected) == Counter({1: 34, 2: 59}), 'tier coverage is 34 tier-1 and 59 tier-2')
 require(set(LIVE.get('records', {})) == {item['id'] for item in selected}, 'live audit covers all 93 tier-1/2 IDs')
+canonical_strings = list(strings(DATA))
+require(
+    all('72.4% fewer DFT evaluations' in value for value in canonical_strings if '72.4%' in value),
+    'every canonical 72.4% claim preserves the exact approved wording',
+)
+require(
+    all('$14.65 per 129 anchors' in value for value in canonical_strings if '$14.65' in value),
+    'every canonical $14.65 claim preserves the exact approved wording',
+)
+outreach_strings = []
+for item in prospects:
+    for field_name in ('why_lupine_fits', 'first_contact_angle', 'lupine_pipeline_mapping'):
+        outreach_strings.extend(strings(item.get(field_name)))
+outreach_text = '\n'.join(outreach_strings)
+outreach_dollar_values = set(re.findall(r'\$\s*([0-9]+(?:\.[0-9]+)?)', outreach_text))
+outreach_percent_values = set(re.findall(r'([0-9]+(?:\.[0-9]+)?)%', outreach_text))
+require(outreach_dollar_values <= {'14.65'}, 'canonical outreach has no unauthorized dollar economics')
+require(outreach_percent_values <= {'72.4'}, 'canonical outreach has no unauthorized percentage economics')
 
 probed_urls = set()
 for audit_record in LIVE.get('records', {}).values():
@@ -63,6 +91,13 @@ for item in selected:
         require('needs verification' not in target_text, f'{rid} validated target is concretely named')
     else:
         require('needs verification' in target_text, f'{rid} unresolved target is explicitly labeled')
+
+    program_status = item['evidence_audit']['program_or_facility']['status']
+    program_name = item['program_or_facility'].get('name', '')
+    require(
+        not (program_status == 'official-source-validated' and re.search(r'\breport\b', program_name, re.I)),
+        f'{rid} does not promote a report as a program or facility',
+    )
 
     trigger = item['recent_trigger']
     trigger_status = item['evidence_audit']['recent_trigger']['status']

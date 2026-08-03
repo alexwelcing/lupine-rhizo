@@ -1,0 +1,51 @@
+{
+  "reviewed_on": "2026-08-02",
+  "scope": "Independent review of all 60 tier-1/2 needs-verification records in three 20-record batches",
+  "batches": [
+    {
+      "batch": 1,
+      "ids": [
+        "P003", "P008", "P009", "P010", "P015", "P016", "P018", "P026", "P031", "P037",
+        "P040", "P045", "P047", "P048", "P053", "P056", "P057", "P058", "P061", "P063"
+      ],
+      "first_pass_verdict": "REQUEST_CHANGES",
+      "finding": "Unauthorized rephrasings of the frozen 72.4% economics claim appeared outside lupine_proof_point.",
+      "remediation": "Normalized every 72.4% occurrence to preserve the exact approved wording.",
+      "final_verdict": "ACCEPT"
+    },
+    {
+      "batch": 2,
+      "ids": [
+        "P064", "P065", "P066", "P067", "P068", "P070", "P076", "P079", "P080", "P081",
+        "P082", "P087", "P089", "P090", "P092", "P094", "P095", "P096", "P097", "P098"
+      ],
+      "first_pass_verdict": "REQUEST_CHANGES",
+      "finding": "Unauthorized economics rephrasings remained, and P096 incorrectly treated a report as a program/facility.",
+      "remediation": "Normalized economics and downgraded P096 program/facility plus its mapping to needs-verification in JSON and both renderings.",
+      "final_verdict": "ACCEPT"
+    },
+    {
+      "batch": 3,
+      "ids": [
+        "P099", "P100", "P101", "P103", "P104", "P105", "P111", "P112", "P113", "P114",
+        "P115", "P116", "P117", "P118", "P121", "P122", "P131", "P132", "P133", "P135"
+      ],
+      "first_pass_verdict": "REQUEST_CHANGES",
+      "finding": "No record was safely promotable; all 20 required explicit fail-closed treatment while corpus-wide guardrail defects were remediated.",
+      "remediation": "Preserved all 20 as needs-verification and applied the corpus-wide exact-economics remediation.",
+      "final_verdict": "ACCEPT"
+    }
+  ],
+  "final_acceptance": {
+    "verdict": "ACCEPT",
+    "tier_1_2_records": 93,
+    "official_source_validated_records": 33,
+    "needs_verification_records": 60,
+    "validator_checks": 2071,
+    "validator_errors": 0,
+    "website_linkage_found": false,
+    "blocking_ids": [],
+    "partner_prospects_sha256": "0bd0be4e07488dc03890a935c558cd4adb36866c8e83e76f1617bef0631a74e0",
+    "validator_sha256": "de68f91fea353d0502cca5b889f0af6710ec6edcd138d3d2083aa3ea9dc76369"
+  }
+}
