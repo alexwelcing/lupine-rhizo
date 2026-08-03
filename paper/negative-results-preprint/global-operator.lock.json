@@ -1,0 +1,24 @@
+{
+  "schema": "lupine.negative-results.global-operator-lock.v1",
+  "locked_at": "2026-08-03",
+  "source": {
+    "repository_path": "lupine-mlip-benchmark",
+    "repository_commit": "5595e3f1e461a7489a9f69b88f5412e45e07d50b",
+    "results_path": "results/mlip_elastic_benchmark_results.json",
+    "results_sha256": "3a3febabb0cc457685e736f9d35f779d9dd934a6461bae8a28dc5851eb454157",
+    "readme_sha256": "358d41f2c10373f3bd4fee7099e5d5f3ca342d1ca77027d836c01d0d3bd672aa"
+  },
+  "measurement": {
+    "target": "TPBE_0K",
+    "n_elements": 16,
+    "n_tensor_components_per_element": 3,
+    "raw_arm": "raw-1x1x1",
+    "raw_mae_gpa": 14.5466,
+    "corrected_arm": "corrected-1x1x1",
+    "corrected_mae_gpa": 63.3952,
+    "bias_method": "LOO-PCA",
+    "raw_mae_ci95_gpa": [10.0843, 19.7229],
+    "corrected_mae_ci95_gpa": [57.0699, 69.1756]
+  },
+  "scope_note": "This lock records the global LOO-PCA operator result from the separate Lupine MLIP benchmark. It is a 16-element cubic-metal TensorNet/PBE elastic-constant benchmark, not a Z1 or Z3 campaign result."
+}

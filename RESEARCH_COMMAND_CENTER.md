@@ -1,6 +1,6 @@
 # Lupine Science Research Command Center
 
-Last updated: 2026-07-21 (focus reset — owner directive: "focus on focusing on our research direction")
+Last updated: 2026-08-03
 
 ## North Star
 
@@ -69,6 +69,7 @@ Reach us: `https://aledev.taild6f8cb.ts.net/` (profile switcher).
 
 ## History
 
+- 2026-08-03: negative-results preprint source and 7-page PDF completed under `paper/negative-results-preprint/`; eight source digests and critical prose claims fail closed in the build. The paper reports Z1's 3.4–6.1× gate miss, Z3's 4/4 model-level correction degradation after 128/128 baseline cells completed, and the 14.55→63.40 GPa global-operator degradation. Locked rows also corrected the stale “all 26 paths underpredicted” summary to 17/26 for MACE-MP small without changing the Z1 gate verdict.
 - 2026-07-19: Round-4 campaign complete (both ionics failed confirmatory criterion; theorem consistency green) — see git history for the 2026-07-19 command center.
 - 2026-07-20: sparse-DFT premise validated; preregistration frozen; first real result 32.2 meV WIN (mp-760344); cloud fleet cancelled; seven big cells deferred.
 - 2026-07-21: path-7 FAIL 118.8 meV → root cause T1 convention wander (139.4 meV on the barrier-defining pair) → amendment 01 (same-engine gate) + T1 wander gate built (first self-contributed commons theorem); Savings Stack book published.

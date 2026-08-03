@@ -1,0 +1,180 @@
+{
+  "global_operator": {
+    "locked_at": "2026-08-03",
+    "measurement": {
+      "bias_method": "LOO-PCA",
+      "corrected_arm": "corrected-1x1x1",
+      "corrected_mae_ci95_gpa": [
+        57.0699,
+        69.1756
+      ],
+      "corrected_mae_gpa": 63.3952,
+      "n_elements": 16,
+      "n_tensor_components_per_element": 3,
+      "raw_arm": "raw-1x1x1",
+      "raw_mae_ci95_gpa": [
+        10.0843,
+        19.7229
+      ],
+      "raw_mae_gpa": 14.5466,
+      "target": "TPBE_0K"
+    },
+    "schema": "lupine.negative-results.global-operator-lock.v1",
+    "scope_note": "This lock records the global LOO-PCA operator result from the separate Lupine MLIP benchmark. It is a 16-element cubic-metal TensorNet/PBE elastic-constant benchmark, not a Z1 or Z3 campaign result.",
+    "source": {
+      "readme_sha256": "358d41f2c10373f3bd4fee7099e5d5f3ca342d1ca77027d836c01d0d3bd672aa",
+      "repository_commit": "5595e3f1e461a7489a9f69b88f5412e45e07d50b",
+      "repository_path": "lupine-mlip-benchmark",
+      "results_path": "results/mlip_elastic_benchmark_results.json",
+      "results_sha256": "3a3febabb0cc457685e736f9d35f779d9dd934a6461bae8a28dc5851eb454157"
+    }
+  },
+  "input_sha256": {
+    "campaigns/v1/z1.campaign-manifest.v1.json": "579d72125c53597750cc6ee9ce01e87ce1a0d3dda5e5a6fe72009abc62d943f6",
+    "campaigns/v1/z3.campaign-manifest.v1.json": "2b624c9258e0d6ec0a22cb936bf5d63de592a171b0dc8aa99573f66906006f43",
+    "data/candidates/z1/f64/measurements.jsonl": "550fc6b12c8b34837b552e5e7aa282c35b21893e58d901670c06623c48e82c55",
+    "data/candidates/z1/measurements.jsonl": "09d510615138c98653ed4a621b9986b2e4d6cff097024b597309d250a26239ca",
+    "data/candidates/z1_nebdft2k_barriers.lock.json": "192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68",
+    "data/candidates/z3/delta-correction-report.json": "95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f",
+    "data/candidates/z3_catbench_bm_adsorption.lock.json": "b434de005e5da46e33e3275ffc8bec2d251b8a52438c1cfe7d6f4f3d8dbb41f4",
+    "data/candidates/z3_catbench_bm_delta_splits.lock.json": "00f3b4c80378f271021e2f2c44b93e8b856aeb2b93980cba0490e6d08afe4dbc"
+  },
+  "schema": "lupine.negative-results.figure-source.v1",
+  "z1": {
+    "claim_guard": "The locked records do not support an all-26-path underprediction claim: mace-mp-small has 17 negative and 9 positive signed errors in both chains.",
+    "float32": [
+      {
+        "completed_paths": 28,
+        "failed_paths": 2,
+        "mae_mev": 242.54427074310212,
+        "maximum_signed_error_mev": 174.90604826650724,
+        "mean_signed_error_mev": -221.3043396535365,
+        "minimum_signed_error_mev": -898.4980795130468,
+        "model": "chgnet",
+        "negative_signed_errors": 25,
+        "positive_signed_errors": 3
+      },
+      {
+        "completed_paths": 29,
+        "failed_paths": 1,
+        "mae_mev": 174.7392625242481,
+        "maximum_signed_error_mev": 403.6963496876069,
+        "mean_signed_error_mev": -82.78844074083798,
+        "minimum_signed_error_mev": -459.2199537501074,
+        "model": "mace-mp-medium",
+        "negative_signed_errors": 21,
+        "positive_signed_errors": 8
+      },
+      {
+        "completed_paths": 26,
+        "failed_paths": 4,
+        "mae_mev": 151.99119622895716,
+        "maximum_signed_error_mev": 449.7168575001069,
+        "mean_signed_error_mev": -24.02731188401328,
+        "minimum_signed_error_mev": -467.0090128124684,
+        "model": "mace-mp-small",
+        "negative_signed_errors": 17,
+        "positive_signed_errors": 9
+      },
+      {
+        "completed_paths": 28,
+        "failed_paths": 2,
+        "mae_mev": 135.00396270645913,
+        "maximum_signed_error_mev": 549.6539362500243,
+        "mean_signed_error_mev": 45.81207716518065,
+        "minimum_signed_error_mev": -176.73171124988585,
+        "model": "mace-mpa-0-medium",
+        "negative_signed_errors": 13,
+        "positive_signed_errors": 15
+      }
+    ],
+    "float64": [
+      {
+        "completed_paths": 28,
+        "failed_paths": 2,
+        "mae_mev": 242.5310896016575,
+        "maximum_signed_error_mev": 174.96660658559904,
+        "mean_signed_error_mev": -221.29115851209187,
+        "minimum_signed_error_mev": -898.4980795130468,
+        "model": "chgnet",
+        "negative_signed_errors": 25,
+        "positive_signed_errors": 3
+      },
+      {
+        "completed_paths": 29,
+        "failed_paths": 1,
+        "mae_mev": 174.70373717850015,
+        "maximum_signed_error_mev": 404.4879906726919,
+        "mean_signed_error_mev": -82.70622552141182,
+        "minimum_signed_error_mev": -458.7662261326386,
+        "model": "mace-mp-medium",
+        "negative_signed_errors": 21,
+        "positive_signed_errors": 8
+      },
+      {
+        "completed_paths": 26,
+        "failed_paths": 4,
+        "mae_mev": 151.86646622687434,
+        "maximum_signed_error_mev": 450.13548390988944,
+        "mean_signed_error_mev": -23.662310651452305,
+        "minimum_signed_error_mev": -466.7866053105172,
+        "model": "mace-mp-small",
+        "negative_signed_errors": 17,
+        "positive_signed_errors": 9
+      },
+      {
+        "completed_paths": 28,
+        "failed_paths": 2,
+        "mae_mev": 134.9898445996668,
+        "maximum_signed_error_mev": 549.295245103167,
+        "mean_signed_error_mev": 45.83412472026843,
+        "minimum_signed_error_mev": -175.6790470788019,
+        "model": "mace-mpa-0-medium",
+        "negative_signed_errors": 13,
+        "positive_signed_errors": 15
+      }
+    ],
+    "gate_mev": 40.0
+  },
+  "z3": {
+    "candidate_model_cells_completed": 128,
+    "candidate_model_cells_expected": 128,
+    "gate_ev": 0.1,
+    "model_level_corrections_tested": 4,
+    "model_level_corrections_worse": 4,
+    "models": [
+      {
+        "baseline_holdout_mae_ev": 0.6870841794971009,
+        "corrected_holdout_mae_ev": 2.271904728260539,
+        "holdout_rows": 20,
+        "model": "chgnet",
+        "selected_form": "C_family_linear",
+        "validation_mae_ev": 1.1242282045892902
+      },
+      {
+        "baseline_holdout_mae_ev": 2.1141161814589844,
+        "corrected_holdout_mae_ev": 5.007329980057943,
+        "holdout_rows": 20,
+        "model": "mace-mp-medium",
+        "selected_form": "A_global_constant",
+        "validation_mae_ev": 3.2594489066037324
+      },
+      {
+        "baseline_holdout_mae_ev": 3.2350971375703126,
+        "corrected_holdout_mae_ev": 4.997755320063802,
+        "holdout_rows": 20,
+        "model": "mace-mp-small",
+        "selected_form": "A_global_constant",
+        "validation_mae_ev": 3.983204002992621
+      },
+      {
+        "baseline_holdout_mae_ev": 4.274188587357422,
+        "corrected_holdout_mae_ev": 5.910472797319336,
+        "holdout_rows": 20,
+        "model": "mace-mpa-0-medium",
+        "selected_form": "B_family_constant",
+        "validation_mae_ev": 4.029500641132812
+      }
+    ]
+  }
+}

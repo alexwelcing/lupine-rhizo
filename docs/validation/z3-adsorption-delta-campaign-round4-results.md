@@ -45,7 +45,7 @@ A fixed correction menu was fitted per model on `delta_train` only and selected 
 ## What stands after refutation
 
 - **chgnet raw** (0.69 eV holdout MAE) is the best bare foundation-model number on this panel — still 6.9× the screening gate. No current available uMLIP is catalyst-screening accurate on biomass/plastics-scale adsorbates.
-- The underbinding law is now measured on **three independent observables** in this program: Z1 migration barriers (3.4–6× under-predicted), Z3 adsorption interfaces (up to +26 eV underbound), Round-4 elastic correction (confirmatory fail). One systematic direction — underbinding at transition states and at interfaces — across three preregistered campaigns.
+- A shared correction risk is now measured on **three independent observables** in this program: Z1 migration-barrier MAEs are 3.4–6.1× the 40 meV gate (with model-dependent signed-error imbalance), Z3 adsorption interfaces reach large positive underbinding errors, and the Round-4 elastic correction fails confirmatory transfer. These results share a failure of broad transfer; they do not establish one universal error sign.
 - A viable corrected future run needs a materially larger fit budget (more than six train systems) or physics features (contact-atom counts, dispersion proxies) — a new preregistration, not a retune of this one.
 
 ## Receipts
