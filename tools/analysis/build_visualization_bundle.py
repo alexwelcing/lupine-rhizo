@@ -95,14 +95,9 @@ SHORT_PATH_IMAGE_THRESHOLD = 6
 DENSE_EXTENSION_IMAGE_THRESHOLD = 7
 USABLE_RECEIPT_STATUSES = {"completed", "imported"}
 
-# Path-0 electronic diagnostics (metallic-saddle SCF evidence). Bound ONLY for
-# path 0; every other path records diagnostics as absent.
+# Path 0 is locked to the contradiction-free manifest reviewed for VIS-2.
 DIAGNOSTIC_PATH_INDEX = 0
-DIAGNOSTIC_IMAGE_INDEX = 3
-DIAGNOSTIC_FILES = (
-    ("adopted_h0.20", "img3-adopted.json", "img3-adopted.txt"),
-    ("sensitivity_h0.18", "img3-h018.json", "img3-h018.txt"),
-)
+PATH0_REVIEWED_BUNDLE_ID = "sha256:820f8270a46adb77a0689423ff3e6b364f2c82c05fa9363cd233b4b68d634c6d"
 
 UNITS_ANGSTROM = "angstrom"
 REACTION_COORDINATE_DEFINITION = (
@@ -1329,13 +1324,12 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
 
     for source in manifest.get("source_artifacts", []):
         uri = source.get("uri")
+        uri_segments = uri.split("/") if isinstance(uri, str) else []
         checkout_independent = (
             isinstance(uri, str)
             and bool(uri)
-            and "\\" not in uri
-            and re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", uri) is None
-            and not Path(uri).is_absolute()
-            and ".." not in Path(uri).parts
+            and re.fullmatch(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*", uri) is not None
+            and all(segment not in {".", ".."} for segment in uri_segments)
         )
         check(
             checkout_independent,
@@ -1343,6 +1337,10 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
         )
 
     if manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX:
+        check(
+            manifest.get("bundle_id") == PATH0_REVIEWED_BUNDLE_ID,
+            "path 0 does not match the reviewed manifest identity",
+        )
         expected_asset_roles = sorted(
             ["campaign_record", "panel_path_excerpt", *(["anchor_receipt"] * 7)]
             + [f"model_cell_excerpt/{model}" for model in MODELS]
