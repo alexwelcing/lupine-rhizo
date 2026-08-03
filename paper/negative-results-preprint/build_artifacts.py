@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,8 +14,6 @@ from typing import Any
 
 os.environ.setdefault("MPLBACKEND", "Agg")
 os.environ.setdefault("SOURCE_DATE_EPOCH", "1785733200")  # 2026-08-03 01:00:00 UTC
-
-import matplotlib.pyplot as plt
 
 PAPER_DIR = Path(__file__).resolve().parent
 REPO_ROOT = PAPER_DIR.parents[1]
@@ -27,7 +26,10 @@ EXPECTED = {
     "data/candidates/z3_catbench_bm_adsorption.lock.json": "b434de005e5da46e33e3275ffc8bec2d251b8a52438c1cfe7d6f4f3d8dbb41f4",
     "data/candidates/z3_catbench_bm_delta_splits.lock.json": "00f3b4c80378f271021e2f2c44b93e8b856aeb2b93980cba0490e6d08afe4dbc",
     "data/candidates/z3/delta-correction-report.json": "95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f",
+    "data/candidates/z3/source/z3-candidate-measurements.json": "d100d09defa3d7dd0395d3a28de8d80389b753646fbde743efeb115c1cf2914e",
+    "paper/negative-results-preprint/global-operator.lock.json": "4450ea8ffb4cfbc075d761e7f54f06fbcff16c73d1866b0026369415d43a5e4b",
 }
+EXPECTED_Z3_CANDIDATES = 32
 
 
 def sha256(path: Path) -> str:
@@ -80,9 +82,51 @@ def z1_rows(chain: str) -> list[dict[str, Any]]:
     return rows
 
 
+def validate_z3_completion(raw: dict[str, Any], expected_models: set[str]) -> tuple[int, int]:
+    if raw.get("schema") != "lupine.z3.candidate_measurements.v1":
+        raise ValueError("raw Z3 registry schema is not supported")
+    candidates = raw.get("candidates")
+    if not isinstance(candidates, list) or raw.get("candidate_count") != EXPECTED_Z3_CANDIDATES:
+        raise ValueError(f"raw Z3 registry must declare {EXPECTED_Z3_CANDIDATES} candidates")
+    if len(candidates) != EXPECTED_Z3_CANDIDATES:
+        raise ValueError(f"raw Z3 registry must contain {EXPECTED_Z3_CANDIDATES} candidates")
+    candidate_ids = [candidate.get("candidate_id") for candidate in candidates]
+    if len(set(candidate_ids)) != EXPECTED_Z3_CANDIDATES:
+        raise ValueError("raw Z3 registry candidate IDs must be unique")
+
+    completed = 0
+    for candidate in candidates:
+        candidate_id = candidate["candidate_id"]
+        measurements = candidate.get("model_measurements")
+        if not isinstance(measurements, list):
+            raise ValueError(f"{candidate_id} has no model measurements")
+        model_ids = [measurement.get("model_id") for measurement in measurements]
+        if len(model_ids) != len(expected_models) or set(model_ids) != expected_models:
+            raise ValueError(f"{candidate_id} does not contain the complete model panel")
+        for measurement in measurements:
+            if measurement.get("candidate_id") != candidate_id:
+                raise ValueError(f"candidate mismatch for {candidate_id}/{measurement.get('model_id')}")
+            raw_energy = measurement.get("raw_adsorption_energy_ev")
+            if not isinstance(raw_energy, (int, float)) or not math.isfinite(raw_energy):
+                raise ValueError(f"non-finite raw Z3 energy for {candidate_id}/{measurement['model_id']}")
+        completed += len(measurements)
+
+    expected = EXPECTED_Z3_CANDIDATES * len(expected_models)
+    if raw.get("model_count") != len(expected_models):
+        raise ValueError("raw Z3 registry model_count contradicts the model panel")
+    if raw.get("raw_measurement_count") != expected:
+        raise ValueError("raw Z3 registry raw_measurement_count contradicts the candidate cells")
+    if completed != expected:
+        raise ValueError(f"raw Z3 registry contains {completed}/{expected} completed cells")
+    return completed, expected
+
+
 def build_source_data(input_digests: dict[str, str]) -> dict[str, Any]:
     z3 = read_json(REPO_ROOT / "data/candidates/z3/delta-correction-report.json")
+    z3_raw = read_json(REPO_ROOT / "data/candidates/z3/source/z3-candidate-measurements.json")
     operator = read_json(PAPER_DIR / "global-operator.lock.json")
+    expected_models = set(z3["models"])
+    completed_cells, expected_cells = validate_z3_completion(z3_raw, expected_models)
     z3_rows = []
     for model, result in sorted(z3["models"].items()):
         z3_rows.append(
@@ -109,10 +153,13 @@ def build_source_data(input_digests: dict[str, str]) -> dict[str, Any]:
         },
         "z3": {
             "gate_ev": 0.1,
-            "candidate_model_cells_completed": 128,
-            "candidate_model_cells_expected": 128,
-            "model_level_corrections_worse": 4,
-            "model_level_corrections_tested": 4,
+            "candidate_model_cells_completed": completed_cells,
+            "candidate_model_cells_expected": expected_cells,
+            "model_level_corrections_worse": sum(
+                row["corrected_holdout_mae_ev"] > row["baseline_holdout_mae_ev"]
+                for row in z3_rows
+            ),
+            "model_level_corrections_tested": len(z3_rows),
             "models": z3_rows,
         },
         "global_operator": operator,
@@ -121,6 +168,8 @@ def build_source_data(input_digests: dict[str, str]) -> dict[str, Any]:
 
 
 def plot(source: dict[str, Any]) -> None:
+    import matplotlib.pyplot as plt
+
     plt.rcParams.update({"font.size": 9, "axes.spines.top": False, "axes.spines.right": False})
     fig, axes = plt.subplots(1, 3, figsize=(11.2, 3.45), constrained_layout=True)
     blue, orange, red, ink = "#3156a3", "#df8b2f", "#b5453d", "#222222"
@@ -200,13 +249,25 @@ def write_outputs(source: dict[str, Any]) -> None:
     (PAPER_DIR / "artifact-manifest.json.sha256").write_text(sha256(manifest_path) + "  artifact-manifest.json\n", encoding="utf-8")
 
 
-def verify_claims(source: dict[str, Any]) -> None:
-    manuscript = (PAPER_DIR / "manuscript.tex").read_text(encoding="utf-8")
+def verify_claims(source: dict[str, Any], manuscript: str | None = None) -> None:
+    if manuscript is None:
+        manuscript = (PAPER_DIR / "manuscript.tex").read_text(encoding="utf-8")
+    z3 = source["z3"]
+    operator = source["global_operator"]["measurement"]
+    raw_operator_mae = operator["raw_mae_gpa"]
+    corrected_operator_mae = operator["corrected_mae_gpa"]
+    if not all(
+        isinstance(value, (int, float)) and math.isfinite(value)
+        for value in (raw_operator_mae, corrected_operator_mae)
+    ) or corrected_operator_mae <= raw_operator_mae:
+        raise SystemExit("global operator degradation guard changed; manuscript requires review")
     required = [
         "17/26",
-        "128/128",
-        "63.40",
-        "14.55",
+        f"{z3['candidate_model_cells_completed']}/{z3['candidate_model_cells_expected']}",
+        f"{z3['model_level_corrections_worse']}/{z3['model_level_corrections_tested']}",
+        f"{raw_operator_mae:.2f}",
+        f"{corrected_operator_mae:.2f}",
+        f"from ${raw_operator_mae:.2f}$ to ${corrected_operator_mae:.2f}\\GPa$",
         "$3.4$--$6.1$",
         "not all 26",
         "95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f",
@@ -230,7 +291,7 @@ def main() -> None:
     write_outputs(source)
     verify_claims(source)
     manifest_hash = sha256(PAPER_DIR / "artifact-manifest.json")
-    print(f"PASS: 8 locked inputs verified; generated artifacts manifest sha256={manifest_hash}")
+    print(f"PASS: {len(EXPECTED)} locked inputs verified; generated artifacts manifest sha256={manifest_hash}")
     if args.check:
         print("PASS: manuscript claim guards verified")
 

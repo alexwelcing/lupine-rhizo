@@ -614,7 +614,7 @@ export const CATALOG = {
       "id": "z1-barrier-campaign-round4",
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
       "title": "Z1 Barrier-Accurate MLIP Campaign — Round-4 Results (Two Precision Chains)",
-      "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; systematic under-prediction.",
+      "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; signed-error imbalance is model-dependent, not universal.",
       "category": "validation",
       "tags": [
         "z1",

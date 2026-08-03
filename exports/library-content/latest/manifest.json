@@ -637,7 +637,7 @@
         "id": "z1-barrier-campaign-round4",
         "source": "articles/docs/validation/z1-barrier-campaign-round4-results.md",
         "title": "Z1 Barrier-Accurate MLIP Campaign — Round-4 Results (Two Precision Chains)",
-        "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; systematic under-prediction.",
+        "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; signed-error imbalance is model-dependent, not universal.",
         "category": "validation",
         "tags": [
           "z1",
@@ -1834,14 +1834,14 @@
     {
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
       "bundleSource": "articles/docs/validation/z1-barrier-campaign-round4-results.md",
-      "bytes": 5322,
-      "sha256": "f88286e5a75a67f188b446adad64254d07c4d5f2031d0d2fa352a6bb361bd47a"
+      "bytes": 5428,
+      "sha256": "45e06c1489887ea39c3c9e8f27abfa4d809c562ae645ef1a7f9c05cbe3ad0eb2"
     },
     {
       "source": "docs/validation/z3-adsorption-delta-campaign-round4-results.md",
       "bundleSource": "articles/docs/validation/z3-adsorption-delta-campaign-round4-results.md",
-      "bytes": 6495,
-      "sha256": "982ea13e18b25a11db071c0b23ef84327606abc5c11b0cbda593069d4654f281"
+      "bytes": 6558,
+      "sha256": "a3f102f2348157e4fe4e93214985762815338f0653ce9aa48f422a33a3e5fded"
     },
     {
       "source": "docs/campaigns/z2-abstention-audit.md",

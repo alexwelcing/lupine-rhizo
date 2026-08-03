@@ -36,8 +36,10 @@
     "data/candidates/z1/measurements.jsonl": "09d510615138c98653ed4a621b9986b2e4d6cff097024b597309d250a26239ca",
     "data/candidates/z1_nebdft2k_barriers.lock.json": "192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68",
     "data/candidates/z3/delta-correction-report.json": "95c4fd245fa3e14ca80ff85fff235ce8f58f43dffce996fbf9bd3254adbf838f",
+    "data/candidates/z3/source/z3-candidate-measurements.json": "d100d09defa3d7dd0395d3a28de8d80389b753646fbde743efeb115c1cf2914e",
     "data/candidates/z3_catbench_bm_adsorption.lock.json": "b434de005e5da46e33e3275ffc8bec2d251b8a52438c1cfe7d6f4f3d8dbb41f4",
-    "data/candidates/z3_catbench_bm_delta_splits.lock.json": "00f3b4c80378f271021e2f2c44b93e8b856aeb2b93980cba0490e6d08afe4dbc"
+    "data/candidates/z3_catbench_bm_delta_splits.lock.json": "00f3b4c80378f271021e2f2c44b93e8b856aeb2b93980cba0490e6d08afe4dbc",
+    "paper/negative-results-preprint/global-operator.lock.json": "4450ea8ffb4cfbc075d761e7f54f06fbcff16c73d1866b0026369415d43a5e4b"
   },
   "schema": "lupine.negative-results.figure-source.v1",
   "z1": {

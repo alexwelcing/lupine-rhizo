@@ -159,7 +159,7 @@ The arXiv source bundle contains the manuscript, bibliography, generated figure,
 \begin{quote}
 \code{python paper/negative-results-preprint/build\_artifacts.py --check}
 \end{quote}
-The script fails closed if any of eight source digests changes. It also verifies the manuscript's critical tokens and refuses to build if MACE-MP small is no longer 17 negative / 9 positive or if any Z3 selected correction ceases to be worse than its baseline.
+The script fails closed if any of ten source digests changes, including the raw Z3 candidate--model registry and the global-operator lock. It derives Z3 completeness and model-level worsening counts from the locked records, derives the required elastic values from the operator lock, and refuses to build if those values contradict the manuscript. It also refuses to build if MACE-MP small is no longer 17 negative / 9 positive or if any Z3 selected correction ceases to be worse than its baseline.
 
 \begin{table}[htbp]
 \centering

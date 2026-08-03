@@ -10,7 +10,7 @@ From the `lupine-rhizo` repository root:
 python paper/negative-results-preprint/build_artifacts.py --check
 ```
 
-This command verifies eight frozen source files by SHA-256, extracts the plotted values, regenerates the PDF/PNG figure and artifact manifest, and checks critical manuscript claims. It fails closed on source drift.
+This command verifies ten frozen source files by SHA-256, including the raw Z3 candidate–model registry and the global-operator lock, derives the plotted values and completeness counts, regenerates the PDF/PNG figure and artifact manifest, and checks critical manuscript claims. It fails closed on source drift.
 
 Build the paper with Tectonic:
 

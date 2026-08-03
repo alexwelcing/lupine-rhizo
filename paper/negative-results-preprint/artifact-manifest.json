@@ -1,9 +1,9 @@
 {
   "files": [
     {
-      "bytes": 17363,
+      "bytes": 17601,
       "path": "manuscript.tex",
-      "sha256": "398ebce8a85bca31fa47a66c9103f439652070e6646c10a231fee051091d8862"
+      "sha256": "1806deebb1ebb4677962efc0fa1826e149621656cbdd2616a018998787289b36"
     },
     {
       "bytes": 3200,
@@ -11,19 +11,19 @@
       "sha256": "694a1e7172aaa731a117f6e4855def380ac2038e5426f33924aad094a073de1e"
     },
     {
-      "bytes": 1458,
+      "bytes": 1557,
       "path": "README.md",
-      "sha256": "d5e3797b65c731a9d17687027ae7e5fa80a74f792ebfc15e3631ab1f23407819"
+      "sha256": "7e29ff1700ade6a144cb67517826b8c80960435d854988a1979206cc68eeb852"
     },
     {
-      "bytes": 10566,
+      "bytes": 14482,
       "path": "build_artifacts.py",
-      "sha256": "7adb3a0545cfba58cd68ce4364d713fc38c8d2876bb42ccfb1c55b687c8279ad"
+      "sha256": "008418559dbb9a7e88e5f708cf3e0f1f41317361f7ced4cfa3afe4087397dd8f"
     },
     {
-      "bytes": 6910,
+      "bytes": 7175,
       "path": "figure-source-data.json",
-      "sha256": "fe639ed715df5d4d6057f618c6521ab0a18bc263da85f0839f8398217b19b4a4"
+      "sha256": "15ac1eb4ae4f22cda277da059e624c43445fc2cf6b060df42da03ce0fdd0c158"
     },
     {
       "bytes": 23217,

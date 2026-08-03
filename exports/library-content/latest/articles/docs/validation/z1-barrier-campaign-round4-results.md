@@ -28,7 +28,7 @@ The first chain ran at float32 — against MACE vendor guidance for geometry opt
 
 ## The shape of the failure
 
-- **Systematic under-prediction.** For mace-mp-small (float32 chain), all 26 completed paths have *negative* signed error (−13 to −467 meV): the models under-predict migration barriers — consistent with training distributions dominated by near-equilibrium structures and with this program's Z3 finding of underbound interfaces. One systematic direction, two observables.
+- **Directional imbalance, not a universal sign.** In both precision chains, mace-mp-small has 17 negative and 9 positive signed errors across its 26 completed paths (float64 mean signed error −23.7 meV; MAE 151.9 meV). CHGNet is more strongly one-sided at 25/28 negative, while mace-mpa-0-medium is not (13/28 negative). An earlier summary incorrectly called all 26 mace-mp-small errors negative; the locked per-path records refute that wording without changing the gate verdict.
 - **Convergence failures are honest, not hidden.** 1–4 paths per model (the largest systems, 87–191 atoms) failed CI-NEB convergence under the frozen protocol and are recorded as failures — MAEs are computed on completed paths only, and `measurement_complete` is false everywhere because the protocol demands all 30.
 - **Precision note.** The f64 signed-error distribution partially relaxes (17/26 negative, mean −23.7 meV for mace-mp-small) while the MAE is unmoved — per-path pairing analysis is registered follow-up.
 - **Precedent replicated.** This confirms at 30-chemistry scale the Round-3 five-compound result (77.1 meV) whose claim was withdrawn: foundation MLIPs are not barrier-accurate, and the error is structural.
