@@ -97,9 +97,7 @@ USABLE_RECEIPT_STATUSES = {"completed", "imported"}
 
 # Path 0 is locked to the contradiction-free manifest reviewed for VIS-2.
 DIAGNOSTIC_PATH_INDEX = 0
-PATH0_REVIEWED_BUNDLE_ID = "sha256:820f8270a46adb77a0689423ff3e6b364f2c82c05fa9363cd233b4b68d634c6d"
-PATH0_REVIEWED_PATH_ID = "mp-761269_2_1_1_-1_0"
-PATH0_REVIEWED_PANEL_ASSET = "sha256:76381646f4ca5649f788d99f57ac739339f4b743616042ca801b260c0899d019"
+PATH0_REVIEWED_SCIENCE_ID = "sha256:b814f7febcee7eb95f27abbd524752d0e788c7ce01e82b63fcdf4f0a2d606d70"
 
 UNITS_ANGSTROM = "angstrom"
 REACTION_COORDINATE_DEFINITION = (
@@ -1324,6 +1322,26 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
         if not condition:
             failures.append(message)
 
+    revisions = [
+        ("producer", manifest.get("producer", {}).get("git_commit")),
+        (
+            "converter provenance",
+            manifest.get("provenance", {})
+            .get("source_revision", {})
+            .get("converter_git_commit"),
+        ),
+        *(
+            (f"source artifact {index}", source.get("git_commit"))
+            for index, source in enumerate(manifest.get("source_artifacts", []))
+            if source.get("git_commit") is not None
+        ),
+    ]
+    for label, revision in revisions:
+        check(
+            isinstance(revision, str) and re.fullmatch(r"[0-9a-f]{40}", revision) is not None,
+            f"{label} git revision is not a full lowercase commit hash",
+        )
+
     for source in manifest.get("source_artifacts", []):
         uri = source.get("uri")
         uri_segments = uri.split("/") if isinstance(uri, str) else []
@@ -1338,22 +1356,63 @@ def _checks_from_stored(manifest: dict, bundle_dir: Path | None = None) -> list[
             f"source artifact URI {uri!r} is not checkout-independent",
         )
 
-    path0_evidence = (
-        manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX
-        or manifest.get("path_id") == PATH0_REVIEWED_PATH_ID
-        or any(asset.get("sha256") == PATH0_REVIEWED_PANEL_ASSET for asset in manifest.get("assets", []))
-        or any(
-            str(source.get("uri", "")).startswith("path-0/")
-            for source in manifest.get("source_artifacts", [])
+    path0_evidence = False
+    try:
+        trusted_panel = load_panel(DEFAULT_PANEL)
+        trusted_campaign = load_campaign(DEFAULT_CAMPAIGN)
+    except BundleError as exc:
+        failures.append(f"trusted path identity unavailable: {exc}")
+    else:
+        coordinate_matches = [
+            index
+            for index, entry in enumerate(trusted_panel["paths"])
+            if build_coordinates(entry) == manifest.get("coordinates")
+        ]
+        check(
+            len(coordinate_matches) == 1,
+            "coordinates do not identify exactly one path in the trusted barrier panel",
         )
-    )
+        if len(coordinate_matches) == 1:
+            trusted_index = coordinate_matches[0]
+            trusted_entry = trusted_panel["paths"][trusted_index]
+            trusted_record = next(
+                (
+                    record
+                    for record in trusted_campaign["per_path"]
+                    if record["path_index"] == trusted_index
+                ),
+                None,
+            )
+            check(
+                manifest.get("path_index") == trusted_index,
+                "manifest path_index disagrees with trusted panel coordinates",
+            )
+            check(
+                manifest.get("path_id") == trusted_entry["path_id"],
+                "manifest path_id disagrees with trusted panel coordinates",
+            )
+            check(
+                trusted_record is not None
+                and trusted_record.get("path_id") == trusted_entry["path_id"],
+                "trusted campaign and barrier panel disagree on path identity",
+            )
+            path0_evidence = trusted_index == DIAGNOSTIC_PATH_INDEX
     if path0_evidence:
         check(
             manifest.get("path_index") == DIAGNOSTIC_PATH_INDEX,
             "reviewed path-0 evidence is relabelled as another path",
         )
+        reviewed = json.loads(json.dumps(manifest))
+        reviewed.pop("bundle_id", None)
+        reviewed.get("producer", {}).pop("git_commit", None)
+        reviewed.get("provenance", {}).get("source_revision", {}).pop(
+            "converter_git_commit", None
+        )
+        for source in reviewed.get("source_artifacts", []):
+            source.pop("git_commit", None)
+        reviewed_science_id = digest_id(sha256_bytes(canonical_json(reviewed)))
         check(
-            manifest.get("bundle_id") == PATH0_REVIEWED_BUNDLE_ID,
+            reviewed_science_id == PATH0_REVIEWED_SCIENCE_ID,
             "path 0 does not match the reviewed manifest identity",
         )
         expected_asset_roles = sorted(

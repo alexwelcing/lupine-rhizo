@@ -465,12 +465,19 @@ def test_verify_pins_complete_reviewed_path0_manifest(tmp_path, surface):
             manifest["source_artifacts"][0]["git_commit"] = "electronic-grid-review"
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
-    assert any("reviewed manifest identity" in failure for failure in failures), failures
+    expected = "git revision" if surface == "source_revision" else "reviewed manifest identity"
+    assert any(expected in failure for failure in failures), failures
 
 
 def test_verify_rejects_relabelled_path0_manifest(tmp_path):
     def mutate(manifest):
-        manifest["path_index"] = 1
+        manifest["path_index"] = 14
+        manifest["path_id"] = golden_manifest(14)["path_id"]
+        for source in manifest["source_artifacts"]:
+            source["uri"] = source["uri"].replace("path-0/", "path-14/")
+        for asset in manifest["assets"]:
+            if asset["role"] == "panel_path_excerpt":
+                asset["sha256"] = "sha256:" + "0" * 64
         manifest["quality"]["warnings"].append("Wavefunctions remain unconverged.")
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
