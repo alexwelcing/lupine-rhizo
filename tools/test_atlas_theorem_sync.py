@@ -75,7 +75,7 @@ def _evidence(
             "zero_sorry": {"passed": passed, "sorry_count": 0 if passed else 1},
             "vision": {
                 "passed": passed,
-                "legacy_theorems": 284,
+                "legacy_theorems": 290,
                 "universal_correction_theorems": 164,
                 "honest_errors_theorems": 49,
                 "epistemic_gaps": 5,

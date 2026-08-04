@@ -16,6 +16,7 @@ import OpenDistillationFactory.Materials.Theory.ParameterBound
 import OpenDistillationFactory.Materials.Theory.ProjectedRibbon
 import OpenDistillationFactory.Materials.Theory.ProjectionLaw
 import OpenDistillationFactory.Materials.Theory.SmoothProjection
+import OpenDistillationFactory.Materials.Theory.SharpLicense
 import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.UniversalityBridge
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration
@@ -355,6 +356,12 @@ def theoremInventory : List TheoremInventoryEntry := [
   { moduleName := "OpenDistillationFactory.Materials.Theory.ProjectionLaw", declarationName := "unique", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.ProjectionLaw", declarationName := "residual_eq", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.ProjectionLaw", declarationName := "residual_eq_zero_iff", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_inhull_correction_helps_inflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_inhull_correction_helps_deflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "old_inflation_cap_implies_sharp", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "old_deflation_cap_implies_sharp", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_inflation_necessary", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_deflation_necessary", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SmoothProjection", declarationName := "toFun_differentiableAt", declarationKind := .lemma, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SmoothProjection", declarationName := "sqDist_differentiableAt", declarationKind := .lemma, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SmoothProjection", declarationName := "sqDist_fderiv_apply", declarationKind := .lemma, epistemicGrade := .pureMathematical, contractId := none },
@@ -419,8 +426,8 @@ def activeLeanBindings : List TheoremInventoryEntry :=
 def b0AssuranceBindings : List TheoremInventoryEntry :=
   theoremInventory.filter (fun entry => entry.contractId == some "correction.b0.v1")
 
-#guard theoremInventory.length == 172
-#guard (theoremInventory.map (·.moduleName) |>.eraseDups |>.length) == 17
+#guard theoremInventory.length == 178
+#guard (theoremInventory.map (·.moduleName) |>.eraseDups |>.length) == 18
 #guard allAssuranceExportsBound
 #guard activeLeanBindings.isEmpty
 #guard claimContracts.any (fun contract =>

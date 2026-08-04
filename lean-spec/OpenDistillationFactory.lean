@@ -41,6 +41,7 @@ import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.ConvexProjection
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration
 import OpenDistillationFactory.Materials.Theory.ActiveSampling
+import OpenDistillationFactory.Materials.Theory.SharpLicense
 
 -- Climate-series physics layer: the environment error field and the
 -- defect-kinetics laws for the five material classes (LMR cathodes, halide

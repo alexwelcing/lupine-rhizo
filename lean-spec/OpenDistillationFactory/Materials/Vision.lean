@@ -27,6 +27,7 @@ import OpenDistillationFactory.Materials.Theory.WeakAcceleration
 import OpenDistillationFactory.Materials.Theory.AffineDecomposition
 import OpenDistillationFactory.Materials.Theory.SmoothProjection
 import OpenDistillationFactory.Materials.Theory.FiniteSampleConcentration
+import OpenDistillationFactory.Materials.Theory.SharpLicense
 import OpenDistillationFactory.Materials.Theory.EnvironmentField
 import OpenDistillationFactory.Materials.Theory.BarrierArrhenius
 import OpenDistillationFactory.Materials.Theory.RankingIntegrity
@@ -63,6 +64,7 @@ open OpenDistillationFactory.Materials.Theory.WeakAcceleration
 open OpenDistillationFactory.Materials.Theory.AffineDecomposition
 open OpenDistillationFactory.Materials.Theory.SmoothProjection
 open OpenDistillationFactory.Materials.Theory.FiniteSampleConcentration
+open OpenDistillationFactory.Materials.Theory.SharpLicense
 open OpenDistillationFactory.Materials.Theory.HyperRibbonEmpirical
 open OpenDistillationFactory.Materials.Theory.EnvironmentField
 open OpenDistillationFactory.Materials.Theory.BarrierArrhenius
@@ -500,6 +502,17 @@ def nistCount := nistScaffoldAlSample.length
 #check ExactTubularUniversality.boundary_pairwise_diffeomorphic_general
 #check ExactTubularUniversality.exact_tubular_universality_of_A0ToA5
 
+/- T281–T286: sharp, calibration-only in-hull correction licenses.  The
+    sufficiency theorems remove spread from both boundaries and the deflation
+    bias floor; endpoint necessity proves sharpness, while the compatibility
+    theorems preserve every case licensed by the frozen Round-4 caps. -/
+#check SharpLicense.sharp_inhull_correction_helps_inflation
+#check SharpLicense.sharp_inhull_correction_helps_deflation
+#check SharpLicense.old_inflation_cap_implies_sharp
+#check SharpLicense.old_deflation_cap_implies_sharp
+#check SharpLicense.sharp_inflation_necessary
+#check SharpLicense.sharp_deflation_necessary
+
 /- Universal-correction assurance spine — representation-agnostic semantics,
     sound finite-anchor envelopes, explicit cold-start limits, exact tri-state
     runtime decisions, robust ranking, deterministic distributed reduction,
@@ -664,8 +677,9 @@ def computationallyProvenCount : Nat :=
   -- Non-CO₂ environmental-concern contract: distinctness/coverage 3,
   -- invariant witnesses 6
   -- Wave 2 reconciliation: existing board 271 + centered-local/affine
-  -- parameter-bound locks 5 + endpoint-margin locks 4 + exact-tubular locks 4.
-  271 + 5 + 4 + 4
+  -- parameter-bound locks 5 + endpoint-margin locks 4 + exact-tubular locks 4
+  -- + sharp in-hull correction licenses 6.
+  271 + 5 + 4 + 4 + 6
 
 /-- Public theorems in the representation-agnostic correction spine and its
     executable certificate packs. This inventory remains tracked separately
@@ -701,7 +715,7 @@ def epistemicGapCount : Nat :=
 #guard (nistScaffoldPredictionsMissing nistScaffoldAlSample == true)
 
 #guard (hypothesisCount >= 6)
-#guard (computationallyProvenCount == 284)
+#guard (computationallyProvenCount == 290)
 #guard (universalCorrectionProvenCount == 164)
 #guard (honestErrorsProvenCount == 49)
 #guard (epistemicGapCount >= 1)

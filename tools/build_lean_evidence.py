@@ -27,7 +27,7 @@ PROOF_REPOSITORY = "lupine-science/open-distillation-factory"
 MATHLIB_REVISION = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
 ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
 EXPECTED_VISION = {
-    "legacy_theorems": 284,
+    "legacy_theorems": 290,
     "universal_correction_theorems": 164,
     "honest_errors_theorems": 49,
     "epistemic_gaps": 5,
