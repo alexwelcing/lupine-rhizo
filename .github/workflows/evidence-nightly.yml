@@ -318,23 +318,22 @@ jobs:
         working-directory: glim-think
         run: npm ci
 
-      - name: Normalize Cloudflare token secret
+      - name: Validate Cloudflare token secret
         shell: bash
         run: |
           set -euo pipefail
-          token="${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}"
-          token="${token#Bearer }"
-          token="${token%$'\r'}"
-          token="${token#\"}"
-          token="${token%\"}"
-          token="${token//[$' \t\r\n']/}"
+          token="$CLOUDFLARE_API_TOKEN"
           test -n "$token"
           test "$token" != "-" || {
             echo "::error::CLOUDFLARE_API_TOKEN is still the repository placeholder"
             exit 1
           }
-          echo "::add-mask::$token"
-          printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+          case "$token" in
+            *[[:space:]]*|Bearer*|CLOUDFLARE_API_TOKEN=*|\"*)
+              echo "::error::CLOUDFLARE_API_TOKEN is malformed; refusing to rewrite credential bytes"
+              exit 1
+              ;;
+          esac
 
       - name: Seed staging D1 hypotheses
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
@@ -486,23 +485,22 @@ jobs:
         working-directory: glim-think
         run: npm ci
 
-      - name: Normalize Cloudflare token secret
+      - name: Validate Cloudflare token secret
         shell: bash
         run: |
           set -euo pipefail
-          token="${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}"
-          token="${token#Bearer }"
-          token="${token%$'\r'}"
-          token="${token#\"}"
-          token="${token%\"}"
-          token="${token//[$' \t\r\n']/}"
+          token="$CLOUDFLARE_API_TOKEN"
           test -n "$token"
           test "$token" != "-" || {
             echo "::error::CLOUDFLARE_API_TOKEN is still the repository placeholder"
             exit 1
           }
-          echo "::add-mask::$token"
-          printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+          case "$token" in
+            *[[:space:]]*|Bearer*|CLOUDFLARE_API_TOKEN=*|\"*)
+              echo "::error::CLOUDFLARE_API_TOKEN is malformed; refusing to rewrite credential bytes"
+              exit 1
+              ;;
+          esac
 
       - name: Apply migrations and seed reviewed literature hypotheses
         working-directory: glim-think
