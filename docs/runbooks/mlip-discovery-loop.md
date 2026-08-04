@@ -57,7 +57,6 @@ Focused checks:
 python -m pytest tools\test_glim_mlip.py
 npm --prefix glim-think run test -- src/research/__tests__/mlipDiscoveryWorkflow.test.ts src/research/__tests__/workflowRoutes.test.ts
 npm --prefix glim-think run lint
-actionlint .github\workflows\mlip-benchmark.yml
 ```
 
 Use `just think-lint` before merging broader control-plane changes.
