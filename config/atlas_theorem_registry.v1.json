@@ -9,11 +9,11 @@
   ],
   "authority": {
     "proof_repository": "lupine-science/open-distillation-factory",
-    "proof_revision": "96bc0d96c4f1b941ad9659e5102974ce113f2ed5",
+    "proof_revision": "e92516989107358dc8e7d1652004c1801a922b68",
     "lean_version": "4.29.0",
     "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
     "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
-    "vision_legacy_count": 284,
+    "vision_legacy_count": 290,
     "vision_universal_correction_count": 164,
     "vision_honest_errors_count": 49,
     "vision_epistemic_gap_count": 5
@@ -322,6 +322,36 @@
       "facet": "theorist",
       "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_deficit_le_lipschitz_cover",
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inhull_correction_helps_inflation",
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inhull_correction_helps_deflation",
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.SharpLicense.old_inflation_cap_implies_sharp",
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.SharpLicense.old_deflation_cap_implies_sharp",
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inflation_necessary",
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense"
+    },
+    {
+      "facet": "theorist",
+      "theorem_name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_deflation_necessary",
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense"
     }
   ]
 }

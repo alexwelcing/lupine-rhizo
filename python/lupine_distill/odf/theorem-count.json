@@ -2,7 +2,7 @@
   "count": 894,
   "modules": 111,
   "zero_sorry": true,
-  "counted_at": "2026-08-03",
+  "counted_at": "2026-08-04",
   "source": "lean-spec/OpenDistillationFactory{,.lean} (vendored packages excluded)",
   "source_sha256": "f96b45f18a2c92f93401306b2e7887586bab506449e280363a6b85dcdd226f64",
   "rule": "theorem/lemma declarations after stripping nested comments and strings; supports attributes, whitespace, and declaration modifiers; every active sorry token fails; regenerate with lean-spec/scripts/generate-lean-count.mjs — never hand-edit"
