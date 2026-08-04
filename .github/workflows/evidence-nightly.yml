@@ -67,8 +67,9 @@ jobs:
         run: |
           set -euo pipefail
           cycle_date="$(date -u -d yesterday +%F)"
-          mkdir -p production-cycle
-          cat > production-cycle/cycle.json <<'JSON'
+          cycle_dir="nightly-input/$cycle_date"
+          mkdir -p "$cycle_dir"
+          cat > "$cycle_dir/cycle.json" <<'JSON'
           {
             "campaigns": [
               {
@@ -79,9 +80,9 @@ jobs:
           }
           JSON
           python tools/run_nightly_cycle.py \
-            --cycle production-cycle/cycle.json \
+            --cycle "$cycle_dir/cycle.json" \
             --output-dir production-cycle/validation
-          gcloud storage cp production-cycle/cycle.json \
+          gcloud storage cp "$cycle_dir/cycle.json" \
             "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json"
           gcloud storage ls \
             "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json"
@@ -96,8 +97,9 @@ jobs:
     env:
       COCOINDEX_DB: .cocoindex/db
       WORKER_URL: https://glim-think-v1.aw-ab5.workers.dev
-      EVIDENCE_EMBED_MODEL: ${{ github.workspace }}/.cache/BAAI-bge-small-en-v1.5
+      EVIDENCE_EMBED_REPO: BAAI/bge-small-en-v1.5
       EVIDENCE_EMBED_REVISION: 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
       HF_HUB_DISABLE_XET: '1'
       PHOENIX_COLLECTOR_ENDPOINT: ${{ secrets.PHOENIX_COLLECTOR_ENDPOINT }}
       PHOENIX_API_KEY: ${{ secrets.PHOENIX_API_KEY }}
@@ -125,7 +127,7 @@ jobs:
         id: embedding-model-cache
         uses: actions/cache@v4
         with:
-          path: .cache/BAAI-bge-small-en-v1.5
+          path: .cache/huggingface
           key: bge-small-en-v1.5-${{ env.EVIDENCE_EMBED_REVISION }}
 
       - name: Materialize pinned embedding model
@@ -136,9 +138,8 @@ jobs:
           from huggingface_hub import snapshot_download
 
           snapshot_download(
-              repo_id="BAAI/bge-small-en-v1.5",
+              repo_id=os.environ["EVIDENCE_EMBED_REPO"],
               revision=os.environ["EVIDENCE_EMBED_REVISION"],
-              local_dir=os.environ["EVIDENCE_EMBED_MODEL"],
           )
           PY
 
@@ -146,11 +147,23 @@ jobs:
         run: |
           HF_HUB_OFFLINE=1 python - <<'PY'
           import os
+          from pathlib import Path
+          from huggingface_hub import snapshot_download
           from sentence_transformers import SentenceTransformer
 
-          model = SentenceTransformer(os.environ["EVIDENCE_EMBED_MODEL"], local_files_only=True)
+          revision = os.environ["EVIDENCE_EMBED_REVISION"]
+          model_path = snapshot_download(
+              repo_id=os.environ["EVIDENCE_EMBED_REPO"],
+              revision=revision,
+              local_files_only=True,
+          )
+          if Path(model_path).name != revision:
+              raise SystemExit("embedding cache did not resolve the pinned revision")
+          model = SentenceTransformer(model_path, local_files_only=True)
           if model.get_sentence_embedding_dimension() != 384:
               raise SystemExit("pinned embedding model has unexpected dimension")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
+              env_file.write(f"EVIDENCE_EMBED_MODEL={model_path}\n")
           PY
 
       - name: Collect live worker evidence (best-effort)
@@ -504,10 +517,12 @@ jobs:
               contract = json.loads(path.read_text())
               canonical = json.dumps(contract, separators=(',', ':'), sort_keys=True)
               statements.append(
-                  "INSERT OR IGNORE INTO literature_hypotheses "
+                  "INSERT INTO literature_hypotheses "
                   "(literature_hypothesis_id, contract_json) "
                   f"VALUES ('lit-hypothesis.{path.stem}.v1', "
-                  f"'{canonical.replace(chr(39), chr(39) * 2)}');"
+                  f"'{canonical.replace(chr(39), chr(39) * 2)}') "
+                  "ON CONFLICT(literature_hypothesis_id) DO UPDATE SET "
+                  "contract_json = excluded.contract_json;"
               )
           Path('../seed-production-hypotheses.sql').write_text(
               '\n'.join(statements) + '\n', encoding='utf-8'
@@ -521,7 +536,7 @@ jobs:
         run: |
           set -euo pipefail
           npx wrangler d1 execute glim-ledger --remote --json \
-            --command "SELECT literature_hypothesis_id, status, readiness, proposed_experiment_predicate FROM literature_hypotheses WHERE literature_hypothesis_id = 'lit-hypothesis.protocol-offset-sign-skew.v1'" \
+            --command "SELECT literature_hypothesis_id, contract_json, status, readiness, proposed_experiment_predicate FROM literature_hypotheses WHERE literature_hypothesis_id = 'lit-hypothesis.protocol-offset-sign-skew.v1'" \
             > ../production-sign-skew-readback.json
           python - <<'PY'
           import json
@@ -532,5 +547,20 @@ jobs:
           expected_id = 'lit-hypothesis.protocol-offset-sign-skew.v1'
           if len(rows) != 1 or rows[0].get('literature_hypothesis_id') != expected_id:
               raise SystemExit(f'production D1 read-back failed: {rows!r}')
+          expected_contract = json.loads(
+              Path('../examples/literature-hypotheses/protocol-offset-sign-skew.json').read_text()
+          )
+          observed_contract = json.loads(rows[0].get('contract_json', 'null'))
+          if observed_contract != expected_contract:
+              raise SystemExit('production D1 sign-skew contract differs from reviewed source')
+          for column, contract_key in (
+              ('status', 'status'),
+              ('readiness', 'readiness'),
+          ):
+              if rows[0].get(column) != expected_contract[contract_key]:
+                  raise SystemExit(f'production D1 generated {column} does not match contract')
+          expected_predicate = expected_contract['proposedExperiment']['predicate']
+          if rows[0].get('proposed_experiment_predicate') != expected_predicate:
+              raise SystemExit('production D1 generated predicate does not match contract')
           print(json.dumps(rows[0], sort_keys=True))
           PY
