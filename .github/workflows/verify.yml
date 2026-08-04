@@ -175,6 +175,35 @@ jobs:
       - name: Check publication claims against active contracts
         run: python tools/check_publication_claims.py
 
+  z2-runner-contract:
+    name: Z2 runner and packaging contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install focused test dependencies
+        run: >-
+          pip install pytest pytest-subtests ase==3.26.0 numpy==2.3.3
+          requests==2.32.5 pydantic==2.12.3 rfc8785==0.1.4
+
+      - name: Run Z2 execution and packaging contracts
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m pytest \
+            gcp/mlip-cell-runner/test_z2_soc_tc.py \
+            gcp/mlip-cell-runner/test_z2_soc_tc_runner.py \
+            gcp/mlip-cell-runner/test_z2_soc_tc_contract.py \
+            python/tests/test_z2_cloud_packaging.py \
+            -q
+
   assumption-links:
     name: Assumption and theorem receipt links
     runs-on: ubuntu-latest

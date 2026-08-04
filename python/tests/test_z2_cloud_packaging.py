@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,8 +16,27 @@ def test_z2_image_packages_spin_runner_gpaw_manifest_and_panel() -> None:
     assert "COPY gcp/mlip-cell-runner/z2_soc_tc.py ./" in dockerfile
     assert "COPY campaigns/v1/z2.campaign-manifest.v1.json" in dockerfile
     assert "COPY data/candidates/z2_soc_tc_panel.lock.json" in dockerfile
+    assert "COPY gcp/mlip-cell-runner/verify_z2_image_contract.py ./" in dockerfile
+    assert "python3 /app/verify_z2_image_contract.py" in dockerfile
     assert "chmod -R a+rX /app" in dockerfile
     assert 'ENTRYPOINT ["python3", "/app/mlip_cell_runner.py"]' in dockerfile
+
+
+def test_z2_packaged_contract_verifier_accepts_only_current_reviewed_inputs() -> None:
+    verifier = (RUNNER / "verify_z2_image_contract.py").read_text(encoding="utf-8")
+    assert "73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc" in verifier
+    assert "7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8" in verifier
+    assert "exchange_mev" in verifier
+    assert "exchange_anisotropy" in verifier
+
+    result = subprocess.run(
+        [sys.executable, str(RUNNER / "verify_z2_image_contract.py")],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_z2_cloud_build_deploys_isolated_job_without_executing_it() -> None:
@@ -24,6 +45,11 @@ def test_z2_cloud_build_deploys_isolated_job_without_executing_it() -> None:
     assert "mlip-cell-z2-chgnet" in cloudbuild
     assert "jobs" in cloudbuild and "deploy" in cloudbuild
     assert "jobs execute" not in cloudbuild
+    assert "image_summary.digest" in cloudbuild
+    assert "RUNNER_IMAGE_DIGEST=$${DIGEST}" in cloudbuild
+    assert "RUNNER_IMAGE_URI=$${IMAGE_URI}@$${DIGEST}" in cloudbuild
+    assert "--image=$${IMAGE_URI}@$${DIGEST}" in cloudbuild
+    assert "${_IMAGE_TAG}-${BUILD_ID}" in cloudbuild
 
 
 def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:

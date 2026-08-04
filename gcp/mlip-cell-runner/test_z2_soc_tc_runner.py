@@ -106,34 +106,34 @@ def test_repository_z2_campaign_lock_is_consumable(mlip_id: str) -> None:
 
 
 def test_z2_panel_lock_tampering_fails_closed(tmp_path: Path) -> None:
-    panel_path = tmp_path / "data" / "candidates" / "panel.json"
+    panel_path = tmp_path / "data" / "candidates" / "z2_soc_tc_panel.lock.json"
     panel_path.parent.mkdir(parents=True)
-    panel_bytes = json.dumps(panel_fixture()).encode()
-    panel_path.write_bytes(panel_bytes + b" ")
-    manifest = {
-        "campaign_id": "unit-z2",
-        "available_models": [
-            {"model_id": "chgnet", "version": "unit", "artifact_hash": "sha256:" + "1" * 64}
-        ],
-        "acceptance_test": {
-            "metric": "magnetocrystalline_anisotropy_rank_correlation",
-            "operator": "eq",
-            "threshold": 1,
-            "unit": "spearman_rho",
-        },
-        "execution": {
-            "candidate_panel": {
-                "path": "data/candidates/panel.json",
-                "sha256": "sha256:" + hashlib.sha256(panel_bytes).hexdigest(),
-            }
-        },
-    }
+    panel_path.write_bytes(
+        (ROOT / "data" / "candidates" / "z2_soc_tc_panel.lock.json").read_bytes() + b" "
+    )
+    manifest_path = tmp_path / "campaigns" / "v1" / "z2.campaign-manifest.v1.json"
+    manifest_path.parent.mkdir(parents=True)
+    manifest_path.write_bytes(
+        (ROOT / "campaigns" / "v1" / "z2.campaign-manifest.v1.json").read_bytes()
+    )
+
+    with pytest.raises(ValueError, match="candidate panel sha256 mismatch"):
+        load_campaign_panel(str(manifest_path), "chgnet", lambda path: Path(path).read_bytes())
+
+
+def test_z2_stale_manifest_is_rejected_before_panel_loading(tmp_path: Path) -> None:
+    manifest = json.loads(
+        (ROOT / "campaigns" / "v1" / "z2.campaign-manifest.v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    manifest["campaign_id"] = "stale-z2"
     manifest["content_hash"] = canonical_content_hash(manifest)
     manifest_path = tmp_path / "campaigns" / "v1" / "z2.json"
     manifest_path.parent.mkdir(parents=True)
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    with pytest.raises(ValueError, match="candidate panel sha256 mismatch"):
+    with pytest.raises(ValueError, match="not the current reviewed manifest"):
         load_campaign_panel(str(manifest_path), "chgnet", lambda path: Path(path).read_bytes())
 
 
@@ -143,6 +143,14 @@ def test_mlip_cell_runner_dispatches_locked_soc_tc_row(
     manifest_path = ROOT / "campaigns" / "v1" / "z2.campaign-manifest.v1.json"
     artifact_prefix = tmp_path / "artifacts"
     monkeypatch.setattr(runner, "runtime_versions", lambda: {})
+    monkeypatch.setenv(
+        "RUNNER_IMAGE_DIGEST",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    )
+    monkeypatch.setenv(
+        "RUNNER_IMAGE_URI",
+        "us-central1-docker.pkg.dev/lupine/z2/runner@sha256:" + "a" * 64,
+    )
     monkeypatch.setattr(
         runner,
         "GPAWSpinEnergyEngine",
@@ -177,3 +185,66 @@ def test_mlip_cell_runner_dispatches_locked_soc_tc_row(
     artifact = json.loads((artifact_prefix / "cell_result.json").read_text(encoding="utf-8"))
     assert len(artifact["predictions"]) == 7
     assert {item["status"] for item in artifact["predictions"]} == {"completed"}
+    assert artifact["execution"]["runner_image_digest"] == "sha256:" + "a" * 64
+    assert artifact["campaign_id"] == "discovery.round-4.z2-magnetic-anisotropy.v1"
+
+
+def test_mlip_cell_runner_refuses_z2_without_immutable_image_digest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("RUNNER_IMAGE_DIGEST", raising=False)
+    monkeypatch.delenv("RUNNER_IMAGE_URI", raising=False)
+    args = runner.parse_args(
+        [
+            "run-cell",
+            "--run-id",
+            "unit-z2",
+            "--cell-id",
+            "unit-z2:soc-tc:chgnet",
+            "--row-id",
+            "soc_tc",
+            "--mlip-id",
+            "chgnet",
+            "--manifest-url",
+            str(ROOT / "campaigns" / "v1" / "z2.campaign-manifest.v1.json"),
+            "--artifact-prefix",
+            str(tmp_path / "artifacts"),
+            "--checkpoint-mode",
+            "off",
+        ]
+    )
+
+    with pytest.raises(ValueError, match="RUNNER_IMAGE_DIGEST"):
+        runner.run_cell(args, preloaded_calc=ZeroForceCalculator())
+
+    assert not (tmp_path / "artifacts" / "cell_result.json").exists()
+
+
+def test_z2_checkpoint_refuses_cross_image_prediction_reuse(tmp_path: Path) -> None:
+    checkpoint_path = tmp_path / "cell_checkpoint.json"
+    common = {
+        "url": str(checkpoint_path),
+        "run_id": "unit-z2",
+        "cell_id": "unit-z2:soc-tc:chgnet",
+        "row_id": "soc_tc",
+        "mlip_id": "chgnet",
+        "variant_id": "baseline",
+        "distill_profile": "off",
+        "manifest_hash": "sha256:" + "1" * 64,
+        "calculator_dtype": "float64",
+    }
+    material = panel_fixture()["materials"][0]
+    writer = runner.CellCheckpoint(
+        mode="write-only", runner_image_digest="sha256:" + "a" * 64, **common
+    )
+    writer.record_prediction(
+        "soc_tc", 0, material, {"material_id": material["material_id"], "status": "completed"}
+    )
+    writer.flush(force=True)
+
+    reader = runner.CellCheckpoint(
+        mode="read-only", runner_image_digest="sha256:" + "b" * 64, **common
+    )
+
+    assert reader.get_prediction("soc_tc", 0, material) is None
+    assert reader.ignored_reason == "checkpoint_context_mismatch"

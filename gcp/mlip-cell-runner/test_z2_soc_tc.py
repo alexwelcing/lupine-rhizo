@@ -47,6 +47,8 @@ def panel_fixture() -> dict:
             (4.0, 0.03, -0.9),
             (5.0, 0.04, -1.6),
             (6.0, 0.05, -2.5),
+            (7.0, 0.06, -3.6),
+            (8.0, 0.07, -4.9),
         ]
     ):
         tc = tc_estimates_k(
@@ -164,28 +166,33 @@ def test_soc_tc_row_scores_complete_mae_ranking_and_tc_panel() -> None:
     assert result["metrics"]["tc_envelope_coverage"] == pytest.approx(1.0)
 
 
-def test_soc_failure_is_recorded_without_imputation() -> None:
+def test_soc_failure_aborts_atomically_without_aggregate_serialization() -> None:
     panel = panel_fixture()
     manifest = {
         "campaign_id": "unit-z2",
         "acceptance_test": {"threshold": 1.0},
     }
 
-    result = run_soc_tc_row(
-        manifest,
-        panel,
-        ReferenceEnergyEngine(fail_material_id="material-2"),
-        {"release_ready": True},
-    )
+    with pytest.raises(RuntimeError, match="material-2.*intentional SOC failure"):
+        run_soc_tc_row(
+            manifest,
+            panel,
+            ReferenceEnergyEngine(fail_material_id="material-2"),
+            {"release_ready": True},
+        )
 
-    assert result["score"] == 0.0
-    assert result["metrics"]["measurement_complete"] is False
-    assert result["metrics"]["completed_material_count"] == 4
-    assert result["metrics"]["failed_material_count"] == 1
-    failure = result["predictions"][2]
-    assert failure["status"] == "failed"
-    assert failure["error_class"] == "RuntimeError"
-    assert "tc_k" not in failure
+
+def test_soc_tc_row_rejects_six_of_seven_panel_before_execution() -> None:
+    panel = panel_fixture()
+    panel["materials"].pop()
+
+    with pytest.raises(ValueError, match="exactly 7 materials"):
+        run_soc_tc_row(
+            {"campaign_id": "unit-z2", "acceptance_test": {"threshold": 1.0}},
+            panel,
+            ReferenceEnergyEngine(),
+            {"release_ready": True},
+        )
 
 
 def test_soc_tc_row_reuses_completed_checkpoint_predictions() -> None:
@@ -228,6 +235,32 @@ def test_soc_tc_row_reuses_completed_checkpoint_predictions() -> None:
     assert result["metrics"]["measurement_complete"] is True
     assert result["score"] == pytest.approx(1.0)
     assert checkpoint.recorded == 0
+
+
+def test_soc_tc_row_refuses_failed_checkpoint_prediction_atomically() -> None:
+    panel = panel_fixture()
+
+    class FailedCheckpoint:
+        def get_prediction(self, row_id, case_index, case):
+            if case_index == 0:
+                return {
+                    "material_id": case["material_id"],
+                    "status": "failed",
+                    "error": "historical partial failure",
+                }
+            return None
+
+        def record_prediction(self, row_id, case_index, case, prediction):
+            raise AssertionError("failed checkpoint must abort before new measurements")
+
+    with pytest.raises(RuntimeError, match="cached material.*not a completed measurement"):
+        run_soc_tc_row(
+            {"campaign_id": "unit-z2", "acceptance_test": {"threshold": 1.0}},
+            panel,
+            ReferenceEnergyEngine(),
+            {"release_ready": True},
+            checkpoint=FailedCheckpoint(),
+        )
 
 
 def test_tiwari_eq4_mapping_with_independent_axis_constants() -> None:

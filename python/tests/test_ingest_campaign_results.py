@@ -6,11 +6,13 @@ import hashlib
 import importlib.util
 import json
 import shutil
+import statistics
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 INGESTER = ROOT / "tools" / "ingest_campaign_results.py"
@@ -65,6 +67,91 @@ class CampaignResultIngestionTests(unittest.TestCase):
             document, ensure_ascii=False, separators=(",", ":"), sort_keys=True
         ).encode("utf-8")
         return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+    @staticmethod
+    def z2_reference_prediction(material: dict[str, object]) -> dict[str, object]:
+        reference = material["reference"]
+        assert isinstance(reference, dict)
+        expected_easy_axis = (
+            "out_of_plane"
+            if max(
+                float(reference["mae_xz_mev_per_cell"]),
+                float(reference["mae_yz_mev_per_cell"]),
+            )
+            < 0.0
+            else "in_plane"
+        )
+        exchange = float(reference["exchange_mev"])
+        anisotropy = float(reference["exchange_anisotropy"])
+        j_parallel = exchange * (1.0 - anisotropy)
+        j_perpendicular = exchange * (1.0 + anisotropy)
+        spin_value = material["spin"]
+        coordination_value = material["nearest_neighbors"]
+        assert isinstance(spin_value, (int, float)) and not isinstance(spin_value, bool)
+        assert isinstance(coordination_value, int) and not isinstance(coordination_value, bool)
+        spin = float(spin_value)
+        tc_k = load_ingest_module()._z2_tc_estimates(
+            exchange, anisotropy, spin, str(material["lattice"])
+        )
+        factor = 2.0 * coordination_value * spin**2
+        fm_parallel = 0.0
+        fm_perpendicular = float(reference["mae_xz_mev_per_cell"]) / 1000.0
+        common_ordering = {
+            "scalar_total_energy_ev": 0.0,
+            "scalar_band_energy_ev": 0.0,
+        }
+        fm_ordering = {
+            **common_ordering,
+            "parallel_energy_ev": fm_parallel,
+            "y_energy_ev": fm_perpendicular
+            - float(reference["mae_yz_mev_per_cell"]) / 1000.0,
+            "perpendicular_energy_ev": fm_perpendicular,
+        }
+        afm_ordering = {
+            **common_ordering,
+            "parallel_energy_ev": fm_parallel + j_parallel * factor / 1000.0,
+            "y_energy_ev": 0.0,
+            "perpendicular_energy_ev": fm_perpendicular
+            + j_perpendicular * factor / 1000.0,
+        }
+        return {
+            "material_id": material["material_id"],
+            "formula": material["formula"],
+            "status": "completed",
+            "exchange_mev": exchange,
+            "j_parallel_mev": j_parallel,
+            "j_perpendicular_mev": j_perpendicular,
+            "anisotropic_exchange_mev": j_perpendicular - j_parallel,
+            "exchange_anisotropy": anisotropy,
+            "mae_xz_mev_per_cell": reference["mae_xz_mev_per_cell"],
+            "mae_yz_mev_per_cell": reference["mae_yz_mev_per_cell"],
+            "easy_axis": expected_easy_axis,
+            "tc_k": {method: tc_k[method] for method in ("green", "mc", "rnsw")},
+            "ordering_evidence": {"fm": fm_ordering, "afm": afm_ordering},
+        }
+
+    @staticmethod
+    def z2_metrics(panel: dict[str, Any], predictions: list[dict[str, Any]]) -> dict[str, object]:
+        materials = panel["materials"]
+        assert isinstance(materials, list)
+        references = {item["material_id"]: item["reference"] for item in materials}
+        tc_errors = []
+        covered = 0
+        for prediction in predictions:
+            reference = references[prediction["material_id"]]
+            predicted_tc = float(prediction["tc_k"]["rnsw"])
+            tc_errors.append(abs(predicted_tc - float(reference["tc_k"]["rnsw"])))
+            low, high = reference["tc_envelope_k"]
+            covered += int(float(low) <= predicted_tc <= float(high))
+        return {
+            "magnetocrystalline_anisotropy_rank_correlation": 1.0,
+            "easy_axis_sign_errors": 0,
+            "tc_rnsw_mae_k": statistics.fmean(tc_errors),
+            "tc_envelope_coverage": covered / len(predictions),
+            "completed_material_count": 7,
+            "failed_material_count": 0,
+            "measurement_complete": True,
+        }
 
     def rebind_measurements(self, path: Path, manifest_hash: str) -> None:
         rows = [json.loads(line) for line in path.read_text().splitlines() if line]
@@ -207,6 +294,318 @@ class CampaignResultIngestionTests(unittest.TestCase):
         row["claim_predicate"] = "signed_error_positive_fraction>=0.5"
         with self.assertRaisesRegex(ValueError, "unsupported predicate"):
             module.typed_measurements(row)
+
+    def test_reviewed_z2_bootstrap_is_the_only_empty_baseline_path(self) -> None:
+        module = load_ingest_module()
+        manifest = json.loads(
+            (ROOT / "campaigns" / "v1" / "z2.campaign-manifest.v1.json").read_text()
+        )
+        panel = json.loads(
+            (ROOT / "data" / "candidates" / "z2_soc_tc_panel.lock.json").read_text()
+        )
+        premise = {
+            "premise_id": "spin-orbit-resolved-held-out-ranking",
+            "support_policy": {"mode": "unsupported"},
+            "bundle_references": [],
+        }
+        row = {
+            "claim_id": "discovery.z2.magnetic-anisotropy.v1",
+            "premise_id": premise["premise_id"],
+            "claim_predicate": "magnetocrystalline_anisotropy_rank_correlation==1",
+            "epistemic_status": "confirmatory",
+            "scope": {
+                "structures": [item["material_id"] for item in panel["materials"]],
+                "chemistries": [item["formula"] for item in panel["materials"]],
+                "properties": [
+                    "magnetocrystalline_anisotropy_rank",
+                    "easy_axis",
+                    "curie_temperature",
+                ],
+                "conditions": {
+                    "candidate_panel_sha256": module.Z2_PANEL_SHA256,
+                    "locked_material_count": 7,
+                },
+            },
+        }
+
+        allowed, predicates, bootstrap = module.allowed_scope(
+            ROOT, premise, manifest=manifest, row=row
+        )
+
+        self.assertTrue(bootstrap)
+        self.assertEqual(predicates, {row["claim_predicate"]})
+        self.assertEqual(allowed["structures"], set(row["scope"]["structures"]))
+
+        negative = dict(row)
+        negative["epistemic_status"] = "negative"
+        with self.assertRaisesRegex(ValueError, "must be confirmatory"):
+            module.allowed_scope(ROOT, premise, manifest=manifest, row=negative)
+
+        unreviewed = dict(manifest)
+        unreviewed["campaign_id"] = "unreviewed-z2"
+        with self.assertRaisesRegex(ValueError, "no baseline evidence"):
+            module.allowed_scope(ROOT, premise, manifest=unreviewed, row=row)
+
+    def test_reviewed_z2_panel_loader_refuses_tampering_on_every_ingestion(self) -> None:
+        module = load_ingest_module()
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            panel_path = root / module.Z2_PANEL_PATH
+            panel_path.parent.mkdir(parents=True)
+            panel_path.write_bytes((ROOT / module.Z2_PANEL_PATH).read_bytes() + b" ")
+
+            with self.assertRaisesRegex(ValueError, "panel digest mismatch"):
+                module.load_reviewed_z2_panel(root)
+
+    def test_z2_artifact_refuses_missing_digest_and_six_of_seven(self) -> None:
+        module = load_ingest_module()
+        panel = json.loads(
+            (ROOT / "data" / "candidates" / "z2_soc_tc_panel.lock.json").read_text()
+        )
+        predictions = [self.z2_reference_prediction(item) for item in panel["materials"]]
+        metrics = self.z2_metrics(panel, predictions)
+        artifact = {
+            "run_id": "run-z2-complete",
+            "campaign_id": module.Z2_CAMPAIGN_ID,
+            "row_id": "soc_tc",
+            "manifest_hash": module.Z2_MANIFEST_CONTENT_HASH,
+            "fixture_contract": {"candidate_panel_sha256": module.Z2_PANEL_SHA256},
+            "predictions": predictions,
+            "execution": {
+                "runner_image_digest": "sha256:" + "d" * 64,
+                "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+            },
+            "accuracy": metrics,
+        }
+        row = {
+            "row_id": "soc_tc",
+            "run_id": "run-z2-complete",
+            "claim_predicate": module.Z2_PREDICATE,
+            "provenance": {
+                "runner_image_digest": "sha256:" + "d" * 64,
+                "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+            },
+            "measurements": [
+                {"metric": "magnetocrystalline_anisotropy_rank_correlation", "value": 1.0, "unit": "spearman_rho", "acceptance_test": {"comparator": "equal", "threshold": 1.0, "outcome": "pass"}, "sample_count": 7},
+                {"metric": "easy_axis_sign_errors", "value": 0, "unit": "materials", "acceptance_test": {"comparator": "equal", "threshold": 0, "outcome": "pass"}, "sample_count": 7},
+                {"metric": "tc_rnsw_mae_k", "value": metrics["tc_rnsw_mae_k"], "unit": "K", "sample_count": 7},
+                {"metric": "tc_envelope_coverage", "value": metrics["tc_envelope_coverage"], "unit": "fraction", "sample_count": 7},
+            ],
+        }
+
+        module.enforce_z2_measurement(panel, artifact, row)
+        artifact["run_id"] = "different-run"
+        with self.assertRaisesRegex(ValueError, "run_id does not match"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["run_id"] = "run-z2-complete"
+        artifact["execution"]["runner_image_digest"] = None
+        with self.assertRaisesRegex(ValueError, "runner image digest"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["execution"]["runner_image_digest"] = "sha256:" + "d" * 64
+        artifact["predictions"][0]["mae_xz_mev_per_cell"] = -1000.0
+        with self.assertRaisesRegex(ValueError, "contradicts ordering evidence"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["predictions"][0] = self.z2_reference_prediction(panel["materials"][0])
+        artifact["predictions"][0]["mae_yz_mev_per_cell"] = 1.0
+        fm_evidence = artifact["predictions"][0]["ordering_evidence"]["fm"]
+        fm_evidence["y_energy_ev"] = fm_evidence["perpendicular_energy_ev"] - 0.001
+        with self.assertRaisesRegex(ValueError, "easy_axis contradicts"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["predictions"][0] = self.z2_reference_prediction(panel["materials"][0])
+        artifact["predictions"][0]["mae_xz_mev_per_cell"] = "-1.332"
+        with self.assertRaisesRegex(ValueError, "must be a JSON number"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["predictions"][0] = self.z2_reference_prediction(panel["materials"][0])
+        del artifact["predictions"][0]["exchange_mev"]
+        with self.assertRaisesRegex(ValueError, "prediction is incomplete"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["predictions"][0] = self.z2_reference_prediction(panel["materials"][0])
+        fm_evidence = artifact["predictions"][0]["ordering_evidence"]["fm"]
+        fm_evidence["perpendicular_energy_ev"] += 0.001
+        with self.assertRaisesRegex(ValueError, "contradicts ordering evidence"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["predictions"][0] = self.z2_reference_prediction(panel["materials"][0])
+        row["measurements"][0]["acceptance_test"]["outcome"] = "fail"
+        with self.assertRaisesRegex(ValueError, "contradictory acceptance outcome"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        row["measurements"][0]["acceptance_test"]["outcome"] = "pass"
+        artifact["predictions"].pop()
+        artifact["accuracy"]["completed_material_count"] = 6
+        with self.assertRaisesRegex(ValueError, "7/7"):
+            module.enforce_z2_measurement(panel, artifact, row)
+
+    def test_reviewed_z2_first_evidence_ingests_transactionally(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.prepare_root(root)
+            module = load_ingest_module()
+            source_panel = ROOT / module.Z2_PANEL_PATH
+            panel_path = root / module.Z2_PANEL_PATH
+            panel_path.parent.mkdir(parents=True)
+            shutil.copy2(source_panel, panel_path)
+            panel = json.loads(panel_path.read_text())
+            manifest_path = root / "campaigns" / "v1" / "z2.campaign-manifest.v1.json"
+            manifest = json.loads(manifest_path.read_text())
+            predictions = [
+                self.z2_reference_prediction(item) for item in panel["materials"]
+            ]
+            metrics = self.z2_metrics(panel, predictions)
+            artifact = {
+                "run_id": "run-z2-bootstrap",
+                "campaign_id": module.Z2_CAMPAIGN_ID,
+                "row_id": "soc_tc",
+                "manifest_hash": module.Z2_MANIFEST_CONTENT_HASH,
+                "fixture_contract": {"candidate_panel_sha256": module.Z2_PANEL_SHA256},
+                "predictions": predictions,
+                "execution": {
+                    "runner_image_digest": "sha256:" + "d" * 64,
+                    "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                    "cloud_run_job": "mlip-cell-z2-chgnet",
+                },
+                "accuracy": metrics,
+            }
+            artifact_path = root / "data" / "candidates" / "z2" / "complete.json"
+            artifact_path.parent.mkdir(parents=True)
+            artifact_path.write_text(json.dumps(artifact))
+            receipt_relative = Path("evidence/v1/build-receipts/z2-test-build.json")
+            receipt_path = root / receipt_relative
+            receipt_path.parent.mkdir(parents=True)
+            receipt = {
+                "schema": "lupine.z2.runner_build_receipt.v1",
+                "campaign_id": module.Z2_CAMPAIGN_ID,
+                "manifest_hash": module.Z2_MANIFEST_CONTENT_HASH,
+                "candidate_panel_sha256": module.Z2_PANEL_SHA256,
+                "runner_image_digest": "sha256:" + "d" * 64,
+                "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                "cloud_build_id": "test-build-id",
+                "cloud_run_job": "mlip-cell-z2-chgnet",
+                "reviewed_by": "test-reviewer",
+                "reviewed_at": "2026-08-04T00:00:00Z",
+            }
+            receipt_path.write_text(json.dumps(receipt, sort_keys=True))
+            execution_relative = Path(
+                "evidence/v1/execution-receipts/z2-test-execution.json"
+            )
+            execution_path = root / execution_relative
+            execution_path.parent.mkdir(parents=True)
+            execution_receipt = {
+                "schema": "lupine.z2.runner_execution_receipt.v1",
+                "run_id": "run-z2-bootstrap",
+                "campaign_id": module.Z2_CAMPAIGN_ID,
+                "row_id": "soc_tc",
+                "cloud_build_id": "test-build-id",
+                "cloud_run_job": "mlip-cell-z2-chgnet",
+                "runner_image_digest": "sha256:" + "d" * 64,
+                "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                "reviewed_by": "test-reviewer",
+                "reviewed_at": "2026-08-04T00:00:00Z",
+            }
+            execution_path.write_text(json.dumps(execution_receipt, sort_keys=True))
+            measurements = [
+                {"metric": "magnetocrystalline_anisotropy_rank_correlation", "value": 1.0, "unit": "spearman_rho", "acceptance_test": {"comparator": "equal", "threshold": 1.0, "outcome": "pass"}, "sample_count": 7},
+                {"metric": "easy_axis_sign_errors", "value": 0, "unit": "materials", "acceptance_test": {"comparator": "equal", "threshold": 0, "outcome": "pass"}, "sample_count": 7},
+                {"metric": "tc_rnsw_mae_k", "value": metrics["tc_rnsw_mae_k"], "unit": "K", "sample_count": 7},
+                {"metric": "tc_envelope_coverage", "value": metrics["tc_envelope_coverage"], "unit": "fraction", "sample_count": 7},
+            ]
+            row = {
+                "row_id": "soc_tc",
+                "previous_row_hash": None,
+                "campaign_manifest_hash": manifest["content_hash"],
+                "claim_id": module.Z2_CLAIM_ID,
+                "premise_id": module.Z2_PREMISE_ID,
+                "claim_predicate": module.Z2_PREDICATE,
+                "epistemic_status": "confirmatory",
+                "artifact": artifact_path.relative_to(root).as_posix(),
+                "artifact_hash": "sha256:" + hashlib.sha256(artifact_path.read_bytes()).hexdigest(),
+                "run_id": "run-z2-bootstrap",
+                "thresholds_version": "z2-soc-tc-v1",
+                "scope": {
+                    "structures": [item["material_id"] for item in panel["materials"]],
+                    "chemistries": [item["formula"] for item in panel["materials"]],
+                    "properties": sorted(module.Z2_PROPERTIES),
+                    "conditions": {
+                        "candidate_panel_sha256": module.Z2_PANEL_SHA256,
+                        "locked_material_count": 7,
+                    },
+                },
+                "provenance": {
+                    "agent": "test-z2-runner",
+                    "human": "reviewed test fixture",
+                    "timestamp": "2026-08-04T00:00:00Z",
+                    "runner_image_digest": "sha256:" + "d" * 64,
+                    "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                    "runner_build_receipt": receipt_relative.as_posix(),
+                    "runner_build_receipt_hash": "sha256:"
+                    + hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+                    "runner_execution_receipt": execution_relative.as_posix(),
+                    "runner_execution_receipt_hash": "sha256:"
+                    + hashlib.sha256(execution_path.read_bytes()).hexdigest(),
+                },
+                "measurements": measurements,
+            }
+            row["row_hash"] = "sha256:" + hashlib.sha256(
+                module.rfc8785.dumps(
+                    {key: value for key, value in row.items() if key != "row_hash"}
+                )
+            ).hexdigest()
+            rows_path = root / "data" / "candidates" / "z2" / "measurements.jsonl"
+            failed_prediction = artifact["predictions"][0]
+            failed_prediction["mae_yz_mev_per_cell"] = 1.0
+            failed_prediction["easy_axis"] = "in_plane"
+            fm_evidence = failed_prediction["ordering_evidence"]["fm"]
+            fm_evidence["y_energy_ev"] = fm_evidence["perpendicular_energy_ev"] - 0.001
+            artifact["accuracy"]["easy_axis_sign_errors"] = 1
+            artifact_path.write_text(json.dumps(artifact))
+            row["artifact_hash"] = "sha256:" + hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+            row["measurements"][1]["value"] = 1
+            row["measurements"][1]["acceptance_test"]["outcome"] = "fail"
+            row["row_hash"] = "sha256:" + hashlib.sha256(
+                module.rfc8785.dumps(
+                    {key: value for key, value in row.items() if key != "row_hash"}
+                )
+            ).hexdigest()
+            rows_path.write_text(json.dumps(row) + "\n")
+            failed = subprocess.run(
+                [sys.executable, str(INGESTER), "--root", str(root), "--manifest", str(manifest_path), "--measurements", str(rows_path)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(failed.returncode, 2)
+            self.assertIn("requires a passing", failed.stderr)
+            unchanged_claim = json.loads(
+                (root / "registry" / "claims" / f"{module.Z2_CLAIM_ID}.json").read_text()
+            )
+            self.assertEqual(unchanged_claim["premises"][0]["support_policy"], {"mode": "unsupported"})
+            self.assertEqual(unchanged_claim["premises"][0]["bundle_references"], [])
+
+            artifact["predictions"][0] = self.z2_reference_prediction(panel["materials"][0])
+            artifact["accuracy"]["easy_axis_sign_errors"] = 0
+            artifact_path.write_text(json.dumps(artifact))
+            row["artifact_hash"] = "sha256:" + hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+            row["measurements"][1]["value"] = 0
+            row["measurements"][1]["acceptance_test"]["outcome"] = "pass"
+            row["row_hash"] = "sha256:" + hashlib.sha256(
+                module.rfc8785.dumps(
+                    {key: value for key, value in row.items() if key != "row_hash"}
+                )
+            ).hexdigest()
+            rows_path.write_text(json.dumps(row) + "\n")
+
+            result = subprocess.run(
+                [sys.executable, str(INGESTER), "--root", str(root), "--manifest", str(manifest_path), "--measurements", str(rows_path)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            claim = json.loads(
+                (root / "registry" / "claims" / f"{module.Z2_CLAIM_ID}.json").read_text()
+            )
+            premise = claim["premises"][0]
+            self.assertEqual(premise["support_policy"], {"mode": "all"})
+            self.assertEqual(len(premise["bundle_references"]), 1)
 
     def test_recorded_path_minimum_is_enforced(self) -> None:
         module = load_ingest_module()

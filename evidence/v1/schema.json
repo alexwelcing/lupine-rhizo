@@ -60,6 +60,18 @@
           },
           {
             "$ref": "#/$defs/medianSignedErrorMeasurement"
+          },
+          {
+            "$ref": "#/$defs/z2RankMeasurement"
+          },
+          {
+            "$ref": "#/$defs/z2EasyAxisMeasurement"
+          },
+          {
+            "$ref": "#/$defs/z2TcMaeMeasurement"
+          },
+          {
+            "$ref": "#/$defs/z2TcCoverageMeasurement"
           }
         ]
       }
@@ -189,6 +201,64 @@
               ]
             },
             "description": "Sign-skew receipts must carry the analyzed dataset fingerprint so readiness grading can count distinct datasets rather than campaign names."
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["measurements"],
+        "properties": {
+          "measurements": {
+            "contains": {
+              "oneOf": [
+                {"$ref": "#/$defs/z2RankMeasurement"},
+                {"$ref": "#/$defs/z2EasyAxisMeasurement"},
+                {"$ref": "#/$defs/z2TcMaeMeasurement"},
+                {"$ref": "#/$defs/z2TcCoverageMeasurement"}
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "required": ["claim_predicate"],
+        "properties": {
+          "claim_predicate": {
+            "const": "magnetocrystalline_anisotropy_rank_correlation==1"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "claim_predicate": {
+            "const": "magnetocrystalline_anisotropy_rank_correlation==1"
+          }
+        },
+        "required": ["claim_predicate"]
+      },
+      "then": {
+        "required": ["measurements"],
+        "properties": {
+          "measurements": {
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "oneOf": [
+                {"$ref": "#/$defs/z2RankMeasurement"},
+                {"$ref": "#/$defs/z2EasyAxisMeasurement"},
+                {"$ref": "#/$defs/z2TcMaeMeasurement"},
+                {"$ref": "#/$defs/z2TcCoverageMeasurement"}
+              ]
+            },
+            "allOf": [
+              {"contains": {"$ref": "#/$defs/z2RankMeasurement"}},
+              {"contains": {"$ref": "#/$defs/z2EasyAxisMeasurement"}},
+              {"contains": {"$ref": "#/$defs/z2TcMaeMeasurement"}},
+              {"contains": {"$ref": "#/$defs/z2TcCoverageMeasurement"}}
+            ]
           }
         }
       }
@@ -430,6 +500,72 @@
           "type": "integer",
           "minimum": 1
         }
+      }
+    },
+    "z2Acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["comparator", "threshold", "outcome"],
+      "properties": {
+        "comparator": {"const": "equal"},
+        "threshold": {"type": "number"},
+        "outcome": {"enum": ["pass", "fail"]}
+      }
+    },
+    "z2RankMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "value", "unit", "acceptance_test", "sample_count"],
+      "properties": {
+        "metric": {"const": "magnetocrystalline_anisotropy_rank_correlation"},
+        "value": {"type": "number", "minimum": -1, "maximum": 1},
+        "unit": {"const": "spearman_rho"},
+        "acceptance_test": {
+          "allOf": [
+            {"$ref": "#/$defs/z2Acceptance"},
+            {"properties": {"threshold": {"const": 1}}}
+          ]
+        },
+        "sample_count": {"const": 7}
+      }
+    },
+    "z2EasyAxisMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "value", "unit", "acceptance_test", "sample_count"],
+      "properties": {
+        "metric": {"const": "easy_axis_sign_errors"},
+        "value": {"type": "integer", "minimum": 0, "maximum": 7},
+        "unit": {"const": "materials"},
+        "acceptance_test": {
+          "allOf": [
+            {"$ref": "#/$defs/z2Acceptance"},
+            {"properties": {"threshold": {"const": 0}}}
+          ]
+        },
+        "sample_count": {"const": 7}
+      }
+    },
+    "z2TcMaeMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "value", "unit", "sample_count"],
+      "properties": {
+        "metric": {"const": "tc_rnsw_mae_k"},
+        "value": {"type": "number", "minimum": 0},
+        "unit": {"const": "K"},
+        "sample_count": {"const": 7}
+      }
+    },
+    "z2TcCoverageMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "value", "unit", "sample_count"],
+      "properties": {
+        "metric": {"const": "tc_envelope_coverage"},
+        "value": {"type": "number", "minimum": 0, "maximum": 1},
+        "unit": {"const": "fraction"},
+        "sample_count": {"const": 7}
       }
     },
     "medianSignedErrorMeasurement": {

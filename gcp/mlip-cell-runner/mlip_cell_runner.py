@@ -161,7 +161,11 @@ def checkpoint_url_from_prefix(prefix: str) -> str:
 
 
 def raw_prediction_checkpoint_context(
-    row_id: str, mlip_id: str, manifest_hash: str, calculator_dtype: str | None = None
+    row_id: str,
+    mlip_id: str,
+    manifest_hash: str,
+    calculator_dtype: str | None = None,
+    runner_image_digest: str | None = None,
 ) -> dict[str, str]:
     context = {
         "schema": "lupine.mlip.cell_checkpoint.context.v2",
@@ -174,6 +178,8 @@ def raw_prediction_checkpoint_context(
         # Calculator precision changes prediction semantics; a checkpoint
         # written under a different dtype must fail closed to recompute.
         context["calculator_dtype"] = calculator_dtype
+    if runner_image_digest is not None:
+        context["runner_image_digest"] = runner_image_digest
     return context
 
 
@@ -183,12 +189,24 @@ def normalize_checkpoint_context(context: Any) -> dict[str, str] | None:
     row_id = context.get("row_id")
     mlip_id = context.get("mlip_id")
     manifest_hash = context.get("manifest_hash")
-    if not all(isinstance(value, str) and value for value in (row_id, mlip_id, manifest_hash)):
+    if (
+        not isinstance(row_id, str)
+        or not row_id
+        or not isinstance(mlip_id, str)
+        or not mlip_id
+        or not isinstance(manifest_hash, str)
+        or not manifest_hash
+    ):
         return None
     calculator_dtype = context.get("calculator_dtype")
     if calculator_dtype is not None and not isinstance(calculator_dtype, str):
         return None
-    return raw_prediction_checkpoint_context(row_id, mlip_id, manifest_hash, calculator_dtype)
+    runner_image_digest = context.get("runner_image_digest")
+    if runner_image_digest is not None and not isinstance(runner_image_digest, str):
+        return None
+    return raw_prediction_checkpoint_context(
+        row_id, mlip_id, manifest_hash, calculator_dtype, runner_image_digest
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -410,10 +428,13 @@ class CellCheckpoint:
         distill_profile: str,
         manifest_hash: str,
         calculator_dtype: str | None = None,
+        runner_image_digest: str | None = None,
     ) -> None:
         self.url = url
         self.mode = mode
-        self.context = raw_prediction_checkpoint_context(row_id, mlip_id, manifest_hash, calculator_dtype)
+        self.context = raw_prediction_checkpoint_context(
+            row_id, mlip_id, manifest_hash, calculator_dtype, runner_image_digest
+        )
         self.producer_context = {
             "run_id": run_id,
             "cell_id": cell_id,
@@ -776,6 +797,7 @@ def run_cell(
     )
     barrier_panel = None
     barrier_contract = None
+    runner_image_digest = None
     if args.row_id in (BARRIER_ROW_ID, SPARSE_DFT_ROW_ID):
         if args.distill_profile != "off":
             raise ValueError(f"{args.row_id} row does not support distill profiles")
@@ -788,6 +810,26 @@ def run_cell(
         manifest, barrier_panel, manifest_hash, barrier_contract = load_soc_tc_campaign_panel(
             manifest_url, args.mlip_id, read_url
         )
+        manifest_campaign_id = str(manifest["campaign_id"])
+        if args.campaign_id is None:
+            args.campaign_id = manifest_campaign_id
+        elif args.campaign_id != manifest_campaign_id:
+            raise ValueError("Z2 --campaign-id does not match the reviewed manifest")
+        runner_image_digest = os.environ.get("RUNNER_IMAGE_DIGEST")
+        if (
+            not isinstance(runner_image_digest, str)
+            or len(runner_image_digest) != 71
+            or not runner_image_digest.startswith("sha256:")
+            or any(character not in "0123456789abcdef" for character in runner_image_digest[7:])
+        ):
+            raise ValueError(
+                "Z2 execution requires RUNNER_IMAGE_DIGEST=sha256:<64 lowercase hex>"
+            )
+        runner_image_uri = os.environ.get("RUNNER_IMAGE_URI")
+        if not isinstance(runner_image_uri, str) or not runner_image_uri.endswith(
+            f"@{runner_image_digest}"
+        ):
+            raise ValueError("Z2 execution requires RUNNER_IMAGE_URI pinned to RUNNER_IMAGE_DIGEST")
     else:
         manifest = load_manifest(manifest_url)
         manifest_hash = "sha256:" + sha256_hex(manifest)
@@ -809,6 +851,7 @@ def run_cell(
             distill_profile=args.distill_profile,
             manifest_hash=manifest_hash,
             calculator_dtype=calc_dtype,
+            runner_image_digest=runner_image_digest,
         )
     policy_limits_path = None
     policy_limits_hash = None
@@ -908,6 +951,7 @@ def run_cell(
         "cloud_run_job": os.environ.get("CLOUD_RUN_JOB") or os.environ.get("K_SERVICE"),
         "cloud_run_revision": os.environ.get("K_REVISION"),
         "runner_image_digest": os.environ.get("RUNNER_IMAGE_DIGEST"),
+        "runner_image_uri": os.environ.get("RUNNER_IMAGE_URI"),
         "model_preloaded": model_preloaded,
     }
     distill_events_uri = None
