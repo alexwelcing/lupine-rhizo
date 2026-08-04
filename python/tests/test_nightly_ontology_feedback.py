@@ -1557,6 +1557,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(workflow.count("Normalize Cloudflare token secret"), 2)
         self.assertIn('${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}', workflow)
         self.assertIn('${token#Bearer }', workflow)
+        self.assertIn("${token//[$' \\t\\r\\n']/}", workflow)
         self.assertIn("0015_literature_hypotheses_sign_skew_predicate.sql", " ".join(
             path.name for path in MIGRATIONS.glob("*.sql")
         ))
