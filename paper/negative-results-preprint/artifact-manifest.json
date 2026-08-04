@@ -1,0 +1,45 @@
+{
+  "files": [
+    {
+      "bytes": 17601,
+      "path": "manuscript.tex",
+      "sha256": "1806deebb1ebb4677962efc0fa1826e149621656cbdd2616a018998787289b36"
+    },
+    {
+      "bytes": 3200,
+      "path": "references.bib",
+      "sha256": "694a1e7172aaa731a117f6e4855def380ac2038e5426f33924aad094a073de1e"
+    },
+    {
+      "bytes": 1557,
+      "path": "README.md",
+      "sha256": "7e29ff1700ade6a144cb67517826b8c80960435d854988a1979206cc68eeb852"
+    },
+    {
+      "bytes": 14482,
+      "path": "build_artifacts.py",
+      "sha256": "008418559dbb9a7e88e5f708cf3e0f1f41317361f7ced4cfa3afe4087397dd8f"
+    },
+    {
+      "bytes": 7175,
+      "path": "figure-source-data.json",
+      "sha256": "15ac1eb4ae4f22cda277da059e624c43445fc2cf6b060df42da03ce0fdd0c158"
+    },
+    {
+      "bytes": 23217,
+      "path": "figures/negative-results-panels.pdf",
+      "sha256": "42f6000179dd78737e9d3c34c9462d84500cedec396fa5106726f5507fd7cc28"
+    },
+    {
+      "bytes": 152555,
+      "path": "figures/negative-results-panels.png",
+      "sha256": "7e5dfc1231e9429db84593b7e20b7c1ff34adef172e2efd5b4a7e36db9950323"
+    },
+    {
+      "bytes": 1060,
+      "path": "global-operator.lock.json",
+      "sha256": "4450ea8ffb4cfbc075d761e7f54f06fbcff16c73d1866b0026369415d43a5e4b"
+    }
+  ],
+  "schema": "lupine.negative-results.generated-artifacts.v1"
+}
