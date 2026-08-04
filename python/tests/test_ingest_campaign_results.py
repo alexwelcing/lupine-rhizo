@@ -466,6 +466,21 @@ class CampaignResultIngestionTests(unittest.TestCase):
             artifact_path = root / "data" / "candidates" / "z2" / "complete.json"
             artifact_path.parent.mkdir(parents=True)
             artifact_path.write_text(json.dumps(artifact))
+            receipt_relative = Path("evidence/v1/build-receipts/z2-test-build.json")
+            receipt_path = root / receipt_relative
+            receipt_path.parent.mkdir(parents=True)
+            receipt = {
+                "schema": "lupine.z2.runner_build_receipt.v1",
+                "campaign_id": module.Z2_CAMPAIGN_ID,
+                "manifest_hash": module.Z2_MANIFEST_CONTENT_HASH,
+                "candidate_panel_sha256": module.Z2_PANEL_SHA256,
+                "runner_image_digest": "sha256:" + "d" * 64,
+                "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                "cloud_build_id": "test-build-id",
+                "reviewed_by": "test-reviewer",
+                "reviewed_at": "2026-08-04T00:00:00Z",
+            }
+            receipt_path.write_text(json.dumps(receipt, sort_keys=True))
             measurements = [
                 {"metric": "magnetocrystalline_anisotropy_rank_correlation", "value": 1.0, "unit": "spearman_rho", "acceptance_test": {"comparator": "equal", "threshold": 1.0, "outcome": "pass"}, "sample_count": 7},
                 {"metric": "easy_axis_sign_errors", "value": 0, "unit": "materials", "acceptance_test": {"comparator": "equal", "threshold": 0, "outcome": "pass"}, "sample_count": 7},
@@ -499,6 +514,9 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     "timestamp": "2026-08-04T00:00:00Z",
                     "runner_image_digest": "sha256:" + "d" * 64,
                     "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                    "runner_build_receipt": receipt_relative.as_posix(),
+                    "runner_build_receipt_hash": "sha256:"
+                    + hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
                 },
                 "measurements": measurements,
             }

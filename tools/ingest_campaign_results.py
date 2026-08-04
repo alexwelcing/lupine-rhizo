@@ -559,6 +559,52 @@ def _z2_tc_estimates(
     }
 
 
+def authenticate_z2_build_receipt(
+    root: Path,
+    artifact: dict[str, Any],
+    row: dict[str, Any],
+) -> None:
+    """Bind the runner digest to a repository-reviewed Cloud Build receipt."""
+    provenance = row.get("provenance")
+    if not isinstance(provenance, dict):
+        raise ValueError("Z2 evidence requires runner build receipt provenance")
+    receipt_value = provenance.get("runner_build_receipt")
+    receipt_hash = provenance.get("runner_build_receipt_hash")
+    if not isinstance(receipt_value, str) or not isinstance(receipt_hash, str):
+        raise ValueError("Z2 evidence requires a reviewed runner build receipt")
+    receipt_relative = Path(receipt_value)
+    if (
+        receipt_relative.is_absolute()
+        or ".." in receipt_relative.parts
+        or receipt_relative.parent != Path("evidence/v1/build-receipts")
+        or receipt_relative.suffix != ".json"
+    ):
+        raise ValueError("Z2 runner build receipt must be a reviewed repository-relative JSON")
+    receipt_path = root / receipt_relative
+    try:
+        receipt_bytes = receipt_path.read_bytes()
+        receipt = json.loads(receipt_bytes)
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"cannot read Z2 runner build receipt: {error}") from error
+    if "sha256:" + hashlib.sha256(receipt_bytes).hexdigest() != receipt_hash:
+        raise ValueError("Z2 runner build receipt digest mismatch")
+    execution = artifact.get("execution")
+    if not isinstance(execution, dict):
+        raise ValueError("Z2 artifact has no execution provenance")
+    expected = {
+        "schema": "lupine.z2.runner_build_receipt.v1",
+        "campaign_id": Z2_CAMPAIGN_ID,
+        "manifest_hash": Z2_MANIFEST_CONTENT_HASH,
+        "candidate_panel_sha256": Z2_PANEL_SHA256,
+        "runner_image_digest": execution.get("runner_image_digest"),
+        "runner_image_uri": execution.get("runner_image_uri"),
+    }
+    if not isinstance(receipt, dict) or any(receipt.get(key) != value for key, value in expected.items()):
+        raise ValueError("Z2 runner build receipt does not authenticate the reviewed image")
+    for field in ("cloud_build_id", "reviewed_by", "reviewed_at"):
+        require_string(receipt, field, "Z2 runner build receipt")
+
+
 def enforce_z2_measurement(
     panel: dict[str, Any], artifact: dict[str, Any], row: dict[str, Any]
 ) -> None:
@@ -774,8 +820,8 @@ def enforce_z2_measurement(
         tc_errors.append(abs(predicted_tc - reference_tc))
         if (
             envelope_low <= predicted_tc <= envelope_high
-            or math.isclose(predicted_tc, envelope_low)
-            or math.isclose(predicted_tc, envelope_high)
+            or math.isclose(predicted_tc, envelope_low, rel_tol=0.0, abs_tol=1e-9)
+            or math.isclose(predicted_tc, envelope_high, rel_tol=0.0, abs_tol=1e-9)
         ):
             covered += 1
     reference_ranks = _z2_average_ranks(reference_mae)
@@ -910,6 +956,7 @@ def bundle_from_row(
         if not isinstance(artifact_document, dict):
             raise ValueError(f"measurement {row_id} Z2 artifact must be an object")
         panel = load_reviewed_z2_panel(root)
+        authenticate_z2_build_receipt(root, artifact_document, row)
         enforce_z2_measurement(panel, artifact_document, row)
     dataset_fingerprint = enforce_path_minimums(root, manifest, bundle, artifact, row_id)
     if dataset_fingerprint is not None:
