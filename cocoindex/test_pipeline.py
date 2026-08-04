@@ -13,6 +13,7 @@ import pathlib
 import sys
 
 import numpy as np
+import pytest
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -21,6 +22,7 @@ sys.path.insert(0, str(HERE))
 # registration side-effects: main.py builds the App at import time, which is
 # fine because App construction is lazy (no engine start until update()).
 import main as pipeline  # noqa: E402
+import query  # noqa: E402
 
 
 def test_fallback_vector_is_deterministic_and_dim():
@@ -31,6 +33,20 @@ def test_fallback_vector_is_deterministic_and_dim():
     assert np.array_equal(a, b), "same text must produce the same vector"
     assert not np.allclose(a, c, atol=1e-6), "different text should differ"
     assert abs(float(np.linalg.norm(a)) - 1.0) < 1e-5, "fallback vector must be unit-norm"
+
+
+def test_query_embedding_fails_closed_when_real_model_is_required(monkeypatch):
+    class BrokenSentenceTransformer:
+        def __init__(self, _model):
+            raise OSError("model unavailable")
+
+    import sentence_transformers  # type: ignore[import-not-found]
+
+    monkeypatch.setattr(sentence_transformers, "SentenceTransformer", BrokenSentenceTransformer)
+    monkeypatch.setattr(pipeline, "REQUIRE_REAL_EMBEDDINGS", True)
+    monkeypatch.setattr(query, "_QUERY_MODEL", None)
+    with pytest.raises(RuntimeError, match="real query embedding required"):
+        query._safe_embed("fail closed")
 
 
 def test_seed_records_are_valid_jsonl_with_text():

@@ -1546,6 +1546,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
         self.assertIn("uses: actions/cache@v4", workflow)
         self.assertIn("EVIDENCE_EMBED_REPO: BAAI/bge-small-en-v1.5", workflow)
+        self.assertIn("EVIDENCE_REQUIRE_REAL_EMBEDDINGS: '1'", workflow)
         self.assertIn('repo_id=os.environ["EVIDENCE_EMBED_REPO"]', workflow)
         self.assertIn("revision=os.environ[\"EVIDENCE_EMBED_REVISION\"]", workflow)
         self.assertIn("HF_HUB_OFFLINE=1", workflow)
