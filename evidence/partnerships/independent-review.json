@@ -1,7 +1,7 @@
 {
-  "reviewed_on": "2026-08-01",
+  "reviewed_on": "2026-08-02",
   "verdict": "ACCEPT",
-  "scope": "Fresh independent read-only semantic acceptance review of PARTNER-3B after fail-closed remediation",
+  "scope": "Independent read-only semantic acceptance review after PARTNER-4 batch remediation",
   "coverage": {
     "tier_1": 34,
     "tier_2": 59,
@@ -40,13 +40,13 @@
   },
   "mechanical_validation": {
     "status": "PASS",
-    "checks": 1973,
+    "checks": 2071,
     "errors": 0,
     "validated_triggers": 49,
     "needs_verification_triggers": 44
   },
   "economics_guardrail": "93/93 mappings preserve exactly 72.4% fewer DFT evaluations; measured execution guardrail: $14.65 per 129 anchors",
   "blocking_ids": [],
-  "artifact_integrity": "Independent reviewer modified no canonical artifacts; canonical hashes were unchanged during review.",
-  "review_summary": "ACCEPT — exact 93-record tier-1/2 coverage; four manifests cover all 92 originally unresolved IDs exactly once; 33 records are fully validated, 60 remain explicitly fail-closed, and no incorrect promotions remain."
+  "artifact_integrity": "Independent reviewers modified no canonical artifacts during read-only batch and post-remediation reviews.",
+  "review_summary": "ACCEPT — exact 93-record tier-1/2 coverage; 33 records are fully validated, 60 remain explicitly fail-closed, P096 no longer promotes a report as a program/facility, and all Lupine economics preserve the exact approved wording."
 }
