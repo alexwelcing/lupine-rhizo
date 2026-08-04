@@ -20,11 +20,15 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from pathlib import Path
+from importlib.resources import files
 from typing import Any
 
 _VALIDATION = "OpenDistillationFactory.Materials.Validation.ClimateSeries"
-_INVENTORY_PATH = Path(__file__).resolve().parents[3] / "lean-spec" / "theorem-count.json"
+
+
+def _load_inventory() -> dict[str, Any]:
+    resource = files("lupine_distill.odf").joinpath("theorem-count.json")
+    return json.loads(resource.read_text(encoding="utf-8"))
 
 #: Fully-qualified Lean names for every climate-series certificate.
 THEOREM_REFS: dict[str, str] = {
@@ -167,14 +171,15 @@ def inventory_certificates(
 ) -> list[ClimateSeriesCertificate]:
     """Certificate for the generated formalization inventory.
 
-    Defaults are loaded from ``lean-spec/theorem-count.json``. Explicit values
-    remain available for callers that need to validate a candidate inventory.
+    Defaults are loaded from the generated inventory packaged with this module.
+    Explicit values remain available for callers validating a candidate inventory.
     """
-    inventory = json.loads(_INVENTORY_PATH.read_text(encoding="utf-8"))
-    modules = inventory["modules"] if modules is None else modules
-    theorems = inventory["count"] if theorems is None else theorems
-    if sorrys is None:
-        sorrys = 0 if inventory["zero_sorry"] else 1
+    if modules is None or theorems is None or sorrys is None:
+        inventory = _load_inventory()
+        modules = inventory["modules"] if modules is None else modules
+        theorems = inventory["count"] if theorems is None else theorems
+        if sorrys is None:
+            sorrys = 0 if inventory["zero_sorry"] else 1
     assert modules is not None and theorems is not None
     return [
         _cert(

@@ -55,6 +55,17 @@ def test_inventory_floor_fails_on_sorry():
     assert not certs[0].passes
 
 
+def test_explicit_inventory_does_not_require_packaged_defaults(monkeypatch):
+    from lupine_distill.odf import climate_series
+
+    def fail_if_loaded():
+        raise AssertionError("explicit inventory unexpectedly loaded packaged defaults")
+
+    monkeypatch.setattr(climate_series, "_load_inventory", fail_if_loaded)
+    certs = climate_series.inventory_certificates(modules=1, theorems=1, sorrys=0)
+    assert certs[0].passes
+
+
 def test_every_theorem_ref_resolves_in_lean_sources():
     lean_text = "\n".join(
         p.read_text(encoding="utf-8") for p in _LEAN_MATERIALS.rglob("*.lean")

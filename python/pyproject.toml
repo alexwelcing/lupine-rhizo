@@ -48,3 +48,6 @@ telemetry = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["lupine_distill*", "lupine_distill_runtime*"]
+
+[tool.setuptools.package-data]
+lupine_distill = ["odf/theorem-count.json"]
