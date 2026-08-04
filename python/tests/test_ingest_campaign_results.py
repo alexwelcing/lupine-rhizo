@@ -460,6 +460,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 "execution": {
                     "runner_image_digest": "sha256:" + "d" * 64,
                     "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                    "cloud_run_job": "mlip-cell-z2-chgnet",
                 },
                 "accuracy": metrics,
             }
@@ -477,10 +478,29 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 "runner_image_digest": "sha256:" + "d" * 64,
                 "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
                 "cloud_build_id": "test-build-id",
+                "cloud_run_job": "mlip-cell-z2-chgnet",
                 "reviewed_by": "test-reviewer",
                 "reviewed_at": "2026-08-04T00:00:00Z",
             }
             receipt_path.write_text(json.dumps(receipt, sort_keys=True))
+            execution_relative = Path(
+                "evidence/v1/execution-receipts/z2-test-execution.json"
+            )
+            execution_path = root / execution_relative
+            execution_path.parent.mkdir(parents=True)
+            execution_receipt = {
+                "schema": "lupine.z2.runner_execution_receipt.v1",
+                "run_id": "run-z2-bootstrap",
+                "campaign_id": module.Z2_CAMPAIGN_ID,
+                "row_id": "soc_tc",
+                "cloud_build_id": "test-build-id",
+                "cloud_run_job": "mlip-cell-z2-chgnet",
+                "runner_image_digest": "sha256:" + "d" * 64,
+                "runner_image_uri": "us-docker.pkg.dev/lupine/z2/runner@sha256:" + "d" * 64,
+                "reviewed_by": "test-reviewer",
+                "reviewed_at": "2026-08-04T00:00:00Z",
+            }
+            execution_path.write_text(json.dumps(execution_receipt, sort_keys=True))
             measurements = [
                 {"metric": "magnetocrystalline_anisotropy_rank_correlation", "value": 1.0, "unit": "spearman_rho", "acceptance_test": {"comparator": "equal", "threshold": 1.0, "outcome": "pass"}, "sample_count": 7},
                 {"metric": "easy_axis_sign_errors", "value": 0, "unit": "materials", "acceptance_test": {"comparator": "equal", "threshold": 0, "outcome": "pass"}, "sample_count": 7},
@@ -517,6 +537,9 @@ class CampaignResultIngestionTests(unittest.TestCase):
                     "runner_build_receipt": receipt_relative.as_posix(),
                     "runner_build_receipt_hash": "sha256:"
                     + hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+                    "runner_execution_receipt": execution_relative.as_posix(),
+                    "runner_execution_receipt_hash": "sha256:"
+                    + hashlib.sha256(execution_path.read_bytes()).hexdigest(),
                 },
                 "measurements": measurements,
             }

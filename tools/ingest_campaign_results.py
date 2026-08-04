@@ -603,6 +603,46 @@ def authenticate_z2_build_receipt(
         raise ValueError("Z2 runner build receipt does not authenticate the reviewed image")
     for field in ("cloud_build_id", "reviewed_by", "reviewed_at"):
         require_string(receipt, field, "Z2 runner build receipt")
+    cloud_run_job = require_string(execution, "cloud_run_job", "Z2 artifact execution")
+    if receipt.get("cloud_run_job") != cloud_run_job:
+        raise ValueError("Z2 runner build receipt does not bind the deployed Cloud Run job")
+
+    execution_value = provenance.get("runner_execution_receipt")
+    execution_hash = provenance.get("runner_execution_receipt_hash")
+    if not isinstance(execution_value, str) or not isinstance(execution_hash, str):
+        raise ValueError("Z2 evidence requires a reviewed runner execution receipt")
+    execution_relative = Path(execution_value)
+    if (
+        execution_relative.is_absolute()
+        or ".." in execution_relative.parts
+        or execution_relative.parent != Path("evidence/v1/execution-receipts")
+        or execution_relative.suffix != ".json"
+    ):
+        raise ValueError("Z2 runner execution receipt must be a reviewed repository-relative JSON")
+    execution_path = root / execution_relative
+    try:
+        execution_bytes = execution_path.read_bytes()
+        execution_receipt = json.loads(execution_bytes)
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"cannot read Z2 runner execution receipt: {error}") from error
+    if "sha256:" + hashlib.sha256(execution_bytes).hexdigest() != execution_hash:
+        raise ValueError("Z2 runner execution receipt digest mismatch")
+    execution_expected = {
+        "schema": "lupine.z2.runner_execution_receipt.v1",
+        "run_id": row.get("run_id"),
+        "campaign_id": Z2_CAMPAIGN_ID,
+        "row_id": Z2_ROW_ID,
+        "cloud_build_id": receipt.get("cloud_build_id"),
+        "cloud_run_job": cloud_run_job,
+        "runner_image_digest": execution.get("runner_image_digest"),
+        "runner_image_uri": execution.get("runner_image_uri"),
+    }
+    if not isinstance(execution_receipt, dict) or any(
+        execution_receipt.get(key) != value for key, value in execution_expected.items()
+    ):
+        raise ValueError("Z2 runner execution receipt does not authenticate this run")
+    for field in ("reviewed_by", "reviewed_at"):
+        require_string(execution_receipt, field, "Z2 runner execution receipt")
 
 
 def enforce_z2_measurement(
