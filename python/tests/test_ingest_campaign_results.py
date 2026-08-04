@@ -336,6 +336,11 @@ class CampaignResultIngestionTests(unittest.TestCase):
         self.assertEqual(predicates, {row["claim_predicate"]})
         self.assertEqual(allowed["structures"], set(row["scope"]["structures"]))
 
+        negative = dict(row)
+        negative["epistemic_status"] = "negative"
+        with self.assertRaisesRegex(ValueError, "must be confirmatory"):
+            module.allowed_scope(ROOT, premise, manifest=manifest, row=negative)
+
         unreviewed = dict(manifest)
         unreviewed["campaign_id"] = "unreviewed-z2"
         with self.assertRaisesRegex(ValueError, "no baseline evidence"):

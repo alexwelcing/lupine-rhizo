@@ -17,7 +17,7 @@ steps:
     args:
       - build
       - -t
-      - ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}
+      - ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}-${BUILD_ID}
       - --build-arg
       - BACKEND=${_BACKEND}
       - -f
@@ -26,13 +26,13 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}
+      - ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}-${BUILD_ID}
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: bash
     args:
       - -ceu
       - |
-        IMAGE_URI="${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}"
+        IMAGE_URI="${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}-${BUILD_ID}"
         DIGEST="$(gcloud artifacts docker images describe "$${IMAGE_URI}" --format='value(image_summary.digest)')"
         if [[ ! "$${DIGEST}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
           echo "Artifact Registry did not return an immutable sha256 digest" >&2
@@ -51,4 +51,4 @@ steps:
           --task-timeout=86400s
 
 images:
-  - ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}
+  - ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_JOB_NAME}:${_IMAGE_TAG}-${BUILD_ID}

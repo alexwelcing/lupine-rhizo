@@ -49,6 +49,7 @@ def test_z2_cloud_build_deploys_isolated_job_without_executing_it() -> None:
     assert "RUNNER_IMAGE_DIGEST=$${DIGEST}" in cloudbuild
     assert "RUNNER_IMAGE_URI=$${IMAGE_URI}@$${DIGEST}" in cloudbuild
     assert "--image=$${IMAGE_URI}@$${DIGEST}" in cloudbuild
+    assert "${_IMAGE_TAG}-${BUILD_ID}" in cloudbuild
 
 
 def test_unified_image_packages_zero_spend_z2_abstention_smoke() -> None:

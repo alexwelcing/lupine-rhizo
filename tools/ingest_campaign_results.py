@@ -370,8 +370,8 @@ def _reviewed_z2_bootstrap(
         return None
     if premise.get("support_policy") != {"mode": "unsupported"}:
         return None
-    if row.get("epistemic_status") == "unsupported":
-        raise ValueError("reviewed Z2 bootstrap requires completed evidence, not unsupported receipt")
+    if row.get("epistemic_status") != "confirmatory":
+        raise ValueError("reviewed Z2 bootstrap epistemic_status must be confirmatory")
     panel_lock = (manifest.get("execution") or {}).get("candidate_panel")
     if panel_lock != {"path": Z2_PANEL_PATH, "sha256": Z2_PANEL_SHA256}:
         raise ValueError("reviewed Z2 bootstrap manifest does not bind the locked panel")
