@@ -1,0 +1,9 @@
+{
+  "count": 836,
+  "modules": 110,
+  "zero_sorry": true,
+  "counted_at": "2026-08-03",
+  "source": "lean-spec/OpenDistillationFactory{,.lean} (vendored packages excluded)",
+  "source_commit": "8e6abb4",
+  "rule": "top-level declarations: lines matching /^(theorem|lemma)\\s/ in *.lean under OpenDistillationFactory{,.lean}, excluding /packages/ and /.lake/; regenerate with lean-spec/scripts/generate-lean-count.mjs — never hand-edit"
+}

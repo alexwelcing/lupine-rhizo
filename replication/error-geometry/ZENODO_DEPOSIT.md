@@ -19,8 +19,8 @@ Paper 2's Reproducibility section.
 - Pre-registrations: `prereg_functional_vs_architecture_2x2.md` (@dffbe595),
   `prereg_acwf_delta_gauge.md` (@ebf39e33), `prereg_round2.md`
 - Lean artifact: tag `lean-spec` at the current commit; include the five
-  core theory files or the repo tarball (77 build-locked theorems in
-  `Vision.lean`, ~225 declarations, 0 `sorry`, 0 new axioms)
+  core theory files or the repo tarball plus the machine-generated
+  `lean-spec/theorem-count.json` inventory (zero `sorry`, zero new axioms)
 
 **Live GCS mirror (already public):** https://storage.googleapis.com/shed-489901-replication/error-geometry/v1-10c18ace/ — add as a related identifier ("is identical to") in the Zenodo form.
 

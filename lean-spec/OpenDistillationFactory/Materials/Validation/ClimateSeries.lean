@@ -22,8 +22,10 @@ validation rate is at most 0.2 % = 1/500: `736 × 500 ≤ 380000`. -/
 theorem gnome_validation_rate_at_most_0_2_percent : 736 * 500 ≤ 380000 := by
   decide
 
-/-- **The A-Lab novelty collapse.** Of 41 reported syntheses, independent
-review left 13 true novel phases — at most one third survive:
+/-- **The A-Lab novelty critique.** The Author Correction (Nature 650:E1,
+2026) separately records 36 confirmed of 57 eligible targets, 4 inconclusive,
+and one compound removed. This theorem preserves the independent novelty
+critique: of 41 originally reported syntheses, review left 13 true novel phases — at most one third survive:
 `13 × 3 ≤ 41`. -/
 theorem alab_true_novelty_at_most_one_third : 13 * 3 ≤ 41 := by decide
 
@@ -66,11 +68,10 @@ The claimed 5–12 GtCO₂/yr aggregate is inside the component-sum envelope:
 theorem portfolio_range_within_component_sums :
     50 ≤ 10 + 5 + 40 + 4 + 5 ∧ 120 ≤ 30 + 20 + 100 + 12 + 30 := by decide
 
-/-- **Formalization inventory floor at the time of the proof pack**: 51
-modules, 190 build-locked theorems, ~640 declarations, 0 `sorry`. The count
-below this line only grows; the zero-`sorry` invariant is enforced by the
-build gate, not by this certificate. -/
-theorem proof_pack_inventory_floor : 51 ≤ 51 ∧ 190 ≤ 190 ∧ (0 : Nat) = 0 := by
+/-- **Formalization inventory contract.** Numeric inventory totals are generated
+from the source tree into `lean-spec/theorem-count.json`; this compatibility
+certificate records only the zero-`sorry` contract enforced by the build gate. -/
+theorem proof_pack_inventory_floor : (0 : Nat) = 0 := by
   decide
 
 end OpenDistillationFactory.Materials.Validation.ClimateSeries
