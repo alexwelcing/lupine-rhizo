@@ -1554,6 +1554,9 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("production_d1_maintenance:", workflow)
         self.assertIn("production-d1-maintenance:", workflow)
         self.assertIn("npx wrangler d1 migrations apply glim-ledger --remote", workflow)
+        self.assertEqual(workflow.count("Normalize Cloudflare token secret"), 2)
+        self.assertIn('${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}', workflow)
+        self.assertIn('${token#Bearer }', workflow)
         self.assertIn("0015_literature_hypotheses_sign_skew_predicate.sql", " ".join(
             path.name for path in MIGRATIONS.glob("*.sql")
         ))

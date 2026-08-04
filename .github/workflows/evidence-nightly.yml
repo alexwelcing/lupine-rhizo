@@ -304,6 +304,19 @@ jobs:
         working-directory: glim-think
         run: npm ci
 
+      - name: Normalize Cloudflare token secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}"
+          token="${token#Bearer }"
+          token="${token%$'\r'}"
+          token="${token#\"}"
+          token="${token%\"}"
+          test -n "$token"
+          echo "::add-mask::$token"
+          printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+
       - name: Seed staging D1 hypotheses
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
         run: |
@@ -453,6 +466,19 @@ jobs:
       - name: Install D1 client
         working-directory: glim-think
         run: npm ci
+
+      - name: Normalize Cloudflare token secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}"
+          token="${token#Bearer }"
+          token="${token%$'\r'}"
+          token="${token#\"}"
+          token="${token%\"}"
+          test -n "$token"
+          echo "::add-mask::$token"
+          printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
 
       - name: Apply migrations and seed reviewed literature hypotheses
         working-directory: glim-think
