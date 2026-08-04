@@ -810,6 +810,11 @@ def run_cell(
         manifest, barrier_panel, manifest_hash, barrier_contract = load_soc_tc_campaign_panel(
             manifest_url, args.mlip_id, read_url
         )
+        manifest_campaign_id = str(manifest["campaign_id"])
+        if args.campaign_id is None:
+            args.campaign_id = manifest_campaign_id
+        elif args.campaign_id != manifest_campaign_id:
+            raise ValueError("Z2 --campaign-id does not match the reviewed manifest")
         runner_image_digest = os.environ.get("RUNNER_IMAGE_DIGEST")
         if (
             not isinstance(runner_image_digest, str)

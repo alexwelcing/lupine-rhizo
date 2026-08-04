@@ -238,6 +238,11 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
         }
 
         self.assertFalse(list(self.validator.iter_errors(bundle)))
+        wrong_predicate = json.loads(json.dumps(bundle))
+        wrong_predicate["claim_predicate"] = (
+            "magnetocrystalline_anisotropy_rank_correlation==0.9"
+        )
+        self.assertTrue(list(self.validator.iter_errors(wrong_predicate)))
         bundle["measurements"][0]["sample_count"] = 6
         self.assertTrue(list(self.validator.iter_errors(bundle)))
         bundle["measurements"] = bundle["measurements"][:-1]

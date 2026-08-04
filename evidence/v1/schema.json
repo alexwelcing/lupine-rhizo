@@ -207,6 +207,31 @@
     },
     {
       "if": {
+        "required": ["measurements"],
+        "properties": {
+          "measurements": {
+            "contains": {
+              "oneOf": [
+                {"$ref": "#/$defs/z2RankMeasurement"},
+                {"$ref": "#/$defs/z2EasyAxisMeasurement"},
+                {"$ref": "#/$defs/z2TcMaeMeasurement"},
+                {"$ref": "#/$defs/z2TcCoverageMeasurement"}
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "required": ["claim_predicate"],
+        "properties": {
+          "claim_predicate": {
+            "const": "magnetocrystalline_anisotropy_rank_correlation==1"
+          }
+        }
+      }
+    },
+    {
+      "if": {
         "properties": {
           "claim_predicate": {
             "const": "magnetocrystalline_anisotropy_rank_correlation==1"

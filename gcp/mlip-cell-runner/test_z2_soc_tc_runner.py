@@ -186,6 +186,7 @@ def test_mlip_cell_runner_dispatches_locked_soc_tc_row(
     assert len(artifact["predictions"]) == 7
     assert {item["status"] for item in artifact["predictions"]} == {"completed"}
     assert artifact["execution"]["runner_image_digest"] == "sha256:" + "a" * 64
+    assert artifact["campaign_id"] == "discovery.round-4.z2-magnetic-anisotropy.v1"
 
 
 def test_mlip_cell_runner_refuses_z2_without_immutable_image_digest(
