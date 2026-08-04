@@ -378,7 +378,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
             "accuracy": metrics,
         }
         row = {
-            "row_id": "z2-complete",
+            "row_id": "soc_tc",
             "run_id": "run-z2-complete",
             "claim_predicate": module.Z2_PREDICATE,
             "provenance": {
@@ -508,7 +508,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 {"metric": "tc_envelope_coverage", "value": metrics["tc_envelope_coverage"], "unit": "fraction", "sample_count": 7},
             ]
             row = {
-                "row_id": "z2-complete",
+                "row_id": "soc_tc",
                 "previous_row_hash": None,
                 "campaign_manifest_hash": manifest["content_hash"],
                 "claim_id": module.Z2_CLAIM_ID,

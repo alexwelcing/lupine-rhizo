@@ -683,10 +683,13 @@ def enforce_z2_measurement(
     ):
         raise ValueError("Z2 evidence provenance does not authenticate the runner image")
     expected_run_id = require_string(row, "run_id", "Z2 measurement")
+    evidence_row_id = require_string(row, "row_id", "Z2 measurement")
+    if evidence_row_id != Z2_ROW_ID:
+        raise ValueError("Z2 evidence row_id must match the canonical runner row")
     artifact_identity = {
         "run_id": expected_run_id,
         "campaign_id": Z2_CAMPAIGN_ID,
-        "row_id": Z2_ROW_ID,
+        "row_id": evidence_row_id,
     }
     for field, expected in artifact_identity.items():
         if artifact.get(field) != expected:
