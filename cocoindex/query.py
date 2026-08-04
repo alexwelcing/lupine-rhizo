@@ -152,6 +152,8 @@ def _safe_embed(text: str):
             return vec
         raise ValueError(f"unexpected embedding dim {vec.shape[-1]}")
     except Exception as e:  # noqa: BLE001
+        if pipeline.REQUIRE_REAL_EMBEDDINGS:
+            raise RuntimeError("real query embedding required but unavailable") from e
         print(f"[query] embed failed ({e}); using fallback", file=sys.stderr)
         return pipeline._fallback_vector(text)
 

@@ -54,6 +54,7 @@ from cocoindex.resources.id import IdGenerator
 # GCP, and edge tiers can share one 384-dim embedding space.
 EMBED_MODEL = os.environ.get("EVIDENCE_EMBED_MODEL", "BAAI/bge-small-en-v1.5")
 EMBED_DIM = int(os.environ.get("EVIDENCE_EMBED_DIM", "384"))
+REQUIRE_REAL_EMBEDDINGS = os.environ.get("EVIDENCE_REQUIRE_REAL_EMBEDDINGS") == "1"
 DB_PATH = pathlib.Path(os.environ.get("EVIDENCE_DB_PATH", "./evidence.db"))
 SOURCE_DIR = pathlib.Path("./data")
 # Research-corpus source: the repo's living markdown (docs/ + root-level *.md).
@@ -107,7 +108,11 @@ async def _embed(text: str) -> NDArray:
             vec = np.asarray(vec, dtype=np.float32)
             if int(vec.shape[-1]) == EMBED_DIM:
                 return vec
+            if REQUIRE_REAL_EMBEDDINGS:
+                raise RuntimeError(f"unexpected embedding dimension {vec.shape[-1]}")
         except Exception as e:  # noqa: BLE001 - network/model failure → fallback
+            if REQUIRE_REAL_EMBEDDINGS:
+                raise RuntimeError("real embedding required but unavailable") from e
             print(f"[evidence] real embed unavailable ({e}); switching to hash-vector fallback")
             _FALLBACK_ACTIVE = True
     return _fallback_vector(text)

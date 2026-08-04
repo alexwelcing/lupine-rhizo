@@ -1520,6 +1520,61 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("rsync -a --ignore-existing nightly-state/restored/registry/claims/ registry/claims/", workflow)
         self.assertIn("rsync -a --ignore-existing nightly-state/restored/evidence/v1/examples/ evidence/v1/examples/", workflow)
 
+    def test_workflow_produces_cycle_before_consuming_it(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
+
+        producer = workflow.index("publish-production-cycle:")
+        consumer = workflow.index("ontology-feedback:")
+        self.assertLess(producer, consumer)
+        self.assertIn("needs: publish-production-cycle", workflow)
+        self.assertIn(
+            'gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json',
+            workflow,
+        )
+        self.assertIn("python tools/run_nightly_cycle.py", workflow)
+        self.assertIn('cycle_dir="nightly-input/$cycle_date"', workflow)
+        self.assertIn('--cycle "$cycle_dir/cycle.json"', workflow)
+        self.assertIn('"../../campaigns/v1/z1.campaign-manifest.v1.json"', workflow)
+        self.assertIn('"../../data/candidates/z1/measurements.jsonl"', workflow)
+
+    def test_workflow_pins_caches_and_offline_verifies_embedding_model(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
+
+        self.assertIn(
+            "EVIDENCE_EMBED_REVISION: 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+            workflow,
+        )
+        self.assertIn("uses: actions/cache@v4", workflow)
+        self.assertIn("EVIDENCE_EMBED_REPO: BAAI/bge-small-en-v1.5", workflow)
+        self.assertIn("EVIDENCE_REQUIRE_REAL_EMBEDDINGS: '1'", workflow)
+        self.assertIn('repo_id=os.environ["EVIDENCE_EMBED_REPO"]', workflow)
+        self.assertIn("revision=os.environ[\"EVIDENCE_EMBED_REVISION\"]", workflow)
+        self.assertIn("HF_HUB_OFFLINE=1", workflow)
+        self.assertIn("local_files_only=True", workflow)
+        self.assertIn("Path(model_path).name != revision", workflow)
+        self.assertIn("EVIDENCE_EMBED_MODEL={model_path}", workflow)
+
+    def test_workflow_has_fail_closed_production_d1_maintenance(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
+
+        self.assertIn("production_d1_maintenance:", workflow)
+        self.assertIn("production-d1-maintenance:", workflow)
+        self.assertIn("npx wrangler d1 migrations apply glim-ledger --remote", workflow)
+        self.assertEqual(workflow.count("Validate Cloudflare token secret"), 2)
+        self.assertIn("refusing to rewrite credential bytes", workflow)
+        self.assertIn("CLOUDFLARE_API_TOKEN is still the repository placeholder", workflow)
+        self.assertIn("0015_literature_hypotheses_sign_skew_predicate.sql", " ".join(
+            path.name for path in MIGRATIONS.glob("*.sql")
+        ))
+        self.assertIn("0016_literature_hypotheses_metric_predicate_coupling.sql", " ".join(
+            path.name for path in MIGRATIONS.glob("*.sql")
+        ))
+        self.assertIn("lit-hypothesis.protocol-offset-sign-skew.v1", workflow)
+        self.assertIn("ON CONFLICT(literature_hypothesis_id) DO UPDATE", workflow)
+        self.assertIn("observed_contract != expected_contract", workflow)
+        self.assertIn("generated predicate does not match contract", workflow)
+        self.assertIn("production D1 read-back failed", workflow)
+
     def test_d1_status_change_fails_closed_without_fresh_bundle_event(self) -> None:
         connection = sqlite3.connect(":memory:")
         self.addCleanup(connection.close)
