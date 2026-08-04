@@ -1558,6 +1558,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn('${CLOUDFLARE_API_TOKEN#CLOUDFLARE_API_TOKEN=}', workflow)
         self.assertIn('${token#Bearer }', workflow)
         self.assertIn("${token//[$' \\t\\r\\n']/}", workflow)
+        self.assertIn("CLOUDFLARE_API_TOKEN is still the repository placeholder", workflow)
         self.assertIn("0015_literature_hypotheses_sign_skew_predicate.sql", " ".join(
             path.name for path in MIGRATIONS.glob("*.sql")
         ))

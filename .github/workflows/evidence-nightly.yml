@@ -315,6 +315,10 @@ jobs:
           token="${token%\"}"
           token="${token//[$' \t\r\n']/}"
           test -n "$token"
+          test "$token" != "-" || {
+            echo "::error::CLOUDFLARE_API_TOKEN is still the repository placeholder"
+            exit 1
+          }
           echo "::add-mask::$token"
           printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
 
@@ -479,6 +483,10 @@ jobs:
           token="${token%\"}"
           token="${token//[$' \t\r\n']/}"
           test -n "$token"
+          test "$token" != "-" || {
+            echo "::error::CLOUDFLARE_API_TOKEN is still the repository placeholder"
+            exit 1
+          }
           echo "::add-mask::$token"
           printf 'CLOUDFLARE_API_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
 
