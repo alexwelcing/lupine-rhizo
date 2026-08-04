@@ -91,7 +91,7 @@ export const MLIP_DISCOVERY_DESCRIPTOR: ResearchWorkflowDescriptor = {
   purpose:
     "Turn incoming MLIP elastic-constant benchmark evidence into anomaly sentinels, research agenda tasks, and Phoenix-visible evaluator hooks.",
   git: {
-    owners: ["glim-think/src/research", ".github/workflows/mlip-benchmark.yml", "tools/glim_mlip.py"],
+    owners: ["glim-think/src/research", "tools/glim_mlip.py"],
     files: [
       "glim-think/src/research/mlipDiscoveryWorkflow.ts",
       "glim-think/src/research/mlipDiscoveryWorkflowOps.ts",
@@ -99,7 +99,6 @@ export const MLIP_DISCOVERY_DESCRIPTOR: ResearchWorkflowDescriptor = {
       "glim-think/src/research/workflowRegistry.ts",
       "glim-think/src/research/workflows.ts",
       "glim-think/src/server.ts",
-      ".github/workflows/mlip-benchmark.yml",
       "tools/glim_mlip.py",
     ],
     checks: [

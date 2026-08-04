@@ -92,12 +92,18 @@ describe("MLIP discovery workflow", () => {
       "",
     );
     const body = await response?.json() as {
-      workflow: { workflow_id: string; phoenix: { evaluators: string[] } };
+      workflow: {
+        workflow_id: string;
+        git: { owners: string[]; files: string[] };
+        phoenix: { evaluators: string[] };
+      };
     };
 
     expect(response?.status).toBe(200);
     expect(body.workflow.workflow_id).toBe("mlip-discovery-loop");
     expect(body.workflow.phoenix.evaluators).toContain("mlip_discovery.high_error_sentinel");
+    expect(body.workflow.git.owners).not.toContain(".github/workflows/mlip-benchmark.yml");
+    expect(body.workflow.git.files).not.toContain(".github/workflows/mlip-benchmark.yml");
   });
 
   it("creates an immediate analyzer snapshot from posted benchmark records", async () => {
