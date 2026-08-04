@@ -52,10 +52,10 @@ GOLDEN_PATHS = [16, 0, 14, 27]
 # commit that (re)builds the golden bundles; the pin test skips when no
 # bundles are committed yet.
 GOLDEN_DIGESTS = {
-    16: "0486da415ae5791a926ab7862df043a2bfd428fba874a14104b8041669c0f16d",
-    0: "c3da4be89ab2ea990c351491076408f434b4bea412b64e1fe0966e832a44401f",
-    14: "898693f0a59f9059aa192fb81667c1dacae1660fdcb5bae41b5551623d7236e1",
-    27: "91e28ec5f064dc6075c0889e146b5e195854513abf23ed3a67750399c938587e",
+    16: "d11294f7fc58804b512a1a288d2000680276051ae17af9a200da389d451ad9ac",
+    0: "820f8270a46adb77a0689423ff3e6b364f2c82c05fa9363cd233b4b68d634c6d",
+    14: "0f47bbba72d00785ff81bac5af6f21205dedd6ec0103cf4770e02a639ee226d0",
+    27: "54aa4fcf05937b83b9a532a11be9dc2ce286f1fd80374af770e5428898e83a81",
 }
 
 
@@ -214,24 +214,21 @@ def test_path27_only_t1_clean():
     assert manifest["quality_gates"]["t1"]["wander_mev"] <= 40.0
 
 
-def test_path0_diagnostics_separately_bound():
-    """Path-0 binds its separate diagnostic receipts (metallic saddle);
-    other paths must record diagnostics as absent."""
+def test_path0_diagnostics_are_absent_and_not_implied():
+    """The reviewed mechanism document contradicts the old path-0 receipts.
+
+    Until a new reviewed source contract resolves that contradiction, the
+    canonical manifest must neither bind nor imply electronic diagnostics.
+    """
     manifest = golden_manifest(0)
     diagnostics = manifest["diagnostics"]
-    assert diagnostics["status"] == "bound"
-    assert diagnostics["image_index"] == 3
-    runs = {run["label"]: run for run in diagnostics["runs"]}
-    assert runs["adopted_h0.20"]["gap_ev"] == pytest.approx(0.019)
-    assert runs["sensitivity_h0.18"]["gap_ev"] == pytest.approx(0.018)
-    assert runs["adopted_h0.20"]["scf"]["converged"] is True
-    assert runs["sensitivity_h0.18"]["fermi_level_ev"] == pytest.approx(0.676)
-    # The adopted diagnostic energy binds to the image-3 anchor energy.
-    gpaw = next(s for s in manifest["series"] if s["series_id"] == "gpaw_total_energy")
-    assert runs["adopted_h0.20"]["energy_ev"] == gpaw["values"][3]
+    assert diagnostics["status"] == "absent"
+    assert diagnostics["value"] is None
+    assert not any(asset["role"] == "electronic_diagnostic" for asset in manifest["assets"])
+    assert not any(source["role"] == "electronic_diagnostic" for source in manifest["source_artifacts"])
+    assert not any("diagnostic" in warning.lower() for warning in manifest["quality"]["warnings"])
     assert manifest["quality_gates"]["t1"]["driver_pair"] == [0, 3]
     assert manifest["quality_gates"]["t1"]["wander_mev"] == pytest.approx(4212.3309263396295)
-    # Path 16 has no bound diagnostics: absent, status + null semantics.
     assert golden_manifest(16)["diagnostics"]["status"] == "absent"
 
 
@@ -358,26 +355,133 @@ def test_verify_rejects_resealed_verdict_strings(tmp_path):
     assert any("verdict" in f for f in failures), failures
 
 
-def test_verify_rejects_diagnostic_fact_reseal(tmp_path):
-    """Codex P1-3: path-0 diagnostic electronic facts are re-parsed from the
-    frozen diagnostic receipts at verify time."""
+def test_verify_rejects_contradictory_path0_diagnostics(tmp_path):
+    """A resealed path-0 manifest may not revive the contradicted h=0.18 claim."""
 
     def mutate(manifest):
-        manifest["diagnostics"]["runs"][0]["gap_ev"] = 0.5
+        manifest["diagnostics"] = {
+            "status": "bound",
+            "image_index": 3,
+            "note": "legacy diagnostic claim",
+            "runs": [{
+                "label": "sensitivity_h0.18",
+                "params": {"h": "0.18"},
+                "energy_ev": -471.0107246641591,
+                "gpaw_version": "26.7.0",
+                "scf": {
+                    "converged": True,
+                    "steps": 37,
+                    "max_iterations": 333,
+                    "density_criterion_electrons": 0.0001,
+                    "eigenstate_criterion_ev2": 4e-08,
+                },
+                "gap_ev": 0.018,
+                "fermi_level_ev": 0.676,
+                "spin": {"components": 1, "degeneracy": 2, "policy": "legacy"},
+                "occupations": {"type": "Fermi-Dirac", "width_ev": 0.1},
+                "charge_e": 0.0,
+                "source_assets": [{
+                    "filename": "img3-h018.txt",
+                    "media_type": "text/plain",
+                    "sha256": "sha256:" + "0" * 64,
+                }],
+            }],
+        }
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
-    assert any("gap_ev" in f for f in failures), failures
+    assert any("reviewed path-0 evidence policy" in failure for failure in failures), failures
 
 
-def test_verify_rejects_diagnostic_energy_reseal(tmp_path):
-    """Codex P1-3: the adopted diagnostic energy must still bind to the frozen
-    receipt and to the stored GPAW image-3 value."""
+@pytest.mark.parametrize(
+    "stale_uri",
+    [
+        "/tmp/stale/z1-union-campaign.json",
+        "https://example.invalid/source.json",
+        "file:///etc/passwd",
+        r"C:\old-checkout\source.json",
+        "../other-checkout/source.json",
+        "data/%2e%2e/other-checkout/source.json",
+        "data/./source.json",
+        "data//source.json",
+        "C|/outside.json",
+    ],
+)
+def test_verify_rejects_pre_checkout_independent_source_uris(tmp_path, stale_uri):
+    """Pre-#102 and active source locators remain stale even after resealing."""
 
     def mutate(manifest):
-        manifest["diagnostics"]["runs"][0]["energy_ev"] += 0.25
+        manifest["source_artifacts"][0]["uri"] = stale_uri
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 16, mutate))
+    assert any("checkout-independent" in failure for failure in failures), failures
+
+
+def test_verify_rejects_path0_scf_warning_implication(tmp_path):
+    def mutate(manifest):
+        manifest["quality"]["warnings"].append("Electronic SCF not converged at h=0.18")
 
     failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
-    assert any("energy" in f for f in failures), failures
+    assert any("must not imply electronic diagnostics" in failure for failure in failures), failures
+
+
+def test_verify_rejects_semantically_disguised_path0_diagnostic_warning(tmp_path):
+    def mutate(manifest):
+        manifest["quality"]["warnings"].append(
+            "Wavefunctions remain unconverged at the selected grid spacing."
+        )
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed warning set" in failure for failure in failures), failures
+
+
+def test_verify_rejects_relabelled_path0_diagnostic_source(tmp_path):
+    def mutate(manifest):
+        disguised = dict(manifest["source_artifacts"][0])
+        disguised["uri"] = "adopted-h018/results.json"
+        manifest["source_artifacts"].append(disguised)
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed source set" in failure for failure in failures), failures
+
+
+def test_verify_rejects_relabelled_path0_diagnostic_asset(tmp_path):
+    def mutate(manifest):
+        disguised = dict(manifest["assets"][0])
+        disguised["role"] = "campaign_record"
+        manifest["assets"].append(disguised)
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed asset-role inventory" in failure for failure in failures), failures
+
+
+@pytest.mark.parametrize("surface", ["diagnostics_note", "asset_media", "source_revision"])
+def test_verify_pins_complete_reviewed_path0_manifest(tmp_path, surface):
+    def mutate(manifest):
+        if surface == "diagnostics_note":
+            manifest["diagnostics"]["note"] = "Wavefunctions remain unconverged."
+        elif surface == "asset_media":
+            manifest["assets"][0]["media_type"] = "application/x-electronic-diagnostic"
+        else:
+            manifest["source_artifacts"][0]["git_commit"] = "electronic-grid-review"
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    expected = "git revision" if surface == "source_revision" else "reviewed manifest identity"
+    assert any(expected in failure for failure in failures), failures
+
+
+def test_verify_rejects_relabelled_path0_manifest(tmp_path):
+    def mutate(manifest):
+        manifest["path_index"] = 14
+        manifest["path_id"] = golden_manifest(14)["path_id"]
+        for source in manifest["source_artifacts"]:
+            source["uri"] = source["uri"].replace("path-0/", "path-14/")
+        for asset in manifest["assets"]:
+            if asset["role"] == "panel_path_excerpt":
+                asset["sha256"] = "sha256:" + "0" * 64
+        manifest["quality"]["warnings"].append("Wavefunctions remain unconverged.")
+
+    failures = bvb.verify_bundle(rebundle(tmp_path, 0, mutate))
+    assert any("reviewed path-0 evidence" in failure for failure in failures), failures
 
 
 def test_verify_rejects_off_by_one_profile(tmp_path):
