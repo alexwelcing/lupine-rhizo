@@ -2,7 +2,7 @@
   "schema": "lupine.lean-build-evidence.v1",
   "schema_version": 1,
   "proof_repository": "lupine-science/open-distillation-factory",
-  "proof_revision": "96bc0d96c4f1b941ad9659e5102974ce113f2ed5",
+  "proof_revision": "e92516989107358dc8e7d1652004c1801a922b68",
   "lean_version": "4.29.0",
   "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
   "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
@@ -18,7 +18,7 @@
     },
     "vision": {
       "passed": true,
-      "legacy_theorems": 284,
+      "legacy_theorems": 290,
       "universal_correction_theorems": 164,
       "honest_errors_theorems": 49,
       "epistemic_gaps": 5
@@ -226,7 +226,7 @@
     {
       "module": "OpenDistillationFactory.DiscoveryChains.Core",
       "source_path": "lean-spec/OpenDistillationFactory/DiscoveryChains/Core.lean",
-      "source_hash": "9c0b005cea29c1059743d05da6c6b346d04048e81c89fa53dc8a5a7591c44c77",
+      "source_hash": "fec785006dc8def4ba1bc924c7db3a5367d1e76966f867210bc9ef0ee10356dd",
       "built": true,
       "theorems": [
         {
@@ -3652,6 +3652,44 @@
       ]
     },
     {
+      "module": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+      "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/SharpLicense.lean",
+      "source_hash": "52d9849453f9ec6a1ea6d407e2603d0db680f7fe4c52a91d0f126123a7ec7d5d",
+      "built": true,
+      "theorems": [
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inhull_correction_helps_inflation",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "c83146f4eafa305d278c82031a2b54259c0f3d51c227a6396a08976cae662f0e"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inhull_correction_helps_deflation",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "ad2c989b72572dcca3d8690b87bbf01868029fdce5722a17f87c276290b493fa"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.old_inflation_cap_implies_sharp",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "6d61cc56abf985d43476da6570d38a7135968e041e53cbf13ee333c9bad08a49"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.old_deflation_cap_implies_sharp",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "b49d0e52315357fabf0c65cf23297cf5e9d538b2a38cb2e274ede83786caa21e"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inflation_necessary",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "eec7297a3e7beda3cb05f3d35533513d9fafd66c791d8c94617ef86addd1408e"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_deflation_necessary",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "e60222ca41acdfdd66602007ab0049294e7e335fcfc2fc23c204359c3e69aa29"
+        }
+      ]
+    },
+    {
       "module": "OpenDistillationFactory.Materials.Theory.SmoothProjection",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/SmoothProjection.lean",
       "source_hash": "9c80cc61e61831c7d2810fc5840e4a3f8286f0588042456f3499776cff6aa13d",
@@ -4904,7 +4942,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Validation.ClimateSeries",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Validation/ClimateSeries.lean",
-      "source_hash": "1cc51c1be506c305193c8e5034814cf53a7a0cb10ed10152b99fec2012640427",
+      "source_hash": "0b29cb238e39495b45d739ca097e415814c44e3cf587dda078c11f1023aeb9b4",
       "built": true,
       "theorems": [
         {
@@ -4955,7 +4993,7 @@
         {
           "name": "OpenDistillationFactory.Materials.Validation.ClimateSeries.proof_pack_inventory_floor",
           "namespace": "OpenDistillationFactory.Materials.Validation.ClimateSeries",
-          "statement_hash": "f6b08e319bb971fe927334fd984066d124fdce398297a0514e11aa767621c2e8"
+          "statement_hash": "7303bfe0d98eb6dfba7deeee113f56888cb72591b01b711232aef3fdcccd11a6"
         }
       ]
     },
@@ -5317,14 +5355,14 @@
     {
       "module": "OpenDistillationFactory.Materials.Vision",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Vision.lean",
-      "source_hash": "8a35faac48b3f4d3caf0d2e51e1445fcb455d95d730ca08a216d55f06775a939",
+      "source_hash": "2b0dbe870d0a2176eb5936ed95afa75cedc35fc5cfd2cf09b4bc9a544718bb07",
       "built": true,
       "theorems": []
     },
     {
       "module": "OpenDistillationFactory.UniversalCorrection.Empirical.Registry",
       "source_path": "lean-spec/OpenDistillationFactory/UniversalCorrection/Empirical/Registry.lean",
-      "source_hash": "30934387953a72ed49df5e53bbe44b0f33ac309749df3f2ebb8f444793b20a84",
+      "source_hash": "06b653bf8505c54d443dd0ec4405008692f026521e5cb1c35d928f291a82b0ae",
       "built": true,
       "theorems": [
         {
@@ -5345,5 +5383,5 @@
       ]
     }
   ],
-  "manifest_hash": "0eb6ba151c325b8883e59799dcf0295822a3bb05531090c77718d78a0eac9104"
+  "manifest_hash": "cc18d59903e46246d1d76a35f234b2ecc1ad448a0de06c0339b1aef2cba8f178"
 }
