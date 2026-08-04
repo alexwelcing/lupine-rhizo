@@ -1,7 +1,7 @@
 {
   "title": "Replication kit and formal artifact: The Projection Law — error geometry of model ensembles (classical potentials, foundation MLIPs, DFT implementations)",
   "upload_type": "software",
-  "description": "Two-tier replication kit for the Projection Law manuscript: Tier 1 reproduces every factorial statistic from committed raw data using NumPy alone; Tier 2 re-derives raw elastic constants from public model checkpoints with a bit-exact-regression harness. Includes pinned datasets for 559 classical interatomic potentials, 8 MatPES-trained foundation MLIPs, and 12 ACWF DFT method configurations; three pre-registrations with commit hashes; referee-driven robustness analyses; and pointers to the machine-checked Lean 4 theory core (77 build-locked theorems, ~225 declarations, zero sorry, zero new axioms).",
+  "description": "Two-tier replication kit for the Projection Law manuscript: Tier 1 reproduces every factorial statistic from committed raw data using NumPy alone; Tier 2 re-derives raw elastic constants from public model checkpoints with a bit-exact-regression harness. Includes pinned datasets for 559 classical interatomic potentials, 8 MatPES-trained foundation MLIPs, and 12 ACWF DFT method configurations; three pre-registrations with commit hashes; referee-driven robustness analyses; and pointers to the machine-checked Lean 4 theory core and its machine-generated theorem-count inventory (zero sorry, zero new axioms).",
   "creators": [
     {
       "name": "Welcing, Alex",

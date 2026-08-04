@@ -18,10 +18,17 @@ testability: a Lean rename or a changed headline number breaks CI here.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from importlib.resources import files
 from typing import Any
 
 _VALIDATION = "OpenDistillationFactory.Materials.Validation.ClimateSeries"
+
+
+def _load_inventory() -> dict[str, Any]:
+    resource = files("lupine_distill.odf").joinpath("theorem-count.json")
+    return json.loads(resource.read_text(encoding="utf-8"))
 
 #: Fully-qualified Lean names for every climate-series certificate.
 THEOREM_REFS: dict[str, str] = {
@@ -160,28 +167,34 @@ def abatement_portfolio_certificates() -> list[ClimateSeriesCertificate]:
 
 
 def inventory_certificates(
-    *, modules: int = 51, theorems: int = 190, sorrys: int = 0
+    *, modules: int | None = None, theorems: int | None = None, sorrys: int | None = None
 ) -> list[ClimateSeriesCertificate]:
-    """Certificate for the formalization inventory floor.
+    """Certificate for the generated formalization inventory.
 
-    Defaults match the committed proof-pack baseline. Callers can supply the
-    current counts so the rendered article always carries an up-to-date,
-    build-locked inventory statement.
+    Defaults are loaded from the generated inventory packaged with this module.
+    Explicit values remain available for callers validating a candidate inventory.
     """
+    if modules is None or theorems is None or sorrys is None:
+        inventory = _load_inventory()
+        modules = inventory["modules"] if modules is None else modules
+        theorems = inventory["count"] if theorems is None else theorems
+        if sorrys is None:
+            sorrys = 0 if inventory["zero_sorry"] else 1
+    assert modules is not None and theorems is not None
     return [
         _cert(
             "proof_pack_inventory",
-            "Formalization inventory floor",
-            f"At the time of the proof pack: {modules} modules, {theorems} "
-            f"build-locked theorems, ~640 declarations, {sorrys} sorry. The count "
-            "only grows; the zero-sorry invariant is enforced by the build gate.",
-            modules >= 51 and theorems >= 190 and sorrys == 0,
+            "Generated formalization inventory",
+            f"Source-tree inventory: {modules} modules, {theorems} build-locked "
+            f"theorems, {sorrys} sorry. Values come from theorem-count.json; the "
+            "zero-sorry invariant is enforced by the build gate.",
+            modules > 0 and theorems > 0 and sorrys == 0,
         ),
     ]
 
 
 def all_certificates(
-    *, modules: int = 51, theorems: int = 190, sorrys: int = 0
+    *, modules: int | None = None, theorems: int | None = None, sorrys: int | None = None
 ) -> list[ClimateSeriesCertificate]:
     """The complete climate-series certificate pack."""
     return (

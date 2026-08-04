@@ -1014,7 +1014,7 @@
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
-        "subtitle": "Current status: 77 build-locked theorems, ~225 declarations, 2,891-job build green, and a build-locking epistemic contract.",
+        "subtitle": "Current status is machine-generated in lean-spec/theorem-count.json, with a build-locking epistemic contract.",
         "category": "formalization",
         "tags": [
           "lean",

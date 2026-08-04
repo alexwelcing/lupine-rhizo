@@ -62,11 +62,14 @@ deps or config degrade to a logged no-op.
 
 ## Formal verification (`lean-spec` + ATLAS-Lean)
 
-`lean-spec` (Lake package `OpenDistillationFactory`, Lean `v4.29.0` — pinned to
-ATLAS's toolchain) is the evidence layer: it holds the proven theorems behind
+`lean-spec/` (Lake package `OpenDistillationFactory`, Lean `v4.29.0` — pinned
+to ATLAS's toolchain) is the evidence layer: it holds the proven theorems behind
 the materials-science claims. Treat a green `lake build` with zero `sorry`
 proofs as the gate — a broken or `sorry`-bearing proof is a regression, not
-noise. Current state: **262 build-locked theorems, 499 theorem declarations in `Materials/`, 0 `sorry`, 3664-job build green** (includes the climate-series physics layer — environment error field, Arrhenius barrier softening, ranking integrity, scaling/volcano, defect stability, sorption stability, certificate pack with the climate-portfolio contract module — the measured-fields rung: `Theory/AnchoredField` with the fcc, bcc, and diamond anchor layouts plus the generated `DistillAtlas/EnvFieldInstances` corpus of 68 per-cell fields (36 fcc + 28 bcc + 4 diamond) with 19 anchored softening instances and 49 kernel-checked refusals, mirrored into the promotion gate by `lupine_distill.odf.field_certificates`, attached to flywheel telemetry by `tools/mlip_local_promotion.py`, and enforced at run time by the `CertificateGate` in `lupine_distill_runtime.policy_engine`, which excludes tier-2-refused cells from correction — and the anchor-identification rung: `Theory/AnchorBracket` proving exactly what the measured anchors determine (existence↔admissibility iffs that upgrade all 49 refusals to interpolation-scheme-independent impossibility, the one-scalar reduction of in-range correction ambiguity, envelope extremality, certified correction brackets with exact widths, the two-point margin-certified ranking test with its separation rule, certified Arrhenius rate caps, and below-range/measured-tier non-identifiability), instantiated on the corpus in `Validation/AnchorBracketCertificates` and mirrored to the runtime by the identification payload and `check_bracket_separation` in `field_certificates.py`).
+noise. The current inventory is machine-generated in
+`lean-spec/theorem-count.json`; regenerate it with
+`node lean-spec/scripts/generate-lean-count.mjs` and never hand-type theorem
+totals into narrative files.
 - Verify proofs with `lake build` in `lean-spec/`. Never introduce a `sorry`
   into a proof; the only acceptable `sorry` text is inside doc comments that
   describe a separate mathlib-free conjecture project.

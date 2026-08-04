@@ -7,7 +7,7 @@ touches a theorem proven here.
 
 ## Current state
 
-- **262 build-locked theorems** in the executable vision, **499 theorem declarations** in `Materials/`, **0 `sorry` proofs**, **3664-job build green**.- The build is locked by `#guard` contracts in `Materials/Vision.lean`.
+- The current theorem inventory is generated from the Lean source into [`theorem-count.json`](theorem-count.json); never transcribe its count into this README. The build is locked by `#guard` contracts in `Materials/Vision.lean`, and the generated inventory must report zero `sorry` proofs.
 - Epistemic gaps are documented as structures/comments, not as axioms.
 - The climate-series physics layer (`Theory/EnvironmentField`,
   `Theory/BarrierArrhenius`, `Theory/RankingIntegrity`,
@@ -97,8 +97,8 @@ regression.
 cd lean-spec
 lake build
 
-# Count theorems (sanity check; authoritative count is in AGENTS.md)
-git grep -c "^\s*theorem " OpenDistillationFactory/Materials/
+# Regenerate the authoritative theorem inventory
+node scripts/generate-lean-count.mjs
 ```
 
 ## How it connects to the rest of the repo
