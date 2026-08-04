@@ -34,6 +34,9 @@ function stripLeanTrivia(source) {
   let out = '';
   let blockDepth = 0;
   let inString = false;
+  let inInterpolatedString = false;
+  let interpolationDepth = 0;
+  let inInterpolationString = false;
   for (let i = 0; i < source.length; i += 1) {
     const ch = source[i];
     const next = source[i + 1];
@@ -41,6 +44,25 @@ function stripLeanTrivia(source) {
       if (ch === '/' && next === '-') { blockDepth += 1; out += '  '; i += 1; }
       else if (ch === '-' && next === '/') { blockDepth -= 1; out += '  '; i += 1; }
       else out += ch === '\n' ? '\n' : ' ';
+    } else if (inInterpolatedString) {
+      if (interpolationDepth === 0) {
+        if (ch === '\\') { out += '  '; i += 1; }
+        else if (ch === '"') { inInterpolatedString = false; out += ' '; }
+        else if (ch === '{') { interpolationDepth = 1; out += ' '; }
+        else out += ch === '\n' ? '\n' : ' ';
+      } else if (inInterpolationString) {
+        if (ch === '\\') { out += '  '; i += 1; }
+        else if (ch === '"') { inInterpolationString = false; out += ' '; }
+        else out += ch === '\n' ? '\n' : ' ';
+      } else if (ch === '-' && next === '-') {
+        const end = source.indexOf('\n', i);
+        if (end === -1) { out += ' '.repeat(source.length - i); break; }
+        out += ' '.repeat(end - i); i = end - 1;
+      } else if (ch === '/' && next === '-') { blockDepth = 1; out += '  '; i += 1; }
+      else if (ch === '"') { inInterpolationString = true; out += ' '; }
+      else if (ch === '{') { interpolationDepth += 1; out += ' '; }
+      else if (ch === '}') { interpolationDepth -= 1; out += ' '; }
+      else out += ch;
     } else if (inString) {
       if (ch === '\\') { out += '  '; i += 1; }
       else if (ch === '"') { inString = false; out += ' '; }
@@ -53,10 +75,14 @@ function stripLeanTrivia(source) {
     } else if (ch === '/' && next === '-') {
       blockDepth = 1; out += '  '; i += 1;
     } else if (ch === '"') {
-      inString = true; out += ' ';
+      if (source.slice(i - 2, i) === 's!') inInterpolatedString = true;
+      else inString = true;
+      out += ' ';
     } else out += ch;
   }
-  if (blockDepth !== 0 || inString) throw new Error('unterminated Lean comment or string');
+  if (blockDepth !== 0 || inString || inInterpolatedString || inInterpolationString) {
+    throw new Error('unterminated Lean comment or string');
+  }
   return out;
 }
 
@@ -68,8 +94,9 @@ private theorem hidden : True := by trivial
 -- theorem commented : True := by sorry
 /- lemma blocked : True := by sorry -/
 def quoted := "sorry"
+def interpolated := s!"{(sorry : Nat)}"
 `);
-if ([...parserProbe.matchAll(DECL_RE)].length !== 4 || /\bsorry\b/.test(parserProbe)) {
+if ([...parserProbe.matchAll(DECL_RE)].length !== 4 || [...parserProbe.matchAll(/\bsorry\b/g)].length !== 1) {
   throw new Error('Lean inventory parser self-check failed');
 }
 
@@ -88,10 +115,20 @@ for (const file of files) {
   sorryCount += [...code.matchAll(/\bsorry\b/g)].length;
 }
 
-const countedAt = execSync(
-  'git log -1 --format=%cs -- OpenDistillationFactory OpenDistillationFactory.lean',
-  { cwd: LEAN_SPEC, encoding: 'utf8' },
-).trim();
+const sourceSha256 = sourceHash.digest('hex');
+let countedAt = '';
+try {
+  countedAt = execSync(
+    'git log -1 --format=%cs -- OpenDistillationFactory OpenDistillationFactory.lean',
+    { cwd: LEAN_SPEC, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+  ).trim();
+} catch {
+  const prior = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : {};
+  if (prior.source_sha256 === sourceSha256) countedAt = prior.counted_at;
+  else if (process.env.SOURCE_DATE_EPOCH) {
+    countedAt = new Date(Number(process.env.SOURCE_DATE_EPOCH) * 1000).toISOString().slice(0, 10);
+  }
+}
 if (!/^\d{4}-\d{2}-\d{2}$/.test(countedAt)) throw new Error('could not derive Lean source as-of date');
 const inventory = {
   count,
@@ -99,7 +136,7 @@ const inventory = {
   zero_sorry: sorryCount === 0,
   counted_at: countedAt,
   source: 'lean-spec/OpenDistillationFactory{,.lean} (vendored packages excluded)',
-  source_sha256: sourceHash.digest('hex'),
+  source_sha256: sourceSha256,
   rule: 'theorem/lemma declarations after stripping nested comments and strings; supports attributes, whitespace, and declaration modifiers; every active sorry token fails; regenerate with lean-spec/scripts/generate-lean-count.mjs — never hand-edit',
 };
 
