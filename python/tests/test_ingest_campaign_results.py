@@ -365,6 +365,9 @@ class CampaignResultIngestionTests(unittest.TestCase):
         predictions = [self.z2_reference_prediction(item) for item in panel["materials"]]
         metrics = self.z2_metrics(panel, predictions)
         artifact = {
+            "run_id": "run-z2-complete",
+            "campaign_id": module.Z2_CAMPAIGN_ID,
+            "row_id": "soc_tc",
             "manifest_hash": module.Z2_MANIFEST_CONTENT_HASH,
             "fixture_contract": {"candidate_panel_sha256": module.Z2_PANEL_SHA256},
             "predictions": predictions,
@@ -376,6 +379,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
         }
         row = {
             "row_id": "z2-complete",
+            "run_id": "run-z2-complete",
             "claim_predicate": module.Z2_PREDICATE,
             "provenance": {
                 "runner_image_digest": "sha256:" + "d" * 64,
@@ -390,6 +394,10 @@ class CampaignResultIngestionTests(unittest.TestCase):
         }
 
         module.enforce_z2_measurement(panel, artifact, row)
+        artifact["run_id"] = "different-run"
+        with self.assertRaisesRegex(ValueError, "run_id does not match"):
+            module.enforce_z2_measurement(panel, artifact, row)
+        artifact["run_id"] = "run-z2-complete"
         artifact["execution"]["runner_image_digest"] = None
         with self.assertRaisesRegex(ValueError, "runner image digest"):
             module.enforce_z2_measurement(panel, artifact, row)
@@ -443,6 +451,9 @@ class CampaignResultIngestionTests(unittest.TestCase):
             ]
             metrics = self.z2_metrics(panel, predictions)
             artifact = {
+                "run_id": "run-z2-bootstrap",
+                "campaign_id": module.Z2_CAMPAIGN_ID,
+                "row_id": "soc_tc",
                 "manifest_hash": module.Z2_MANIFEST_CONTENT_HASH,
                 "fixture_contract": {"candidate_panel_sha256": module.Z2_PANEL_SHA256},
                 "predictions": predictions,
@@ -471,7 +482,7 @@ class CampaignResultIngestionTests(unittest.TestCase):
                 "epistemic_status": "confirmatory",
                 "artifact": artifact_path.relative_to(root).as_posix(),
                 "artifact_hash": "sha256:" + hashlib.sha256(artifact_path.read_bytes()).hexdigest(),
-                "run_id": "z2-complete-run",
+                "run_id": "run-z2-bootstrap",
                 "thresholds_version": "z2-soc-tc-v1",
                 "scope": {
                     "structures": [item["material_id"] for item in panel["materials"]],

@@ -48,6 +48,7 @@ TYPED_MEASUREMENT_PREDICATES = frozenset(
 )
 Z2_CAMPAIGN_ID = "discovery.round-4.z2-magnetic-anisotropy.v1"
 Z2_CLAIM_ID = "discovery.z2.magnetic-anisotropy.v1"
+Z2_ROW_ID = "soc_tc"
 Z2_PREMISE_ID = "spin-orbit-resolved-held-out-ranking"
 Z2_PREDICATE = "magnetocrystalline_anisotropy_rank_correlation==1"
 Z2_MANIFEST_CONTENT_HASH = (
@@ -595,6 +596,15 @@ def enforce_z2_measurement(
         or provenance.get("runner_image_uri") != image_uri
     ):
         raise ValueError("Z2 evidence provenance does not authenticate the runner image")
+    expected_run_id = require_string(row, "run_id", "Z2 measurement")
+    artifact_identity = {
+        "run_id": expected_run_id,
+        "campaign_id": Z2_CAMPAIGN_ID,
+        "row_id": Z2_ROW_ID,
+    }
+    for field, expected in artifact_identity.items():
+        if artifact.get(field) != expected:
+            raise ValueError(f"Z2 artifact {field} does not match the evidence receipt")
     metrics = artifact.get("accuracy")
     if not isinstance(metrics, dict) or (
         metrics.get("completed_material_count") != Z2_MATERIAL_COUNT
@@ -762,7 +772,11 @@ def enforce_z2_measurement(
         reference_mae.append(reference_xz)
         predicted_mae.append(predicted_xz)
         tc_errors.append(abs(predicted_tc - reference_tc))
-        if envelope_low <= predicted_tc <= envelope_high:
+        if (
+            envelope_low <= predicted_tc <= envelope_high
+            or math.isclose(predicted_tc, envelope_low)
+            or math.isclose(predicted_tc, envelope_high)
+        ):
             covered += 1
     reference_ranks = _z2_average_ranks(reference_mae)
     predicted_ranks = _z2_average_ranks(predicted_mae)
