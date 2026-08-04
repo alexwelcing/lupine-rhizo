@@ -20,6 +20,10 @@ on:
         description: Run the complete ontology loop against checked-in staging data
         type: boolean
         default: false
+      production_d1_maintenance:
+        description: Apply production D1 migrations, seed reviewed hypotheses, and verify sign-skew
+        type: boolean
+        default: false
 
 concurrency:
   group: evidence-nightly
@@ -29,8 +33,62 @@ permissions:
   contents: read
 
 jobs:
+  publish-production-cycle:
+    name: publish dated production cycle
+    if: ${{ github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install cycle validation dependencies
+        run: python -m pip install jsonschema rfc8785
+
+      - name: Google Auth for production cycle
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: shed-489901
+
+      - name: Validate and publish the dated production cycle
+        run: |
+          set -euo pipefail
+          cycle_date="$(date -u -d yesterday +%F)"
+          mkdir -p production-cycle
+          cat > production-cycle/cycle.json <<'JSON'
+          {
+            "campaigns": [
+              {
+                "manifest": "../../campaigns/v1/z1.campaign-manifest.v1.json",
+                "measurements": "../../data/candidates/z1/measurements.jsonl"
+              }
+            ]
+          }
+          JSON
+          python tools/run_nightly_cycle.py \
+            --cycle production-cycle/cycle.json \
+            --output-dir production-cycle/validation
+          gcloud storage cp production-cycle/cycle.json \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json"
+          gcloud storage ls \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json"
+
   refresh-and-eval:
     name: refresh, reindex, eval
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.production_d1_maintenance }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,6 +96,9 @@ jobs:
     env:
       COCOINDEX_DB: .cocoindex/db
       WORKER_URL: https://glim-think-v1.aw-ab5.workers.dev
+      EVIDENCE_EMBED_MODEL: ${{ github.workspace }}/.cache/BAAI-bge-small-en-v1.5
+      EVIDENCE_EMBED_REVISION: 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+      HF_HUB_DISABLE_XET: '1'
       PHOENIX_COLLECTOR_ENDPOINT: ${{ secrets.PHOENIX_COLLECTOR_ENDPOINT }}
       PHOENIX_API_KEY: ${{ secrets.PHOENIX_API_KEY }}
       PHOENIX_PROJECT_NAME: ${{ secrets.PHOENIX_PROJECT_NAME }}
@@ -59,6 +120,38 @@ jobs:
 
       - name: Install pipeline
         run: pip install -e . pytest sqlite-vec
+
+      - name: Cache pinned embedding model
+        id: embedding-model-cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/BAAI-bge-small-en-v1.5
+          key: bge-small-en-v1.5-${{ env.EVIDENCE_EMBED_REVISION }}
+
+      - name: Materialize pinned embedding model
+        if: steps.embedding-model-cache.outputs.cache-hit != 'true'
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import snapshot_download
+
+          snapshot_download(
+              repo_id="BAAI/bge-small-en-v1.5",
+              revision=os.environ["EVIDENCE_EMBED_REVISION"],
+              local_dir=os.environ["EVIDENCE_EMBED_MODEL"],
+          )
+          PY
+
+      - name: Verify pinned embedding model is complete and offline-loadable
+        run: |
+          HF_HUB_OFFLINE=1 python - <<'PY'
+          import os
+          from sentence_transformers import SentenceTransformer
+
+          model = SentenceTransformer(os.environ["EVIDENCE_EMBED_MODEL"], local_files_only=True)
+          if model.get_sentence_embedding_dimension() != 384:
+              raise SystemExit("pinned embedding model has unexpected dimension")
+          PY
 
       - name: Collect live worker evidence (best-effort)
         run: python ../scripts/evidence_activation.py collect --worker-url "$WORKER_URL" --out ./data || echo "::warning::worker collect failed; using existing/seed data"
@@ -119,6 +212,15 @@ jobs:
 
   ontology-feedback:
     name: ingest, gate, ontology feedback
+    needs: publish-production-cycle
+    if: >-
+      ${{
+        always()
+        && (needs.publish-production-cycle.result == 'success'
+            || needs.publish-production-cycle.result == 'skipped')
+        && (github.event_name != 'workflow_dispatch'
+            || !inputs.production_d1_maintenance)
+      }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -331,3 +433,68 @@ jobs:
             evidence/v1/examples/
           if-no-files-found: error
           retention-days: 90
+
+  production-d1-maintenance:
+    name: migrate, seed, verify production D1
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.production_d1_maintenance }}
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install D1 client
+        working-directory: glim-think
+        run: npm ci
+
+      - name: Apply migrations and seed reviewed literature hypotheses
+        working-directory: glim-think
+        run: |
+          set -euo pipefail
+          npx wrangler d1 migrations apply glim-ledger --remote
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          statements = []
+          for path in sorted(Path('../examples/literature-hypotheses').glob('*.json')):
+              contract = json.loads(path.read_text())
+              canonical = json.dumps(contract, separators=(',', ':'), sort_keys=True)
+              statements.append(
+                  "INSERT OR IGNORE INTO literature_hypotheses "
+                  "(literature_hypothesis_id, contract_json) "
+                  f"VALUES ('lit-hypothesis.{path.stem}.v1', "
+                  f"'{canonical.replace(chr(39), chr(39) * 2)}');"
+              )
+          Path('../seed-production-hypotheses.sql').write_text(
+              '\n'.join(statements) + '\n', encoding='utf-8'
+          )
+          PY
+          npx wrangler d1 execute glim-ledger --remote \
+            --file ../seed-production-hypotheses.sql
+
+      - name: Verify protocol-offset sign-skew in production D1
+        working-directory: glim-think
+        run: |
+          set -euo pipefail
+          npx wrangler d1 execute glim-ledger --remote --json \
+            --command "SELECT literature_hypothesis_id, status, readiness, proposed_experiment_predicate FROM literature_hypotheses WHERE literature_hypothesis_id = 'lit-hypothesis.protocol-offset-sign-skew.v1'" \
+            > ../production-sign-skew-readback.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('../production-sign-skew-readback.json').read_text())
+          rows = [row for result in payload for row in result.get('results', [])]
+          expected_id = 'lit-hypothesis.protocol-offset-sign-skew.v1'
+          if len(rows) != 1 or rows[0].get('literature_hypothesis_id') != expected_id:
+              raise SystemExit(f'production D1 read-back failed: {rows!r}')
+          print(json.dumps(rows[0], sort_keys=True))
+          PY
