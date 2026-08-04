@@ -15,6 +15,13 @@ from z1_barrier import canonical_content_hash, locked_artifact_url
 BOLTZMANN_MEV_PER_K = 8.617333262e-2
 SOC_TC_ROW_ID = "soc_tc"
 PANEL_SCHEMA = "lupine.z2.soc_tc_panel.v1"
+LOCKED_MATERIAL_COUNT = 7
+REQUIRED_MANIFEST_CONTENT_HASH = (
+    "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc"
+)
+REQUIRED_PANEL_SHA256 = (
+    "sha256:7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8"
+)
 
 FIT_PARAMETERS = {
     "honeycomb": {
@@ -60,8 +67,8 @@ def validate_panel(panel: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(minimum_count, int) or minimum_count < 5:
         raise ValueError("candidate panel minimum_material_count must be at least five")
     materials = panel.get("materials")
-    if not isinstance(materials, list) or len(materials) < minimum_count:
-        raise ValueError(f"candidate panel needs at least {minimum_count} materials")
+    if not isinstance(materials, list) or len(materials) != LOCKED_MATERIAL_COUNT:
+        raise ValueError(f"candidate panel must contain exactly {LOCKED_MATERIAL_COUNT} materials")
     protocol = panel.get("execution_protocol")
     if not isinstance(protocol, dict):
         raise ValueError("candidate panel execution_protocol must be an object")
@@ -129,6 +136,11 @@ def load_campaign_panel(
             f"CampaignManifest content_hash mismatch: expected {expected_manifest_hash}, "
             f"got {actual_manifest_hash}"
         )
+    if expected_manifest_hash != REQUIRED_MANIFEST_CONTENT_HASH:
+        raise ValueError(
+            "Z2 CampaignManifest is not the current reviewed manifest: "
+            f"expected {REQUIRED_MANIFEST_CONTENT_HASH}, got {expected_manifest_hash}"
+        )
     models = manifest.get("available_models")
     if not isinstance(models, list) or mlip_id not in {
         model.get("model_id") for model in models if isinstance(model, dict)
@@ -151,6 +163,11 @@ def load_campaign_panel(
     if not isinstance(panel_path, str) or not panel_path:
         raise ValueError("Z2 candidate_panel.path is required")
     expected_panel_hash = _sha256_lock(panel_lock.get("sha256"), "candidate_panel.sha256")
+    if expected_panel_hash != REQUIRED_PANEL_SHA256:
+        raise ValueError(
+            "Z2 candidate panel is not the current reviewed panel: "
+            f"expected {REQUIRED_PANEL_SHA256}, got {expected_panel_hash}"
+        )
     panel_url = locked_artifact_url(manifest_url, panel_path)
     panel_bytes = read_url(panel_url)
     actual_panel_hash = "sha256:" + hashlib.sha256(panel_bytes).hexdigest()
@@ -512,15 +529,23 @@ def run_soc_tc_row(
     fixture_contract: dict[str, Any],
     checkpoint: Any | None = None,
 ) -> dict[str, Any]:
-    """Execute the locked panel, recording every spin failure without imputation."""
+    """Execute the locked panel atomically; any material failure aborts the cell."""
+    materials = panel.get("materials")
+    if not isinstance(materials, list) or len(materials) != LOCKED_MATERIAL_COUNT:
+        raise ValueError(f"Z2 row requires exactly {LOCKED_MATERIAL_COUNT} materials")
     predictions: list[dict[str, Any]] = []
-    for case_index, material in enumerate(panel["materials"]):
+    for case_index, material in enumerate(materials):
         cached = (
             checkpoint.get_prediction(SOC_TC_ROW_ID, case_index, material)
             if checkpoint
             else None
         )
         if cached is not None:
+            if not isinstance(cached, dict) or cached.get("status") != "completed":
+                raise RuntimeError(
+                    f"Z2 cached material {material.get('material_id', case_index)} "
+                    "is not a completed measurement"
+                )
             predictions.append(cached)
             continue
         try:
@@ -528,13 +553,10 @@ def run_soc_tc_row(
             afm = engine.evaluate_ordering(material, "afm")
             prediction = derive_spin_observables(material, fm, afm)
         except Exception as exc:
-            prediction = {
-                "material_id": material.get("material_id"),
-                "formula": material.get("formula"),
-                "status": "failed",
-                "error_class": exc.__class__.__name__,
-                "error": str(exc),
-            }
+            raise RuntimeError(
+                f"Z2 material {material.get('material_id', case_index)} failed: "
+                f"{exc.__class__.__name__}: {exc}"
+            ) from exc
         else:
             if checkpoint is not None:
                 checkpoint.record_prediction(SOC_TC_ROW_ID, case_index, material, prediction)
@@ -543,7 +565,7 @@ def run_soc_tc_row(
     completed = [item for item in predictions if item["status"] == "completed"]
     failed_count = len(predictions) - len(completed)
     minimum_count = int(panel["measurement"]["minimum_material_count"])
-    measurement_complete = len(completed) >= minimum_count and failed_count == 0
+    measurement_complete = len(completed) == LOCKED_MATERIAL_COUNT and failed_count == 0
     materials_by_id = {item["material_id"]: item for item in panel["materials"]}
     reference_mae = [
         float(materials_by_id[item["material_id"]]["reference"]["mae_xz_mev_per_cell"])

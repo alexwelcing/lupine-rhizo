@@ -20,7 +20,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, overload
 
 import rfc8785
 from generate_assumptions import (
@@ -40,8 +40,53 @@ MEASUREMENT_FIELDS = ("metric", "value", "unit", "acceptance_test", "sample_coun
 # bundle whose measurements cannot describe the claim (Codex PR#41 P2).
 # Reject instead of laundering.
 TYPED_MEASUREMENT_PREDICATES = frozenset(
-    {"barrier_mae_mev<=40", "signed_error_positive_fraction>0.5"}
+    {
+        "barrier_mae_mev<=40",
+        "signed_error_positive_fraction>0.5",
+        "magnetocrystalline_anisotropy_rank_correlation==1",
+    }
 )
+Z2_CAMPAIGN_ID = "discovery.round-4.z2-magnetic-anisotropy.v1"
+Z2_CLAIM_ID = "discovery.z2.magnetic-anisotropy.v1"
+Z2_PREMISE_ID = "spin-orbit-resolved-held-out-ranking"
+Z2_PREDICATE = "magnetocrystalline_anisotropy_rank_correlation==1"
+Z2_MANIFEST_CONTENT_HASH = (
+    "sha256:73f7b9bf8e03d76fc46936911ddd95da7479289fabfd0375cd9b3a66132c7bbc"
+)
+Z2_PANEL_SHA256 = (
+    "sha256:7d37fd513d3e77c0fced043283bbb8b9a8b98cd241677de00665fe5095c704d8"
+)
+Z2_PANEL_PATH = "data/candidates/z2_soc_tc_panel.lock.json"
+Z2_MATERIAL_COUNT = 7
+Z2_PROPERTIES = {
+    "magnetocrystalline_anisotropy_rank",
+    "easy_axis",
+    "curie_temperature",
+}
+Z2_METRICS = {
+    "magnetocrystalline_anisotropy_rank_correlation",
+    "easy_axis_sign_errors",
+    "tc_rnsw_mae_k",
+    "tc_envelope_coverage",
+}
+Z2_BOLTZMANN_MEV_PER_K = 8.617333262e-2
+Z2_FIT_PARAMETERS = {
+    "honeycomb": {
+        "mc": (0.49, 0.14, 0.0),
+        "green": (0.07, 0.37, 1.0),
+        "rnsw": (0.40, 0.62, 1.0),
+    },
+    "hexagonal": {
+        "mc": (0.24, 0.045, 0.0),
+        "green": (0.24, 0.14, 1.0),
+        "rnsw": (0.32, 0.21, 1.0),
+    },
+    "square": {
+        "mc": (0.37, 0.08, 0.0),
+        "green": (0.34, 0.24, 1.0),
+        "rnsw": (0.43, 0.36, 1.0),
+    },
+}
 # The sign-skew family's frozen panel: 22 measured paths from the locked Z1 union
 # campaign. The floor is pinned here, not derived from a caller-controlled manifest.
 FROZEN_PANEL_PATH_MINIMUM = 22
@@ -287,11 +332,101 @@ def find_claim_and_premise(
     return claim_path, claim, matches[0]
 
 
-def allowed_scope(root: Path, premise: dict[str, Any]) -> tuple[dict[str, set[str]], set[str]]:
+def load_reviewed_z2_panel(root: Path) -> dict[str, Any]:
+    panel_path = root / Z2_PANEL_PATH
+    if bytes_hash(panel_path) != Z2_PANEL_SHA256:
+        raise ValueError("reviewed Z2 candidate panel digest mismatch")
+    panel = load_object(panel_path, "reviewed Z2 candidate panel")
+    materials = panel.get("materials")
+    if not isinstance(materials, list) or len(materials) != Z2_MATERIAL_COUNT:
+        raise ValueError("reviewed Z2 requires the locked seven-material panel")
+    return panel
+
+
+def _reviewed_z2_bootstrap(
+    root: Path,
+    premise: dict[str, Any],
+    manifest: dict[str, Any] | None,
+    row: dict[str, Any] | None,
+) -> tuple[dict[str, set[str]], set[str]] | None:
+    """Return the single reviewed first-evidence scope, or refuse to bootstrap."""
+    if manifest is None or row is None:
+        return None
+    identity = (
+        manifest.get("campaign_id"),
+        manifest.get("content_hash"),
+        row.get("claim_id"),
+        premise.get("premise_id"),
+        row.get("claim_predicate"),
+    )
+    expected = (
+        Z2_CAMPAIGN_ID,
+        Z2_MANIFEST_CONTENT_HASH,
+        Z2_CLAIM_ID,
+        Z2_PREMISE_ID,
+        Z2_PREDICATE,
+    )
+    if identity != expected:
+        return None
+    if premise.get("support_policy") != {"mode": "unsupported"}:
+        return None
+    if row.get("epistemic_status") == "unsupported":
+        raise ValueError("reviewed Z2 bootstrap requires completed evidence, not unsupported receipt")
+    panel_lock = (manifest.get("execution") or {}).get("candidate_panel")
+    if panel_lock != {"path": Z2_PANEL_PATH, "sha256": Z2_PANEL_SHA256}:
+        raise ValueError("reviewed Z2 bootstrap manifest does not bind the locked panel")
+    panel = load_reviewed_z2_panel(root)
+    materials = panel.get("materials")
+    assert isinstance(materials, list)
+    allowed = {
+        "structures": {item.get("material_id") for item in materials},
+        "chemistries": {item.get("formula") for item in materials},
+        "properties": set(Z2_PROPERTIES),
+    }
+    if any(not isinstance(value, str) or not value for values in allowed.values() for value in values):
+        raise ValueError("reviewed Z2 panel contains an invalid material identity")
+    scope = validate_scope(row.get("scope"), f"measurement {row.get('row_id', '<unknown>')}")
+    if any(set(scope[dimension]) != allowed[dimension] for dimension in SCOPE_DIMENSIONS):
+        raise ValueError("reviewed Z2 bootstrap scope does not exactly match the locked panel")
+    if scope["conditions"] != {
+        "candidate_panel_sha256": Z2_PANEL_SHA256,
+        "locked_material_count": Z2_MATERIAL_COUNT,
+    }:
+        raise ValueError("reviewed Z2 bootstrap conditions do not exactly bind the locked panel")
+    return allowed, {Z2_PREDICATE}
+
+
+@overload
+def allowed_scope(
+    root: Path,
+    premise: dict[str, Any],
+) -> tuple[dict[str, set[str]], set[str]]: ...
+
+
+@overload
+def allowed_scope(
+    root: Path,
+    premise: dict[str, Any],
+    *,
+    manifest: dict[str, Any],
+    row: dict[str, Any],
+) -> tuple[dict[str, set[str]], set[str], bool]: ...
+
+
+def allowed_scope(
+    root: Path,
+    premise: dict[str, Any],
+    *,
+    manifest: dict[str, Any] | None = None,
+    row: dict[str, Any] | None = None,
+) -> tuple[dict[str, set[str]], set[str]] | tuple[dict[str, set[str]], set[str], bool]:
     allowed = {dimension: set() for dimension in SCOPE_DIMENSIONS}
     claim_predicates: set[str] = set()
     references = premise.get("bundle_references")
     if not isinstance(references, list) or not references:
+        bootstrap = _reviewed_z2_bootstrap(root, premise, manifest, row)
+        if bootstrap is not None:
+            return bootstrap[0], bootstrap[1], True
         raise ValueError(
             f"target premise {premise.get('premise_id', '<unknown>')} has no baseline evidence"
         )
@@ -314,6 +449,8 @@ def allowed_scope(root: Path, premise: dict[str, Any]) -> tuple[dict[str, set[st
         )
         for dimension in SCOPE_DIMENSIONS:
             allowed[dimension].update(scope[dimension])
+    if manifest is not None or row is not None:
+        return allowed, claim_predicates, False
     return allowed, claim_predicates
 
 
@@ -379,6 +516,328 @@ def typed_measurements(row: dict[str, Any]) -> Any | None:
     return [{field: row[field] for field in MEASUREMENT_FIELDS}]
 
 
+def _z2_average_ranks(values: list[float]) -> list[float]:
+    order = sorted(range(len(values)), key=lambda index: (values[index], index))
+    ranks = [0.0] * len(values)
+    start = 0
+    while start < len(order):
+        end = start + 1
+        while end < len(order) and values[order[end]] == values[order[start]]:
+            end += 1
+        average = (start + 1 + end) / 2.0
+        for position in range(start, end):
+            ranks[order[position]] = average
+        start = end
+    return ranks
+
+
+def _z2_number(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a JSON number")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"{label} must be finite")
+    return number
+
+
+def _z2_tc_estimates(
+    exchange_mev: float, exchange_anisotropy: float, spin: float, lattice: str
+) -> dict[str, float]:
+    if lattice not in Z2_FIT_PARAMETERS:
+        raise ValueError(f"unsupported Z2 magnetic lattice: {lattice}")
+    if not 0.0 < exchange_anisotropy <= 0.2:
+        raise ValueError("Z2 exchange anisotropy is outside the published fit domain")
+    return {
+        method: exchange_mev * (spin**2 + theta * spin)
+        / (
+            2.0
+            * Z2_BOLTZMANN_MEV_PER_K
+            * (alpha1 - alpha2 * math.log(exchange_anisotropy))
+        )
+        for method, (alpha1, alpha2, theta) in Z2_FIT_PARAMETERS[lattice].items()
+    }
+
+
+def enforce_z2_measurement(
+    panel: dict[str, Any], artifact: dict[str, Any], row: dict[str, Any]
+) -> None:
+    """Authenticate a complete Z2 aggregate against the locked 7/7 panel."""
+    materials = panel.get("materials")
+    if not isinstance(materials, list) or len(materials) != Z2_MATERIAL_COUNT:
+        raise ValueError("Z2 ingestion requires the locked 7/7 candidate panel")
+    expected_ids = [item.get("material_id") for item in materials]
+    predictions = artifact.get("predictions")
+    if (
+        not isinstance(predictions, list)
+        or len(predictions) != Z2_MATERIAL_COUNT
+        or [item.get("material_id") for item in predictions if isinstance(item, dict)]
+        != expected_ids
+        or any(item.get("status") != "completed" for item in predictions if isinstance(item, dict))
+    ):
+        raise ValueError("Z2 aggregate is not a complete ordered 7/7 measurement")
+    if artifact.get("manifest_hash") != Z2_MANIFEST_CONTENT_HASH:
+        raise ValueError("Z2 artifact is not bound to the reviewed manifest")
+    fixture_contract = artifact.get("fixture_contract")
+    if not isinstance(fixture_contract, dict) or (
+        fixture_contract.get("candidate_panel_sha256") != Z2_PANEL_SHA256
+    ):
+        raise ValueError("Z2 artifact is not bound to the reviewed candidate panel")
+    execution = artifact.get("execution")
+    image_digest = execution.get("runner_image_digest") if isinstance(execution, dict) else None
+    if not isinstance(image_digest, str) or not HASH_PATTERN.fullmatch(image_digest):
+        raise ValueError("Z2 artifact requires an immutable runner image digest")
+    image_uri = execution.get("runner_image_uri") if isinstance(execution, dict) else None
+    if not isinstance(image_uri, str) or not image_uri.endswith(f"@{image_digest}"):
+        raise ValueError("Z2 artifact requires a digest-pinned runner image URI")
+    provenance = row.get("provenance")
+    if not isinstance(provenance, dict) or (
+        provenance.get("runner_image_digest") != image_digest
+        or provenance.get("runner_image_uri") != image_uri
+    ):
+        raise ValueError("Z2 evidence provenance does not authenticate the runner image")
+    metrics = artifact.get("accuracy")
+    if not isinstance(metrics, dict) or (
+        metrics.get("completed_material_count") != Z2_MATERIAL_COUNT
+        or metrics.get("failed_material_count") != 0
+        or metrics.get("measurement_complete") is not True
+    ):
+        raise ValueError("Z2 aggregate is not a complete 7/7 measurement")
+    materials_by_id = {item["material_id"]: item for item in materials}
+    reference_mae: list[float] = []
+    predicted_mae: list[float] = []
+    sign_errors = 0
+    tc_errors: list[float] = []
+    covered = 0
+    for prediction in predictions:
+        material_id = prediction["material_id"]
+        material = materials_by_id[material_id]
+        reference = material.get("reference")
+        if not isinstance(reference, dict):
+            raise ValueError(f"Z2 panel reference is invalid for {material_id}")
+        try:
+            reference_xz = _z2_number(
+                reference["mae_xz_mev_per_cell"], f"{material_id} reference mae_xz"
+            )
+            reference_yz = _z2_number(
+                reference["mae_yz_mev_per_cell"], f"{material_id} reference mae_yz"
+            )
+            predicted_xz = _z2_number(
+                prediction["mae_xz_mev_per_cell"], f"{material_id} predicted mae_xz"
+            )
+            predicted_yz = _z2_number(
+                prediction["mae_yz_mev_per_cell"], f"{material_id} predicted mae_yz"
+            )
+            serialized_easy_axis = prediction["easy_axis"]
+            predicted_tc = _z2_number(
+                prediction["tc_k"]["rnsw"], f"{material_id} predicted Tc"
+            )
+            reference_tc = _z2_number(
+                reference["tc_k"]["rnsw"], f"{material_id} reference Tc"
+            )
+            envelope_low = _z2_number(
+                reference["tc_envelope_k"][0], f"{material_id} envelope lower"
+            )
+            envelope_high = _z2_number(
+                reference["tc_envelope_k"][1], f"{material_id} envelope upper"
+            )
+            exchange = _z2_number(prediction["exchange_mev"], f"{material_id} exchange")
+            j_parallel = _z2_number(
+                prediction["j_parallel_mev"], f"{material_id} J parallel"
+            )
+            j_perpendicular = _z2_number(
+                prediction["j_perpendicular_mev"], f"{material_id} J perpendicular"
+            )
+            anisotropic_exchange = _z2_number(
+                prediction["anisotropic_exchange_mev"],
+                f"{material_id} anisotropic exchange",
+            )
+            exchange_anisotropy = _z2_number(
+                prediction["exchange_anisotropy"], f"{material_id} exchange anisotropy"
+            )
+            for tc_method in ("green", "mc"):
+                _z2_number(
+                    prediction["tc_k"][tc_method], f"{material_id} predicted Tc {tc_method}"
+                )
+            ordering_evidence = prediction["ordering_evidence"]
+            if not isinstance(ordering_evidence, dict):
+                raise ValueError("ordering_evidence must be an object")
+            for ordering in ("fm", "afm"):
+                ordering_result = ordering_evidence[ordering]
+                if not isinstance(ordering_result, dict):
+                    raise ValueError(f"ordering_evidence.{ordering} must be an object")
+                for field in (
+                    "parallel_energy_ev",
+                    "y_energy_ev",
+                    "perpendicular_energy_ev",
+                    "scalar_total_energy_ev",
+                    "scalar_band_energy_ev",
+                ):
+                    _z2_number(
+                        ordering_result[field],
+                        f"{material_id} {ordering} {field}",
+                    )
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError(f"Z2 prediction is incomplete for {material_id}: {error}") from error
+        if prediction.get("formula") != material.get("formula"):
+            raise ValueError(f"Z2 prediction formula mismatch for {material_id}")
+        if exchange <= 0.0:
+            raise ValueError(f"Z2 prediction exchange must be positive for {material_id}")
+        eq4_checks = (
+            (exchange, (j_parallel + j_perpendicular) / 2.0, "exchange"),
+            (anisotropic_exchange, j_perpendicular - j_parallel, "anisotropic exchange"),
+            (
+                exchange_anisotropy,
+                (j_perpendicular - j_parallel) / (2.0 * exchange),
+                "exchange anisotropy",
+            ),
+        )
+        for observed, expected, label in eq4_checks:
+            if not math.isclose(observed, expected, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError(f"Z2 prediction {label} violates Eq. 4 for {material_id}")
+        spin = _z2_number(material.get("spin"), f"{material_id} locked spin")
+        coordination = material.get("nearest_neighbors")
+        lattice = material.get("lattice")
+        if isinstance(coordination, bool) or not isinstance(coordination, int) or coordination < 1:
+            raise ValueError(f"Z2 locked coordination is invalid for {material_id}")
+        if not isinstance(lattice, str):
+            raise ValueError(f"Z2 locked magnetic lattice is invalid for {material_id}")
+        factor = 2.0 * coordination * spin**2
+        fm = ordering_evidence["fm"]
+        afm = ordering_evidence["afm"]
+        derived_mae_xz = (fm["perpendicular_energy_ev"] - fm["parallel_energy_ev"]) * 1000.0
+        derived_mae_yz = (fm["perpendicular_energy_ev"] - fm["y_energy_ev"]) * 1000.0
+        derived_j_parallel = (
+            afm["parallel_energy_ev"] - fm["parallel_energy_ev"]
+        ) * 1000.0 / factor
+        derived_j_perpendicular = (
+            afm["perpendicular_energy_ev"] - fm["perpendicular_energy_ev"]
+        ) * 1000.0 / factor
+        derived_exchange = (derived_j_parallel + derived_j_perpendicular) / 2.0
+        if derived_exchange <= 0.0:
+            raise ValueError(f"Z2 ordering evidence has non-positive exchange for {material_id}")
+        derived_anisotropic_exchange = derived_j_perpendicular - derived_j_parallel
+        derived_exchange_anisotropy = derived_anisotropic_exchange / (2.0 * derived_exchange)
+        derived_tc = _z2_tc_estimates(
+            derived_exchange, derived_exchange_anisotropy, spin, lattice
+        )
+        derived_checks = [
+            (predicted_xz, derived_mae_xz, "mae_xz"),
+            (predicted_yz, derived_mae_yz, "mae_yz"),
+            (j_parallel, derived_j_parallel, "J parallel"),
+            (j_perpendicular, derived_j_perpendicular, "J perpendicular"),
+            (exchange, derived_exchange, "exchange"),
+            (anisotropic_exchange, derived_anisotropic_exchange, "anisotropic exchange"),
+            (exchange_anisotropy, derived_exchange_anisotropy, "exchange anisotropy"),
+            (predicted_tc, derived_tc["rnsw"], "Tc rnsw"),
+        ]
+        for tc_method in ("green", "mc"):
+            derived_checks.append(
+                (
+                    _z2_number(
+                        prediction["tc_k"][tc_method],
+                        f"{material_id} predicted Tc {tc_method}",
+                    ),
+                    derived_tc[tc_method],
+                    f"Tc {tc_method}",
+                )
+            )
+        for observed, expected, label in derived_checks:
+            if not math.isclose(observed, expected, rel_tol=1e-12, abs_tol=1e-9):
+                raise ValueError(
+                    f"Z2 prediction {label} contradicts ordering evidence for {material_id}"
+                )
+        if serialized_easy_axis not in {"in_plane", "out_of_plane"}:
+            raise ValueError(f"Z2 prediction has invalid easy_axis for {material_id}")
+        predicted_easy_axis = (
+            "out_of_plane" if max(predicted_xz, predicted_yz) < 0.0 else "in_plane"
+        )
+        if serialized_easy_axis != predicted_easy_axis:
+            raise ValueError(
+                f"Z2 prediction easy_axis contradicts anisotropy energies for {material_id}"
+            )
+        expected_easy_axis = (
+            "out_of_plane" if max(reference_xz, reference_yz) < 0.0 else "in_plane"
+        )
+        sign_errors += predicted_easy_axis != expected_easy_axis
+        reference_mae.append(reference_xz)
+        predicted_mae.append(predicted_xz)
+        tc_errors.append(abs(predicted_tc - reference_tc))
+        if envelope_low <= predicted_tc <= envelope_high:
+            covered += 1
+    reference_ranks = _z2_average_ranks(reference_mae)
+    predicted_ranks = _z2_average_ranks(predicted_mae)
+    reference_mean = math.fsum(reference_ranks) / Z2_MATERIAL_COUNT
+    predicted_mean = math.fsum(predicted_ranks) / Z2_MATERIAL_COUNT
+    covariance = math.fsum(
+        (left - reference_mean) * (right - predicted_mean)
+        for left, right in zip(reference_ranks, predicted_ranks, strict=True)
+    )
+    reference_variance = math.fsum(
+        (value - reference_mean) ** 2 for value in reference_ranks
+    )
+    predicted_variance = math.fsum(
+        (value - predicted_mean) ** 2 for value in predicted_ranks
+    )
+    if reference_variance <= 0.0 or predicted_variance <= 0.0:
+        raise ValueError("Z2 rank correlation is undefined for constant rankings")
+    derived_metrics = {
+        "magnetocrystalline_anisotropy_rank_correlation": covariance
+        / math.sqrt(reference_variance * predicted_variance),
+        "easy_axis_sign_errors": sign_errors,
+        "tc_rnsw_mae_k": math.fsum(tc_errors) / Z2_MATERIAL_COUNT,
+        "tc_envelope_coverage": covered / Z2_MATERIAL_COUNT,
+    }
+    for metric, derived_value in derived_metrics.items():
+        reported_value = metrics.get(metric)
+        if (
+            isinstance(reported_value, bool)
+            or not isinstance(reported_value, (int, float))
+            or not math.isclose(
+                float(reported_value), float(derived_value), rel_tol=0.0, abs_tol=1e-12
+            )
+        ):
+            raise ValueError(f"Z2 artifact metric {metric} does not match its predictions")
+    measurements = typed_measurements(row)
+    if not isinstance(measurements, list) or len(measurements) != len(Z2_METRICS):
+        raise ValueError("Z2 aggregate requires all four typed measurements")
+    by_metric = {
+        item.get("metric"): item for item in measurements if isinstance(item, dict)
+    }
+    if set(by_metric) != Z2_METRICS:
+        raise ValueError("Z2 aggregate requires each typed metric exactly once")
+    for metric, measurement in by_metric.items():
+        if measurement.get("sample_count") != Z2_MATERIAL_COUNT:
+            raise ValueError(f"Z2 metric {metric} must report the locked sample_count 7")
+        value = measurement.get("value")
+        artifact_value = metrics.get(metric)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or isinstance(artifact_value, bool)
+            or not isinstance(artifact_value, (int, float))
+            or not math.isclose(float(value), float(artifact_value), rel_tol=0.0, abs_tol=1e-12)
+        ):
+            raise ValueError(f"Z2 metric {metric} does not match the cited artifact")
+    expected_acceptance = {
+        "magnetocrystalline_anisotropy_rank_correlation": {
+            "comparator": "equal",
+            "threshold": 1.0,
+            "outcome": "pass"
+            if math.isclose(derived_metrics["magnetocrystalline_anisotropy_rank_correlation"], 1.0)
+            else "fail",
+        },
+        "easy_axis_sign_errors": {
+            "comparator": "equal",
+            "threshold": 0,
+            "outcome": "pass" if sign_errors == 0 else "fail",
+        },
+    }
+    for metric, expected in expected_acceptance.items():
+        if by_metric[metric].get("acceptance_test") != expected:
+            raise ValueError(f"Z2 metric {metric} has a contradictory acceptance outcome")
+
+
 def bundle_from_row(
     root: Path,
     manifest_path: Path,
@@ -429,6 +888,15 @@ def bundle_from_row(
     if "measurements" in row or any(field in row for field in MEASUREMENT_FIELDS):
         bundle["measurements"] = typed_measurements(row)
         enforce_predicate_manifest_alignment(manifest, bundle, row_id)
+    if bundle["claim_predicate"] == Z2_PREDICATE:
+        try:
+            artifact_document = json.loads(artifact.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(f"measurement {row_id} cannot read the Z2 artifact: {error}") from error
+        if not isinstance(artifact_document, dict):
+            raise ValueError(f"measurement {row_id} Z2 artifact must be an object")
+        panel = load_reviewed_z2_panel(root)
+        enforce_z2_measurement(panel, artifact_document, row)
     dataset_fingerprint = enforce_path_minimums(root, manifest, bundle, artifact, row_id)
     if dataset_fingerprint is not None:
         bundle["evidence_refs"][0]["dataset_fingerprint"] = dataset_fingerprint
@@ -1081,7 +1549,12 @@ def ingest(root: Path, manifest_path: Path, measurements_path: Path) -> list[str
         else:
             claim_path, claim, premise = find_claim_and_premise(root, claim_id, premise_id)
             claims[claim_path] = claim
-        allowed, claim_predicates = allowed_scope(root, premise)
+        first_row = target_rows[0]
+        allowed, claim_predicates, bootstrap = allowed_scope(
+            root, premise, manifest=manifest, row=first_row
+        )
+        if bootstrap and len(target_rows) != 1:
+            raise ValueError("reviewed Z2 bootstrap requires exactly one aggregate evidence row")
         for row in target_rows:
             claim_predicate = require_string(row, "claim_predicate", f"measurement {row['row_id']}")
             if claim_predicate not in claim_predicates:
@@ -1093,6 +1566,22 @@ def ingest(root: Path, manifest_path: Path, measurements_path: Path) -> list[str
             validate_scope_compatibility(scope, allowed, claim_id, premise_id)
             bundle = bundle_from_row(root, manifest_path, manifest, row)
             validate_schema(bundle, EVIDENCE_SCHEMA, f"EvidenceBundle for {row['row_id']}")
+            if bootstrap:
+                outcomes = {
+                    measurement.get("metric"): (measurement.get("acceptance_test") or {}).get(
+                        "outcome"
+                    )
+                    for measurement in bundle.get("measurements", [])
+                    if isinstance(measurement, dict)
+                }
+                for metric in (
+                    "magnetocrystalline_anisotropy_rank_correlation",
+                    "easy_axis_sign_errors",
+                ):
+                    if outcomes.get(metric) != "pass":
+                        raise ValueError(
+                            f"reviewed Z2 bootstrap requires a passing {metric} acceptance outcome"
+                        )
             bundle_path = (
                 root
                 / "evidence"
@@ -1107,6 +1596,8 @@ def ingest(root: Path, manifest_path: Path, measurements_path: Path) -> list[str
             if not any(
                 reference.get("bundle_id") == bundle["bundle_id"] for reference in references
             ):
+                if bootstrap:
+                    premise["support_policy"] = {"mode": "all"}
                 references.append({"bundle_id": bundle["bundle_id"]})
 
     for claim in claims.values():

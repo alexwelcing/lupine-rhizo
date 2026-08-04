@@ -23,12 +23,14 @@ COPY gcp/mlip-cell-runner/z1_barrier.py ./
 COPY gcp/mlip-cell-runner/z1_sparse_dft.py ./
 COPY gcp/mlip-cell-runner/z2_soc_tc.py ./
 COPY gcp/mlip-cell-runner/z2_soc_tc_contract.py ./
+COPY gcp/mlip-cell-runner/verify_z2_image_contract.py ./
 COPY python/lupine_distill ./lupine_distill
 COPY python/lupine_distill_runtime ./lupine_distill_runtime
 COPY campaigns/v1/z2.campaign-manifest.v1.json ./campaigns/v1/z2.campaign-manifest.v1.json
 COPY data/candidates/z2_soc_tc_panel.lock.json ./data/candidates/z2_soc_tc_panel.lock.json
 
 RUN python3 -c "import gpaw; from gpaw.spinorbit import soc_eigenstates" \
+    && python3 /app/verify_z2_image_contract.py \
     && python3 /app/mlip_cell_runner.py --help >/dev/null
 
 RUN useradd -m -u 1000 mlip

@@ -198,6 +198,51 @@ class EvidenceBundleSchemaTests(unittest.TestCase):
 
         self.assertTrue(list(self.validator.iter_errors(bundle)))
 
+    def test_z2_receipt_requires_all_four_typed_metrics_at_locked_cardinality(self) -> None:
+        bundle = {
+            "bundle_id": "sha256:" + "a" * 64,
+            "claim_predicate": "magnetocrystalline_anisotropy_rank_correlation==1",
+            "epistemic_status": "confirmatory",
+            "scope": {
+                "structures": ["material-1"],
+                "chemistries": ["CrI3"],
+                "properties": [
+                    "magnetocrystalline_anisotropy_rank",
+                    "easy_axis",
+                    "curie_temperature",
+                ],
+                "conditions": {"locked_material_count": 7},
+            },
+            "evidence_refs": [{
+                "campaign": "discovery.round-4.z2-magnetic-anisotropy.v1",
+                "campaign_manifest": "campaigns/v1/z2.campaign-manifest.v1.json",
+                "campaign_manifest_hash": "sha256:" + "b" * 64,
+                "run_id": "z2-run",
+                "artifact": "data/candidates/z2/result.json",
+                "artifact_hash": "sha256:" + "c" * 64,
+                "thresholds_version": "z2-soc-tc-v1",
+            }],
+            "provenance": {
+                "agent": "test",
+                "human": "reviewer",
+                "timestamp": "2026-08-04T00:00:00Z",
+                "preregistration_id": "prereg.discovery.round-4.z2.2026-07-18",
+            },
+            "measurements": [
+                {"metric": "magnetocrystalline_anisotropy_rank_correlation", "value": 1.0, "unit": "spearman_rho", "acceptance_test": {"comparator": "equal", "threshold": 1.0, "outcome": "pass"}, "sample_count": 7},
+                {"metric": "easy_axis_sign_errors", "value": 0, "unit": "materials", "acceptance_test": {"comparator": "equal", "threshold": 0, "outcome": "pass"}, "sample_count": 7},
+                {"metric": "tc_rnsw_mae_k", "value": 12.5, "unit": "K", "sample_count": 7},
+                {"metric": "tc_envelope_coverage", "value": 0.5, "unit": "fraction", "sample_count": 7},
+            ],
+            "supersedes": [],
+        }
+
+        self.assertFalse(list(self.validator.iter_errors(bundle)))
+        bundle["measurements"][0]["sample_count"] = 6
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+        bundle["measurements"] = bundle["measurements"][:-1]
+        self.assertTrue(list(self.validator.iter_errors(bundle)))
+
 
 if __name__ == "__main__":
     unittest.main()
