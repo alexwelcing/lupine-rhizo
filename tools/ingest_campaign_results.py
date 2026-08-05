@@ -95,7 +95,7 @@ FROZEN_PANEL_PATH_MINIMUM = 22
 # substitute its own file: consistency is proven only against this locked source.
 CANONICAL_RECORDED_SOURCE = "data/candidates/z1-union-campaign.json"
 CANONICAL_RECORDED_DIGEST = (
-    "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2"
+    "sha256:c9520814b44bbd13b9c09742c4afb6d95203af38bcd2c3888a2a4e7b9943f074"
 )
 # The frozen family's single campaign identity. Cloned manifests under a fresh
 # campaign_id would count as independent replication in readiness grading.

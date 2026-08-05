@@ -1,7 +1,7 @@
 {
  "measurement": "protocol_offset_sign_skew.v3",
  "source_artifact": "data/candidates/z1-union-campaign.json",
- "source_sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2",
+ "source_sha256": "sha256:c9520814b44bbd13b9c09742c4afb6d95203af38bcd2c3888a2a4e7b9943f074",
  "unit_semantics": "per-(path, model) sparse-anchor GPAW(PBE, h=0.2, Gamma) barrier minus nebDFT2k PBE CI-NEB reference, meV; anchor sets are model-dependent; failures disclosed without imputation",
  "reduction": "path-level: median of measured model values per path; claim statistics computed over the measured path medians",
  "n_paths_recorded": 23,

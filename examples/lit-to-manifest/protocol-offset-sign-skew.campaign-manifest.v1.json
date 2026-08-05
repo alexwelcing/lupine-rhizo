@@ -28,7 +28,7 @@
     }
   ],
   "campaign_id": "literature.protocol-offset-sign-skew.v1",
-  "content_hash": "sha256:28107e55320184b86584afc93b604b828b48035761c5c8145cf9ad3f7ed3324a",
+  "content_hash": "sha256:d8980dc036e34e1fd563cee97065b23b5595957c30ba1eec6d07f29843171fc7",
   "demotion_conditions": [
     {
       "action": "demote",
@@ -115,7 +115,7 @@
     "recorded_inputs": [
       {
         "path": "data/candidates/z1-union-campaign.json",
-        "sha256": "sha256:af8a02ad5a663de2433b78917569af01f12a10f54ac8d94b33e934cfedc8a3f2"
+        "sha256": "sha256:c9520814b44bbd13b9c09742c4afb6d95203af38bcd2c3888a2a4e7b9943f074"
       }
     ],
     "registered_at": "2026-08-01T04:55:29Z",

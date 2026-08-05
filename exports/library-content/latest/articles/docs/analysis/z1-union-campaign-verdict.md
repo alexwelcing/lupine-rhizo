@@ -6,12 +6,14 @@
 
 ## Per-model verdicts
 
-| Model | Guided paths | Same-engine MAE | Gate (≤40 WIN / ≤15 strong) | VASP-referenced MAE | Verdict |
+| Model | Guided paths | Same-engine MAE | Same-engine check | VASP-referenced MAE | Verdict |
 |---|---|---|---|---|---|
-| chgnet | 22/22 | 0.0 meV | ≤15 | 693.0 meV | **STRONG_WIN** |
-| mace-mp-small | 21/21 | 6.8 meV | ≤15 | 705.7 meV | **STRONG_WIN** |
-| mace-mp-medium | 22/22 | 0.0 meV | ≤15 | 693.0 meV | **STRONG_WIN** |
-| mace-mpa-0-medium | 21/21 | 6.8 meV | ≤15 | 705.7 meV | **STRONG_WIN** |
+| chgnet | 22/22 | 0.0 meV | ≤15 | 693.0 meV | **SELF_CONSISTENCY_CHECK** |
+| mace-mp-small | 21/21 | 6.8 meV | ≤15 | 705.7 meV | **SELF_CONSISTENCY_CHECK** |
+| mace-mp-medium | 22/22 | 0.0 meV | ≤15 | 693.0 meV | **SELF_CONSISTENCY_CHECK** |
+| mace-mpa-0-medium | 21/21 | 6.8 meV | ≤15 | 705.7 meV | **SELF_CONSISTENCY_CHECK** |
+
+**Interpretation:** `SELF_CONSISTENCY_CHECK` records sparse-vs-dense agreement within the same GPAW engine. It is not an external-reference accuracy win; the VASP-referenced MAE is shown separately and does not satisfy the former claim.
 
 **Guidance-quality split:** chgnet and mace-mp-medium located the true extrema on every guided path (0.0 meV — their anchor sets always covered the dense profile's argmax/argmin, so by the union law (`barrier_eq_barrier_of_extrema_mem`) their sparse barriers are exactly the dense barriers). mace-mp-small and mace-mpa-0-medium missed extrema on some paths; their deficits (6.8 meV mean) are pure undercoverage error per `barrier_mono_subset`. The protocol ranks model guidance at zero extra cost.
 
@@ -23,11 +25,10 @@ mean 952.3 meV, max 4542.4 meV; clean paths: path-27 only (33.5 meV). Largest: p
 
 **T1 law check:** machine-checked `abs_barrier_sub_le_wander` says barrier error ≤ offset wander. Measured VASP-referenced MAE 693.0–705.7 meV vs mean wander 952.3 meV — inside the bound, as required.
 
-## Union economics (realized)
+## Frozen economics (provenance separated)
 
-- Naive per-model anchors: **430** · Union executed: **129** → **70.0% fewer evaluations (3.33×)** (prediction: 72.4% / 3.62× — realized inside it)
-- Path-14 (zero guiding models — all four model artifacts failed CI-NEB) completed via dense extension: data a per-model protocol could not produce.
+- Projected campaign design: **72.4% fewer DFT evaluations**.
+- Measured execution ledger: **$14.65 per 129 anchors**.
+- Neither result establishes prospective accuracy.
 
-## Cost ledger (measured; detail in `z1-union-cost-ledger.md`)
-
-129 anchors, 61.0 wall-hours, mean 28.4 min/anchor → 244 vCPU-hours → **\$14.65 cloud-equivalent**, \$0.60 local electricity.
+The unresolved `$14.65` versus `$4.65` conflict remains preserved in its provenance record and is not resolved here.
