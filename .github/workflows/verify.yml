@@ -163,6 +163,7 @@ jobs:
             python/tests/test_evidence_bundle_schema.py \
             python/tests/test_claim_contract_schema.py \
             python/tests/test_campaign_manifest_schema.py \
+            python/tests/test_sign_skew_replication_overlap.py \
             python/tests/test_assumptions_generator.py \
             python/tests/test_check_assumption_links.py \
             python/tests/test_ingest_campaign_results.py \
