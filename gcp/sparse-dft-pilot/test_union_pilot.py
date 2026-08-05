@@ -389,12 +389,12 @@ def test_assembly_math(synthetic, tmp_path):
     assert model_a["vasp_abs_error_mev"] == pytest.approx(8.0)
 
     summary = campaign["per_model_summary"][MODEL_A]
-    # Model A guides paths 0 and 1; both complete -> strong WIN on the
-    # same-engine basis (sparse anchors catch the dense extrema here).
+    # Model A guides paths 0 and 1; both complete. Same-engine agreement is
+    # recorded only as a self-consistency check, not an external-accuracy win.
     assert summary["paths_guided"] == 2
     assert summary["same_engine_mae_mev"] == pytest.approx(0.0)
-    assert summary["verdict"] == "strong_win"
-    assert summary["strong_win"] is True and summary["win"] is True
+    assert summary["verdict"] == "self_consistency_check"
+    assert summary["self_consistency_check"] is True and summary["win"] is True
     # Secondary VASP-referenced MAE is reported alongside, non-gating.
     # Path 0: sparse 0.408 vs reference 0.400 -> 8 meV; path 1: sparse 0.302
     # vs reference 0.300 -> 2 meV; MAE over both guided paths = 5 meV.

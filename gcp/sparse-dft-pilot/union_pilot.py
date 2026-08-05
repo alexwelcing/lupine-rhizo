@@ -660,7 +660,7 @@ def verdict_of(mae_mev: float | None, complete: bool) -> str:
     if not complete or mae_mev is None:
         return "incomplete"
     if mae_mev <= STRONG_WIN_THRESHOLD_MEV:
-        return "strong_win"
+        return "self_consistency_check"
     if mae_mev <= WIN_THRESHOLD_MEV:
         return "win"
     return "loss"
@@ -695,7 +695,7 @@ def assemble_campaign(
             "same_engine_mae_mev": se_mae,
             "vasp_mae_mev": mean_mev(vasp_errors),
             "win": complete and se_mae is not None and se_mae <= WIN_THRESHOLD_MEV,
-            "strong_win": (
+            "self_consistency_check": (
                 complete and se_mae is not None and se_mae <= STRONG_WIN_THRESHOLD_MEV
             ),
             "verdict": verdict_of(se_mae, complete),
@@ -717,7 +717,7 @@ def assemble_campaign(
         "gpaw_params": gpaw_params_json(),
         "thresholds": {
             "win_mev": WIN_THRESHOLD_MEV,
-            "strong_win_mev": STRONG_WIN_THRESHOLD_MEV,
+            "self_consistency_check_mev": STRONG_WIN_THRESHOLD_MEV,
             "t1_gate_mev": WIN_THRESHOLD_MEV,
             "basis": "same-engine (sparse GPAW vs dense same-engine GPAW profile)",
         },

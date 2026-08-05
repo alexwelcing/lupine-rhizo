@@ -58,9 +58,9 @@
    "paths_with_same_engine_error": 22,
    "paths_with_vasp_error": 22,
    "same_engine_mae_mev": 0.0,
-   "strong_win": true,
+   "self_consistency_check": true,
    "vasp_mae_mev": 692.9983969574649,
-   "verdict": "strong_win",
+   "verdict": "self_consistency_check",
    "win": true
   },
   "mace-mp-medium": {
@@ -69,9 +69,9 @@
    "paths_with_same_engine_error": 22,
    "paths_with_vasp_error": 22,
    "same_engine_mae_mev": 0.0,
-   "strong_win": true,
+   "self_consistency_check": true,
    "vasp_mae_mev": 692.9983969574649,
-   "verdict": "strong_win",
+   "verdict": "self_consistency_check",
    "win": true
   },
   "mace-mp-small": {
@@ -80,9 +80,9 @@
    "paths_with_same_engine_error": 21,
    "paths_with_vasp_error": 21,
    "same_engine_mae_mev": 6.76184414119992,
-   "strong_win": true,
+   "self_consistency_check": true,
    "vasp_mae_mev": 705.7245286150998,
-   "verdict": "strong_win",
+   "verdict": "self_consistency_check",
    "win": true
   },
   "mace-mpa-0-medium": {
@@ -91,9 +91,9 @@
    "paths_with_same_engine_error": 21,
    "paths_with_vasp_error": 21,
    "same_engine_mae_mev": 6.76184414119992,
-   "strong_win": true,
+   "self_consistency_check": true,
    "vasp_mae_mev": 705.7245286150998,
-   "verdict": "strong_win",
+   "verdict": "self_consistency_check",
    "win": true
   }
  },
@@ -3664,7 +3664,7 @@
  },
  "thresholds": {
   "basis": "same-engine (sparse GPAW vs dense same-engine GPAW profile)",
-  "strong_win_mev": 15.0,
+  "self_consistency_check_mev": 15.0,
   "t1_gate_mev": 40.0,
   "win_mev": 40.0
  }

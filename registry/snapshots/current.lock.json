@@ -4,7 +4,7 @@
       "content_hash": "sha256:fef058adc8827cf965746b9915389e5c91c2e1592b9032dbe6325ccc25199aa8"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:5d95bddfa47f7c1e0d92fd5faacb477a63847703afb07cbeeda8c4b727e6810a"
+      "content_hash": "sha256:af287e00e3e1ad5e06dd461bdc37c03bbe8cb7a08dddefca9049aa5d4a8af87c"
     }
   },
   "inputs": {
@@ -31,7 +31,7 @@
       },
       {
         "campaign_id": "literature.protocol-offset-sign-skew.v1",
-        "content_hash": "sha256:28107e55320184b86584afc93b604b828b48035761c5c8145cf9ad3f7ed3324a"
+        "content_hash": "sha256:d8980dc036e34e1fd563cee97065b23b5595957c30ba1eec6d07f29843171fc7"
       }
     ],
     "claim_contracts": [
