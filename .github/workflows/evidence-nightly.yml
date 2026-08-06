@@ -318,22 +318,36 @@ jobs:
         working-directory: glim-think
         run: npm ci
 
+      # This workflow's contract, stated in its own header, is that "secrets are
+      # optional — steps that need them skip cleanly when absent". `test -n` under
+      # `set -e` broke that contract: an absent secret hard-failed the job with no
+      # message, so the nightly failed every scheduled run and its signal became
+      # noise nobody read. An absent token now skips the remote-D1 steps and says
+      # so. A token that is PRESENT but a placeholder or malformed still fails
+      # loudly — that is a real misconfiguration and refusing to rewrite
+      # credential bytes is worth protecting.
       - name: Validate Cloudflare token secret
+        id: cf_token
         shell: bash
         run: |
-          set -euo pipefail
-          token="$CLOUDFLARE_API_TOKEN"
-          test -n "$token"
-          test "$token" != "-" || {
+          set -uo pipefail
+          token="${CLOUDFLARE_API_TOKEN:-}"
+          if [ -z "$token" ]; then
+            echo "::notice::CLOUDFLARE_API_TOKEN is not configured; skipping remote D1 steps"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$token" = "-" ]; then
             echo "::error::CLOUDFLARE_API_TOKEN is still the repository placeholder"
             exit 1
-          }
+          fi
           case "$token" in
             *[[:space:]]*|Bearer*|CLOUDFLARE_API_TOKEN=*|\"*)
               echo "::error::CLOUDFLARE_API_TOKEN is malformed; refusing to rewrite credential bytes"
               exit 1
               ;;
           esac
+          echo "present=true" >> "$GITHUB_OUTPUT"
 
       - name: Seed staging D1 hypotheses
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
@@ -369,7 +383,7 @@ jobs:
           PY
 
       - name: Migrate and export production D1 hypotheses
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        if: ${{ steps.cf_token.outputs.present == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.staging_fixture) }}
         working-directory: glim-think
         run: |
           npx wrangler d1 migrations apply glim-ledger --remote
@@ -443,7 +457,7 @@ jobs:
             "gs://shed-489901-atlas-outputs/evidence-nightly/ontology-state/$CYCLE_DATE/corpus-$run_id-$run_attempt.tar.gz"
 
       - name: Apply feedback to production D1
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
+        if: ${{ steps.cf_token.outputs.present == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.staging_fixture) }}
         working-directory: glim-think
         run: npx wrangler d1 execute glim-ledger --remote --file ../nightly-output/feedback.sql
 
@@ -485,16 +499,24 @@ jobs:
         working-directory: glim-think
         run: npm ci
 
+      # Deliberately STRICTER than the same check in the nightly path above. This
+      # job only runs when a human explicitly dispatches production D1
+      # maintenance, so an absent token means the work they asked for cannot be
+      # done — failing loudly is correct and skipping would be silent nonsense.
+      # The nightly path skips instead, because there nobody asked for anything.
       - name: Validate Cloudflare token secret
         shell: bash
         run: |
-          set -euo pipefail
-          token="$CLOUDFLARE_API_TOKEN"
-          test -n "$token"
-          test "$token" != "-" || {
+          set -uo pipefail
+          token="${CLOUDFLARE_API_TOKEN:-}"
+          if [ -z "$token" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN is required for production D1 maintenance"
+            exit 1
+          fi
+          if [ "$token" = "-" ]; then
             echo "::error::CLOUDFLARE_API_TOKEN is still the repository placeholder"
             exit 1
-          }
+          fi
           case "$token" in
             *[[:space:]]*|Bearer*|CLOUDFLARE_API_TOKEN=*|\"*)
               echo "::error::CLOUDFLARE_API_TOKEN is malformed; refusing to rewrite credential bytes"
