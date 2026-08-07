@@ -502,12 +502,19 @@ def nistCount := nistScaffoldAlSample.length
 #check ExactTubularUniversality.boundary_pairwise_diffeomorphic_general
 #check ExactTubularUniversality.exact_tubular_universality_of_A0ToA5
 
-/- T281–T286: sharp, calibration-only in-hull correction licenses.  The
+/- T281–T291: sharp, calibration-only in-hull correction licenses.  The
     sufficiency theorems remove spread from both boundaries and the deflation
     bias floor; endpoint necessity proves sharpness, while the compatibility
-    theorems preserve every case licensed by the frozen Round-4 caps. -/
+    theorems preserve every case licensed by the frozen Round-4 caps.  The two
+    robust forms preserve soundness when calibration ratios were rounded to the
+    nearest x10000 grid point. -/
 #check SharpLicense.sharp_inhull_correction_helps_inflation
 #check SharpLicense.sharp_inhull_correction_helps_deflation
+#check SharpLicense.rounding_robust_inhull_correction_helps_inflation
+#check SharpLicense.rounding_robust_inhull_correction_helps_deflation
+#check SharpLicense.rounding_defect_inflation
+#check SharpLicense.rounding_defect_inflation_severe
+#check SharpLicense.rounding_defect_deflation
 #check SharpLicense.old_inflation_cap_implies_sharp
 #check SharpLicense.old_deflation_cap_implies_sharp
 #check SharpLicense.sharp_inflation_necessary
@@ -678,8 +685,8 @@ def computationallyProvenCount : Nat :=
   -- invariant witnesses 6
   -- Wave 2 reconciliation: existing board 271 + centered-local/affine
   -- parameter-bound locks 5 + endpoint-margin locks 4 + exact-tubular locks 4
-  -- + sharp in-hull correction licenses 6.
-  271 + 5 + 4 + 4 + 6
+  -- + sharp in-hull correction licenses and rounded-input regressions 11.
+  271 + 5 + 4 + 4 + 11
 
 /-- Public theorems in the representation-agnostic correction spine and its
     executable certificate packs. This inventory remains tracked separately
@@ -715,7 +722,7 @@ def epistemicGapCount : Nat :=
 #guard (nistScaffoldPredictionsMissing nistScaffoldAlSample == true)
 
 #guard (hypothesisCount >= 6)
-#guard (computationallyProvenCount == 290)
+#guard (computationallyProvenCount == 295)
 #guard (universalCorrectionProvenCount == 164)
 #guard (honestErrorsProvenCount == 49)
 #guard (epistemicGapCount >= 1)

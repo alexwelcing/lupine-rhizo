@@ -12,7 +12,9 @@ integers x10000 as everywhere in the corpus). It ships the shapes —
 `CubicElastic`/`bornStable`, `ConcordanceWindow` with the
 concordant/flagged/refused trichotomy, `AnchorCalibration`/`wellAnchored`,
 `Refusal`/`orderJustified` plus the `no_monotone_fix` finality lemma — and
-worked examples showing the instantiation pattern: structure literal,
+the exact integer `roundingRobustInflationGate` and
+`roundingRobustDeflationGate` predicates for nearest-rounded correction inputs.
+It also includes worked examples showing the instantiation pattern: structure literal,
 predicate, `by decide`.
 
 ## Instantiation contract (generators)
