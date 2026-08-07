@@ -358,6 +358,11 @@ def theoremInventory : List TheoremInventoryEntry := [
   { moduleName := "OpenDistillationFactory.Materials.Theory.ProjectionLaw", declarationName := "residual_eq_zero_iff", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_inhull_correction_helps_inflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_inhull_correction_helps_deflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "rounding_robust_inhull_correction_helps_inflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "rounding_robust_inhull_correction_helps_deflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "rounding_defect_inflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "rounding_defect_inflation_severe", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
+  { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "rounding_defect_deflation", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "old_inflation_cap_implies_sharp", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "old_deflation_cap_implies_sharp", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
   { moduleName := "OpenDistillationFactory.Materials.Theory.SharpLicense", declarationName := "sharp_inflation_necessary", declarationKind := .theorem, epistemicGrade := .pureMathematical, contractId := none },
@@ -426,7 +431,7 @@ def activeLeanBindings : List TheoremInventoryEntry :=
 def b0AssuranceBindings : List TheoremInventoryEntry :=
   theoremInventory.filter (fun entry => entry.contractId == some "correction.b0.v1")
 
-#guard theoremInventory.length == 178
+#guard theoremInventory.length == 183
 #guard (theoremInventory.map (·.moduleName) |>.eraseDups |>.length) == 18
 #guard allAssuranceExportsBound
 #guard activeLeanBindings.isEmpty
