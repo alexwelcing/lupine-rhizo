@@ -40,6 +40,7 @@ EXPECTED_INPUT_DOCUMENT_PATH = (
 )
 EXPECTED_INPUT_STATUS = "**Status:** REVIEWED / READY TO REGISTER"
 EXPECTED_PREREGISTRATION_ID = "prereg.literature.protocol-offset-sign-skew.replication.v1"
+EXPECTED_SOURCE_AS_OF = "2026-08-03"
 EXPECTED_TARGET_PREMISES = (
     {
         "claim_id": "discovery.z1.barrier-accuracy.v1",
@@ -681,6 +682,7 @@ def validate_replication(
         expected_preregistration = {
             "registered_at": registered_at,
             "source": "https://doi.org/10.1038/s41524-025-01571-z",
+            "source_as_of": EXPECTED_SOURCE_AS_OF,
             "frozen_before_execution": True,
             "recorded_inputs": [expected_lock],
             "input_document": {

@@ -100,6 +100,7 @@ def fixture() -> tuple[dict, str, dict, dict, list[dict], dict, dict, str, dict]
         "preregistration": {
             "registered_at": "2026-08-04T00:00:00Z",
             "source": "https://doi.org/10.1038/s41524-025-01571-z",
+            "source_as_of": MODULE.EXPECTED_SOURCE_AS_OF,
             "frozen_before_execution": True,
             "input_document": {
                 "path": MODULE.EXPECTED_INPUT_DOCUMENT_PATH,
@@ -161,6 +162,13 @@ def validate(
 
 def test_fully_disjoint_registered_replication_passes() -> None:
     assert validate(fixture()) == []
+
+
+def test_registered_manifest_preserves_source_freshness_date() -> None:
+    values = fixture()
+
+    assert values[5]["preregistration"]["source_as_of"] == "2026-08-03"
+    assert validate(values) == []
 
 
 @pytest.mark.parametrize("field", ["path_id", "chemical_system", "reference_barrier_ev"])
