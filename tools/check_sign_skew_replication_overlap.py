@@ -178,6 +178,14 @@ def load_object(path: Path) -> dict[str, Any]:
 
 
 def sha256_lock(path: Path) -> str:
+    """Hash the sanitized in-repo path so a lock can never bind bytes we did not read.
+
+    A raw argument such as ``data/link/../candidates/panel.json`` is normalized
+    lexically by ``require_repo_path_no_symlinks`` but resolved through the
+    symlink by the operating system, so hashing the argument as given can digest
+    a file outside the repository while every reader loads the canonical one.
+    """
+    path = require_repo_path_no_symlinks(path, "hashed artifact")
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
@@ -729,16 +737,16 @@ def main() -> int:
         validate_sha256_sidecar(expected_candidate_path)
         validate_sha256_sidecar(ROOT / BASELINE_PANEL_PATH)
         validate_sha256_sidecar(ROOT / BASELINE_CAMPAIGN_PATH)
-        candidate_panel = load_object(args.candidate_panel)
+        candidate_panel = load_object(expected_candidate_path)
         baseline_panel = load_object(ROOT / BASELINE_PANEL_PATH)
-        manifest = load_object(args.manifest)
+        manifest = load_object(expected_manifest_path)
         preregistration = manifest.get("preregistration")
         input_document = (
             preregistration.get("input_document") if isinstance(preregistration, dict) else None
         )
         errors = validate_replication(
             candidate_panel=candidate_panel,
-            candidate_panel_hash=sha256_lock(args.candidate_panel),
+            candidate_panel_hash=sha256_lock(expected_candidate_path),
             baseline_panel=baseline_panel,
             baseline_campaign=load_object(ROOT / BASELINE_CAMPAIGN_PATH),
             source_rows=expected_replication_rows(expected_source_archive, baseline_panel),

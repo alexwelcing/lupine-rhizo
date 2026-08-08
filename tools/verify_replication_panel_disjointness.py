@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Produce a fail-closed overlap report for the proposed Z1 replication panel."""
+"""Produce a fail-closed overlap report for the proposed Z1 replication panel.
+
+The candidate panel is compared against BOTH frozen Z1 artifacts: the full
+30-path baseline panel lock and the 23-row union campaign that recorded model
+results for a subset of it. Comparing only the campaign would let a candidate
+reuse one of the seven baseline paths that never reached a model run.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +15,7 @@ import json
 import math
 import os
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, NamedTuple, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CANDIDATE_PANEL = ROOT / "data/candidates/z1-sign-skew-replication-panel.lock.json"
@@ -17,9 +23,10 @@ DEFAULT_CANDIDATE_MANIFEST = (
     ROOT
     / "docs/plans/2026-08-03-protocol-offset-sign-skew-replication-campaign-manifest-draft.json"
 )
+DEFAULT_Z1_BASELINE_PANEL = ROOT / "data/candidates/z1_nebdft2k_barriers.lock.json"
 DEFAULT_Z1_UNION_CAMPAIGN = ROOT / "data/candidates/z1-union-campaign.json"
 DEFAULT_OUTPUT = ROOT / "data/candidates/z1-sign-skew-replication-disjointness-report.json"
-REPORT_SCHEMA = "lupine.z1.replication_panel_disjointness_report.v1"
+REPORT_SCHEMA = "lupine.z1.replication_panel_disjointness_report.v2"
 
 
 def _objects(value: Any, label: str) -> list[dict[str, Any]]:
@@ -40,16 +47,16 @@ def _finite_number(value: Any, label: str) -> int | float:
     return value
 
 
-def _candidate_rows(candidate_panel: dict[str, Any]) -> list[dict[str, Any]]:
-    rows = _objects(candidate_panel.get("paths"), "candidate panel paths")
+def _panel_rows(panel: dict[str, Any], label: str) -> list[dict[str, Any]]:
+    rows = _objects(panel.get("paths"), f"{label} paths")
     for index, row in enumerate(rows):
-        _nonempty_string(row.get("path_id"), f"candidate path {index} path_id")
+        _nonempty_string(row.get("path_id"), f"{label} path {index} path_id")
         _nonempty_string(
-            row.get("chemical_system"), f"candidate path {index} chemical_system"
+            row.get("chemical_system"), f"{label} path {index} chemical_system"
         )
         _finite_number(
             row.get("reference_barrier_ev"),
-            f"candidate path {index} reference_barrier_ev",
+            f"{label} path {index} reference_barrier_ev",
         )
     return rows
 
@@ -100,54 +107,112 @@ def _union_rows(z1_union_campaign: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+class FrozenSource(NamedTuple):
+    """One frozen Z1 artifact reduced to the fields disjointness is defined over."""
+
+    name: str
+    rows: list[dict[str, Any]]
+    declares_model_results: bool
+
+
+def _comparable_row(row: dict[str, Any], models: tuple[str, ...]) -> dict[str, Any]:
+    return {
+        "path_id": row["path_id"],
+        "chemical_system": row["chemical_system"],
+        "reference_barrier_ev": row["reference_barrier_ev"],
+        "models": models,
+    }
+
+
+def _frozen_sources(
+    *, z1_baseline_panel: dict[str, Any], z1_union_campaign: dict[str, Any]
+) -> list[FrozenSource]:
+    """Both frozen Z1 artifacts; neither may be skipped and neither may be empty."""
+    baseline_rows = _panel_rows(z1_baseline_panel, "Z1 baseline panel")
+    union_rows = _union_rows(z1_union_campaign)
+    if not baseline_rows:
+        raise ValueError("Z1 baseline panel declares no paths to compare against")
+    if not union_rows:
+        raise ValueError("Z1 union campaign declares no paths to compare against")
+    return [
+        # The baseline lock records the frozen panel definition only; it carries no
+        # per-model results, so model-pair overlap cannot be derived from it and
+        # chemistry/path/barrier overlap must carry the refusal on its own.
+        FrozenSource(
+            name="z1_baseline_panel",
+            rows=[_comparable_row(row, ()) for row in baseline_rows],
+            declares_model_results=False,
+        ),
+        FrozenSource(
+            name="z1_union_campaign",
+            rows=[
+                _comparable_row(row, tuple(sorted(row["per_model"]))) for row in union_rows
+            ],
+            declares_model_results=True,
+        ),
+    ]
+
+
 def build_report(
     *,
     candidate_panel: dict[str, Any],
     candidate_manifest: dict[str, Any],
+    z1_baseline_panel: dict[str, Any],
     z1_union_campaign: dict[str, Any],
     input_locks: dict[str, Any],
 ) -> dict[str, Any]:
     """Return exact overlaps; malformed inputs raise instead of implying disjointness."""
-    candidate_rows = _candidate_rows(candidate_panel)
+    candidate_rows = _panel_rows(candidate_panel, "candidate panel")
     candidate_models = _candidate_models(candidate_manifest)
-    union_rows = _union_rows(z1_union_campaign)
+    frozen_sources = _frozen_sources(
+        z1_baseline_panel=z1_baseline_panel, z1_union_campaign=z1_union_campaign
+    )
 
     path_violations: list[dict[str, Any]] = []
+    system_violations: list[dict[str, Any]] = []
     pair_violations: list[dict[str, Any]] = []
     barrier_violations: list[dict[str, Any]] = []
 
     for candidate_index, candidate in enumerate(candidate_rows):
-        for union_index, union_row in enumerate(union_rows):
-            if candidate["path_id"] == union_row["path_id"]:
-                path_violations.append(
-                    {
-                        "path_id": candidate["path_id"],
-                        "candidate_path_index": candidate_index,
-                        "z1_union_path_index": union_index,
-                    }
-                )
-            shared_models = sorted(set(candidate_models) & set(union_row["per_model"]))
-            if candidate["chemical_system"] == union_row["chemical_system"]:
-                for model in shared_models:
-                    pair_violations.append(
+        for source in frozen_sources:
+            for frozen_index, frozen_row in enumerate(source.rows):
+                origin = {
+                    "candidate_path_index": candidate_index,
+                    "frozen_artifact": source.name,
+                    "frozen_path_index": frozen_index,
+                }
+                if candidate["path_id"] == frozen_row["path_id"]:
+                    path_violations.append({"path_id": candidate["path_id"], **origin})
+                if candidate["chemical_system"] == frozen_row["chemical_system"]:
+                    # A chemistry collision is a violation in its own right. Model
+                    # results may be absent (deferred or failed Z1 rows), and the
+                    # absence of a model pair must never imply the systems are
+                    # disjoint, so record the system overlap before deriving pairs.
+                    system_violations.append(
+                        {"chemical_system": candidate["chemical_system"], **origin}
+                    )
+                    shared_models = sorted(
+                        set(candidate_models) & set(frozen_row["models"])
+                    )
+                    for model in shared_models:
+                        pair_violations.append(
+                            {
+                                "chemical_system": candidate["chemical_system"],
+                                "model": model,
+                                **origin,
+                            }
+                        )
+                if candidate["reference_barrier_ev"] == frozen_row["reference_barrier_ev"]:
+                    barrier_violations.append(
                         {
-                            "chemical_system": candidate["chemical_system"],
-                            "model": model,
-                            "candidate_path_index": candidate_index,
-                            "z1_union_path_index": union_index,
+                            "reference_barrier_ev": candidate["reference_barrier_ev"],
+                            **origin,
                         }
                     )
-            if candidate["reference_barrier_ev"] == union_row["reference_barrier_ev"]:
-                barrier_violations.append(
-                    {
-                        "reference_barrier_ev": candidate["reference_barrier_ev"],
-                        "candidate_path_index": candidate_index,
-                        "z1_union_path_index": union_index,
-                    }
-                )
 
     violations = {
         "path_ids": path_violations,
+        "chemical_systems": system_violations,
         "chemical_system_model_pairs": pair_violations,
         "reference_barriers": barrier_violations,
     }
@@ -160,7 +225,14 @@ def build_report(
         "inputs": input_locks,
         "candidate_path_count": len(candidate_rows),
         "candidate_models": candidate_models,
-        "z1_union_path_count": len(union_rows),
+        "frozen_sources": [
+            {
+                "name": source.name,
+                "path_count": len(source.rows),
+                "declares_model_results": source.declares_model_results,
+            }
+            for source in frozen_sources
+        ],
         "overlap_counts": overlap_counts,
         "violations": violations,
     }
@@ -198,6 +270,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate-panel", type=Path, default=DEFAULT_CANDIDATE_PANEL)
     parser.add_argument("--candidate-manifest", type=Path, default=DEFAULT_CANDIDATE_MANIFEST)
+    parser.add_argument("--z1-baseline-panel", type=Path, default=DEFAULT_Z1_BASELINE_PANEL)
     parser.add_argument("--z1-union-campaign", type=Path, default=DEFAULT_Z1_UNION_CAMPAIGN)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args(argv)
@@ -206,11 +279,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         locks = {
             "candidate_panel": _lock(args.candidate_panel),
             "candidate_manifest": _lock(args.candidate_manifest),
+            "z1_baseline_panel": _lock(args.z1_baseline_panel),
             "z1_union_campaign": _lock(args.z1_union_campaign),
         }
         report = build_report(
             candidate_panel=_load_object(args.candidate_panel),
             candidate_manifest=_load_object(args.candidate_manifest),
+            z1_baseline_panel=_load_object(args.z1_baseline_panel),
             z1_union_campaign=_load_object(args.z1_union_campaign),
             input_locks=locks,
         )

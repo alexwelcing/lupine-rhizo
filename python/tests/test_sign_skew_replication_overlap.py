@@ -301,6 +301,9 @@ def test_candidate_must_match_pinned_source_selection() -> None:
 def test_source_archive_drives_deterministic_selection(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # sha256_lock only digests sanitized in-repo artifacts, so the synthetic
+    # archive has to stand in for a repository file.
+    monkeypatch.setattr(MODULE, "ROOT", tmp_path)
     archive_path = tmp_path / "nebDFT2k.zip"
     rows = ["_split,chemsys,material_id,edge_id,em_dft"]
     for index in range(31):
@@ -457,6 +460,55 @@ def test_json_artifacts_and_sidecars_must_not_be_symlinks(
     target.with_suffix(".json.sha256").symlink_to(real_sidecar)
     with pytest.raises(ValueError, match="must not contain symlinks"):
         MODULE.validate_sha256_sidecar(target)
+
+
+def test_lock_hashes_the_canonical_path_not_the_symlink_traversal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The recorded digest must be the bytes the loader reads.
+
+    ``data/link/../candidates/panel.json`` normalizes lexically to the canonical
+    repository path (so the canonicality gate accepts it and ``load_object``
+    reads the real panel), but the operating system resolves the symlink before
+    ``..`` and lands outside the repository. Hashing the argument as given would
+    bind the preregistration to that decoy instead of the panel it used.
+    """
+    root = tmp_path / "repo"
+    monkeypatch.setattr(MODULE, "ROOT", root)
+    panel = root / MODULE.EXPECTED_PANEL_PATH
+    panel.parent.mkdir(parents=True)
+    panel.write_text(json.dumps({"panel": "real"}) + "\n", encoding="utf-8")
+    decoy_directory = tmp_path / "outside" / "candidates"
+    decoy_directory.mkdir(parents=True)
+    decoy = decoy_directory / panel.name
+    decoy.write_text(json.dumps({"panel": "decoy"}) + "\n", encoding="utf-8")
+    (root / "data" / "link").symlink_to(decoy_directory)
+
+    argument = root / "data" / "link" / ".." / "candidates" / panel.name
+    assert argument.resolve() == decoy.resolve()
+    canonical = MODULE.require_canonical_repo_argument(
+        argument, MODULE.EXPECTED_PANEL_PATH, "candidate panel"
+    )
+    assert canonical == panel
+    assert MODULE.load_object(argument) == {"panel": "real"}
+
+    real_lock = "sha256:" + hashlib.sha256(panel.read_bytes()).hexdigest()
+    decoy_lock = "sha256:" + hashlib.sha256(decoy.read_bytes()).hexdigest()
+    assert real_lock != decoy_lock
+    assert MODULE.sha256_lock(canonical) == real_lock
+    assert MODULE.sha256_lock(argument) == real_lock
+
+
+def test_lock_refuses_paths_outside_the_repository(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    monkeypatch.setattr(MODULE, "ROOT", root)
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="must stay inside the repository"):
+        MODULE.sha256_lock(outside)
 
 
 def test_input_document_must_not_be_a_symlink(
