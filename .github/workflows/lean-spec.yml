@@ -8,11 +8,18 @@ on:
     branches: [main]
     paths:
       - 'lean-spec/**'
+      - 'config/lean_build_evidence.json'
+      - 'tools/build_lean_evidence.py'
       - '.github/workflows/lean-spec.yml'
   pull_request:
     branches: [main]
     paths:
       - 'lean-spec/**'
+      # A manifest-only edit changes what the repo CLAIMS is proved without
+      # touching a Lean file, so the old filter let it skip the formal gate
+      # entirely. That is how the wrong-revision pin reached main.
+      - 'config/lean_build_evidence.json'
+      - 'tools/build_lean_evidence.py'
       - '.github/workflows/lean-spec.yml'
   workflow_dispatch:
 

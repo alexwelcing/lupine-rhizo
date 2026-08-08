@@ -141,6 +141,27 @@ jobs:
           python -m pytest gcp/mlip-cell-runner/test_openinference_patcher.py -q
           python -m pytest gcp/mlip-cell-runner/test_runner_observability.py -q
 
+  evidence-pin:
+    name: Evidence pins a reproducible revision
+    runs-on: ubuntu-latest
+    steps:
+      # Full history: the check resolves proof_revision, which is virtually never
+      # the tip. A shallow clone would make it fail for the wrong reason.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Ratchet, not fence: fails only when the manifest disagrees with the
+      # revision it names. Adding proofs, modules or gates never trips it.
+      - name: Check evidence pin
+        run: python3 tools/check_evidence_pin.py
+
   evidence-formal-bridge:
     name: Empirical-formal bridge artifacts
     runs-on: ubuntu-latest
