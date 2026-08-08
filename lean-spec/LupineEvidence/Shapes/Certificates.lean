@@ -392,6 +392,56 @@ example : ¬ (((10001 - 10003 : Int).natAbs : Int) * 10000
 example : ¬ (((7400 - 5000 : Int).natAbs : Int) * 10000
     < ((7400 - 10000 : Int).natAbs : Int) * 5000) := by decide
 
+/-! ## Round-to-nearest-safe sharp correction gates -/
+
+/-- Operational inflation gate for ratios rounded to the nearest `1/10000`.
+    Each rounded input may differ from its true scaled value by `1/2`.  Clearing
+    that denominator exactly, this requires
+
+      lo * (10000 + b) - 2 * 10000 * b
+        > (1/2) * (30000 + 1/2 + b - lo).
+
+    The fourfold integer form below has no floating-point boundary decision. -/
+def roundingRobustInflationGate (lo b : Int) : Prop :=
+  60001 + 2 * b - 2 * lo
+    < 4 * (lo * (10000 + b) - 2 * 10000 * b)
+
+instance (lo b : Int) : Decidable (roundingRobustInflationGate lo b) :=
+  inferInstanceAs (Decidable (_ < _))
+
+/-- Operational deflation gate for ratios rounded to the nearest `1/10000`.
+    This is the exact integer form of requiring
+
+      2 * 10000 * b - hi * (10000 + b)
+        > (1/2) * (30000 + 1/2 + b - hi).
+
+    It is deliberately distinct from the unsafe sharp boundary, which has no
+    allowance for the two rounded inputs. -/
+def roundingRobustDeflationGate (hi b : Int) : Prop :=
+  60001 + 2 * b - 2 * hi
+    < 4 * (2 * 10000 * b - hi * (10000 + b))
+
+instance (hi b : Int) : Decidable (roundingRobustDeflationGate hi b) :=
+  inferInstanceAs (Decidable (_ < _))
+
+/-- Regression: the rounded inflation witness clears the old sharp boundary
+    but must not clear the round-to-nearest-safe boundary. -/
+example :
+    (10002 : Int) * (2 * 10000 - 10001) < 10001 * 10000
+    ∧ ¬ roundingRobustInflationGate 10001 10002 := by decide
+
+/-- Regression: the rounded deflation witness clears the old sharp boundary
+    by only four integer units but must not clear the safe boundary. -/
+example :
+    (5756 : Int) * (10000 + 4041) < 2 * 10000 * 4041
+    ∧ ¬ roundingRobustDeflationGate 5756 4041 := by decide
+
+/-- The robust inflation gate remains non-vacuous away from the boundary. -/
+example : roundingRobustInflationGate 10050 10060 := by decide
+
+/-- The robust deflation gate remains non-vacuous below the old bias floor. -/
+example : roundingRobustDeflationGate 3400 3000 := by decide
+
 /-! ## Anchor calibration -/
 
 /-- Power-law calibration for one property family: pred ~ c * T^alpha, with

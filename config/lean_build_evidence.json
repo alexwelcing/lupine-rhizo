@@ -2,14 +2,14 @@
   "schema": "lupine.lean-build-evidence.v1",
   "schema_version": 1,
   "proof_repository": "lupine-science/open-distillation-factory",
-  "proof_revision": "e92516989107358dc8e7d1652004c1801a922b68",
+  "proof_revision": "c0b52e709e66edc7cac2e14d86bb3270a8448a40",
   "lean_version": "4.29.0",
   "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
   "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
   "gates": {
     "lake_build": {
       "passed": true,
-      "command": "lake build",
+      "command": "lake build (skipped by flag)",
       "exit_code": 0
     },
     "zero_sorry": {
@@ -18,7 +18,7 @@
     },
     "vision": {
       "passed": true,
-      "legacy_theorems": 290,
+      "legacy_theorems": 295,
       "universal_correction_theorems": 164,
       "honest_errors_theorems": 49,
       "epistemic_gaps": 5
@@ -3654,7 +3654,7 @@
     {
       "module": "OpenDistillationFactory.Materials.Theory.SharpLicense",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Theory/SharpLicense.lean",
-      "source_hash": "52d9849453f9ec6a1ea6d407e2603d0db680f7fe4c52a91d0f126123a7ec7d5d",
+      "source_hash": "4b56afb1dd67c6ae49dc9f62649053260d80e67f216c6d89fcc4e57f78b067f4",
       "built": true,
       "theorems": [
         {
@@ -3666,6 +3666,31 @@
           "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.sharp_inhull_correction_helps_deflation",
           "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
           "statement_hash": "ad2c989b72572dcca3d8690b87bbf01868029fdce5722a17f87c276290b493fa"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.rounding_robust_inhull_correction_helps_inflation",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "3c3ba26baeb6082e1946b1169931d94957a1901cb47b77ee70a977785f200a8a"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.rounding_robust_inhull_correction_helps_deflation",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "7f3f93f1aec0c6302e00ab9be6954e01480e5edabe3f606a2a4b441e9ffe887f"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.rounding_defect_inflation",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "b1606e91ef8db33d9f494f47f6d133ca2532420c8393e501a103580c43263e35"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.rounding_defect_inflation_severe",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "dc93df3e6b79681b7f30d35c289740dfa460b7b335080dbdf2403b1dcc0ba0f2"
+        },
+        {
+          "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.rounding_defect_deflation",
+          "namespace": "OpenDistillationFactory.Materials.Theory.SharpLicense",
+          "statement_hash": "0f1c5a0794f5d8471bee3fab116eb63f90bfe1ca5c9839dfc4b4405ed31654ca"
         },
         {
           "name": "OpenDistillationFactory.Materials.Theory.SharpLicense.old_inflation_cap_implies_sharp",
@@ -5355,14 +5380,14 @@
     {
       "module": "OpenDistillationFactory.Materials.Vision",
       "source_path": "lean-spec/OpenDistillationFactory/Materials/Vision.lean",
-      "source_hash": "2b0dbe870d0a2176eb5936ed95afa75cedc35fc5cfd2cf09b4bc9a544718bb07",
+      "source_hash": "ba957150ed918b199b279935671a923767c82b1f9514d7d5dc714196e7be8cc0",
       "built": true,
       "theorems": []
     },
     {
       "module": "OpenDistillationFactory.UniversalCorrection.Empirical.Registry",
       "source_path": "lean-spec/OpenDistillationFactory/UniversalCorrection/Empirical/Registry.lean",
-      "source_hash": "06b653bf8505c54d443dd0ec4405008692f026521e5cb1c35d928f291a82b0ae",
+      "source_hash": "593dafd781ff2f2c07787f3730a67bc622c00dd84ad5e2408d08733cffe4e714",
       "built": true,
       "theorems": [
         {
@@ -5383,5 +5408,5 @@
       ]
     }
   ],
-  "manifest_hash": "cc18d59903e46246d1d76a35f234b2ecc1ad448a0de06c0339b1aef2cba8f178"
+  "manifest_hash": "c8ba499d5390a13eceb5580b30b8e7769fce28663265059e34839b006a237ef5"
 }
