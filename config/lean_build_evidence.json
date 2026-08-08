@@ -2,14 +2,14 @@
   "schema": "lupine.lean-build-evidence.v1",
   "schema_version": 1,
   "proof_repository": "lupine-science/open-distillation-factory",
-  "proof_revision": "c0b52e709e66edc7cac2e14d86bb3270a8448a40",
+  "proof_revision": "799eacb2b389ff4c8d3537eb3b16d92869942e83",
   "lean_version": "4.29.0",
   "mathlib_revision": "8a178386ffc0f5fef0b77738bb5449d50efeea95",
   "atlas_revision": "c5a10f1a95de31e5476484c8bb3856ee7f164ea0",
   "gates": {
     "lake_build": {
       "passed": true,
-      "command": "lake build (skipped by flag)",
+      "command": "lake build",
       "exit_code": 0
     },
     "zero_sorry": {
@@ -5408,5 +5408,5 @@
       ]
     }
   ],
-  "manifest_hash": "c8ba499d5390a13eceb5580b30b8e7769fce28663265059e34839b006a237ef5"
+  "manifest_hash": "9f8fa7dca467b1a163808a43e98a36360ebe5b49734cf165b463c6ffaffcc8bb"
 }
