@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lupine.science/schemas/sign-skew-replication-panel.v1.schema.json",
+  "title": "Protocol-offset sign-skew replication panel",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "panel_id",
+    "reference_provenance",
+    "holdout",
+    "execution_protocol",
+    "paths"
+  ],
+  "properties": {
+    "schema": {
+      "const": "lupine.z1.sign_skew_replication_panel.v1"
+    },
+    "panel_id": {
+      "const": "z1-sign-skew-replication-v1"
+    },
+    "reference_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset",
+        "source_archive_sha256",
+        "source_repository",
+        "source_revision",
+        "doi"
+      ],
+      "properties": {
+        "dataset": {"const": "LiTraj nebDFT2k"},
+        "source_archive_sha256": {"const": "b7a99d89337902e9e1da319f57547170fdb132bf15bf6ffef03a0140e2207d7f"},
+        "source_repository": {"const": "https://github.com/AIRI-Institute/LiTraj"},
+        "source_revision": {"const": "c3ca5c2afbc13ffc823306f546dcee24486ade2a"},
+        "doi": {"const": "10.1038/s41524-025-01571-z"}
+      }
+    },
+    "holdout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "source_split", "selection_rule", "selected_chemical_systems"],
+      "properties": {
+        "unit": {"const": "chemical_system"},
+        "source_split": {"const": "test"},
+        "selection_rule": {"type": "string", "minLength": 1},
+        "selected_chemical_systems": {
+          "type": "array",
+          "minItems": 30,
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "execution_protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["failure_policy", "barrier_definition"],
+      "properties": {
+        "failure_policy": {"const": "record failure without imputation"},
+        "barrier_definition": {"const": "max(image_energy_ev) - min(image_energy_ev)"}
+      }
+    },
+    "paths": {
+      "type": "array",
+      "minItems": 30,
+      "maxItems": 30,
+      "items": {"$ref": "#/$defs/path"}
+    }
+  },
+  "$defs": {
+    "number": {"type": "number"},
+    "vector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/number"}
+    },
+    "cell": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/vector3"}
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbols", "cell_angstrom", "pbc", "positions_angstrom"],
+      "properties": {
+        "symbols": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "cell_angstrom": {"$ref": "#/$defs/cell"},
+        "pbc": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "boolean"}
+        },
+        "positions_angstrom": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/vector3"}
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "image_count",
+        "saddle_image_index",
+        "energies_ev",
+        "endpoint_initial",
+        "saddle",
+        "endpoint_final"
+      ],
+      "properties": {
+        "image_count": {"type": "integer", "minimum": 2},
+        "saddle_image_index": {"type": "integer", "minimum": 0},
+        "energies_ev": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"$ref": "#/$defs/number"}
+        },
+        "endpoint_initial": {"$ref": "#/$defs/structure"},
+        "saddle": {"$ref": "#/$defs/structure"},
+        "endpoint_final": {"$ref": "#/$defs/structure"}
+      }
+    },
+    "path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path_id",
+        "material_id",
+        "chemical_system",
+        "split",
+        "reference_barrier_ev",
+        "input_images",
+        "reference"
+      ],
+      "properties": {
+        "path_id": {"type": "string", "minLength": 1},
+        "material_id": {"type": "string", "minLength": 1},
+        "chemical_system": {"type": "string", "minLength": 1},
+        "split": {"const": "test"},
+        "reference_barrier_ev": {"$ref": "#/$defs/number"},
+        "input_images": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"$ref": "#/$defs/structure"}
+        },
+        "reference": {"$ref": "#/$defs/reference"}
+      }
+    }
+  }
+}

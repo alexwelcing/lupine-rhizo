@@ -1,0 +1,54 @@
+{
+  "candidate_models": [
+    "chgnet",
+    "mace-mp-small",
+    "mace-mp-medium",
+    "mace-mpa-0-medium"
+  ],
+  "candidate_path_count": 30,
+  "disjoint": true,
+  "frozen_sources": [
+    {
+      "declares_model_results": false,
+      "name": "z1_baseline_panel",
+      "path_count": 30
+    },
+    {
+      "declares_model_results": true,
+      "name": "z1_union_campaign",
+      "path_count": 23
+    }
+  ],
+  "inputs": {
+    "candidate_manifest": {
+      "path": "docs/plans/2026-08-03-protocol-offset-sign-skew-replication-campaign-manifest-draft.json",
+      "sha256": "sha256:fc931a56fed5118f3ca2ade0f56e32fb3252d1a9daad4647c9cc090623872ab8"
+    },
+    "candidate_panel": {
+      "path": "data/candidates/z1-sign-skew-replication-panel.lock.json",
+      "sha256": "sha256:1fe44e3ebf19a3af29621ccfcb02e5f5352745f63e53fc30113b340cabfbf770"
+    },
+    "z1_baseline_panel": {
+      "path": "data/candidates/z1_nebdft2k_barriers.lock.json",
+      "sha256": "sha256:192fe54a5579cc421f6644d5d76fb442c6dfb985f014dc4741549e29052efb68"
+    },
+    "z1_union_campaign": {
+      "path": "data/candidates/z1-union-campaign.json",
+      "sha256": "sha256:c9520814b44bbd13b9c09742c4afb6d95203af38bcd2c3888a2a4e7b9943f074"
+    }
+  },
+  "overlap_counts": {
+    "chemical_system_model_pairs": 0,
+    "chemical_systems": 0,
+    "path_ids": 0,
+    "reference_barriers": 0
+  },
+  "schema": "lupine.z1.replication_panel_disjointness_report.v2",
+  "status": "pass",
+  "violations": {
+    "chemical_system_model_pairs": [],
+    "chemical_systems": [],
+    "path_ids": [],
+    "reference_barriers": []
+  }
+}

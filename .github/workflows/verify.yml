@@ -184,11 +184,19 @@ jobs:
             python/tests/test_evidence_bundle_schema.py \
             python/tests/test_claim_contract_schema.py \
             python/tests/test_campaign_manifest_schema.py \
+            python/tests/test_sign_skew_replication_overlap.py \
+            python/tests/test_verify_replication_panel_disjointness.py \
             python/tests/test_assumptions_generator.py \
             python/tests/test_check_assumption_links.py \
             python/tests/test_ingest_campaign_results.py \
             python/tests/test_check_publication_claims.py \
             -q
+
+      - name: Verify replication panel disjointness report
+        run: |
+          python tools/verify_replication_panel_disjointness.py
+          git diff --exit-code -- \
+            data/candidates/z1-sign-skew-replication-disjointness-report.json
 
       - name: Check generated assumption registry is up to date
         run: python tools/generate_assumptions.py --check

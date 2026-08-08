@@ -1,0 +1,151 @@
+{
+  "draft_status": "NOT REGISTERED / NO EXECUTION AUTHORIZED",
+  "registration_blockers": [
+    "independent review of the candidate panel and preregistration document",
+    "owner-supplied replication-only spend cap and explicit execution approval",
+    "promotion of the reviewed preregistration document to its non-draft canonical path",
+    "operator-supplied UTC RFC 3339 registration timestamp",
+    "RFC 8785 content hash after every other field is final",
+    "byte-identical registry entry"
+  ],
+  "manifest": {
+    "acceptance_test": {
+      "metric": "signed_error_positive",
+      "operator": "gt",
+      "threshold": 0.5,
+      "unit": "fraction"
+    },
+    "available_models": [
+      {
+        "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+        "model_id": "chgnet",
+        "version": "chgnet 0.4.2"
+      },
+      {
+        "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+        "model_id": "mace-mp-small",
+        "version": "mace-torch 0.3.16 / small"
+      },
+      {
+        "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+        "model_id": "mace-mp-medium",
+        "version": "mace-torch 0.3.16 / medium"
+      },
+      {
+        "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+        "model_id": "mace-mpa-0-medium",
+        "version": "mace-torch 0.3.16 / mpa-0 medium"
+      }
+    ],
+    "campaign_id": "literature.protocol-offset-sign-skew.replication.v1",
+    "demotion_conditions": [
+      {
+        "action": "demote",
+        "condition_id": "demote.replication.sign-fraction",
+        "metric": "signed_error_positive",
+        "operator": "lte",
+        "threshold": 0.5,
+        "unit": "fraction"
+      },
+      {
+        "action": "demote",
+        "condition_id": "demote.replication.median-low",
+        "metric": "median_signed_error_mev",
+        "operator": "lt",
+        "threshold": 400,
+        "unit": "meV"
+      },
+      {
+        "action": "demote",
+        "condition_id": "demote.replication.median-high",
+        "metric": "median_signed_error_mev",
+        "operator": "gt",
+        "threshold": 600,
+        "unit": "meV"
+      }
+    ],
+    "evidence_requirements": [
+      {
+        "artifact_type": "neb-path-set",
+        "description": "At least 22 measured paths, each reduced to the median available signed error across the four locked models; record every failure without imputation.",
+        "minimum_count": 22,
+        "requirement_id": "e.replication.measured-paths"
+      },
+      {
+        "artifact_type": "campaign-terminal-records",
+        "description": "All 30 registered candidates have an explicit terminal measured-or-failed record; no missing candidate may be omitted or imputed.",
+        "minimum_count": 30,
+        "requirement_id": "e.replication.terminal-candidate-records"
+      }
+    ],
+    "exclusions": [],
+    "execution": {
+      "candidate_panel": {
+        "path": "data/candidates/z1-sign-skew-replication-panel.lock.json",
+        "sha256": "sha256:1fe44e3ebf19a3af29621ccfcb02e5f5352745f63e53fc30113b340cabfbf770"
+      },
+      "excluded_models_block_execution": false,
+      "lane": "literature.protocol-offset-sign-skew.replication",
+      "model_selection": "available_models"
+    },
+    "frozen_hypotheses": [
+      {
+        "frozen": true,
+        "hypothesis_id": "lit-hypothesis.protocol-offset-sign-skew.replication.h1.v1",
+        "statement": "After taking the median available signed error across the four locked models for each measured path, more than half of measured path medians are positive."
+      },
+      {
+        "frozen": true,
+        "hypothesis_id": "lit-hypothesis.protocol-offset-sign-skew.replication.h2.v1",
+        "statement": "After taking the median available signed error across the four locked models for each measured path, the median across measured paths is between +400 meV and +600 meV inclusive."
+      }
+    ],
+    "kill_conditions": [
+      {
+        "action": "kill",
+        "condition_id": "kill.replication.integrity",
+        "metric": "integrity_violations",
+        "operator": "gt",
+        "threshold": 0,
+        "unit": "count"
+      }
+    ],
+    "preregistration": {
+      "frozen_before_execution": true,
+      "input_document": {
+        "path": "docs/plans/2026-08-03-protocol-offset-sign-skew-replication-preregistration-draft.md",
+        "sha256": "sha256:e8f6bad29a47acfd08851703e050aa0d34b1e18cfdeefd63174e10263c19af6b"
+      },
+      "recorded_inputs": [
+        {
+          "path": "data/candidates/z1-sign-skew-replication-panel.lock.json",
+          "sha256": "sha256:1fe44e3ebf19a3af29621ccfcb02e5f5352745f63e53fc30113b340cabfbf770"
+        }
+      ],
+      "registered_at": null,
+      "source": "https://doi.org/10.1038/s41524-025-01571-z",
+      "source_as_of": "2026-08-03"
+    },
+    "preregistration_id": "prereg.literature.protocol-offset-sign-skew.replication.v1",
+    "target_premises": [
+      {
+        "claim_id": "discovery.z1.barrier-accuracy.v1",
+        "premise_id": "chemistry-held-out-neb"
+      }
+    ],
+    "version": 1
+  },
+  "readiness_h_gate": {
+    "candidate_terminal_records": 30,
+    "independent_evidence_bundle_required": true,
+    "maximum_median_signed_error_mev": 600,
+    "minimum_measured_paths": 22,
+    "minimum_positive_path_median_fraction_exclusive": 0.5,
+    "minimum_median_signed_error_mev": 400,
+    "required_overlap_counts": {
+      "chemical_system_model_pairs": 0,
+      "path_ids": 0,
+      "reference_barriers": 0
+    }
+  }
+}
