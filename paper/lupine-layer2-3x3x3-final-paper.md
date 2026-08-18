@@ -12,6 +12,8 @@
 
 We show that the elastic-constant errors of four MatPES foundation machine-learned interatomic potentials (MLIPs) on 16 cubic metals are dominated by a shared, transferable bulk-stiffness bias, and that this bias can be removed post hoc with a one-vector-per-functional correction operator. Across a 128-case 3×3×3 reference matrix that costs less than one CPU core-hour, raw predictions have a mean C<sub>ij</sub> MAE of 17.8 GPa. A leave-one-out Lupine correction operator, which extracts the first principal component of the residual cloud and projects each held-out residual onto it, lowers the mean MAE to **10.4 GPa** with **zero no-harm violations** (PBE 15.0 → 9.4 GPa; r2SCAN 20.7 → 11.3 GPa). Every model improves. Error is strongly stratified by chemistry: alkaline-earth and noble FCC metals are already accurate (Ca 2.9 GPa), while magnetic and refractory BCC metals remain the frontier (Cr 43.5 GPa). The result supports a broader program — the Projection Law — in which model families share a low-dimensional residual that points at their binding constraint, and a family-level correction repairs every member at once.
 
+**Certification status:** The corrected C<sub>ij</sub> MAEs below are empirical/oracle aggregates, not licensed correction guarantees. They are **uncertified** unless C11, C12, and C44 each independently satisfy a valid per-component license for the held-out target. Bulk/shear moduli, C′, Cauchy pressure, anisotropy, and other derived quantities are also **uncertified**: componentwise licenses do not compose through differences, mixed directions, or general products.
+
 **Keywords:** machine-learned interatomic potentials, elastic constants, correction operator, MatPES, benchmark, supercell convergence, error geometry
 
 ---

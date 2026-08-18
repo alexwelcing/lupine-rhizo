@@ -20,6 +20,8 @@ This is a **cost-accuracy** claim, not a new-physics claim. The physics
 operator and an honest cost ledger, then compares against the two baselines a
 supercomputer lab actually runs (big supercell, model ensemble).
 
+**Certification restriction.** Every corrected C11/C12/C44 MAE specified by this plan is an empirical aggregate and remains **uncertified** as a correction license unless every included target component independently satisfies a valid scalar license. No bulk/shear modulus, C′, Cauchy pressure, anisotropy, difference, product, or other derived map inherits a guarantee from componentwise correction; the exact reported map requires a separate proved and checked vector-valued license.
+
 ---
 
 ## 1. What already exists (do NOT re-run)

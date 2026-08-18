@@ -26,6 +26,8 @@ On a 16-element cubic-metal benchmark, a Lupine-corrected single-model 1×1×1 e
 
 ## Bias operator (arm B)
 
+**Certification restriction:** the mean/median corrected Cij MAEs produced by this protocol are empirical aggregates and remain **uncertified** as correction licenses unless each C11/C12/C44 target independently satisfies a valid scalar license. The protocol does not license bulk/shear moduli or other derived maps; those require a separately proved and checked vector-valued license.
+
 1. For each element, compute the TensorNet/PBE 1×1×1 error vector: `raw − TPBE_0K`.
 2. Leave-one-out: fit the first principal component of the centered error matrix on the other 15 elements; apply that bias to the held-out element.
 3. Add functional shift `Tr2SCAN_0K − TPBE_0K`.

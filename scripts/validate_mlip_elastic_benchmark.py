@@ -9,7 +9,19 @@ from pathlib import Path
 from typing import Any
 
 ARMS = ["raw-1x1x1", "corrected-1x1x1", "ref-3x3x3", "ensemble-1x1x1"]
-REQUIRED_TOP = {"schema_version", "provenance", "arms", "cost_ratios", "per_element", "caveats"}
+CERTIFICATION_STATUS = (
+    "corrected Cij aggregates are uncertified correction diagnostics; "
+    "derived elastic maps require a separate vector-valued license"
+)
+REQUIRED_TOP = {
+    "schema_version",
+    "certification_status",
+    "provenance",
+    "arms",
+    "cost_ratios",
+    "per_element",
+    "caveats",
+}
 REQUIRED_ROW = {
     "element",
     "arm",
@@ -34,6 +46,11 @@ def validate(data: dict[str, Any]) -> list[str]:
         errors.append(f"missing top-level fields: {sorted(missing_top)}")
     if data.get("schema_version") != "lupine.mlip_elastic_benchmark.v1":
         errors.append("schema_version must equal lupine.mlip_elastic_benchmark.v1")
+    if data.get("certification_status") != CERTIFICATION_STATUS:
+        errors.append(
+            "certification_status must explicitly mark corrected Cij aggregates "
+            "uncertified and require a vector-valued license for derived maps"
+        )
     arms = data.get("arms", {})
     for arm in ARMS:
         if arm not in arms:

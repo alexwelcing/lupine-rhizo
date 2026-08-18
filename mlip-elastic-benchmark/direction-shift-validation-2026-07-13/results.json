@@ -1,4 +1,5 @@
 {
+ "certification_status": "corrected Cij aggregates are uncertified correction diagnostics; derived elastic maps require a separate vector-valued license",
  "protocol": {
   "date": "2026-07-13",
   "primary_target": "Tr2SCAN_0K",
@@ -355,7 +356,7 @@
   },
   {
    "gate": "scalar-bulk LOO alphas match recorded v0.2 alphas",
-   "max_abs_dev": 7.820510944789305e-05,
+   "max_abs_dev": 7.82051094481151e-05,
    "tol": 0.01,
    "pass": true
   }
@@ -1743,7 +1744,7 @@
  "v01_reimplementation_scan": {
   "variants_max_abs_dev_gpa": {
    "pca(centered=False,sign=+1)": 92.48556052547798,
-   "pca(centered=False,sign=-1)": 112.83838758234415,
+   "pca(centered=False,sign=-1)": 112.83838758234417,
    "pca(centered=True,sign=+1)": 92.65159178229578,
    "pca(centered=True,sign=-1)": 112.9360652154899
   },

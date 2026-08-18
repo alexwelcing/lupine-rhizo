@@ -11,6 +11,8 @@
 
 ## Executive Summary
 
+**Certification boundary:** every corrected Cij MAE and every bulk/shear or other derived-modulus result in this exported diagnosis is an empirical benchmark result, **uncertified** as a correction license. Componentwise licenses certify an aggregate only when every included target component is independently licensed; derived maps require a separate vector-valued license.
+
 - The v0.1 global LOO-PCA operator **fails on this MLIP set**. Against the headline TPBE_0K target it degrades mean MAE from 14.55 GPa (raw) to **63.40 GPa**, and against the Tr2SCAN_0K corrected target it degrades from 22.55 GPa to **54.28 GPa**. It cannot beat the 3-architecture PBE ensemble (11.60 GPa vs TPBE).
 - The headline cost-accuracy claim (corrected single model beats 3× ensemble at ~5× lower cost) is therefore **not supported** by the v0.1 global operator on this benchmark.
 - The recommended v0.2 operator on the intended corrected target (Tr2SCAN_0K) is **scalar-bulk**, with mean MAE 14.13 GPa vs Tr2SCAN (raw 22.55 GPa, shift-only 14.55 GPa, ensemble 19.89 GPa) at the same single-run cost. It is 2.70× cheaper than the ensemble and 3.86× cheaper than the 3×3×3 reference.

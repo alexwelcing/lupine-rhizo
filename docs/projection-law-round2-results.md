@@ -112,6 +112,8 @@ The first principal component of the centered error matrix for each multi-elemen
 
 ## 3. Head-to-Head: Operator vs Ensemble Metrics
 
+**Certification boundary:** all operator MAE/MSE values and corrected Cij summaries in this section are empirical/oracle aggregates and are **uncertified** as correction licenses. A componentwise license certifies an aggregate only when every included target component is independently licensed; derived elastic quantities and composites require a separate vector-valued license.
+
 ### 3.1 Benchmark design
 
 For each element, we compare two workflows:

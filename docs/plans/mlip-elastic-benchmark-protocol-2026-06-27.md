@@ -7,6 +7,8 @@
 
 This document is the **runnable protocol** for the 10× cost-reduction mlip elastic benchmark. It does NOT re-derive the science (that is frozen in the master plan); it translates the four-arm design into exact CLI commands, file paths, aggregation scripts, and the JSON schema that the execute task (`t_90f20a91`) and HPC artifact task (`t_4596db0d`) must honour.
 
+**Certification restriction.** The mean/median corrected C11/C12/C44 MAEs produced by this protocol are empirical aggregates and remain **uncertified** as correction licenses unless every included target component independently satisfies a valid scalar license. The protocol licenses no bulk/shear modulus, C′, Cauchy pressure, anisotropy, difference, product, or other derived map; each exact map requires a separate proved and checked vector-valued license.
+
 ---
 
 ## 1. Element roster (16 cubic metals)

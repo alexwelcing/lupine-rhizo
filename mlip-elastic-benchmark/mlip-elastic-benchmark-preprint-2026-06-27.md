@@ -13,6 +13,8 @@ A leave-one-out principal-component bias operator (v0.1), intended to remove res
 
 A second operator, `scalar-bulk` (v0.2), learns a leave-one-out scalar re-scaling of the bulk-modulus functional shift. On the Tr2SCAN-corrected sensitivity target it achieves mean MAE 14.13 GPa at 0.0134 core-hours, beating the 3-architecture ensemble (19.89 GPa) at 2.70× lower cost. On the PBE headline target, no single-model operator beats raw; the ensemble remains the accuracy winner at 11.60 GPa (95% CI [8.57, 15.04]) and 0.0362 core-hours. The scalar-bulk operator also proves cell-size independent: when fit on the 3×3×3 grid it gives mean MAE 14.14 GPa vs Tr2SCAN. The headline operational claims that survive are therefore: (1) supercell independence — the 1×1×1 cell replaces the 3×3×3 reference at ~4× lower cost with no measurable accuracy loss; and (2) on the Tr2SCAN-corrected target, a cheap single-model operator can outperform a 3-model ensemble.
 
+**Certification boundary:** all corrected Cij MAEs in this paper are empirical aggregates and are **uncertified** as correction licenses unless C11, C12, and C44 independently satisfy valid target licenses. Bulk/shear moduli and every other derived elastic quantity are also **uncertified** because componentwise licenses do not compose through those maps.
+
 ---
 
 ## 1. Introduction

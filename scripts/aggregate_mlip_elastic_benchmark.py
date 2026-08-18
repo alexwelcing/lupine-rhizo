@@ -25,6 +25,10 @@ ARM_RAW = "raw-1x1x1"
 ARM_CORRECTED = "corrected-1x1x1"
 ARM_REF = "ref-3x3x3"
 ARM_ENSEMBLE = "ensemble-1x1x1"
+CERTIFICATION_STATUS = (
+    "corrected Cij aggregates are uncertified correction diagnostics; "
+    "derived elastic maps require a separate vector-valued license"
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 LUPINE_ROOT = ROOT.parent / "lupine"
@@ -292,6 +296,7 @@ def build() -> dict[str, Any]:
     max_1x1_runtime = max(row["runtime_seconds"] for row in per_element if row["supercell"] == 1)
     return {
         "schema_version": "lupine.mlip_elastic_benchmark.v1",
+        "certification_status": CERTIFICATION_STATUS,
         "provenance": {
             "benchmark_name": "mlip elastic benchmark-2026-06-27",
             "git_sha": git_sha(ROOT),
@@ -333,6 +338,8 @@ def validate(result: dict[str, Any]) -> None:
     errors = []
     if result.get("schema_version") != "lupine.mlip_elastic_benchmark.v1":
         errors.append("schema_version must be lupine.mlip_elastic_benchmark.v1")
+    if result.get("certification_status") != CERTIFICATION_STATUS:
+        errors.append("certification_status must preserve the aggregate/derived uncertified boundary")
     if result["arms"][ARM_CORRECTED].get("bias_method") != "LOO-PCA":
         errors.append("corrected arm bias_method must be LOO-PCA")
     if result["arms"][ARM_ENSEMBLE].get("n_models") != 3:

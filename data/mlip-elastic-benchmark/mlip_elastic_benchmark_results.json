@@ -1,5 +1,6 @@
 {
   "schema_version": "lupine.mlip_elastic_benchmark.v1",
+  "certification_status": "corrected Cij aggregates are uncertified correction diagnostics; derived elastic maps require a separate vector-valued license",
   "provenance": {
     "benchmark_name": "mlip-elastic-benchmark-2026-06-27",
     "git_sha": "f82385de7674367fcb5fc5ad8904eacdc7cf41f2",
