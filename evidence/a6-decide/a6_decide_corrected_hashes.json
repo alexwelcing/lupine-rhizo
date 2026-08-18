@@ -1,0 +1,19 @@
+{
+  "files": {
+    "a6_decide_analysis.json": "85e9ba9d46abb3b566d59a1b449abe0c0a35d75f403241735bbbcf77a863dffa",
+    "a6_execution_ledger.json": "305560bf47fc94b94326b33b281b9df8d915e1432f13144bbabcdddea10c33e4",
+    "analyze_a6_decide.py": "35ec3e285ef72ae46bbb2eac3ab033d19f15d382b9276cdbbd13939ff5191c2a",
+    "build_a6_manifests.py": "04e1ecd9a8d6ec6148b601d703a6812d0ca403c0a751f571f950b8fa0988c7c1",
+    "build_corrected_bundle.py": "54379387815cb704f0d191cc3fd28eaf5056002c2a7870e9f16fa3cb9f6832a8",
+    "build_corrected_ledger.py": "598ee760970e64b7306675a8b7011cb4a64e74e2f9bb4d80b56ba36f2c80ef35",
+    "inspect_mptrj_test.py": "ae890a8d7c1a1447b4d933b151565b5692d0794947accc902e5102333a4989c6",
+    "manifests/input-lock.json": "7eb304c4db4d4243bda01cd5928eba6df218ec06d2d842667f916c5159592b3a",
+    "manifests/matpes-pbe-2025.2.manifest.json": "babbe09075f8827f04c7532e5bf58d4fe1ab763ed2a176a271813d973ceeca79",
+    "manifests/omat24-validation-aimd-pbe-1000-nvt.manifest.json": "f15d949dd11527903c2025f0b011f95e06d6553d9c3f9f38a09a0235f7fb2bfa",
+    "render_corrected_report.py": "d2f4e6ead43b2f976874c6e67981188162ac869144ad87a0e61cfa0977cc9cb6",
+    "report_a6_decide_corrected.md": "a24695edced1572b7d25c02be6556846619abe81aeda6db6594296ab9921710d",
+    "run_repository_validator.py": "721928d4208c70b084720f227d0d46ea3bc60644fca18076e942ca4b0b5e7e0c",
+    "verify_a6_decide.py": "51423a01e59ffc2c980dbdc09927a4e332feeab6c6e837e7e9dd55326a18c266"
+  },
+  "schema": "lupine.a6_decide.corrected_artifact_hashes.v1"
+}
