@@ -146,6 +146,27 @@ def test_nonpositive_minimum_calibration_refuses() -> None:
         )
 
 
+def test_operator_cannot_lower_registered_minimum_calibration() -> None:
+    module = load_module()
+    candidates = [
+        *(candidate(index, "ionics-rocksalt") for index in range(6)),
+        *(candidate(index, "perovskites") for index in range(6)),
+    ]
+    assignments = module.assign_panel_roles(candidates)
+    target = next(row for row in assignments if row["role"] == "held_out_target")
+
+    with pytest.raises(
+        module.GroupingRefusalError,
+        match="REFUSE_MINIMUM_CALIBRATION",
+    ):
+        module.calibration_ids_for_target(
+            assignments,
+            target["source_structure_id"],
+            "class",
+            minimum_calibration=3,
+        )
+
+
 def test_cli_emits_canonical_heldout_assignment(tmp_path: Path) -> None:
     candidates = [
         *(candidate(index, "ionics-rocksalt") for index in range(6)),
@@ -199,6 +220,32 @@ def test_cli_refuses_vocabulary_path_substitution(tmp_path: Path) -> None:
 
     assert completed.returncode != 0
     assert "REFUSE_VOCABULARY_PATH" in completed.stderr
+
+
+def test_cli_refuses_operator_supplied_split_seed(tmp_path: Path) -> None:
+    candidate_path = tmp_path / "candidates.json"
+    candidates = [
+        *(candidate(index, "ionics-rocksalt") for index in range(6)),
+        *(candidate(index, "perovskites") for index in range(6)),
+    ]
+    candidate_path.write_text(json.dumps(candidates), encoding="utf-8")
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(MODULE_PATH),
+            str(candidate_path),
+            "--assign-heldout-roles",
+            "--split-seed",
+            "operator-controlled",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode != 0
+    assert "REFUSE_SPLIT_SEED" in completed.stderr
 
 
 def test_vocabulary_digest_mismatch_refuses(tmp_path: Path) -> None:

@@ -126,7 +126,7 @@
         }
       ],
       "campaign_id": "correction.round-5.optimal-bias-grouping-heldout.v4",
-      "content_hash": "sha256:c6956308a91fcb4e034d97129d528289338e56e0a3f1944c0a23cac34ab064dc",
+      "content_hash": "sha256:14f4b1090e07bddb04a23c0089c074421c0a5640696203328d01b9fdd476bdcc",
       "demotion_conditions": [
         {
           "action": "demote",
@@ -193,7 +193,7 @@
       "execution": {
         "candidate_panel": {
           "path": "data/candidates/round5_elastic_panel-selection.v4.lock.json",
-          "sha256": "sha256:05bf5b1c1fa9f461f49df7affa67b7a70641bd5bcc8cb65dcddaecd743df7cd4"
+          "sha256": "sha256:76602eab60b8cf885f932fd37f3520282aa38444c9328a91b555143e2571ba3f"
         },
         "excluded_models_block_execution": false,
         "lane": "round5.optimal-bias-grouping-heldout-elastic-v4",

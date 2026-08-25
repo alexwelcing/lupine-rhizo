@@ -40,7 +40,7 @@
     "vocabulary_path": "data/contracts/round5-grouping-vocabulary.v1.json",
     "vocabulary_sha256": "sha256:80686eacc5a5e14bc516389c707d49305ff82db13e8d2cd71ea180f963f35adc",
     "executable_path": "tools/round5_grouping.py",
-    "executable_sha256": "sha256:32971ecc3cd03ff5e2e6f23646817143a91caf1e337286aa5863c16dd372e270",
+    "executable_sha256": "sha256:a18653163a0024d7746abd1cbc456754ad03b5518f04cb829bc49859a2e66d5c",
     "required_rules": [
       "class",
       "chemistry",

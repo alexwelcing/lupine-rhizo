@@ -130,7 +130,7 @@ def assign_panel_roles(
     seed: str = DEFAULT_SPLIT_SEED,
 ) -> list[dict[str, Any]]:
     """Assign one immutable class-stratified calibration/test role per structure."""
-    if not isinstance(seed, str) or not seed:
+    if seed != DEFAULT_SPLIT_SEED:
         raise GroupingRefusalError("REFUSE_SPLIT_SEED", repr(seed))
     if not isinstance(candidates, list) or not candidates:
         raise GroupingRefusalError("REFUSE_CANDIDATE_CONTAINER", "non-empty list required")
@@ -201,7 +201,7 @@ def calibration_ids_for_target(
     """Return fixed calibration IDs for one genuinely held-out target and rule."""
     if rule not in ALLOWED_RULES:
         raise GroupingRefusalError("REFUSE_GROUPING_RULE", repr(rule))
-    if minimum_calibration < 1:
+    if minimum_calibration != 4:
         raise GroupingRefusalError(
             "REFUSE_MINIMUM_CALIBRATION", str(minimum_calibration)
         )
