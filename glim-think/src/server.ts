@@ -2225,7 +2225,13 @@ ${narrative}
           });
         }
 
-        const workflowResponse = await handleResearchWorkflowRoute(env, url, request.method, bodyText);
+        const workflowResponse = await handleResearchWorkflowRoute(
+          env,
+          url,
+          request.method,
+          bodyText,
+          { authorization: request.headers.get("Authorization") ?? undefined },
+        );
         if (workflowResponse) return workflowResponse;
 
         if (url.pathname === "/research/auto" && request.method === "POST") {

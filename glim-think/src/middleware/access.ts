@@ -179,15 +179,23 @@ export async function checkAccess(
     if (presented && timingSafeEqual(presented, phoenixSyncToken)) return null;
   }
 
-  // Trusted internal bypass. The research queue consumer self-fetches gated
-  // routes (POST /run, /literature/search, …) to reuse handler logic; those
-  // subrequests carry no Cloudflare Access JWT and would 403. A constant-time
-  // match against a shared secret authorizes them. Only honored when the
-  // secret is configured (never an open bypass).
+  // Trusted service bypass. Queue self-fetches retain the existing global
+  // X-Internal-Token behavior.
   const internalToken = env.INTERNAL_TASK_TOKEN?.trim();
   if (internalToken) {
-    const presented = request.headers.get("X-Internal-Token");
-    if (presented && timingSafeEqual(presented, internalToken)) return null;
+    const internalHeader = request.headers.get("X-Internal-Token");
+    if (internalHeader && timingSafeEqual(internalHeader, internalToken)) return null;
+  }
+
+  const lupineAppToken = env.LUPINE_APP_TOKEN?.trim();
+  if (
+    lupineAppToken &&
+    request.method === "POST" &&
+    pathname === "/research/workflows/mlip-5x5x3/campaigns"
+  ) {
+    const authorization = request.headers.get("Authorization") ?? "";
+    const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+    if (bearer && timingSafeEqual(bearer, lupineAppToken)) return null;
   }
 
   const teamDomain = env.CF_ACCESS_TEAM_DOMAIN;

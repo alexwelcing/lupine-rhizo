@@ -280,6 +280,8 @@ export interface Env {
    * like POST /run to reuse handler logic). See middleware/access.ts.
    */
   INTERNAL_TASK_TOKEN?: string;
+  /** Dedicated bearer secret for the reviewed lupine-app campaign dispatch route. */
+  LUPINE_APP_TOKEN?: string;
   TASKS_CONSUMER_URL?: string;
   TASKS_CONSUMER_AUDIENCE?: string;
   TASKS_CONSUMER_INVOKER_SA?: string;

@@ -310,7 +310,22 @@ export async function enqueueTask(
     .bind(jobId, task.dedup_key, task.kind, JSON.stringify(task), task.enqueued_at)
     .run();
 
-  await env.RESEARCH_QUEUE.send({ ...task, job_id: jobId });
+  try {
+    await env.RESEARCH_QUEUE.send({ ...task, job_id: jobId });
+  } catch (error) {
+    try {
+      await env.LEDGER.prepare(
+        "DELETE FROM research_jobs WHERE job_id = ?1 AND outcome = 'pending'",
+      ).bind(jobId).run();
+    } catch {
+      await env.LEDGER.prepare(
+        `UPDATE research_jobs
+           SET outcome = 'failed', finished_at = ?1, error = ?2
+         WHERE job_id = ?3 AND outcome = 'pending'`,
+      ).bind(new Date().toISOString(), `queue send failed: ${String(error)}`, jobId).run();
+    }
+    throw error;
+  }
 
   const span = trace.getActiveSpan();
   if (span) {
@@ -436,6 +451,9 @@ export function buildModelGeometryAtlasPayload(
 
 const MLIP_CELL_TARGET_JOBS: Record<string, string> = {
   "mace-mp-0": "mlip-cell-mace",
+  "mace-mp-small": "mlip-cell-mace-mp-small",
+  "mace-mp-medium": "mlip-cell-mace-mp-medium",
+  "mace-mpa-0-medium": "mlip-cell-mace-mpa-0-medium",
   chgnet: "mlip-cell-chgnet",
   m3gnet: "mlip-cell-m3gnet",
   "orb-v3": "mlip-cell-orb",

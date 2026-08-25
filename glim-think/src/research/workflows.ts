@@ -17,11 +17,35 @@ function parseLimit(url: URL, fallback = 1, max = 25): number {
   return Math.min(Math.max(parseInt(url.searchParams.get("limit") ?? String(fallback), 10), 1), max);
 }
 
+function timingSafeEqual(left: string, right: string): boolean {
+  if (left.length !== right.length) return false;
+  let difference = 0;
+  for (let index = 0; index < left.length; index++) {
+    difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  }
+  return difference === 0;
+}
+
+function isLupineDispatchBody(bodyText: string): boolean {
+  try {
+    const body = JSON.parse(bodyText || "{}") as unknown;
+    return Boolean(
+      body &&
+      typeof body === "object" &&
+      !Array.isArray(body) &&
+      (body as Record<string, unknown>).schema === "lupine.campaign_dispatch.v1",
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function handleResearchWorkflowRoute(
   env: Env,
   url: URL,
   method: string,
   bodyText: string,
+  auth: { authorization?: string } = {},
 ): Promise<Response | null> {
   if (url.pathname === "/research/workflows" && method === "GET") {
     return workflowJson({ workflows: listResearchWorkflowDescriptors() });
@@ -41,7 +65,22 @@ export async function handleResearchWorkflowRoute(
     const campaignId = campaignMatch[2] ? decodePathSegment(campaignMatch[2]) : "";
     const adapter = getResearchWorkflowAdapter(workflowId);
     if (!adapter) return workflowError(`Workflow '${workflowId}' not found`, 404);
-    if (!campaignId && method === "POST") return adapter.createCampaign(env, bodyText);
+    if (!campaignId && method === "POST") {
+      const dispatchBody = isLupineDispatchBody(bodyText);
+      const configuredToken = env.LUPINE_APP_TOKEN?.trim() ?? "";
+      const authorization = auth.authorization ?? "";
+      const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+      const appAuthenticated = Boolean(
+        configuredToken && bearer && timingSafeEqual(bearer, configuredToken),
+      );
+      if (dispatchBody && !appAuthenticated) {
+        return workflowError("lupine-app credential required", 403);
+      }
+      if (appAuthenticated && !dispatchBody) {
+        return workflowError("lupine-app credential is restricted to campaign dispatch manifests", 403);
+      }
+      return adapter.createCampaign(env, bodyText);
+    }
     if (campaignId && method === "GET") return adapter.getCampaign(env, campaignId);
     return workflowError("Unsupported workflow campaign route", 405);
   }

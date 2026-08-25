@@ -16,11 +16,9 @@
  *      to RESEARCH_QUEUE — both writes happen, in that order.
  *   2. On a dedup hit (existing pending job), the function returns
  *      `status: "duplicate"` without sending a queue message.
- *   3. Retry semantics: if `RESEARCH_QUEUE.send` rejects on the first
- *      call and resolves on the second, an explicit retry wrapper
- *      around `enqueueTask` recovers and the job eventually ships.
- *      This pins the "fail-once-then-succeed" pattern that callers
- *      are expected to apply at the cron / handler boundary.
+ *   3. Retry semantics: if `RESEARCH_QUEUE.send` rejects, the pending
+ *      dedup row is removed before the error escapes, so a caller retry
+ *      can insert a fresh row and send the task instead of losing work.
  */
 import { describe, it, expect, vi } from "vitest";
 import {
@@ -93,8 +91,10 @@ describe("enqueueTask — research sync lane", () => {
     expect(queue.sent).toHaveLength(0);
   });
 
-  it("recovers when the first queue.send rejects and the caller retries", async () => {
+  it("removes the pending dedup row when queue.send rejects so retry can enqueue", async () => {
     let attempts = 0;
+    let pendingJobId: string | null = null;
+    let cleanupCalls = 0;
     const sentBodies: unknown[] = [];
     const flakyQueue = {
       send: vi.fn(async (msg: unknown) => {
@@ -105,28 +105,31 @@ describe("enqueueTask — research sync lane", () => {
       sendBatch: vi.fn(async () => undefined),
     } as unknown as Queue<unknown>;
 
-    // Dedup miss on attempt 1 (cold), hit on attempt 2 because we already
-    // wrote the pending row before the queue.send threw. That's the
-    // production-realistic state: ledger ahead, queue behind.
-    let dedupCalls = 0;
-    const dedupResponses: Array<{ job_id: string; outcome: string } | null> = [
-      null,
-      { job_id: "job-round-prev", outcome: "pending" },
-    ];
     const dynamicLedger = {
       prepare: (sql: string) => {
+        let bindings: unknown[] = [];
         const stmt: Partial<D1PreparedStatement> = {
-          bind: () => stmt as D1PreparedStatement,
+          bind: (...values: unknown[]) => {
+            bindings = values;
+            return stmt as D1PreparedStatement;
+          },
           first: async () => {
             if (sql.includes("FROM research_jobs") && sql.includes("WHERE dedup_key")) {
-              const r = dedupResponses[dedupCalls] ?? null;
-              dedupCalls += 1;
-              return r as never;
+              return pendingJobId
+                ? { job_id: pendingJobId, outcome: "pending" } as never
+                : null as never;
             }
             return null as never;
           },
           all: async () => ({ results: [], success: true, meta: {} }) as never,
-          run: async () => ({ results: [], success: true, meta: {} }) as never,
+          run: async () => {
+            if (sql.includes("INSERT INTO research_jobs")) pendingJobId = String(bindings[0]);
+            if (sql.includes("DELETE FROM research_jobs")) {
+              cleanupCalls += 1;
+              pendingJobId = null;
+            }
+            return { results: [], success: true, meta: {} } as never;
+          },
         };
         return stmt as D1PreparedStatement;
       },
@@ -137,18 +140,13 @@ describe("enqueueTask — research sync lane", () => {
       LEDGER: dynamicLedger,
     });
 
-    // First attempt: dedup miss + queue.send rejects. Caller observes the throw.
     await expect(enqueueTask(env, makeTask())).rejects.toThrow(/transient/);
-
-    // Second attempt: dedup hit (pending row persists from attempt 1). The
-    // function acks as duplicate without re-sending — work is not dropped,
-    // it's tracked by the prior pending row and the queue retry policy will
-    // ship the actual message.
     const second = await enqueueTask(env, makeTask());
-    expect(second.status).toBe("duplicate");
-    expect(second.job_id).toBe("job-round-prev");
-    expect(attempts).toBe(1);
-    expect(dedupCalls).toBeGreaterThanOrEqual(2);
+
+    expect(second.status).toBe("enqueued");
+    expect(attempts).toBe(2);
+    expect(sentBodies).toHaveLength(1);
+    expect(cleanupCalls).toBe(1);
   });
 
   it("builds the atlas-distill model-geometry task payload without duplicating transport args", () => {
