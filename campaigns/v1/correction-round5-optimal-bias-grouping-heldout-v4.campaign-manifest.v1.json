@@ -1,0 +1,155 @@
+{
+  "acceptance_test": {
+    "metric": "confirmatory_group_property_win_fraction",
+    "operator": "gte",
+    "threshold": 0.75,
+    "unit": "fraction"
+  },
+  "available_models": [
+    {
+      "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+      "model_id": "chgnet",
+      "version": "chgnet 0.4.2"
+    },
+    {
+      "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+      "model_id": "mace-mp-small",
+      "version": "mace-torch 0.3.16 / small"
+    },
+    {
+      "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+      "model_id": "mace-mp-medium",
+      "version": "mace-torch 0.3.16 / medium"
+    },
+    {
+      "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+      "model_id": "mace-mpa-0-medium",
+      "version": "mace-torch 0.3.16 / mpa-0 medium"
+    }
+  ],
+  "campaign_id": "correction.round-5.optimal-bias-grouping-heldout.v4",
+  "content_hash": "sha256:c6956308a91fcb4e034d97129d528289338e56e0a3f1944c0a23cac34ab064dc",
+  "demotion_conditions": [
+    {
+      "action": "demote",
+      "condition_id": "demote.round5-v4.confirmatory-group-property-win-fraction",
+      "metric": "confirmatory_group_property_win_fraction",
+      "operator": "lt",
+      "threshold": 0.75,
+      "unit": "fraction"
+    }
+  ],
+  "evidence_requirements": [
+    {
+      "artifact_type": "elastic-structure-model-cell",
+      "description": "Exactly 500 registered elastic-structure model cells: 125 structures by four models, with immutable receipts, no retries, no imputation, and a0/C11/C12/C44 observables.",
+      "minimum_count": 500,
+      "requirement_id": "e.round5-v4.elastic-structure-model-cells"
+    },
+    {
+      "artifact_type": "held-out-target-structure",
+      "description": "Exactly 42 fixed class-stratified held-out target structures reused across every grouping rule and excluded from every calibration hull.",
+      "minimum_count": 42,
+      "requirement_id": "e.round5-v4.heldout-targets"
+    },
+    {
+      "artifact_type": "grouping-rule-diagnostic",
+      "description": "Separate held-out hull width, direction, sharp-license, escape, and overshoot records for class, chemistry, structure prototype, composition-space neighbourhood, plus the non-confirmatory predecessor exact-tuple diagnostic.",
+      "minimum_count": 5,
+      "requirement_id": "e.round5-v4.grouping-rule-diagnostics"
+    },
+    {
+      "artifact_type": "distinct-structure-sign",
+      "description": "At least 16 distinct non-tied applied held-out targets per scorable class-property under the v4 class grouping rule.",
+      "minimum_count": 16,
+      "requirement_id": "e.round5-v4.powered-class-property-signs"
+    }
+  ],
+  "exclusions": [
+    {
+      "disposition": "excluded",
+      "rationale": "Preregistered excluded_unavailable: no reproducible gated UMA checkpoint was available at lock time.",
+      "subject": "uma-family"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Round 5 measures elastic structures only; LiTraj/CI-NEB paths and barrier observables are a different campaign.",
+      "subject": "litraj-neb-paths"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Legacy Round-4 jobs use mutable or drifted execution identities; v4 requires dedicated digest-pinned jobs with maxRetries zero.",
+      "subject": "legacy-round4-cloud-run-jobs"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Leave-one-out escape is structurally determined by group size and cannot answer transfer to unseen structures; v4 uses one fixed calibration/test split.",
+      "subject": "leave-one-out-escape-estimator"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Operator-supplied grouping labels are forbidden; only the v4 hash-locked derivation is admissible.",
+      "subject": "unversioned-grouping-labels"
+    }
+  ],
+  "execution": {
+    "candidate_panel": {
+      "path": "data/candidates/round5_elastic_panel-selection.v4.lock.json",
+      "sha256": "sha256:05bf5b1c1fa9f461f49df7affa67b7a70641bd5bcc8cb65dcddaecd743df7cd4"
+    },
+    "excluded_models_block_execution": false,
+    "lane": "round5.optimal-bias-grouping-heldout-elastic-v4",
+    "model_selection": "available_models"
+  },
+  "frozen_hypotheses": [
+    {
+      "frozen": true,
+      "hypothesis_id": "h.round5-v4.class-optimal-bias-correction",
+      "statement": "On fixed held-out targets, class-grouped optimal-bias correction under the unchanged direction and rounding-robust theorem gates wins on at least three of four powered confirmatory properties in each registered material class."
+    },
+    {
+      "frozen": true,
+      "hypothesis_id": "h.round5-v4.grouping-rule-hull-width",
+      "statement": "On the same fixed held-out targets, prospectively derived chemistry, structure-prototype, and composition-space-neighbourhood hulls are compared separately with class hulls for width, sharp-license admissibility, escape, and overshoot; only the 18 registered width contrasts are inferential secondary claims."
+    }
+  ],
+  "kill_conditions": [
+    {
+      "action": "kill",
+      "condition_id": "kill.round5-v4.theorem-consistency",
+      "metric": "licensed_in_hull_worsened_cells",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "count"
+    },
+    {
+      "action": "kill",
+      "condition_id": "kill.round5-v4.execution-integrity-refusals",
+      "metric": "execution_integrity_refusals",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "count"
+    }
+  ],
+  "preregistration": {
+    "frozen_before_execution": true,
+    "input_document": {
+      "path": "docs/plans/2026-08-25-round5-optimal-bias-grouping-heldout-preregistration-v4.md",
+      "sha256": "sha256:b666d9971cfe1c0a12c094e9a5af90695703e2757594f2d59a9b9d1550e28a42"
+    },
+    "registered_at": "2026-08-25T21:24:09Z",
+    "source": "docs/plans/2026-08-25-round5-optimal-bias-grouping-heldout-preregistration-v4.md"
+  },
+  "preregistration_id": "prereg.correction.round-5.optimal-bias-grouping-heldout.v4.2026-08-25",
+  "target_premises": [
+    {
+      "claim_id": "correction.same-class.elastic-properties.v4",
+      "premise_id": "fixed-heldout-class-optimal-bias-rounding-robust-license"
+    },
+    {
+      "claim_id": "correction.hull-width-grouping-dependence.v1",
+      "premise_id": "prospectively-derived-separate-heldout-calibration-rules"
+    }
+  ],
+  "version": 1
+}

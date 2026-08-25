@@ -4,7 +4,7 @@
       "content_hash": "sha256:fef058adc8827cf965746b9915389e5c91c2e1592b9032dbe6325ccc25199aa8"
     },
     "registry/campaigns.v1.json": {
-      "content_hash": "sha256:282a8660f97ee88783d7afc2001a1737cc2502450aaaa4a4d0e3a2513fe6974b"
+      "content_hash": "sha256:a15ba988dcbf3915c482fb3c916206f7744825245ad47ab1fbe487995ab909f6"
     }
   },
   "inputs": {
@@ -12,6 +12,10 @@
       {
         "campaign_id": "correction.round-4.available-models.v1",
         "content_hash": "sha256:a285aeda1b0b3be9aec6ab1004d1f5e02df73d822a804cf59f13be6067a04250"
+      },
+      {
+        "campaign_id": "correction.round-5.optimal-bias-grouping-heldout.v4",
+        "content_hash": "sha256:c6956308a91fcb4e034d97129d528289338e56e0a3f1944c0a23cac34ab064dc"
       },
       {
         "campaign_id": "correction.round-5.optimal-bias.v3",

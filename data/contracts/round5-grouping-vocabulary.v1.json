@@ -1,0 +1,87 @@
+{
+  "schema": "lupine.round5.grouping-vocabulary.v1",
+  "vocabulary_id": "round5-groupings.2026-08-25.v1",
+  "class_vocabulary": {
+    "allowed": ["ionics-rocksalt", "perovskites"],
+    "aliases_allowed": false
+  },
+  "prototype_vocabulary": {
+    "allowed_by_class": {
+      "ionics-rocksalt": ["AB_cF8_225_a_b"],
+      "perovskites": ["AB3C_cP5_221_a_c_b"]
+    },
+    "aliases_allowed": false
+  },
+  "element_vocabulary": {
+    "ordering": "IUPAC atomic number ascending",
+    "symbols_by_atomic_number": [
+      "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
+      "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca",
+      "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+      "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr",
+      "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn",
+      "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd",
+      "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb",
+      "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
+      "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th",
+      "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm",
+      "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds",
+      "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
+    ],
+    "unknown_symbol": "REFUSE_UNKNOWN_ELEMENT",
+    "isotopes_and_pseudo_species": "REFUSE_NON_ELEMENTAL_SPECIES"
+  },
+  "chemistry_derivation": {
+    "input": "elemental_composition",
+    "input_domain": "JSON object from exact element symbol to positive non-boolean integer count",
+    "normalization": "divide all counts by their greatest common divisor",
+    "key": "element symbols sorted by atomic number and joined by one ASCII hyphen",
+    "boundary_rule": "not-applicable-discrete-atomic-number-order",
+    "tie_rule": "not-applicable-atomic-numbers-are-unique",
+    "refusals": [
+      "REFUSE_EMPTY_COMPOSITION", "REFUSE_UNKNOWN_ELEMENT",
+      "REFUSE_NON_ELEMENTAL_SPECIES", "REFUSE_NON_INTEGER_STOICHIOMETRY",
+      "REFUSE_NON_POSITIVE_STOICHIOMETRY"
+    ]
+  },
+  "composition_space_neighbourhood_derivation": {
+    "input": "gcd-reduced elemental_composition",
+    "atomic_number_band_width": 10,
+    "band_index": "floor((atomic_number - 1) / 10)",
+    "bands": [
+      "Z001-010", "Z011-020", "Z021-030", "Z031-040",
+      "Z041-050", "Z051-060", "Z061-070", "Z071-080",
+      "Z081-090", "Z091-100", "Z101-110", "Z111-118"
+    ],
+    "aggregation": "sum reduced stoichiometric counts within each band, omit zero bands, then divide band counts by their greatest common divisor",
+    "key": "csn-zband10-v1 followed by colon and comma-separated BAND=count terms in ascending band order",
+    "boundary_rule": "left-closed right-closed integer bands: Z=1..10 enters Z001-010, Z=11..20 enters Z011-020, and analogously through Z=118",
+    "tie_rule": "no nearest-neighbour or floating-point ties exist; membership is integer floor division and output order is band index",
+    "scientific_scope": "prospective coarse composition-space cells only; this key does not assert phase, prototype, oxidation state, or chemical equivalence",
+    "refusals": [
+      "REFUSE_EMPTY_COMPOSITION", "REFUSE_UNKNOWN_ELEMENT",
+      "REFUSE_NON_ELEMENTAL_SPECIES", "REFUSE_NON_INTEGER_STOICHIOMETRY",
+      "REFUSE_NON_POSITIVE_STOICHIOMETRY"
+    ]
+  },
+  "heldout_split": {
+    "seed": "round5-grouping-heldout-20260825-v4",
+    "stratification": "class",
+    "rank": "lowercase_hex(SHA256(seed + U+0000 + class + U+0000 + source_structure_id))",
+    "tie_rule": "ascending bytewise UTF-8 source_structure_id",
+    "calibration_count": "floor(2*n_class/3)",
+    "calibration_role": "first calibration_count rows in frozen rank order",
+    "target_role": "remaining rows in frozen rank order",
+    "minimum_class_size": 6,
+    "minimum_calibration_count": 4,
+    "cross_rule_role_reuse": "the one class-stratified role is immutable across all four grouping rules so every rule is evaluated on the same genuinely held-out targets",
+    "refusals": [
+      "REFUSE_SPLIT_SEED",
+      "REFUSE_SOURCE_STRUCTURE_ID",
+      "REFUSE_DUPLICATE_SOURCE_STRUCTURE_ID",
+      "REFUSE_CLASS_SPLIT_UNDEROCCUPIED",
+      "REFUSE_CLASS_SPLIT_CARDINALITY",
+      "REFUSE_CLASS_VOCABULARY_COVERAGE"
+    ]
+  }
+}
