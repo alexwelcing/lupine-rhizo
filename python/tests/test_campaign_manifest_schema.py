@@ -96,6 +96,7 @@ class CampaignManifestSchemaTests(unittest.TestCase):
             [path.stem.split(".")[0] for path in paths],
             [
                 "correction-round4",
+                "correction-round5-optimal-bias-grouping-heldout-v4",
                 "correction-round5-optimal-bias-v3",
                 "correction-round5-sharp-v2",
                 "correction-round5-sharp",
@@ -280,6 +281,80 @@ class CampaignManifestSchemaTests(unittest.TestCase):
             manifest["preregistration"]["input_document"]["sha256"],
             "sha256:" + hashlib.sha256(prereg_path.read_bytes()).hexdigest(),
         )
+
+    def test_round5_v4_registers_fixed_heldout_grouping_experiment(self) -> None:
+        manifest = load(
+            "campaigns/v1/correction-round5-optimal-bias-grouping-heldout-v4.campaign-manifest.v1.json"
+        )
+        panel = load("data/candidates/round5_elastic_panel-selection.v4.lock.json")
+        registry = load("registry/campaigns.v1.json")
+
+        self.manifest_validator.validate(manifest)
+        self.assertEqual(panel["campaign_id"], manifest["campaign_id"])
+        self.assertFalse(panel["heldout_split_contract"]["leave_one_out"])
+        self.assertEqual(
+            panel["heldout_split_contract"]["ionics_rocksalt"],
+            {"total": 63, "calibration": 42, "held_out_target": 21},
+        )
+        self.assertEqual(
+            panel["heldout_split_contract"]["perovskites"],
+            {"total": 62, "calibration": 41, "held_out_target": 21},
+        )
+        self.assertFalse(
+            panel["heldout_split_contract"]["target_may_enter_any_calibration_hull"]
+        )
+        self.assertEqual(
+            [
+                key
+                for key, value in panel["calibration_rules"].items()
+                if isinstance(value, dict)
+            ],
+            [
+                "class",
+                "chemistry",
+                "structure_prototype",
+                "composition_space_neighbourhood",
+                "v2_exact_tuple",
+            ],
+        )
+        reference = panel["materials_project_reference_contract"]
+        self.assertEqual(reference["disposition"], "CONDITIONALLY_ADMISSIBLE")
+        self.assertEqual(reference["required_database_version"], "2026-04-13")
+        self.assertIn(
+            "fitting_data.num_total_strain_stress_states",
+            reference["required_provenance_fields"],
+        )
+        self.assertTrue(any("exactly 24" in rule for rule in reference["record_acceptance"]))
+
+        panel_path = ROOT / manifest["execution"]["candidate_panel"]["path"]
+        self.assertEqual(
+            manifest["execution"]["candidate_panel"]["sha256"],
+            "sha256:" + hashlib.sha256(panel_path.read_bytes()).hexdigest(),
+        )
+        prereg_path = ROOT / manifest["preregistration"]["input_document"]["path"]
+        self.assertEqual(
+            manifest["preregistration"]["input_document"]["sha256"],
+            "sha256:" + hashlib.sha256(prereg_path.read_bytes()).hexdigest(),
+        )
+        grouping = panel["grouping_derivation"]
+        for path_key, hash_key in (
+            ("vocabulary_path", "vocabulary_sha256"),
+            ("executable_path", "executable_sha256"),
+        ):
+            artifact_path = ROOT / grouping[path_key]
+            self.assertEqual(
+                grouping[hash_key],
+                "sha256:" + hashlib.sha256(artifact_path.read_bytes()).hexdigest(),
+            )
+
+        registered = [
+            item
+            for item in registry["campaigns"]
+            if item["campaign_id"] == manifest["campaign_id"]
+        ]
+        self.assertEqual(registered, [manifest])
+        verify_workflow = (ROOT / ".github/workflows/verify.yml").read_text(encoding="utf-8")
+        self.assertIn("python/tests/test_round5_grouping.py", verify_workflow)
 
 
 if __name__ == "__main__":

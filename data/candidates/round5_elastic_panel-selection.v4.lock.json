@@ -1,0 +1,281 @@
+{
+  "schema": "lupine.round5.elastic-panel-selection.v4",
+  "campaign_id": "correction.round-5.optimal-bias-grouping-heldout.v4",
+  "seed": "round5-optimal-bias-grouping-heldout-20260825-v4",
+  "supersedes_for_execution": "correction.round-5.optimal-bias.v3",
+  "immutable_predecessors": [
+    "correction.round-5.sharp-license.v1",
+    "correction.round-5.sharp-license.v2",
+    "correction.round-5.optimal-bias.v3"
+  ],
+  "unit_definition": {
+    "kind": "elastic-structure-model-cell",
+    "structures": 125,
+    "models_per_structure": 4,
+    "total_cells": 500,
+    "excluded_unit_kinds": ["litraj-neb-path", "neb-path", "barrier-observable"],
+    "observables": ["a0", "c11", "c12", "c44"],
+    "descriptive_observables": ["b0"]
+  },
+  "class_quotas": {
+    "ionics-rocksalt": 63,
+    "perovskites": 62
+  },
+  "theory_binding": {
+    "repository": "lupine-rhizo",
+    "sharp_license_pull_request": "https://github.com/alexwelcing/lupine-rhizo/pull/112",
+    "sharp_license_reviewed_head": "c0b52e709e66edc7cac2e14d86bb3270a8448a40",
+    "sharp_license_merge_commit": "512ee8af744b42cc2f727ffdc37cdd45570a76b9",
+    "rounding_soundness_pull_request": "https://github.com/alexwelcing/lupine-rhizo/pull/117",
+    "rounding_soundness_merge_commit": "799eacb2b389ff4c8d3537eb3b16d92869942e83",
+    "proof_revision_pull_request": "https://github.com/alexwelcing/lupine-rhizo/pull/118",
+    "proof_revision_merge_commit": "a102e806eb6c97251c1075d4c16f8981fa42e8d9",
+    "path": "lean-spec/OpenDistillationFactory/Materials/Theory/SharpLicense.lean",
+    "required_disposition_before_execution": "all-three-merge-commits-must-be-ancestors-of-origin-main-and-reviewed-sharp-license-path-must-be-byte-equivalent",
+    "verification": "git merge-base --is-ancestor for each merge commit; git diff --exit-code sharp_license_reviewed_head sharp_license_merge_commit -- path; repository formula/link checks",
+    "open_or_nonancestor_pull_request": "EXECUTION_REFUSE_THEOREM_NOT_LANDED",
+    "formula_strictness_or_byte_mismatch": "REFUSE"
+  },
+  "grouping_derivation": {
+    "vocabulary_path": "data/contracts/round5-grouping-vocabulary.v1.json",
+    "vocabulary_sha256": "sha256:80686eacc5a5e14bc516389c707d49305ff82db13e8d2cd71ea180f963f35adc",
+    "executable_path": "tools/round5_grouping.py",
+    "executable_sha256": "sha256:a18653163a0024d7746abd1cbc456754ad03b5518f04cb829bc49859a2e66d5c",
+    "required_rules": [
+      "class",
+      "chemistry",
+      "structure_prototype",
+      "composition_space_neighbourhood"
+    ],
+    "precomputed_or_operator_supplied_grouping_value": "REFUSE_PRECOMPUTED_GROUPING_VALUE",
+    "derivation_mismatch": "REFUSE_GROUPING_DERIVATION_MISMATCH"
+  },
+  "required_candidate_fields": [
+    "candidate_id",
+    "source_structure_id",
+    "formula",
+    "elemental_composition",
+    "class",
+    "structure_prototype",
+    "structure_artifact.path",
+    "structure_artifact.sha256",
+    "reference_artifact.path",
+    "reference_artifact.sha256",
+    "reference_provenance"
+  ],
+  "forbidden_candidate_fields": [
+    "chemistry",
+    "composition_space_neighbourhood",
+    "panel_role",
+    "split_rank"
+  ],
+  "eligibility": {
+    "allowed_classes": ["ionics-rocksalt", "perovskites"],
+    "allowed_prototypes_by_class": {
+      "ionics-rocksalt": ["AB_cF8_225_a_b"],
+      "perovskites": ["AB3C_cP5_221_a_c_b"]
+    },
+    "required_reference_properties": ["a0", "c11", "c12", "c44"],
+    "excluded_prior_panels": [
+      "data/candidates/round1_targets.json",
+      "data/candidates/round3_targets.json",
+      "data/candidates/round4_targets.lock.json"
+    ],
+    "maximum_atoms_in_primitive_structure": 40
+  },
+  "materials_project_reference_contract": {
+    "disposition": "CONDITIONALLY_ADMISSIBLE",
+    "provider": "Materials Project",
+    "api_route": "/materials/elasticity/",
+    "required_database_version": "2026-04-13",
+    "required_raw_query_artifact_path": "data/candidates/round5_materials-project-elasticity-2026-04-13.raw.lock.json",
+    "required_provenance_fields": [
+      "api_base_url", "api_route", "api_client_name", "api_client_version",
+      "requested_fields", "retrieved_at_utc", "raw_query_sha256",
+      "builder_meta.database_version", "builder_meta.emmet_version",
+      "builder_meta.pymatgen_version", "builder_meta.run_id",
+      "builder_meta.batch_id", "builder_meta.build_date", "builder_meta.license",
+      "material_id", "last_updated", "deprecated", "deprecation_reasons",
+      "state", "warnings", "origins", "structure",
+      "elastic_tensor.ieee_format", "fitting_data.optimization_task",
+      "fitting_data.deformation_tasks",
+      "fitting_data.num_total_strain_stress_states"
+    ],
+    "record_acceptance": [
+      "builder_meta.database_version equals 2026-04-13 exactly",
+      "material_id equals candidate source_structure_id exactly",
+      "deprecated is false and deprecation_reasons is null or empty",
+      "state equals successful and warnings is null or empty",
+      "elastic_tensor.ieee_format is a finite 6-by-6 GPa tensor",
+      "fitting_data has exactly 24 total strain-stress states and non-empty optimization and deformation task provenance",
+      "structure composition equals elemental_composition after gcd reduction",
+      "the standardized structure has the registered space group, exact AFLOW prototype and Wyckoff signature, and no partial occupancies",
+      "the same locked standardized structure supplies candidate geometry and reference values; formula-only or nearest-polymorph matching is forbidden",
+      "a0 is derived from the conventional cubic standardized cell and the lattice is cubic within relative length tolerance 1e-6 and absolute angle tolerance 1e-6 degree",
+      "C11/C12/C44 are derived only from elastic_tensor.ieee_format after cubic-equivalent entries agree exactly at source precision",
+      "a0, C11, C12, and C44 are finite and strictly positive",
+      "cubic Born checks C11-C12 > 0, C11+2*C12 > 0, and C44 > 0 all pass",
+      "raw-query, structure, reference, and source-pool hashes all reconcile"
+    ],
+    "elastic_convention": {
+      "tensor_orientation": "IEEE",
+      "tensor_source": "elastic_tensor.ieee_format",
+      "elastic_type": "relaxed-ion",
+      "equilibrium": "provider-relaxed equilibrium structure",
+      "component_units": "GPa",
+      "a0_units": "angstrom",
+      "model_measurement_requirement": "fully relaxed equilibrium cell plus internal-coordinate relaxation at every symmetric finite strain, converted to the same IEEE convention"
+    },
+    "refusal_states": [
+      "REFUSE_DATABASE_VERSION_MISMATCH",
+      "REFUSE_DEPRECATED_UNSUCCESSFUL_OR_WARNED",
+      "REFUSE_MISSING_PROVENANCE",
+      "REFUSE_RAW_QUERY_DIGEST_MISMATCH",
+      "REFUSE_PHASE_OR_PROTOTYPE_MISMATCH",
+      "REFUSE_ELASTIC_CONVENTION_MISMATCH",
+      "REFUSE_NON_CUBIC_OR_COMPONENT_DISAGREEMENT",
+      "REFUSE_NONFINITE_OR_NONPOSITIVE_REFERENCE",
+      "REFUSE_CUBIC_BORN_INSTABILITY"
+    ],
+    "discovery_counts": "NOT_REGISTERED_INPUT_AND_NOT_ACCEPTANCE_EVIDENCE"
+  },
+  "source_pool_contract": {
+    "required_path": "data/candidates/round5_elastic_source-pool.v4.lock.json",
+    "required_sha256_prefix": "sha256:",
+    "must_be_repository_relative": true,
+    "must_be_locked_before_selection": true,
+    "may_not_contain_model_outputs": true,
+    "may_not_contain_correction_outcomes": true,
+    "missing_or_digest_mismatch": "REFUSE"
+  },
+  "selection_algorithm": [
+    "Parse the source-pool lock as UTF-8 JSON and reject duplicate candidate_id or source_structure_id values.",
+    "Validate every Materials Project record and reference against materials_project_reference_contract before eligibility.",
+    "Derive all four grouping keys with the hash-locked executable and vocabulary; supplied derived labels are forbidden.",
+    "Remove candidates whose source_structure_id occurs in any excluded prior panel; fuzzy identity substitution is forbidden.",
+    "For each candidate compute rank = lowercase_hex(SHA256(seed + U+0000 + class + U+0000 + source_structure_id)).",
+    "Within each class sort by rank then source_structure_id, both ascending bytewise UTF-8, and select exactly the class quota.",
+    "Concatenate ionics-rocksalt then perovskites, assign panel_index 0 through 124, and emit canonical JSON sorted by panel_index.",
+    "Run the hash-locked role assignment only after the 125-structure panel is fixed; no model outputs, reference values, or outcomes may enter selection or role assignment.",
+    "The output must contain exactly 63 ionics-rocksalt plus 62 perovskite structures and exactly 125 unique candidate_id and source_structure_id values."
+  ],
+  "heldout_split_contract": {
+    "mode": "single-class-stratified-calibration-test-split-reused-across-all-grouping-rules",
+    "seed": "round5-grouping-heldout-20260825-v4",
+    "rank": "lowercase_hex(SHA256(seed + U+0000 + class + U+0000 + source_structure_id))",
+    "tie_rule": "ascending-bytewise-utf8-source_structure_id",
+    "calibration_count_per_class": "floor(2*n_class/3)",
+    "ionics_rocksalt": {"total": 63, "calibration": 42, "held_out_target": 21},
+    "perovskites": {"total": 62, "calibration": 41, "held_out_target": 21},
+    "cross_rule_role_reuse": true,
+    "target_may_enter_any_calibration_hull": false,
+    "leave_one_out": false,
+    "role_change_after_lock": "FORBIDDEN",
+    "missing_duplicate_or_mismatched_role": "REFUSE_SPLIT_INTEGRITY"
+  },
+  "materialized_panel_contract": {
+    "required_path": "data/candidates/round5_elastic_panel.v4.lock.json",
+    "required_bindings": [
+      "campaign_manifest_content_hash", "selection_contract_sha256",
+      "grouping_vocabulary_sha256", "grouping_executable_sha256",
+      "source_pool_sha256", "materials_project_raw_query_sha256",
+      "materialized_panel_sha256", "split_seed", "split_assignment_sha256",
+      "calibration_implementation_sha256"
+    ],
+    "expected_structures": 125,
+    "expected_cells": 500,
+    "expected_calibration_structures": 83,
+    "expected_held_out_targets": 42,
+    "replacement_after_lock": "FORBIDDEN",
+    "dispatch_before_valid_lock": "REFUSE"
+  },
+  "calibration_rules": {
+    "class": {"key": "class", "role": "V4_PRIMARY_CONFIRMATORY"},
+    "chemistry": {"key": "chemistry", "role": "REGISTERED_SECONDARY"},
+    "structure_prototype": {"key": "structure_prototype", "role": "REGISTERED_SECONDARY"},
+    "composition_space_neighbourhood": {"key": "composition_space_neighbourhood", "role": "REGISTERED_SECONDARY"},
+    "v2_exact_tuple": {
+      "keys": ["class", "chemistry", "structure_prototype", "composition_space_neighbourhood"],
+      "role": "IMMUTABLE_PREDECESSOR_GROUPING_DIAGNOSTIC_NOT_V4_CONFIRMATORY"
+    },
+    "calibration_membership": "role equals calibration and rule key exactly equals held-out target rule key",
+    "target_membership": "role equals held_out_target",
+    "minimum_calibration_structures": 4,
+    "missing_group_disposition": "INSUFFICIENT_GROUP_CALIBRATION",
+    "cross_rule_pooling": "FORBIDDEN",
+    "leave_one_out": false
+  },
+  "hull_license_and_escape_algorithm": [
+    "For held-out target X, registered model m, property p, and one named rule, select only fixed calibration-role structures whose derived key exactly equals X's key; X and every held-out target are excluded from every calibration hull.",
+    "Require at least four calibration structures; otherwise emit INSUFFICIENT_GROUP_CALIBRATION for the exact rule/model/target/property.",
+    "Convert each calibration predicted/reference ratio and the later held-out target ratio to integer U=10000 by decimal round-half-even; set lo=min and hi=max on calibration ratios only.",
+    "Record hull_width_scaled=hi-lo and normalized_hull_width=(hi-lo)/U as an exact rational or canonical decimal, never a binary-floating recomputation.",
+    "Apply the registered optimal-bias estimator and THEORY-4 rounding-robust gate independently to each rule's calibration hull; emit SHARP_LICENSED or SHARP_LICENSE_ABSTAIN and never copy a hull or decision across rules.",
+    "The held-out target escapes exactly when target_ratio_scaled < lo or hi < target_ratio_scaled; equality is in-hull.",
+    "For an escape record escape_overshoot_scaled=lo-target_ratio_scaled below the hull or target_ratio_scaled-hi above it; in-hull overshoot is zero.",
+    "Report exact escape numerator and denominator over admitted held-out target cells. Do not compute a binomial or Wilson confidence interval because the split is fixed and the campaign reports the finite registered panel.",
+    "For positive overshoots report the complete sorted integer list and nearest-rank p50 and p90 using rank=max(1,ceil(q*n)); report max. If there are no positive overshoots, emit NO_ESCAPES_OBSERVED and null quantiles.",
+    "Apply correction and count primary correction wins only under the v4 class rule. Secondary rule licenses answer grouping admissibility and never create substituted corrected predictions or confirmatory wins.",
+    "Compute the predecessor exact-tuple grouping diagnostic on the same fixed calibration/test roles; never relabel it as a v2 replay or v4 confirmatory endpoint."
+  ],
+  "optimal_bias_contract": {
+    "schema": "lupine.round5.optimal-bias-calibration.v1",
+    "implementation": "python/lupine_distill/statics/optimal_bias.py",
+    "implementation_sha256": "sha256:1bbfb5c3c19aebb21af14ee32dfbadc6158096eddb7a34a9beeeaf472d0e2c4f",
+    "fixed_point_scale": 10000,
+    "ratio_conversion": "decimal-round-half-even",
+    "inflation_estimator": "lo",
+    "deflation_estimator": "integer-argmax-of-minimax-margin-over-floor-and-ceil-bstar",
+    "rounding_robust_gate": "theory4-exact-dynamic-epsilon-bound",
+    "oracle_hull_membership_runtime_knowable": false,
+    "missing_invalid_or_out_of_theorem_domain": "ABSTAIN_FAIL_CLOSED"
+  },
+  "analysis_requirements": {
+    "confirmatory_properties": ["a0", "c11", "c12", "c44"],
+    "primary_grouping_rule": "class",
+    "minimum_distinct_non_tied_applied_targets_per_class_property": 16,
+    "primary_test": "two-sided-exact-binomial-sign",
+    "primary_alpha": 0.1,
+    "primary_sampling_unit": "distinct-held-out-target-structure",
+    "primary_structure_aggregation": "median-fixed-point-model-paired-correction-differences",
+    "primary_underpowered_disposition": "UNDERPOWERED_NOT_SCORABLE",
+    "registered_grouping_diagnostics": [
+      "class", "chemistry", "structure_prototype",
+      "composition_space_neighbourhood", "v2_exact_tuple"
+    ],
+    "diagnostic_outputs_per_rule_class_property": [
+      "held_out_targets_total",
+      "held_out_targets_with_complete_four_model_hulls",
+      "insufficient_group_calibration_count",
+      "structure_median_hull_width_fixed_point",
+      "structure_median_normalized_hull_width",
+      "model_target_cells_direction_eligible",
+      "model_target_cells_sharp_licensed",
+      "sharp_license_fraction_with_exact_numerator_and_denominator",
+      "heldout_escape_fraction_with_exact_numerator_and_denominator",
+      "positive_escape_overshoots_sorted_and_nearest_rank_p50_p90_max"
+    ],
+    "secondary_width_contrasts": "chemistry/prototype/neighbourhood versus class, paired within the same fixed held-out target and model then median across exactly four models; one-sided exact sign test for narrower alternative; 18 class-by-elastic-property-by-alternative-rule tests with Holm FWER 0.1",
+    "secondary_sampling_unit": "distinct-held-out-target-structure",
+    "secondary_required_registered_model_pairs_per_target": 4,
+    "secondary_exact_zero_disposition": "DROPPED_TIE",
+    "secondary_incomplete_model_pairs_disposition": "EXCLUDE_INCOMPLETE_REGISTERED_MODEL_PAIRS",
+    "secondary_underpowered_disposition": "UNDERPOWERED_NOT_SCORABLE",
+    "minimum_secondary_non_tied_targets": 16,
+    "unregistered_subgroup_claims": "FORBIDDEN"
+  },
+  "execution_requirements": {
+    "dedicated_round5_jobs": true,
+    "immutable_image_digests": true,
+    "mutable_tags_forbidden": true,
+    "max_retries": 0,
+    "legacy_round4_jobs_forbidden": true,
+    "required_cell_bindings": [
+      "campaign_manifest_content_hash", "selection_contract_sha256",
+      "grouping_vocabulary_sha256", "grouping_executable_sha256",
+      "materialized_panel_sha256", "split_assignment_sha256",
+      "model_artifact_hash", "runner_image_digest", "attempt_number",
+      "artifact_uri", "calibration_implementation_sha256"
+    ]
+  }
+}
