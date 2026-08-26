@@ -24,6 +24,10 @@ on:
         description: Apply production D1 migrations, seed reviewed hypotheses, and verify sign-skew
         type: boolean
         default: false
+      publish_production_cycle:
+        description: Validate and publish a dated production cycle for the current UTC date
+        type: boolean
+        default: false
 
 concurrency:
   group: evidence-nightly
@@ -35,7 +39,7 @@ permissions:
 jobs:
   publish-production-cycle:
     name: publish dated production cycle
-    if: ${{ github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'schedule' || inputs.publish_production_cycle }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,7 +70,11 @@ jobs:
       - name: Validate and publish the dated production cycle
         run: |
           set -euo pipefail
-          cycle_date="$(date -u -d yesterday +%F)"
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            cycle_date="$(date -u -d yesterday +%F)"
+          else
+            cycle_date="$(date -u +%F)"
+          fi
           cycle_dir="nightly-input/$cycle_date"
           mkdir -p "$cycle_dir"
           cat > "$cycle_dir/cycle.json" <<'JSON'
