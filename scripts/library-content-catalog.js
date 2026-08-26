@@ -2,6 +2,17 @@
 // Restructured 2026-06-26 per docs/plans/library-restructure-2026-06-26.md
 // 8 categories, 67 entries, journeys, featured roles, and group ribbons.
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const LEAN_INVENTORY_PATH = path.join(REPO_ROOT, 'lean-spec', 'theorem-count.json');
+const LEAN_INVENTORY = JSON.parse(fs.readFileSync(LEAN_INVENTORY_PATH, 'utf8'));
+if (!Number.isSafeInteger(LEAN_INVENTORY.count) || LEAN_INVENTORY.count < 1 || LEAN_INVENTORY.zero_sorry !== true) {
+  throw new Error(`Invalid fail-closed Lean inventory: ${LEAN_INVENTORY_PATH}`);
+}
+
 export const CATALOG = {
   "statuses": {
     "proposed": {
@@ -943,7 +954,7 @@ export const CATALOG = {
       "id": "formal-vision",
       "source": "docs/formal-vision.md",
       "title": "The Open Distillation Factory — Executable Vision",
-      "subtitle": "Current status: 77 build-locked theorems, ~225 declarations, 2,891-job build green, and a build-locking epistemic contract.",
+      "subtitle": `Current status: ${LEAN_INVENTORY.count} machine-inventoried Lean theorem/lemma declarations, zero active sorry, and a build-locking epistemic contract.`,
       "category": "formalization",
       "tags": [
         "lean",

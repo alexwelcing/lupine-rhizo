@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-08-01T08:07:11.368Z",
+  "generatedAt": "2026-08-26T01:26:46.247Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "1a2b63245e1c2c4e2c4585b5889e3591acf0e2ef",
+    "commit": "efb8237f55940312ce0ad848a5e5cd9b4bdc9b0c",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1014,7 +1014,7 @@
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
-        "subtitle": "Current status is machine-generated in lean-spec/theorem-count.json, with a build-locking epistemic contract.",
+        "subtitle": "Current status: 899 machine-inventoried Lean theorem/lemma declarations, zero active sorry, and a build-locking epistemic contract.",
         "category": "formalization",
         "tags": [
           "lean",
@@ -1966,8 +1966,8 @@
     {
       "source": "docs/formal-vision.md",
       "bundleSource": "articles/docs/formal-vision.md",
-      "bytes": 6793,
-      "sha256": "3e1aafc467e6ff565e7db54b9809c47c015c5ca20c3768516aab4398a9760007"
+      "bytes": 6737,
+      "sha256": "2bf85d9703404a7df9211b3340565bf82d6fb04840078a987d304e8d2ef0820d"
     },
     {
       "source": "docs/formal-methodology.md",
@@ -2200,8 +2200,8 @@
     {
       "source": "docs/analysis/z1-union-campaign-verdict.md",
       "bundleSource": "articles/docs/analysis/z1-union-campaign-verdict.md",
-      "bytes": 3005,
-      "sha256": "51a6cf8681d156a5e68d2370417177b2cc64200f538306f4763c17dbc931435f"
+      "bytes": 3077,
+      "sha256": "863999a1a0e9b7e7ceac020d6c4c63f04ebb3e5c2990e800259dca92454961d6"
     },
     {
       "source": "docs/analysis/z1-union-cost-ledger.md",

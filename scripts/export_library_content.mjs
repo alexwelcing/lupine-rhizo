@@ -6,6 +6,11 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { CATALOG } from './library-content-catalog.js';
 
+execFileSync(process.execPath, ['scripts/check-stale-lean-counts.mjs'], {
+  cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+  stdio: 'inherit',
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_OUT = path.join(REPO_ROOT, 'exports', 'library-content', 'latest');
