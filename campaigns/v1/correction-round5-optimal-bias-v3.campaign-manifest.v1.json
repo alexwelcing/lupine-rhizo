@@ -1,0 +1,139 @@
+{
+  "acceptance_test": {
+    "metric": "confirmatory_group_property_win_fraction",
+    "operator": "gte",
+    "threshold": 0.75,
+    "unit": "fraction"
+  },
+  "available_models": [
+    {
+      "artifact_hash": "sha256:27dbc19f3fa710bbb58b6f5e64e0fde5a6941edcb538f92d228b2d90e93f8890",
+      "model_id": "chgnet",
+      "version": "chgnet 0.4.2"
+    },
+    {
+      "artifact_hash": "sha256:c69cbc43286d05a8e9974412a4fb5f4e28405f92ac15287537263475dfc3c694",
+      "model_id": "mace-mp-small",
+      "version": "mace-torch 0.3.16 / small"
+    },
+    {
+      "artifact_hash": "sha256:1d80b5c4898b2d22d73dc82b17e1cabe1111d9cd6be4c2a7403dea6fa0ac83f3",
+      "model_id": "mace-mp-medium",
+      "version": "mace-torch 0.3.16 / medium"
+    },
+    {
+      "artifact_hash": "sha256:59b5d1db18664525ad20358fe381b7ba71bdb260c8a3d6bbfe5fb5201e3be0d9",
+      "model_id": "mace-mpa-0-medium",
+      "version": "mace-torch 0.3.16 / mpa-0 medium"
+    }
+  ],
+  "campaign_id": "correction.round-5.optimal-bias.v3",
+  "content_hash": "sha256:9f1a0af0a04ef9612c0f7d58f30e262b55b70ec725ba2664b349f16e6f211c80",
+  "demotion_conditions": [
+    {
+      "action": "demote",
+      "condition_id": "demote.round5.confirmatory-group-property-win-fraction",
+      "metric": "confirmatory_group_property_win_fraction",
+      "operator": "lt",
+      "threshold": 0.75,
+      "unit": "fraction"
+    }
+  ],
+  "evidence_requirements": [
+    {
+      "artifact_type": "elastic-structure-model-cell",
+      "description": "Exactly 500 registered elastic-structure model cells (125 structures by four models) with immutable receipts, no retries, no imputation, and a0/C11/C12/C44 observables.",
+      "minimum_count": 500,
+      "requirement_id": "e.round5.elastic-structure-model-cells"
+    },
+    {
+      "artifact_type": "distinct-structure-sign",
+      "description": "At least 16 distinct non-tied applied structures per scorable class-property after structure-level aggregation across registered models; the locked panel must first prove at least 16 pre-outcome calibration-eligible structures per class-property.",
+      "minimum_count": 16,
+      "requirement_id": "e.round5.powered-class-property-signs"
+    },
+    {
+      "artifact_type": "optimal-bias-calibration-record",
+      "description": "Every correction decision emits exact fixed-point lo/hi/median audit values, the regime-optimal bias derivation, exact integer bstar candidate objectives and comparison cross-products, and THEORY-4 dynamic rounding-robust gate margins bound to the registered implementation digest; non-finite corrections abstain.",
+      "minimum_count": 1,
+      "requirement_id": "e.round5.optimal-bias-calibration-records"
+    }
+  ],
+  "exclusions": [
+    {
+      "disposition": "excluded",
+      "rationale": "Preregistered excluded_unavailable: no reproducible gated UMA checkpoint was available at lock time.",
+      "subject": "uma-family"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "Round 5 measures elastic structures only; LiTraj/CI-NEB paths and barrier observables are a different campaign and cannot enter this panel.",
+      "subject": "litraj-neb-paths"
+    },
+    {
+      "disposition": "excluded",
+      "rationale": "The legacy Round-4 jobs have drifted to mutable Z1 images and retries; Round 5 requires dedicated digest-pinned jobs with maxRetries zero.",
+      "subject": "legacy-round4-cloud-run-jobs"
+    }
+  ],
+  "execution": {
+    "candidate_panel": {
+      "path": "data/candidates/round5_elastic_panel-selection.v3.lock.json",
+      "sha256": "sha256:9d524f07620aa0f381085d20efde418746820b8298ad21c91e2444528100b4be"
+    },
+    "excluded_models_block_execution": false,
+    "lane": "round5.optimal-bias-elastic.available-models",
+    "model_selection": "available_models"
+  },
+  "frozen_hypotheses": [
+    {
+      "frozen": true,
+      "hypothesis_id": "h.round5.optimal-bias-correction",
+      "statement": "Under the unchanged direction gate, the regime-optimal lo/integer-bstar estimator, and the rounding-robust machine-checked license, correction wins on at least three of four powered confirmatory properties in each registered material class."
+    },
+    {
+      "frozen": true,
+      "hypothesis_id": "h.round5.elastic-hulls-wider-than-a0",
+      "statement": "At the distinct-structure sampling unit, the median paired hull-width difference across all four registered models is positive for C11/C12/C44 versus a0, tested as six Holm-controlled class-by-elastic-property secondary contrasts."
+    }
+  ],
+  "kill_conditions": [
+    {
+      "action": "kill",
+      "condition_id": "kill.round5.optimal-bias-theorem-consistency",
+      "metric": "licensed_in_hull_worsened_cells",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "count"
+    },
+    {
+      "action": "kill",
+      "condition_id": "kill.round5.execution-integrity-refusals",
+      "metric": "execution_integrity_refusals",
+      "operator": "gt",
+      "threshold": 0,
+      "unit": "count"
+    }
+  ],
+  "preregistration": {
+    "frozen_before_execution": true,
+    "input_document": {
+      "path": "docs/plans/2026-08-04-round5-optimal-bias-preregistration-v3.md",
+      "sha256": "sha256:ccdbdb19b85c9a7b24abb27efabf6ba15744cbebe75e610b9b8946480c71f577"
+    },
+    "registered_at": "2026-08-17T14:59:30Z",
+    "source": "docs/plans/2026-08-04-round5-optimal-bias-preregistration-v3.md"
+  },
+  "preregistration_id": "prereg.correction.round-5.optimal-bias.v3.2026-08-04",
+  "target_premises": [
+    {
+      "claim_id": "correction.same-class.elastic-properties.v1",
+      "premise_id": "optimal-bias-rounding-robust-license-and-direction-gate"
+    },
+    {
+      "claim_id": "correction.hull-width-property-dependence.v1",
+      "premise_id": "paired-calibration-hull-widths"
+    }
+  ],
+  "version": 1
+}
