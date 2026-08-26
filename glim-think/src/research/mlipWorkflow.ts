@@ -19,6 +19,10 @@ import {
 import { buildMlip5x5x3PhoenixPacket, phoenixProjectName, syncMlipPhoenixPacket } from "./mlipPhoenix";
 import { distillProfileForVariant, enqueueTask, type MlipCellRunTask } from "./queue";
 import {
+  isLupineCampaignDispatch,
+  translateLupineCampaignDispatch,
+} from "./lupineCampaignDispatch";
+import {
   workflowError,
   workflowJson,
   type ResearchWorkflowAdapter,
@@ -171,8 +175,29 @@ export const mlipWorkflowAdapter: ResearchWorkflowAdapter = {
 
   async createCampaign(env, bodyText) {
     try {
-      const body = JSON.parse(bodyText || "{}") as CreateMlipCampaignInput;
-      const result = await createMlipCampaign(env, body);
+      const body = JSON.parse(bodyText || "{}") as unknown;
+      if (isLupineCampaignDispatch(body)) {
+        const translated = await translateLupineCampaignDispatch(body);
+        const created = await createMlipCampaign(env, translated.create);
+        const campaign = await loadCampaign(env, created.campaign_id);
+        if (campaign instanceof Response) return campaign;
+        const queued = campaign.cells
+          .filter((cell) => cell.status === "queued")
+          .slice(0, translated.enqueue.limit);
+        const dispatched = await dispatchCampaignCells(
+          env,
+          created.campaign_id,
+          campaign,
+          queued,
+        );
+        return workflowJson({
+          workflow_id: WORKFLOW_ID,
+          accepted: true,
+          ...created,
+          ...dispatched,
+        });
+      }
+      const result = await createMlipCampaign(env, body as CreateMlipCampaignInput);
       return workflowJson({ workflow_id: WORKFLOW_ID, ...result });
     } catch (e) {
       return workflowError(e instanceof Error ? e.message : String(e), 400);

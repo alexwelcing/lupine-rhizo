@@ -65,6 +65,8 @@ export interface CreateMlipCampaignInput {
   model_pairs?: string[];
   top_k?: number;
   quality_gate?: "none" | "fit" | "physics" | "accuracy";
+  /** Internal adapter profile for a reviewed Z1 CampaignManifest dispatch. */
+  workflow_profile?: "z1_barrier";
 }
 
 export interface MlipCampaignResultInput {
@@ -259,11 +261,17 @@ function validateAxis<T extends MlipAxisItem>(
   name: string,
   items: T[] | undefined,
   defaults: T[],
-  expected: number,
+  expected: number | { min: number; max: number },
 ): T[] {
   const resolved = items?.length ? items : defaults;
-  if (resolved.length !== expected) {
-    throw new Error(`${name} must contain exactly ${expected} entries`);
+  const validLength = typeof expected === "number"
+    ? resolved.length === expected
+    : resolved.length >= expected.min && resolved.length <= expected.max;
+  if (!validLength) {
+    const requirement = typeof expected === "number"
+      ? `exactly ${expected}`
+      : `between ${expected.min} and ${expected.max}`;
+    throw new Error(`${name} must contain ${requirement} entries`);
   }
   const seen = new Set<string>();
   return resolved.map((item) => {
@@ -560,10 +568,22 @@ export async function createMlipCampaign(
 
   const hypothesisId = input.hypothesis_id?.trim();
   if (!hypothesisId) throw new Error("hypothesis_id is required");
-  const rows = validateAxis("rows", input.rows, DEFAULT_ACCURACY_ROWS, 5);
-  const mlips = validateAxis("mlips", input.mlips, DEFAULT_MLIP_COLUMNS, 5);
+  const z1Barrier = input.workflow_profile === "z1_barrier";
+  const rows = validateAxis("rows", input.rows, DEFAULT_ACCURACY_ROWS, z1Barrier ? 1 : 5);
+  const mlips = validateAxis(
+    "mlips",
+    input.mlips,
+    DEFAULT_MLIP_COLUMNS,
+    z1Barrier ? { min: 1, max: 4 } : 5,
+  );
   const defaultVariants = CAMPAIGN_VARIANTS_BY_SCOPE[input.variant_scope ?? "full"];
   const variants = validateAxis("variants", input.variants, defaultVariants, defaultVariants.length);
+  if (z1Barrier) {
+    if (rows[0]?.id !== "barrier") throw new Error("z1_barrier rows must contain only barrier");
+    if (variants.length !== 1 || variants[0]?.id !== "baseline") {
+      throw new Error("z1_barrier campaigns must use the baseline variant only");
+    }
+  }
   const campaignId =
     input.campaign_id?.trim() ||
     `mlip-5x5x3-${new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14)}`;
@@ -574,8 +594,9 @@ export async function createMlipCampaign(
   const modelPairs = input.model_pairs ?? [];
   const fixtureUrlTemplate = input.fixture_url_template ?? defaultCampaignFixtureUrl(env);
 
-  await env.LEDGER.prepare(
-    `INSERT OR REPLACE INTO mlip_campaigns
+  const cells = buildMlipCampaignCells(campaignId, rows, mlips, variants, fixtureUrlTemplate);
+  const campaignInsert = env.LEDGER.prepare(
+    `INSERT INTO mlip_campaigns
       (campaign_id, hypothesis_id, title, status, rows_json, mlips_json, variants_json,
        fixture_url_template, model_pairs_json, top_k, quality_gate, created_at, updated_at)
      VALUES (?1, ?2, ?3, 'draft', ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?11)`,
@@ -591,13 +612,10 @@ export async function createMlipCampaign(
     topK,
     qualityGate,
     now,
-  ).run();
-
-  const cells = buildMlipCampaignCells(campaignId, rows, mlips, variants, fixtureUrlTemplate);
-  let inserted = 0;
-  for (const cell of cells) {
-    await env.LEDGER.prepare(
-      `INSERT OR IGNORE INTO mlip_campaign_cells
+  );
+  const cellInserts = cells.map((cell) =>
+    env.LEDGER.prepare(
+      `INSERT INTO mlip_campaign_cells
         (cell_id, campaign_id, row_id, mlip_id, variant_id, fixture_url, status, created_at, updated_at)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'queued', ?7, ?7)`,
     ).bind(
@@ -608,9 +626,9 @@ export async function createMlipCampaign(
       cell.variant_id,
       cell.fixture_url,
       now,
-    ).run();
-    inserted += 1;
-  }
+    ),
+  );
+  await env.LEDGER.batch([campaignInsert, ...cellInserts]);
 
   await env.LEDGER.prepare(
     `INSERT OR IGNORE INTO intelligence_tasks
@@ -627,13 +645,15 @@ export async function createMlipCampaign(
       rows: rows.map((r) => r.id),
       mlips: mlips.map((m) => m.id),
       variant_scope: input.variant_scope ?? "full",
-      objective: variants.some((variant) => variant.id === "distill_accuracy_accelerate")
+      objective: z1Barrier
+        ? "measure the reviewed Z1 migration-barrier panel with the selected registered baseline models"
+        : variants.some((variant) => variant.id === "distill_accuracy_accelerate")
         ? "show baseline accuracy, distill accuracy lift, and distill+accelerate accuracy plus speed lift"
         : "show baseline accuracy and Distill Accuracy lift over all 25 row/backend pairs",
     }),
   ).run();
 
-  return { campaign_id: campaignId, inserted_cells: inserted, cells_expected: cells.length };
+  return { campaign_id: campaignId, inserted_cells: cells.length, cells_expected: cells.length };
 }
 
 export async function getMlipCampaign(

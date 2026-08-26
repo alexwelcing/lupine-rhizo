@@ -70,12 +70,46 @@ describe("mlipCampaign", () => {
     });
   });
 
+  it("uses collision-failing inserts for new campaign and cell rows", async () => {
+    const sql: string[] = [];
+    await createMlipCampaign(buildStubEnv({
+      LEDGER: stubLedger({ onPrepare: (statement) => sql.push(statement) }),
+    }), {
+      campaign_id: "campaign-no-overwrite",
+      hypothesis_id: "h",
+    });
+
+    const campaignInsert = sql.find((statement) => statement.includes("INTO mlip_campaigns"));
+    const cellInserts = sql.filter((statement) => statement.includes("INTO mlip_campaign_cells"));
+    expect(campaignInsert).toContain("INSERT INTO mlip_campaigns");
+    expect(campaignInsert).not.toMatch(/INSERT OR (?:REPLACE|IGNORE)/);
+    expect(cellInserts).toHaveLength(75);
+    expect(cellInserts.every((statement) => statement.includes("INSERT INTO mlip_campaign_cells"))).toBe(true);
+    expect(cellInserts.every((statement) => !/INSERT OR (?:REPLACE|IGNORE)/.test(statement))).toBe(true);
+  });
+
+  it("atomically inserts a new campaign and every cell in one D1 batch", async () => {
+    const ledger = stubLedger();
+    const batchSizes: number[] = [];
+    ledger.batch = async <T = unknown>(statements: D1PreparedStatement[]): Promise<D1Result<T>[]> => {
+      batchSizes.push(statements.length);
+      return statements.map(() => ({ success: true, meta: {}, results: [] }) as unknown as D1Result<T>);
+    };
+
+    await createMlipCampaign(buildStubEnv({ LEDGER: ledger }), {
+      campaign_id: "campaign-atomic",
+      hypothesis_id: "h",
+    });
+
+    expect(batchSizes).toEqual([76]);
+  });
+
   it("preserves canonical underscore IDs when creating default campaigns", async () => {
     const insertedCells: unknown[][] = [];
     const env = buildStubEnv({
       LEDGER: stubLedger({
         onPrepare: (sql, bindings) => {
-          if (sql.includes("INSERT OR IGNORE INTO mlip_campaign_cells")) {
+          if (sql.includes("INSERT INTO mlip_campaign_cells")) {
             insertedCells.push([...bindings]);
           }
         },
@@ -98,7 +132,7 @@ describe("mlipCampaign", () => {
     const env = buildStubEnv({
       LEDGER: stubLedger({
         onPrepare: (sql, bindings) => {
-          if (sql.includes("INSERT OR IGNORE INTO mlip_campaign_cells")) {
+          if (sql.includes("INSERT INTO mlip_campaign_cells")) {
             insertedCells.push([...bindings]);
           }
         },
@@ -114,6 +148,32 @@ describe("mlipCampaign", () => {
     expect(insertedCells).toHaveLength(50);
     expect(insertedCells.some((bindings) => String(bindings[0]).includes(":distill_accuracy:"))).toBe(true);
     expect(insertedCells.some((bindings) => String(bindings[0]).includes(":distill_accuracy_accelerate:"))).toBe(false);
+  });
+
+  it.each([
+    ["chgnet", "mlip-cell-chgnet"],
+    ["mace-mp-small", "mlip-cell-mace-mp-small"],
+    ["mace-mp-medium", "mlip-cell-mace-mp-medium"],
+    ["mace-mpa-0-medium", "mlip-cell-mace-mpa-0-medium"],
+  ])("maps reviewed model %s to runner target %s", (mlipId, targetJob) => {
+    const payload = buildMlipCellRunPayload(
+      buildStubEnv(),
+      {
+        kind: "mlip_cell_run",
+        dedup_key: `d:${mlipId}`,
+        enqueued_at: "2026-08-25T12:00:00.000Z",
+        hypothesis_id: "h.z1.barrier-accuracy",
+        run_id: "run-z1",
+        cell_id: `run-z1:baseline:barrier:${mlipId}`,
+        row_id: "barrier",
+        mlip_id: mlipId,
+        variant_id: "baseline",
+        manifest_url: "https://example.test/z1.json",
+      },
+      "https://worker.test/feed/beats",
+    );
+
+    expect(payload.target_job).toBe(targetJob);
   });
 
   it("builds real MLIP runner dispatch payloads for Distill variants", () => {
