@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-08-26T01:26:46.247Z",
+  "generatedAt": "2026-08-26T15:43:02.124Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "efb8237f55940312ce0ad848a5e5cd9b4bdc9b0c",
+    "commit": "13b4c8bf4491675b5500a05ec8c2febf52f6002d",
     "dirty": true,
     "generator": "scripts/export_library_content.mjs"
   },

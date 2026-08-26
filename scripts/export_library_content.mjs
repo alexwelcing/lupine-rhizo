@@ -8,6 +8,7 @@ import { CATALOG } from './library-content-catalog.js';
 
 execFileSync(process.execPath, ['scripts/check-stale-lean-counts.mjs'], {
   cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+  env: { ...process.env, STALE_LEAN_SCAN_SKIP_ACTIVE_EXPORT: '1' },
   stdio: 'inherit',
 });
 
@@ -163,6 +164,12 @@ function main() {
     path.join(outRoot, 'manifest.json'),
     `${JSON.stringify(manifest, null, 2)}\n`,
   );
+
+  execFileSync(process.execPath, ['scripts/check-stale-lean-counts.mjs'], {
+    cwd: REPO_ROOT,
+    env: { ...process.env, STALE_LEAN_SCAN_SKIP_ACTIVE_EXPORT: '0' },
+    stdio: 'inherit',
+  });
 
   console.log(`Exported ${files.length} files for ${catalog.entries.length} catalog entries.`);
   console.log(`Output: ${relativeOut}`);
