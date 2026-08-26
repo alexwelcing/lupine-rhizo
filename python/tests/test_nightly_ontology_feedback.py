@@ -1554,6 +1554,28 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("Path(model_path).name != revision", workflow)
         self.assertIn("EVIDENCE_EMBED_MODEL={model_path}", workflow)
 
+    def test_scheduled_nightly_skips_remote_d1_for_placeholder_token(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
+        nightly = workflow.split("  ontology-feedback:", 1)[1].split(
+            "  production-d1-maintenance:", 1
+        )[0]
+        maintenance = workflow.split("  production-d1-maintenance:", 1)[1]
+
+        self.assertIn(
+            "CLOUDFLARE_API_TOKEN is a repository placeholder; skipping remote D1 steps",
+            nightly,
+        )
+        self.assertIn('echo "present=false" >> "$GITHUB_OUTPUT"', nightly)
+        self.assertIn(
+            "CLOUDFLARE_API_TOKEN is still the repository placeholder",
+            maintenance,
+        )
+        self.assertIn("Seed local D1 fallback hypotheses", nightly)
+        self.assertIn(
+            "steps.cf_token.outputs.present != 'true'",
+            nightly,
+        )
+
     def test_workflow_has_fail_closed_production_d1_maintenance(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
 
