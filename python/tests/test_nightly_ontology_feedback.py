@@ -1537,6 +1537,17 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn('"../../campaigns/v1/z1.campaign-manifest.v1.json"', workflow)
         self.assertIn('"../../data/candidates/z1/measurements.jsonl"', workflow)
 
+    def test_workflow_can_manually_publish_a_cycle_for_the_current_utc_date(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
+
+        self.assertIn("publish_production_cycle:", workflow)
+        self.assertIn(
+            "if: ${{ github.event_name == 'schedule' || inputs.publish_production_cycle }}",
+            workflow,
+        )
+        self.assertIn('cycle_date="$(date -u -d yesterday +%F)"', workflow)
+        self.assertIn('cycle_date="$(date -u +%F)"', workflow)
+
     def test_workflow_pins_caches_and_offline_verifies_embedding_model(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
 
