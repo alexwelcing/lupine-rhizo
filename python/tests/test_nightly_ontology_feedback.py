@@ -1570,6 +1570,11 @@ class NightlyFeedbackTests(unittest.TestCase):
             "CLOUDFLARE_API_TOKEN is still the repository placeholder",
             maintenance,
         )
+        self.assertIn("Seed local D1 fallback hypotheses", nightly)
+        self.assertIn(
+            "steps.cf_token.outputs.present != 'true'",
+            nightly,
+        )
 
     def test_workflow_has_fail_closed_production_d1_maintenance(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()

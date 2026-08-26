@@ -350,8 +350,12 @@ jobs:
           esac
           echo "present=true" >> "$GITHUB_OUTPUT"
 
-      - name: Seed staging D1 hypotheses
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.staging_fixture }}
+      - name: Seed local D1 fallback hypotheses
+        if: >-
+          ${{
+            (github.event_name == 'workflow_dispatch' && inputs.staging_fixture)
+            || steps.cf_token.outputs.present != 'true'
+          }}
         run: |
           python - <<'PY'
           import json, sqlite3
