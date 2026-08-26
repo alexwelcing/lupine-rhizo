@@ -20,6 +20,26 @@ permissions:
   contents: read
 
 jobs:
+  lean-theorem-counts:
+    name: Lean theorem-count content contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Test stale-count rejection
+        run: node --test tests/check-stale-lean-counts.test.mjs
+
+      - name: Validate and regenerate library content
+        run: |
+          node scripts/check-stale-lean-counts.mjs
+          node scripts/export_library_content.mjs
+
   python-distill:
     name: Python Distill unit + compile
     runs-on: ubuntu-latest
