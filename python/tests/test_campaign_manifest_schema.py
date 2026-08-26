@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import unittest
+from fractions import Fraction
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
@@ -16,6 +17,29 @@ ROOT = Path(__file__).resolve().parents[2]
 def load(relative_path: str) -> dict:
     with (ROOT / relative_path).open(encoding="utf-8") as stream:
         return json.load(stream)
+
+
+def allocation_exists(capacities: list[int], quota: int, minimum_occupancy: int) -> bool:
+    """Exact feasibility for occupancies in {0} union [minimum, capacity]."""
+    reachable = {0}
+    for capacity in capacities:
+        choices = [0, *range(minimum_occupancy, capacity + 1)]
+        reachable = {
+            subtotal + choice
+            for subtotal in reachable
+            for choice in choices
+            if subtotal + choice <= quota
+        }
+    return quota in reachable
+
+
+def structure_level_hull_sign(model_differences: list[int]) -> int:
+    """Aggregate exactly four fixed-point model differences with half-even median."""
+    if len(model_differences) != 4:
+        raise ValueError("all four registered model pairs are required")
+    ordered = sorted(model_differences)
+    median = round(Fraction(ordered[1] + ordered[2], 2))
+    return (median > 0) - (median < 0)
 
 
 class CampaignManifestSchemaTests(unittest.TestCase):
@@ -70,7 +94,17 @@ class CampaignManifestSchemaTests(unittest.TestCase):
         paths = sorted((ROOT / "campaigns" / "v1").glob("*.json"))
         self.assertEqual(
             [path.stem.split(".")[0] for path in paths],
-            ["correction-round4", "literature-protocol-offset-sign-skew", "z1", "z1r5", "z2", "z3"],
+            [
+                "correction-round4",
+                "correction-round5-optimal-bias-v3",
+                "correction-round5-sharp-v2",
+                "correction-round5-sharp",
+                "literature-protocol-offset-sign-skew",
+                "z1",
+                "z1r5",
+                "z2",
+                "z3",
+            ],
         )
 
         for path in paths:
@@ -112,6 +146,140 @@ class CampaignManifestSchemaTests(unittest.TestCase):
             self.assertTrue(available)
             self.assertTrue(available.isdisjoint(excluded))
             self.assertFalse(manifest["execution"]["excluded_models_block_execution"])
+
+    def test_round5_sharp_v2_preregistration_is_powered_and_elastic_only(self) -> None:
+        manifest = load("campaigns/v1/correction-round5-sharp-v2.campaign-manifest.v1.json")
+        panel = load("data/candidates/round5_elastic_panel-selection.v2.lock.json")
+
+        self.manifest_validator.validate(manifest)
+        self.assertEqual(panel["unit_definition"]["structures"], 125)
+        self.assertEqual(panel["unit_definition"]["models_per_structure"], 4)
+        self.assertEqual(panel["unit_definition"]["total_cells"], 500)
+        self.assertIn("litraj-neb-path", panel["unit_definition"]["excluded_unit_kinds"])
+        self.assertEqual(
+            panel["analysis_requirements"][
+                "minimum_distinct_non_tied_applied_structures_per_class_property"
+            ],
+            16,
+        )
+        self.assertEqual(panel["analysis_requirements"]["primary_alpha"], 0.1)
+        self.assertEqual(panel["analysis_requirements"]["secondary_sampling_unit"], "distinct-structure")
+        self.assertEqual(
+            panel["analysis_requirements"]["secondary_required_registered_model_pairs_per_structure"],
+            4,
+        )
+        self.assertEqual(
+            panel["grouping_tuple"],
+            [
+                "class",
+                "chemistry",
+                "structure_prototype",
+                "composition_space_neighbourhood",
+            ],
+        )
+        self.assertEqual(panel["execution_requirements"]["max_retries"], 0)
+        self.assertTrue(panel["execution_requirements"]["immutable_image_digests"])
+
+        allocation = panel["allocation_contract"]
+        self.assertEqual(allocation["minimum_selected_occupancy_per_used_grouping_tuple"], 5)
+        self.assertEqual(
+            allocation["minimum_predispatch_calibration_eligible_structures_per_class_property"],
+            16,
+        )
+        self.assertFalse(allocation["predispatch_power_check_uses_model_outputs"])
+        self.assertNotIn("round-robin", " ".join(panel["selection_algorithm"]).lower())
+
+        panel_path = ROOT / manifest["execution"]["candidate_panel"]["path"]
+        self.assertEqual(
+            manifest["execution"]["candidate_panel"]["sha256"],
+            "sha256:" + hashlib.sha256(panel_path.read_bytes()).hexdigest(),
+        )
+
+        prereg_path = ROOT / manifest["preregistration"]["input_document"]["path"]
+        self.assertEqual(
+            manifest["preregistration"]["input_document"]["sha256"],
+            "sha256:" + hashlib.sha256(prereg_path.read_bytes()).hexdigest(),
+        )
+
+    def test_round5_v2_rejects_adversarial_many_strata_without_complete_groups(self) -> None:
+        panel = load("data/candidates/round5_elastic_panel-selection.v2.lock.json")
+        minimum = panel["allocation_contract"][
+            "minimum_selected_occupancy_per_used_grouping_tuple"
+        ]
+
+        # The rejected v1 round-robin could choose one from each of 63 groups.
+        # V2 must refuse because 63 cannot be composed from complete size-5 groups.
+        self.assertFalse(allocation_exists([5] * 63, 63, minimum))
+        self.assertFalse(allocation_exists([5] * 62, 62, minimum))
+
+        # Exact feasible allocations remain admitted without underfilled groups.
+        self.assertTrue(allocation_exists([8, *([5] * 11)], 63, minimum))
+        self.assertTrue(allocation_exists([7, *([5] * 11)], 62, minimum))
+
+    def test_round5_v2_hull_width_sign_test_does_not_pseudoreplicate_models(self) -> None:
+        panel = load("data/candidates/round5_elastic_panel-selection.v2.lock.json")
+        self.assertEqual(panel["analysis_requirements"]["secondary_sampling_unit"], "distinct-structure")
+
+        signs = [structure_level_hull_sign([1, 1, 1, 1]) for _ in range(3)]
+        self.assertEqual(signs, [1, 1, 1])
+        self.assertEqual(Fraction(1, 2 ** len(signs)), Fraction(1, 8))
+        self.assertEqual(Fraction(1, 2 ** 12), Fraction(1, 4096))
+        self.assertGreater(Fraction(1, 8), Fraction(1, 10))
+
+        self.assertEqual(structure_level_hull_sign([-3, -1, 1, 3]), 0)
+        with self.assertRaisesRegex(ValueError, "all four registered model pairs"):
+            structure_level_hull_sign([1, 1, 1])
+
+    def test_round5_v3_registers_optimal_estimator_and_robust_gate(self) -> None:
+        manifest = load(
+            "campaigns/v1/correction-round5-optimal-bias-v3.campaign-manifest.v1.json"
+        )
+        panel = load("data/candidates/round5_elastic_panel-selection.v3.lock.json")
+
+        self.manifest_validator.validate(manifest)
+        calibration = panel["calibration_contract"]
+        self.assertEqual(calibration["fixed_point_scale"], 10000)
+        self.assertEqual(calibration["inflation_estimator"], "lo")
+        self.assertEqual(
+            calibration["deflation_estimator"],
+            "integer-argmax-of-minimax-margin-over-floor-and-ceil-bstar",
+        )
+        self.assertEqual(
+            calibration["deflation_bstar"],
+            "U*(lo+hi)/(2*U+lo-hi)",
+        )
+        self.assertEqual(
+            calibration["deflation_objective_output"],
+            "per-candidate-bias-margin-and-exact-objective-numerator-denominator",
+        )
+        self.assertTrue(
+            {
+                "bstar.objectives",
+                "bstar.comparison",
+                "bstar.tie_break",
+            }.issubset(calibration["required_output_fields"])
+        )
+        self.assertEqual(calibration["rounding_error_bound_scaled"], "1/2")
+        self.assertEqual(
+            calibration["rounding_robust_gate"],
+            "theory4-exact-dynamic-epsilon-bound",
+        )
+        self.assertEqual(
+            calibration["implementation"],
+            "python/lupine_distill/statics/optimal_bias.py",
+        )
+        self.assertEqual(panel["campaign_id"], manifest["campaign_id"])
+
+        panel_path = ROOT / manifest["execution"]["candidate_panel"]["path"]
+        self.assertEqual(
+            manifest["execution"]["candidate_panel"]["sha256"],
+            "sha256:" + hashlib.sha256(panel_path.read_bytes()).hexdigest(),
+        )
+        prereg_path = ROOT / manifest["preregistration"]["input_document"]["path"]
+        self.assertEqual(
+            manifest["preregistration"]["input_document"]["sha256"],
+            "sha256:" + hashlib.sha256(prereg_path.read_bytes()).hexdigest(),
+        )
 
 
 if __name__ == "__main__":

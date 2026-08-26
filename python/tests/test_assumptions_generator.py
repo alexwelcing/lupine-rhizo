@@ -168,6 +168,9 @@ class AssumptionsGeneratorTests(unittest.TestCase):
             [campaign["campaign_id"] for campaign in campaigns["campaigns"]],
             [
                 "correction.round-4.available-models.v1",
+                "correction.round-5.optimal-bias.v3",
+                "correction.round-5.sharp-license.v1",
+                "correction.round-5.sharp-license.v2",
                 "discovery.round-4.z1-barriers.v1",
                 "discovery.round-4.z2-magnetic-anisotropy.v1",
                 "discovery.round-4.z3-adsorption.v1",
@@ -175,7 +178,7 @@ class AssumptionsGeneratorTests(unittest.TestCase):
                 "literature.protocol-offset-sign-skew.v1",
             ],
         )
-        self.assertEqual(len(lock["inputs"]["campaign_manifests"]), 6)
+        self.assertEqual(len(lock["inputs"]["campaign_manifests"]), 9)
         self.assertIn("registry/campaigns.v1.json", lock["artifacts"])
 
     def test_campaign_loader_rejects_a_stale_content_hash(self) -> None:

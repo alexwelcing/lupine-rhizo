@@ -1,0 +1,154 @@
+{
+  "schema": "lupine.round5.elastic-panel-selection.v1",
+  "campaign_id": "correction.round-5.sharp-license.v1",
+  "seed": "round5-sharp-elastic-20260804-v1",
+  "unit_definition": {
+    "kind": "elastic-structure-model-cell",
+    "structures": 125,
+    "models_per_structure": 4,
+    "total_cells": 500,
+    "excluded_unit_kinds": [
+      "litraj-neb-path",
+      "neb-path",
+      "barrier-observable"
+    ],
+    "observables": [
+      "a0",
+      "c11",
+      "c12",
+      "c44"
+    ],
+    "descriptive_observables": [
+      "b0"
+    ]
+  },
+  "class_quotas": {
+    "ionics-rocksalt": 63,
+    "perovskites": 62
+  },
+  "theory_binding": {
+    "repository": "lupine-meta",
+    "commit": "8bdedd6157f0504f06c7704beada262f6f7ff63b",
+    "path": "theory-artifacts/SharpLicense.lean",
+    "sha256": "sha256:c638e9c097fa2d8aa14c2a0da04041b1fff7b160f648f0725a02d8b2ca252443",
+    "required_lean_spec_disposition_before_execution": "reviewed-equivalent-landed",
+    "formula_or_strictness_mismatch": "REFUSE"
+  },
+  "required_candidate_fields": [
+    "candidate_id",
+    "source_structure_id",
+    "formula",
+    "class",
+    "chemistry",
+    "structure_prototype",
+    "composition_space_neighbourhood",
+    "structure_artifact.path",
+    "structure_artifact.sha256",
+    "reference_artifact.path",
+    "reference_artifact.sha256"
+  ],
+  "grouping_tuple": [
+    "class",
+    "chemistry",
+    "structure_prototype",
+    "composition_space_neighbourhood"
+  ],
+  "eligibility": {
+    "allowed_classes": [
+      "ionics-rocksalt",
+      "perovskites"
+    ],
+    "allowed_prototypes_by_class": {
+      "ionics-rocksalt": [
+        "AB_cF8_225_a_b"
+      ],
+      "perovskites": [
+        "AB3C_cP5_221_a_c_b"
+      ]
+    },
+    "required_reference_properties": [
+      "a0",
+      "c11",
+      "c12",
+      "c44"
+    ],
+    "reference_requirements": [
+      "phase-and-prototype-matched",
+      "property-level-source-provenance",
+      "elastic-convention-matched",
+      "non-null-all-confirmatory-properties"
+    ],
+    "excluded_prior_panels": [
+      "data/candidates/round1_targets.json",
+      "data/candidates/round3_targets.json",
+      "data/candidates/round4_targets.lock.json"
+    ],
+    "minimum_candidates_per_grouping_tuple": 5,
+    "maximum_atoms_in_primitive_structure": 40
+  },
+  "source_pool_contract": {
+    "required_path": "data/candidates/round5_elastic_source-pool.lock.json",
+    "required_sha256_prefix": "sha256:",
+    "must_be_repository_relative": true,
+    "must_be_locked_before_selection": true,
+    "may_not_contain_model_outputs": true,
+    "may_not_contain_correction_outcomes": true,
+    "missing_or_digest_mismatch": "REFUSE"
+  },
+  "selection_algorithm": [
+    "Parse the source-pool lock as UTF-8 JSON and reject duplicate candidate_id or source_structure_id values.",
+    "Require every listed field and eligibility rule; reject the whole materialization on a missing, null, contradictory, or unverified value.",
+    "Remove candidates whose source_structure_id occurs in any excluded prior panel; no fuzzy identity substitution is allowed.",
+    "Form strata by the exact four-field grouping_tuple. Discard strata with fewer than five eligible candidates.",
+    "For each candidate compute rank = lowercase_hex(SHA256(seed + U+0000 + class + U+0000 + chemistry + U+0000 + structure_prototype + U+0000 + composition_space_neighbourhood + U+0000 + source_structure_id)).",
+    "Within each stratum sort by (rank, source_structure_id), both ascending bytewise UTF-8.",
+    "For each class sort strata by lowercase_hex(SHA256(seed + U+0000 + class + U+0000 + chemistry + U+0000 + structure_prototype + U+0000 + composition_space_neighbourhood)), then by the four tuple fields ascending bytewise UTF-8.",
+    "Select one candidate from each ordered stratum in round-robin passes, preserving within-stratum order, until the class quota is reached.",
+    "If a class exhausts eligible candidates before its quota, REFUSE; do not transfer quota across classes or relax eligibility.",
+    "Concatenate ionics-rocksalt then perovskites, assign panel_index 0 through 124, and emit canonical JSON sorted by panel_index.",
+    "The output must contain exactly 63 ionics-rocksalt plus 62 perovskite structures and exactly 125 unique candidate_id and source_structure_id values."
+  ],
+  "materialized_panel_contract": {
+    "required_path": "data/candidates/round5_elastic_panel.lock.json",
+    "required_bindings": [
+      "campaign_manifest_content_hash",
+      "selection_contract_sha256",
+      "source_pool_sha256",
+      "materialized_panel_sha256"
+    ],
+    "expected_structures": 125,
+    "expected_cells": 500,
+    "replacement_after_lock": "FORBIDDEN",
+    "dispatch_before_valid_lock": "REFUSE"
+  },
+  "analysis_requirements": {
+    "confirmatory_properties": [
+      "a0",
+      "c11",
+      "c12",
+      "c44"
+    ],
+    "minimum_distinct_non_tied_applied_structures_per_class_property": 16,
+    "primary_test": "two-sided-exact-binomial-sign",
+    "primary_alpha": 0.1,
+    "secondary_hull_width_test": "one-sided-exact-binomial-sign-with-holm-six-tests",
+    "secondary_familywise_alpha": 0.1,
+    "underpowered_disposition": "UNDERPOWERED_NOT_SCORABLE"
+  },
+  "execution_requirements": {
+    "dedicated_round5_jobs": true,
+    "immutable_image_digests": true,
+    "mutable_tags_forbidden": true,
+    "max_retries": 0,
+    "legacy_round4_jobs_forbidden": true,
+    "required_cell_bindings": [
+      "campaign_manifest_content_hash",
+      "selection_contract_sha256",
+      "materialized_panel_sha256",
+      "model_artifact_hash",
+      "runner_image_digest",
+      "attempt_number",
+      "artifact_uri"
+    ]
+  }
+}
