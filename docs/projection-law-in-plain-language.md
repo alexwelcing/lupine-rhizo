@@ -20,6 +20,8 @@ Most ways of checking an interatomic potential are expensive. You either run a m
 
 We tested four MatPES machine-learning potentials across sixteen cubic metals and two density functionals. The headline result is that the uncorrected potentials have a mean elastic-constant error of about 18 GPa, and the Projection Law correction removes a substantial fraction of that bias. The correction is applied *per potential*, not by averaging models, so it preserves the speed advantage of running a single cheap calculation.
 
+**Certification boundary.** The corrected C11/C12/C44 error reported here is an empirical aggregate and is **uncertified** as a correction license unless every included target component independently satisfies a valid scalar license. Bulk and shear moduli, C′, Cauchy pressure, anisotropy, and other differences or composites inherit no guarantee from componentwise correction; each exact derived map requires a separate proved and checked vector-valued license.
+
 A secondary result is just as important for practitioners: elastic constants are already converged at the 1×1×1 conventional cell. Running a 3×3×3 supercell adds runtime without improving accuracy, which means the correction can be evaluated on the cheapest reasonable cell.
 
 ## What this does not mean

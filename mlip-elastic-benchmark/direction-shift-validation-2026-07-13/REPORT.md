@@ -7,6 +7,8 @@
 Runner: `validation_script.py` (deterministic, seeded, venv `.venv-mlip312`, CPU only — no model loads).
 Full numbers: `results.json`.
 
+**Certification boundary:** every corrected Cij MAE and every scalar-bulk/directional aggregate below is an empirical held-out diagnostic and is **uncertified** as a correction license. Componentwise evidence certifies an MAE only if every included target component has a valid scalar license; bulk projections and all other derived maps require a separate vector-valued license for the exact transformation.
+
 ## Protocol (prespecified before running)
 
 - Primary target Tr2SCAN_0K; secondary (report-only) TPBE_0K.

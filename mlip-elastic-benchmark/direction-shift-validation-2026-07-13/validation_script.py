@@ -374,7 +374,9 @@ def main() -> None:
           f"max-abs-dev {v01_reimpl['best_max_abs_dev_gpa']:.2f} GPa vs recorded")
 
     # Final metrics
-    results = {"protocol": {
+    results = {
+        "certification_status": "corrected Cij aggregates are uncertified correction diagnostics; derived elastic maps require a separate vector-valued license",
+        "protocol": {
         "date": "2026-07-13",
         "primary_target": "Tr2SCAN_0K", "secondary_target": "TPBE_0K",
         "evaluation": "leave-one-material-out over 16 cubic metals",

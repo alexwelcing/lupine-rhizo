@@ -10,7 +10,7 @@
 
 Supercomputer labs validating machine-learned interatomic potentials (MLIPs) currently pay a steep **big-cell tax**: elastic constants are routinely re-run in 3×3×3 supercells (27× more atoms) to rule out finite-size effects. For the cubic metals in our 16-element benchmark, that convention costs **3.86×** more core-hours than a conventional 1×1×1 cell without buying any accuracy.
 
-We also tested two single-model correction operators. The first, a global leave-one-out PCA bias vector, **increased** mean MAE from 14.55 GPa to 63.40 GPa. The second, a scalar re-scaling of the bulk-modulus functional shift, is the R&D win: on the Tr2SCAN-corrected target it achieves mean MAE 14.13 GPa at the same single-model cost, beating the 3-architecture ensemble (19.89 GPa) at **2.70× lower cost**.
+We also tested two single-model correction operators. The first, a global leave-one-out PCA bias vector, **increased** mean MAE from 14.55 GPa to 63.40 GPa. The second, a scalar re-scaling of the bulk-modulus functional shift, is the R&D win: on the Tr2SCAN-corrected target it achieves mean MAE 14.13 GPa at the same single-model cost, beating the 3-architecture ensemble (19.89 GPa) at **2.70× lower cost**. These corrected Cij MAEs and every bulk/shear derived quantity are **uncertified** as correction licenses: they require independent per-component target licenses or a separate vector-valued license for the exact derived map.
 
 ## The claim
 

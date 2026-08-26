@@ -104,6 +104,8 @@ We now treat QET as a distinct model for ranking and ensemble purposes.
 
 ## Interpretation
 
+**Certification boundary:** all corrected Cij aggregates and all proposed bulk/shear transformations in this report are **uncertified** as correction licenses. An aggregate requires a valid license for every included C11/C12/C44 target; any derived modulus or composite requires a separate vector-valued license proved and checked for the exact map.
+
 **The supercell reference is operationally cheap.** 128 supercell elastic calculations cost ~0.82 CPU core-hours. That makes the 3×3×3 reference cheaper than a single typical DFT relaxation.
 
 **The binding error is model form, not finite size.** The companion 1×1×1 study showed identical accuracy at 4× lower cost. The residual ~14–18 GPa single-model error is therefore the MLIP’s representation of transition-metal bonding, magnetism, and soft shear modes.
