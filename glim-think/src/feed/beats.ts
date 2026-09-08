@@ -314,6 +314,25 @@ export async function handleBeatsPost(
     console.error("mlip baseline beat projection failed:", e);
     projectionErrors.push(`baseline: ${String(e)}`);
   }
+
+  // Console fan-in: beats carrying a campaign_id also land in that
+  // campaign's CampaignConsole DO (live operator surface). Best-effort —
+  // a console failure must never 500 the beat (beats retry on 500).
+  const consoleCampaign = beat.metrics?.campaign_id;
+  if (typeof consoleCampaign === "string" && consoleCampaign) {
+    try {
+      const id = env.CAMPAIGN_CONSOLE.idFromName(consoleCampaign);
+      const stub = env.CAMPAIGN_CONSOLE.get(id);
+      const response = await stub.fetch(new Request("http://internal/beat", {
+        method: "POST",
+        body: JSON.stringify({ beat_id: beat.beat_id, metrics: beat.metrics, summary: beat.summary, observedAt }),
+      }));
+      if (!response.ok) throw new Error(`console returned ${response.status}`);
+    } catch (e) {
+      console.error("campaign-console fan-in failed:", e);
+    }
+  }
+
   if (projectionErrors.length > 0) {
     return jsonResponse({
       error: "beat stored but MLIP projection failed; retry this beat_id",

@@ -297,6 +297,7 @@ export interface Env {
   FLEET_ORCHESTRATOR: DurableObjectNamespace;
   DASHBOARD: DurableObjectNamespace;
   EXTENSION_MANAGER: DurableObjectNamespace;
+  CAMPAIGN_CONSOLE: DurableObjectNamespace;
   /** Edge-local Vectorize index for coordination traces (384-dim, cosine). */
   COORD_MEMORY?: VectorizeIndex;
   /** Mode for the edge memory flywheel: off | shadow | active. Default off. */

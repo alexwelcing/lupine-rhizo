@@ -261,6 +261,12 @@ export function isGatedRoute(pathname: string, method: string): boolean {
     if (method === "OPTIONS" || method === "GET") return false;
     return true;
   }
+  if (pathname.startsWith("/console/")) {
+    // Campaign-console writes (lock) are gated; state reads + the live
+    // websocket stay public like /feed/*.
+    if (method === "OPTIONS" || method === "GET") return false;
+    return true;
+  }
   if (method !== "POST") return false;
   return (
     pathname === "/run" ||
