@@ -85,6 +85,7 @@ import { buildArchSnapshot } from "./graph/arch";
 import { buildAgentsSnapshot } from "./graph/agents";
 import { GRAPH_HTML } from "./graph/page";
 import { handleKnowledgeLibraryRoute } from "./knowledge/library";
+import { handleBridgeRoute } from "./bridge/jobs";
 import {
   agendaStatus,
   bootstrapAgenda,
@@ -1054,6 +1055,14 @@ ${narrative}
       if (url.pathname.startsWith("/knowledge/library")) {
         const knowledgeResponse = await handleKnowledgeLibraryRoute(env, url, request.method, bodyText);
         if (knowledgeResponse) return knowledgeResponse;
+      }
+
+      // ─── herdr bridge job queue (docs/herdr-bridge.md) ───
+      // Fully gated by isGatedRoute; bridge daemons on local machines poll
+      // for jobs and post results here. Telemetry rides /feed/beats.
+      if (url.pathname.startsWith("/bridge/")) {
+        const bridgeResponse = await handleBridgeRoute(request, env, url, bodyText);
+        if (bridgeResponse) return bridgeResponse;
       }
 
       // Knowledge graph: /graph (HTML viewer) + /graph.json (snapshot)

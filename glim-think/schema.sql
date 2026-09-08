@@ -809,3 +809,23 @@ BEGIN
        )
   ) THEN RAISE(ABORT, 'literature hypothesis status/readiness change requires a new EvidenceBundle event') END;
 END;
+
+-- herdr bridge job queue (migration 0017). See docs/herdr-bridge.md.
+CREATE TABLE IF NOT EXISTS herdr_bridge_jobs (
+  job_id TEXT PRIMARY KEY,
+  machine_id TEXT NOT NULL,
+  agent_kind TEXT NOT NULL DEFAULT 'hermes',
+  prompt TEXT NOT NULL,
+  campaign_id TEXT,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'claimed', 'done', 'failed', 'blocked', 'timeout')),
+  attempts INTEGER NOT NULL DEFAULT 0,
+  output_excerpt TEXT,
+  result_beat_id TEXT,
+  created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+  claimed_at INTEGER,
+  completed_at INTEGER,
+  updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+);
+CREATE INDEX IF NOT EXISTS idx_herdr_bridge_jobs_machine_status
+  ON herdr_bridge_jobs(machine_id, status, created_at);
