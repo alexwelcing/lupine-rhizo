@@ -1,0 +1,987 @@
+{
+  "cross_paradigm_alignment": {
+    "binding": "source_files.alignment",
+    "n_elements": 15,
+    "outcome": "not_detected",
+    "p_value": 0.34,
+    "rows": [
+      {
+        "classical_mean_cosine": 0.9061,
+        "element": "Ag",
+        "mlip_max_cosine": 0.9985836834223656,
+        "mlip_mean_cosine": 0.9498761316252885,
+        "mlip_min_cosine": 0.9218804561375279,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.9985836834223656,
+          "chgnet-orb": 0.9291642553159721,
+          "mace-orb": 0.9218804561375279
+        },
+        "unfiltered_mean_cosine": 0.9498761316252885
+      },
+      {
+        "classical_mean_cosine": 0.4535,
+        "element": "Al",
+        "mlip_max_cosine": 0.6533278279137426,
+        "mlip_mean_cosine": 0.6533278279137426,
+        "mlip_min_cosine": 0.6533278279137426,
+        "models_surviving": [
+          "chgnet",
+          "mace"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.6533278279137426
+        },
+        "unfiltered_mean_cosine": 0.8054132600450012
+      },
+      {
+        "classical_mean_cosine": 0.948,
+        "element": "Au",
+        "mlip_max_cosine": 0.9922108842369353,
+        "mlip_mean_cosine": 0.9840107730138442,
+        "mlip_min_cosine": 0.9709212322472414,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.9889002025573563,
+          "chgnet-orb": 0.9709212322472414,
+          "mace-orb": 0.9922108842369353
+        },
+        "unfiltered_mean_cosine": 0.9840107730138442
+      },
+      {
+        "classical_mean_cosine": 0.9039,
+        "element": "Cr",
+        "mlip_max_cosine": -0.7506985769203579,
+        "mlip_mean_cosine": -0.7506985769203579,
+        "mlip_min_cosine": -0.7506985769203579,
+        "models_surviving": [
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "mace-orb": -0.7506985769203579
+        },
+        "unfiltered_mean_cosine": -0.19986600940687807
+      },
+      {
+        "classical_mean_cosine": 0.7963,
+        "element": "Cu",
+        "mlip_max_cosine": 0.9641924765263784,
+        "mlip_mean_cosine": 0.6713481667919381,
+        "mlip_min_cosine": 0.425709799442223,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.6241422244072129,
+          "chgnet-orb": 0.425709799442223,
+          "mace-orb": 0.9641924765263784
+        },
+        "unfiltered_mean_cosine": 0.6713481667919381
+      },
+      {
+        "classical_mean_cosine": 0.6182,
+        "element": "Fe",
+        "mlip_max_cosine": 0.8036030577574934,
+        "mlip_mean_cosine": 0.8036030577574934,
+        "mlip_min_cosine": 0.8036030577574934,
+        "models_surviving": [
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "mace-orb": 0.8036030577574934
+        },
+        "unfiltered_mean_cosine": 0.7469840783291257
+      },
+      {
+        "classical_mean_cosine": 0.7753,
+        "element": "Mo",
+        "mlip_max_cosine": 0.9133268874711885,
+        "mlip_mean_cosine": 0.34630219816275387,
+        "mlip_min_cosine": -0.1314019911739598,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.9133268874711885,
+          "chgnet-orb": -0.1314019911739598,
+          "mace-orb": 0.256981698191033
+        },
+        "unfiltered_mean_cosine": 0.3463021981627539
+      },
+      {
+        "classical_mean_cosine": 0.9757,
+        "element": "Nb",
+        "mlip_max_cosine": -0.39780111194874646,
+        "mlip_mean_cosine": -0.39780111194874646,
+        "mlip_min_cosine": -0.39780111194874646,
+        "models_surviving": [
+          "chgnet",
+          "mace"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "chgnet-mace": -0.39780111194874646
+        },
+        "unfiltered_mean_cosine": 0.02196099973045107
+      },
+      {
+        "classical_mean_cosine": 0.689,
+        "element": "Ni",
+        "mlip_max_cosine": 0.5784684420697731,
+        "mlip_mean_cosine": 0.37663156209985954,
+        "mlip_min_cosine": 0.18895986556017885,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.36246637866962667,
+          "chgnet-orb": 0.18895986556017885,
+          "mace-orb": 0.5784684420697731
+        },
+        "unfiltered_mean_cosine": 0.3766315620998595
+      },
+      {
+        "classical_mean_cosine": 0.8853,
+        "element": "Pb",
+        "mlip_max_cosine": 0.8605078063543089,
+        "mlip_mean_cosine": 0.8605078063543089,
+        "mlip_min_cosine": 0.8605078063543089,
+        "models_surviving": [
+          "chgnet",
+          "mace"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.8605078063543089
+        },
+        "unfiltered_mean_cosine": 0.5602761425733479
+      },
+      {
+        "classical_mean_cosine": 0.184,
+        "element": "Pd",
+        "mlip_max_cosine": 0.9199626226867719,
+        "mlip_mean_cosine": 0.7476395399624703,
+        "mlip_min_cosine": 0.5404341459800243,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.782521851220615,
+          "chgnet-orb": 0.5404341459800243,
+          "mace-orb": 0.9199626226867719
+        },
+        "unfiltered_mean_cosine": 0.7476395399624703
+      },
+      {
+        "classical_mean_cosine": 0.8532,
+        "element": "Pt",
+        "mlip_max_cosine": 0.9896717230916118,
+        "mlip_mean_cosine": 0.9896717230916118,
+        "mlip_min_cosine": 0.9896717230916118,
+        "models_surviving": [
+          "chgnet",
+          "mace"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.9896717230916118
+        },
+        "unfiltered_mean_cosine": 0.9341034008401646
+      },
+      {
+        "classical_mean_cosine": 0.9902,
+        "element": "Ta",
+        "mlip_max_cosine": 0.9884882371549651,
+        "mlip_mean_cosine": 0.9685553531006205,
+        "mlip_min_cosine": 0.9381992629423221,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.9884882371549651,
+          "chgnet-orb": 0.9789785592045741,
+          "mace-orb": 0.9381992629423221
+        },
+        "unfiltered_mean_cosine": 0.9685553531006205
+      },
+      {
+        "classical_mean_cosine": 0.7436,
+        "element": "V",
+        "mlip_max_cosine": -0.8770283741434464,
+        "mlip_mean_cosine": -0.8770283741434464,
+        "mlip_min_cosine": -0.8770283741434464,
+        "models_surviving": [
+          "chgnet",
+          "orb"
+        ],
+        "n_models_surviving": 2,
+        "pairwise_cosines": {
+          "chgnet-orb": -0.8770283741434464
+        },
+        "unfiltered_mean_cosine": -0.2485436122324898
+      },
+      {
+        "classical_mean_cosine": 0.5874,
+        "element": "W",
+        "mlip_max_cosine": 0.9461340980888435,
+        "mlip_mean_cosine": 0.4984559901442245,
+        "mlip_min_cosine": 0.166702136844373,
+        "models_surviving": [
+          "chgnet",
+          "mace",
+          "orb"
+        ],
+        "n_models_surviving": 3,
+        "pairwise_cosines": {
+          "chgnet-mace": 0.9461340980888435,
+          "chgnet-orb": 0.382531735499457,
+          "mace-orb": 0.166702136844373
+        },
+        "unfiltered_mean_cosine": 0.4984559901442245
+      }
+    ],
+    "spearman_rho": 0.26
+  },
+  "denominator_funnel": {
+    "guard": "Objects, tensors, IDs, and analysis groups are different units.",
+    "stages": [
+      {
+        "binding": "source_files.query_universe",
+        "count": 965,
+        "key": "queried_objects",
+        "unit": "KIM model objects queried"
+      },
+      {
+        "binding": "source_files.classical_tensors:data rows",
+        "count": 559,
+        "key": "retained_tensors",
+        "unit": "Born-stable model-element tensors"
+      },
+      {
+        "binding": "source_files.classical_tensors:model_id distinct",
+        "count": 423,
+        "key": "distinct_model_ids",
+        "unit": "distinct KIM model IDs in retained rows"
+      },
+      {
+        "binding": "geometry.groups[*]",
+        "count": 42,
+        "key": "analysis_groups",
+        "unit": "multi-element groups (n >= 3)"
+      }
+    ]
+  },
+  "elastic_benchmark": {
+    "global_operator_failure": {
+      "binding": "source_files.global_operator:$.measurement",
+      "corrected_mae_gpa": 63.4,
+      "deployable_test": true,
+      "method": "LOO-PCA",
+      "n_elements": 16,
+      "outcome": "worsened",
+      "raw_mae_gpa": 14.55,
+      "target": "TPBE_0K"
+    },
+    "n_cases": 128,
+    "oracle_directional_ceiling": {
+      "binding": "source_files.oracle_loo_table",
+      "corrected_mae_gpa": 10.36,
+      "deployable": false,
+      "holdout": "one benchmark row at a time for direction fitting",
+      "raw_mae_gpa": 17.84,
+      "target_access": "held-out target supplies projection coefficient"
+    },
+    "raw_aggregate_mae_gpa": 17.84
+  },
+  "geometry": {
+    "finite_sample_guard": "For n=3, centering three observations in three variables rank-limits covariance to at most two; low PR is descriptive, not a universal classifier.",
+    "group_size_counts": {
+      "12": 2,
+      "3": 21,
+      "4": 3,
+      "5": 5,
+      "6": 3,
+      "7": 3,
+      "8": 2,
+      "9": 3
+    },
+    "groups": [
+      {
+        "group": "Ackland-1987",
+        "n_materials": 5,
+        "participation_ratio": 1.4247618823372932,
+        "pr_ci95": [
+          1.0526170432497362,
+          3.0000000000000004
+        ],
+        "source_row": 0
+      },
+      {
+        "group": "Asadi-2015",
+        "n_materials": 3,
+        "participation_ratio": 1.1905995347544722,
+        "pr_ci95": [
+          1.1905995347544722,
+          2.0
+        ],
+        "source_row": 1
+      },
+      {
+        "group": "Bonny-2009",
+        "n_materials": 3,
+        "participation_ratio": 1.0207631307056717,
+        "pr_ci95": [
+          1.0207631307056717,
+          2.0
+        ],
+        "source_row": 2
+      },
+      {
+        "group": "Bonny-2011",
+        "n_materials": 3,
+        "participation_ratio": 1.038451740462819,
+        "pr_ci95": [
+          1.038451740462819,
+          2.0
+        ],
+        "source_row": 3
+      },
+      {
+        "group": "Bonny-2013",
+        "n_materials": 5,
+        "participation_ratio": 1.0916042410084301,
+        "pr_ci95": [
+          1.0599388535964027,
+          3.0000000000000004
+        ],
+        "source_row": 4
+      },
+      {
+        "group": "Chen-2020",
+        "n_materials": 3,
+        "participation_ratio": 1.0074129045064653,
+        "pr_ci95": [
+          1.0074129045064653,
+          2.0
+        ],
+        "source_row": 5
+      },
+      {
+        "group": "Choi-2017",
+        "n_materials": 3,
+        "participation_ratio": 1.0039115749619913,
+        "pr_ci95": [
+          1.0039115749619913,
+          2.0
+        ],
+        "source_row": 6
+      },
+      {
+        "group": "Choi-2018",
+        "n_materials": 3,
+        "participation_ratio": 1.0070921616626125,
+        "pr_ci95": [
+          1.0070921616626125,
+          2.0
+        ],
+        "source_row": 7
+      },
+      {
+        "group": "Deluigi-2021",
+        "n_materials": 3,
+        "participation_ratio": 1.0000297697854856,
+        "pr_ci95": [
+          1.0000297697854856,
+          2.0
+        ],
+        "source_row": 8
+      },
+      {
+        "group": "Derlet-2007",
+        "n_materials": 5,
+        "participation_ratio": 1.1449776334821207,
+        "pr_ci95": [
+          1.0777765989229087,
+          3.0000000000000004
+        ],
+        "source_row": 9
+      },
+      {
+        "group": "EAM_Dynamo_AdamsFoilesWolfer_1989Univers",
+        "n_materials": 5,
+        "participation_ratio": 1.0661479585143174,
+        "pr_ci95": [
+          1.003452228179253,
+          3.0000000000000004
+        ],
+        "source_row": 10
+      },
+      {
+        "group": "EAM_Dynamo_FoilesBaskesDaw_1986Universal",
+        "n_materials": 6,
+        "participation_ratio": 1.1754472896989268,
+        "pr_ci95": [
+          1.1124849699354042,
+          3.0000000000000004
+        ],
+        "source_row": 11
+      },
+      {
+        "group": "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret",
+        "n_materials": 12,
+        "participation_ratio": 1.0184183233078827,
+        "pr_ci95": [
+          1.0139379839983143,
+          3.0
+        ],
+        "source_row": 12
+      },
+      {
+        "group": "Elliott-2015",
+        "n_materials": 8,
+        "participation_ratio": 1.001370021288288,
+        "pr_ci95": [
+          1.0000629519560538,
+          3.0
+        ],
+        "source_row": 13
+      },
+      {
+        "group": "Etesami-2018",
+        "n_materials": 4,
+        "participation_ratio": 1.061887117118781,
+        "pr_ci95": [
+          1.0121359915844468,
+          3.0000000000000004
+        ],
+        "source_row": 14
+      },
+      {
+        "group": "Farkas-2018",
+        "n_materials": 3,
+        "participation_ratio": 1.0000297697854856,
+        "pr_ci95": [
+          1.0000297697854856,
+          2.0
+        ],
+        "source_row": 15
+      },
+      {
+        "group": "Farkas-2020",
+        "n_materials": 3,
+        "participation_ratio": 1.0001988495946854,
+        "pr_ci95": [
+          1.0001988495946854,
+          2.0
+        ],
+        "source_row": 16
+      },
+      {
+        "group": "Jacobsen-1996",
+        "n_materials": 7,
+        "participation_ratio": 1.5955855559444336,
+        "pr_ci95": [
+          1.4137615017077987,
+          3.0000000000000004
+        ],
+        "source_row": 17
+      },
+      {
+        "group": "Jelinek-2012",
+        "n_materials": 3,
+        "participation_ratio": 1.0416717535692899,
+        "pr_ci95": [
+          1.0416717535692899,
+          2.0
+        ],
+        "source_row": 18
+      },
+      {
+        "group": "Jeong-2018",
+        "n_materials": 6,
+        "participation_ratio": 1.178461233619909,
+        "pr_ci95": [
+          1.05175791148224,
+          3.0000000000000004
+        ],
+        "source_row": 19
+      },
+      {
+        "group": "Kim-2017",
+        "n_materials": 7,
+        "participation_ratio": 1.3380998553499601,
+        "pr_ci95": [
+          1.0173987146347818,
+          3.0
+        ],
+        "source_row": 20
+      },
+      {
+        "group": "Lee-2001",
+        "n_materials": 7,
+        "participation_ratio": 1.3096805023267692,
+        "pr_ci95": [
+          1.0261403737208532,
+          3.0000000000000004
+        ],
+        "source_row": 21
+      },
+      {
+        "group": "Lee-2003",
+        "n_materials": 8,
+        "participation_ratio": 2.2892973414522007,
+        "pr_ci95": [
+          1.895431344009609,
+          3.0
+        ],
+        "source_row": 22
+      },
+      {
+        "group": "Li-2018",
+        "n_materials": 3,
+        "participation_ratio": 1.025632500011167,
+        "pr_ci95": [
+          1.025632500011167,
+          2.0
+        ],
+        "source_row": 23
+      },
+      {
+        "group": "Li-2019",
+        "n_materials": 4,
+        "participation_ratio": 1.058666224124145,
+        "pr_ci95": [
+          1.023054080816585,
+          3.000000000000001
+        ],
+        "source_row": 24
+      },
+      {
+        "group": "Mahata-2022",
+        "n_materials": 3,
+        "participation_ratio": 1.015950297351983,
+        "pr_ci95": [
+          1.015950297351983,
+          2.0
+        ],
+        "source_row": 25
+      },
+      {
+        "group": "Maresca-2020",
+        "n_materials": 3,
+        "participation_ratio": 1.494855834270438,
+        "pr_ci95": [
+          1.494855834270438,
+          2.0
+        ],
+        "source_row": 26
+      },
+      {
+        "group": "Mendelev-2007",
+        "n_materials": 3,
+        "participation_ratio": 1.6746919570228636,
+        "pr_ci95": [
+          1.6746919570228636,
+          2.0
+        ],
+        "source_row": 27
+      },
+      {
+        "group": "Morse_Shifted_GirifalcoWeizer_1959HighCu",
+        "n_materials": 9,
+        "participation_ratio": 1.0912158289217184,
+        "pr_ci95": [
+          1.0241472337945845,
+          3.0000000000000004
+        ],
+        "source_row": 28
+      },
+      {
+        "group": "Morse_Shifted_GirifalcoWeizer_1959LowCut",
+        "n_materials": 9,
+        "participation_ratio": 1.0882578570709978,
+        "pr_ci95": [
+          1.014077688090857,
+          3.000000000000001
+        ],
+        "source_row": 29
+      },
+      {
+        "group": "Morse_Shifted_GirifalcoWeizer_1959MedCut",
+        "n_materials": 9,
+        "participation_ratio": 1.0844121882789406,
+        "pr_ci95": [
+          1.012026952299981,
+          3.0
+        ],
+        "source_row": 30
+      },
+      {
+        "group": "Olsson-2009",
+        "n_materials": 3,
+        "participation_ratio": 1.0709857341112015,
+        "pr_ci95": [
+          1.0709857341112015,
+          2.0
+        ],
+        "source_row": 31
+      },
+      {
+        "group": "Park-2012",
+        "n_materials": 3,
+        "participation_ratio": 1.0267949692961298,
+        "pr_ci95": [
+          1.0267949692961298,
+          2.0
+        ],
+        "source_row": 32
+      },
+      {
+        "group": "Pun-2015",
+        "n_materials": 3,
+        "participation_ratio": 1.1827985477048342,
+        "pr_ci95": [
+          1.1827985477048342,
+          2.0
+        ],
+        "source_row": 33
+      },
+      {
+        "group": "Sharifi-2025",
+        "n_materials": 5,
+        "participation_ratio": 1.2652543664338685,
+        "pr_ci95": [
+          1.1525581205170212,
+          3.0000000000000004
+        ],
+        "source_row": 34
+      },
+      {
+        "group": "Shim-2013",
+        "n_materials": 3,
+        "participation_ratio": 1.012590217297367,
+        "pr_ci95": [
+          1.012590217297367,
+          2.0
+        ],
+        "source_row": 35
+      },
+      {
+        "group": "Voter-1993",
+        "n_materials": 6,
+        "participation_ratio": 1.9522228940341768,
+        "pr_ci95": [
+          1.3065960524038147,
+          3.0000000000000004
+        ],
+        "source_row": 36
+      },
+      {
+        "group": "Wu-2017",
+        "n_materials": 3,
+        "participation_ratio": 1.0039115749619913,
+        "pr_ci95": [
+          1.0039115749619913,
+          2.0
+        ],
+        "source_row": 37
+      },
+      {
+        "group": "Zhou-2001",
+        "n_materials": 4,
+        "participation_ratio": 1.2176561259136176,
+        "pr_ci95": [
+          1.0539083208004032,
+          3.0
+        ],
+        "source_row": 38
+      },
+      {
+        "group": "Zhou-2004",
+        "n_materials": 12,
+        "participation_ratio": 1.159522263201343,
+        "pr_ci95": [
+          1.0578055261347683,
+          3.0000000000000004
+        ],
+        "source_row": 39
+      },
+      {
+        "group": "Zhou-2018",
+        "n_materials": 3,
+        "participation_ratio": 1.6517318761517057,
+        "pr_ci95": [
+          1.6517318761517057,
+          2.0
+        ],
+        "source_row": 40
+      },
+      {
+        "group": "Zuo-2019",
+        "n_materials": 3,
+        "participation_ratio": 1.3820892691055056,
+        "pr_ci95": [
+          1.3820892691055056,
+          2.0
+        ],
+        "source_row": 41
+      }
+    ],
+    "n_size_three_groups": 21
+  },
+  "negative_and_conditional_results": {
+    "environment_field": {
+      "binding": "source_files.environment_field",
+      "n_cells": 36,
+      "outcome": "promising separate result; no generalization beyond tested scope",
+      "pearson_r": 0.906,
+      "scope": "blind gamma_110 prediction over 9 FCC materials x 4 models"
+    },
+    "z1": {
+      "binding": "source_files.negative_results:$.z1.float64[*]",
+      "gate_mev": 40.0,
+      "mae_range_mev": [
+        135.0,
+        242.5
+      ],
+      "models": [
+        {
+          "completed_paths": 28,
+          "failed_paths": 2,
+          "mae_mev": 242.5310896016575,
+          "maximum_signed_error_mev": 174.96660658559904,
+          "mean_signed_error_mev": -221.29115851209187,
+          "minimum_signed_error_mev": -898.4980795130468,
+          "model": "chgnet",
+          "negative_signed_errors": 25,
+          "positive_signed_errors": 3
+        },
+        {
+          "completed_paths": 29,
+          "failed_paths": 1,
+          "mae_mev": 174.70373717850015,
+          "maximum_signed_error_mev": 404.4879906726919,
+          "mean_signed_error_mev": -82.70622552141182,
+          "minimum_signed_error_mev": -458.7662261326386,
+          "model": "mace-mp-medium",
+          "negative_signed_errors": 21,
+          "positive_signed_errors": 8
+        },
+        {
+          "completed_paths": 26,
+          "failed_paths": 4,
+          "mae_mev": 151.86646622687434,
+          "maximum_signed_error_mev": 450.13548390988944,
+          "mean_signed_error_mev": -23.662310651452305,
+          "minimum_signed_error_mev": -466.7866053105172,
+          "model": "mace-mp-small",
+          "negative_signed_errors": 17,
+          "positive_signed_errors": 9
+        },
+        {
+          "completed_paths": 28,
+          "failed_paths": 2,
+          "mae_mev": 134.9898445996668,
+          "maximum_signed_error_mev": 549.295245103167,
+          "mean_signed_error_mev": 45.83412472026843,
+          "minimum_signed_error_mev": -175.6790470788019,
+          "model": "mace-mpa-0-medium",
+          "negative_signed_errors": 13,
+          "positive_signed_errors": 15
+        }
+      ],
+      "outcome": "all four models fail the gate"
+    },
+    "z3": {
+      "binding": "source_files.negative_results:$.z3.models[*]",
+      "holdout_worsened": 4,
+      "models": [
+        {
+          "baseline_holdout_mae_ev": 0.6870841794971009,
+          "corrected_holdout_mae_ev": 2.271904728260539,
+          "holdout_rows": 20,
+          "model": "chgnet",
+          "selected_form": "C_family_linear",
+          "validation_mae_ev": 1.1242282045892902
+        },
+        {
+          "baseline_holdout_mae_ev": 2.1141161814589844,
+          "corrected_holdout_mae_ev": 5.007329980057943,
+          "holdout_rows": 20,
+          "model": "mace-mp-medium",
+          "selected_form": "A_global_constant",
+          "validation_mae_ev": 3.2594489066037324
+        },
+        {
+          "baseline_holdout_mae_ev": 3.2350971375703126,
+          "corrected_holdout_mae_ev": 4.997755320063802,
+          "holdout_rows": 20,
+          "model": "mace-mp-small",
+          "selected_form": "A_global_constant",
+          "validation_mae_ev": 3.983204002992621
+        },
+        {
+          "baseline_holdout_mae_ev": 4.274188587357422,
+          "corrected_holdout_mae_ev": 5.910472797319336,
+          "holdout_rows": 20,
+          "model": "mace-mpa-0-medium",
+          "selected_form": "B_family_constant",
+          "validation_mae_ev": 4.029500641132812
+        }
+      ],
+      "outcome": "all validation-selected corrections worsen untouched holdout MAE",
+      "tested": 4
+    }
+  },
+  "purpose": "Canonical numeric object for the TMS 2027 proceedings manuscript and public figures. Values are descriptive or negative results unless explicitly labeled otherwise.",
+  "qualification_stack": {
+    "bindings": [
+      "source_files.anchor_spec",
+      "source_files.anchor_blocker"
+    ],
+    "guard": "The all-electron anchor has not run and must not be presented as truth obtained.",
+    "layers": [
+      {
+        "key": "model_output",
+        "label": "Model output",
+        "question": "Which model object, family, observable, material and protocol?",
+        "status": "measured"
+      },
+      {
+        "key": "training_lineage",
+        "label": "Training / parent-DFT lineage",
+        "question": "What fitting exposure and parent functional shape the residual?",
+        "status": "qualified"
+      },
+      {
+        "key": "curated_reference",
+        "label": "Curated 0 K reference table",
+        "question": "Are functional, implementation and convention matched?",
+        "status": "mixed-reference"
+      },
+      {
+        "key": "all_electron_anchor",
+        "label": "Paired all-electron PBE / r2SCAN elastic anchor",
+        "question": "Can fitting error be separated from reference-standard offset?",
+        "status": "PENDING"
+      },
+      {
+        "key": "experiment",
+        "label": "Experiment / decision endpoint",
+        "question": "Are temperature, phase, magnetism and measurement conventions aligned?",
+        "status": "requires-condition-matching"
+      }
+    ]
+  },
+  "schema": "lupine.tms2027.proceedings-results.v1",
+  "source_files": {
+    "alignment": {
+      "locator": "$.spearman_rho_classical_vs_mlip, $.spearman_p, $.per_element[*]",
+      "path": "Kimi_Agent_Draft Assistance Team Selected/cross_mlip_alignment_born_filtered.json",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "cfc5fba547af5f310fd861e26d4da7afd1168a8305eabe4ee64544c87d01261d"
+    },
+    "anchor_blocker": {
+      "locator": "lines 1-18: required outputs absent",
+      "path": "docs/science/h3_blocker.md",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "9f9d8f90f91a76ff326fbd822d65ba232989abf689318618a8eb28bb1270236e"
+    },
+    "anchor_spec": {
+      "locator": "lines 1-12 and 68-85: STAGED/PENDING and expected schema",
+      "path": "replication/error-geometry/prereg_r2b_dft_anchor_spec.md",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "97d6addc140aa9a30ddb0f62f80b9d19bece0b7b0063980818e509d507029b7f"
+    },
+    "benchmark_rows": {
+      "locator": "$.rows[0:128], $.summary.overall_mean_mae_cij",
+      "path": "data/benchmark_layer2_3x3x3_summary.json",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "c84bd2ec7af2b3b8592b6dbdfa26befedc9f342b9d724e6211a947c0736c387e"
+    },
+    "classical_tensors": {
+      "locator": "data rows 1-559; model_id column has 423 distinct values",
+      "path": "atlas-distill/benchmarks/kim_elastic_results_all.csv",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "927be85f4dc02571866db0e01f4becb44ef16406041bbb6da962867693d77da6"
+    },
+    "environment_field": {
+      "locator": "$.part1_blind_gamma110.cells[*], $.part1_blind_gamma110.overall_r_36_cells",
+      "path": "data/y_matrix_runs/analysis/statistical_hardening.json",
+      "repository": "lupine-rhizo",
+      "repository_revision": "38cf876035345d0da3120996f7b28339b5a00ec8",
+      "sha256": "4ecb52420b458b971209db687a83d28c31da3fd6d133b646f0c9f9334f0e2cee"
+    },
+    "geometry": {
+      "locator": "array rows 0-41; n_materials=3 for 21 rows",
+      "path": "replication/error-geometry/data/classical/manifold_revalidation_42potentials.json",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "7dd5d8ca4048292acb58eefe5a0c08342e07ab0cf2420d0cd7b89c858dd823b2"
+    },
+    "global_operator": {
+      "locator": "$.measurement",
+      "path": "paper/negative-results-preprint/global-operator.lock.json",
+      "repository": "lupine-rhizo",
+      "repository_revision": "38cf876035345d0da3120996f7b28339b5a00ec8",
+      "sha256": "4450ea8ffb4cfbc075d761e7f54f06fbcff16c73d1866b0026369415d43a5e4b"
+    },
+    "negative_results": {
+      "locator": "$.z1.float64[*], $.z3.models[*]",
+      "path": "paper/negative-results-preprint/figure-source-data.json",
+      "repository": "lupine-rhizo",
+      "repository_revision": "38cf876035345d0da3120996f7b28339b5a00ec8",
+      "sha256": "15ac1eb4ae4f22cda277da059e624c43445fc2cf6b060df42da03ce0fdd0c158"
+    },
+    "oracle_loo_table": {
+      "locator": "lines 99-111; All models table row",
+      "path": "paper/lupine-layer2-3x3x3-final-paper.md",
+      "repository": "lupine-rhizo",
+      "repository_revision": "38cf876035345d0da3120996f7b28339b5a00ec8",
+      "sha256": "da726ff67514f8a6b562db228c8ee8c5a5e8a97064117b62567bfb13bed055b0"
+    },
+    "query_universe": {
+      "locator": "line 122: 965 queried",
+      "path": "paper/immi-paper.tex",
+      "repository": "lupine",
+      "repository_revision": "5b955106e3220ed9a759f92e3050db23d80249f7",
+      "sha256": "1e593a6a0232cf80c744461653e6ba4b52bc5c8a43ee86630030e9f50ed146d3"
+    }
+  },
+  "status": "evidence-frozen"
+}
