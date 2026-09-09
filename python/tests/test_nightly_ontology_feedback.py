@@ -1793,6 +1793,31 @@ class NightlyFeedbackTests(unittest.TestCase):
                 "DELETE FROM status_event WHERE status_event_id = 'event.latest-state'"
             )
 
+    def test_feedback_sql_renders_a_d1_compatible_variant(self) -> None:
+        from tools.nightly_ontology_feedback import render_feedback_sql
+
+        plan = {
+            "as_of": "2026-09-09",
+            "evidence": [],
+            "updates": [],
+            "queue": [],
+        }
+        local_sql = render_feedback_sql(plan)
+        d1_sql = render_feedback_sql(plan, d1_transactional=True)
+        self.assertIn("BEGIN TRANSACTION;", local_sql)
+        self.assertIn("COMMIT;", local_sql)
+        self.assertNotIn("BEGIN TRANSACTION;", d1_sql)
+        self.assertNotIn("COMMIT;", d1_sql)
+        # The mutation body is identical apart from the wrapper: comparing
+        # non-blank lines, the local variant carries exactly the two extra
+        # transaction statements.
+        local_body = [s for s in local_sql.splitlines() if s.strip()]
+        d1_body = [s for s in d1_sql.splitlines() if s.strip()]
+        self.assertEqual(
+            [s for s in local_body if s.strip() not in {"BEGIN TRANSACTION;", "COMMIT;"}],
+            d1_body,
+        )
+
     def test_producer_selects_only_campaigns_replayable_against_the_committed_corpus(self) -> None:
         from tools.publish_nightly_cycle import select_campaigns
 

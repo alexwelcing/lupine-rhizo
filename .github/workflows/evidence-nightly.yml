@@ -442,6 +442,7 @@ jobs:
             --new-bundle-ids nightly-output/sync-candidates.json \
             --known-bundle-ids nightly-output/known-bundles.json \
             --as-of "$CYCLE_DATE" \
+            --d1 \
             --out-sql nightly-output/feedback.sql \
             --out-queue nightly-output/literature-queue.json \
             --out-digest nightly-output/hermes-digest.md \
