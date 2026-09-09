@@ -1,0 +1,32 @@
+{
+  "verified_from_tms_org": {
+    "dates": "March 14-18, 2027",
+    "venue": "Orlando World Center Marriott, Orlando, Florida, USA",
+    "exhibit_dates": "March 15-17, 2027",
+    "housing_deadline": "February 16, 2027",
+    "abstract_deadline_general": "July 15, 2026 (closed as of Sept 2026)",
+    "late_deadlines": [
+      "Bladesmithing Symposium: Oct 31, 2026",
+      "Student Poster Contest: Jan 22, 2027"
+    ],
+    "source_urls": [
+      "https://www.tms.org/TMS2027/TMS2027/Default.aspx",
+      "https://www.tms.org/TMS2027/TMS2027/Programming/TMS2027_Technical_Program.aspx"
+    ]
+  },
+  "data_driven_track_symposia_2027": [
+    "AI-Enabled Materials Processing: Integrating Accelerated Experimental Workflows and Processing-Aware Machine Learning",
+    "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling",
+    "Algorithms Development in Materials Science and Engineering",
+    "Artificial Intelligence Applications in Integrated Computational Materials Engineering (AI-ICME)",
+    "Avoiding Plot Holes: Telling Compelling Stories (with Data)",
+    "Bridging Scale Gaps in Multiscale Materials Modeling in the Age of Artificial Intelligence",
+    "Celebrating 50 Years of Building the Foundations of Materials Design: An FMD/MPMD/SMD Symposium Honoring John Agren",
+    "Chemistry and Physics of Interfaces",
+    "Computational Discovery and Design of Materials",
+    "Computational Thermodynamics and Kinetics",
+    "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+    "Mechanistic and Experimental Thermodynamics & Kinetics of Alloys",
+    "Verification, Calibration, and Validation Approaches for Mechanical Modeling of Metals"
+  ]
+}
