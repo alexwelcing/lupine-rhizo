@@ -61,6 +61,16 @@ export function cleanExcerpt(text: string, max = EXCERPT_MAX): string {
   return joined.length > max ? joined.slice(joined.length - max) : joined;
 }
 
+/**
+ * Anchor on the last complete Hermes response panel, not the prompt echo or
+ * a line offset into scrollback. A missing/truncated panel is unverified;
+ * startup furniture and wrapped/collapsed pasted text are not an answer.
+ */
+export function hermesResponseExcerpt(text: string): string {
+  const panels = [...text.matchAll(/^\s*╭[^\n]*\bHermes\b[^\n]*╮\s*\n([\s\S]*?)^\s*╰[─━]+╯[^\n]*$/gm)];
+  return cleanExcerpt(panels.at(-1)?.[1] ?? "");
+}
+
 export function outcomeFromAgentStatus(status: AgentStatus | undefined): JobOutcomeStatus {
   if (status === "blocked") return "blocked";
   if (status === "done" || status === "idle") return "done";
@@ -196,25 +206,49 @@ export class Dispatcher {
         // best effort — fall back to the full tail
       }
 
-      let prompted;
-      try {
-        prompted = await herdr.agentPrompt(name, job.prompt, config.jobTimeoutMs);
-      } catch (e) {
-        if (isHerdrError(e, "agent_prompt_stalled")) {
-          // The text was submitted but no activity was observed. Nudge with
-          // Enter once and wait for a settled state instead of failing.
-          log.warn("prompt_stalled_retrying_enter", { job_id: job.job_id });
-          await herdr.agentSendKeys(name, ["enter"]);
-          prompted = await herdr.agentWait(name, undefined, config.jobTimeoutMs);
-        } else {
-          throw e;
+      const deadline = Date.now() + config.jobTimeoutMs;
+      const remaining = () => {
+        if (signal?.aborted) throw new Error("job aborted");
+        const ms = deadline - Date.now();
+        if (ms <= 0) throw Object.assign(new Error("timed out waiting for verified agent response"), { code: "timeout" });
+        return ms;
+      };
+      // Do not send Enter on agent_prompt_stalled: submission was confirmed,
+      // and an extra key can race a real turn or answer a newly opened dialog.
+      let prompted = await herdr.agentPrompt(name, job.prompt, remaining());
+      for (;;) {
+        // A stale settled reply is not activity. Explicitly observe working or
+        // blocked after submission before allowing a settled state to finish.
+        if (prompted.agent.agent_status !== "working" && prompted.agent.agent_status !== "blocked") {
+          const active = await herdr.agentWait(name, ["working", "blocked"], remaining());
+          prompted = { type: "agent_prompted", agent: active.agent };
         }
+        agentStatus = prompted.agent.agent_status;
+        if (agentStatus !== "working" && agentStatus !== "blocked") {
+          throw new Error("herdr activity wait returned without observed working/blocked state");
+        }
+        if (agentStatus === "working") {
+          agentStatus = (await herdr.agentWait(name, undefined, remaining())).agent.agent_status;
+        }
+        const read = await herdr.agentRead(name, config.readLines);
+        status = outcomeFromAgentStatus(agentStatus);
+        excerpt = job.agent_kind === "hermes" && status === "done"
+          ? hermesResponseExcerpt(read.read.text)
+          : cleanExcerpt(newOutputSince(before, read.read.text));
+        if (status === "done" && job.agent_kind === "hermes" && !excerpt && read.read.truncated && config.readLines < 10_000) {
+          // A long answer can push its header outside the configured tail.
+          // Retry a bounded larger window before treating it as init flicker.
+          remaining();
+          const expanded = await herdr.agentRead(name, 10_000);
+          excerpt = hermesResponseExcerpt(expanded.read.text);
+        }
+        if (status !== "done" || job.agent_kind !== "hermes" || excerpt) break;
+        // Hermes's screen-derived done can flicker during initialization.
+        // No response panel means no success, regardless of prompt length.
+        log.warn("settled_without_response", { job_id: job.job_id, status: agentStatus });
+        const active = await herdr.agentWait(name, ["working", "blocked"], remaining());
+        prompted = { type: "agent_prompted", agent: active.agent };
       }
-      agentStatus = prompted.agent.agent_status;
-      status = outcomeFromAgentStatus(agentStatus);
-
-      const read = await herdr.agentRead(name, config.readLines);
-      excerpt = cleanExcerpt(newOutputSince(before, read.read.text));
       if (status === "blocked") {
         error = "agent is waiting on an approval/question dialog; left running for a human";
       }

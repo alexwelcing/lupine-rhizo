@@ -21,6 +21,7 @@ Cloudflare Worker secrets are encrypted and are not overwritten by `wrangler dep
 - `CF_ACCESS_AUD` — Access application audience tag
 - `ADMIN_EMAIL` — allowed administrator email for gated write/admin routes
 - `INTERNAL_TASK_TOKEN` — shared secret for internal queue-to-Worker subrequests
+- `HERDR_BRIDGE_TOKEN` — bearer for herdr-bridge daemons; scoped to `/bridge/*` and `POST /feed/beats` only (`docs/herdr-bridge.md`)
 
 Do not set `DEV_MODE` in production. Use `DEV_MODE=true` only in local `.dev.vars`.
 
@@ -69,7 +70,7 @@ export CLOUDFLARE_API_TOKEN=... # do not commit or print this value
 
 for name in \
   OPENAI_API_KEY ANTHROPIC_API_KEY GOOGLE_API_KEY ZAI_API_KEY MINIMAX_API_KEY HF_API_KEY \
-  CF_ACCESS_TEAM_DOMAIN CF_ACCESS_AUD ADMIN_EMAIL INTERNAL_TASK_TOKEN \
+  CF_ACCESS_TEAM_DOMAIN CF_ACCESS_AUD ADMIN_EMAIL INTERNAL_TASK_TOKEN HERDR_BRIDGE_TOKEN \
   PHOENIX_COLLECTOR_ENDPOINT PHOENIX_API_KEY PHOENIX_PROJECT_NAME PHOENIX_SYNC_TOKEN PHOENIX_RELAY_URL PHOENIX_RELAY_TOKEN \
   ATLAS_TELEMETRY_CONFIG ATLAS_REVISION MATHLIB_REVISION \
   WORKER_URL TASKS_CONSUMER_URL TASKS_CONSUMER_AUDIENCE TASKS_CONSUMER_INVOKER_SA GCP_SA_KEY \
