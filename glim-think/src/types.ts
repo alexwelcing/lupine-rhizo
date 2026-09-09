@@ -282,6 +282,12 @@ export interface Env {
   INTERNAL_TASK_TOKEN?: string;
   /** Dedicated bearer secret for the reviewed lupine-app campaign dispatch route. */
   LUPINE_APP_TOKEN?: string;
+  /**
+   * Dedicated bearer secret for herdr-bridge daemons (tools/herdr-bridge/).
+   * Scoped to /bridge/* and POST /feed/beats only — a bridge host must never
+   * hold the global INTERNAL_TASK_TOKEN bypass. See docs/herdr-bridge.md.
+   */
+  HERDR_BRIDGE_TOKEN?: string;
   TASKS_CONSUMER_URL?: string;
   TASKS_CONSUMER_AUDIENCE?: string;
   TASKS_CONSUMER_INVOKER_SA?: string;
@@ -297,6 +303,7 @@ export interface Env {
   FLEET_ORCHESTRATOR: DurableObjectNamespace;
   DASHBOARD: DurableObjectNamespace;
   EXTENSION_MANAGER: DurableObjectNamespace;
+  CAMPAIGN_CONSOLE: DurableObjectNamespace;
   /** Edge-local Vectorize index for coordination traces (384-dim, cosine). */
   COORD_MEMORY?: VectorizeIndex;
   /** Mode for the edge memory flywheel: off | shadow | active. Default off. */

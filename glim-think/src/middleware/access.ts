@@ -198,6 +198,15 @@ export async function checkAccess(
     if (bearer && timingSafeEqual(bearer, lupineAppToken)) return null;
   }
 
+  // herdr-bridge daemons: dedicated bearer scoped to the bridge job surface
+  // (the same secret is honoured by POST /feed/beats in feed/beats.ts).
+  const bridgeToken = env.HERDR_BRIDGE_TOKEN?.trim();
+  if (bridgeToken && pathname.startsWith("/bridge/")) {
+    const authorization = request.headers.get("Authorization") ?? "";
+    const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+    if (bearer && timingSafeEqual(bearer, bridgeToken)) return null;
+  }
+
   const teamDomain = env.CF_ACCESS_TEAM_DOMAIN;
   const aud = env.CF_ACCESS_AUD;
   if (!teamDomain || !aud) return forbidden("access not configured");
@@ -260,6 +269,18 @@ export function isGatedRoute(pathname: string, method: string): boolean {
   if (pathname.startsWith("/knowledge/library")) {
     if (method === "OPTIONS" || method === "GET") return false;
     return true;
+  }
+  if (pathname.startsWith("/console/")) {
+    // Campaign-console writes (lock) are gated; state reads + the live
+    // websocket stay public like /feed/*.
+    if (method === "OPTIONS" || method === "GET") return false;
+    return true;
+  }
+  if (pathname.startsWith("/bridge/")) {
+    // Machine-to-machine job queue for herdr-bridge daemons. Every method is
+    // gated — GET /bridge/jobs/next is a claim (mutation), and prompts are
+    // not public data.
+    return method !== "OPTIONS";
   }
   if (method !== "POST") return false;
   return (

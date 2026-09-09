@@ -1,0 +1,17 @@
+{
+  "name": "herdr-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-machine daemon bridging the glim-think control plane to a local herdr agent runtime.",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "start": "node src/main.ts",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.0"
+  }
+}

@@ -242,6 +242,26 @@ function expectedAudience(request: Request, env: Env): string {
   return new URL(request.url).origin;
 }
 
+/** Constant-time string compare — avoids leaking the secret via timing. */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/**
+ * herdr-bridge producers (tools/herdr-bridge/, one daemon per local machine)
+ * have no GCP identity, so they present the dedicated HERDR_BRIDGE_TOKEN
+ * bearer instead of an OIDC JWT. Scoped like LUPINE_APP_TOKEN: it is only
+ * honoured here and on /bridge/* (middleware/access.ts), never as the global
+ * X-Internal-Token bypass. See docs/herdr-bridge.md.
+ */
+function isBridgeBearer(bearer: string, env: Env): boolean {
+  const bridgeToken = env.HERDR_BRIDGE_TOKEN?.trim();
+  return Boolean(bridgeToken && bearer && timingSafeEqual(bearer, bridgeToken));
+}
+
 export async function handleBeatsPost(
   request: Request,
   env: Env,
@@ -249,25 +269,37 @@ export async function handleBeatsPost(
 ): Promise<Response> {
   // ─── Auth ───
   if (!isDevMode(env)) {
-    const expectedEmail = expectedRunnerEmail(env);
-    if (expectedEmail instanceof Response) return expectedEmail;
     const auth = request.headers.get("Authorization") ?? "";
     if (!auth.startsWith("Bearer ")) {
       return jsonResponse({ error: "missing bearer token" }, 401);
     }
     const token = auth.slice("Bearer ".length).trim();
-    const audience = expectedAudience(request, env);
-    let result: JwtVerifyResult | JwtVerifyError;
-    try {
-      result = await verifyGoogleOidcJwt(token, expectedEmail, audience);
-    } catch (e) {
-      return jsonResponse({ error: `jwt verify error: ${String(e)}` }, 401);
-    }
-    if (!result.ok) {
-      return jsonResponse({ error: `jwt verify failed: ${result.reason}` }, 401);
+    if (!isBridgeBearer(token, env)) {
+      const expectedEmail = expectedRunnerEmail(env);
+      if (expectedEmail instanceof Response) return expectedEmail;
+      const audience = expectedAudience(request, env);
+      let result: JwtVerifyResult | JwtVerifyError;
+      try {
+        result = await verifyGoogleOidcJwt(token, expectedEmail, audience);
+      } catch (e) {
+        return jsonResponse({ error: `jwt verify error: ${String(e)}` }, 401);
+      }
+      if (!result.ok) {
+        return jsonResponse({ error: `jwt verify failed: ${result.reason}` }, 401);
+      }
     }
   }
 
+  return ingestBeat(env, bodyText);
+}
+
+/**
+ * Authenticated half of the producer path: validate, insert into lab_beats,
+ * run the MLIP projections, fan in to the campaign console. Exported so
+ * already-gated routes (bridge job results) can land a beat without a
+ * second credential check.
+ */
+export async function ingestBeat(env: Env, bodyText: string): Promise<Response> {
   // ─── Parse + validate body ───
   let raw: unknown;
   try {
@@ -314,6 +346,25 @@ export async function handleBeatsPost(
     console.error("mlip baseline beat projection failed:", e);
     projectionErrors.push(`baseline: ${String(e)}`);
   }
+
+  // Console fan-in: beats carrying a campaign_id also land in that
+  // campaign's CampaignConsole DO (live operator surface). Best-effort —
+  // a console failure must never 500 the beat (beats retry on 500).
+  const consoleCampaign = beat.metrics?.campaign_id;
+  if (typeof consoleCampaign === "string" && consoleCampaign) {
+    try {
+      const id = env.CAMPAIGN_CONSOLE.idFromName(consoleCampaign);
+      const stub = env.CAMPAIGN_CONSOLE.get(id);
+      const response = await stub.fetch(new Request("http://internal/beat", {
+        method: "POST",
+        body: JSON.stringify({ beat_id: beat.beat_id, metrics: beat.metrics, summary: beat.summary, observedAt }),
+      }));
+      if (!response.ok) throw new Error(`console returned ${response.status}`);
+    } catch (e) {
+      console.error("campaign-console fan-in failed:", e);
+    }
+  }
+
   if (projectionErrors.length > 0) {
     return jsonResponse({
       error: "beat stored but MLIP projection failed; retry this beat_id",

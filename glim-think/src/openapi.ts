@@ -43,6 +43,7 @@ export const openApiSpec = {
     { name: "research-questions", description: "Lab-notebook Q/A queue (D1)" },
     { name: "claims", description: "Discovery-claim ingestion bridge for Distill verdicts" },
     { name: "knowledge-library", description: "Ledger-backed OKF knowledge bundle and graph" },
+    { name: "bridge", description: "herdr-bridge job queue: dispatch agent work to local machines (docs/herdr-bridge.md)" },
   ],
   paths: {
     "/health": {
@@ -448,6 +449,35 @@ export const openApiSpec = {
         summary: "Upsert a single OKF concept into the ledger-backed library",
         description: "Gated by Cloudflare Access or X-Internal-Token.",
         responses: { "201": { description: "Upserted concept" } },
+      },
+    },
+    "/bridge/jobs": {
+      post: {
+        tags: ["bridge"],
+        summary: "Enqueue a job for a herdr-bridge machine",
+        description: "Gated by Cloudflare Access, X-Internal-Token, or the HERDR_BRIDGE_TOKEN bearer. Body: { machine_id, agent_kind?, prompt, campaign_id? }.",
+        responses: { "201": { description: "Job row (status pending)" }, "400": { description: "Validation error" } },
+      },
+    },
+    "/bridge/jobs/next": {
+      get: {
+        tags: ["bridge"],
+        summary: "Claim the oldest pending job for a machine (bridge poll)",
+        description: "Gated. Atomically marks the job claimed. Optional wait_seconds (max 20) long-polls.",
+        parameters: [
+          { name: "machine_id", in: "query", required: true, schema: { type: "string" } },
+          { name: "wait_seconds", in: "query", schema: { type: "integer", default: 0, maximum: 20 } },
+        ],
+        responses: { "200": { description: "Claimed job" }, "204": { description: "No pending job" } },
+      },
+    },
+    "/bridge/jobs/{id}/result": {
+      post: {
+        tags: ["bridge"],
+        summary: "Post a job outcome from the bridge",
+        description: "Gated. Body: { status: done|failed|blocked|timeout, output_excerpt?, beat? }. A beat is ingested via the /feed/beats path with job_id/machine_id/campaign_id stamped into metrics.",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "Job closed" }, "404": { description: "Unknown job" }, "409": { description: "Job already terminal" } },
       },
     },
   },

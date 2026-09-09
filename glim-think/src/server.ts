@@ -39,6 +39,7 @@ import { Theorist as TheoristDO } from "./agents/theorist";
 import { Experiment as ExperimentDO } from "./agents/experiment";
 import { Literaturist as LiteraturistDO } from "./agents/literaturist";
 import { FleetOrchestrator as FleetOrchestratorDO } from "./fleet/orchestrator";
+import { CampaignConsole as CampaignConsoleDO } from "./console/campaignConsole";
 import { DashboardAgent as DashboardAgentDO } from "./dashboard/stream";
 import { ExtensionManager as ExtensionManagerDO } from "./extensions/manager";
 import { generateResearchText } from "./agents/models";
@@ -84,6 +85,7 @@ import { buildArchSnapshot } from "./graph/arch";
 import { buildAgentsSnapshot } from "./graph/agents";
 import { GRAPH_HTML } from "./graph/page";
 import { handleKnowledgeLibraryRoute } from "./knowledge/library";
+import { handleBridgeRoute } from "./bridge/jobs";
 import {
   agendaStatus,
   bootstrapAgenda,
@@ -169,6 +171,7 @@ export const FleetOrchestrator = instrumentDO(FleetOrchestratorDO, phoenixConfig
 export const DashboardAgent = instrumentDO(DashboardAgentDO, phoenixConfig);
 export const ExtensionManager = instrumentDO(ExtensionManagerDO, phoenixConfig);
 export const Literaturist = instrumentDO(LiteraturistDO, phoenixConfig);
+export const CampaignConsole = instrumentDO(CampaignConsoleDO, phoenixConfig);
 export class MlipBaselineGridWorkflow extends MlipBaselineGridWorkflowBase {}
 
 // Worker entrypoint wrapped with OpenTelemetry → Phoenix Cloud export.
@@ -985,6 +988,37 @@ ${narrative}
         });
       }
 
+      // ─── Campaign Console (lupine-console live surface) ───
+      // Writes are gated by isGatedRoute; reads + the websocket stay public.
+      if (url.pathname.startsWith("/console/campaigns/")) {
+        const parts = url.pathname.split("/");
+        if (parts.length !== 5) {
+          return Response.json({ error: "unknown console route" }, { status: 404 });
+        }
+        let campaignId: string;
+        try {
+          campaignId = decodeURIComponent(parts[3]);
+        } catch {
+          return Response.json({ error: "invalid campaign id encoding" }, { status: 400 });
+        }
+        const sub = parts[4];
+        if (!campaignId) {
+          return Response.json({ error: "campaign id required" }, { status: 400 });
+        }
+        const id = env.CAMPAIGN_CONSOLE.idFromName(campaignId);
+        const stub = env.CAMPAIGN_CONSOLE.get(id);
+        if (sub === "lock" && request.method === "POST") {
+          return stub.fetch(new Request(`http://internal/lock?campaign_id=${encodeURIComponent(campaignId)}`, { method: "POST", body: bodyText }));
+        }
+        if (sub === "state" && request.method === "GET") {
+          return stub.fetch(new Request("http://internal/state"));
+        }
+        if (sub === "live" && request.method === "GET") {
+          return stub.fetch(new Request("http://internal/live", { headers: request.headers }));
+        }
+        return Response.json({ error: "unknown console route" }, { status: 404 });
+      }
+
       // Fleet operations
       if (url.pathname === "/fleet/run" && request.method === "POST") {
         const id = env.FLEET_ORCHESTRATOR.idFromName("fleet-main-v2");
@@ -1021,6 +1055,14 @@ ${narrative}
       if (url.pathname.startsWith("/knowledge/library")) {
         const knowledgeResponse = await handleKnowledgeLibraryRoute(env, url, request.method, bodyText);
         if (knowledgeResponse) return knowledgeResponse;
+      }
+
+      // ─── herdr bridge job queue (docs/herdr-bridge.md) ───
+      // Fully gated by isGatedRoute; bridge daemons on local machines poll
+      // for jobs and post results here. Telemetry rides /feed/beats.
+      if (url.pathname.startsWith("/bridge/")) {
+        const bridgeResponse = await handleBridgeRoute(request, env, url, bodyText);
+        if (bridgeResponse) return bridgeResponse;
       }
 
       // Knowledge graph: /graph (HTML viewer) + /graph.json (snapshot)

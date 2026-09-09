@@ -49,6 +49,10 @@ class_name = "ExtensionManager"
 name = "LITERATURIST_AGENT"
 class_name = "Literaturist"
 
+[[durable_objects.bindings]]
+name = "CAMPAIGN_CONSOLE"
+class_name = "CampaignConsole"
+
 # ─── Migrations ───
 # v1-v2: original Agent-based classes
 # v3: upgraded to Think (re-provisions SQLite for Think's session schema)
@@ -68,6 +72,12 @@ new_sqlite_classes = ["FleetOrchestrator", "DashboardAgent", "ExtensionManager"]
 [[migrations]]
 tag = "v4"
 new_sqlite_classes = ["Literaturist"]
+
+# v5: CampaignConsole — per-campaign live operator surface (lupine-console).
+
+[[migrations]]
+tag = "v5"
+new_sqlite_classes = ["CampaignConsole"]
 
 # ─── AI Gateway ───
 [ai]

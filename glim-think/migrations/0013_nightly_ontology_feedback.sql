@@ -32,7 +32,8 @@ BEFORE UPDATE OF contract_json ON literature_hypotheses
 WHEN OLD.status <> json_extract(NEW.contract_json, '$.status')
   OR OLD.readiness <> json_extract(NEW.contract_json, '$.readiness')
 BEGIN
-  SELECT CASE WHEN NOT EXISTS (
+  SELECT RAISE(ABORT, 'literature hypothesis status/readiness change requires a new EvidenceBundle event')
+  WHERE NOT EXISTS (
     SELECT 1
       FROM status_event AS event
      WHERE event.entity_type = 'literature_hypothesis'
@@ -42,5 +43,5 @@ BEGIN
        AND event.evidence_bundle_id IS NOT NULL
        AND json_extract(event.metadata_json, '$.from_readiness') = OLD.readiness
        AND json_extract(event.metadata_json, '$.to_readiness') = json_extract(NEW.contract_json, '$.readiness')
-  ) THEN RAISE(ABORT, 'literature hypothesis status/readiness change requires a new EvidenceBundle event') END;
+  );
 END;
