@@ -99,6 +99,26 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def display_path(path: Path) -> str:
+    """Repo-relative when the input lives under this repository, else
+    absolute. Keeps the results JSON byte-identical across checkout
+    locations (byte-determinism is checked by --check)."""
+    try:
+        return str(path.resolve().relative_to(REPO))
+    except ValueError:
+        return str(path)
+
+
+def display_path(path: Path) -> str:
+    """Repo-relative when the input lives under this repository, else
+    absolute. Keeps the results JSON byte-identical across checkout
+    locations (byte-determinism is checked by --check)."""
+    try:
+        return str(path.resolve().relative_to(REPO))
+    except ValueError:
+        return str(path)
+
+
 def rng_for(seed: int, tag: str) -> np.random.Generator:
     return np.random.default_rng((seed, zlib.crc32(tag.encode("utf-8"))))
 
@@ -650,17 +670,17 @@ def main() -> int:
         "n_boot_reps": args.n_boot,
         "inputs": {
             "kim_elastic_results_all.csv": {
-                "path": str(args.kim_csv),
+                "path": display_path(args.kim_csv),
                 "sha256": sha256(args.kim_csv),
                 "rows": len(kim_rows),
             },
             "nist_populated_all.csv": {
-                "path": str(args.nist_csv),
+                "path": display_path(args.nist_csv),
                 "sha256": sha256(args.nist_csv),
                 "rows": len(nist_rows),
             },
             "manifold_revalidation_42potentials.json": {
-                "path": str(args.committed_json),
+                "path": display_path(args.committed_json),
                 "sha256": sha256(args.committed_json),
                 "groups": len(committed_list),
                 "note": "read-only diff target; this generator never overwrites it",
