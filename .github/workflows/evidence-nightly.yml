@@ -67,7 +67,7 @@ jobs:
         with:
           project_id: shed-489901
 
-      - name: Validate and publish the dated production cycle
+      - name: Publish the dated production cycle
         run: |
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
@@ -75,25 +75,25 @@ jobs:
           else
             cycle_date="$(date -u +%F)"
           fi
-          cycle_dir="nightly-input/$cycle_date"
-          mkdir -p "$cycle_dir"
-          cat > "$cycle_dir/cycle.json" <<'JSON'
-          {
-            "campaigns": [
-              {
-                "manifest": "../../campaigns/v1/z1.campaign-manifest.v1.json",
-                "measurements": "../../data/candidates/z1/measurements.jsonl"
-              }
-            ]
-          }
-          JSON
-          python tools/run_nightly_cycle.py \
-            --cycle "$cycle_dir/cycle.json" \
-            --output-dir production-cycle/validation
+          cycle_dir="production-cycle/$cycle_date"
+          # The producer derives tonight's campaigns from the repository's own
+          # registry (hash-bound row files whose bundles are already in the
+          # committed corpus), validates the cycle by running the consumer's
+          # own ingest over it (staged exactly where the consumer stages its
+          # dated download), and writes a self-describing dated directory.
+          # No hand-written cycle content lives in this workflow.
+          python tools/publish_nightly_cycle.py \
+            --output-dir "$cycle_dir" \
+            --cycle-date "$cycle_date" \
+            --validate
           gcloud storage cp "$cycle_dir/cycle.json" \
             "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json"
-          gcloud storage ls \
-            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json"
+          gcloud storage cp --recursive "$cycle_dir/campaigns" "$cycle_dir/rows" \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/"
+          gcloud storage cp "$cycle_dir/producer-report.json" \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/producer-report.json"
+          gcloud storage ls --recursive \
+            "gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/**"
 
   refresh-and-eval:
     name: refresh, reindex, eval
@@ -248,7 +248,9 @@ jobs:
       contents: read
       id-token: write
     env:
-      CYCLE_DATE: ${{ github.event_name == 'workflow_dispatch' && '2026-08-01' || '' }}
+      # Staging-fixture dispatches pin the fixture's as-of date; every other
+      # path computes the real cycle date in the download step below.
+      CYCLE_DATE: ${{ github.event_name == 'workflow_dispatch' && !inputs.publish_production_cycle && '2026-08-01' || '' }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
@@ -284,7 +286,16 @@ jobs:
       - name: Download the dated production cycle
         if: ${{ github.event_name != 'workflow_dispatch' || !inputs.staging_fixture }}
         run: |
-          cycle_date="$(date -u -d yesterday +%F)"
+          # Scheduled runs consume yesterday's cycle (the producer wrote it
+          # this morning for the previous UTC day). A manual dispatch that
+          # published a cycle consumed today's — the same date the producer
+          # step above used — so both sides agree on which dated directory
+          # is authoritative.
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.publish_production_cycle }}" == "true" ]]; then
+            cycle_date="$(date -u +%F)"
+          else
+            cycle_date="$(date -u -d yesterday +%F)"
+          fi
           echo "CYCLE_DATE=$cycle_date" >> "$GITHUB_ENV"
           mkdir -p nightly-input
           gcloud storage cp --recursive \

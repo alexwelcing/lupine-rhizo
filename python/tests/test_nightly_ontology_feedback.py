@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sqlite3
 import tempfile
 import unittest
@@ -1531,11 +1532,16 @@ class NightlyFeedbackTests(unittest.TestCase):
             'gs://shed-489901-atlas-outputs/evidence-nightly/$cycle_date/cycle.json',
             workflow,
         )
-        self.assertIn("python tools/run_nightly_cycle.py", workflow)
-        self.assertIn('cycle_dir="nightly-input/$cycle_date"', workflow)
-        self.assertIn('--cycle "$cycle_dir/cycle.json"', workflow)
-        self.assertIn('"../../campaigns/v1/z1.campaign-manifest.v1.json"', workflow)
-        self.assertIn('"../../data/candidates/z1/measurements.jsonl"', workflow)
+        # The cycle is produced by the registry-driven producer, never by
+        # hand-written workflow content, and it is validated through the
+        # consumer's own ingest before it is uploaded.
+        self.assertIn("python tools/publish_nightly_cycle.py", workflow)
+        self.assertIn("--validate", workflow)
+        self.assertIn('cycle_dir="production-cycle/$cycle_date"', workflow)
+        # No campaign may be hard-coded into the workflow: the producer
+        # derives tonight's campaigns from registry/campaigns.v1.json.
+        self.assertNotIn('"../../campaigns/v1/', workflow)
+        self.assertNotIn('"../../data/candidates/', workflow)
 
     def test_workflow_can_manually_publish_a_cycle_for_the_current_utc_date(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "evidence-nightly.yml").read_text()
@@ -1786,6 +1792,73 @@ class NightlyFeedbackTests(unittest.TestCase):
             connection.execute(
                 "DELETE FROM status_event WHERE status_event_id = 'event.latest-state'"
             )
+
+    def test_producer_selects_only_campaigns_replayable_against_the_committed_corpus(self) -> None:
+        from tools.publish_nightly_cycle import select_campaigns
+
+        selected, skipped = select_campaigns(ROOT)
+
+        selection = {row["campaign_id"]: row for row in selected}
+        # The two campaigns whose row files are hash-bound to their registered
+        # manifests and fully represented in the committed evidence corpus.
+        self.assertEqual(
+            sorted(selection),
+            ["discovery.round-4.z1-barriers.v1", "discovery.round-4.z3-adsorption.v1"],
+        )
+        z1 = selection["discovery.round-4.z1-barriers.v1"]
+        self.assertEqual(z1["manifest"], "campaigns/v1/z1.campaign-manifest.v1.json")
+        self.assertEqual(z1["measurements"], "data/candidates/z1/measurements.jsonl")
+        # Every skip carries a reason a human can act on.
+        for reason in skipped.values():
+            self.assertRegex(reason, r"^(no measurement row file|rows not yet ingested|row file)")
+        # Rows never ingested into the registry must not enter the cycle.
+        self.assertIn("correction.round-4.available-models.v1", skipped)
+        self.assertIn("not yet ingested", skipped["correction.round-4.available-models.v1"])
+        # A row file bound to the manifest but missing row_id is refused.
+        self.assertIn("discovery.round-4.z2-magnetic-anisotropy.v1", skipped)
+        self.assertIn("row_id contract", skipped["discovery.round-4.z2-magnetic-anisotropy.v1"])
+        # Campaigns with no row file at all are skipped, not guessed.
+        self.assertIn("literature.protocol-offset-sign-skew.v1", skipped)
+
+    def test_producer_writes_a_dated_self_describing_cycle(self) -> None:
+        from tools.publish_nightly_cycle import write_cycle
+
+        # Stage inside the repository, exactly where the consumer stages its
+        # dated download (nightly-input/<date>/): the ../../ paths in
+        # cycle.json only resolve from there.
+        # Mirror the consumer's staging exactly: cycle.json lives directly
+        # in nightly-input/<date>/, so its ../../ refs resolve to the root.
+        output = ROOT / "nightly-input" / "2026-09-09"
+        staging = output
+        if staging.exists():
+            shutil.rmtree(staging)
+        try:
+            report = write_cycle(root=ROOT, output_dir=output, cycle_date="2026-09-09")
+
+            self.assertTrue(report["campaign_count"] >= 1)
+            self.assertFalse(report["validated"])
+            cycle = json.loads((output / "cycle.json").read_text(encoding="utf-8"))
+            self.assertEqual(cycle["cycle_date"], "2026-09-09")
+            for entry in cycle["campaigns"]:
+                # cycle.json paths must resolve to the checked-out files from
+                # the producer's staging location (../../ escapes the dated
+                # directory back to the repository root).
+                manifest_ref = (output / entry["manifest"]).resolve()
+                rows_ref = (output / entry["measurements"]).resolve()
+                self.assertTrue(manifest_ref.is_file(), manifest_ref)
+                self.assertTrue(rows_ref.is_file(), rows_ref)
+                # The archived copies are byte-identical to what was bound.
+                staged_copy = output / "campaigns" / Path(entry["manifest"]).name
+                self.assertEqual(
+                    staged_copy.read_bytes(),
+                    (ROOT / entry["manifest"].removeprefix("../../")).read_bytes(),
+                )
+            for name in report["written"]:
+                self.assertTrue((output / name).is_file() or (output / name).is_dir(), name)
+            saved = json.loads((output / "producer-report.json").read_text(encoding="utf-8"))
+            self.assertEqual(saved["cycle_date"], "2026-09-09")
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
 
 
 if __name__ == "__main__":
