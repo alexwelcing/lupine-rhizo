@@ -30,10 +30,10 @@ function happyHerdr(fake: FakeHerdr, opts: { finalStatus?: string; promptError?:
     if (startAttempts++ === 0) throw new RpcError("agent_pane_busy", `agent target pane ${params.pane_id} is not an available shell`);
     return { type: "agent_started", agent: { pane_id: params.pane_id, workspace_id: "w9", tab_id: "w9:t1", agent_status: "unknown", launch_pending: true } };
   });
-  fake.on("agent.wait", () => ({ type: "agent_info", agent: { pane_id: "w9:p1", workspace_id: "w9", tab_id: "w9:t1", agent_status: opts.finalStatus ?? "idle" } }));
+  fake.on("agent.wait", (params) => ({ type: "agent_info", agent: { pane_id: "w9:p1", workspace_id: "w9", tab_id: "w9:t1", agent_status: params.until ? "idle" : opts.finalStatus ?? "done" } }));
   fake.on("agent.prompt", () => {
     if (opts.promptError) throw opts.promptError;
-    return { type: "agent_prompted", agent: { pane_id: "w9:p1", workspace_id: "w9", tab_id: "w9:t1", agent_status: opts.finalStatus ?? "done" } };
+    return { type: "agent_prompted", agent: { pane_id: "w9:p1", workspace_id: "w9", tab_id: "w9:t1", agent_status: opts.finalStatus === "blocked" ? "blocked" : "working" } };
   });
   fake.on("agent.send_keys", () => ({ type: "ok" }));
   let reads = 0;
@@ -96,10 +96,10 @@ test("runJob: full herdr sequence, result beat carries provenance, workspace clo
     const outcome = await dispatcher.runJob(job);
     assert.equal(outcome.status, "done");
     assert.equal(outcome.workspace_id, "w9");
-    assert.equal(outcome.output_excerpt, "● Reply with PONG.\n Hermes\nPONG\n ⚕ glm ·...");
+    assert.equal(outcome.output_excerpt, "PONG");
     assert.deepEqual(
       fake.calls.map((c) => c.method),
-      ["workspace.create", "agent.start", "agent.start", "agent.wait", "agent.read", "agent.prompt", "agent.read", "workspace.close"],
+      ["workspace.create", "agent.start", "agent.start", "agent.wait", "agent.read", "agent.prompt", "agent.wait", "agent.read", "workspace.close"],
     );
     const start = fake.calls[2].params;
     assert.equal(start.kind, "hermes");
@@ -122,6 +122,118 @@ test("runJob: full herdr sequence, result beat carries provenance, workspace clo
   }
 });
 
+test("runJob: long prompt idle flicker and echo-only done cannot complete the job", async () => {
+  const fake = await startFakeHerdr();
+  try {
+    happyHerdr(fake);
+    const prompt = "Research this topic carefully. ".repeat(80);
+    const echo = "● " + prompt.match(/.{1,15}/g)!.join("\n");
+    let phase = "startup";
+    let releaseWorking!: () => void;
+    const working = new Promise<void>((resolve) => { releaseWorking = resolve; });
+    fake.on("agent.prompt", () => {
+      phase = "idle-flicker";
+      return { type: "agent_prompted", agent: { agent_status: "idle" } };
+    });
+    fake.on("agent.wait", async (params) => {
+      if (phase === "startup") return { agent: { agent_status: "idle" } };
+      if ((params.until as string[] | undefined)?.includes("working")) {
+        await working;
+        phase = "working";
+        return { agent: { agent_status: "working" } };
+      }
+      phase = "done";
+      return { agent: { agent_status: "done" } };
+    });
+    fake.on("agent.read", () => ({ read: { text: phase === "startup" ? "banner\n❯" :
+      phase === "done" ? `${echo}\n╭─ ⚕ Hermes ─╮\nVerified research response\n╰────╯` : echo } }));
+    const { dispatcher } = build(fake);
+    let completed = false;
+    const running = dispatcher.runJob({ ...job, prompt }).then((outcome) => { completed = true; return outcome; });
+    await until(() => phase === "idle-flicker");
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    assert.equal(completed, false, "must not accept idle before post-submission activity");
+    assert.ok(!fake.calls.some((c) => c.method === "workspace.close"));
+    releaseWorking();
+    const outcome = await running;
+    assert.equal(outcome.status, "done");
+    assert.match(outcome.output_excerpt, /Verified research response/);
+    assert.doesNotMatch(outcome.output_excerpt, /Research this/);
+  } finally {
+    await fake.close();
+  }
+});
+
+test("runJob: working then echo-only done waits for real response, or times out", async () => {
+  for (const recover of [true, false]) {
+    const fake = await startFakeHerdr();
+    try {
+      happyHerdr(fake);
+      let phase = "startup";
+      let resume!: () => void;
+      const resumed = new Promise<void>((resolve) => { resume = resolve; });
+      fake.on("agent.prompt", (params) => {
+        assert.deepEqual((params.wait as { until: string[] }).until, ["working", "blocked"]);
+        phase = "initializing";
+        return { agent: { agent_status: "working" } };
+      });
+      fake.on("agent.wait", async (params) => {
+        if (phase === "startup") return { agent: { agent_status: "idle" } };
+        if ((params.until as string[] | undefined)?.includes("working")) {
+          await resumed;
+          if (!recover) throw new RpcError("timeout", "no response activity before deadline");
+          phase = "real-working";
+          return { agent: { agent_status: "working" } };
+        }
+        phase = phase === "real-working" ? "response" : "echo-only";
+        return { agent: { agent_status: "done" } };
+      });
+      fake.on("agent.read", () => ({ read: { text: phase === "response"
+        ? "● long research prompt\n╭─ ⚕ Hermes ─╮\nActual answer\n╰────╯"
+        : "● long research prompt\nInitializing agent..." } }));
+      const { dispatcher, lines } = build(fake, { keepWorkspaces: "failed" });
+      const running = dispatcher.runJob(job);
+      await until(() => lines.some((l) => l.event === "settled_without_response"));
+      assert.equal(dispatcher.snapshot.completed, 0);
+      assert.ok(!fake.calls.some((c) => c.method === "workspace.close"));
+      resume();
+      const outcome = await running;
+      assert.equal(outcome.status, recover ? "done" : "timeout");
+      if (recover) assert.equal(outcome.output_excerpt, "Actual answer");
+      else assert.ok(!fake.calls.some((c) => c.method === "workspace.close"));
+      assert.equal(fake.calls.filter((c) => c.method === "agent.prompt").length, 1);
+      assert.ok(!fake.calls.some((c) => c.method === "agent.send_keys"));
+    } finally {
+      await fake.close();
+    }
+  }
+});
+
+test("runJob: expands a truncated tail to recover a long response panel", async () => {
+  const fake = await startFakeHerdr();
+  try {
+    happyHerdr(fake);
+    let reads = 0;
+    fake.on("agent.read", (params) => ({ read: {
+      text: reads++ === 0 ? "banner\n❯" : Number(params.lines) <= 40
+        ? "last answer line\n╰────╯"
+        : "● prompt\n╭─ ⚕ Hermes ─╮\n" + "answer line\n".repeat(100) + "last answer line\n╰────╯",
+      truncated: true,
+    } }));
+    fake.on("agent.wait", (params) => {
+      if ((params.until as string[] | undefined)?.includes("working")) throw new RpcError("timeout", "turn already finished");
+      return { agent: { agent_status: params.until ? "idle" : "done" } };
+    });
+    const { dispatcher } = build(fake);
+    const outcome = await dispatcher.runJob(job);
+    assert.equal(outcome.status, "done");
+    assert.match(outcome.output_excerpt, /last answer line/);
+    assert.doesNotMatch(outcome.output_excerpt, /● prompt/);
+  } finally {
+    await fake.close();
+  }
+});
+
 test("runJob: blocked agent keeps the workspace and reports blocked", async () => {
   const fake = await startFakeHerdr();
   try {
@@ -138,21 +250,16 @@ test("runJob: blocked agent keeps the workspace and reports blocked", async () =
   }
 });
 
-test("runJob: prompt stall is nudged with Enter, then waited", async () => {
+test("runJob: prompt stall fails closed without sending another Enter", async () => {
   const fake = await startFakeHerdr();
   try {
     happyHerdr(fake, { promptError: new RpcError("agent_prompt_stalled", "no activity") });
-    fake.on("agent.wait", (params) => ({
-      type: "agent_info",
-      agent: { pane_id: "w9:p1", workspace_id: "w9", tab_id: "w9:t1", agent_status: params.until ? "idle" : "done" },
-    }));
-    const { dispatcher } = build(fake);
+    const { dispatcher } = build(fake, { keepWorkspaces: "failed" });
     const outcome = await dispatcher.runJob(job);
-    assert.equal(outcome.status, "done");
-    assert.deepEqual(
-      fake.calls.map((c) => c.method),
-      ["workspace.create", "agent.start", "agent.start", "agent.wait", "agent.read", "agent.prompt", "agent.send_keys", "agent.wait", "agent.read", "workspace.close"],
-    );
+    assert.equal(outcome.status, "failed");
+    assert.match(outcome.error ?? "", /no activity/);
+    assert.ok(!fake.calls.some((c) => c.method === "agent.send_keys" || c.method === "workspace.close"));
+    assert.equal(fake.calls.filter((c) => c.method === "agent.wait").length, 1);
   } finally {
     await fake.close();
   }

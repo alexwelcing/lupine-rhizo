@@ -193,9 +193,14 @@ export class HerdrClient {
     return this.call("agent.wait", params, timeoutMs + 5_000);
   }
 
-  /** Submit a prompt and wait for the first settled idle/done/blocked state. */
+  /**
+   * Atomically submit and observe activity, not completion. Herdr 0.9.0
+   * confirms the text + Enter writes and gates this wait on working/blocked.
+   * Keeping that gate server-owned avoids missing a fast turn between RPCs.
+   * The dispatcher must verify a later settled state and response evidence.
+   */
   agentPrompt(target: string, text: string, timeoutMs: number): Promise<{ type: "agent_prompted"; agent: AgentInfo }> {
-    return this.call("agent.prompt", { target, text, wait: { timeout_ms: timeoutMs } }, timeoutMs + 5_000);
+    return this.call("agent.prompt", { target, text, wait: { until: ["working", "blocked"], timeout_ms: timeoutMs } }, timeoutMs + 5_000);
   }
 
   agentRead(target: string, lines: number): Promise<AgentReadResult> {

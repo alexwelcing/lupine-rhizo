@@ -87,6 +87,26 @@ npm run typecheck    # tsc, erasableSyntaxOnly (matches Node type stripping)
 npm test             # node --test with a fake herdr socket server + fake worker fetch
 ```
 
+## Completion and excerpt safety
+
+The socket client submits `agent.prompt` with `wait.until = [working, blocked]`.
+Herdr owns the post-submission activity gate; dispatch then waits for a settled
+state using the remaining job timeout. A stale idle/done reply cannot bypass
+that activity gate. `agent_prompt_stalled` fails closed: the bridge does not
+blindly send Enter or resubmit an already-delivered prompt.
+
+Hermes status is screen-derived, so even working → done is not proof of an
+answer: initialization can briefly appear settled. Before reporting success,
+the bridge requires a nonempty complete Hermes response panel in the final
+read. The excerpt is anchored inside that panel, not sliced against the
+pre-prompt banner (which retains wrapped or collapsed prompt echoes). A
+truncated tail gets one expanded read of up to 10,000 lines. Missing response
+evidence waits for further activity within the original timeout; it never
+reports done or closes the workspace as a success. With the default `failed`
+retention policy, stalled/timed-out workspaces remain available for inspection.
+An unsupported Hermes output layout or unrecoverable alternate-screen
+truncation therefore times out rather than producing a false success.
+
 ## Smoke test against the live herdr
 
 With the worker side pointed at `wrangler dev` (`DEV_MODE=true`, local D1
