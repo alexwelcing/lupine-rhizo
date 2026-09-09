@@ -84,7 +84,8 @@ SELECT CAST(NULL AS TEXT) AS contract_json WHERE 0;
 CREATE TRIGGER IF NOT EXISTS literature_hypothesis_contract_validate
 INSTEAD OF INSERT ON literature_hypothesis_contract_validation
 BEGIN
-  SELECT CASE WHEN
+  SELECT RAISE(ABORT, 'invalid LiteratureHypothesis top-level contract')
+  WHERE
     (SELECT count(*) FROM json_each(NEW.contract_json)) <> 8
     OR EXISTS (
       SELECT 1 FROM json_each(NEW.contract_json)
@@ -92,10 +93,10 @@ BEGIN
         'source', 'claim_text', 'bindings', 'epistemicMarker', 'readiness',
         'confidence', 'proposedExperiment', 'status'
       )
-    )
-  THEN RAISE(ABORT, 'invalid LiteratureHypothesis top-level contract') END;
+    );
 
-  SELECT CASE WHEN
+  SELECT RAISE(ABORT, 'invalid LiteratureHypothesis source')
+  WHERE
     (SELECT count(*) FROM json_each(NEW.contract_json, '$.source')) <> 6
     OR EXISTS (
       SELECT 1 FROM json_each(NEW.contract_json, '$.source')
@@ -222,20 +223,20 @@ BEGIN
     OR CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 9, 2) AS INTEGER)
       NOT BETWEEN 1 AND 31
     OR CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 9, 2) AS INTEGER) >
-      CASE CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 6, 2) AS INTEGER)
-        WHEN 2 THEN 28 + CASE WHEN
+      (31
+        - coalesce(CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 6, 2) AS INTEGER) IN (4, 6, 9, 11), 0)
+        - coalesce(CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 6, 2) AS INTEGER) = 2, 0)
+          * (3 - coalesce(
           CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 1, 4) AS INTEGER) % 400 = 0
           OR (
             CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 1, 4) AS INTEGER) % 4 = 0
             AND CAST(substr(json_extract(NEW.contract_json, '$.source.asOf'), 1, 4) AS INTEGER) % 100 <> 0
           )
-        THEN 1 ELSE 0 END
-        WHEN 4 THEN 30 WHEN 6 THEN 30 WHEN 9 THEN 30 WHEN 11 THEN 30
-        ELSE 31
-      END
-  THEN RAISE(ABORT, 'invalid LiteratureHypothesis source') END;
+          , 0))
+      );
 
-  SELECT CASE WHEN
+  SELECT RAISE(ABORT, 'invalid LiteratureHypothesis bindings')
+  WHERE
     (SELECT count(*) FROM json_each(NEW.contract_json, '$.bindings')) <> 4
     OR EXISTS (
       SELECT 1 FROM json_each(NEW.contract_json, '$.bindings')
@@ -270,10 +271,10 @@ BEGIN
     OR (SELECT count(*) FROM json_each(NEW.contract_json, '$.bindings.chains'))
       <> (SELECT count(DISTINCT value) FROM json_each(NEW.contract_json, '$.bindings.chains'))
     OR (SELECT count(*) FROM json_each(NEW.contract_json, '$.bindings.acceptanceTests'))
-      <> (SELECT count(DISTINCT value) FROM json_each(NEW.contract_json, '$.bindings.acceptanceTests'))
-  THEN RAISE(ABORT, 'invalid LiteratureHypothesis bindings') END;
+      <> (SELECT count(DISTINCT value) FROM json_each(NEW.contract_json, '$.bindings.acceptanceTests'));
 
-  SELECT CASE WHEN
+  SELECT RAISE(ABORT, 'invalid LiteratureHypothesis proposedExperiment')
+  WHERE
     (SELECT count(*) FROM json_each(NEW.contract_json, '$.proposedExperiment')) NOT IN (4, 5)
     OR EXISTS (
       SELECT 1 FROM json_each(NEW.contract_json, '$.proposedExperiment')
@@ -316,8 +317,7 @@ BEGIN
         || char(8233) || char(8239) || char(8287) || char(12288)
         )) = 0
       )
-    )
-  THEN RAISE(ABORT, 'invalid LiteratureHypothesis proposedExperiment') END;
+    );
 END;
 
 CREATE TRIGGER IF NOT EXISTS literature_hypotheses_contract_insert
