@@ -1,0 +1,861 @@
+{
+  "schema": "lupine.tms2027.proceedings.results.v1",
+  "note": "Derived numbers are recomputed from committed source rows; quoted numbers are copied from frozen reports named in 'source'. Live-ledger 352-row snapshot NOT recovered as of build: its exact numbers are omitted per the sprint contract.",
+  "sources": {
+    "kim_tensors": {
+      "path": "lupine/atlas-distill/benchmarks/kim_elastic_results_all.csv",
+      "sha256": "927be85f4dc02571866db0e01f4becb44ef16406041bbb6da962867693d77da6"
+    },
+    "nist_rows": {
+      "path": "lupine/atlas-distill/benchmarks/nist_populated_all.csv",
+      "sha256": "527f72ef488aef3f830cc023182506a04a56573d55197382f28e0365828c1156"
+    },
+    "geometry_42": {
+      "path": "lupine/replication/error-geometry/data/classical/manifold_revalidation_42potentials.json",
+      "sha256": "7dd5d8ca4048292acb58eefe5a0c08342e07ab0cf2420d0cd7b89c858dd823b2"
+    },
+    "canonical_numbers": {
+      "path": "lupine/replication/error-geometry/data/classical/canonical_numbers.json",
+      "sha256": "a44872097b452a1a3bb6d985943206138fb59a020bb59356f320feecb66b007b"
+    },
+    "immi_paper": {
+      "path": "lupine/paper/immi-paper.tex",
+      "sha256": "1e593a6a0232cf80c744461653e6ba4b52bc5c8a43ee86630030e9f50ed146d3"
+    },
+    "round2_manuscript": {
+      "path": "lupine/paper2/ProjectionLaw_Round2.md",
+      "sha256": "d154b1fc62d5f33ae49f7d6d5e8fe0bcbc2efa18e5695f821f5498cc2283de40"
+    },
+    "anchor_spec": {
+      "path": "lupine/replication/error-geometry/prereg_r2b_dft_anchor_spec.md",
+      "sha256": "97d6addc140aa9a30ddb0f62f80b9d19bece0b7b0063980818e509d507029b7f"
+    },
+    "h3_blocker": {
+      "path": "lupine/docs/science/h3_blocker.md",
+      "sha256": "9f9d8f90f91a76ff326fbd822d65ba232989abf689318618a8eb28bb1270236e"
+    },
+    "global_operator_lock": {
+      "path": "paper/negative-results-preprint/global-operator.lock.json",
+      "sha256": "4450ea8ffb4cfbc075d761e7f54f06fbcff16c73d1866b0026369415d43a5e4b"
+    },
+    "layer2_results": {
+      "path": "mlip-elastic-benchmark/layer2-3x3x3-results-2026-06-29.md",
+      "sha256": "6e9d855a730e0518e46280c4b4bf6ac691cac1487faa6a912ac345ab08047612"
+    },
+    "layer2_operator": {
+      "path": "paper/lupine-layer2-3x3x3-operator.md",
+      "sha256": "da726ff67514f8a6b562db228c8ee8c5a5e8a97064117b62567bfb13bed055b0"
+    },
+    "operator_diagnosis": {
+      "path": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
+      "sha256": "f5ff07686b9f4f0e3a095578cbb8b16fbabefe533e5af7424004fc9942b9582f"
+    },
+    "y_matrix": {
+      "path": "docs/plans/y-matrix-confirmatory-results-2026-07-01.md",
+      "sha256": "783142fab61d89b9e209a69276f0a0e10375657272f46d5780c63de85a78041e"
+    },
+    "round3_report": {
+      "path": "data/candidates/round3/ROUND3_REPORT.md",
+      "sha256": "e201f7f0307ef48045bd4bb1f7f229889bb58582dd5b9eebceebaf48cb6b2819"
+    },
+    "round4_report": {
+      "path": "data/candidates/round4/ROUND4_REPORT.md",
+      "sha256": "e3312a6e6c7d920774f8eb337f0b4c356e6fb9bddbae4da88d0f1a5e3c66c086"
+    },
+    "z1_verdict": {
+      "path": "docs/analysis/z1-union-campaign-verdict.md",
+      "sha256": "863999a1a0e9b7e7ceac020d6c4c63f04ebb3e5c2990e800259dca92454961d6"
+    },
+    "z1_deferred": {
+      "path": "data/candidates/z1-sparse-dft-deferred.json",
+      "sha256": "a2f272b44ec67f46821bd636faaa333624c2254f00690cd51991ccb9b0d233e2"
+    },
+    "negative_results": {
+      "path": "paper/negative-results-preprint/manuscript.tex",
+      "sha256": "1806deebb1ebb4677962efc0fa1826e149621656cbdd2616a018998787289b36"
+    },
+    "env_field": {
+      "path": "paper/environment-error-field-2026-07-02.md",
+      "sha256": "f9335f6d0cb0a1e5d27c6835e64b131b5c23e37880f905f21f04490207412dea"
+    },
+    "errata": {
+      "path": "docs/plans/2026-07-13-errata-and-red-team-dispositions.md",
+      "sha256": "255928d3e0d5553911db6dbd9006a13334a82d880a53446285ee5426cdc3ee90"
+    },
+    "lean_count": {
+      "path": "lean-spec/theorem-count.json",
+      "sha256": "5ddcfc759833cbe9d8bfdc6ddbd609ed3ca345f1eaad7f8241eed7b3ddbae3f1"
+    },
+    "sprint_contract": {
+      "path": "docs/plans/2026-09-09-tms-manuscript-sprint.md",
+      "sha256": "d03cd65acbca7d51e70a53eaeae2dbdde2a02a05ce16a87c893df930fe4bc37c"
+    }
+  },
+  "derived": {
+    "funnel": {
+      "kim_model_objects_queried": 965,
+      "born_stable_model_element_tensors": 559,
+      "distinct_kim_model_ids": 423,
+      "author_year_short_labels": 233,
+      "elements": 15,
+      "scalar_cij_values": 1677,
+      "short_labels_with_ge3_elements": 42,
+      "distinct_model_ids_with_ge3_elements": 18,
+      "geometry_groups_committed": 42,
+      "tensors_by_crystal": {
+        "fcc": 356,
+        "bcc": 203
+      },
+      "tensors_by_element": {
+        "Ag": 26,
+        "Al": 90,
+        "Au": 27,
+        "Cr": 21,
+        "Cu": 72,
+        "Fe": 69,
+        "Mo": 26,
+        "Nb": 13,
+        "Ni": 83,
+        "Pb": 13,
+        "Pd": 24,
+        "Pt": 21,
+        "Ta": 22,
+        "V": 17,
+        "W": 35
+      },
+      "cij_components_per_tensor": {
+        "C11": 559,
+        "C12": 559,
+        "C44": 559
+      }
+    },
+    "geometry": {
+      "n_groups": 42,
+      "n_materials_distribution": {
+        "3": 21,
+        "4": 3,
+        "5": 5,
+        "6": 3,
+        "7": 3,
+        "8": 2,
+        "9": 3,
+        "12": 2
+      },
+      "groups_with_n3": 21,
+      "pr_median": 1.0863,
+      "pr_min": 1.0,
+      "pr_max": 2.2893,
+      "pr_median_n3_groups": 1.0256,
+      "pr_median_n_ge4_groups": 1.1595,
+      "groups_flagged_hyper_ribbon": 42,
+      "groups_pr_ci_upper_ge2": 42,
+      "groups_pr_ci_upper_ge2p9": 21,
+      "n3_groups_with_two_eigenvalues": 21,
+      "canonical_numbers_file": {
+        "n_potentials": 42,
+        "pr_min": 1.0,
+        "pr_max": 2.289,
+        "pr_median": 1.086,
+        "n_above_2": 1,
+        "rho_hat_from_median": 45.8,
+        "alpha_from_median": 0.979
+      },
+      "per_group": [
+        {
+          "potential": "Asadi-2015",
+          "n_materials": 3,
+          "pr": 1.1906,
+          "pr_ci": [
+            1.1906,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9123
+        },
+        {
+          "potential": "Bonny-2009",
+          "n_materials": 3,
+          "pr": 1.0208,
+          "pr_ci": [
+            1.0208,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9897
+        },
+        {
+          "potential": "Bonny-2011",
+          "n_materials": 3,
+          "pr": 1.0385,
+          "pr_ci": [
+            1.0385,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9811
+        },
+        {
+          "potential": "Chen-2020",
+          "n_materials": 3,
+          "pr": 1.0074,
+          "pr_ci": [
+            1.0074,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9963
+        },
+        {
+          "potential": "Choi-2017",
+          "n_materials": 3,
+          "pr": 1.0039,
+          "pr_ci": [
+            1.0039,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.998
+        },
+        {
+          "potential": "Choi-2018",
+          "n_materials": 3,
+          "pr": 1.0071,
+          "pr_ci": [
+            1.0071,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9965
+        },
+        {
+          "potential": "Deluigi-2021",
+          "n_materials": 3,
+          "pr": 1.0,
+          "pr_ci": [
+            1.0,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 1.0
+        },
+        {
+          "potential": "Farkas-2018",
+          "n_materials": 3,
+          "pr": 1.0,
+          "pr_ci": [
+            1.0,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 1.0
+        },
+        {
+          "potential": "Farkas-2020",
+          "n_materials": 3,
+          "pr": 1.0002,
+          "pr_ci": [
+            1.0002,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9999
+        },
+        {
+          "potential": "Jelinek-2012",
+          "n_materials": 3,
+          "pr": 1.0417,
+          "pr_ci": [
+            1.0417,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9796
+        },
+        {
+          "potential": "Li-2018",
+          "n_materials": 3,
+          "pr": 1.0256,
+          "pr_ci": [
+            1.0256,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9873
+        },
+        {
+          "potential": "Mahata-2022",
+          "n_materials": 3,
+          "pr": 1.016,
+          "pr_ci": [
+            1.016,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9921
+        },
+        {
+          "potential": "Maresca-2020",
+          "n_materials": 3,
+          "pr": 1.4949,
+          "pr_ci": [
+            1.4949,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.7907
+        },
+        {
+          "potential": "Mendelev-2007",
+          "n_materials": 3,
+          "pr": 1.6747,
+          "pr_ci": [
+            1.6747,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.7204
+        },
+        {
+          "potential": "Olsson-2009",
+          "n_materials": 3,
+          "pr": 1.071,
+          "pr_ci": [
+            1.071,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9657
+        },
+        {
+          "potential": "Park-2012",
+          "n_materials": 3,
+          "pr": 1.0268,
+          "pr_ci": [
+            1.0268,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9868
+        },
+        {
+          "potential": "Pun-2015",
+          "n_materials": 3,
+          "pr": 1.1828,
+          "pr_ci": [
+            1.1828,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9156
+        },
+        {
+          "potential": "Shim-2013",
+          "n_materials": 3,
+          "pr": 1.0126,
+          "pr_ci": [
+            1.0126,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.9937
+        },
+        {
+          "potential": "Wu-2017",
+          "n_materials": 3,
+          "pr": 1.0039,
+          "pr_ci": [
+            1.0039,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.998
+        },
+        {
+          "potential": "Zhou-2018",
+          "n_materials": 3,
+          "pr": 1.6517,
+          "pr_ci": [
+            1.6517,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.7296
+        },
+        {
+          "potential": "Zuo-2019",
+          "n_materials": 3,
+          "pr": 1.3821,
+          "pr_ci": [
+            1.3821,
+            2.0
+          ],
+          "n_eigenvalues": 2,
+          "cum_var_1": 0.8343
+        },
+        {
+          "potential": "Etesami-2018",
+          "n_materials": 4,
+          "pr": 1.0619,
+          "pr_ci": [
+            1.0121,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.97
+        },
+        {
+          "potential": "Li-2019",
+          "n_materials": 4,
+          "pr": 1.0587,
+          "pr_ci": [
+            1.0231,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9716
+        },
+        {
+          "potential": "Zhou-2001",
+          "n_materials": 4,
+          "pr": 1.2177,
+          "pr_ci": [
+            1.0539,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9021
+        },
+        {
+          "potential": "Ackland-1987",
+          "n_materials": 5,
+          "pr": 1.4248,
+          "pr_ci": [
+            1.0526,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.8205
+        },
+        {
+          "potential": "Bonny-2013",
+          "n_materials": 5,
+          "pr": 1.0916,
+          "pr_ci": [
+            1.0599,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9566
+        },
+        {
+          "potential": "Derlet-2007",
+          "n_materials": 5,
+          "pr": 1.145,
+          "pr_ci": [
+            1.0778,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9331
+        },
+        {
+          "potential": "EAM_Dynamo_AdamsFoilesWolfer_1989Univers",
+          "n_materials": 5,
+          "pr": 1.0661,
+          "pr_ci": [
+            1.0035,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.968
+        },
+        {
+          "potential": "Sharifi-2025",
+          "n_materials": 5,
+          "pr": 1.2653,
+          "pr_ci": [
+            1.1526,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.8846
+        },
+        {
+          "potential": "EAM_Dynamo_FoilesBaskesDaw_1986Universal",
+          "n_materials": 6,
+          "pr": 1.1754,
+          "pr_ci": [
+            1.1125,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9204
+        },
+        {
+          "potential": "Jeong-2018",
+          "n_materials": 6,
+          "pr": 1.1785,
+          "pr_ci": [
+            1.0518,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9185
+        },
+        {
+          "potential": "Voter-1993",
+          "n_materials": 6,
+          "pr": 1.9522,
+          "pr_ci": [
+            1.3066,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.6446
+        },
+        {
+          "potential": "Jacobsen-1996",
+          "n_materials": 7,
+          "pr": 1.5956,
+          "pr_ci": [
+            1.4138,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.7737
+        },
+        {
+          "potential": "Kim-2017",
+          "n_materials": 7,
+          "pr": 1.3381,
+          "pr_ci": [
+            1.0174,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.8524
+        },
+        {
+          "potential": "Lee-2001",
+          "n_materials": 7,
+          "pr": 1.3097,
+          "pr_ci": [
+            1.0261,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.864
+        },
+        {
+          "potential": "Elliott-2015",
+          "n_materials": 8,
+          "pr": 1.0014,
+          "pr_ci": [
+            1.0001,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9993
+        },
+        {
+          "potential": "Lee-2003",
+          "n_materials": 8,
+          "pr": 2.2893,
+          "pr_ci": [
+            1.8954,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.5778
+        },
+        {
+          "potential": "Morse_Shifted_GirifalcoWeizer_1959HighCu",
+          "n_materials": 9,
+          "pr": 1.0912,
+          "pr_ci": [
+            1.0241,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9565
+        },
+        {
+          "potential": "Morse_Shifted_GirifalcoWeizer_1959LowCut",
+          "n_materials": 9,
+          "pr": 1.0883,
+          "pr_ci": [
+            1.0141,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9578
+        },
+        {
+          "potential": "Morse_Shifted_GirifalcoWeizer_1959MedCut",
+          "n_materials": 9,
+          "pr": 1.0844,
+          "pr_ci": [
+            1.012,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9596
+        },
+        {
+          "potential": "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret",
+          "n_materials": 12,
+          "pr": 1.0184,
+          "pr_ci": [
+            1.0139,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9909
+        },
+        {
+          "potential": "Zhou-2004",
+          "n_materials": 12,
+          "pr": 1.1595,
+          "pr_ci": [
+            1.0578,
+            3.0
+          ],
+          "n_eigenvalues": 3,
+          "cum_var_1": 0.9266
+        }
+      ]
+    },
+    "lean": {
+      "count": 899,
+      "modules": 111,
+      "zero_sorry": true,
+      "counted_at": "2026-08-08"
+    }
+  },
+  "quoted": {
+    "kim_model_objects_queried": {
+      "value": 965,
+      "source": "immi_paper",
+      "note": "retrieval universe; stated in the classical manuscript methods"
+    },
+    "mlip_tensors_total": {
+      "value": 45,
+      "source": "immi_paper",
+      "note": "3 foundation models x 15 elements"
+    },
+    "mlip_born_failures": {
+      "value": 7,
+      "source": "immi_paper"
+    },
+    "classical_vs_mlip_spearman_rho": {
+      "value": 0.264,
+      "source": "immi_paper"
+    },
+    "classical_vs_mlip_spearman_p": {
+      "value": 0.341,
+      "source": "immi_paper"
+    },
+    "global_operator_raw_mae_gpa": {
+      "value": 14.5466,
+      "source": "global_operator_lock"
+    },
+    "global_operator_corrected_mae_gpa": {
+      "value": 63.3952,
+      "source": "global_operator_lock"
+    },
+    "global_operator_raw_ci95": {
+      "value": [
+        10.0843,
+        19.7229
+      ],
+      "source": "global_operator_lock"
+    },
+    "global_operator_corrected_ci95": {
+      "value": [
+        57.0699,
+        69.1756
+      ],
+      "source": "global_operator_lock"
+    },
+    "global_operator_n_elements": {
+      "value": 16,
+      "source": "global_operator_lock"
+    },
+    "layer2_cases": {
+      "value": 128,
+      "source": "layer2_results",
+      "note": "16 metals x 4 MatPES models x 2 functionals"
+    },
+    "layer2_raw_mae_gpa": {
+      "value": 17.84,
+      "source": "layer2_results"
+    },
+    "layer2_raw_mae_ci95": {
+      "value": [
+        15.51,
+        20.41
+      ],
+      "source": "layer2_results"
+    },
+    "layer2_oracle_loo_mae_gpa": {
+      "value": 10.36,
+      "source": "layer2_operator",
+      "note": "oracle directional ceiling: held-out target sets the projection magnitude"
+    },
+    "layer2_oracle_loo_ci95": {
+      "value": [
+        8.9,
+        12.0
+      ],
+      "source": "layer2_operator"
+    },
+    "layer2_r2scan_vs_pbe_gap_gpa": {
+      "value": 5.65,
+      "source": "layer2_results"
+    },
+    "matpes_h1_effect_size": {
+      "value": -0.14,
+      "source": "round2_manuscript",
+      "note": "kill triggered"
+    },
+    "matpes_h2a_permutation_p": {
+      "value": 0.13,
+      "source": "round2_manuscript",
+      "note": "kill triggered"
+    },
+    "y_matrix_h1_pass_fraction": {
+      "value": "2/6",
+      "source": "y_matrix"
+    },
+    "y_matrix_h2_pass_fraction": {
+      "value": "0/3",
+      "source": "y_matrix"
+    },
+    "y_matrix_raw_cosine_max": {
+      "value": 0.96,
+      "source": "y_matrix"
+    },
+    "y_matrix_null_p95_cosine": {
+      "value": 0.98,
+      "source": "y_matrix"
+    },
+    "y_matrix_defect_bulk_ratio_range": {
+      "value": [
+        15.3,
+        57.0
+      ],
+      "source": "y_matrix",
+      "note": "primary matrix, MACE-medium to CHGNet"
+    },
+    "round3_group_verdicts": {
+      "value": "FAIL, FAIL",
+      "source": "round3_report"
+    },
+    "round3_a0_rocksalt_rel_err": {
+      "value": [
+        1.6,
+        0.33
+      ],
+      "source": "round3_report",
+      "note": "median |rel err| % raw -> corrected"
+    },
+    "round3_a0_perovskite_rel_err": {
+      "value": [
+        1.75,
+        0.74
+      ],
+      "source": "round3_report"
+    },
+    "round4_confirmatory_wins": {
+      "value": "0/4 rocksalt, 0/1 perovskite",
+      "source": "round4_report"
+    },
+    "z1_gate_mev": {
+      "value": 40,
+      "source": "negative_results"
+    },
+    "z1_mae_range_mev": {
+      "value": [
+        135.0,
+        242.5
+      ],
+      "source": "negative_results"
+    },
+    "z1_completed_paths_range": {
+      "value": [
+        26,
+        29
+      ],
+      "source": "negative_results"
+    },
+    "z1_negative_counts": {
+      "value": {
+        "CHGNet": "25/28",
+        "MACE-MP medium": "21/29",
+        "MACE-MP small": "17/26",
+        "MACE-MPA-0 medium": "13/28"
+      },
+      "source": "negative_results"
+    },
+    "z1_gpaw_anchors": {
+      "value": 129,
+      "source": "z1_verdict"
+    },
+    "z1_gpaw_active_paths": {
+      "value": 23,
+      "source": "z1_verdict"
+    },
+    "z1_deferred_paths": {
+      "value": 7,
+      "source": "z1_deferred"
+    },
+    "z3_holdout_mae_ev": {
+      "value": [
+        [
+          0.69,
+          2.27
+        ],
+        [
+          2.11,
+          5.01
+        ],
+        [
+          3.24,
+          5.0
+        ],
+        [
+          4.27,
+          5.91
+        ]
+      ],
+      "source": "negative_results",
+      "note": "raw -> corrected, four model-level holdout tests"
+    },
+    "env_field_r": {
+      "value": 0.906,
+      "source": "env_field"
+    },
+    "env_field_cells": {
+      "value": 36,
+      "source": "env_field"
+    },
+    "anchor_registered_metals": {
+      "value": 15,
+      "source": "anchor_spec"
+    },
+    "anchor_benchmark_overlap": {
+      "value": 14,
+      "source": "sprint_contract",
+      "note": "15 registered vs 16 benchmarked; Pb registered only, Ca/Sr benchmarked only"
+    }
+  },
+  "consistency": {
+    "canonical_pr_median_matches": true,
+    "canonical_n_potentials_matches": true,
+    "lock_raw_mae_matches_quoted": true,
+    "lock_corrected_mae_matches_quoted": true,
+    "deferred_paths_matches_quoted": true,
+    "funnel_559_423_233_1677": true
+  },
+  "recovery_outputs_present": false
+}
