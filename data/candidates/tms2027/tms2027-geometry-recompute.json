@@ -1,0 +1,3083 @@
+{
+  "deterministic": true,
+  "gauges": {
+    "absolute_gpa": "signed residual in GPa",
+    "relative_to_reference": "signed residual divided componentwise by the frozen experimental reference",
+    "standardized_global_sd": "signed absolute residual divided by the componentwise sample SD across all 559 model-element tensors",
+    "standardized_global_sd_scales_gpa": {
+      "C11": 39093.68903106588,
+      "C12": 31294.106302315395,
+      "C44": 2605.481616234721
+    }
+  },
+  "groups": [
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            155.36420157814865,
+            31.948535352716302,
+            2.0311230691350293
+          ],
+          "lower_tail_p": 0.5632436756324367,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.3987999237252404,
+          "null_pr_q05": 1.128440485169003,
+          "null_pr_q95": 1.520879583639569,
+          "participation_ratio": 1.424761882337293
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0015849465498060985,
+            0.0011804558810165735,
+            0.00015410878853260057
+          ],
+          "lower_tail_p": 0.8424157584241576,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.9048222741887233,
+          "null_pr_q05": 1.2830790778515588,
+          "null_pr_q95": 2.2755025443144667,
+          "participation_ratio": 2.169237931310603
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.1923372645451547e-06,
+            7.889331551843325e-08,
+            1.0548346390183218e-08
+          ],
+          "lower_tail_p": 0.3621637836216378,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.1736819960279092,
+          "null_pr_q05": 1.0780589129464637,
+          "null_pr_q95": 1.2202310461342363,
+          "participation_ratio": 1.150527382953189
+        }
+      },
+      "lineage_short_label": "Ackland-1987",
+      "materials": [
+        "Ag",
+        "Au",
+        "Cu",
+        "Mo",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 5,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.4247618823372932
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            61.34486657784914,
+            5.900233422150697,
+            0.0
+          ],
+          "lower_tail_p": 0.2972972972972973,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.37694009046904,
+          "null_pr_q05": 1.0929950110346804,
+          "null_pr_q95": 1.8531568531353477,
+          "participation_ratio": 1.190599534754473
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0034203635900526314,
+            0.00016057390007370611,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4302211690819633,
+          "null_pr_q05": 1.0806930778507127,
+          "null_pr_q95": 1.8386895041633502,
+          "participation_ratio": 1.0936864016490744
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.568972090136023e-06,
+            6.377943719270214e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0112285423584475,
+          "null_pr_q05": 1.0048745495317986,
+          "null_pr_q95": 1.0281958341844424,
+          "participation_ratio": 1.0049653356937354
+        }
+      },
+      "lineage_short_label": "Asadi-2015",
+      "materials": [
+        "Cu",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.1905995347544722
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            93.41229626731655,
+            0.9698703993501611,
+            0.0
+          ],
+          "lower_tail_p": 0.05405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.2783146039946423,
+          "null_pr_q05": 1.0257272848749535,
+          "null_pr_q95": 1.614461635494725,
+          "participation_ratio": 1.0207631307056715
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.002704623150366213,
+            4.5778827036515194e-05,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3606174441744168,
+          "null_pr_q05": 1.0442234280365876,
+          "null_pr_q95": 1.9147349607487973,
+          "participation_ratio": 1.033842582039083
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.301847195802281e-07,
+            1.523490330614287e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.05405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3508476684333321,
+          "null_pr_q05": 1.0211325596657101,
+          "null_pr_q95": 1.625455776481612,
+          "participation_ratio": 1.0132365310729656
+        }
+      },
+      "lineage_short_label": "Bonny-2009",
+      "materials": [
+        "Cu",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0207631307056717
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            3323.253622801889,
+            63.91607719811039,
+            0.0
+          ],
+          "lower_tail_p": 0.24324324324324326,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1441168414280132,
+          "null_pr_q05": 1.0146795527658772,
+          "null_pr_q95": 1.3465550300521008,
+          "participation_ratio": 1.0384517404628189
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.672307052138749,
+            0.0010367086161346653,
+            0.0
+          ],
+          "lower_tail_p": 0.13513513513513514,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0096715133920258,
+          "null_pr_q05": 1.0027308415190033,
+          "null_pr_q95": 1.0209866906702847,
+          "participation_ratio": 1.003084025811543
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            6.223334293922376e-06,
+            1.0534713032967253e-07,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.489929225990901,
+          "null_pr_q05": 1.0296779314576057,
+          "null_pr_q95": 1.8764818445952145,
+          "participation_ratio": 1.0338458282554683
+        }
+      },
+      "lineage_short_label": "Bonny-2011",
+      "materials": [
+        "Cr",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.038451740462819
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2079.9034186898143,
+            63.47893184667004,
+            30.950279463514907
+          ],
+          "lower_tail_p": 0.08189181081891811,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.2976926457009945,
+          "null_pr_q05": 1.0689741821284875,
+          "null_pr_q95": 1.3838569678767916,
+          "participation_ratio": 1.0916042410084303
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.41580611085769054,
+            0.0034801395480799115,
+            0.0006025941768980901
+          ],
+          "lower_tail_p": 0.2211778822117788,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0320614437711424,
+          "null_pr_q05": 1.0119939877515682,
+          "null_pr_q95": 1.0423543603141354,
+          "participation_ratio": 1.0196605205552562
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.3030399024673821e-05,
+            1.1500415036267577e-06,
+            2.683809484953538e-08
+          ],
+          "lower_tail_p": 0.21977802219778023,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.3002640241598091,
+          "null_pr_q05": 1.0451841138409765,
+          "null_pr_q95": 1.3284422673906962,
+          "participation_ratio": 1.1795998049762204
+        }
+      },
+      "lineage_short_label": "Bonny-2013",
+      "materials": [
+        "Cr",
+        "Cu",
+        "Fe",
+        "Ni",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 5,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0916042410084301
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            504.21007708272253,
+            1.8688562506101685,
+            0.0
+          ],
+          "lower_tail_p": 0.05405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0721958527494306,
+          "null_pr_q05": 1.016708733355415,
+          "null_pr_q95": 1.154591054624177,
+          "participation_ratio": 1.0074129045064655
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.003982176534481242,
+            0.0001259692500198355,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.5025295120214102,
+          "null_pr_q05": 1.0643702704033495,
+          "null_pr_q95": 1.9286451052415456,
+          "participation_ratio": 1.0632032869998587
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.15320722902022e-06,
+            3.6139274239591844e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.05405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1772120741588605,
+          "null_pr_q05": 1.00883503469779,
+          "null_pr_q95": 1.3148067572089244,
+          "participation_ratio": 1.0033567760639468
+        }
+      },
+      "lineage_short_label": "Chen-2020",
+      "materials": [
+        "Mo",
+        "V",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0074129045064653
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            922.725770919129,
+            1.804662414204732,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3639229812933111,
+          "null_pr_q05": 1.0037759141951499,
+          "null_pr_q95": 1.6343627669988645,
+          "participation_ratio": 1.0039115749619913
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.16858132363396824,
+            4.54008491420983e-05,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1926536222556041,
+          "null_pr_q05": 1.0005784068952779,
+          "null_pr_q95": 1.2214452673681793,
+          "participation_ratio": 1.0005386224864128
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.8721804236656358e-05,
+            4.601364456779454e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0336455959213127,
+          "null_pr_q05": 1.0003179235020472,
+          "null_pr_q95": 1.040433028448601,
+          "participation_ratio": 1.0003204091428777
+        }
+      },
+      "lineage_short_label": "Choi-2017",
+      "materials": [
+        "Cr",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0039115749619913
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            914.9195472000739,
+            3.244419466593196,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3834042665839614,
+          "null_pr_q05": 1.0065225210022701,
+          "null_pr_q95": 1.638783505595425,
+          "participation_ratio": 1.0070921616626123
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.1680570109906785,
+            9.033641523935253e-05,
+            0.0
+          ],
+          "lower_tail_p": 0.13513513513513514,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1916798018559671,
+          "null_pr_q05": 1.0010183864830806,
+          "null_pr_q95": 1.22854878578843,
+          "participation_ratio": 1.0010750683783405
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.9314864230194425e-05,
+            8.246407895623453e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0317317417489298,
+          "null_pr_q05": 1.0005107306642023,
+          "null_pr_q95": 1.0396115556753567,
+          "participation_ratio": 1.0005626092741424
+        }
+      },
+      "lineage_short_label": "Choi-2018",
+      "materials": [
+        "Cr",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0070921616626125
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            14754.031021164015,
+            0.21961216931831884,
+            0.0
+          ],
+          "lower_tail_p": 0.13513513513513514,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.390537379535595,
+          "null_pr_q05": 1.0000228014693175,
+          "null_pr_q95": 1.450636217495479,
+          "participation_ratio": 1.000029769785485
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.9479003159954744,
+            1.0383174476438058e-06,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1459132120136277,
+          "null_pr_q05": 1.0000018964868993,
+          "null_pr_q95": 1.2231098127579199,
+          "participation_ratio": 1.0000021907735026
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            7.120812814617706e-05,
+            1.3003776767753667e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1552788727772096,
+          "null_pr_q05": 1.0000347551282893,
+          "null_pr_q95": 1.2503772501191794,
+          "participation_ratio": 1.000036523293343
+        }
+      },
+      "lineage_short_label": "Deluigi-2021",
+      "materials": [
+        "Cr",
+        "Cu",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0000297697854856
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            137.6606410146882,
+            7.217772971112575,
+            2.653116014199341
+          ],
+          "lower_tail_p": 0.0932906709329067,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.4920626485166666,
+          "null_pr_q05": 1.1165440589536881,
+          "null_pr_q95": 1.6224920001959546,
+          "participation_ratio": 1.1449776334821211
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0021260964968766068,
+            0.0006496470894772958,
+            3.7241323446539854e-05
+          ],
+          "lower_tail_p": 0.23407659234076592,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.886469601274722,
+          "null_pr_q05": 1.3208390522957019,
+          "null_pr_q95": 2.32554552725886,
+          "participation_ratio": 1.600594854134835
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.3064390243683594e-06,
+            4.882107302715109e-08,
+            4.06778826869377e-09
+          ],
+          "lower_tail_p": 0.1850814918508149,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.1268796516357011,
+          "null_pr_q05": 1.0548816772092096,
+          "null_pr_q95": 1.1591957915330362,
+          "participation_ratio": 1.0810851353165962
+        }
+      },
+      "lineage_short_label": "Derlet-2007",
+      "materials": [
+        "Mo",
+        "Nb",
+        "Ta",
+        "V",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 5,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.1449776334821207
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            454.5573569717434,
+            14.644862662160667,
+            0.39214036609617237
+          ],
+          "lower_tail_p": 0.0028997100289971,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.506113909294489,
+          "null_pr_q05": 1.167698463535232,
+          "null_pr_q95": 1.6570346302233703,
+          "participation_ratio": 1.0661479585143177
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.016069093121707012,
+            0.0007959532402071881,
+            5.285453949279521e-06
+          ],
+          "lower_tail_p": 0.008399160083991601,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.6178730216973252,
+          "null_pr_q05": 1.2220593210160995,
+          "null_pr_q95": 1.83380315608664,
+          "participation_ratio": 1.099512612214463
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            5.772016851251495e-06,
+            1.0777140654340108e-07,
+            4.1301893414742887e-10
+          ],
+          "lower_tail_p": 0.0245975402459754,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.086903192532031,
+          "null_pr_q05": 1.0435400237620382,
+          "null_pr_q95": 1.1101908998233165,
+          "participation_ratio": 1.0374754386797842
+        }
+      },
+      "lineage_short_label": "EAM_Dynamo_AdamsFoilesWolfer_1989Univers",
+      "materials": [
+        "Ag",
+        "Cu",
+        "Ni",
+        "Pd",
+        "Pt"
+      ],
+      "missing_cells": 0,
+      "n_materials": 5,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0661479585143174
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            393.6366357758392,
+            23.100349649391656,
+            10.934757908102196
+          ],
+          "lower_tail_p": 0.0072992700729927005,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.7088303281242179,
+          "null_pr_q05": 1.302221810881555,
+          "null_pr_q95": 1.9146842887267796,
+          "participation_ratio": 1.175447289698926
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.01892655379496846,
+            0.000971687417016643,
+            0.0005026298735262721
+          ],
+          "lower_tail_p": 0.007999200079992,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.5143967543150365,
+          "null_pr_q05": 1.2620981809091238,
+          "null_pr_q95": 1.6542909452840437,
+          "participation_ratio": 1.1579925196733418
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            7.355030567458536e-06,
+            1.0386075147051066e-07,
+            1.2810699768803394e-08
+          ],
+          "lower_tail_p": 0.018598140185981403,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.064944273688135,
+          "null_pr_q05": 1.0386124274421875,
+          "null_pr_q95": 1.0775319298506671,
+          "participation_ratio": 1.0317683795200714
+        }
+      },
+      "lineage_short_label": "EAM_Dynamo_FoilesBaskesDaw_1986Universal",
+      "materials": [
+        "Ag",
+        "Au",
+        "Cu",
+        "Ni",
+        "Pd",
+        "Pt"
+      ],
+      "missing_cells": 0,
+      "n_materials": 6,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.1754472896989268
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            907.264917930681,
+            5.181550283933716,
+            3.1559484520523178
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.6588965392035662,
+          "null_pr_q05": 1.4314581584683914,
+          "null_pr_q95": 1.7243938813291528,
+          "participation_ratio": 1.0184183233078823
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.07839233122456443,
+            0.0016359650811509213,
+            0.0001762860037266988
+          ],
+          "lower_tail_p": 0.0005999400059994001,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.3605194159385086,
+          "null_pr_q05": 1.2511392253780602,
+          "null_pr_q95": 1.3884947567632966,
+          "participation_ratio": 1.0463088740341928
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            3.9807846443991904e-05,
+            7.888520696766706e-09,
+            4.64991529632496e-09
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0203960943783814,
+          "null_pr_q05": 1.0156060940228397,
+          "null_pr_q95": 1.0215818865704647,
+          "participation_ratio": 1.0006299942297834
+        }
+      },
+      "lineage_short_label": "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret",
+      "materials": [
+        "Ag",
+        "Al",
+        "Au",
+        "Cu",
+        "Fe",
+        "Mo",
+        "Ni",
+        "Pb",
+        "Pd",
+        "Pt",
+        "Ta",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 12,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0184183233078827
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            2335213.3737869626,
+            1562.8708647919505,
+            36.75127324597259
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.9705738279089071,
+          "null_pr_q05": 1.5894786177774078,
+          "null_pr_q95": 2.2194656635788044,
+          "participation_ratio": 1.001370021288288
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            846.6958053799069,
+            19.12743545069565,
+            1.1003282172120878
+          ],
+          "lower_tail_p": 0.0016998300169983002,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.7170213313830005,
+          "null_pr_q05": 1.315024253804676,
+          "null_pr_q95": 1.788429520720254,
+          "participation_ratio": 1.0478147077309545
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.07116651088017968,
+            5.2813319565015155e-06,
+            3.512274679046811e-08
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0353042465643476,
+          "null_pr_q05": 1.0238324247564525,
+          "null_pr_q95": 1.0395451707189987,
+          "participation_ratio": 1.0001494089625795
+        }
+      },
+      "lineage_short_label": "Elliott-2015",
+      "materials": [
+        "Ag",
+        "Al",
+        "Au",
+        "Cu",
+        "Ni",
+        "Pb",
+        "Pd",
+        "Pt"
+      ],
+      "missing_cells": 0,
+      "n_materials": 8,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.001370021288288
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            247.51089698580915,
+            6.894169141283352,
+            0.7498255395738588
+          ],
+          "lower_tail_p": 0.09809019098090191,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.3802884029077693,
+          "null_pr_q05": 1.0470309737366315,
+          "null_pr_q95": 1.5306154802867304,
+          "participation_ratio": 1.0618871171187811
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0073276349382988375,
+            0.005600205611270263,
+            3.948582559421216e-05
+          ],
+          "lower_tail_p": 0.7272272772722728,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.843580370129219,
+          "null_pr_q05": 1.2703046976104737,
+          "null_pr_q95": 2.3221299465580856,
+          "participation_ratio": 1.9769023950378803
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            1.0070990944804633e-06,
+            4.508683945002791e-08,
+            2.773320406375821e-09
+          ],
+          "lower_tail_p": 0.047595240475952406,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.2618609953107573,
+          "null_pr_q05": 1.096296037567409,
+          "null_pr_q95": 1.4006476570140527,
+          "participation_ratio": 1.0951008209792976
+        }
+      },
+      "lineage_short_label": "Etesami-2018",
+      "materials": [
+        "Cu",
+        "Fe",
+        "Ni",
+        "Pb"
+      ],
+      "missing_cells": 0,
+      "n_materials": 4,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.061887117118781
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            14754.031021164015,
+            0.21961216931831884,
+            0.0
+          ],
+          "lower_tail_p": 0.13513513513513514,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.390537379535595,
+          "null_pr_q05": 1.0000228014693175,
+          "null_pr_q95": 1.450636217495479,
+          "participation_ratio": 1.000029769785485
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.9479003159954744,
+            1.0383174476438058e-06,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1459132120136277,
+          "null_pr_q05": 1.0000018964868993,
+          "null_pr_q95": 1.2231098127579199,
+          "participation_ratio": 1.0000021907735026
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            7.120812814617706e-05,
+            1.3003776767753667e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1552788727772096,
+          "null_pr_q05": 1.0000347551282893,
+          "null_pr_q95": 1.2503772501191794,
+          "participation_ratio": 1.000036523293343
+        }
+      },
+      "lineage_short_label": "Farkas-2018",
+      "materials": [
+        "Cr",
+        "Cu",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0000297697854856
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            14964.151858885987,
+            1.4878077806824093,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3927280588430213,
+          "null_pr_q05": 1.000242009941419,
+          "null_pr_q95": 1.4469375115909913,
+          "participation_ratio": 1.0001988495946854
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.9458990199294839,
+            0.003015012217437349,
+            0.0
+          ],
+          "lower_tail_p": 0.13513513513513514,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.174913324695736,
+          "null_pr_q05": 1.006240970648256,
+          "null_pr_q95": 1.2454763466026684,
+          "participation_ratio": 1.0063748487355646
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            6.754523402976988e-05,
+            3.294106332981625e-08,
+            0.0
+          ],
+          "lower_tail_p": 0.13513513513513514,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1752194434045706,
+          "null_pr_q05": 1.0007545352398302,
+          "null_pr_q95": 1.275575574132253,
+          "participation_ratio": 1.000975377640429
+        }
+      },
+      "lineage_short_label": "Farkas-2020",
+      "materials": [
+        "Al",
+        "Cr",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0001988495946854
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            503.57412711752966,
+            96.68827094079154,
+            50.59959241786915
+          ],
+          "lower_tail_p": 0.3975602439756024,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.6370645736113771,
+          "null_pr_q05": 1.3259022310244089,
+          "null_pr_q95": 1.7771991617347431,
+          "participation_ratio": 1.595585555944434
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.06385516042311132,
+            0.005333634760104991,
+            0.0019445741768709284
+          ],
+          "lower_tail_p": 0.036896310368963105,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.149507602288959,
+          "null_pr_q05": 1.2484744330114974,
+          "null_pr_q95": 2.38435713967134,
+          "participation_ratio": 1.2312196165302325
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            7.639630675255971e-06,
+            3.448016766571908e-07,
+            9.205090162622977e-08
+          ],
+          "lower_tail_p": 0.9265073492650735,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.1009091752459428,
+          "null_pr_q05": 1.062048481349648,
+          "null_pr_q95": 1.1157333588654994,
+          "participation_ratio": 1.115201084670412
+        }
+      },
+      "lineage_short_label": "Jacobsen-1996",
+      "materials": [
+        "Ag",
+        "Al",
+        "Au",
+        "Cu",
+        "Ni",
+        "Pd",
+        "Pt"
+      ],
+      "missing_cells": 0,
+      "n_materials": 7,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.5955855559444336
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            49.75930411208245,
+            1.0372292212509855,
+            0.0
+          ],
+          "lower_tail_p": 0.16216216216216217,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4420761153391461,
+          "null_pr_q05": 1.0237107129293834,
+          "null_pr_q95": 1.883764053449208,
+          "participation_ratio": 1.0416717535692899
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0025215472019209702,
+            3.8565281171169824e-05,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3873589954410694,
+          "null_pr_q05": 1.0288507059576373,
+          "null_pr_q95": 1.65925058321139,
+          "participation_ratio": 1.0305814320974083
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            3.4018362608919443e-06,
+            1.1880346383450152e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.16216216216216217,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.006451876180733,
+          "null_pr_q05": 1.000414777039629,
+          "null_pr_q95": 1.0100029161975528,
+          "participation_ratio": 1.0006984665941188
+        }
+      },
+      "lineage_short_label": "Jelinek-2012",
+      "materials": [
+        "Al",
+        "Cu",
+        "Fe"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0416717535692899
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            148.60863186417825,
+            11.282697673009562,
+            1.9112637961452752
+          ],
+          "lower_tail_p": 0.07239276072392761,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.605830791633485,
+          "null_pr_q05": 1.1558303654502469,
+          "null_pr_q95": 1.7328735196893714,
+          "participation_ratio": 1.1784612336199096
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.001981982756227039,
+            0.0012042635940573434,
+            6.949540919360211e-05
+          ],
+          "lower_tail_p": 0.5620437956204379,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.9287580377393359,
+          "null_pr_q05": 1.3288314064848716,
+          "null_pr_q95": 2.2149318451155393,
+          "participation_ratio": 1.9690122040721612
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.7290176836589037e-06,
+            6.093242597278876e-08,
+            2.9937482317389984e-09
+          ],
+          "lower_tail_p": 0.12588741125887412,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.1099910090892449,
+          "null_pr_q05": 1.0598238469795236,
+          "null_pr_q95": 1.1310406384099696,
+          "participation_ratio": 1.073975022698523
+        }
+      },
+      "lineage_short_label": "Jeong-2018",
+      "materials": [
+        "Al",
+        "Cu",
+        "Fe",
+        "Mo",
+        "Ni",
+        "Pd"
+      ],
+      "missing_cells": 0,
+      "n_materials": 6,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.178461233619909
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            621.5252683169986,
+            104.91139202470922,
+            2.6976825154347503
+          ],
+          "lower_tail_p": 0.018198180181981802,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.034439668673265,
+          "null_pr_q05": 1.4369544048572673,
+          "null_pr_q95": 2.335636937734989,
+          "participation_ratio": 1.3380998553499606
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.0438737561186934,
+            0.00291506236358544,
+            0.0008293891644257661
+          ],
+          "lower_tail_p": 0.00029997000299970003,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.28806873004728,
+          "null_pr_q05": 1.707946011695564,
+          "null_pr_q95": 2.7473898096068585,
+          "participation_ratio": 1.172381539766881
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            1.4306349257327411e-05,
+            9.261647657293025e-08,
+            1.306594292319942e-08
+          ],
+          "lower_tail_p": 0.004299570042995701,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0661229190925703,
+          "null_pr_q05": 1.036252078312851,
+          "null_pr_q95": 1.0720985957593197,
+          "participation_ratio": 1.014785391183916
+        }
+      },
+      "lineage_short_label": "Kim-2017",
+      "materials": [
+        "Al",
+        "Cu",
+        "Mo",
+        "Ni",
+        "Pb",
+        "Pt",
+        "V"
+      ],
+      "missing_cells": 0,
+      "n_materials": 7,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.3380998553499601
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            255.46835648730672,
+            38.543574894722184,
+            1.6642305227327991
+          ],
+          "lower_tail_p": 0.13058694130586943,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.6277113116540538,
+          "null_pr_q05": 1.167703883534587,
+          "null_pr_q95": 1.7301698863632062,
+          "participation_ratio": 1.3096805023267692
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.018256997812401785,
+            0.0013846320511853385,
+            0.00048691732304374433
+          ],
+          "lower_tail_p": 0.21057894210578942,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.3184221978533375,
+          "null_pr_q05": 1.1742226351129663,
+          "null_pr_q95": 1.3519142292179305,
+          "participation_ratio": 1.207725513861592
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.794544880701675e-07,
+            1.759189094975109e-07,
+            3.280685016640015e-08
+          ],
+          "lower_tail_p": 0.6244375562443756,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.0485450876677076,
+          "null_pr_q05": 1.5302925401747716,
+          "null_pr_q95": 2.4235605337791233,
+          "participation_ratio": 2.1642123516712015
+        }
+      },
+      "lineage_short_label": "Lee-2001",
+      "materials": [
+        "Cr",
+        "Fe",
+        "Mo",
+        "Nb",
+        "Ta",
+        "V",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 7,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.3096805023267692
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            11.30443044292616,
+            5.759905943553368,
+            2.5016403992347804
+          ],
+          "lower_tail_p": 0.5282471752824718,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.2661972523707514,
+          "null_pr_q05": 1.7416753914309575,
+          "null_pr_q95": 2.6498490767647,
+          "participation_ratio": 2.2892973414522007
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.010107465074839648,
+            0.00011511683005594892,
+            4.50446932732601e-05
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.2824521776748257,
+          "null_pr_q05": 1.1457965131102463,
+          "null_pr_q95": 1.3115886714377547,
+          "participation_ratio": 1.03178848890511
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            9.624702557674755e-07,
+            5.690439332767487e-09,
+            2.927125905787219e-09
+          ],
+          "lower_tail_p": 0.41645835416458354,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0185165461198409,
+          "null_pr_q05": 1.0129780026145572,
+          "null_pr_q95": 1.0207359486936236,
+          "participation_ratio": 1.0179423512091965
+        }
+      },
+      "lineage_short_label": "Lee-2003",
+      "materials": [
+        "Ag",
+        "Al",
+        "Au",
+        "Cu",
+        "Ni",
+        "Pb",
+        "Pd",
+        "Pt"
+      ],
+      "missing_cells": 0,
+      "n_materials": 8,
+      "n_properties": 3,
+      "source_effective_dimensionality": 2.2892973414522007
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            358.2115831257214,
+            4.591683540944821,
+            0.0
+          ],
+          "lower_tail_p": 0.16216216216216217,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4044785905636612,
+          "null_pr_q05": 1.0187081841919974,
+          "null_pr_q95": 1.6513074785474986,
+          "participation_ratio": 1.0256325000111668
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.009342850501004482,
+            0.0004515218678288097,
+            0.0
+          ],
+          "lower_tail_p": 0.16216216216216217,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4393620949416412,
+          "null_pr_q05": 1.049970687979132,
+          "null_pr_q95": 1.8588983677282935,
+          "participation_ratio": 1.0964309018703995
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.9564182689624965e-06,
+            3.5263804069120695e-08,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1399187936484023,
+          "null_pr_q05": 1.0328419181510955,
+          "null_pr_q95": 1.2869988657489198,
+          "participation_ratio": 1.036037642389814
+        }
+      },
+      "lineage_short_label": "Li-2018",
+      "materials": [
+        "Cu",
+        "Mo",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.025632500011167
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            1361.7679147269937,
+            31.95793112065452,
+            7.8266041523519965
+          ],
+          "lower_tail_p": 0.0173982601739826,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.3386062042380855,
+          "null_pr_q05": 1.1018093866492453,
+          "null_pr_q95": 1.5224025035675874,
+          "participation_ratio": 1.0586662241241456
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.07567860379828155,
+            0.007834267533979545,
+            0.00036884502188204546
+          ],
+          "lower_tail_p": 0.8835116488351165,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.150800244964329,
+          "null_pr_q05": 1.0594556858275068,
+          "null_pr_q95": 1.224931670194227,
+          "participation_ratio": 1.2154829105647955
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.20638146024853e-05,
+            1.984543541763731e-07,
+            7.65595636731534e-09
+          ],
+          "lower_tail_p": 0.0908909109089091,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.059974056652092,
+          "null_pr_q05": 1.0142694342449687,
+          "null_pr_q95": 1.080784690666661,
+          "participation_ratio": 1.0186878354830864
+        }
+      },
+      "lineage_short_label": "Li-2019",
+      "materials": [
+        "Mo",
+        "Nb",
+        "Ta",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 4,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.058666224124145
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            4242.153212016715,
+            33.83395464995144,
+            0.0
+          ],
+          "lower_tail_p": 0.35135135135135137,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0630559522038312,
+          "null_pr_q05": 1.0028188080875275,
+          "null_pr_q95": 1.0907004700682932,
+          "participation_ratio": 1.0159502973519827
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.412725730988342,
+            0.0021118149570249086,
+            0.0
+          ],
+          "lower_tail_p": 0.24324324324324326,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.163786301020933,
+          "null_pr_q05": 1.0022276865025677,
+          "null_pr_q95": 1.1950281605375392,
+          "participation_ratio": 1.0102332348588123
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            4.597811149686503e-06,
+            2.4339314399081437e-06,
+            0.0
+          ],
+          "lower_tail_p": 0.918918918918919,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4186828318450435,
+          "null_pr_q05": 1.0236150405295994,
+          "null_pr_q95": 1.837066297883309,
+          "participation_ratio": 1.82698808398469
+        }
+      },
+      "lineage_short_label": "Mahata-2022",
+      "materials": [
+        "Al",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.015950297351983
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            341.56186435816466,
+            90.43666897516896,
+            0.0
+          ],
+          "lower_tail_p": 0.9459459459459459,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.2316377103634701,
+          "null_pr_q05": 1.0792352662432125,
+          "null_pr_q95": 1.4949781207565007,
+          "participation_ratio": 1.4948558342704388
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.04608149688514453,
+            0.005963948775538886,
+            0.0
+          ],
+          "lower_tail_p": 0.7027027027027027,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1559380300064166,
+          "null_pr_q05": 1.0287107555193082,
+          "null_pr_q95": 1.3443815353816715,
+          "participation_ratio": 1.2545793327132244
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            8.017142875078762e-06,
+            2.2172384558495802e-07,
+            0.0
+          ],
+          "lower_tail_p": 0.7297297297297297,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0237201041888115,
+          "null_pr_q05": 1.0098820408492857,
+          "null_pr_q95": 1.062909316749588,
+          "participation_ratio": 1.0552701603404615
+        }
+      },
+      "lineage_short_label": "Maresca-2020",
+      "materials": [
+        "Nb",
+        "Ta",
+        "V"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.494855834270438
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            87.4372499575671,
+            33.94121670909972,
+            0.0
+          ],
+          "lower_tail_p": 0.7027027027027027,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4804055220901464,
+          "null_pr_q05": 1.1049466109686654,
+          "null_pr_q95": 1.943516227849355,
+          "participation_ratio": 1.674691957022863
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.007269070482171683,
+            0.002063994810851643,
+            0.0
+          ],
+          "lower_tail_p": 0.918918918918919,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3110976688998468,
+          "null_pr_q05": 1.0582683705399154,
+          "null_pr_q95": 1.6088967432136607,
+          "participation_ratio": 1.5255154317808322
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            5.127932643060173e-06,
+            6.40650216387501e-08,
+            0.0
+          ],
+          "lower_tail_p": 0.918918918918919,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0125721600277133,
+          "null_pr_q05": 1.0046290436494196,
+          "null_pr_q95": 1.0251990380899705,
+          "participation_ratio": 1.0249827866929673
+        }
+      },
+      "lineage_short_label": "Mendelev-2007",
+      "materials": [
+        "Cu",
+        "Fe",
+        "V"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.6746919570228636
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            12565.514332254119,
+            495.38313651587094,
+            75.63347567445558
+          ],
+          "lower_tail_p": 0.00019998000199980003,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.3587189256183656,
+          "null_pr_q05": 1.8292418013331706,
+          "null_pr_q95": 2.751633357499442,
+          "participation_ratio": 1.0912158289217186
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.4536395443899608,
+            0.2121437517350859,
+            0.015296121704621178
+          ],
+          "lower_tail_p": 0.46185381461853814,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.864534738589327,
+          "null_pr_q05": 1.4856905606352573,
+          "null_pr_q95": 2.0044097364377915,
+          "participation_ratio": 1.847879845360327
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.0005426185047957188,
+            1.3588329086528978e-06,
+            6.284351219289155e-08
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0253621276747606,
+          "null_pr_q05": 1.0185225794945159,
+          "null_pr_q95": 1.0279382403527408,
+          "participation_ratio": 1.0052406058637084
+        }
+      },
+      "lineage_short_label": "Morse_Shifted_GirifalcoWeizer_1959HighCu",
+      "materials": [
+        "Ag",
+        "Al",
+        "Cr",
+        "Cu",
+        "Fe",
+        "Mo",
+        "Ni",
+        "Pb",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 9,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0912158289217184
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            11867.128630626094,
+            481.1673428563803,
+            41.69322373974609
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.2874076082474892,
+          "null_pr_q05": 1.8023422293978917,
+          "null_pr_q95": 2.650199432945506,
+          "participation_ratio": 1.088257857070997
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.41322468937421425,
+            0.22577723565772376,
+            0.010793479972406596
+          ],
+          "lower_tail_p": 0.461053894610539,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.9232966560240403,
+          "null_pr_q05": 1.5336868509282469,
+          "null_pr_q95": 2.0816240186777732,
+          "participation_ratio": 1.9032712355656138
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.0004814088046705216,
+            1.38487791549279e-06,
+            3.514530444463561e-08
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0272052812950159,
+          "null_pr_q05": 1.0199615811658909,
+          "null_pr_q95": 1.0299289334172286,
+          "participation_ratio": 1.0058998196526552
+        }
+      },
+      "lineage_short_label": "Morse_Shifted_GirifalcoWeizer_1959LowCut",
+      "materials": [
+        "Ag",
+        "Al",
+        "Cr",
+        "Cu",
+        "Fe",
+        "Mo",
+        "Ni",
+        "Pb",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 9,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0882578570709978
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            12503.680927754445,
+            489.5358671899526,
+            37.53961894448565
+          ],
+          "lower_tail_p": 9.999000099990002e-05,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.3360776540145203,
+          "null_pr_q05": 1.8335972748695148,
+          "null_pr_q95": 2.72973974848825,
+          "participation_ratio": 1.0844121882789401
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.44564225708239075,
+            0.2266237838659923,
+            0.011844234981397733
+          ],
+          "lower_tail_p": 0.45455454454554545,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.8947035478859067,
+          "null_pr_q05": 1.5224702691342766,
+          "null_pr_q95": 2.046182458323697,
+          "participation_ratio": 1.8713115400842666
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.000529726679153029,
+            1.3648332083190913e-06,
+            3.1279974541813715e-08
+          ],
+          "lower_tail_p": 0.00019998000199980003,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0258018850624353,
+          "null_pr_q05": 1.0190070726657594,
+          "null_pr_q95": 1.0284333705675814,
+          "participation_ratio": 1.005271339190883
+        }
+      },
+      "lineage_short_label": "Morse_Shifted_GirifalcoWeizer_1959MedCut",
+      "materials": [
+        "Ag",
+        "Al",
+        "Cr",
+        "Cu",
+        "Fe",
+        "Mo",
+        "Ni",
+        "Pb",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 9,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0844121882789406
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            19.707893613933333,
+            0.700373052733288,
+            0.0
+          ],
+          "lower_tail_p": 0.8648648648648649,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0452095025234172,
+          "null_pr_q05": 1.0031975899414032,
+          "null_pr_q95": 1.0765911702134716,
+          "participation_ratio": 1.0709857341112012
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0005387915981529426,
+            0.00019237111220466273,
+            0.0
+          ],
+          "lower_tail_p": 0.7297297297297297,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3340504023297957,
+          "null_pr_q05": 1.0101221127346398,
+          "null_pr_q95": 1.75269362138665,
+          "participation_ratio": 1.6333454270213565
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.0815016560049808e-07,
+            1.2254997040238863e-08,
+            0.0
+          ],
+          "lower_tail_p": 1.0,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.120619670352577,
+          "null_pr_q05": 1.0019928212193616,
+          "null_pr_q95": 1.2231309431231965,
+          "participation_ratio": 1.2237562031571287
+        }
+      },
+      "lineage_short_label": "Olsson-2009",
+      "materials": [
+        "Fe",
+        "V",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0709857341112015
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            891.9112537439414,
+            11.951512922725525,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.396168267838752,
+          "null_pr_q05": 1.0297600781234193,
+          "null_pr_q95": 1.8842053702079946,
+          "participation_ratio": 1.0267949692961302
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.027729941527834277,
+            0.00041718143887243343,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3984577530972917,
+          "null_pr_q05": 1.0304264071576617,
+          "null_pr_q95": 1.7826605782082319,
+          "participation_ratio": 1.0300820711783623
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1.170719037989615e-05,
+            9.212880503633021e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0629739382276047,
+          "null_pr_q05": 1.0084387869335254,
+          "null_pr_q95": 1.1139775237363714,
+          "participation_ratio": 1.001573883143495
+        }
+      },
+      "lineage_short_label": "Park-2012",
+      "materials": [
+        "Mo",
+        "Ta",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0267949692961298
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            22.200881798743445,
+            2.0463848679231984,
+            0.0
+          ],
+          "lower_tail_p": 0.4594594594594595,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.2218289207559527,
+          "null_pr_q05": 1.054847041439032,
+          "null_pr_q95": 1.5291805521758364,
+          "participation_ratio": 1.1827985477048346
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0005129480662277907,
+            0.00019244147611808385,
+            0.0
+          ],
+          "lower_tail_p": 0.5405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.6411436796561896,
+          "null_pr_q05": 1.1158871113707796,
+          "null_pr_q95": 1.962132447196265,
+          "participation_ratio": 1.6577555694436408
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.673324879201348e-07,
+            1.5894569380977204e-08,
+            0.0
+          ],
+          "lower_tail_p": 1.0,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0546828430465771,
+          "null_pr_q05": 1.0112308648216182,
+          "null_pr_q95": 1.1095137753351727,
+          "participation_ratio": 1.1184934874809631
+        }
+      },
+      "lineage_short_label": "Pun-2015",
+      "materials": [
+        "Cu",
+        "Ni",
+        "Ta"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.1827985477048342
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            525.9158729237747,
+            48.8725015605276,
+            19.744105515697942
+          ],
+          "lower_tail_p": 0.033896610338966106,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.8840465968795197,
+          "null_pr_q05": 1.3415085912539126,
+          "null_pr_q95": 2.3666758434237436,
+          "participation_ratio": 1.265254366433868
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.01889767107747843,
+            0.0028280024259590554,
+            0.000900459340790391
+          ],
+          "lower_tail_p": 0.0463953604639536,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.9433276479263688,
+          "null_pr_q05": 1.4095221800549218,
+          "null_pr_q95": 2.4960834575606263,
+          "participation_ratio": 1.3990143803960915
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.3243084811815202e-05,
+            1.2235286132296698e-07,
+            1.7562889647363327e-08
+          ],
+          "lower_tail_p": 0.0766923307669233,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0220163110295346,
+          "null_pr_q05": 1.0106812621787264,
+          "null_pr_q95": 1.0282860228803496,
+          "participation_ratio": 1.012046958879814
+        }
+      },
+      "lineage_short_label": "Sharifi-2025",
+      "materials": [
+        "Al",
+        "Cr",
+        "Cu",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 5,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.2652543664338685
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            49.20129356968093,
+            0.3097397636524198,
+            0.0
+          ],
+          "lower_tail_p": 0.05405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1710091808402285,
+          "null_pr_q05": 1.0356900482799771,
+          "null_pr_q95": 1.3845107865341795,
+          "participation_ratio": 1.0125902172973666
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.001181999052243304,
+            0.0005602561422980566,
+            0.0
+          ],
+          "lower_tail_p": 1.0,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.5844086409119122,
+          "null_pr_q05": 1.0165666945388385,
+          "null_pr_q95": 1.73906451123713,
+          "participation_ratio": 1.7740723088938715
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            9.187164474289376e-07,
+            9.39345879665423e-10,
+            0.0
+          ],
+          "lower_tail_p": 0.05405405405405406,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0293402246141699,
+          "null_pr_q05": 1.0048897686607137,
+          "null_pr_q95": 1.0637186647873391,
+          "participation_ratio": 1.0020449071098931
+        }
+      },
+      "lineage_short_label": "Shim-2013",
+      "materials": [
+        "Al",
+        "Ni",
+        "V"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.012590217297367
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            37.484543617882544,
+            17.86480165290962,
+            2.8006080625411567
+          ],
+          "lower_tail_p": 0.6466353364663534,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.8646290563223096,
+          "null_pr_q05": 1.3562184900089878,
+          "null_pr_q95": 2.142614514412378,
+          "participation_ratio": 1.9522228940341764
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.0031928971802723297,
+            0.0012867235791294152,
+            0.000566863685749775
+          ],
+          "lower_tail_p": 0.6091390860913909,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 2.006518039072704,
+          "null_pr_q05": 1.5155131056284952,
+          "null_pr_q95": 2.4851778188670375,
+          "participation_ratio": 2.0923327970293215
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            7.305196723669956e-07,
+            1.682270734513229e-08,
+            1.5019674262754306e-08
+          ],
+          "lower_tail_p": 0.35766423357664234,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0956938480238296,
+          "null_pr_q05": 1.0583228492099617,
+          "null_pr_q95": 1.1166183500154954,
+          "participation_ratio": 1.088040376798044
+        }
+      },
+      "lineage_short_label": "Voter-1993",
+      "materials": [
+        "Ag",
+        "Al",
+        "Au",
+        "Cu",
+        "Ni",
+        "Pd"
+      ],
+      "missing_cells": 0,
+      "n_materials": 6,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.9522228940341768
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            922.725770919129,
+            1.804662414204732,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3639229812933111,
+          "null_pr_q05": 1.0037759141951499,
+          "null_pr_q95": 1.6343627669988645,
+          "participation_ratio": 1.0039115749619913
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.16858132363396824,
+            4.54008491420983e-05,
+            0.0
+          ],
+          "lower_tail_p": 0.08108108108108109,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1926536222556041,
+          "null_pr_q05": 1.0005784068952779,
+          "null_pr_q95": 1.2214452673681793,
+          "participation_ratio": 1.0005386224864128
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.8721804236656358e-05,
+            4.601364456779454e-09,
+            0.0
+          ],
+          "lower_tail_p": 0.10810810810810811,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0336455959213127,
+          "null_pr_q05": 1.0003179235020472,
+          "null_pr_q95": 1.040433028448601,
+          "participation_ratio": 1.0003204091428777
+        }
+      },
+      "lineage_short_label": "Wu-2017",
+      "materials": [
+        "Cr",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.0039115749619913
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            1224.323934041011,
+            116.51458621709413,
+            16.396438075228833
+          ],
+          "lower_tail_p": 0.14928507149285072,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.6820595424217393,
+          "null_pr_q05": 1.1130751529040182,
+          "null_pr_q95": 2.0102369550797303,
+          "participation_ratio": 1.2176561259136172
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.08548818556861965,
+            0.02502635591943368,
+            0.0012949320496971086
+          ],
+          "lower_tail_p": 0.631036896310369,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.5111770744917892,
+          "null_pr_q05": 1.1814714609869195,
+          "null_pr_q95": 1.7914094199405612,
+          "participation_ratio": 1.5752272698583916
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            6.279177963345562e-05,
+            1.200880828217831e-07,
+            3.052874876626066e-08
+          ],
+          "lower_tail_p": 0.142985701429857,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.0161048861397328,
+          "null_pr_q05": 1.0031319195637398,
+          "null_pr_q95": 1.0206281441347351,
+          "participation_ratio": 1.004799183313377
+        }
+      },
+      "lineage_short_label": "Zhou-2001",
+      "materials": [
+        "Al",
+        "Cu",
+        "Pt",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 4,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.2176561259136176
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            129.38620045723013,
+            8.387835799041548,
+            1.857250107364748
+          ],
+          "lower_tail_p": 0.051994800519948,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.2198221550754855,
+          "null_pr_q05": 1.1589967472118312,
+          "null_pr_q95": 1.2332645046953874,
+          "participation_ratio": 1.1595222632013422
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            0.01181135281879699,
+            0.0012377333842967153,
+            0.00011445969080298476
+          ],
+          "lower_tail_p": 0.0010998900109989002,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.6608001668261312,
+          "null_pr_q05": 1.3383734445190094,
+          "null_pr_q95": 1.7074611808543996,
+          "participation_ratio": 1.2284656694392162
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 3,
+          "clears_group_null_at_0_05": true,
+          "eigenvalues": [
+            1.4443118955580634e-06,
+            4.707356223952297e-08,
+            2.9178017325273123e-09
+          ],
+          "lower_tail_p": 0.0263973602639736,
+          "null_draws": 10000,
+          "null_method": "monte-carlo-10000",
+          "null_pr_median": 1.117568655447736,
+          "null_pr_q05": 1.0767791947147813,
+          "null_pr_q95": 1.1231184973456243,
+          "participation_ratio": 1.06928297094284
+        }
+      },
+      "lineage_short_label": "Zhou-2004",
+      "materials": [
+        "Ag",
+        "Al",
+        "Au",
+        "Cu",
+        "Fe",
+        "Mo",
+        "Ni",
+        "Pb",
+        "Pd",
+        "Pt",
+        "Ta",
+        "W"
+      ],
+      "missing_cells": 0,
+      "n_materials": 12,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.159522263201343
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            4371.102952285959,
+            1620.0563143807067,
+            0.0
+          ],
+          "lower_tail_p": 0.7027027027027027,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4363075827347456,
+          "null_pr_q05": 1.0611476465797192,
+          "null_pr_q95": 1.9400618247064405,
+          "participation_ratio": 1.651731876151706
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.8454659027632547,
+            0.0752591999415534,
+            0.0
+          ],
+          "lower_tail_p": 0.9459459459459459,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.09277417355043,
+          "null_pr_q05": 1.0228709902056574,
+          "null_pr_q95": 1.1777636178261202,
+          "participation_ratio": 1.1766305601780578
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            7.600327948671662e-05,
+            2.981443793089407e-06,
+            0.0
+          ],
+          "lower_tail_p": 0.6486486486486487,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.0659567835219976,
+          "null_pr_q05": 1.0078169547253097,
+          "null_pr_q95": 1.1161528221680699,
+          "participation_ratio": 1.0783351178765035
+        }
+      },
+      "lineage_short_label": "Zhou-2018",
+      "materials": [
+        "Cr",
+        "Fe",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.6517318761517057
+    },
+    {
+      "gauges": {
+        "absolute_gpa": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            422.72384659248047,
+            83.94372007418627,
+            0.0
+          ],
+          "lower_tail_p": 0.6756756756756757,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.3255225059485187,
+          "null_pr_q05": 1.0460805484797084,
+          "null_pr_q95": 1.8475428517191146,
+          "participation_ratio": 1.3820892691055056
+        },
+        "relative_to_reference": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            0.015382105459587871,
+            0.004311118000553719,
+            0.0
+          ],
+          "lower_tail_p": 0.7567567567567568,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.4558774973209525,
+          "null_pr_q05": 1.1026254078534072,
+          "null_pr_q95": 1.8642583689062182,
+          "participation_ratio": 1.51971312882998
+        },
+        "standardized_global_sd": {
+          "centered_covariance_rank": 2,
+          "clears_group_null_at_0_05": false,
+          "eigenvalues": [
+            2.4330512370740642e-06,
+            3.8065001224037795e-07,
+            0.0
+          ],
+          "lower_tail_p": 0.8648648648648649,
+          "null_draws": 36,
+          "null_method": "exact-36-relative-column-permutations",
+          "null_pr_median": 1.1375304641465325,
+          "null_pr_q05": 1.0340202318039187,
+          "null_pr_q95": 1.3224650626927745,
+          "participation_ratio": 1.3054235996584627
+        }
+      },
+      "lineage_short_label": "Zuo-2019",
+      "materials": [
+        "Cu",
+        "Mo",
+        "Ni"
+      ],
+      "missing_cells": 0,
+      "n_materials": 3,
+      "n_properties": 3,
+      "source_effective_dimensionality": 1.3820892691055056
+    }
+  ],
+  "null": {
+    "construction": "within each short-label lineage, independently permute property columns relative to C11; this preserves n, d, the exact missingness mask, each marginal scale/distribution, and lineage membership while breaking cross-property alignment",
+    "estimand": "centered-covariance participation ratio",
+    "group_threshold": "one-sided lower-tail p <= 0.05",
+    "monte_carlo_draws_for_n_gt_3": 10000,
+    "n3_method": "all 3!^2=36 relative permutations",
+    "seed": 20260909,
+    "strict_across_strata_rule": "every gauge-by-n_materials stratum must have one-sided lower-tail p <= 0.05 for its median PR"
+  },
+  "rank_limit": {
+    "all_n3_observed_ranks_at_most_2": true,
+    "expected_max_centered_covariance_rank": 2,
+    "interpretation": "With n=3 centered observations in d=3, rank is at most n-1=2; the third variance direction is structurally unavailable in both observations and matched nulls.",
+    "n_equals_3_groups": 21
+  },
+  "reconstruction": {
+    "ambiguous_duplicate_scalars": [
+      "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret/Cu/C11",
+      "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret/Cu/C12",
+      "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret/Cu/C44",
+      "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret/Au/C11",
+      "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret/Au/C12",
+      "EAM_Dynamo_ZhouJohnsonWadley_2004NISTret/Au/C44",
+      "Zhou-2004/Al/C11",
+      "Zhou-2004/Al/C12",
+      "Zhou-2004/Al/C44",
+      "Zhou-2004/Cu/C11",
+      "Zhou-2004/Cu/C12",
+      "Zhou-2004/Cu/C44",
+      "Zhou-2004/Fe/C11",
+      "Zhou-2004/Fe/C12",
+      "Zhou-2004/Fe/C44",
+      "Zhou-2004/Ni/C11",
+      "Zhou-2004/Ni/C12",
+      "Zhou-2004/Ni/C44",
+      "Zhou-2004/Ag/C11",
+      "Zhou-2004/Ag/C12",
+      "Zhou-2004/Ag/C44",
+      "Zhou-2004/Au/C11",
+      "Zhou-2004/Au/C12",
+      "Zhou-2004/Au/C44",
+      "Zhou-2004/Pb/C11",
+      "Zhou-2004/Pb/C12",
+      "Zhou-2004/Pb/C44",
+      "Zhou-2004/Mo/C11",
+      "Zhou-2004/Mo/C12",
+      "Zhou-2004/Mo/C44",
+      "Zhou-2004/W/C11",
+      "Zhou-2004/W/C12",
+      "Zhou-2004/W/C44",
+      "Zhou-2004/Ta/C11",
+      "Zhou-2004/Ta/C12",
+      "Zhou-2004/Ta/C44",
+      "Jacobsen-1996/Al/C11",
+      "Jacobsen-1996/Al/C12",
+      "Jacobsen-1996/Al/C44",
+      "Jacobsen-1996/Cu/C11",
+      "Jacobsen-1996/Cu/C12",
+      "Jacobsen-1996/Cu/C44",
+      "Jacobsen-1996/Ni/C11",
+      "Jacobsen-1996/Ni/C12",
+      "Jacobsen-1996/Ni/C44",
+      "Jacobsen-1996/Au/C11",
+      "Jacobsen-1996/Au/C44",
+      "Jacobsen-1996/Pt/C11",
+      "Jacobsen-1996/Pt/C12",
+      "Jacobsen-1996/Pt/C44",
+      "Kim-2017/Ni/C11",
+      "Kim-2017/Ni/C12",
+      "Kim-2017/Ni/C44",
+      "Kim-2017/Pt/C11",
+      "Kim-2017/Pt/C12",
+      "Kim-2017/Pt/C44",
+      "Mahata-2022/Al/C11",
+      "Mahata-2022/Al/C12",
+      "Mahata-2022/Al/C44",
+      "Bonny-2013/Fe/C11",
+      "Bonny-2013/Fe/C12",
+      "Bonny-2013/Fe/C44",
+      "Bonny-2013/Ni/C11",
+      "Bonny-2013/Ni/C12",
+      "Bonny-2013/Ni/C44",
+      "Li-2018/Ni/C11",
+      "Li-2018/Ni/C12",
+      "Li-2018/Ni/C44",
+      "Choi-2017/Cr/C11",
+      "Choi-2017/Cr/C12"
+    ],
+    "duplicate_scalar_rows_collapsed_by_first_csv_occurrence": 189,
+    "groups": 42,
+    "max_absolute_pr_delta_vs_committed": 8.881784197001252e-16,
+    "model_element_tensors_before_short_label_collapse": 559,
+    "n_materials_distribution": {
+      "12": 2,
+      "3": 21,
+      "4": 3,
+      "5": 5,
+      "6": 3,
+      "7": 3,
+      "8": 2,
+      "9": 3
+    },
+    "scalar_csv_rows": 1677
+  },
+  "schema_version": "tms2027-geometry-recompute.v1",
+  "source": {
+    "committed_42_group_summary": "replication/error-geometry/data/classical/manifold_revalidation_42potentials.json",
+    "committed_42_group_summary_sha256": "ee280efa42345a8dbc21859dc3677fcaec7f23a9b3b65066b22b6f61f7c7e649",
+    "comparison_reference_module_not_used": "replication/error-geometry/references.py",
+    "comparison_reference_module_not_used_sha256": "fba771662a833fefd0597d8b206a700ac1cc043a7555653cc60e141ff068a675",
+    "model_element_tensor_csv": "atlas-distill/benchmarks/kim_elastic_results_all.csv",
+    "model_element_tensor_csv_sha256": "927be85f4dc02571866db0e01f4becb44ef16406041bbb6da962867693d77da6",
+    "raw_born_stable_csv": "atlas-distill/benchmarks/nist_populated_all.csv",
+    "raw_born_stable_csv_sha256": "527f72ef488aef3f830cc023182506a04a56573d55197382f28e0365828c1156",
+    "reference_values_used": "reference column of raw_born_stable_csv; required to reproduce the committed summary"
+  },
+  "strata": [
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 0.05405405405405406,
+      "matched_null_median": 1.286213776291421,
+      "matched_null_median_q05": 1.0481839271193376,
+      "matched_null_median_q95": 1.3954612061378255,
+      "n_groups": 21,
+      "n_materials": 3,
+      "observed_pr_median": 1.0256325000111668
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 0.004899510048995101,
+      "matched_null_median": 1.4123126110475126,
+      "matched_null_median_q05": 1.1557231658129141,
+      "matched_null_median_q95": 1.5314101900248749,
+      "n_groups": 3,
+      "n_materials": 4,
+      "observed_pr_median": 1.0618871171187811
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 0.0023997600239976003,
+      "matched_null_median": 1.4567443495685275,
+      "matched_null_median_q05": 1.2692158950554486,
+      "matched_null_median_q95": 1.5811662389387422,
+      "n_groups": 5,
+      "n_materials": 5,
+      "observed_pr_median": 1.1449776334821211
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 0.000999900009999,
+      "matched_null_median": 1.6838081525132265,
+      "matched_null_median_q05": 1.426893633973669,
+      "matched_null_median_q95": 1.8832513584916872,
+      "n_groups": 3,
+      "n_materials": 6,
+      "observed_pr_median": 1.1784612336199096
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 0.0122987701229877,
+      "matched_null_median": 1.6849144962501272,
+      "matched_null_median_q05": 1.4537762682237487,
+      "matched_null_median_q95": 1.772566893856131,
+      "n_groups": 3,
+      "n_materials": 7,
+      "observed_pr_median": 1.3380998553499606
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 0.0084991500849915,
+      "matched_null_median": 2.104608408063682,
+      "matched_null_median_q05": 1.792639163824461,
+      "matched_null_median_q95": 2.3513676108786488,
+      "n_groups": 2,
+      "n_materials": 8,
+      "observed_pr_median": 1.6453336813702442
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 9.999000099990002e-05,
+      "matched_null_median": 2.325291103895544,
+      "matched_null_median_q05": 2.0111859182290517,
+      "matched_null_median_q95": 2.619314383601716,
+      "n_groups": 3,
+      "n_materials": 9,
+      "observed_pr_median": 1.088257857070997
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "absolute_gpa",
+      "lower_tail_p": 9.999000099990002e-05,
+      "matched_null_median": 1.4338371553206215,
+      "matched_null_median_q05": 1.3171825230643455,
+      "matched_null_median_q95": 1.4744938601698276,
+      "n_groups": 2,
+      "n_materials": 12,
+      "observed_pr_median": 1.0889702932546124
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 0.05405405405405406,
+      "matched_null_median": 1.208696565988829,
+      "matched_null_median_q05": 1.0988255904690005,
+      "matched_null_median_q95": 1.2673987637148538,
+      "n_groups": 21,
+      "n_materials": 3,
+      "observed_pr_median": 1.033842582039083
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 0.7325267473252675,
+      "matched_null_median": 1.4456708541461782,
+      "matched_null_median_q05": 1.1844281936791425,
+      "matched_null_median_q95": 1.7677137989254343,
+      "n_groups": 3,
+      "n_materials": 4,
+      "observed_pr_median": 1.5752272698583916
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 0.06419358064193581,
+      "matched_null_median": 1.6989691088225816,
+      "matched_null_median_q05": 1.3821749336640978,
+      "matched_null_median_q95": 2.0105906327476064,
+      "n_groups": 5,
+      "n_materials": 5,
+      "observed_pr_median": 1.3990143803960915
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 0.7616238376162384,
+      "matched_null_median": 1.789383844279923,
+      "matched_null_median_q05": 1.4554745058995597,
+      "matched_null_median_q95": 2.1315137346078337,
+      "n_groups": 3,
+      "n_materials": 6,
+      "observed_pr_median": 1.9690122040721612
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 0.004899510048995101,
+      "matched_null_median": 2.0381649954640926,
+      "matched_null_median_q05": 1.3125631680729515,
+      "matched_null_median_q95": 2.3398171522564017,
+      "n_groups": 3,
+      "n_materials": 7,
+      "observed_pr_median": 1.207725513861592
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 9.999000099990002e-05,
+      "matched_null_median": 1.483750281902036,
+      "matched_null_median_q05": 1.277085215193523,
+      "matched_null_median_q95": 1.5406763988159995,
+      "n_groups": 2,
+      "n_materials": 8,
+      "observed_pr_median": 1.0398015983180322
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 0.43675632436756323,
+      "matched_null_median": 1.8912138855065925,
+      "matched_null_median_q05": 1.6313546491360873,
+      "matched_null_median_q95": 2.0108755316414215,
+      "n_groups": 3,
+      "n_materials": 9,
+      "observed_pr_median": 1.8713115400842666
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "relative_to_reference",
+      "lower_tail_p": 9.999000099990002e-05,
+      "matched_null_median": 1.5029581505995413,
+      "matched_null_median_q05": 1.3433442638029354,
+      "matched_null_median_q95": 1.5406252999105003,
+      "n_groups": 2,
+      "n_materials": 12,
+      "observed_pr_median": 1.1373872717367046
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.05405405405405406,
+      "matched_null_median": 1.0549636866586254,
+      "matched_null_median_q05": 1.0254206169875664,
+      "matched_null_median_q95": 1.0843654449020201,
+      "n_groups": 21,
+      "n_materials": 3,
+      "observed_pr_median": 1.0049653356937354
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.0670932906709329,
+      "matched_null_median": 1.059974056652092,
+      "matched_null_median_q05": 1.0172043271977793,
+      "matched_null_median_q95": 1.080784690666661,
+      "n_groups": 3,
+      "n_materials": 4,
+      "observed_pr_median": 1.0186878354830864
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.1817818218178182,
+      "matched_null_median": 1.1098299102372406,
+      "matched_null_median_q05": 1.0604181748046384,
+      "matched_null_median_q95": 1.1561453518353784,
+      "n_groups": 5,
+      "n_materials": 5,
+      "observed_pr_median": 1.0810851353165962
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.2211778822117788,
+      "matched_null_median": 1.087785255124488,
+      "matched_null_median_q05": 1.0612252961896929,
+      "matched_null_median_q95": 1.114669791735489,
+      "n_groups": 3,
+      "n_materials": 6,
+      "observed_pr_median": 1.073975022698523
+    },
+    {
+      "clears_stratum_null_at_0_05": false,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.9265073492650735,
+      "matched_null_median": 1.1009091752459428,
+      "matched_null_median_q05": 1.0688010861694095,
+      "matched_null_median_q95": 1.1157333588654994,
+      "n_groups": 3,
+      "n_materials": 7,
+      "observed_pr_median": 1.115201084670412
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.00019998000199980003,
+      "matched_null_median": 1.026493641807927,
+      "matched_null_median_q05": 1.0205344548023072,
+      "matched_null_median_q95": 1.0295220759722719,
+      "n_groups": 2,
+      "n_materials": 8,
+      "observed_pr_median": 1.0090458800858881
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 9.999000099990002e-05,
+      "matched_null_median": 1.0260534408919963,
+      "matched_null_median_q05": 1.0219350015568913,
+      "matched_null_median_q95": 1.028100118508188,
+      "n_groups": 3,
+      "n_materials": 9,
+      "observed_pr_median": 1.005271339190883
+    },
+    {
+      "clears_stratum_null_at_0_05": true,
+      "gauge": "standardized_global_sd",
+      "lower_tail_p": 0.0016998300169983002,
+      "matched_null_median": 1.068435407176195,
+      "matched_null_median_q05": 1.0480451887821756,
+      "matched_null_median_q95": 1.0719655175352645,
+      "n_groups": 2,
+      "n_materials": 12,
+      "observed_pr_median": 1.0349564825863116
+    }
+  ],
+  "strict_hyper_ribbon_claim_clears_frozen_null_across_strata": false,
+  "verdict": "NOT SUPPORTED: descriptive anisotropy does not clear the frozen matched null in every gauge-by-sample-size stratum."
+}
