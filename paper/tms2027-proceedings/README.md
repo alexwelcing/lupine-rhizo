@@ -12,6 +12,7 @@
 | `references.bib` | Embedded references (extracted from `lupine/paper/references.bib` and `paper/negative-results-preprint/references.bib`). |
 | `build_artifacts.py` | Recomputes every derivable headline number from committed source rows, records the SHA-256 of every source file, writes `results.json`, and renders the four figures. Fails closed on a missing source or a headline mismatch. `--check` verifies `results.json` is current. |
 | `check_claims.py` | Claim lock: fails if any phrase from the contract's *Remove or retire* list appears outside an explicit retirement sentence, or if a headline token in the text is missing from / disagrees with `results.json`. |
+| `test_check_claims.py` | Regression tests for the claim lock: asserting sentences containing the escaped %-retire phrases (`98\% systematic error`, `72.4\%`) must exit 1 with a named diagnostic, and the unmodified manuscript (including the retirement-context sentence) must exit 0. Runs against disposable mutated copies; never edits `manuscript.tex`. |
 | `results.json` | Canonical results object. `derived` = recomputed from data; `quoted` = copied from named frozen reports (each with its source key). |
 | `figures/` | `fig1_denominator_funnel.pdf`, `fig2_pr_vs_group_size.pdf`, `fig3_correction_arms.pdf`, `fig4_reference_stack.pdf` — all generated from `results.json`. |
 | `manuscript.pdf` | Reviewer PDF built with Tectonic 0.15.0 (`SOURCE_DATE_EPOCH=1788912000 FORCE_SOURCE_DATE=1`). |
