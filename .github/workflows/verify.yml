@@ -287,3 +287,16 @@ jobs:
 
       - name: Enforce archive boundary
         run: python .github/scripts/archive_boundary_check.py
+
+  tms-claim-lock:
+    name: TMS proceedings claim-lock guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run claim lock on the unmodified manuscript
+        run: python3 paper/tms2027-proceedings/check_claims.py
+
+      - name: Run comment-strip regression tests
+        run: python3 paper/tms2027-proceedings/test_check_claims.py

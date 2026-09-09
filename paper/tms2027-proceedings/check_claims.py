@@ -47,7 +47,9 @@ RETIRE_MARKERS = (
 
 
 def sentences(text: str):
-    body = re.sub(r"%.*", "", text)
+    # Only an UNESCAPED % starts a LaTeX comment; an escaped \% must survive
+    # the strip or every %-containing retire-list entry is dead code.
+    body = re.sub(r"(?<!\\)%.*", "", text)
     return re.split(r"(?<=[.!?])\s+|\\\\|&", body)
 
 
