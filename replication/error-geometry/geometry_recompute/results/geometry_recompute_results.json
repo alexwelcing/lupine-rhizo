@@ -5367,18 +5367,18 @@
  },
  "inputs": {
   "kim_elastic_results_all.csv": {
-   "path": "/home/alex/.hermes/kanban/boards/lupine/workspaces/t_1634651b/lupine-rhizo/atlas-distill/benchmarks/kim_elastic_results_all.csv",
+   "path": "atlas-distill/benchmarks/kim_elastic_results_all.csv",
    "rows": 559,
    "sha256": "927be85f4dc02571866db0e01f4becb44ef16406041bbb6da962867693d77da6"
   },
   "manifold_revalidation_42potentials.json": {
    "groups": 42,
    "note": "read-only diff target; this generator never overwrites it",
-   "path": "/home/alex/.hermes/kanban/boards/lupine/workspaces/t_1634651b/lupine-rhizo/replication/error-geometry/data/classical/manifold_revalidation_42potentials.json",
+   "path": "replication/error-geometry/data/classical/manifold_revalidation_42potentials.json",
    "sha256": "ee280efa42345a8dbc21859dc3677fcaec7f23a9b3b65066b22b6f61f7c7e649"
   },
   "nist_populated_all.csv": {
-   "path": "/home/alex/.hermes/kanban/boards/lupine/workspaces/t_1634651b/lupine-rhizo/atlas-distill/benchmarks/nist_populated_all.csv",
+   "path": "atlas-distill/benchmarks/nist_populated_all.csv",
    "rows": 1677,
    "sha256": "527f72ef488aef3f830cc023182506a04a56573d55197382f28e0365828c1156"
   }
