@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claim-table"
+version = "0.1.0"
+description = "Render the TMS 2027 proceedings canonical results object as a markdown headline table."
+requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["claim_table"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

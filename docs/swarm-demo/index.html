@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lupine Swarm — cloud control plane + local agent herd</title>
+<meta name="description" content="Capability demonstration of the Lupine Swarm: six model lanes, one cloud→local bridge, one ledger. Every claim traces to a file in lupine-rhizo, all produced 2026-09-09.">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --bg:#080b10;
+  --bg-2:#0c1118;
+  --panel:#0f161f;
+  --panel-2:#121b26;
+  --line:#1b2633;
+  --line-2:#26354a;
+  --grid:rgba(94,224,255,.045);
+  --grid-strong:rgba(94,224,255,.11);
+  --ink:#e6edf3;
+  --ink-2:#9fb0c1;
+  --ink-3:#5f7186;
+  --cyan:#5ee0ff;
+  --cyan-2:#1fb6d9;
+  --amber:#ffb347;
+  --green:#7ee787;
+  --red:#ff7b72;
+  --violet:#c4a5ff;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  --max:1240px;
+  --r:6px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+    linear-gradient(var(--grid-strong) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-strong) 1px,transparent 1px);
+  background-size:24px 24px,24px 24px,120px 120px,120px 120px;
+  background-position:-1px -1px;
+}
+a{color:var(--cyan);text-decoration:none}
+code,kbd,pre,.mono{font-family:var(--mono);font-size:.92em}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+h2{font-size:1.65rem}
+h3{font-size:1.05rem}
+p{margin:0 0 .9rem}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+section{padding:88px 0;border-top:1px solid var(--line);position:relative}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan-2);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--cyan-2)}
+.lede{color:var(--ink-2);max-width:68ch;font-size:1.05rem}
+.muted{color:var(--ink-3)}
+.path{font-family:var(--mono);font-size:.78rem;color:var(--ink-3);overflow-wrap:break-word}
+.path::before{content:"⌘ ";color:var(--cyan-2)}
+.tag{display:inline-block;font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--line-2);border-radius:3px;color:var(--ink-2);vertical-align:middle}
+.tag.cyan{color:var(--cyan);border-color:rgba(94,224,255,.35)}
+.tag.amber{color:var(--amber);border-color:rgba(255,179,71,.4)}
+.tag.green{color:var(--green);border-color:rgba(126,231,135,.4)}
+.tag.red{color:var(--red);border-color:rgba(255,123,114,.4)}
+.tag.violet{color:var(--violet);border-color:rgba(196,165,255,.4)}
+
+/* ---------- top nav ---------- */
+nav.top{position:sticky;top:0;z-index:10;background:rgba(8,11,16,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;height:52px}
+nav.top .brand{font-family:var(--mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+nav.top .brand b{color:var(--cyan);font-weight:600}
+nav.top ul{list-style:none;margin:0;padding:0;display:flex;gap:22px}
+nav.top li a{font-size:.8rem;color:var(--ink-2);font-family:var(--mono)}
+nav.top li a:hover{color:var(--cyan)}
+@media(max-width:820px){nav.top ul{display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding:112px 0 80px;border-top:0;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.25fr .9fr;gap:56px;align-items:end}
+.hero h1{font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.035em;font-weight:650}
+.hero h1 span{color:var(--cyan)}
+.hero .sub{font-size:1.18rem;color:var(--ink-2);margin:26px 0 0;max-width:56ch}
+.hero .stamp{margin-top:34px;display:flex;gap:10px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat{background:var(--panel);padding:20px 22px}
+.stat .n{font-family:var(--mono);font-size:2rem;color:var(--ink);letter-spacing:-.02em;line-height:1}
+.stat .n small{font-size:.9rem;color:var(--ink-3)}
+.stat .l{font-size:.78rem;color:var(--ink-2);margin-top:8px}
+.stat .s{font-family:var(--mono);font-size:.66rem;color:var(--ink-3);margin-top:6px}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+
+/* ---------- architecture ---------- */
+.arch{margin-top:44px;display:grid;grid-template-columns:1fr 64px 1fr;grid-auto-rows:auto;gap:16px 0;position:relative}
+.layer{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:20px 22px;position:relative}
+.layer::before{content:attr(data-n);position:absolute;top:-10px;left:16px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;color:var(--cyan-2)}
+.layer h3{display:flex;align-items:center;gap:10px;font-size:1rem}
+.layer .runs{font-family:var(--mono);font-size:.8rem;color:var(--ink-2);margin:10px 0 8px}
+.layer .why{font-size:.86rem;color:var(--ink-3);margin:0}
+.layer.cloud{border-color:rgba(94,224,255,.32);box-shadow:0 0 0 1px rgba(94,224,255,.06),0 20px 50px -30px rgba(94,224,255,.35)}
+.layer.local{border-color:rgba(255,179,71,.32);box-shadow:0 0 0 1px rgba(255,179,71,.06),0 20px 50px -30px rgba(255,179,71,.3)}
+.layer.link{grid-column:1/4;border-color:var(--violet);border-style:dashed;background:linear-gradient(90deg,rgba(94,224,255,.06),rgba(196,165,255,.06),rgba(255,179,71,.06))}
+.layer.link h3{justify-content:center}
+.layer.link .runs,.layer.link .why{text-align:center}
+.col-cloud{grid-column:1}
+.col-local{grid-column:3}
+.spine{grid-column:2;display:flex;align-items:center;justify-content:center;position:relative}
+.spine::before{content:"";position:absolute;top:0;bottom:0;width:1px;background:repeating-linear-gradient(180deg,var(--line-2) 0 6px,transparent 6px 12px)}
+.spine span{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--ink-2);background:var(--bg);padding:6px 2px;writing-mode:vertical-rl;transform:rotate(180deg)}
+.arrow-row{grid-column:1/4;display:flex;justify-content:space-around;align-items:center;font-family:var(--mono);font-size:.72rem;color:var(--ink-3);height:26px}
+.arrow-row span{display:flex;align-items:center;gap:8px}
+.arrow-row i{display:inline-block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid var(--violet)}
+.arrow-row i.up{border-top:0;border-bottom:8px solid var(--cyan-2)}
+.zone{position:absolute;top:-30px;font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}
+.zone.c{left:0;color:var(--cyan-2)}
+.zone.l{right:0;color:var(--amber)}
+@media(max-width:820px){.arch{grid-template-columns:1fr}.col-cloud,.col-local,.layer.link,.arrow-row{grid-column:1}.spine{display:none}}
+.rules{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.rule{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:rgba(15,22,31,.6);font-size:.88rem;color:var(--ink-2)}
+.rule b{color:var(--ink);display:block;margin-bottom:4px;font-weight:600}
+.rule .k{font-family:var(--mono);font-size:.66rem;color:var(--cyan-2);letter-spacing:.12em}
+@media(max-width:820px){.rules{grid-template-columns:1fr}}
+
+/* ---------- lanes ---------- */
+.lanes{margin-top:44px;display:grid;grid-template-columns:repeat(2,1fr);gap:18px;align-items:start}
+.lane{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:0;overflow:hidden;display:flex;flex-direction:column}
+.lane header{padding:18px 22px 14px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:start}
+.lane header h3{font-size:1.12rem}
+.lane header .prov{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin-top:4px}
+.lane header .spec{grid-column:1/3;font-size:.86rem;color:var(--ink-2)}
+.lane .metric{font-family:var(--mono);text-align:right;line-height:1}
+.lane .metric .n{font-size:1.7rem;color:var(--cyan);letter-spacing:-.02em}
+.lane .metric .l{font-size:.64rem;color:var(--ink-3);margin-top:6px;letter-spacing:.06em;text-transform:uppercase}
+.lane blockquote{margin:0;padding:18px 22px;font-size:.93rem;color:var(--ink);border-left:3px solid var(--cyan-2);background:linear-gradient(90deg,rgba(94,224,255,.05),transparent 40%);flex:1}
+.lane blockquote .more{display:none;margin-top:10px;color:var(--ink-2)}
+.lane.open blockquote .more{display:block}
+.lane footer{padding:12px 22px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-top:1px solid var(--line)}
+.lane footer .path{flex:1 1 auto;min-width:0}
+.lane footer button{flex:0 0 auto;margin-top:-2px}
+.lane footer button{background:transparent;border:1px solid var(--line-2);color:var(--ink-2);font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:3px;cursor:pointer}
+.lane footer button:hover{border-color:var(--cyan-2);color:var(--cyan)}
+.lane.bridge{grid-column:1/3;border-color:var(--violet);border-style:dashed}
+.lane.bridge blockquote{border-left-color:var(--violet);background:linear-gradient(90deg,rgba(196,165,255,.06),transparent 40%)}
+.lane.bridge .metric .n{color:var(--violet)}
+@media(max-width:820px){.lanes{grid-template-columns:1fr}.lane.bridge{grid-column:1}}
+.routing{margin-top:34px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.routing table{width:100%;border-collapse:collapse;font-size:.86rem}
+.routing th{text-align:left;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:10px 14px;background:var(--panel-2);border-bottom:1px solid var(--line-2);font-weight:500}
+.routing td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+.routing td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.routing tr:last-child td{border-bottom:0}
+.routing .mono{color:var(--ink-3)}
+
+/* ---------- proof strip ---------- */
+.proof{background:var(--bg-2)}
+.console{margin-top:40px;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.console .bar{display:flex;align-items:center;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);font-family:var(--mono);font-size:.76rem;color:var(--ink-2);flex-wrap:wrap}
+.console .bar .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.console .bar .k{color:var(--ink-3)}
+.console .bar .v{color:var(--ink)}
+.cells{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line)}
+.cell{background:var(--panel);padding:14px 16px;min-height:112px;display:flex;flex-direction:column;justify-content:space-between}
+.cell .id{font-family:var(--mono);font-size:.74rem;color:var(--ink);overflow-wrap:anywhere;line-height:1.35}
+.cell .id wbr{display:inline}
+.cell .id em{font-style:normal;color:var(--cyan)}
+.cell .id em.h{color:var(--violet)}
+.cell .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-family:var(--mono);font-size:.66rem;color:var(--ink-3)}
+.cell .st{color:var(--green)}
+@media(max-width:1000px){.cells{grid-template-columns:repeat(2,1fr)}}
+.console .foot{padding:12px 18px;border-top:1px solid var(--line);font-size:.8rem;color:var(--ink-3);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.kanban{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.kanban .rows{display:flex;flex-direction:column;gap:7px}
+.krow{display:grid;grid-template-columns:150px 1fr 118px;gap:12px;align-items:center;font-family:var(--mono);font-size:.74rem}
+.krow .a{color:var(--ink-2);text-align:right}
+.krow .bar{height:10px;background:var(--line);border-radius:2px;overflow:hidden;position:relative}
+.krow .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--cyan-2)}
+.krow .bar b{position:absolute;right:0;top:0;bottom:0;background:var(--red);opacity:.85}
+.krow .n{color:var(--ink-3)}
+.krow .n em{color:var(--ink);font-style:normal}
+.legend{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);margin-top:12px;display:flex;gap:16px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+@media(max-width:900px){.kanban{grid-template-columns:1fr}}
+
+/* ---------- timeline ---------- */
+.tl{margin-top:44px;position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:1px;background:linear-gradient(180deg,var(--cyan-2),var(--violet),var(--amber))}
+.ev{position:relative;padding:0 0 30px 0}
+.ev::before{content:"";position:absolute;left:-30px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan)}
+.ev.deploy::before{border-color:var(--violet);background:var(--violet)}
+.ev.fix::before{border-color:var(--amber)}
+.ev .t{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);letter-spacing:.06em;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.ev .t b{color:var(--ink);font-weight:500}
+.ev h3{margin:6px 0 6px;font-size:1.05rem}
+.ev p{font-size:.9rem;color:var(--ink-2);max-width:78ch;margin-bottom:6px}
+.ev .path{margin-top:4px}
+.ev ul{margin:4px 0 0;padding-left:18px;color:var(--ink-2);font-size:.88rem}
+.ev li{margin-bottom:3px}
+
+/* ---------- footer ---------- */
+footer.site{padding:72px 0 60px;border-top:1px solid var(--line);background:var(--bg-2)}
+footer.site .cols{display:grid;grid-template-columns:1.2fr .8fr;gap:40px}
+pre.cmd{margin:0;background:#05080c;border:1px solid var(--line-2);border-radius:var(--r);padding:18px 20px;font-size:.8rem;line-height:1.6;overflow:auto;color:var(--ink)}
+pre.cmd .c{color:var(--ink-3)}
+pre.cmd .p{color:var(--cyan)}
+.gaps li{color:var(--ink-2);font-size:.88rem;margin-bottom:6px}
+.files{font-family:var(--mono);font-size:.74rem;color:var(--ink-3);line-height:1.8;columns:2;column-gap:32px;margin-top:20px}
+.files span{display:block;break-inside:avoid}
+.files span::before{content:"· ";color:var(--cyan-2)}
+.colophon{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:.7rem;color:var(--ink-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+@media(max-width:900px){footer.site .cols{grid-template-columns:1fr}.files{columns:1}}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <div class="brand"><b>LUPINE</b> SWARM · 2026-09-09</div>
+    <ul>
+      <li><a href="#arch">architecture</a></li>
+      <li><a href="#lanes">lanes</a></li>
+      <li><a href="#proof">proof</a></li>
+      <li><a href="#wins">wins</a></li>
+      <li><a href="#repro">repro</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ======================= HERO ======================= -->
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">capability demonstration · one evening · every number traceable</div>
+      <h1>Lupine <span>Swarm</span><br>cloud control plane<br>+ local agent herd</h1>
+      <p class="sub">A Cloudflare worker owns durability, scheduling and provenance. A herd of local agents on aledev does the heavy work. One outbound-only bridge connects them. Six model lanes were each run against a real Lupine task tonight and every artifact landed in this repository.</p>
+      <div class="stamp">
+        <span class="tag cyan">asOf 2026-09-09</span>
+        <span class="tag">branch docs/swarm-capabilities</span>
+        <span class="tag">source docs/swarm-capabilities.md</span>
+        <span class="tag">evidence docs/swarm-demo/</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">6<small> +1</small></div><div class="l">model lanes proven, plus the bridge lane</div><div class="s">docs/swarm-demo/*.json · bridge-digest.md</div></div>
+      <div class="stat"><div class="n">10</div><div class="l">cells tracked live in CampaignConsole</div><div class="s">campaign swarm-capability-demo · console-state.json</div></div>
+      <div class="stat"><div class="n">0011–0017</div><div class="l">D1 migrations live in prod glim-ledger</div><div class="s">glim-think/migrations · commit 04be9f2</div></div>
+      <div class="stat"><div class="n">201</div><div class="l">TMS 2027 abstracts crawled by the research lane</div><div class="s">research-astra.json · meta.abstracts_crawled</div></div>
+      <div class="stat"><div class="n">9<small>/9</small></div><div class="l">tests passing on the coding-lane package</div><div class="s">coding-glm.json · tests_passed</div></div>
+      <div class="stat"><div class="n">16</div><div class="l">kanban assignees profiled by the agentic lane</div><div class="s">agentic-minimax.json · table[]</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= ARCHITECTURE ======================= -->
+<section id="arch">
+  <div class="wrap">
+    <div class="eyebrow">01 · architecture · five layers</div>
+    <h2>Cloud for control. Local for heavy work. GCP for paid burst.</h2>
+    <p class="lede">The routing rule in the repo's AGENTS.md, implemented literally. Nothing local is reachable from the internet: the bridge polls out, drives agents, and posts beats back.</p>
+
+    <div class="arch" style="margin-top:64px">
+      <span class="zone c">cloud · Cloudflare / GCP</span>
+      <span class="zone l">local · aledev and peers</span>
+
+      <div class="layer cloud col-cloud" data-n="L1 · CLOUD CONTROL PLANE">
+        <h3>glim-think worker <span class="tag cyan">durable</span></h3>
+        <div class="runs">Cloudflare: Durable Objects · D1 · Queues · Vectorize · cron</div>
+        <p class="why">Durability, scheduling, provenance, public surfaces; scorecard-routed model calls; zero local dependency. Holds only server-side keys.</p>
+      </div>
+      <div class="spine"><span>control ↔ execution</span></div>
+      <div class="layer local col-local" data-n="L3 · LOCAL AGENT RUNTIME">
+        <h3>herdr 0.9.0 <span class="tag amber">per machine</span></h3>
+        <div class="runs">pane / worktree management · agent state detection · Unix socket JSON-RPC</div>
+        <p class="why">Many parallel agents on local GPUs/CPUs; survives disconnects. No HTTP API, no inbound surface.</p>
+      </div>
+
+      <div class="arrow-row">
+        <span><i class="up"></i> GET /bridge/jobs/next?machine_id=aledev&amp;wait_seconds=15 · atomic claim</span>
+        <span><i></i> POST /bridge/jobs/:id/result → lab_beats → CampaignConsole fan-in</span>
+      </div>
+
+      <div class="layer link" data-n="L4 · CLOUD → LOCAL LINK">
+        <h3>herdr-bridge daemon <span class="tag violet">systemd · outbound-only</span></h3>
+        <div class="runs">pending → claimed → done | failed | blocked | timeout · one job at a time · fresh herdr workspace per job</div>
+        <p class="why">Polls <code>/bridge/jobs</code>, drives herdr agents through <code>agent.prompt</code> with explicit timeouts, forwards every <code>pane.agent_status_changed</code> transition as an idempotent beat. Scaling to N machines is one process per machine with a distinct <code>MACHINE_ID</code>.</p>
+      </div>
+
+      <div class="layer cloud col-cloud" data-n="L2 · CLOUD BURST COMPUTE">
+        <h3>GCP Cloud Tasks → tasks-consumer → atlas-distill <span class="tag">paid only</span></h3>
+        <div class="runs">reproducible GPU cells</div>
+        <p class="why">Paid campaigns only. Cell beats land in the same ledger as everything else.</p>
+      </div>
+      <div class="spine"><span>same ledger</span></div>
+      <div class="layer local col-local" data-n="L5 · LOCAL AGENT HARNESS">
+        <h3>hermes <span class="tag amber">profiles · kanban · cron · skills</span></h3>
+        <div class="runs">deep tool use · delegation · long-horizon work · fallback chain</div>
+        <p class="why">Default GLM-5.3; on failure Fable 5.1 → Astra → K3. Vision routes to Gemini 3.8 Flash.</p>
+      </div>
+    </div>
+    <div class="path" style="margin-top:14px">docs/swarm-capabilities.md §Architecture layers (L1–L5 follow the table order) · glim-think/docs/herdr-bridge.md</div>
+
+    <div class="rules">
+      <div class="rule"><span class="k">RULE 2</span><b>Vision → Gemini 3.8 Flash</b>hermes <code>auxiliary.vision</code>; worker <code>GOOGLE_MODEL</code> pin. Every image input in the swarm routes here.</div>
+      <div class="rule"><span class="k">RULE 3</span><b>Default agentic → GLM-5.3</b>Failure chain: Fable 5.1 → Astra → K3 (hermes <code>fallback_providers</code>).</div>
+      <div class="rule"><span class="k">RULE 4</span><b>Writing / review / design → Fable 5.1</b>Long-horizon web research → Astra.</div>
+      <div class="rule"><span class="k">RULE 5</span><b>Durable / scheduled / public → the worker</b>Crons, ledger, console. Interactive / heavy → local hermes via bridge jobs.</div>
+      <div class="rule"><span class="k">RULE 6</span><b>Auth posture</b>Anthropic and OpenAI ride OAuth subscriptions (Max / Codex); zai, kimi, minimax, gemini ride API keys. The worker never holds OAuth.</div>
+      <div class="rule"><span class="k">RULE 1</span><b>The venue rule itself</b>Cloud for control, local for heavy work, GCP for paid burst — from the repo's AGENTS.md; the swarm is its literal implementation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= LANES ======================= -->
+<section id="lanes">
+  <div class="wrap">
+    <div class="eyebrow">02 · model specialty matrix · seven lanes, seven artifacts</div>
+    <h2>Each lane ran a real Lupine task tonight. The best line from each artifact, verbatim.</h2>
+    <p class="lede">Not benchmarks. Working output against the TMS 2027 proceedings sprint, the MLIP error-geometry program, and the kanban that runs both. Click a card to read more of the artifact.</p>
+
+    <div class="lanes">
+
+      <article class="lane" id="lane-glm">
+        <header>
+          <div><h3>GLM-5.3</h3><div class="prov">zai · API key · default workhorse</div></div>
+          <div class="metric"><div class="n">9/9</div><div class="l">tests passed</div></div>
+          <div class="spec">Agentic coding, multi-file surgery, pipeline repair. Built <code>claim_table</code>: an 8-file package that reads the TMS proceedings results object and prints every headline value bound to its key.</div>
+        </header>
+        <blockquote>
+          “<code>derived.*</code> keys are numbers recomputed from committed source rows; <code>quoted.*</code> keys are frozen-report quotes, each bound to its <code>source</code>. … Rows sort lexicographically by binding key, so output is deterministic.”
+          <div class="more">Sample output: <code>| 559 | derived.funnel.born_stable_model_element_tensors |</code> · <code>| 423 | derived.funnel.distinct_kim_model_ids |</code> · <code>| 233 | derived.funnel.author_year_short_labels |</code>. Exit codes 0 ok · 2 usage · 3 unreadable/invalid. Fixture is a verbatim copy of the canonical <code>results.json</code> (schema <code>lupine.tms2027.proceedings.results.v1</code>).</div>
+        </blockquote>
+        <footer><span class="path">docs/swarm-demo/coding-glm.json · claim_table/README.md</span><button type="button">expand</button></footer>
+      </article>
+
+      <article class="lane" id="lane-fable">
+        <header>
+          <div><h3>Claude Fable 5.1</h3><div class="prov">anthropic · OAuth (Max) · writing / review / design</div></div>
+          <div class="metric"><div class="n">12<small style="font-size:.9rem;color:var(--ink-3)">pp</small></div><div class="l">manuscript, 0 overfull</div></div>
+          <div class="spec">Architecture design, code review, long-form scientific writing. Today: herdr-bridge design + build, the full TMS 2027 proceedings manuscript, and the glim-think diff review (SHIP verdict).</div>
+        </header>
+        <blockquote>
+          “Four-panel structure … denominator/provenance funnel (965 → 559 → 423 → 233 → 42, units named); geometry under finite-sample nulls (21 n=3 groups rank-limited, all 42 PR intervals reach 2); cross-paradigm + correction falsification (ρ=0.26 p=0.34; 14.55 → 63.40 GPa prospective harm vs 17.84 → 10.36 GPa oracle ceiling kept separate) … Tectonic build clean, 12 pages, 0 overfull boxes.”
+          <div class="more">Bridge design note: “herdr has no HTTP API and no inbound network surface — it speaks newline-delimited JSON-RPC over a Unix socket — so a per-machine daemon bridges the two with outbound-only traffic.” Verified live e2e against real herdr (2 jobs, beats landed).</div>
+        </blockquote>
+        <footer><span class="path">commit 894063d · paper/tms2027-proceedings/ · glim-think/docs/herdr-bridge.md</span><button type="button">expand</button></footer>
+      </article>
+
+      <article class="lane" id="lane-astra">
+        <header>
+          <div><h3>GPT-6 Astra</h3><div class="prov">openai-codex · OAuth · long-horizon research</div></div>
+          <div class="metric"><div class="n">201</div><div class="l">abstracts crawled</div></div>
+          <div class="spec">Long-horizon web research, computer use, careful incremental repair. Crawled ProgramMaster for TMS 2027: 20 candidate symposia scanned, 4 crawled at abstract level, six target labs cross-referenced.</div>
+        </header>
+        <blockquote>
+          “Persson/LBL — PRESENT (PI confirmed as planned speaker) · Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability · <em>Data-driven Prediction of Solid-State Synthesis</em> · planned speaker Kristin Aslaug Persson.”
+          <div class="more">Top-3 symposia by MLIP-relevant approved presentations: AI/ML/Data Informatics for Materials Discovery (77 approved, 11 MLIP); Bridging Scale Gaps in Multiscale Modeling (44, 12); Hume-Rothery (40, 3 — invited-only, plus LBL-adjacent Ceder and Asta). Csanyi, Kozinsky, Isayev, Ceriotti, Ong: NOT FOUND among authors/speakers of the 4 crawled symposia. Gaps recorded honestly: affiliations not shown on ProgramMaster; scheduling not yet published; absence in 4 symposia is not absence from TMS2027. Meeting: 03/14–03/18/2027, Orlando World Center Marriott.</div>
+        </blockquote>
+        <footer><span class="path">docs/swarm-demo/research-astra.json · target_overlap · symposia[] · gaps[]</span><button type="button">expand</button></footer>
+      </article>
+
+      <article class="lane" id="lane-k3">
+        <header>
+          <div><h3>Kimi K3</h3><div class="prov">kimi-coding · API key · deep reasoning</div></div>
+          <div class="metric"><div class="n">≤ 2</div><div class="l">rank, n=3 in d=3</div></div>
+          <div class="spec">Proof-shaped reasoning. Asked to prove the covariance rank bound and say what it does to the 42-group error-geometry audit.</div>
+        </header>
+        <blockquote>
+          “Every per-group sample covariance matrix has rank at most min(3, 3−1) = 2, regardless of the data. … a monotonicity test on the sorted eigenvalues is tautological: sorting enforces λ₁ ≥ λ₂ ≥ λ₃ by construction, and rank ≤ 2 forces λ₃ = 0 by linear algebra, so the ‘test’ passes for every group no matter what the underlying MLIP errors look like. It carries zero statistical power.”
+          <div class="more">Proof sketch: S = (1/(n−1)) X Xᵀ; null(X Xᵀ) = null(Xᵀ) so rank(S) = rank(X) ≤ min(d, n); centering imposes X·1ₙ = 0, dropping one degree of freedom → rank ≤ min(d, n−1); sharp in generic position. Valid test proposed: n &gt; d per group, or an estimable quantity (top-eigenvector direction, λ₁/λ₂ on n−1 d.o.f., permutation/bootstrap nulls) rather than a deterministic consequence of sorting and rank deficiency. This matches the manuscript's “21 n=3 groups rank-limited” panel.</div>
+        </blockquote>
+        <footer><span class="path">docs/swarm-demo/reasoning-k3.json · theorem · proof · consequence · valid_test</span><button type="button">expand</button></footer>
+      </article>
+
+      <article class="lane" id="lane-minimax">
+        <header>
+          <div><h3>MiniMax M3</h3><div class="prov">minimax · API key + OAuth · agentic tool use</div></div>
+          <div class="metric"><div class="n">16</div><div class="l">assignees · 643 cards</div></div>
+          <div class="spec">Agentic tool use, data wrangling. Opened the Lupine kanban SQLite directly and produced per-assignee done/blocked analytics plus the three most recent cards per profile.</div>
+        </header>
+        <blockquote>
+          “Used <code>boards/lupine/kanban.db</code> per Lupine conventions; the root <code>~/.hermes/kanban.db</code> is a decoy.” — software-engineer 131/165 done (3 blocked) · researcher 81/110 · reviewer 65/66 (0.9848) · devops 44/80 (6 blocked) · visual-tester 20/20.
+          <div class="more">Recent cards it surfaced are tonight's sprint: “TMS-PROCEEDINGS: compile reviewer PDF + TMS format compliance”, “TMS-PROCEEDINGS: independent statistics/physics referee pass on PR #133 before submission”, “GEOMETRY-RECOMPUTE: committed generator for the 42-group classical geometry + three gauges + matched n/d/missingness/lineage nulls”. Generated 2026-09-09T21:31:38-0400. Full bars in the proof strip below.</div>
+        </blockquote>
+        <footer><span class="path">docs/swarm-demo/agentic-minimax.json · table[] · recent{}</span><button type="button">expand</button></footer>
+      </article>
+
+      <article class="lane" id="lane-gemini">
+        <header>
+          <div><h3>Gemini 3.8 Flash</h3><div class="prov">gemini · API key · all vision routes here</div></div>
+          <div class="metric"><div class="n">8</div><div class="l">“do not” caveats</div></div>
+          <div class="spec">Photo / figure / video analysis. Read the TensorNet/PBE error-geometry scatter (16 cubic metals, C11 vs C12 error, 1st-PC arrow) and refused the obvious over-reading.</div>
+        </header>
+        <blockquote>
+          “Do NOT conclude that C11 and C12 errors are generically positively correlated for this model. The PC1 direction is leverage-dominated by one point (Cr) plus the offset of the negative-quadrant cluster; with n = 16 and a single extreme outlier, PCA direction is fragile.”
+          <div class="more">Reads the plot precisely: C12 error negative for 15 of 16 elements; both-negative quadrant holds 11 (Ta, Mo, W, Nb, Fe, Ni, Pd, Pt, Au, Al, Ca); Cr isolated at ≈(+46.5, +80.5) GPa; PC1 slope ≈1.4 in data units. Cross-checks the companion files: feedback_loop_benchmark.json flags Cr and Nb; the v0.1 PC1 correction operator degraded mean MAE to 63.40 GPa and overcorrected Cr. Also: “Do NOT read angles or slopes visually … the ~1.4 slope figure is a data-unit estimate only.”</div>
+        </blockquote>
+        <footer><span class="path">docs/swarm-demo/vision-gemini.json · summary · trends[] · caveats[]</span><button type="button">expand</button></footer>
+      </article>
+
+      <article class="lane bridge" id="lane-bridge">
+        <header>
+          <div><h3>herdr-bridge lane · cloud → local dispatch</h3><div class="prov">POST /bridge/jobs on the worker → bridge daemon on aledev → hermes in a fresh herdr workspace → result beat → ledger + console</div></div>
+          <div class="metric"><div class="n">4</div><div class="l">herdr beats landed</div></div>
+          <div class="spec">A research prompt entered the cloud queue and came back as a digest written by a local agent, with every agent-state transition visible in CampaignConsole as it happened (job <code>4b7226cf…</code>, pane <code>w2A:p1</code>, seq 4 → 6).</div>
+        </header>
+        <blockquote>
+          “NEGATIVE 1: discovery F1 has saturated (best 0.931 vs DAF ceiling ~6.54) — the frontier is phonons, geometry robustness, and MD stability; discovery rankings alone are spent. NEGATIVE 2: training data, not architecture, is the lever — all top-10 models are OAM-mix fits; identical architectures drop 6–16 CPS points in MPtrj-only variants.”
+          <div class="more">NEGATIVE 3: the 2024 “household” universals are mid-table or worse — MACE-MPA-0 21st, MatterSim 24th, MACE-MP-0 34th, M3GNet 40th, CHGNet 41st. WHO TO TALK TO: Persson/LBL, Csanyi/Cambridge, Kozinsky/Harvard, Isayev/CMU, Ceriotti/EPFL, Shapeev/Skoltech, Ong/UCSD; industry: Meta FAIR, DeepMind, Microsoft, Orbital, DP Technology. LOGISTICS: TMS 2027 = March 14–18, Orlando World Center Marriott; most abstract windows closed July 15, 2026. (Matbench Discovery 2026-09-09 snapshot.)</div>
+        </blockquote>
+        <footer><span class="path">docs/swarm-demo/bridge-digest.md · console-state.json cells herdr-job:4b7226cf… + herdr:aledev:w2A:p1:{4,5,6}</span><button type="button">expand</button></footer>
+      </article>
+    </div>
+
+    <div class="routing">
+      <table>
+        <thead><tr><th>Model</th><th>Provider · auth</th><th>Specialty</th><th>Demonstrated by (per docs/swarm-capabilities.md)</th></tr></thead>
+        <tbody>
+          <tr><td>GLM-5.3</td><td class="mono">zai · API key</td><td>Agentic coding, multi-file surgery, pipeline repair; default workhorse</td><td>evidence-nightly producer repair (multi-system: GCS + GH Actions + D1 + DO SQL)</td></tr>
+          <tr><td>Claude Fable 5.1</td><td class="mono">anthropic · OAuth, Max plan</td><td>Architecture design, code review, long-form scientific writing</td><td>herdr-bridge design+build; TMS manuscript draft; glim-think diff review (SHIP verdict)</td></tr>
+          <tr><td>GPT-6 Astra</td><td class="mono">openai-codex · OAuth</td><td>Long-horizon research, computer use, careful incremental repair</td><td>CampaignConsole stranded-work repair; D1 migration CASE/depth surgery</td></tr>
+          <tr><td>Kimi K3</td><td class="mono">kimi-coding · API key</td><td>Deep thinking / proof-shaped reasoning</td><td>capability battery: covariance rank proof</td></tr>
+          <tr><td>MiniMax M3</td><td class="mono">minimax · API key + OAuth</td><td>Agentic tool use, data wrangling</td><td>capability battery: kanban DB analytics</td></tr>
+          <tr><td>Gemini 3.8 Flash</td><td class="mono">gemini · API key</td><td>Vision: photo/figure/video; all hermes image input routes here</td><td>capability battery: scientific figure analysis</td></tr>
+          <tr><td>Grok (xAI)</td><td class="mono">xai-oauth</td><td>X/Twitter-aware search</td><td><span class="tag red">needs re-login</span> credential expired</td></tr>
+          <tr><td>Copilot pool</td><td class="mono">copilot</td><td>Free-tier auxiliary calls</td><td>pooled credentials, on demand</td></tr>
+          <tr><td>HuggingFace serverless</td><td class="mono">huggingface</td><td>139 open-weight models for cheap/experimental calls</td><td>provider cache inventory</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="path" style="margin-top:12px">docs/swarm-capabilities.md §Model specialties (with evidence)</div>
+  </div>
+</section>
+
+<!-- ======================= PROOF OF OPERATION ======================= -->
+<section id="proof" class="proof">
+  <div class="wrap">
+    <div class="eyebrow">03 · proof of operation · live control plane</div>
+    <h2>Ten cells, one campaign, watched from the worker as they landed.</h2>
+    <p class="lede">Snapshot of <code>GET /console/campaigns/swarm-capability-demo/state</code> on the deployed glim-think worker, saved verbatim to <code>docs/swarm-demo/console-state.json</code>. Six battery cells, one bridge job, three herdr agent-state transitions. Times are UTC as recorded by the Durable Object.</p>
+
+    <div class="console">
+      <div class="bar">
+        <span class="dot"></span>
+        <span><span class="k">campaign_id </span><span class="v">swarm-capability-demo</span></span>
+        <span><span class="k">status </span><span class="v" id="c-status">—</span></span>
+        <span><span class="k">manifest_hash </span><span class="v" id="c-hash">—</span></span>
+        <span><span class="k">cells </span><span class="v" id="c-count">—</span></span>
+        <span><span class="k">window </span><span class="v" id="c-window">—</span></span>
+      </div>
+      <div class="cells" id="cells"></div>
+      <div class="foot">
+        <span>Console DO: SQLite-backed, upsert guarded by <code>excluded.updated_at &gt; cells.updated_at</code>; alarm sweeps cells stuck in <code>running</code> past 6 h into <code>failed</code> — recorded, never imputed.</span>
+        <span class="path">glim-think/src/console/campaignConsole.ts · docs/swarm-demo/console-state.json</span>
+      </div>
+    </div>
+
+    <div class="kanban">
+      <div>
+        <h3>The board the swarm runs on</h3>
+        <p class="muted" style="font-size:.88rem;margin-top:6px">Per-assignee done / blocked / total from <code>boards/lupine/kanban.db</code>, as extracted by the MiniMax lane at 21:31 EDT. Bars are drawn from the inline JSON, not typed by hand.</p>
+        <div class="legend"><span><i style="background:var(--cyan-2)"></i>done</span><span><i style="background:var(--red)"></i>blocked</span><span><i style="background:var(--line)"></i>other open</span></div>
+      </div>
+      <div class="rows" id="krows"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PRODUCTION WINS ======================= -->
+<section id="wins">
+  <div class="wrap">
+    <div class="eyebrow">04 · production credibility spine · 2026-09-08 22:47 → 2026-09-09 21:46 EDT</div>
+    <h2>What actually shipped while the battery ran.</h2>
+    <p class="lede">Merged to <code>main</code> in lupine-rhizo and deployed to the production worker. Times are commit / merge timestamps from <code>git log</code>; cell times from the console snapshot.</p>
+
+    <div class="tl">
+      <div class="ev fix">
+        <div class="t"><b>09-08 22:47</b> <span>04be9f2</span> <span class="tag amber">root cause</span></div>
+        <h3>D1 migrations 0012–0016 made prod-compatible; 0011–0017 applied to prod glim-ledger</h3>
+        <p>Two production-D1 limits root-caused, not worked around: the REST statement splitter is CASE-unaware (trigger bodies containing <code>CASE…END</code> truncate at the first <code>END;</code>, error 7500 “incomplete input”), and expression depth is capped at 100. Every trigger guard rewritten to the 0011 house idiom <code>SELECT RAISE(ABORT, …) WHERE cond;</code>, compound conditions split into single-clause guards.</p>
+        <ul><li>Validated: sqlite3 behavior harness, full local wrangler apply 0001–0017, 460/460 vitest.</li><li>Migration 0015 admits the T1 protocol-offset sign-skew typed predicate (<code>signed_error_positive_fraction&gt;0.5</code>) — the sign-skew hypothesis is now live in prod D1.</li></ul>
+        <div class="path">glim-think/migrations/0011_*.sql … 0017_herdr_bridge_jobs.sql · commit 04be9f2</div>
+      </div>
+
+      <div class="ev deploy">
+        <div class="t"><b>09-09 01:03</b> <span>PR #128 · 8512b6e · 29f9ccc</span> <span class="tag violet">worker deploy ×2</span></div>
+        <h3>CampaignConsole v5 + herdr-bridge shipped to the glim-think worker</h3>
+        <p>CampaignConsole Durable Object (v5 migration, SQLite-backed) with <code>/console/campaigns/:id/{lock,state,live}</code>; beat fan-in that never 500s the beat; stale/duplicate guards; alarm sweep lifecycle. Then the bridge: <code>/bridge/jobs</code> enqueue, atomic <code>/bridge/jobs/next</code> claim, <code>/bridge/jobs/:id/result</code> backed by migration 0017, scoped <code>HERDR_BRIDGE_TOKEN</code> bearer auth; zero-dep TS daemon with backoff/retry. “Verified live e2e against real herdr (2 jobs, beats landed).”</p>
+        <div class="path">glim-think/src/console/campaignConsole.ts · glim-think/src/bridge/jobs.ts · tools/herdr-bridge/ · glim-think/docs/herdr-bridge.md</div>
+      </div>
+
+      <div class="ev fix">
+        <div class="t"><b>09-09 02:10</b> <span>PR #129 · 653e0cc</span></div>
+        <h3>Bridge refuses to call a job “done” without post-submission activity</h3>
+        <p>herdr 0.9.0 server-side activity gate; hermes “done” requires a complete response panel as evidence; stall paths fail closed (no Enter nudge, no resubmit); regression tests for idle flicker, echo-only done, truncation recovery.</p>
+        <div class="path">tools/herdr-bridge/ · commit 653e0cc</div>
+      </div>
+
+      <div class="ev fix">
+        <div class="t"><b>09-09 06:07</b> <span>PR #131 · 7bffe84 · e131f7b</span> <span class="tag amber">root cause</span></div>
+        <h3>evidence-nightly producer repaired: real cycles reach GCS and production D1</h3>
+        <p>The producer had been writing a 174-byte placeholder <code>cycle.json</code> that the consumer then downloaded back — “every green nightly was self-materialized.” Replaced by <code>tools/publish_nightly_cycle.py</code>: campaigns admitted only when row files are hash-bound to the registered manifest and already in the committed corpus; the cycle is validated by running the consumer's own ingest. Second fix: D1 rejects explicit <code>BEGIN/COMMIT</code>, so <code>render_feedback_sql()</code> gains a <code>d1_transactional</code> variant.</p>
+        <div class="path">tools/publish_nightly_cycle.py · commits 7bffe84, e131f7b</div>
+      </div>
+
+      <div class="ev">
+        <div class="t"><b>09-09 09:28</b> <span>PR #133 · #134 · 894063d · 7df204e</span> <span class="tag green">manuscript</span></div>
+        <h3>TMS 2027 proceedings manuscript: drafted, reviewed, format-compliant, in one afternoon</h3>
+        <p>Full proceedings draft under the 2026-09-09 claim freeze — four panels, revised abstract verbatim, 5 keywords, data statement. <code>build_artifacts.py</code> recomputes every headline count from committed rows and hashes every source; <code>check_claims.py</code> enforces the contract's retire list. Tectonic build clean, 12 pages, 0 overfull boxes. Kanban confirms the review chain: “independent claim-lock review pass”, “independent statistics/physics referee pass on PR #133 before submission”, “compile reviewer PDF + TMS format compliance”.</p>
+        <div class="path">paper/tms2027-proceedings/{manuscript.tex,results.json,build_artifacts.py,check_claims.py} · docs/plans/2026-09-09-tms-manuscript-sprint.md · agentic-minimax.json recent{}</div>
+      </div>
+
+      <div class="ev">
+        <div class="t"><b>09-09 10:14</b> <span>PR #136 · #137 · 010301e · 19f8ac6</span></div>
+        <h3>42-group classical geometry reproduced from the reviewed corpus</h3>
+        <p>42/42 group participation ratios to &lt;1e-9; eigenvalues to 5e-12 once the (n−1)/n normalization is aligned; matched frozen null at 2000 reps. Verdict recorded as written: “hyper-ribbon claim NOT CLEARED.” Then made checkout-portable with repo-relative input paths.</p>
+        <div class="path">commits 010301e, 19f8ac6</div>
+      </div>
+
+      <div class="ev deploy">
+        <div class="t"><b>09-09 21:31 → 21:46</b> <span>console cells · battery JSON</span> <span class="tag cyan">this page</span></div>
+        <h3>Capability battery runs through the same pipes</h3>
+        <p>k3-reasoning, bridge-dispatch, minimax-agentic, astra-research, gemini-vision, glm-coding — each completion posted as a beat and fanned into the <code>swarm-capability-demo</code> console alongside the herdr transitions for the bridge job. The artifacts on this page are the payloads.</p>
+        <div class="path">docs/swarm-demo/console-state.json · docs/swarm-demo/*.json · bridge-digest.md</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FOOTER / REPRO ======================= -->
+<footer class="site" id="repro">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="eyebrow">05 · reproduction</div>
+        <pre class="cmd"><span class="c"># direct specialty call</span>
+<span class="p">$</span> hermes -z "…" -m glm-5.3 --provider zai
+
+<span class="c"># cloud→local dispatch (lands in glim-ledger + CampaignConsole)</span>
+<span class="p">$</span> curl -X POST "$WORKER/bridge/jobs" -H "Authorization: Bearer $HERDR...OKEN" \
+    -d '{"machine_id":"aledev","agent_kind":"hermes","prompt":"…","campaign_id":"…"}'
+
+<span class="c"># bridge daemon (systemd)</span>
+<span class="p">$</span> systemctl --user status herdr-bridge
+
+<span class="c"># read the campaign the way this page did</span>
+<span class="p">$</span> curl -sS "$WORKER/console/campaigns/swarm-capability-demo/state"
+
+<span class="c"># coding-lane package</span>
+<span class="p">$</span> cd docs/swarm-demo/claim_table &amp;&amp; python -m pytest</pre>
+        <div class="path" style="margin-top:10px">docs/swarm-capabilities.md §Reproduction commands</div>
+      </div>
+      <div>
+        <div class="eyebrow">known gaps · stated, not hidden</div>
+        <ul class="gaps">
+          <li>xAI/Grok credential expired — re-login needed.</li>
+          <li>Bridge treats “turn ended, background children pending” as done — single-session prompts only until fixed.</li>
+          <li>Cloudflare Access app never configured: browser-admin routes on the worker fail closed (token-only machine access until then).</li>
+          <li>The <code>swarm-capability-demo</code> campaign was never <code>/lock</code>ed: <code>manifest_hash</code> is null and status reads <code>draft</code> in the snapshot. The cells are real; the preregistration step was skipped for a demo campaign.</li>
+          <li>Research-lane coverage is 4 of 100+ symposia at abstract level; absence of a lab there is not absence from TMS 2027 (recorded in <code>research-astra.json gaps[]</code>).</li>
+        </ul>
+        <div class="path">docs/swarm-capabilities.md §Known gaps · console-state.json · research-astra.json</div>
+      </div>
+    </div>
+
+    <div class="files">
+      <span>docs/swarm-capabilities.md</span>
+      <span>docs/swarm-demo/coding-glm.json</span>
+      <span>docs/swarm-demo/claim_table/ (8 files, 9 tests)</span>
+      <span>docs/swarm-demo/research-astra.json</span>
+      <span>docs/swarm-demo/reasoning-k3.json</span>
+      <span>docs/swarm-demo/agentic-minimax.json</span>
+      <span>docs/swarm-demo/vision-gemini.json</span>
+      <span>docs/swarm-demo/bridge-digest.md</span>
+      <span>docs/swarm-demo/console-state.json</span>
+      <span>glim-think/docs/herdr-bridge.md</span>
+      <span>glim-think/migrations/0011…0017</span>
+      <span>paper/tms2027-proceedings/</span>
+      <span>docs/plans/2026-09-09-tms-manuscript-sprint.md</span>
+      <span>git log: 04be9f2 8512b6e 29f9ccc 653e0cc 7bffe84 e131f7b 894063d 010301e</span>
+    </div>
+
+    <div class="colophon">
+      <span>Lupine Science · lupine-rhizo · branch docs/swarm-capabilities · uncommitted per workspace policy</span>
+      <span>single file · inline CSS+JS · no external assets · system fonts</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Inline data: verbatim from docs/swarm-demo/console-state.json (cells) and agentic-minimax.json (table). -->
+<script type="application/json" id="console-data">
+{"campaign_id":"swarm-capability-demo","manifest_hash":null,"locked_at":null,"status":"draft","cells":[
+{"cell_id":"swarm-demo:glm-coding:done","status":"completed","updated_at":"2026-09-10T01:46:14.000Z"},
+{"cell_id":"swarm-demo:gemini-vision:done","status":"completed","updated_at":"2026-09-10T01:36:51.000Z"},
+{"cell_id":"swarm-demo:astra-research:done","status":"completed","updated_at":"2026-09-10T01:36:27.000Z"},
+{"cell_id":"swarm-demo:minimax-agentic:done","status":"completed","updated_at":"2026-09-10T01:33:45.000Z"},
+{"cell_id":"swarm-demo:bridge-dispatch:done","status":"completed","updated_at":"2026-09-10T01:33:45.000Z"},
+{"cell_id":"swarm-demo:k3-reasoning:done","status":"completed","updated_at":"2026-09-10T01:33:44.000Z"},
+{"cell_id":"herdr-job:4b7226cf-a702-4b0e-a764-45454fc933b9:1:done","status":"completed","updated_at":"2026-09-10T01:33:22.000Z"},
+{"cell_id":"herdr:aledev:w2A:p1:6:1789004001","status":"completed","updated_at":"2026-09-10T01:33:21.000Z"},
+{"cell_id":"herdr:aledev:w2A:p1:5:1789003874","status":"completed","updated_at":"2026-09-10T01:31:14.000Z"},
+{"cell_id":"herdr:aledev:w2A:p1:4:1789003869","status":"completed","updated_at":"2026-09-10T01:31:09.000Z"}
+]}
+</script>
+<script type="application/json" id="kanban-data">
+[{"assignee":"software-engineer","done":131,"blocked":3,"total":165},
+{"assignee":"researcher","done":81,"blocked":2,"total":110},
+{"assignee":"reviewer","done":65,"blocked":1,"total":66},
+{"assignee":"devops","done":44,"blocked":6,"total":80},
+{"assignee":"director","done":40,"blocked":2,"total":54},
+{"assignee":"artdirector","done":32,"blocked":0,"total":35},
+{"assignee":"synthesizer","done":30,"blocked":0,"total":34},
+{"assignee":"coordinator","done":22,"blocked":2,"total":28},
+{"assignee":"visual-tester","done":20,"blocked":0,"total":20},
+{"assignee":"web-integrator","done":17,"blocked":3,"total":20},
+{"assignee":"default-assistant","done":9,"blocked":0,"total":9},
+{"assignee":"animator","done":9,"blocked":1,"total":10},
+{"assignee":"qa","done":7,"blocked":0,"total":7},
+{"assignee":"default","done":3,"blocked":0,"total":3},
+{"assignee":"scriptwriter","done":1,"blocked":0,"total":1},
+{"assignee":"voice-engineer","done":1,"blocked":0,"total":1}]
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};
+
+  /* ---- console cells ---- */
+  var cs=JSON.parse(document.getElementById("console-data").textContent);
+  document.getElementById("c-status").textContent=cs.status;
+  document.getElementById("c-hash").textContent=cs.manifest_hash===null?"null (never locked)":cs.manifest_hash;
+  document.getElementById("c-count").textContent=cs.cells.length;
+  var times=cs.cells.map(function(c){return c.updated_at;}).sort();
+  var fmt=function(iso){return iso.replace("T"," ").replace(".000Z","Z");};
+  document.getElementById("c-window").textContent=fmt(times[0])+" → "+fmt(times[times.length-1]);
+  var cellsEl=document.getElementById("cells");
+  cs.cells.slice().sort(function(a,b){return a.updated_at<b.updated_at?-1:1;}).forEach(function(c,i){
+    var id=esc(c.cell_id).replace(/:/g,":<wbr>");
+    id=id.replace(/^swarm-demo:<wbr>([^:]+)/,'swarm-demo:<wbr><em>$1</em>')
+         .replace(/^herdr-job:<wbr>([0-9a-f]{8})[0-9a-f-]+/,'herdr-job:<wbr><em class="h">$1…</em>')
+         .replace(/^herdr:<wbr>aledev:<wbr>(w2A:<wbr>p1:<wbr>\d+)/,'herdr:<wbr>aledev:<wbr><em class="h">$1</em>');
+    var d=document.createElement("div");d.className="cell";
+    d.innerHTML='<div class="id">'+id+'</div><div class="meta"><span>#'+String(i+1).padStart(2,"0")+' · '+esc(c.updated_at.slice(11,19))+'Z</span><span class="st">'+esc(c.status)+'</span></div>';
+    cellsEl.appendChild(d);
+  });
+
+  /* ---- kanban bars ---- */
+  var kb=JSON.parse(document.getElementById("kanban-data").textContent);
+  var rows=document.getElementById("krows");
+  var sum={done:0,blocked:0,total:0};
+  kb.forEach(function(r){
+    sum.done+=r.done;sum.blocked+=r.blocked;sum.total+=r.total;
+    var dp=(100*r.done/r.total).toFixed(1),bp=(100*r.blocked/r.total).toFixed(1);
+    var el=document.createElement("div");el.className="krow";
+    el.innerHTML='<span class="a">'+esc(r.assignee)+'</span><span class="bar"><i style="width:'+dp+'%"></i><b style="width:'+bp+'%"></b></span><span class="n"><em>'+r.done+'</em>/'+r.total+(r.blocked?' · <span style="color:var(--red)">'+r.blocked+' blk</span>':'')+'</span>';
+    rows.appendChild(el);
+  });
+  var tot=document.createElement("div");tot.className="krow";tot.style.marginTop="6px";tot.style.paddingTop="8px";tot.style.borderTop="1px solid var(--line-2)";
+  tot.innerHTML='<span class="a" style="color:var(--ink)">all 16</span><span class="bar"><i style="width:'+(100*sum.done/sum.total).toFixed(1)+'%"></i><b style="width:'+(100*sum.blocked/sum.total).toFixed(1)+'%"></b></span><span class="n"><em>'+sum.done+'</em>/'+sum.total+' · <span style="color:var(--red)">'+sum.blocked+' blk</span></span>';
+  rows.appendChild(tot);
+
+  /* ---- lane expand ---- */
+  Array.prototype.forEach.call(document.querySelectorAll(".lane"),function(l){
+    var btn=l.querySelector("footer button");
+    var toggle=function(){l.classList.toggle("open");btn.textContent=l.classList.contains("open")?"collapse":"expand";};
+    btn.addEventListener("click",function(e){e.stopPropagation();toggle();});
+    l.querySelector("blockquote").addEventListener("click",toggle);
+  });
+})();
+</script>
+</body>
+</html>

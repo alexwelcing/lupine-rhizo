@@ -1,0 +1,48 @@
+{
+  "summary": "Single-panel scatter plot titled 'TensorNet/PBE error geometry colored by bonding class'. It shows per-element elastic-constant errors of the TensorNet/PBE machine-learning potential on a 16-element cubic-metal benchmark: each of 16 labeled points is one element, positioned by its C11 error (x) and C12 error (y) in GPa, colored by bonding class, with a black '1st PC' arrow from the origin showing the first principal component of the error cloud. The dominant structure is asymmetric: 15 of 16 points lie at negative C12 error, most transition metals sit in the both-negative quadrant, and one extreme outlier (Cr) occupies the far upper-right and effectively levers the PC1 direction. Companion workspace files corroborate this reading (feedback_loop_benchmark.json: 16 elements, Cr flagged as extreme projection-residual outlier, Nb also flagged; preprint: the PC1-based global correction operator v0.1 degraded mean MAE to 63.40 GPa and overcorrected Cr).",
+  "axes": {
+    "panels": "One panel only; no subplots, no subtitle, no footnote, no sample-size annotation.",
+    "title": "TensorNet/PBE error geometry colored by bonding class",
+    "x_axis": {
+      "label": "C11 error (GPa)",
+      "ticks": "-30 to 50 in steps of 10",
+      "visible_range": "approximately -33 to +54 GPa"
+    },
+    "y_axis": {
+      "label": "C12 error (GPa)",
+      "ticks": "-40 to 80 in steps of 20",
+      "visible_range": "approximately -48 to +87 GPa"
+    },
+    "reference_lines": "Grey horizontal and vertical lines through (0, 0) split the plot into four quadrants; a light-grey grid overlays major ticks.",
+    "encodings": {
+      "points": "16 filled circles with thin black outlines, one per element, each labeled with its chemical symbol; no error bars.",
+      "color_legend": [
+        "alkaline_earth_fcc: Ca, Sr",
+        "noble_coinage_fcc: Ag, Cu, Au",
+        "post_transition: Al",
+        "transition_fcc: Ni, Pd, Pt",
+        "transition_bcc: Ta, Mo, W, Fe, Nb, V, Cr"
+      ],
+      "vector": "Thick black arrow labeled '1st PC' from (0, 0) to roughly (+48 to +50, +67 to +71), i.e. a slope of about 1.4 in data units, pointing into the upper-right quadrant.",
+      "sign_convention": "Per mlip-elastic-benchmark-protocol-2026-06-27.md, error = raw - TPBE_0K (prediction minus 0 K PBE reference), so negative values mean the potential under-predicts that elastic constant."
+    }
+  },
+  "trends": [
+    "Strong sign asymmetry: C12 error is negative for 15 of 16 elements (only Cr is positive); C11 error is negative for 11 of 16. The potential systematically under-predicts C12 across nearly the whole grid.",
+    "Quadrant occupancy: the both-negative quadrant holds 11 elements (Ta, Mo, W, Nb, Fe, Ni, Pd, Pt, Au, Al, Ca); the positive-C11/negative-C12 quadrant holds 4 (Sr, Ag, Cu, V); the both-positive quadrant holds only Cr; the negative-C11/positive-C12 quadrant is empty.",
+    "Clustering: soft, low-stiffness metals (Ag, Ca, Sr, with Au nearby) sit close to the origin; the bcc transition metals other than V and Cr form a band at moderately negative C11 (roughly -18 to -29 GPa) with C12 errors reaching about -40 GPa.",
+    "Outliers: Cr is the single visually extreme point, isolated in the upper-right at approximately (+46.5, +80.5) GPa. V is the most extreme positive-C11 point otherwise (about +30, -11). The companion feedback_loop_benchmark.json flags two projection-residual outliers (Cr and Nb); Nb is not visually salient in this figure.",
+    "PC1-vs-cloud tension: the '1st PC' arrow points up-right (slope ~1.4) into a quadrant occupied by exactly one point, while the other 15 lie at or below C12 = 0. Geometrically the arrow aligns with the long axis joining the negative-quadrant transition-metal cluster to Cr, i.e. the direction is dominated by the Q3-cluster-versus-Cr contrast rather than a within-cloud correlation most points obey.",
+    "Class structure is descriptive only: transition_bcc spans nearly the full horizontal range (W/Mo/Ta strongly negative through V positive to Cr extreme); transition_fcc and noble_coinage_fcc sit mid-cloud; alkaline earths and Al hug the origin."
+  ],
+  "caveats": [
+    "Do NOT conclude that C11 and C12 errors are generically positively correlated for this model. The PC1 direction is leverage-dominated by one point (Cr) plus the offset of the negative-quadrant cluster; with n = 16 and a single extreme outlier, PCA direction is fragile.",
+    "Do NOT conclude that a global bias correction along PC1 would reduce error. The companion preprint records the opposite: the v0.1 leave-one-out PC1 bias operator degraded mean MAE to 63.40 GPa (vs roughly 13-15 GPa raw) because element-to-element variation in error direction breaks the single-global-bias assumption and it overcorrects Cr. The arrow is a description of the error geometry, not a recommended correction.",
+    "Do NOT read this as a bonding-class performance ranking. Class subsamples are tiny and unequal (transition_bcc: 7; transition_fcc, noble_coinage_fcc: 3 each; alkaline_earth_fcc: 2; post_transition: 1); no class means, confidence intervals, or significance tests are shown.",
+    "Do NOT equate near-origin position with model skill. Axes are absolute GPa and unnormalized by each element's elastic-constant magnitude: Ag, Ca, and Sr sit near zero partly because soft metals have small elastic constants, while a -30 GPa C11 error for a stiff metal like W is a small relative error. Element-wise quality rankings need stiffness-normalized errors.",
+    "Do NOT generalize beyond this exact configuration: one potential (TensorNet/PBE), one cell treatment (1x1x1), one reference (TPBE_0K per the protocol), cubic metals only, and no uncertainty display (the funder brief notes runs are deterministic across 3 seeds, so no sampling noise exists to show, but transfer to other potentials, functionals, or structures is unsupported).",
+    "Do NOT infer sample size or outlier status from the image alone. The figure carries no n annotation and no outlier marking; the count of 16 and the Cr/Nb outlier flags come from the companion benchmark JSON, and visual isolation (Cr only) understates the data's flagged outlier set (Cr and Nb).",
+    "Do NOT treat the empty negative-C11/positive-C12 quadrant as evidence that sign combination is impossible for the model; absence in a 16-point sample proves nothing.",
+    "Do NOT read angles or slopes visually: the x span (~87 GPa) and y span (~135 GPa) are drawn at different data-per-pixel scales, so apparent angles, including the PC1 arrow's visual slope, are not geometrically faithful; the ~1.4 slope figure is a data-unit estimate only."
+  ]
+}

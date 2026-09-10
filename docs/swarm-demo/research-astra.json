@@ -1,0 +1,3156 @@
+{
+ "meta": {
+  "generated": "2026-09-09T21:35:31.356169-04:00",
+  "agent": "research-astra",
+  "method": "curl crawl of ProgramMaster TMS2027 conference page -> symposium pages (organizers, approved presentation lists) -> individual ApprovedAbstracts pages (title, authors, planned speaker, abstract text); regex cross-reference against target groups in the landscape doc.",
+  "meeting": {
+   "name": "2027 TMS Annual Meeting & Exhibition",
+   "dates": "03/14/2027 - 03/18/2027",
+   "location": "Orlando, FL, USA; Orlando World Center Marriott",
+   "source": "https://www.programmaster.org/PM/PM.nsf/Home?OpenForm&ParentUNID=A79798B673220E9885258B13005BB1F5"
+  },
+  "institution_map_source": "/home/alex/Dev/lupine/lupine-rhizo/docs/research/tms2027-mlip-landscape.md",
+  "abstracts_crawled": 201
+ },
+ "candidate_symposia_scanned": [
+  {
+   "name": "Additive Manufacturing Modeling, Simulation, and Artificial Intelligence: Microstructure, Mechanics, and Process",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/F9590E3BFD0DB7E185258D7A007FF7CF?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 96
+  },
+  {
+   "name": "AI-Enabled Materials Processing: Integrating Accelerated Experimental Workflows and Processing-Aware Machine Learning",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/D298C7CA3F0AED3985258D7F003CAA5E?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 42
+  },
+  {
+   "name": "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4B6E26EC429BA82B85258D8E005AE05A?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 7,
+   "approved_presentations": 80
+  },
+  {
+   "name": "Algorithms Development in Materials Science and Engineering",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/EE784487A0A6D3DF85258D8F007274CB?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 1,
+   "approved_presentations": 54
+  },
+  {
+   "name": "Artificial Intelligence Applications in Integrated Computational Materials Engineering (AI-ICME)",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/B2B77F5098DB603485258D8100812459?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 2,
+   "approved_presentations": 42
+  },
+  {
+   "name": "Avoiding Plot Holes: Telling Compelling Stories (with Data)",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/BC304EC51854BD0B85258D8D0063CC9C?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 11
+  },
+  {
+   "name": "Bridging Scale Gaps in Multiscale Materials Modeling in the Age of Artificial Intelligence",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1714A107C1F26D9785258D8F007C15BD?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 6,
+   "approved_presentations": 46
+  },
+  {
+   "name": "Celebrating 50 Years of Building the Foundations of Materials Design: An FMD/MPMD/SMD Symposium Honoring John Agren",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4C857F8129ACCD1385258D8E005B4E3D?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 19
+  },
+  {
+   "name": "Computational Discovery and Design of Materials",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/5AE2D907046CDF5585258D8D007FBD77?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 3,
+   "approved_presentations": 43
+  },
+  {
+   "name": "Computational Modeling and Machine Learning for Bio-Related and Sustainable Materials",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/B990CFC9675C46A985258D91000F547C?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 14
+  },
+  {
+   "name": "Computational Thermodynamics and Kinetics",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/02CD5BF2932CB99085258D8F0073F73E?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 2,
+   "approved_presentations": 97
+  },
+  {
+   "name": "Enabling Nuclear Materials Innovation via the Nuclear Science User Facility Capabilities",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/3AD119309FAC3DAB85258D8F0077EACB?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 29
+  },
+  {
+   "name": "Energy Technology 2027: Advancement in Energy Materials - Theory, Simulation, Characterization and Application",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/2BEB1A37BC1853FE85258D9000652662?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 30
+  },
+  {
+   "name": "Fatigue in Materials: Fundamentals, Multiscale Characterizations and Computational Modeling",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/B1D97A9DFD053F8985258D8700045BC7?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 70
+  },
+  {
+   "name": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/0A730CACDA50FA3085258DB900092A27?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 1,
+   "approved_presentations": 42
+  },
+  {
+   "name": "Mechanistic and Experimental Thermodynamics & Kinetics of Alloys",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1381A60118BD4A0D85258D86005ECECE?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 1,
+   "approved_presentations": 49
+  },
+  {
+   "name": "Modeling, AI Applications, and Method Development in Nuclear Materials",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/BB89F8927A47D4A185258D8500728E25?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 7,
+   "approved_presentations": 42
+  },
+  {
+   "name": "Novel Strategies for Rapid Acquisition and Processing of Large Datasets From Advanced Characterization Techniques",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/E8F7A87C66B43D3F85258D910015F912?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 38
+  },
+  {
+   "name": "Progress Toward Mechanisms, Thermodynamics, and Kinetics of Phase Transformations: An MPMD/SMD Symposium Honoring John H Perepezko",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/3A29F07361A3047F85258D920075984B?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 19
+  },
+  {
+   "name": "Verification, Calibration, and Validation Approaches for Mechanical Modeling of Metals",
+   "url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/6E369826C4FF417185258D8B00554363?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "mlip_titled_presentations": 0,
+   "approved_presentations": 43
+  }
+ ],
+ "symposia": [
+  {
+   "name": "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling",
+   "programmaster_url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4B6E26EC429BA82B85258D8E005AE05A?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "rank_in_top3": 1,
+   "why_selected": "Largest count of approved MLIP presentations (UMLIP fine-tuning, surface failure modes, million-scale UMLIP screening, Allegro multi-fidelity); sponsored by TMS Computational Materials Science & Engineering Committee.",
+   "organizers": [
+    {
+     "name": "Christopher Stiles",
+     "affiliation": "Johns Hopkins University Applied Physics Laboratory"
+    },
+    {
+     "name": "Niaz Abdolrahim",
+     "affiliation": "University of Rochester"
+    },
+    {
+     "name": "Kamal Choudhary",
+     "affiliation": "Johns Hopkins University"
+    },
+    {
+     "name": "Dehao Liu",
+     "affiliation": "Binghamton University"
+    },
+    {
+     "name": "Darren C. Pagan",
+     "affiliation": "Pennsylvania State University"
+    },
+    {
+     "name": "James Edward Saal",
+     "affiliation": "Citrine Informatics"
+    },
+    {
+     "name": "Daniel Wines",
+     "affiliation": "National Institute of Standards and Technology"
+    },
+    {
+     "name": "Taylor D. Sparks",
+     "affiliation": "University of Utah"
+    },
+    {
+     "name": "Mahmood Mamivand",
+     "affiliation": "Boise State University"
+    }
+   ],
+   "organizer_affiliations_source": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4B6E26EC429BA82B85258D8E005AE05A?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "speaker_affiliations_note": "ProgramMaster abstract pages list authors and planned on-site speaker but NOT affiliations; affiliations are not asserted here.",
+   "approved_presentations_count": 77,
+   "mlip_relevant_presentations_count": 11,
+   "speakers": [
+    {
+     "title": "A Paired Benchmark of Tight-Binding and Graph Neural Networks for Electronic Bandgap Prediction",
+     "planned_speaker": "Jaehyung Lee",
+     "authors": [
+      "Jaehyung Lee"
+     ],
+     "keywords": "Electronic Materials, Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/013C6D25B0545E5085258E270008477C?OpenDocument"
+    },
+    {
+     "title": "Graph Neural Network Prediction of Grain-Boundary Diffusion from a Reduced Active-Atom Subset",
+     "planned_speaker": "Sohrab Salimi Bani",
+     "authors": [
+      "Sohrab Salimi Bani",
+      "Panthea Sepehrband",
+      "Morad Behandish"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0328B3B950B640D685258E2600038A73?OpenDocument"
+    },
+    {
+     "title": "A Physics-Informed Inverse Design Pipeline for Halogen-Free Fire-Retardant Polymers",
+     "planned_speaker": "Ishanee Khadakkar",
+     "authors": [
+      "Ishanee Khadakkar",
+      "Brian Lattimer"
+     ],
+     "keywords": "Polymers, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0394E532959A8E4485258E3600088605?OpenDocument"
+    },
+    {
+     "title": "The Surface Problem in Machine-Learned Interatomic Potentials",
+     "planned_speaker": "Emir Bilgili",
+     "authors": [
+      "Emir Bilgili",
+      "Nicholas Taormina"
+     ],
+     "keywords": "Machine Learning, Thin Films and Interfaces, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/04498D041ACC319C85258E26006AE2A9?OpenDocument"
+    },
+    {
+     "title": "XRDReader: Turning Published XRD Information into Machine-Readable Experimental Databases with Multimodal Agentic AI",
+     "planned_speaker": "Afnan Mostafa",
+     "authors": [
+      "Afnan Mostafa",
+      "William Ratcliff",
+      "Simon Billinge",
+      "Niaz Abdolrahim"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/04AC24B65BD9F08085258E33004876D9?OpenDocument"
+    },
+    {
+     "title": "Thermal properties dataset of high-emissivity ceramic materials generated with automated data extraction",
+     "planned_speaker": "Taek Gyu Kwon",
+     "authors": [
+      "Taek Gyu Kwon",
+      "Yi Je Cho"
+     ],
+     "keywords": "Ceramics,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0539E05E18F8512485258E3500218A01?OpenDocument"
+    },
+    {
+     "title": "Design of Experiments for Efficient XRF Under Compositional Uncertainty",
+     "planned_speaker": "Abigail C. Hefferan",
+     "authors": [
+      "Abigail C. Hefferan",
+      "Aaron Stebner"
+     ],
+     "keywords": "Characterization, Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0B146092B14EABAD85258E34006B095C?OpenDocument"
+    },
+    {
+     "title": "Toward Closed-Loop Materials Design: AI Prediction, Uncertainty, and Decision-Making",
+     "planned_speaker": "Jaafar A. El-Awady",
+     "authors": [
+      "Jaafar A. El-Awady"
+     ],
+     "keywords": "ICME, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0F0985B59A1AF86785258E3600086F91?OpenDocument"
+    },
+    {
+     "title": "Multi-Surrogate Strategies for Multi-Objective Bayesian Optimization: A Cross-Phase Empirical Study from Static Baselines to LLM-Proposed Policies",
+     "planned_speaker": "Ahnaf Alvi",
+     "authors": [
+      "Ahnaf Alvi",
+      "Shakti Prasad Padhy",
+      "Jan Janssen",
+      "Danny Perez",
+      "Douglas Allaire",
+      "Raymundo Arroyave"
+     ],
+     "keywords": "Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/14F54333B64EECB785258E350058E508?OpenDocument"
+    },
+    {
+     "title": "AI-Enabled High Throughput Discovery of High Entropy Alloys for Extreme Environments",
+     "planned_speaker": "Marshall Donald Allen",
+     "authors": [
+      "Marshall Donald Allen",
+      "Michael Miller",
+      "Jianliang Lin",
+      "Anton Zahradnik",
+      "Mirella Vargas",
+      "William Watson",
+      "John Macha"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Entropy Alloys, High-Temperature Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1C1E11A021D1EE5085258E2600627502?OpenDocument"
+    },
+    {
+     "title": "An informatics approach to predict shape memory effect in CrMnFeCoNi high-entropy alloys",
+     "planned_speaker": "Jinsurang Lim",
+     "authors": [
+      "Jinsurang Lim",
+      "Je In Lee",
+      "Dongwon Shin"
+     ],
+     "keywords": "High-Entropy Alloys, Phase Transformations,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/24DF04317301EFB285258E340007EC7E?OpenDocument"
+    },
+    {
+     "title": "Out-of-Distribution Phase Equilibrium Prediction Using Physics-Informed Graph Attention Networks",
+     "planned_speaker": "Amrita Basak",
+     "authors": [
+      "Eunjeong Park",
+      "Amrita Basak"
+     ],
+     "keywords": "Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/26BBCF9264C2E16A85258E1D0068988D?OpenDocument"
+    },
+    {
+     "title": "User-Friendly CALPHAD Workflows for Materials Discovery Beyond the CALPHAD Community",
+     "planned_speaker": "Moritz To Baben",
+     "authors": [
+      "Moritz To Baben",
+      "Florian Tang",
+      "Bruno Reis",
+      "Cassie Frh",
+      "Philipp Keuter",
+      "Alexander Walnsch"
+     ],
+     "keywords": "Modeling and Simulation, Machine Learning, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/27E7FBDFF147D16B85258E270075F39F?OpenDocument"
+    },
+    {
+     "title": "Self-Supervised Learning of Materials States Evolution from Microscopy Data Using Joint Embedding Predictive Architectures",
+     "planned_speaker": "Hyoungryul Park",
+     "authors": [
+      "Hyoungryul Park",
+      "Mathieu Calvat",
+      "Cornor Bergan",
+      "Dhruv Anjaria"
+     ],
+     "keywords": "Machine Learning, Characterization, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/27F8F85A7A18E63D85258E26005A2BBC?OpenDocument"
+    },
+    {
+     "title": "From Loading to Architecture: A Physics-Guided Machine-Learning Framework for Polymer Spall Strength",
+     "planned_speaker": "Tyler A. Collins",
+     "authors": [
+      "Tyler A. Collins",
+      "Sara Adibi"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Polymers",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/29FC4AA0F06E6FCB85258E27006E088F?OpenDocument"
+    },
+    {
+     "title": "Uncertainty-Guided Active Learning for Autonomous Spall Strength Experimentation",
+     "planned_speaker": "Ali K. Shargh",
+     "authors": [
+      "Ali K. Shargh",
+      "Piyush Wanchoo",
+      "Ashwini Gupta",
+      "Lori Graham-Brady",
+      "KT Ramesh",
+      "Christopher Stiles",
+      "Jaafar El-Awady"
+     ],
+     "keywords": "Machine Learning, Mechanical Properties, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2CBC59779AC7FD1285258E340059CB65?OpenDocument"
+    },
+    {
+     "title": "Agentic Resource Allocation for Batch Multi-Objective Bayesian Optimization in Autonomous Materials Discovery",
+     "planned_speaker": "Robert Robinson",
+     "authors": [
+      "Robert Robinson",
+      "Shakti Padhy",
+      "Sushant Sinha",
+      "Ahnaf Alvi",
+      "Juan Florez",
+      "Brent Vela",
+      "Trevor Hastings",
+      "Douglas Allaire",
+      "Raymundo Arroyave"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3094789AD26A93AD85258E260063B10E?OpenDocument"
+    },
+    {
+     "title": "Interrogating Materials Informatics Models Along Experimentally Relevant Alloying Pathways",
+     "planned_speaker": "Pratik K. Ray",
+     "authors": [
+      "Dishant Beniwal",
+      "Prashant Singh",
+      "Pratik K. Ray"
+     ],
+     "keywords": "Machine Learning, High-Entropy Alloys, Mechanical Properties",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/34F51631973C4AE885258E2600355860?OpenDocument"
+    },
+    {
+     "title": "Language-Based Modeling for Additive-Manufacturing Alloy Design: Learning, Reasoning, and Generative Exploration",
+     "planned_speaker": "Bo Ni",
+     "authors": [
+      "Bo Ni",
+      "S. Mohadeseh Taheri-Mousavi"
+     ],
+     "keywords": "Machine Learning, ICME, Additive Manufacturing",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3B620561D9FEE49C85258E340064CDA6?OpenDocument"
+    },
+    {
+     "title": "An Automated Probabilistic Machine Learning Framework for Materials Modeling and Active Learning: Benchmarking Uncertainty Quantification Across Analytical, Computational, and Experimental Domains",
+     "planned_speaker": "Shakti Prasad Padhy",
+     "authors": [
+      "Shakti Prasad Padhy",
+      "Juan Florez-Coronel",
+      "Sushant Kumar Sinha",
+      "Sk Md Ahnaf Akif Alvi",
+      "Robert Robinson",
+      "Jatin Kumar Ralhan",
+      "Raj Kiran",
+      "Douglas Allaire",
+      "Raymundo Arryave"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, ICME",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3C10829DC5F2802685258E22006D61A9?OpenDocument"
+    },
+    {
+     "title": "Physics-Informed Graph Neural Networks for Predicting Li-Ion Transport in Solid Electrolyte Interphases",
+     "planned_speaker": "Yanqing Su",
+     "authors": [
+      "Yanqing Su"
+     ],
+     "keywords": "Energy Conversion and Storage, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3CBBE5DBB5E2A7B585258E25007669E4?OpenDocument"
+    },
+    {
+     "title": "A Multidimensional Continuous Conditional Generative Adversarial Network to Link Composition-Process-Microstructure-Properties in Mg Alloys",
+     "planned_speaker": "Javier Llorca",
+     "authors": [
+      "Xu Qin",
+      "Qinghang Wang",
+      "Biaobiao Yang",
+      "Javier Llorca"
+     ],
+     "keywords": "Magnesium, Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/403B12F7EB1513E585258E1F001CA314?OpenDocument"
+    },
+    {
+     "title": "Dual Machine Learning Discovery of the Radius of Informative Structural Environments in Metallic Glasses",
+     "planned_speaker": "Muchen Wang",
+     "authors": [
+      "Muchen Wang",
+      "Yuchu Wang",
+      "Minhazul Islam",
+      "Yuchi Wang",
+      "Yunzhi Wang",
+      "Jinwoo Hwang",
+      "Yue Fan"
+     ],
+     "keywords": "Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/428EDA91931433B385258E27006EC6EC?OpenDocument"
+    },
+    {
+     "title": "Learning Across Theories: A Multi-Fidelity Machine-Learned Interatomic Potential for the Energetic Molecular Crystal LLM-105",
+     "planned_speaker": "Daniela Dantas Quintana",
+     "authors": [
+      "Daniela Dantas Quintana",
+      "Paulo Branicio"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/46263DB7338C377E85258E230009406A?OpenDocument"
+    },
+    {
+     "title": "Data-Driven Surrogate to FE for Predicting Elastoplastic Constitutive Relation in Polymer Nanocomposites",
+     "planned_speaker": "Dibya Jyoti Basu",
+     "authors": [
+      "Dibya Jyoti Basu",
+      "Seongmin Yoon",
+      "Vikas Tomar"
+     ],
+     "keywords": "Polymers, Computational Materials Science & Engineering, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/49D1CBE85AB756F585258E250059ED85?OpenDocument"
+    },
+    {
+     "title": "Mag-GPT: From Query to Magnetic Materials Discovery",
+     "planned_speaker": "Prashant Singh",
+     "authors": [
+      "Prashant Singh",
+      "Ratul Chowdhury",
+      "Supantha Dey"
+     ],
+     "keywords": "Machine Learning, Magnetic Materials, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4A6774ED14EF29FF85258E32006AF065?OpenDocument"
+    },
+    {
+     "title": "Advancing BEE-NET for Physics-Informed Quantum Materials Discovery",
+     "planned_speaker": "Bariana Bowman",
+     "authors": [
+      "Bariana Bowman",
+      "Eric Fonseca",
+      "Jason Gibson",
+      "Ajinkya Hire",
+      "Sam Dillon",
+      "Benjamin Geisler",
+      "Jiabin Yu",
+      "Peter Hirschfeld",
+      "Richard Hennig"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning,",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4C41CB86B356B4F385258E27006694E5?OpenDocument"
+    },
+    {
+     "title": "Toward an Autonomous Laboratory for Accelerated Alloy Discovery",
+     "planned_speaker": "Saryu Fensin",
+     "authors": [
+      "Janith C. Wanni",
+      "Avanish Mishra",
+      "Saryu Fensin"
+     ],
+     "keywords": "Characterization, High-Entropy Alloys, Mechanical Properties",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/518D395457B0BD7585258E27000EECD3?OpenDocument"
+    },
+    {
+     "title": "Machine learning and high-throughput computational guided development of high temperature oxidation-resisting Ni-Co-Cr-Al-Fe based high-entropy alloys",
+     "planned_speaker": "Shanshan Hu",
+     "authors": [
+      "Shanshan Hu",
+      "Xingru Tan",
+      "Michael Gao"
+     ],
+     "keywords": "Machine Learning, High-Entropy Alloys, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/55E75A17154DA58E85258E35005FFF45?OpenDocument"
+    },
+    {
+     "title": "Data-driven inference of twin network dynamics: nucleation, co-nucleation, transmission, and incidental contacts",
+     "planned_speaker": "Duncan A. Greeley",
+     "authors": [
+      "Duncan A. Greeley",
+      "Paul Agbaje",
+      "Hi Vo",
+      "Laurent Capolungo"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/567BD8E4FB17894085258E26006A46F9?OpenDocument"
+    },
+    {
+     "title": "Machine Learning Interatomic Potential for\rTitanium-Helium systems",
+     "planned_speaker": "Narayan Pokhrel",
+     "authors": [
+      "Narayan Pokhrel",
+      "Kamal Wagle",
+      "Reeju Pokharel"
+     ],
+     "keywords": "Titanium, Machine Learning, Computational Materials Science & Engineering",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5CA94703549B581E85258E2800064146?OpenDocument"
+    },
+    {
+     "title": "Resource-Constrained AI Discovery of Manufacturable Wear-Resistant Steels",
+     "planned_speaker": "Christopher Stiles",
+     "authors": [
+      "Christopher Stiles",
+      "Nam Le",
+      "Alex New",
+      "Eddie Gienger",
+      "Christian Sanjurjo-Rodriguez",
+      "Steven Storck",
+      "Lisa Pogue",
+      "Tom Arbaugh",
+      "Pheobe Appel",
+      "Gregory Bassen",
+      "Ann Choi",
+      "Wyatt Bunstine",
+      "Denise Yin",
+      "Todd Hufnagel",
+      "Alexander deJong",
+      "Tyrel McQueen",
+      "Leslie Hamilton",
+      "Ritwik Bose",
+      "Sam Scheck"
+     ],
+     "keywords": "Additive Manufacturing, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5EC2B60F293E2EA485258E31006CF98E?OpenDocument"
+    },
+    {
+     "title": "Fine–Tuned Universal Machine Learned Interatomic Potentials for Surface Property Prediction",
+     "planned_speaker": "Kellyna Kayla Voyer",
+     "authors": [
+      "Kellyna Kayla Voyer",
+      "Sam Dong",
+      "Richard Hennig"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Other",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/62828459A98A238D85258E28004E9DAB?OpenDocument"
+    },
+    {
+     "title": "CALIBER: A Retrieval-Augmented, Uncertainty-Aware Platform for Selecting High-Fidelity Characterization Parameters for Novel Alloys",
+     "planned_speaker": "Ronald Guymon",
+     "authors": [
+      "Ronald Guymon",
+      "Gage Erickson",
+      "Carl Robison",
+      "Xavier Zaitzeff",
+      "Sterling Baird"
+     ],
+     "keywords": "Characterization, Machine Learning, Mechanical Properties",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/62FB3D040E8FD6C085258E340053D059?OpenDocument"
+    },
+    {
+     "title": "Physics-Informed Constitutive Calibration as a Data Problem: From Quasi-Static-to-High-Rate Experiments and FEA Validation",
+     "planned_speaker": "Erwin Cazares",
+     "authors": [
+      "Erwin Cazares",
+      "Edgar O Tarin",
+      "Brian E Schuster"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6740D9F988AA733685258E3500786F2B?OpenDocument"
+    },
+    {
+     "title": "Knowledge-Evolution-Informed Forecasting of Mg Alloy Research Using Large Language Models",
+     "planned_speaker": "Kelvin Y. Xie",
+     "authors": [
+      "Kelvin Y. Xie"
+     ],
+     "keywords": "Machine Learning, Magnesium,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/693CCACCA1A80EDF85258E27006F07EB?OpenDocument"
+    },
+    {
+     "title": "Dis-GNN: Crystal Graph Neural Network for Disordered Crystal Classification and Site Occupancy Prediction",
+     "planned_speaker": "Sam Dong",
+     "authors": [
+      "Sam Dong",
+      "Pawan Prakash",
+      "Richard Hennig"
+     ],
+     "keywords": "Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6B8CC6BD30C7892685258E350024804E?OpenDocument"
+    },
+    {
+     "title": "Physics Informed Neural Network Recovery of Continuous Relaxation Time Spectra in Linear Viscoelasticity",
+     "planned_speaker": "Bright I. Simeon",
+     "authors": [
+      "Bright I. Simeon",
+      "Mehrdad Negahban"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6E8A26ABED03800D85258E330057FDA0?OpenDocument"
+    },
+    {
+     "title": "Interpretable Machine Learning and Topological Descriptors for Structural Evolution, Interfaces, and Dopant Thermodynamics: A Halide Perovskites Case Study",
+     "planned_speaker": "Ayush Kumar Pandey",
+     "authors": [
+      "Ayush Kumar Pandey",
+      "Abhishek Tewari"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6F4718323FAC512685258E35005173DC?OpenDocument"
+    },
+    {
+     "title": "Learning topological evolution in polycrystalline microstructures",
+     "planned_speaker": "Ashwin Shahani",
+     "authors": [
+      "Ashwin Shahani"
+     ],
+     "keywords": "Characterization, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/728552D7E7584E6485258E34006881F4?OpenDocument"
+    },
+    {
+     "title": "Graph Neural Network Optimization of Industrial Materials, Formulations, and Chemical Processes",
+     "planned_speaker": "Ekaterina Gracheva",
+     "authors": [
+      "Ekaterina Gracheva",
+      "Kim Karl Limpiada",
+      "Vianca Tayag Alegre",
+      "Justine Clarisse Valdez",
+      "Atsuyuki Nakao",
+      "Hisaki Ikebata"
+     ],
+     "keywords": "Machine Learning, Surface Modification and Coatings, Process Technology",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/730378D6AC95FF7085258E3000384930?OpenDocument"
+    },
+    {
+     "title": "Graph Neural Networks for the Prediction of Metastable Grain Boundary Dynamics",
+     "planned_speaker": "Anqi Qiu",
+     "authors": [
+      "Anqi Qiu",
+      "Yue Fan"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Iron and Steel,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/73974745C22B9C8B85258E3600026783?OpenDocument"
+    },
+    {
+     "title": "Automating LabDCT Workflows via Intelligent, Data-Driven Guidance",
+     "planned_speaker": "Mario Heinig",
+     "authors": [
+      "Mario Heinig",
+      "Florian Bachmann",
+      "Raghav Vacher",
+      "Gorm Gruner Jensen",
+      "Jette Oddershede",
+      "Erik Lauridsen"
+     ],
+     "keywords": "Characterization, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/793294B5E14BB64A85258E27004B2E1D?OpenDocument"
+    },
+    {
+     "title": "Million-scale Surface Property Screening Enabled by Universal Machine Learning Interatomic Potentials",
+     "planned_speaker": "Peter Schindler",
+     "authors": [
+      "Peter Schindler",
+      "Ardavan Mehdizadeh"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation, Energy Conversion and Storage",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/79DA5C6B1F9B95B285258E28000CC372?OpenDocument"
+    },
+    {
+     "title": "Accelerating Structural Materials Discovery by Orders of Magnitude Using Random Libraries",
+     "planned_speaker": "Vivek Chawla",
+     "authors": [
+      "Vivek Chawla",
+      "Dayakar Penumadu",
+      "Sergei Kalinin"
+     ],
+     "keywords": "Machine Learning, Mechanical Properties, Characterization",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7C11EEC664D6E4AA85258E3500780EF9?OpenDocument"
+    },
+    {
+     "title": "Multiscale Modeling of GaN/AlGaN Interfaces with Machine Learning and DFT",
+     "planned_speaker": "Daniel Wines",
+     "authors": [
+      "Daniel Wines",
+      "Viviana Faride Dovale Farelo",
+      "Ali Hamze",
+      "Lucas Hale",
+      "Brian DeCost"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Machine Learning",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7F879DBD18CFF35385258E35006BB818?OpenDocument"
+    },
+    {
+     "title": "A Self-Driving Additive Manufacturing Platform for Autonomous Superalloy Design: A case study on Co-superalloys",
+     "planned_speaker": "Ajay Cole Talbot",
+     "authors": [
+      "Ajay Cole Talbot",
+      "Lulu Guo",
+      "Yu Zou",
+      "Soumya S. Dash",
+      "Rafiu Hossain"
+     ],
+     "keywords": "Additive Manufacturing, Machine Learning, ICME",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7FF882056A0D105385258E34005A5897?OpenDocument"
+    },
+    {
+     "title": "Data-efficient Deep Generative Modeling for Microstructure Prediction under Unexplored Compositional Conditions",
+     "planned_speaker": "Xiaofan Zhang",
+     "authors": [
+      "Xiaofan Zhang",
+      "Junya Inoue",
+      "Satoshi Noguchi"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/83DC14D0FA72BA5D85258E280008ED8C?OpenDocument"
+    },
+    {
+     "title": "Machine-Learned Interatomic Potentials for High-Throughput Screening of Ag-Exchanged Zeolites for Xenon Capture in Nuclear Non-Proliferation Sensing",
+     "planned_speaker": "Soham Ketan Savarkar",
+     "authors": [
+      "Soham Ketan Savarkar",
+      "Eric Fonseca",
+      "Richard Hennig"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation, Computational Materials Science & Engineering",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/84965E43F11E478485258E260056C0F4?OpenDocument"
+    },
+    {
+     "title": "Integrating AI-enabled analysis and agentic workflows at scientific user facilities",
+     "planned_speaker": "Tanny Chavez Esparza",
+     "authors": [
+      "Tanny Chavez Esparza",
+      "Xiaoya Chong",
+      "Bowen Zheng",
+      "Ka Hung Chan",
+      "Monika Choudhary",
+      "Wiebke Koepp",
+      "Dylan McReynolds",
+      "Alexander Hexemer"
+     ],
+     "keywords": "Machine Learning, Characterization, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9012F6E7825010F485258E350017A066?OpenDocument"
+    },
+    {
+     "title": "Any Data is AI-Ready via Semantic Knowledge Graphs",
+     "planned_speaker": "Nick Garabedian",
+     "authors": [
+      "Nick Garabedian"
+     ],
+     "keywords": "Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9598BC29EE28C38C85258E270066FA0F?OpenDocument"
+    },
+    {
+     "title": "Process-aware Extraction of Composition–processing–property Records from Materials Literature Using Large Language Models",
+     "planned_speaker": "Haoyuan Sun",
+     "authors": [
+      "Haoyuan Sun"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9770A4E8CE6ECAFA85258E250016F8D7?OpenDocument"
+    },
+    {
+     "title": "Agentic Lifestyles in the Era of AI: Research Workflows and Insights from the Vertical Cloud Lab @ BYU",
+     "planned_speaker": "Sterling G. Baird",
+     "authors": [
+      "Sterling G. Baird",
+      "Xavier Zaitzeff",
+      "Gage Erickson",
+      "Ronnie Guymon",
+      "Carl Robison",
+      "Sam Charles",
+      "William Mulberry",
+      "Luke Winters",
+      "Marcus Madsen",
+      "Audrey Christiansen",
+      "Jinkwan Han",
+      "Jeff Hill",
+      "Seth Leavitt",
+      "Timothy Commins",
+      "Benjamin Whitney",
+      "Finn Albiston",
+      "Devora Najjar",
+      "Philip Lampkin",
+      "Kevin Maik Jablonka"
+     ],
+     "keywords": "Additive Manufacturing, Powder Materials, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/99479062129074CD85258E2F00578745?OpenDocument"
+    },
+    {
+     "title": "Physics-informed Machine Learning Framework for Material Parameters Estimation from Materials Morphology",
+     "planned_speaker": "Asfandyar Khan",
+     "authors": [
+      "Asfandyar Khan",
+      "Mahmood Mamivand"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Phase Transformations, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/997F3C6DBE904F0F85258E260067D059?OpenDocument"
+    },
+    {
+     "title": "COD'HEM: An Integrated Experimental–DFT Materials Informatics Platform for Data-Driven Discovery of High Entropy Materials",
+     "planned_speaker": "Suyash Varshney",
+     "authors": [
+      "Suyash Varshney",
+      "Sriram Vishnubhotla",
+      "Dilpuneet Aidhy"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Entropy Alloys, ICME",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/99BB37D7B67EC3D985258E27006FC6F2?OpenDocument"
+    },
+    {
+     "title": "A High throughput experimental-computational approach linking Stacking Fault Energy and nanotwin formation in Nickel-based thin film libraries",
+     "planned_speaker": "Anthony A. Botros",
+     "authors": [
+      "Anthony A. Botros",
+      "Ashley Maldonado Otero",
+      "Mohammad Hadi Yazdani",
+      "Paulo Branicio",
+      "Andrea M. Hodge"
+     ],
+     "keywords": "Thin Films and Interfaces, High-Temperature Materials, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9A2CB1CDC3EBB79885258E2C006534EC?OpenDocument"
+    },
+    {
+     "title": "Assessing Uncertainty and Reproducibility in ML-Based Grain Growth Predictions: Impact of Training Data",
+     "planned_speaker": "Vishal Yadav",
+     "authors": [
+      "Vishal Yadav",
+      "Amanda Krause",
+      "Joel Harley",
+      "Michael Tonks"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9CFC31B398235B8385258E2600700A31?OpenDocument"
+    },
+    {
+     "title": "Trustworthy, Uncertainty-Aware Multimodal Machine Learning for Materials Discovery: Interpretable, Self-Curating Screening of Solid-State Electrolytes",
+     "planned_speaker": "Qingjie Li",
+     "authors": [
+      "Qingjie Li",
+      "Joshua Young",
+      "Taku Watanabe"
+     ],
+     "keywords": "Energy Conversion and Storage, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9D0321085414DCE985258E35006683CE?OpenDocument"
+    },
+    {
+     "title": "Damage assessment digital twin for fusion plasma-facing materials",
+     "planned_speaker": "Rinkle Juneja",
+     "authors": [
+      "Rinkle Juneja",
+      "Viktor Reshniak",
+      "Pablo Seleson",
+      "Sam Reeve",
+      "Rick Archibald",
+      "Cory Hauck",
+      "Gary Staebler"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation, Nuclear Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F6CDDFEB76AF52585258E3500668DEA?OpenDocument"
+    },
+    {
+     "title": "Developing Methods, Models, and Datasets for a Self-Driving Magnetic Nanomaterials Laboratory: Application for Thermal Magnetic Particle Imaging",
+     "planned_speaker": "Frank M. Abel",
+     "authors": [
+      "Frank M. Abel",
+      "Paige Burke",
+      "Thinh Bui",
+      "Md Mahadi Rajib",
+      "Daniel Wines",
+      "Brian Donovan",
+      "Michelle Jamer",
+      "Solomon Woods",
+      "Kamal Choudhary"
+     ],
+     "keywords": "Magnetic Materials, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A7AE869AEF2EBEC985258E260060EB04?OpenDocument"
+    },
+    {
+     "title": "Multi-Scale Microstructure–Property Prediction Using Deep Learning",
+     "planned_speaker": "Wuguo Chen",
+     "authors": [
+      "Wuguo Chen",
+      "Yan Zhao",
+      "Mujun Long",
+      "Jian Wang",
+      "Bin Liang",
+      "Xiangxing Deng"
+     ],
+     "keywords": "Machine Learning, Mechanical Properties, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/AB1CE14F33F4897985258E22003331BB?OpenDocument"
+    },
+    {
+     "title": "Agentic AI-Driven Design of Refractory Multi-Principal Element Alloys",
+     "planned_speaker": "Kun Lu",
+     "authors": [
+      "Kun Lu",
+      "Hamza Jabbar",
+      "Vedanta Somnathe",
+      "Caleb Seba",
+      "Xin Wang",
+      "Qiaofu Zhang",
+      "Shuozhi Xu",
+      "Xin Wang",
+      "Gregory Thompson"
+     ],
+     "keywords": "High-Entropy Alloys, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B1B01BDA4FB16BEA85258E1F006EC0AC?OpenDocument"
+    },
+    {
+     "title": "Steel S-N curve prediction via domain knowledge guided LLM-assisted symbolic regression",
+     "planned_speaker": "Luchen DENG",
+     "authors": [
+      "Luchen DENG",
+      "Junya Inoue"
+     ],
+     "keywords": "Machine Learning, Mechanical Properties, Iron and Steel",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B5737BA435FE6A3485258E250037775E?OpenDocument"
+    },
+    {
+     "title": "Machine learning to derive effective transport properties of multiphase polycrystalline systems",
+     "planned_speaker": "Nathan Bieberdorf",
+     "authors": [
+      "Nathan Bieberdorf",
+      "Kate Elder",
+      "Kwangnam Kim",
+      "Emily Moore",
+      "Stephen Weitzner",
+      "Tae Wook Heo"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Nuclear Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B61725D4761430F085258E2700751F07?OpenDocument"
+    },
+    {
+     "title": "Machine Learning Framework for Predicting and Interpreting Corrosion Behavior of Zinc Alloys",
+     "planned_speaker": "R Durga Prasad Reddy",
+     "authors": [
+      "Abhishek Kansal",
+      "R Durga Prasad Reddy",
+      "Pradeep kumar",
+      "Siddharth Angraa",
+      "Harshil Chaddha",
+      "Aryan kumar",
+      "Arooj sharma"
+     ],
+     "keywords": "Biomaterials, Machine Learning, Characterization",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BCF6DD2983C91C4C85258E2000467ED3?OpenDocument"
+    },
+    {
+     "title": "Label-Efficient Strategies for Small-Data Materials Modeling with a Nuclear Waste Glass Case Study Study",
+     "planned_speaker": "Irmak Sargin",
+     "authors": [
+      "Irmak Sargin"
+     ],
+     "keywords": "Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C1FE988C7BDD2DC085258E35002ACCCD?OpenDocument"
+    },
+    {
+     "title": "Research on Molten Steel Carbon Content Prediction for Multi-Procedure Steelmaking Process",
+     "planned_speaker": "Zhengjiang Yang",
+     "authors": [
+      "Zhengjiang Yang",
+      "Mingmei Zhu",
+      "Xianhong Qin"
+     ],
+     "keywords": "Iron and Steel, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C2A9EC0AD7C321AA85258E27001CFC8B?OpenDocument"
+    },
+    {
+     "title": "A Comparative Study of Ensemble Machine Learning Models for Nanoindentation Hardness and Elastic Modulus of Ion-irradiated HEAs",
+     "planned_speaker": "Mohammad Shafinul Haque",
+     "authors": [
+      "Mohammad Shafinul Haque",
+      "Md Kamal Hossain",
+      "Christopher Antu",
+      "Breanna Mead",
+      "Abraham Burleigh",
+      "Kavin Ammigan",
+      "Adrien Couet",
+      "Nicholas Crnkovich"
+     ],
+     "keywords": "Machine Learning, High-Entropy Alloys, Mechanical Properties",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C351723BB04F803185258E260001F5BA?OpenDocument"
+    },
+    {
+     "title": "Causally Informed Machine Learning for Nanoporous Microstructure-Property Relationships",
+     "planned_speaker": "Longsheng Feng",
+     "authors": [
+      "Longsheng Feng",
+      "Tae Wook Heo",
+      "Juergen Biener"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Composites",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C6C91E252987C3E285258E1B00594A57?OpenDocument"
+    },
+    {
+     "title": "AI-driven theoretical frameworks to determine structure of complex materials and defects from experiments",
+     "planned_speaker": "Venkata Surya Chaitanya Kolluru",
+     "authors": [
+      "Venkata Surya Chaitanya Kolluru",
+      "Maria Chan"
+     ],
+     "keywords": "Energy Conversion and Storage, Thin Films and Interfaces, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/CD36E20E3211EB4185258E35006E4AAB?OpenDocument"
+    },
+    {
+     "title": "Development of Machine-Learning Interatomic Potential forSolute–Dislocation Interactions in Fe–C–Cu Steels",
+     "planned_speaker": "Zizheng Cao",
+     "authors": [
+      "Zizheng Cao",
+      "Junya Inoue"
+     ],
+     "keywords": "Iron and Steel, Machine Learning, Mechanical Properties",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/CF3D1EBB5644745E85258E26002A954E?OpenDocument"
+    },
+    {
+     "title": "Deep learning based optimization of hydrogels and their funcationalization for applications in ophthalmology",
+     "planned_speaker": "Berit Zeller-Plumhoff",
+     "authors": [
+      "Berit Zeller-Plumhoff",
+      "Christina Gawlick",
+      "Carsten Wickmann",
+      "Stefan Oehmcke",
+      "Andr Schulz"
+     ],
+     "keywords": "Biomaterials, Machine Learning, Polymers",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D1C2199FA5DB152C85258E350044C22C?OpenDocument"
+    },
+    {
+     "title": "Agentic AI for Assessing and Optimizing Scientific Reasoning and Creativity in Chemical Vapor Deposition Diamond Synthesis",
+     "planned_speaker": "Devi Dutta Biswajeet",
+     "authors": [
+      "Devi Dutta Biswajeet",
+      "Sara Kadkhodaei"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E7C717325B44E86C85258E270075C08A?OpenDocument"
+    },
+    {
+     "title": "Hyperparameter-Informed Sparse Bayesian Active Learning for Understanding and Controlling Frontal Radical Polymerization",
+     "planned_speaker": "Taylor D. Sparks",
+     "authors": [
+      "Philip P Lampkin",
+      "Darya A Ivannikava",
+      "Andrew R. Falkowski",
+      "Matthew S. Sigman",
+      "Taylor D. Sparks",
+      "Jacob J. Lessard"
+     ],
+     "keywords": "Polymers, Computational Materials Science & Engineering, Process Technology",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E969E9CC94E5550885258E34005A3228?OpenDocument"
+    },
+    {
+     "title": "Data-Driven Tensile Strength Prediction of Biodegradable Zinc Alloys",
+     "planned_speaker": "Abhishek Kansal",
+     "authors": [
+      "Abhishek Kansal",
+      "Ram Niwas",
+      "Siddharth Angraa",
+      "Aryan Kumar",
+      "Arooj sharma",
+      "Harshil Chaddha"
+     ],
+     "keywords": "Biomaterials, Characterization, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EA3687B2BE2C39A985258E2000491C46?OpenDocument"
+    },
+    {
+     "title": "Areas of Agentic Leverage in Computational Materials Science",
+     "planned_speaker": "Steven Torrisi",
+     "authors": [
+      "Steven Torrisi"
+     ],
+     "keywords": "Modeling and Simulation,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EC034B0E4B0E696685258E26006E349E?OpenDocument"
+    },
+    {
+     "title": "Physics-Informed Machine Learning Framework for Predicting Electromigration Failure in Solder Joints",
+     "planned_speaker": "Hyuck Mo Lee",
+     "authors": [
+      "Harikrishnan Kumarasamy",
+      "Choong-Un Kim",
+      "Sylvester Ankamah-Kusi",
+      "Tae-Kyu Lee",
+      "Hyuck Mo Lee"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/F0533EE0C19466A585258E270060A10F?OpenDocument"
+    }
+   ],
+   "sources": [
+    "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4B6E26EC429BA82B85258D8E005AE05A?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/013C6D25B0545E5085258E270008477C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0328B3B950B640D685258E2600038A73?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0394E532959A8E4485258E3600088605?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/04498D041ACC319C85258E26006AE2A9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/04AC24B65BD9F08085258E33004876D9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0539E05E18F8512485258E3500218A01?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0B146092B14EABAD85258E34006B095C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0F0985B59A1AF86785258E3600086F91?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/14F54333B64EECB785258E350058E508?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1C1E11A021D1EE5085258E2600627502?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/24DF04317301EFB285258E340007EC7E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/26BBCF9264C2E16A85258E1D0068988D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/27E7FBDFF147D16B85258E270075F39F?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/27F8F85A7A18E63D85258E26005A2BBC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/29FC4AA0F06E6FCB85258E27006E088F?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2CBC59779AC7FD1285258E340059CB65?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3094789AD26A93AD85258E260063B10E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/34F51631973C4AE885258E2600355860?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3B620561D9FEE49C85258E340064CDA6?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3C10829DC5F2802685258E22006D61A9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3CBBE5DBB5E2A7B585258E25007669E4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/403B12F7EB1513E585258E1F001CA314?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/428EDA91931433B385258E27006EC6EC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/46263DB7338C377E85258E230009406A?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/49D1CBE85AB756F585258E250059ED85?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4A6774ED14EF29FF85258E32006AF065?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4C41CB86B356B4F385258E27006694E5?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/518D395457B0BD7585258E27000EECD3?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/55E75A17154DA58E85258E35005FFF45?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/567BD8E4FB17894085258E26006A46F9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5CA94703549B581E85258E2800064146?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5EC2B60F293E2EA485258E31006CF98E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/62828459A98A238D85258E28004E9DAB?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/62FB3D040E8FD6C085258E340053D059?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6740D9F988AA733685258E3500786F2B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/693CCACCA1A80EDF85258E27006F07EB?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6B8CC6BD30C7892685258E350024804E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6E8A26ABED03800D85258E330057FDA0?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6F4718323FAC512685258E35005173DC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/728552D7E7584E6485258E34006881F4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/730378D6AC95FF7085258E3000384930?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/73974745C22B9C8B85258E3600026783?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/793294B5E14BB64A85258E27004B2E1D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/79DA5C6B1F9B95B285258E28000CC372?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7C11EEC664D6E4AA85258E3500780EF9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7F879DBD18CFF35385258E35006BB818?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7FF882056A0D105385258E34005A5897?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/83DC14D0FA72BA5D85258E280008ED8C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/84965E43F11E478485258E260056C0F4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9012F6E7825010F485258E350017A066?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9598BC29EE28C38C85258E270066FA0F?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9770A4E8CE6ECAFA85258E250016F8D7?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/99479062129074CD85258E2F00578745?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/997F3C6DBE904F0F85258E260067D059?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/99BB37D7B67EC3D985258E27006FC6F2?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9A2CB1CDC3EBB79885258E2C006534EC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9CFC31B398235B8385258E2600700A31?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9D0321085414DCE985258E35006683CE?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F6CDDFEB76AF52585258E3500668DEA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A7AE869AEF2EBEC985258E260060EB04?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/AB1CE14F33F4897985258E22003331BB?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B1B01BDA4FB16BEA85258E1F006EC0AC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B5737BA435FE6A3485258E250037775E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B61725D4761430F085258E2700751F07?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BCF6DD2983C91C4C85258E2000467ED3?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C1FE988C7BDD2DC085258E35002ACCCD?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C2A9EC0AD7C321AA85258E27001CFC8B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C351723BB04F803185258E260001F5BA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C6C91E252987C3E285258E1B00594A57?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/CD36E20E3211EB4185258E35006E4AAB?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/CF3D1EBB5644745E85258E26002A954E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D1C2199FA5DB152C85258E350044C22C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E7C717325B44E86C85258E270075C08A?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E969E9CC94E5550885258E34005A3228?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EA3687B2BE2C39A985258E2000491C46?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EC034B0E4B0E696685258E26006E349E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/F0533EE0C19466A585258E270060A10F?OpenDocument"
+   ]
+  },
+  {
+   "name": "Bridging Scale Gaps in Multiscale Materials Modeling in the Age of Artificial Intelligence",
+   "programmaster_url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1714A107C1F26D9785258D8F007C15BD?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "rank_in_top3": 2,
+   "why_selected": "Explicit MLIP benchmarking content (universal-MLP phonon-transport benchmarking, MACE foundation vs from-scratch, MLIP stress fields, ML-potential workflow calculators).",
+   "organizers": [
+    {
+     "name": "Liang Qi",
+     "affiliation": "University of Michigan"
+    },
+    {
+     "name": "Yue Fan",
+     "affiliation": "University of Michigan"
+    },
+    {
+     "name": "Javier Segurado",
+     "affiliation": "E.T.S.I. Caminos, Canales y Puertos. Universidad Politcnica de Madrid"
+    },
+    {
+     "name": "Katsuyo S. Thornton",
+     "affiliation": "University of Michigan"
+    }
+   ],
+   "organizer_affiliations_source": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1714A107C1F26D9785258D8F007C15BD?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "speaker_affiliations_note": "ProgramMaster abstract pages list authors and planned on-site speaker but NOT affiliations; affiliations are not asserted here.",
+   "approved_presentations_count": 44,
+   "mlip_relevant_presentations_count": 12,
+   "speakers": [
+    {
+     "title": "Simulation-Informed Machine Learning for Amorphous Metal Mechanical Response Prediction",
+     "planned_speaker": "Michael L. Falk",
+     "authors": [
+      "Michael L. Falk",
+      "Bin Xu",
+      "Zhao Wu",
+      "Jiayin Lu",
+      "Ahmed Elgailani",
+      "Michael Shields",
+      "Chris Rycroft",
+      "Franz Bamer"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Mechanical Properties, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0458AF166E3324C085258E260055259B?OpenDocument"
+    },
+    {
+     "title": "Spectral Grain Boundary Segregation Genome Containing Energy, Excess Entropy and Solute Interaction Spectra from a Machine-Learning Interatomic Potential",
+     "planned_speaker": "Nutth Tuchinda",
+     "authors": [
+      "Nutth Tuchinda",
+      "MD Hasib"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Other",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/050731A7B2B1DE5085258E34001CB543?OpenDocument"
+    },
+    {
+     "title": "Multiscale Modeling to Understand Polarization Kinetics in Ultra-thin Zr-doped HfO2 Ferroelectric Nanofilms",
+     "planned_speaker": "Talha Ansari",
+     "authors": [
+      "Talha Ansari"
+     ],
+     "keywords": "ICME, Modeling and Simulation, Machine Learning",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/16F304740EA16BE785258E27004AEF68?OpenDocument"
+    },
+    {
+     "title": "Representation-Independent Atomistic Stress Fields for Maching-Learning Interatomic Potentials",
+     "planned_speaker": "Nikhil Chandra Admal",
+     "authors": [
+      "Nikhil Chandra Admal",
+      "Jaekwang Kim",
+      "Amit Gupta",
+      "Ellad Tadmor"
+     ],
+     "keywords": "Machine Learning, Mechanical Properties, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/185B7D424C48C6DC85258E340081F2AA?OpenDocument"
+    },
+    {
+     "title": "MaterialsFramework: A Unified Calculator Interface for Machine-Learning Potential Workflows",
+     "planned_speaker": "Doguhan Sariturk",
+     "authors": [
+      "Doguhan Sariturk",
+      "Siya Zhu",
+      "Courtney Kunselman",
+      "Raymundo Arryave"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1A3E9BC5C6F4CAF185258E2600034088?OpenDocument"
+    },
+    {
+     "title": "Multiscale & accelerated workflows for predictive solidification modeling",
+     "planned_speaker": "Damien Tourret",
+     "authors": [
+      "Kai Liu",
+      "Jos Mancias",
+      "Douglas E. Spearot",
+      "Raymundo Arryave",
+      "Damien Tourret"
+     ],
+     "keywords": "Modeling and Simulation, Solidification, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1F8D3A8F0B5F73B785258E0D002807AF?OpenDocument"
+    },
+    {
+     "title": "Discovery of novel intermetallic catalysts for the hydrogen economy through artificial intelligence and first principles calculations",
+     "planned_speaker": "Javier Llorca",
+     "authors": [
+      "Valentin Vassilev-Galindo",
+      "Carmen Martnez-Alonso",
+      "Javier Llorca"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Energy Conversion and Storage,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2084B6C099FE1C4885258E140035982B?OpenDocument"
+    },
+    {
+     "title": "When PFC Meets Machine-Learned MD: A Multiscale Study of Defects and Mechanical Behavior of 2D Materials",
+     "planned_speaker": "Zhi-Feng Huang",
+     "authors": [
+      "Zhi-Feng Huang",
+      "Arsalan Hashemi",
+      "Nikolasz Must",
+      "Wenquan Zhou",
+      "Mikko Karttunen",
+      "Ken Elder",
+      "Tapio Ala-Nissila"
+     ],
+     "keywords": "Modeling and Simulation, Machine Learning, Computational Materials Science & Engineering",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2626D92E8BE768C085258E1A00587962?OpenDocument"
+    },
+    {
+     "title": "Atomistic Modeling of Defects in BCC Metals using Machine-Learned Potentials",
+     "planned_speaker": "Ting Zhu",
+     "authors": [
+      "Yazhuo Liu",
+      "Joshua Kempfert",
+      "Shigenobu Ogata",
+      "Jessica Yeager",
+      "Jonathan Wormald",
+      "Ting Zhu"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation, Nuclear Materials",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2693267A64BE1C6685258E2500703299?OpenDocument"
+    },
+    {
+     "title": "Shape Evolution in Discrete Dislocation Dynamics (DDD) under Stochastic Quenched Noise",
+     "planned_speaker": "Hyunsoo Lee",
+     "authors": [
+      "Hyunsoo Lee"
+     ],
+     "keywords": "Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/28C2A3D37B3C70F885258E360011482C?OpenDocument"
+    },
+    {
+     "title": "Designing for Ductility in BCC Refractory Alloys",
+     "planned_speaker": "William A. Curtin",
+     "authors": [
+      "William A. Curtin",
+      "Manura Liyanage",
+      "Anirudh Natarajan"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/377A8A809FB99F9485258E260047B96A?OpenDocument"
+    },
+    {
+     "title": "Investigating a Machine-Learned Crack Initiation Metric in Heterogeneous Microstructures",
+     "planned_speaker": "Mythreyi Ramesh",
+     "authors": [
+      "Mythreyi Ramesh",
+      "Jonathan Gjerde",
+      "W. Beck Andrews",
+      "Katsuyo Thornton"
+     ],
+     "keywords": "Modeling and Simulation, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3D3AAC6CC636A3FF85258E350072EBAF?OpenDocument"
+    },
+    {
+     "title": "Investigation of a Shape Memory Alloy Using Machine Learning Interatomic Potentials",
+     "planned_speaker": "Edwin Antillon",
+     "authors": [
+      "Edwin Antillon",
+      "Noam Bernstein",
+      "Richard D. James"
+     ],
+     "keywords": "",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/45D7D867375C50B385258E27007EA471?OpenDocument"
+    },
+    {
+     "title": "Development of First-Principles Phase Field Approach to Study Microstructural Impact on Tritium Retention in Fusion Materials",
+     "planned_speaker": "Duc Nguyen-Manh",
+     "authors": [
+      "Duc Nguyen-Manh",
+      "Kyle Starkey",
+      "Mikael Chistensen",
+      "Eric Prestat",
+      "Clint Geller",
+      "Brian Dron",
+      "Erich Wimmer",
+      "Matthew R. Ryder",
+      "Mark G. Gilbert"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Nuclear Materials",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/47AF346436D4A38685258E270082C0E9?OpenDocument"
+    },
+    {
+     "title": "Multilabel Corrosion Morphology Classification Using ResNet‑18 and CLIP with Metadata Fusion and Class‑Weighted Loss",
+     "planned_speaker": "Fei Xu",
+     "authors": [
+      "Fei Xu",
+      "Atira Ferdoushi",
+      "Daria Bentley",
+      "Hailong Dai",
+      "Xiaolei Guo",
+      "Jenifer Locke"
+     ],
+     "keywords": "Machine Learning, Characterization, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4A0B2D5E0420727785258E350008EF31?OpenDocument"
+    },
+    {
+     "title": "From Multiscale to All-Scale: A Thermodynamic Framework for AI-ICME Integration",
+     "planned_speaker": "Zi-Kui Liu",
+     "authors": [
+      "Zi-Kui Liu"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4DF1C0460A69C02585258E1800547BF1?OpenDocument"
+    },
+    {
+     "title": "AI-Enabled Inverse Design of Superelastic Materials through Phase-Field Simulations and Machine Learning",
+     "planned_speaker": "Yunzhi Wang",
+     "authors": [
+      "Zexu Chen",
+      "Kaihua Hu",
+      "Ruifeng Tan",
+      "Tianlong Zhang",
+      "Yunzhi Wang"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5CFBD9AFE068202A85258E2B00100312?OpenDocument"
+    },
+    {
+     "title": "Dynamics of Grain Boundary Transformations: Insights from Large-scale Atomistic Simulations",
+     "planned_speaker": "Fadi Abdeljawad",
+     "authors": [
+      "Fadi Abdeljawad"
+     ],
+     "keywords": "Modeling and Simulation, Computational Materials Science & Engineering, Thin Films and Interfaces",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5E80FB5B5F21204685258E350012E085?OpenDocument"
+    },
+    {
+     "title": "Design of radiation-resistant alloys: An integrated approach from first principles to kinetic Monte Carlo simulations",
+     "planned_speaker": "Pascal M. Bellon",
+     "authors": [
+      "Pascal M. Bellon",
+      "Robert S. Averback",
+      "Vaibhav Vasudevan",
+      "Soumyajit Jana"
+     ],
+     "keywords": "Nuclear Materials, ICME,",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5F2200C9F408217A85258E250078A255?OpenDocument"
+    },
+    {
+     "title": "Microstructural descriptor selection for physics-based scale-bridging of damage and plasticity",
+     "planned_speaker": "Ryan Sills",
+     "authors": [
+      "Ryan Sills",
+      "Qian Qian Zhao",
+      "Yang Li",
+      "Yurui Zhang",
+      "Benjamin Anglin"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6AE7BB9B856D590685258E25006AA6DC?OpenDocument"
+    },
+    {
+     "title": "DDD-Informed Constitutive laws for Crystal Plasticity of Ti-6Al-4V",
+     "planned_speaker": "Ruidong Mei",
+     "authors": [
+      "Ruidong Mei",
+      "Tawqeer Tak",
+      "Kishore Appunhi Nair",
+      "Somnath Ghosh",
+      "Jaafar El-Awady"
+     ],
+     "keywords": "Titanium, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/748A2CDFA9C1469D85258E35004F15C3?OpenDocument"
+    },
+    {
+     "title": "Living and Jumping Around in a Rough Potential",
+     "planned_speaker": "Enrique Martinez Saez",
+     "authors": [
+      "Enrique Martinez Saez",
+      "Jacob Jeffreis"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Entropy Alloys, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/77BAF313DB8E461C85258E250040FE63?OpenDocument"
+    },
+    {
+     "title": "Benchmarking Universal Machine Learning Potentials for Phonon Transport Across Multiple Levels of Fidelity",
+     "planned_speaker": "Elias Paul Martin",
+     "authors": [
+      "Elias Paul Martin",
+      "Doguhan Sariturk",
+      "Raymundo Arroyave"
+     ],
+     "keywords": "Modeling and Simulation, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7A7F1B9B8527DC8985258E280006DDD5?OpenDocument"
+    },
+    {
+     "title": "Micron-scale atomistic simulations uncover domains of grain boundary plasticity",
+     "planned_speaker": "Timofey Frolov",
+     "authors": [
+      "Timofey Frolov",
+      "Flynn Walsh",
+      "Nicolas Bertin",
+      "Ian Winter",
+      "Tomas Oppelstrup"
+     ],
+     "keywords": "Modeling and Simulation, Mechanical Properties, Phase Transformations",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7B473AF3C437412C85258E34007B3BEA?OpenDocument"
+    },
+    {
+     "title": "Bridging Chemical Ordering Kinetics and Screw-Dislocation Migration in Mo–Ta Refractory Alloys",
+     "planned_speaker": "Pravendra Patel",
+     "authors": [
+      "Pravendra Patel",
+      "Jierui Zhao",
+      "Zhucong Xi",
+      "Liang Qi"
+     ],
+     "keywords": "Phase Transformations, Computational Materials Science & Engineering, High-Temperature Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/8037077C70AB89D385258E3500147D4C?OpenDocument"
+    },
+    {
+     "title": "From Catalytic Reactions to Grain Boundary Segregation: AI-Driven First-Principles Materials Modeling",
+     "planned_speaker": "Elizabeth M. Lee",
+     "authors": [
+      "Elizabeth M. Lee"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/879181D48C65541F85258E430049DD8C?OpenDocument"
+    },
+    {
+     "title": "Nucleation Energetics and Critical Stress for Transformation-Induced Twinning in Metastable Titanium Alloys",
+     "planned_speaker": "Ganlin Chen",
+     "authors": [
+      "Ganlin Chen",
+      "Deepak Pillai",
+      "Yufeng Zheng",
+      "Liang Qi"
+     ],
+     "keywords": "Mechanical Properties, Phase Transformations, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/8E411D71461067E785258E3600127F1E?OpenDocument"
+    },
+    {
+     "title": "Predicting finite-temperature thermodynamics and phase transitions using only the ground state knowledge",
+     "planned_speaker": "Long-Qing Chen",
+     "authors": [
+      "Fei Yang",
+      "Long-Qing Chen"
+     ],
+     "keywords": "Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/96E1528592F4B04E85258E2A0077A296?OpenDocument"
+    },
+    {
+     "title": "Physics-Informed Variational Autoencoder for Bragg Coherent Diffraction Imaging",
+     "planned_speaker": "Kamal Wagle",
+     "authors": [
+      "Kamal Wagle",
+      "Reeju Pokharel"
+     ],
+     "keywords": "Machine Learning, Characterization, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/983BD416DBA0941085258E33006FF046?OpenDocument"
+    },
+    {
+     "title": "Statistical Energy Landscapes Governing Screw Dislocation Glide and Strength in Refractory Complex Concentrated Alloys at Low Temperatures.",
+     "planned_speaker": "Jierui Zhao",
+     "authors": [
+      "Jierui Zhao",
+      "Yang Chen",
+      "Liang Qi"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Entropy Alloys,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F88EC9D6DAE41BF85258E3500133757?OpenDocument"
+    },
+    {
+     "title": "Multiscale physics of deformation of inhomogeneous alloys",
+     "planned_speaker": "Anter A. El-Azab",
+     "authors": [
+      "Anter A. El-Azab",
+      "Kieran Edmonds",
+      "Manikandan Muruganandam",
+      "Enrique Martinez Saez"
+     ],
+     "keywords": "Mechanical Properties, Nuclear Materials, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A2B9237EB9F0F5DE85258E270071437B?OpenDocument"
+    },
+    {
+     "title": "Developing a Neuroevolution Potential (NEP) for Phonon–Dislocation Thermal Transport Simulations in PbSe/PbTe",
+     "planned_speaker": "Simon Phillpot",
+     "authors": [
+      "Jinyi Liu",
+      "Nicholas Taormina",
+      "Emir Bilgili",
+      "Youping Chen",
+      "Simon Phillpot"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Thin Films and Interfaces",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/AD7A44DE5FA7DC5985258E2600546388?OpenDocument"
+    },
+    {
+     "title": "Scale bridging to enable simulations of nuclear fuel microstructure evolution and performance",
+     "planned_speaker": "Larry Aagesen",
+     "authors": [
+      "Larry Aagesen",
+      "Sudipta Biswas",
+      "Pierre-Clement Simon",
+      "Kyle Gamble",
+      "Michael Cooper",
+      "David Andersson"
+     ],
+     "keywords": "Nuclear Materials, Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B651703B3106FC6085258E2700505DF5?OpenDocument"
+    },
+    {
+     "title": "Physics-Informed Machine Learning and KAN-Derived Closed-Form Models for RPV Embrittlement",
+     "planned_speaker": "Dane Morgan",
+     "authors": [
+      "Dane Morgan",
+      "Ryan Jacobs",
+      "G. Robert Odette",
+      "Takuya Yamamoto"
+     ],
+     "keywords": "Iron and Steel, Machine Learning, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BE4E5C956AEB2A3285258E270067300A?OpenDocument"
+    },
+    {
+     "title": "From electrons to microstructure: predicting multi-principal element alloy properties through statistical mechanics and machine learning",
+     "planned_speaker": "Anirudh Raju Natarajan",
+     "authors": [
+      "Anirudh Raju Natarajan"
+     ],
+     "keywords": "High-Entropy Alloys, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BF4A78B8BFB6013285258E34005610AC?OpenDocument"
+    },
+    {
+     "title": "Variable-Temperature Plasmonic High-Entropy Carbides",
+     "planned_speaker": "Stefano Curtarolo",
+     "authors": [
+      "Stefano Curtarolo",
+      "Simon Divilov",
+      "Hagen Eckert",
+      "Xiomara Campilongo",
+      "Arrigo Calzolari",
+      "Douglas Wolfe",
+      "William Fahrenholtz",
+      "Robert Koennecker",
+      "Michael Ammendola",
+      "Jeffrey Shallenberger",
+      "Lucas Wilson"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C62B33209F13B30585258E2A00636D54?OpenDocument"
+    },
+    {
+     "title": "AI-Enabled Atomistic Modeling of Phase Transformations under High Pressure and Dynamic Compression",
+     "planned_speaker": "Niaz Abdolrahim",
+     "authors": [
+      "Yasantha Hetti Kankanamalage",
+      "Shuai Zhang",
+      "Niaz Abdolrahim"
+     ],
+     "keywords": "",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C6570082B5B6D55585258E330047DF05?OpenDocument"
+    },
+    {
+     "title": "Synergy-Driven Design Paradigm for Metal-Organic Framework/Polymer Nanocomposites",
+     "planned_speaker": "Maciej Haranczyk",
+     "authors": [
+      "Maciej Haranczyk"
+     ],
+     "keywords": "Modeling and Simulation,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C9F64EA104F303D985258E26004DDFC5?OpenDocument"
+    },
+    {
+     "title": "Data-Driven Multiscale Workflows: Connecting Microstructural Corrosion Kinetics to Structural Fatigue Life",
+     "planned_speaker": "Harry Smith",
+     "authors": [
+      "Harry Smith",
+      "Ian Smith",
+      "Jacob Harding",
+      "William Musinski"
+     ],
+     "keywords": "Modeling and Simulation, Environmental Effects, Environmental Effects",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/ECC30482F22A6FC885258E360011B7A1?OpenDocument"
+    },
+    {
+     "title": "Using clustering algorithms to highlight physically meaningful differences in complex alloys",
+     "planned_speaker": "Katharine M. Flores",
+     "authors": [
+      "Katharine M. Flores",
+      "Katharine Padilla",
+      "Nur Aziz Octoviawan",
+      "Suzanne LoTempio",
+      "Abner Peralta"
+     ],
+     "keywords": "High-Entropy Alloys, Other, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EDC07670DB1CEA6485258E360004601A?OpenDocument"
+    },
+    {
+     "title": "Machine Learning Enabled Monte Carlo Simulation for Accurate Prediction of Cation Distribution and Magnetic Properties of Cobalt Ferrite",
+     "planned_speaker": "Guofeng Wang",
+     "authors": [
+      "Ying Fang",
+      "Guofeng Wang"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Magnetic Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EE65B48B208C307785258E1F005446B9?OpenDocument"
+    },
+    {
+     "title": "Interpretable Machine Learning of Transition Metal Solute Segregation in γ-Fe Grain Boundaries",
+     "planned_speaker": "Ho Lee",
+     "authors": [
+      "Ho Lee",
+      "Liang Qi",
+      "Sangtae Kim"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EFEDBAE553CBFDDD85258E27004BD4B4?OpenDocument"
+    },
+    {
+     "title": "Predicting Defect Formation in the Heteroepitaxy of 2D Semiconductors",
+     "planned_speaker": "Emir Bilgili",
+     "authors": [
+      "Emir Bilgili",
+      "Nicholas Taormina",
+      "Simon R. Phillpot",
+      "Youping Chen"
+     ],
+     "keywords": "Machine Learning, Thin Films and Interfaces, Electronic Materials",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/FAECD4BABD5A920E85258E26006AA837?OpenDocument"
+    },
+    {
+     "title": "Interpretable Machine-Learning Surrogates for Bridging Atomistic and Phase-Field Models of Incoherent Twin-Boundary Migration",
+     "planned_speaker": "Yixi Shen",
+     "authors": [
+      "Yixi Shen",
+      "Irene Beyerlein"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation, Thin Films and Interfaces",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/FED765A6FA4C107785258E3500728EAE?OpenDocument"
+    }
+   ],
+   "sources": [
+    "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1714A107C1F26D9785258D8F007C15BD?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0458AF166E3324C085258E260055259B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/050731A7B2B1DE5085258E34001CB543?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/16F304740EA16BE785258E27004AEF68?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/185B7D424C48C6DC85258E340081F2AA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1A3E9BC5C6F4CAF185258E2600034088?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1F8D3A8F0B5F73B785258E0D002807AF?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2084B6C099FE1C4885258E140035982B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2626D92E8BE768C085258E1A00587962?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2693267A64BE1C6685258E2500703299?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/28C2A3D37B3C70F885258E360011482C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/377A8A809FB99F9485258E260047B96A?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3D3AAC6CC636A3FF85258E350072EBAF?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/45D7D867375C50B385258E27007EA471?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/47AF346436D4A38685258E270082C0E9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4A0B2D5E0420727785258E350008EF31?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4DF1C0460A69C02585258E1800547BF1?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5CFBD9AFE068202A85258E2B00100312?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5E80FB5B5F21204685258E350012E085?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5F2200C9F408217A85258E250078A255?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6AE7BB9B856D590685258E25006AA6DC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/748A2CDFA9C1469D85258E35004F15C3?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/77BAF313DB8E461C85258E250040FE63?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7A7F1B9B8527DC8985258E280006DDD5?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7B473AF3C437412C85258E34007B3BEA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/8037077C70AB89D385258E3500147D4C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/879181D48C65541F85258E430049DD8C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/8E411D71461067E785258E3600127F1E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/96E1528592F4B04E85258E2A0077A296?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/983BD416DBA0941085258E33006FF046?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F88EC9D6DAE41BF85258E3500133757?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A2B9237EB9F0F5DE85258E270071437B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/AD7A44DE5FA7DC5985258E2600546388?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B651703B3106FC6085258E2700505DF5?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BE4E5C956AEB2A3285258E270067300A?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BF4A78B8BFB6013285258E34005610AC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C62B33209F13B30585258E2A00636D54?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C6570082B5B6D55585258E330047DF05?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C9F64EA104F303D985258E26004DDFC5?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/ECC30482F22A6FC885258E360011B7A1?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EDC07670DB1CEA6485258E360004601A?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EE65B48B208C307785258E1F005446B9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EFEDBAE553CBFDDD85258E27004BD4B4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/FAECD4BABD5A920E85258E26006AA837?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/FED765A6FA4C107785258E3500728EAE?OpenDocument"
+   ]
+  },
+  {
+   "name": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+   "programmaster_url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/0A730CACDA50FA3085258DB900092A27?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "rank_in_top3": 3,
+   "why_selected": "Invited-only data-driven phase-stability symposium (honoring Chris Wolverton) directly on the WBM/stability theme; contains the only confirmed target-group PI speaker (Persson) plus LBL-adjacent invitees (Ceder, Asta).",
+   "organizers": [
+    {
+     "name": "Bi-Cheng Zhou",
+     "affiliation": "University of Virginia"
+    },
+    {
+     "name": "Bin Ouyang",
+     "affiliation": "Vanderbilt University"
+    },
+    {
+     "name": "Wei Chen",
+     "affiliation": "University at Buffalo"
+    },
+    {
+     "name": "James Edward Saal",
+     "affiliation": "Citrine Informatics"
+    },
+    {
+     "name": "Vidvuds Ozolins",
+     "affiliation": "Yale University"
+    }
+   ],
+   "organizer_affiliations_source": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/0A730CACDA50FA3085258DB900092A27?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "speaker_affiliations_note": "ProgramMaster abstract pages list authors and planned on-site speaker but NOT affiliations; affiliations are not asserted here.",
+   "approved_presentations_count": 40,
+   "mlip_relevant_presentations_count": 3,
+   "speakers": [
+    {
+     "title": "Atomic-Scale Simulations of Metal/Molten-Salt Interfaces by Machine-Learning Interatomic Potentials",
+     "planned_speaker": "Mark D. Asta",
+     "authors": [
+      "Mark D. Asta"
+     ],
+     "keywords": "",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0186834F1FB3315385258E41006F7EBE?OpenDocument"
+    },
+    {
+     "title": "How Computational Modeling Shapes Materials at Apple",
+     "planned_speaker": "William Art Counts",
+     "authors": [
+      "William Art Counts"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/09B5AFC68186AB2585258E45005FDF07?OpenDocument"
+    },
+    {
+     "title": "High-Throughput Anharmonic Phonons for Data-Driven Materials Discovery, Phase Stability, and Thermal Transport",
+     "planned_speaker": "Yi Xia",
+     "authors": [
+      "Yi Xia"
+     ],
+     "keywords": "Modeling and Simulation, Computational Materials Science & Engineering, Machine Learning",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/19A5DC757E59B7C585258E260062639B?OpenDocument"
+    },
+    {
+     "title": "Chemical Intuition as a Guide to Data-Driven Materials Discovery",
+     "planned_speaker": "Mercouri Kanatzidis",
+     "authors": [
+      "Mercouri Kanatzidis"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1CBF7A11A046613E85258E41006F9C49?OpenDocument"
+    },
+    {
+     "title": "The Possibility of New Complex Magnet Material",
+     "planned_speaker": "G. Jeffrey Jeffrey Snyder",
+     "authors": [
+      "G. Jeffrey Jeffrey Snyder"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1D50879B4114D1BA85258E41006E8185?OpenDocument"
+    },
+    {
+     "title": "From Computational Design to Accelerated Discovery of High-Entropy Alloys",
+     "planned_speaker": "Wei Chen",
+     "authors": [
+      "Wei Chen"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/22611395D2B4C04785258E320055EF5B?OpenDocument"
+    },
+    {
+     "title": "First-principles modeling of disorder in cathodes and beyond",
+     "planned_speaker": "Steven Torrisi",
+     "authors": [
+      "Steven Torrisi"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Energy Conversion and Storage,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/256FCDCD271F323285258E26006D7458?OpenDocument"
+    },
+    {
+     "title": "Calibrated Machine-Learning Uncertainty for Data-Driven Alloy Design",
+     "planned_speaker": "Dongwon Shin",
+     "authors": [
+      "Dongwon Shin"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2BD3D0CFD9D0314885258E360004EFCE?OpenDocument"
+    },
+    {
+     "title": "Elucidating the role of solute-solute interactions on diffusion in Ni-based substitutional solid solutions",
+     "planned_speaker": "Kyoungdoc Kim",
+     "authors": [
+      "Jinyoung Kwon",
+      "Najla Zulfikar",
+      "Kyoungdoc Kim"
+     ],
+     "keywords": "Computational Materials Science & Engineering, ICME, Copper / Nickel / Cobalt",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2D0FDF216DBEBAE985258E26001B5E01?OpenDocument"
+    },
+    {
+     "title": "Thermodynamic and Kinetic Stability of M–N–C Active Sites for O₂ Reduction",
+     "planned_speaker": "Heine Anton Hansen",
+     "authors": [
+      "Heine Anton Hansen"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/319D85B00095182885258E2600390D00?OpenDocument"
+    },
+    {
+     "title": "Bonding-Driven Discovery and Design of Thermoelectric Materials",
+     "planned_speaker": "Shima Shahabfar",
+     "authors": [
+      "Shima Shahabfar",
+      "Zhi Li",
+      "Mercouri Kanatzidis",
+      "Christopher M. Wolverton"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3A1C8F790AAEE01085258E45006088E8?OpenDocument"
+    },
+    {
+     "title": "Functional Synthesizability: Tuning the Extreme-Properties of High-Entropy Ceramics",
+     "planned_speaker": "Stefano Curtarolo",
+     "authors": [
+      "Stefano Curtarolo",
+      "Simon Divilov",
+      "Hagen Eckert"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3ADE79CEE4D082D085258E2A00630D06?OpenDocument"
+    },
+    {
+     "title": "Data-driven Prediction of Solid-State Synthesis",
+     "planned_speaker": "Kristin Aslaug Persson",
+     "authors": [
+      "Kristin Aslaug Persson"
+     ],
+     "keywords": "Machine Learning, Ceramics, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4AFE5AB5E0E87DB285258E2E00296D03?OpenDocument"
+    },
+    {
+     "title": "The Generalized Aliasing Decomposition, A New Paradigm for Modeling",
+     "planned_speaker": "Gus LW Hart",
+     "authors": [
+      "Gus LW Hart"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5F83C87C5D30772F85258E41006E347C?OpenDocument"
+    },
+    {
+     "title": "Integrating Automated Computation with Experiment for Accelerated Materials Discovery",
+     "planned_speaker": "Sean Darius Griesemer",
+     "authors": [
+      "Sean Darius Griesemer",
+      "Yidi Shen",
+      "Hilal Daglar",
+      "Jorge Gonzalez",
+      "Stuart R. Miller",
+      "Kunran R. Yang"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Sustainability",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/61B377807D77BA3C85258E27007A5E52?OpenDocument"
+    },
+    {
+     "title": "Exploring the electronic structure of all known inorganics - from transport to superconductivity to topology.",
+     "planned_speaker": "Nicola Marzari",
+     "authors": [
+      "Nicola Marzari"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/66EB66992D8689BE85258E34005FDEA5?OpenDocument"
+    },
+    {
+     "title": "Mapping Lithium-Ion Transport in Sulfide Argyrodites: From Defect Chemistry to Composite Interfaces",
+     "planned_speaker": "Antoine Alexandre Emery",
+     "authors": [
+      "Antoine Alexandre Emery"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Energy Conversion and Storage",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7950ED5BD18CE51785258E2600270B66?OpenDocument"
+    },
+    {
+     "title": "Data- and Simulation-Driven Design of Structural and Functional Materials: Successes and Challenges",
+     "planned_speaker": "Eric Isaacs",
+     "authors": [
+      "Eric Isaacs"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Temperature Materials, Magnetic Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7C1F52143C67550485258E26005A2C3B?OpenDocument"
+    },
+    {
+     "title": "Lithium Extraction with Ion Exchange at Lilac Solutions",
+     "planned_speaker": "David Snydacker",
+     "authors": [
+      "David Snydacker"
+     ],
+     "keywords": "Ceramics, Hydrometallurgy, ICME",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/820C32D30FF6654185258E100065DB4C?OpenDocument"
+    },
+    {
+     "title": "Standing on Chris's Shoulders: From High-Throughput DFT to AI for Materials Discovery",
+     "planned_speaker": "James Edward Saal",
+     "authors": [
+      "James Edward Saal"
+     ],
+     "keywords": "Machine Learning, Modeling and Simulation,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/8E1FDECEE483ECB785258E24007B1D24?OpenDocument"
+    },
+    {
+     "title": "Data-Driven Discovery of Novel High-Performance Photovoltaics in an Experimentally Known Family of Quaternary Chalcogenides",
+     "planned_speaker": "Koushik Pal",
+     "authors": [
+      "Koushik Pal"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9288FA766627E9B385258E41006F25B2?OpenDocument"
+    },
+    {
+     "title": "Towards Ai-enabled High Throughput Characterization and Materials Discovery",
+     "planned_speaker": "Vinayak P. Dravid",
+     "authors": [
+      "Vinayak P. Dravid"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Characterization",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9EAA492CD97ED0D485258E2E006F36DA?OpenDocument"
+    },
+    {
+     "title": "AI in the Wild: Autonomous laboratories for materials synthesis",
+     "planned_speaker": "Gerbrand Ceder",
+     "authors": [
+      "Gerbrand Ceder"
+     ],
+     "keywords": "Ceramics, Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F010B73FD2F1B0685258E2E001D0480?OpenDocument"
+    },
+    {
+     "title": "Beyond Order: A Disorder-Aware Workflow toward OQMD 2.0",
+     "planned_speaker": "Zhi Li",
+     "authors": [
+      "Zhi Li",
+      "Shima Shahabfar",
+      "Tzuchen Liu",
+      "Hisatsugu Yamasaki",
+      "Christopher M. Wolverton"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A21D6525B52C185B85258E41007056A7?OpenDocument"
+    },
+    {
+     "title": "Accelerating Oxygen Ion Conductor Discovery Through First-Principles Design and Autonomous Materials Optimization",
+     "planned_speaker": "Zhenpeng David Yao",
+     "authors": [
+      "Zhenpeng David Yao"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A3B975F028A2CB7185258E450060D420?OpenDocument"
+    },
+    {
+     "title": "Beyond Randomness: Designing Short-Range Order for Materials Performance",
+     "planned_speaker": "Christopher M. Wolverton",
+     "authors": [
+      "Christopher M. Wolverton"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A6BA9B515E7D344B85258E41006E08D6?OpenDocument"
+    },
+    {
+     "title": "A Computational Thermodynamics Framework with Intrinsic Chemical Short-Range Order",
+     "planned_speaker": "Bi-Cheng Zhou",
+     "authors": [
+      "Hantong Chen",
+      "Bi-Cheng Zhou"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Phase Transformations, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A8F16B30718FA3F585258E23004D00D7?OpenDocument"
+    },
+    {
+     "title": "Theoretical Insights Into Hydrogenation and Proton Transport in ABO 3 Perovskite",
+     "planned_speaker": "Zhen Jiang",
+     "authors": [
+      "Zhen Jiang",
+      "Christopher M. Wolverton"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C386B53E115EADDB85258E4100700B1F?OpenDocument"
+    },
+    {
+     "title": "Symmetry Broken DFT Corrects the Stability and Mott Band Gap Errors Without Adding Strong Correlations",
+     "planned_speaker": "Alex Zunger",
+     "authors": [
+      "Alex Zunger"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C623B9733239B61585258E45005FB16C?OpenDocument"
+    },
+    {
+     "title": "Phase Diagrams On-Demand",
+     "planned_speaker": "Wenhao Sun",
+     "authors": [
+      "Wenhao Sun"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C822DA1591763FB485258E4500694EDA?OpenDocument"
+    },
+    {
+     "title": "Hume-Rothery Strikes Again: Intrinsic Correlations Permit Tailored Materials With Exceptional Properties",
+     "planned_speaker": "Duane D. Johnson",
+     "authors": [
+      "Duane D. Johnson",
+      "Prashant Singh",
+      "Morgan Jones",
+      "Nicolas Argibay"
+     ],
+     "keywords": "High-Temperature Materials, Phase Transformations,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C8718531811EA98385258E4500601E6C?OpenDocument"
+    },
+    {
+     "title": "Relationship Between Configurational and Vibrational Entropies of Mixing and Their Effects on Phase Diagrams",
+     "planned_speaker": "Jiaqi Feng",
+     "authors": [
+      "Jiaqi Feng",
+      "Dale Gaines II",
+      "Tzu-chen Liu",
+      "Nathan Smith",
+      "Christopher M. Wolverton"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D599D7792088E5F085258E41006E9C90?OpenDocument"
+    },
+    {
+     "title": "Zentropy: A Thermodynamic Framework Bridging Phase Stability, Data-Driven Modeling, and Artificial Intelligence",
+     "planned_speaker": "Zi-Kui Liu",
+     "authors": [
+      "Zi-Kui Liu"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D956B39473F5276C85258E180054CDB6?OpenDocument"
+    },
+    {
+     "title": "Computational Design of Battery Guided by Degradation Mechanism",
+     "planned_speaker": "Hyungjun Kim",
+     "authors": [
+      "Hyungjun Kim"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Energy Conversion and Storage, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/DB26DFF56F6747BB85258E2700289AC4?OpenDocument"
+    },
+    {
+     "title": "Computational discovery of materials for energy storage",
+     "planned_speaker": "Donald Siegel",
+     "authors": [
+      "Donald Siegel"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Energy Conversion and Storage,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/DB5E75EF77C9EC5E85258E2F00711985?OpenDocument"
+    },
+    {
+     "title": "Elemental Features for Data-Driven Materials Properties Prediction",
+     "planned_speaker": "Dane Morgan",
+     "authors": [
+      "Dane Morgan"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/DD3214D745C9F5BC85258E27004D11FC?OpenDocument"
+    },
+    {
+     "title": "Alloying effects on deformation modes in wrought magnesium: An integrated computational and experimental investigation",
+     "planned_speaker": "John E. Allison",
+     "authors": [
+      "John E. Allison"
+     ],
+     "keywords": "Magnesium, Modeling and Simulation, Characterization",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E091709C2051470485258E36000385F9?OpenDocument"
+    },
+    {
+     "title": "The Spatial Arrangement of Nanoparticles on Substrates and the Role of Phase Transformations",
+     "planned_speaker": "Peter W. Voorhees",
+     "authors": [
+      "Cheng-Yu Chen",
+      "Duncan W Burns",
+      "Peter W. Voorhees",
+      "Eric Stach"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E0D465501C60176685258E1D0062031D?OpenDocument"
+    },
+    {
+     "title": "Alloy theory applied to the anodes of all-solid-state batteries",
+     "planned_speaker": "Anton Van der Ven",
+     "authors": [
+      "Anton Van der Ven"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Phase Transformations, Energy Conversion and Storage",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/ED23936528067B4E85258E27006F30BD?OpenDocument"
+    },
+    {
+     "title": "Irreversible Thermodynamic Basis for the Phase-field Method of Ordered Stoichiometric Compounds",
+     "planned_speaker": "Long-Qing Chen",
+     "authors": [
+      "Long-Qing Chen",
+      "Yanzhou Ji",
+      "Yueze Tan"
+     ],
+     "keywords": "Computational Materials Science & Engineering, ICME, Phase Transformations",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/F88A4698B52EEFF885258E2A00693824?OpenDocument"
+    }
+   ],
+   "sources": [
+    "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/0A730CACDA50FA3085258DB900092A27?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0186834F1FB3315385258E41006F7EBE?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/09B5AFC68186AB2585258E45005FDF07?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/19A5DC757E59B7C585258E260062639B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1CBF7A11A046613E85258E41006F9C49?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/1D50879B4114D1BA85258E41006E8185?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/22611395D2B4C04785258E320055EF5B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/256FCDCD271F323285258E26006D7458?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2BD3D0CFD9D0314885258E360004EFCE?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2D0FDF216DBEBAE985258E26001B5E01?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/319D85B00095182885258E2600390D00?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3A1C8F790AAEE01085258E45006088E8?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/3ADE79CEE4D082D085258E2A00630D06?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4AFE5AB5E0E87DB285258E2E00296D03?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/5F83C87C5D30772F85258E41006E347C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/61B377807D77BA3C85258E27007A5E52?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/66EB66992D8689BE85258E34005FDEA5?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7950ED5BD18CE51785258E2600270B66?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/7C1F52143C67550485258E26005A2C3B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/820C32D30FF6654185258E100065DB4C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/8E1FDECEE483ECB785258E24007B1D24?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9288FA766627E9B385258E41006F25B2?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9EAA492CD97ED0D485258E2E006F36DA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F010B73FD2F1B0685258E2E001D0480?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A21D6525B52C185B85258E41007056A7?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A3B975F028A2CB7185258E450060D420?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A6BA9B515E7D344B85258E41006E08D6?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A8F16B30718FA3F585258E23004D00D7?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C386B53E115EADDB85258E4100700B1F?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C623B9733239B61585258E45005FB16C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C822DA1591763FB485258E4500694EDA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C8718531811EA98385258E4500601E6C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D599D7792088E5F085258E41006E9C90?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D956B39473F5276C85258E180054CDB6?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/DB26DFF56F6747BB85258E2700289AC4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/DB5E75EF77C9EC5E85258E2F00711985?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/DD3214D745C9F5BC85258E27004D11FC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E091709C2051470485258E36000385F9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E0D465501C60176685258E1D0062031D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/ED23936528067B4E85258E27006F30BD?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/F88A4698B52EEFF885258E2A00693824?OpenDocument"
+   ]
+  },
+  {
+   "name": "Computational Discovery and Design of Materials",
+   "programmaster_url": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/5AE2D907046CDF5585258D8D007FBD77?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "rank_in_top3": null,
+   "why_selected": "Secondary (4th): MLIP-adjacent talks (fine-tuned MACE, UMA/M3GNet defect work, active-learning potentials); abstracts crawled for target cross-reference but not in the top-3.",
+   "organizers": [
+    {
+     "name": "Sara Kadkhodaei",
+     "affiliation": "University of Illinois Chicago"
+    },
+    {
+     "name": "Yong-Jie Hu",
+     "affiliation": "Drexel University"
+    },
+    {
+     "name": "Yanqing Su",
+     "affiliation": "University of Oklahoma"
+    },
+    {
+     "name": "Wennie Wang",
+     "affiliation": "University of Texas at Austin"
+    },
+    {
+     "name": "Xiaofeng Qian",
+     "affiliation": "Texas A&M University"
+    },
+    {
+     "name": "Satyajit Mojumder",
+     "affiliation": "Washington State University"
+    },
+    {
+     "name": "Suhas Eswarappa Prameela",
+     "affiliation": "University of Utah"
+    }
+   ],
+   "organizer_affiliations_source": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/5AE2D907046CDF5585258D8D007FBD77?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "speaker_affiliations_note": "ProgramMaster abstract pages list authors and planned on-site speaker but NOT affiliations; affiliations are not asserted here.",
+   "approved_presentations_count": 40,
+   "mlip_relevant_presentations_count": 9,
+   "speakers": [
+    {
+     "title": "From DFT Defect Mechanisms to Transport-Scale Modeling of Hydrogen Isotopes in Li2O",
+     "planned_speaker": "Ayobami Daramola",
+     "authors": [
+      "Ayobami Daramola",
+      "Prashanth Srinivasan",
+      "Vladimir Martis",
+      "Duc Nguyen"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0D62E8947CF421BB85258E26002F37D6?OpenDocument"
+    },
+    {
+     "title": "First-Principles Transport in AlGaN/GaN HEMT-like Interfaces",
+     "planned_speaker": "Viviana Faride Dovale Farelo",
+     "authors": [
+      "Viviana Faride Dovale Farelo"
+     ],
+     "keywords": "Thin Films and Interfaces, Modeling and Simulation, Electronic Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/10AF5DE2CBE1EB5C85258E26005A9CAC?OpenDocument"
+    },
+    {
+     "title": "ExactBO: GPU-Accelerated Certified Bayesian Optimization for Continuous and Constrained Materials Design",
+     "planned_speaker": "Juan Esteban Florez-Coronel",
+     "authors": [
+      "Juan Esteban Florez-Coronel",
+      "Raymundo Arroyave",
+      "Douglas Allaire"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, High-Entropy Alloys",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/14FC15F673A82E0885258E270055D912?OpenDocument"
+    },
+    {
+     "title": "Characterization of the Atomic-Scale Strengthening Mechanisms in Oxide Dispersion Strengthened Alloys at Elevated Temperatures",
+     "planned_speaker": "Gabriel Plummer",
+     "authors": [
+      "Gabriel Plummer",
+      "Andreas Bezold",
+      "Jacob Tavenner",
+      "Mikhail Mendelev",
+      "Timothy Smith",
+      "Michael Mills",
+      "John Lawson"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Temperature Materials, Mechanical Properties",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/158D6656BBF7030285258E1F0066B8D2?OpenDocument"
+    },
+    {
+     "title": "Accelerating Quantum Materials Discovery with AI",
+     "planned_speaker": "Trevor David Rhone",
+     "authors": [
+      "Trevor David Rhone"
+     ],
+     "keywords": "Magnetic Materials, Machine Learning, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/183815D7F7FCAE9785258E2200804F0C?OpenDocument"
+    },
+    {
+     "title": "Prediction and Screening of Transition Metal Nitrides for Ammonia Synthesis",
+     "planned_speaker": "Luka Mikek",
+     "authors": [
+      "Luka Mikek",
+      "Dallas R Trinkle"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2106CC4684F1C07185258E35006F702B?OpenDocument"
+    },
+    {
+     "title": "Computational discovery of synthesizable and hard multicomponent transition metal carbides",
+     "planned_speaker": "Anirudh Raju Natarajan",
+     "authors": [
+      "Anirudh Raju Natarajan"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Ceramics, High-Temperature Materials",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/36813D4974C5A99E85258E34005641EE?OpenDocument"
+    },
+    {
+     "title": "First Principles Data Assisted Investigation of Spin Ordering in Spinel Ni1−xZnxFe2O4 Crystal",
+     "planned_speaker": "Guofeng Wang",
+     "authors": [
+      "Ying Fang",
+      "Guofeng Wang"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Magnesium, Magnetic Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/36D3F32628A683B285258E1F00559C82?OpenDocument"
+    },
+    {
+     "title": "Size Effects on Chemical Ordering in High-Entropy MXenes: A First-Principles Validated Atomistic Study",
+     "planned_speaker": "Shimanta Das",
+     "authors": [
+      "Shimanta Das",
+      "Noah Oyeniran",
+      "Oyshee Chowdhury",
+      "Panchapakesan Ganesh",
+      "Jingsong J Huang",
+      "Chongze Hu"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/380BE0F31712197585258E260071CE1D?OpenDocument"
+    },
+    {
+     "title": "Role of a Ni₁₃ Cocatalyst in Promoting CO₂ Activation and Hydrogenation on CaCu₃Ti₄O₁₂: A First-Principles Study",
+     "planned_speaker": "Joy Atieno Adul",
+     "authors": [
+      "Joy Atieno Adul"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Energy Conversion and Storage",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/38C7AFBC17913D4085258E2800603999?OpenDocument"
+    },
+    {
+     "title": "Hysteresis in silicon-dominated anodes in lithium-ion batteries.",
+     "planned_speaker": "Affan Malik",
+     "authors": [
+      "Affan Malik",
+      "Minghong Liu",
+      "Kent Snyder",
+      "Hui-Chia Yu"
+     ],
+     "keywords": "Modeling and Simulation, Energy Conversion and Storage, Phase Transformations",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/410F91FF8B9368E085258E360003B35D?OpenDocument"
+    },
+    {
+     "title": "Digital material design guidelines for mitigation of alloy embrittlement",
+     "planned_speaker": "Vsevolod I. Razumovskiy",
+     "authors": [
+      "Vsevolod I. Razumovskiy"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Iron and Steel",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/536400010135FDCC85258E2700750255?OpenDocument"
+    },
+    {
+     "title": "Quantifying the Contributions of Strengthening Mechanisms in Refractory Complex Concentrated Alloys through Physics-Informed Statistical Learning.",
+     "planned_speaker": "Jierui Zhao",
+     "authors": [
+      "Jierui Zhao",
+      "Yang Chen",
+      "Liang Qi"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/53E917DE98560BA685258E350013F52C?OpenDocument"
+    },
+    {
+     "title": "A Multi-Fidelity Machine-Learning Workflow for Accelerated Lithium-Ion Cathode Materials Development",
+     "planned_speaker": "Jaehyung Lee",
+     "authors": [
+      "Jaehyung Lee"
+     ],
+     "keywords": "Modeling and Simulation, Machine Learning,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/63307F7D76B4845D85258E2700089C2D?OpenDocument"
+    },
+    {
+     "title": "Understanding Point Defects in Semiconductors using First Principles Simulations Accelerated by ML Potentials",
+     "planned_speaker": "Arun Kumar Mannodi Kanakkithodi",
+     "authors": [
+      "Arun Kumar Mannodi Kanakkithodi"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6AD497CF16BB17C785258E24007D4FAA?OpenDocument"
+    },
+    {
+     "title": "Enhancing of the Thermal Conductivity in Refractory-based High Entropy Alloys via Mott s-d Scattering Mechanism",
+     "planned_speaker": "Duc Nguyen-Manh",
+     "authors": [
+      "Jatinder Singh",
+      "Duc Nguyen-Manh",
+      "Jesper Byggmastar",
+      "Javier Dominguez",
+      "Pedro Ferreiros",
+      "Alessandro Mottura",
+      "Biao Cai"
+     ],
+     "keywords": "Modeling and Simulation, High-Entropy Alloys, High-Temperature Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/74D8995D8E57CE9C85258E2700434997?OpenDocument"
+    },
+    {
+     "title": "Agapi-agents: An open-access agentic ai platform for accelerated materials design on atomgpt. org",
+     "planned_speaker": "Kamal Choudhary",
+     "authors": [
+      "Kamal Choudhary"
+     ],
+     "keywords": "Electronic Materials, ICME, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/78F4BA4B2D69E4FB85258E260050AADA?OpenDocument"
+    },
+    {
+     "title": "Beyond First Principles: Convergent and Thermodynamically Self-Consistent Atomistic Phase Diagrams from Interatomic Potentials",
+     "planned_speaker": "Daniel Z. Xiao",
+     "authors": [
+      "Daniel Z. Xiao",
+      "Rodrigo Freitas"
+     ],
+     "keywords": "Phase Transformations, Computational Materials Science & Engineering, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/81E3A7F7665EC59B85258E26007AD2D9?OpenDocument"
+    },
+    {
+     "title": "Thermodynamic models for the epitaxial growth of oxide solid solutions",
+     "planned_speaker": "Chris Bartel",
+     "authors": [
+      "Chris Bartel"
+     ],
+     "keywords": "Thin Films and Interfaces, Computational Materials Science & Engineering, Phase Transformations",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/83A32D860007E00985258E26005A008E?OpenDocument"
+    },
+    {
+     "title": "Humans-(less)-in-the-loop: moving toward autonomous materials design for metal-organic frameworks",
+     "planned_speaker": "Scott Bobbitt",
+     "authors": [
+      "Scott Bobbitt",
+      "Jacob Harvey",
+      "Nickolas Gantzler",
+      "Calen Leverant",
+      "Dayton J. Vogel",
+      "Dorina Sava Gallis",
+      "Harrison Root",
+      "Jacob Boissiere",
+      "Benjamin Siu",
+      "Jason Sammon",
+      "Joshua Whiting"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/87EE5B79D148A77685258E250059D927?OpenDocument"
+    },
+    {
+     "title": "Defect-Controlled Carbon Transport in Zirconium Carbide under Charge, Temperature, and Pressure Extremes.",
+     "planned_speaker": "Qi An",
+     "authors": [
+      "Qi An"
+     ],
+     "keywords": "Ceramics, High-Temperature Materials, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/958FA368D648B84185258E170011E9D7?OpenDocument"
+    },
+    {
+     "title": "Metadynamics-Accelerated Active Learning of Interatomic Potentials for InP Magic-Sized Cluster Nucleation",
+     "planned_speaker": "Myeongjin Chung",
+     "authors": [
+      "Myeongjin Chung",
+      "Gyu Weon Hwang",
+      "Sangtae Kim"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Modeling and Simulation",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/97D6A8FE4CED958C85258E27002E291D?OpenDocument"
+    },
+    {
+     "title": "Collective motion of screw dislocations in α-Fe and its effect on Peierls stress",
+     "planned_speaker": "Jiaqi Sun",
+     "authors": [
+      "Jiaqi Sun",
+      "Nicholas Taormina",
+      "Boyang Gu",
+      "Youping Chen"
+     ],
+     "keywords": "Modeling and Simulation, Computational Materials Science & Engineering,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/99F2BA5F6140BDA185258E3500803D39?OpenDocument"
+    },
+    {
+     "title": "Stabilizing Titanium Carbide MXenes in Water with Montmorillonite Heterostructures: Ab Initio Molecular Dynamics Study",
+     "planned_speaker": "Ashan Sudantha Fernando",
+     "authors": [
+      "Ashan Sudantha Fernando",
+      "Deniz Cakir"
+     ],
+     "keywords": "Titanium, Modeling and Simulation, Computational Materials Science & Engineering",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9E6743B11C985F6185258E16005DEFB4?OpenDocument"
+    },
+    {
+     "title": "PhaseForge: Automated, Uncertainty-Quantified Construction of CALPHAD Thermodynamic Databases via \rMachine-Learning Interatomic Potentials and Bayesian Parameter Refinement",
+     "planned_speaker": "Raymundo Arroyave",
+     "authors": [
+      "Raymundo Arroyave"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, ICME",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A0DEC04579EECCA985258E0F00549C92?OpenDocument"
+    },
+    {
+     "title": "Physics-Informed Discovery of Hydride Superconductors",
+     "planned_speaker": "Mehmet Dogan",
+     "authors": [
+      "Mehmet Dogan"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Modeling and Simulation, Machine Learning",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B5350BBF2CF944CC85258E27007BA9D0?OpenDocument"
+    },
+    {
+     "title": "First-principles mapping of defect energetics across the 211 MAX phase chemical space",
+     "planned_speaker": "Anjana Anu Talapatra",
+     "authors": [
+      "Anjana Anu Talapatra"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Ceramics,",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B53A7663466C191285258E35006DA340?OpenDocument"
+    },
+    {
+     "title": "Physics-Grounded AI for Materials Discovery",
+     "planned_speaker": "Mingda Li",
+     "authors": [
+      "Mingda Li"
+     ],
+     "keywords": "Characterization, Computational Materials Science & Engineering, Magnesium",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B5778E852AB42D8485258E24006B504A?OpenDocument"
+    },
+    {
+     "title": "First-Principles and Graph Learning Framework for Discovery of Li-Ion Transport Pathways in Solid Electrolyte Interphases",
+     "planned_speaker": "Yanqing Su",
+     "authors": [
+      "Yanqing Su"
+     ],
+     "keywords": "Energy Conversion and Storage, Modeling and Simulation, Machine Learning",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BB3E9B04A84B618C85258E250076A3C2?OpenDocument"
+    },
+    {
+     "title": "Closing the Loop on Superconductor Discovery",
+     "planned_speaker": "Richard G. Hennig",
+     "authors": [
+      "Richard G. Hennig"
+     ],
+     "keywords": "Machine Learning, Computational Materials Science & Engineering, Energy Conversion and Storage",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C2263385CA7F2A1385258E3500576951?OpenDocument"
+    },
+    {
+     "title": "Machine Learning-Assisted Design of High-Performance HOR Catalysts for Proton-Conducting Fuel Cells",
+     "planned_speaker": "Sung Gu Kang",
+     "authors": [
+      "Sung Gu Kang"
+     ],
+     "keywords": "High-Entropy Alloys, Energy Conversion and Storage, Computational Materials Science & Engineering",
+     "mlip_relevant": true,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C5652CAF173E0B1685258E25005BE42F?OpenDocument"
+    },
+    {
+     "title": "Capturing Spin-Disorder in Paramagnetic Austenitic Steels: A First-Principles Approach",
+     "planned_speaker": "Edwin Antillon",
+     "authors": [
+      "Edwin Antillon",
+      "Noam Bernstein"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C65C632C04A9640785258E25001B1D55?OpenDocument"
+    },
+    {
+     "title": "Predicting plateau slope in metal hydrides from first-principles: hydrogen energy and charge distributions in TiMn 2 -based alloys",
+     "planned_speaker": "Jae Hur",
+     "authors": [
+      "Jae Hur",
+      "Ryun-Ho Kwak",
+      "Seo-Hui Park",
+      "Tae-Wook Na",
+      "Hyung-Ki Park",
+      "Won-Seok Ko"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Energy Conversion and Storage, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/CC2A9411FC251A4D85258E1F00179E87?OpenDocument"
+    },
+    {
+     "title": "Machine Learning Screening of Oxide Semiconductors for Energy-Efficient Back-End Transistors",
+     "planned_speaker": "Sai Siddhardha Singamaneni",
+     "authors": [
+      "Yash Gupta",
+      "Sai Siddhardha Singamaneni",
+      "Aryan Gupta"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Electronic Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D62AE05C97C9F72585258E26007CDC48?OpenDocument"
+    },
+    {
+     "title": "Crystal Structure Exploration Under Extreme Conditions",
+     "planned_speaker": "Sergei Simak",
+     "authors": [
+      "Sergei Simak"
+     ],
+     "keywords": "Modeling and Simulation, Phase Transformations, Other",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E1CE0908B98EC73185258E27004DD735?OpenDocument"
+    },
+    {
+     "title": "Assessing, training, and fine-tuning foundation potentials for plasticity-relevant properties of metals",
+     "planned_speaker": "Shuozhi Xu",
+     "authors": [
+      "Shuozhi Xu",
+      "Zhihao Huang",
+      "Subah Mubassira",
+      "Anish Dhungana",
+      "Xiang-Guo Li"
+     ],
+     "keywords": "",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E36613C4C43CC21A85258E28006B8EB1?OpenDocument"
+    },
+    {
+     "title": "Geometric Design of d- and i-wave Altermagnetism in Graphene Nanohole Superlattices",
+     "planned_speaker": "Casey Clark",
+     "authors": [
+      "Casey Clark",
+      "Feng Liu"
+     ],
+     "keywords": "Magnetic Materials, Computational Materials Science & Engineering, Modeling and Simulation",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E53E8588F10FB07D85258E2C007402A4?OpenDocument"
+    },
+    {
+     "title": "Integrating Physical Models, Specialized Databases, AI/ML Tools, and Self-Driving Labs to Understand the Synthesis of Inorganic Materials",
+     "planned_speaker": "Bin Ouyang",
+     "authors": [
+      "Bin Ouyang"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Machine Learning, Sustainability",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EA21525E955AD79885258E0D0051E9D6?OpenDocument"
+    },
+    {
+     "title": "Intermetallic Composition as a Variable in Alloy Design",
+     "planned_speaker": "Simon P. Ringer",
+     "authors": [
+      "Kevin D. Sisco",
+      "Xiangyuan Cui",
+      "Kay Song",
+      "Kangwei Chen",
+      "Simon P. Ringer"
+     ],
+     "keywords": "Computational Materials Science & Engineering, Aluminum, High-Temperature Materials",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EAC5C4438772741885258E26002C8E9F?OpenDocument"
+    },
+    {
+     "title": "Effects of Chemical Fluctuations and Short-Range Order on Dislocation Behavior in Multi-Principal-Element Alloys",
+     "planned_speaker": "Xinyi Wang",
+     "authors": [
+      "Xinyi Wang"
+     ],
+     "keywords": "Computational Materials Science & Engineering, High-Entropy Alloys, Mechanical Properties",
+     "mlip_relevant": false,
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/FC8EDB2390F82C6B85258E36002A842B?OpenDocument"
+    }
+   ],
+   "sources": [
+    "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/5AE2D907046CDF5585258D8D007FBD77?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0D62E8947CF421BB85258E26002F37D6?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/10AF5DE2CBE1EB5C85258E26005A9CAC?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/14FC15F673A82E0885258E270055D912?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/158D6656BBF7030285258E1F0066B8D2?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/183815D7F7FCAE9785258E2200804F0C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/2106CC4684F1C07185258E35006F702B?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/36813D4974C5A99E85258E34005641EE?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/36D3F32628A683B285258E1F00559C82?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/380BE0F31712197585258E260071CE1D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/38C7AFBC17913D4085258E2800603999?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/410F91FF8B9368E085258E360003B35D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/536400010135FDCC85258E2700750255?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/53E917DE98560BA685258E350013F52C?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/63307F7D76B4845D85258E2700089C2D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6AD497CF16BB17C785258E24007D4FAA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/74D8995D8E57CE9C85258E2700434997?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/78F4BA4B2D69E4FB85258E260050AADA?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/81E3A7F7665EC59B85258E26007AD2D9?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/83A32D860007E00985258E26005A008E?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/87EE5B79D148A77685258E250059D927?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/958FA368D648B84185258E170011E9D7?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/97D6A8FE4CED958C85258E27002E291D?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/99F2BA5F6140BDA185258E3500803D39?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9E6743B11C985F6185258E16005DEFB4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/A0DEC04579EECCA985258E0F00549C92?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B5350BBF2CF944CC85258E27007BA9D0?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B53A7663466C191285258E35006DA340?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/B5778E852AB42D8485258E24006B504A?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/BB3E9B04A84B618C85258E250076A3C2?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C2263385CA7F2A1385258E3500576951?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C5652CAF173E0B1685258E25005BE42F?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/C65C632C04A9640785258E25001B1D55?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/CC2A9411FC251A4D85258E1F00179E87?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/D62AE05C97C9F72585258E26007CDC48?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E1CE0908B98EC73185258E27004DD735?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E36613C4C43CC21A85258E28006B8EB1?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/E53E8588F10FB07D85258E2C007402A4?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EA21525E955AD79885258E0D0051E9D6?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/EAC5C4438772741885258E26002C8E9F?OpenDocument",
+    "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/FC8EDB2390F82C6B85258E36002A842B?OpenDocument"
+   ]
+  }
+ ],
+ "target_overlap": {
+  "Persson/LBL": {
+   "pi": "Kristin Persson",
+   "status": "PRESENT (PI confirmed as planned speaker)",
+   "pi_or_group_member_hits": [
+    {
+     "symposium": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+     "title": "Data-driven Prediction of Solid-State Synthesis",
+     "planned_speaker": "Kristin Aslaug Persson",
+     "authors": "Kristin Aslaug Persson",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4AFE5AB5E0E87DB285258E2E00296D03?OpenDocument"
+    }
+   ],
+   "adjacent_hits": [
+    {
+     "symposium": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+     "title": "Atomic-Scale Simulations of Metal/Molten-Salt Interfaces by Machine-Learning Interatomic Potentials",
+     "planned_speaker": "Mark D. Asta",
+     "authors": "Mark D. Asta",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/0186834F1FB3315385258E41006F7EBE?OpenDocument"
+    },
+    {
+     "symposium": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+     "title": "AI in the Wild: Autonomous laboratories for materials synthesis",
+     "planned_speaker": "Gerbrand Ceder",
+     "authors": "Gerbrand Ceder",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/9F010B73FD2F1B0685258E2E001D0480?OpenDocument"
+    }
+   ],
+   "group_tooling_used_by_others": [
+    {
+     "symposium": "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling",
+     "title": "Learning Across Theories: A Multi-Fidelity Machine-Learned Interatomic Potential for the Energetic Molecular Crystal LLM-105",
+     "planned_speaker": "Daniela Dantas Quintana",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/46263DB7338C377E85258E230009406A?OpenDocument"
+    },
+    {
+     "symposium": "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling",
+     "title": "Million-scale Surface Property Screening Enabled by Universal Machine Learning Interatomic Potentials",
+     "planned_speaker": "Peter Schindler",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/79DA5C6B1F9B95B285258E28000CC372?OpenDocument"
+    },
+    {
+     "symposium": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+     "title": "Data-driven Prediction of Solid-State Synthesis",
+     "planned_speaker": "Kristin Aslaug Persson",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/4AFE5AB5E0E87DB285258E2E00296D03?OpenDocument"
+    }
+   ],
+   "adjacent_note": "Gerbrand Ceder and Mark D. Asta are listed only by name on ProgramMaster; their LBL/UC Berkeley affiliation is NOT stated there. Ceder-group/LBL link is supported in the landscape doc via the CederGroupHub/chgnet repo [https://github.com/CederGroupHub/chgnet]; Asta affiliation is [unverified] in this sweep."
+  },
+  "Csanyi/Cambridge": {
+   "pi": "Gabor Csanyi",
+   "status": "NOT FOUND among authors/speakers of the 4 crawled symposia (201 abstracts)",
+   "pi_or_group_member_hits": [],
+   "adjacent_hits": [],
+   "group_tooling_used_by_others": [
+    {
+     "symposium": "Bridging Scale Gaps in Multiscale Materials Modeling in the Age of Artificial Intelligence",
+     "title": "Investigation of a Shape Memory Alloy Using Machine Learning Interatomic Potentials",
+     "planned_speaker": "Edwin Antillon",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/45D7D867375C50B385258E27007EA471?OpenDocument"
+    },
+    {
+     "symposium": "Computational Discovery and Design of Materials",
+     "title": "Computational discovery of synthesizable and hard multicomponent transition metal carbides",
+     "planned_speaker": "Anirudh Raju Natarajan",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/36813D4974C5A99E85258E34005641EE?OpenDocument"
+    },
+    {
+     "symposium": "Computational Discovery and Design of Materials",
+     "title": "Understanding Point Defects in Semiconductors using First Principles Simulations Accelerated by ML Potentials",
+     "planned_speaker": "Arun Kumar Mannodi Kanakkithodi",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/6AD497CF16BB17C785258E24007D4FAA?OpenDocument"
+    }
+   ],
+   "note": "MACE is used/fine-tuned in 3 talks (Antillon/Bernstein/James; Natarajan; Mannodi Kanakkithodi) — tooling adoption, not Cambridge/MPI-P presence."
+  },
+  "Kozinsky/Harvard": {
+   "pi": "Boris Kozinsky",
+   "status": "NOT FOUND among authors/speakers of the 4 crawled symposia (201 abstracts)",
+   "pi_or_group_member_hits": [],
+   "adjacent_hits": [],
+   "group_tooling_used_by_others": [
+    {
+     "symposium": "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling",
+     "title": "Learning Across Theories: A Multi-Fidelity Machine-Learned Interatomic Potential for the Energetic Molecular Crystal LLM-105",
+     "planned_speaker": "Daniela Dantas Quintana",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/46263DB7338C377E85258E230009406A?OpenDocument"
+    }
+   ],
+   "note": "Allegro architecture is used by a USC-style multi-fidelity MLIP talk (Dantas Quintana/Branicio) — tooling adoption, not group presence. Speaker affiliations [unverified]."
+  },
+  "Isayev/CMU": {
+   "pi": "Olexandr Isayev",
+   "status": "NOT FOUND among authors/speakers of the 4 crawled symposia (201 abstracts)",
+   "pi_or_group_member_hits": [],
+   "adjacent_hits": [],
+   "group_tooling_used_by_others": []
+  },
+  "Ceriotti/EPFL": {
+   "pi": "Michele Ceriotti",
+   "status": "NOT FOUND among authors/speakers of the 4 crawled symposia (201 abstracts)",
+   "pi_or_group_member_hits": [],
+   "adjacent_hits": [
+    {
+     "symposium": "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability",
+     "title": "Exploring the electronic structure of all known inorganics - from transport to superconductivity to topology.",
+     "planned_speaker": "Nicola Marzari",
+     "authors": "Nicola Marzari",
+     "source": "https://www.programmaster.org/PM/PM.nsf/ApprovedAbstracts/66EB66992D8689BE85258E34005FDEA5?OpenDocument"
+    }
+   ],
+   "group_tooling_used_by_others": [],
+   "adjacent_note": "Nicola Marzari (EPFL THEOS per landscape doc Section 2.1, source https://scholar.google.com/citations?user=YjHKNAUAAAAJ) is an invited Hume-Rothery speaker; he is EPFL-adjacent but NOT the Ceriotti/COSMO group. Affiliation not stated on ProgramMaster [unverified there]."
+  },
+  "Ong/UCSD": {
+   "pi": "Shyue Ping Ong",
+   "status": "NOT FOUND among authors/speakers of the 4 crawled symposia (201 abstracts)",
+   "pi_or_group_member_hits": [],
+   "adjacent_hits": [],
+   "group_tooling_used_by_others": [],
+   "note": "M3GNet mentioned as a fine-tuned foundation MLIP in one talk (Mannodi Kanakkithodi) — tooling adoption only."
+  }
+ },
+ "gaps": [
+  "ProgramMaster exposes no \"Data-Driven and Computational Materials Design\" track/topic grouping — the conference page is a flat alphabetical symposia list; the candidate set here was keyword-filtered (comput|data|machine|artificial|informatic|algorithm|thermodynamic|hume|verification|multiscale) and then ranked by MLIP-relevant approved-presentation count. Official TMS topical track membership is [unverified].",
+  "Speaker/author AFFILIATIONS are not shown on ProgramMaster abstract pages (only names + planned on-site speaker). Institution matching therefore relied on PI/known-group-member surnames; a target-group student/postdoc presenting under an unrecognized name would be missed.",
+  "Only 4 symposia (201 approved abstracts) were crawled at abstract level. Title-only MLIP counts for un-crawled symposia: Modeling, AI Applications, and Method Development in Nuclear Materials = 7 MLIP-titled talks; Computational Thermodynamics and Kinetics = 2; Algorithms Development = 1; AI-ICME = 2; Mechanistic & Experimental Thermo/Kinetics = 1. Target-group presence in those symposia is [unverified].",
+  "Session scheduling (day/time/room) and final speaker confirmation are not yet published on ProgramMaster; \"On-Site Speaker (Planned)\" is provisional.",
+  "No hits for Csanyi/Cambridge, Kozinsky/Harvard, Isayev/CMU, Ceriotti/EPFL, or Ong/UCSD as authors/speakers in the crawled set — consistent with the landscape doc hypothesis that these groups favor ML/NeurIPS-adjacent venues, but absence in 4 symposia is not absence from TMS2027 (100+ symposia).",
+  "The landscape doc lists Marzari and Asta only as adjacent context; whether Lupine wants them treated as targets is a decision for the owner, not resolved here.",
+  "tms.org meeting pages (Default.aspx) returned no parseable text via curl in this sweep; dates/venue were verified from the ProgramMaster conference page instead (03/14/2027-03/18/2027, Orlando, FL, Orlando World Center Marriott)."
+ ],
+ "sources": {
+  "programmaster_conference_home": "https://www.programmaster.org/PM/PM.nsf/Home?OpenForm&ParentUNID=A79798B673220E9885258B13005BB1F5",
+  "tms2027_site": "https://www.tms.org/TMS2027",
+  "landscape_doc": "/home/alex/Dev/lupine/lupine-rhizo/docs/research/tms2027-mlip-landscape.md",
+  "symposium_pages": {
+   "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4B6E26EC429BA82B85258D8E005AE05A?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Bridging Scale Gaps in Multiscale Materials Modeling in the Age of Artificial Intelligence": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1714A107C1F26D9785258D8F007C15BD?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/0A730CACDA50FA3085258DB900092A27?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Computational Discovery and Design of Materials": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/5AE2D907046CDF5585258D8D007FBD77?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5"
+  },
+  "candidate_symposium_pages": {
+   "Additive Manufacturing Modeling, Simulation, and Artificial Intelligence: Microstructure, Mechanics, and Process": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/F9590E3BFD0DB7E185258D7A007FF7CF?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "AI-Enabled Materials Processing: Integrating Accelerated Experimental Workflows and Processing-Aware Machine Learning": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/D298C7CA3F0AED3985258D7F003CAA5E?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "AI/ML/Data Informatics for Materials Discovery: Bridging Experiment, Theory, and Modeling": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4B6E26EC429BA82B85258D8E005AE05A?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Algorithms Development in Materials Science and Engineering": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/EE784487A0A6D3DF85258D8F007274CB?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Artificial Intelligence Applications in Integrated Computational Materials Engineering (AI-ICME)": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/B2B77F5098DB603485258D8100812459?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Avoiding Plot Holes: Telling Compelling Stories (with Data)": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/BC304EC51854BD0B85258D8D0063CC9C?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Bridging Scale Gaps in Multiscale Materials Modeling in the Age of Artificial Intelligence": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1714A107C1F26D9785258D8F007C15BD?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Celebrating 50 Years of Building the Foundations of Materials Design: An FMD/MPMD/SMD Symposium Honoring John Agren": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/4C857F8129ACCD1385258D8E005B4E3D?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Computational Discovery and Design of Materials": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/5AE2D907046CDF5585258D8D007FBD77?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Computational Modeling and Machine Learning for Bio-Related and Sustainable Materials": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/B990CFC9675C46A985258D91000F547C?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Computational Thermodynamics and Kinetics": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/02CD5BF2932CB99085258D8F0073F73E?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Enabling Nuclear Materials Innovation via the Nuclear Science User Facility Capabilities": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/3AD119309FAC3DAB85258D8F0077EACB?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Energy Technology 2027: Advancement in Energy Materials - Theory, Simulation, Characterization and Application": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/2BEB1A37BC1853FE85258D9000652662?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Fatigue in Materials: Fundamentals, Multiscale Characterizations and Computational Modeling": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/B1D97A9DFD053F8985258D8700045BC7?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Hume-Rothery Symposium: Data-Driven Materials Discovery and Phase Stability": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/0A730CACDA50FA3085258DB900092A27?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Mechanistic and Experimental Thermodynamics & Kinetics of Alloys": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/1381A60118BD4A0D85258D86005ECECE?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Modeling, AI Applications, and Method Development in Nuclear Materials": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/BB89F8927A47D4A185258D8500728E25?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Novel Strategies for Rapid Acquisition and Processing of Large Datasets From Advanced Characterization Techniques": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/E8F7A87C66B43D3F85258D910015F912?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Progress Toward Mechanisms, Thermodynamics, and Kinetics of Phase Transformations: An MPMD/SMD Symposium Honoring John H Perepezko": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/3A29F07361A3047F85258D920075984B?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5",
+   "Verification, Calibration, and Validation Approaches for Mechanical Modeling of Metals": "https://www.programmaster.org/PM/PM.nsf/UpcomingSymposia/6E369826C4FF417185258D8B00554363?OpenDocument&ParentUNID=A79798B673220E9885258B13005BB1F5"
+  },
+  "abstract_pages_count": 201,
+  "raw_captures_dir": "/tmp/swarm-demo/pm"
+ }
+}
