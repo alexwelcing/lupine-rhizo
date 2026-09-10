@@ -1,0 +1,23 @@
+{
+  "files": [
+    "README.md",
+    "claim_table/__init__.py",
+    "claim_table/__main__.py",
+    "claim_table/core.py",
+    "conftest.py",
+    "pyproject.toml",
+    "tests/fixtures/tms2027_proceedings_results.json",
+    "tests/test_claim_table.py"
+  ],
+  "tests_passed": 9,
+  "sample_output": [
+    "| Value | Binding key |",
+    "|---|---|",
+    "| 233 | `derived.funnel.author_year_short_labels` |",
+    "| 559 | `derived.funnel.born_stable_model_element_tensors` |",
+    "| 559 | `derived.funnel.cij_components_per_tensor.C11` |",
+    "| 559 | `derived.funnel.cij_components_per_tensor.C12` |",
+    "| 559 | `derived.funnel.cij_components_per_tensor.C44` |",
+    "| 423 | `derived.funnel.distinct_kim_model_ids` |"
+  ]
+}

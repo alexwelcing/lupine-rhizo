@@ -1,0 +1,197 @@
+{
+  "generated_at": "2026-09-09T21:31:38-0400",
+  "source_db": "/home/alex/.hermes/kanban/boards/lupine/kanban.db",
+  "note": "Used boards/lupine/kanban.db per Lupine conventions; the root ~/.hermes/kanban.db is a decoy.",
+  "table": [
+    {
+      "assignee": "software-engineer",
+      "done": 131,
+      "blocked": 3,
+      "total": 165,
+      "done_ratio": 0.7939
+    },
+    {
+      "assignee": "researcher",
+      "done": 81,
+      "blocked": 2,
+      "total": 110,
+      "done_ratio": 0.7364
+    },
+    {
+      "assignee": "reviewer",
+      "done": 65,
+      "blocked": 1,
+      "total": 66,
+      "done_ratio": 0.9848
+    },
+    {
+      "assignee": "devops",
+      "done": 44,
+      "blocked": 6,
+      "total": 80,
+      "done_ratio": 0.55
+    },
+    {
+      "assignee": "director",
+      "done": 40,
+      "blocked": 2,
+      "total": 54,
+      "done_ratio": 0.7407
+    },
+    {
+      "assignee": "artdirector",
+      "done": 32,
+      "blocked": 0,
+      "total": 35,
+      "done_ratio": 0.9143
+    },
+    {
+      "assignee": "synthesizer",
+      "done": 30,
+      "blocked": 0,
+      "total": 34,
+      "done_ratio": 0.8824
+    },
+    {
+      "assignee": "coordinator",
+      "done": 22,
+      "blocked": 2,
+      "total": 28,
+      "done_ratio": 0.7857
+    },
+    {
+      "assignee": "visual-tester",
+      "done": 20,
+      "blocked": 0,
+      "total": 20,
+      "done_ratio": 1.0
+    },
+    {
+      "assignee": "web-integrator",
+      "done": 17,
+      "blocked": 3,
+      "total": 20,
+      "done_ratio": 0.85
+    },
+    {
+      "assignee": "default-assistant",
+      "done": 9,
+      "blocked": 0,
+      "total": 9,
+      "done_ratio": 1.0
+    },
+    {
+      "assignee": "animator",
+      "done": 9,
+      "blocked": 1,
+      "total": 10,
+      "done_ratio": 0.9
+    },
+    {
+      "assignee": "qa",
+      "done": 7,
+      "blocked": 0,
+      "total": 7,
+      "done_ratio": 1.0
+    },
+    {
+      "assignee": "default",
+      "done": 3,
+      "blocked": 0,
+      "total": 3,
+      "done_ratio": 1.0
+    },
+    {
+      "assignee": "scriptwriter",
+      "done": 1,
+      "blocked": 0,
+      "total": 1,
+      "done_ratio": 1.0
+    },
+    {
+      "assignee": "voice-engineer",
+      "done": 1,
+      "blocked": 0,
+      "total": 1,
+      "done_ratio": 1.0
+    }
+  ],
+  "recent": {
+    "software-engineer": [
+      "TMS-PROCEEDINGS: canonical results JSON + four figures",
+      "TMS-PROCEEDINGS: fix check_claims.py comment-strip so %-containing retire phrases are enforceable",
+      "TMS-PROCEEDINGS: compile reviewer PDF + TMS format compliance"
+    ],
+    "researcher": [
+      "TMS: locate and archive the stale oral-talk/symposium TMS record so it cannot be mistaken for the accepted poster",
+      "TMS-PROCEEDINGS: recover 352-row snapshot + recompute geometry (TIMEBOXED 60min)",
+      "TMS-PROCEEDINGS: write full manuscript draft (CRITICAL PATH)"
+    ],
+    "reviewer": [
+      "GEOMETRY-RECOMPUTE: committed generator for the 42-group classical geometry + three gauges + matched n/d/missingness/lineage nulls",
+      "TMS-PROCEEDINGS: independent claim-lock review pass",
+      "TMS-PROCEEDINGS: independent statistics/physics referee pass on PR #133 before submission"
+    ],
+    "devops": [
+      "Fix inherited legacy proof-pack PDF byte nondeterminism",
+      "OPS: install canonical wiki scanner config and verify refreshed DB",
+      "CI-NOISE: green the four recurring workflow failures and stop the false-alarm traffic"
+    ],
+    "director": [
+      "ATX-CLEANUP: 4 structural items — headMeta helper, shared brand header, rehydrate PR, lib/ convention",
+      "ATX-3: curated claim/S* facet — bring 146 claims onto the public site in a disciplined form",
+      "ATX-2: per-node detail pages /atlas/<id>/ with cross-link directory (ATX-5 folded in)"
+    ],
+    "artdirector": [
+      "Upscale and verify 8 final mj-exp1 motif assets",
+      "Generate 8 verified motif grids for mj-exp1",
+      "Generate 2 MJ still images from brand motifs"
+    ],
+    "synthesizer": [
+      "Design disjoint path panel and draft frozen prereg for replication campaign",
+      "Recompute source-derived science quantities from raw data",
+      "Verify golden bundles for paths 16, 0, 14, and 27"
+    ],
+    "coordinator": [
+      "Compile final completion report with verification evidence",
+      "Compile final concept-morph batch report",
+      "Compile final concept-morph video batch report"
+    ],
+    "visual-tester": [
+      "Visually verify science panel loads canonical bundle v1",
+      "Verify Lupi science panel integration and UI label language",
+      "VENTURE-1E: visual/OCR/palette/overflow QA"
+    ],
+    "web-integrator": [
+      "REMEDIATION: scope Draft gate to unreleased video promotion, not live article indexing",
+      "ATLAS-C: byte-identity check from two clean checkouts + open PR",
+      "ATLAS-B: validate regenerated gallery (counts, checksums, tests, build)"
+    ],
+    "default-assistant": [
+      "Validate MJ login and local endpoint availability",
+      "Organize and validate morph batch assets",
+      "Read mj-brand-gen skill and fetch brand motifs"
+    ],
+    "animator": [
+      "Generate and verify disorder-to-order MJ morph video",
+      "Generate and verify hypothesis-to-evidence MJ morph video",
+      "Animate and verify hypothesis-to-evidence morph1 MJ video"
+    ],
+    "qa": [
+      "Audit ONT-B4 live Cloud Run and nightly staging receipts",
+      "VENTURE-1G: final acceptance gate + hash-locked QA manifest",
+      "Certify the 5 campaign videos for playability and policy"
+    ],
+    "default": [
+      "Harmonize dataset findings and recommend target updates",
+      "Dataset discovery: published DFT property libraries for Round 2 targets",
+      "Round 2 target-provenance clean-up and benchmark workflow"
+    ],
+    "scriptwriter": [
+      "BRAND-1.3A VIDEOS: storyboard 5 campaign films"
+    ],
+    "voice-engineer": [
+      "RESCUE: materialize two-repo audio gate as committed reviewed artifacts"
+    ]
+  }
+}

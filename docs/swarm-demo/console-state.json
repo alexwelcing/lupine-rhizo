@@ -1,0 +1,108 @@
+{
+    "campaign_id": "swarm-capability-demo",
+    "manifest_hash": null,
+    "locked_at": null,
+    "status": "draft",
+    "cells": [
+        {
+            "cell_id": "swarm-demo:glm-coding:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:46:14.000Z"
+        },
+        {
+            "cell_id": "swarm-demo:gemini-vision:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:36:51.000Z"
+        },
+        {
+            "cell_id": "swarm-demo:astra-research:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:36:27.000Z"
+        },
+        {
+            "cell_id": "swarm-demo:minimax-agentic:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:33:45.000Z"
+        },
+        {
+            "cell_id": "swarm-demo:bridge-dispatch:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:33:45.000Z"
+        },
+        {
+            "cell_id": "swarm-demo:k3-reasoning:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:33:44.000Z"
+        },
+        {
+            "cell_id": "herdr-job:4b7226cf-a702-4b0e-a764-45454fc933b9:1:done",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:33:22.000Z"
+        },
+        {
+            "cell_id": "herdr:aledev:w2A:p1:6:1789004001",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:33:21.000Z"
+        },
+        {
+            "cell_id": "herdr:aledev:w2A:p1:5:1789003874",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:31:14.000Z"
+        },
+        {
+            "cell_id": "herdr:aledev:w2A:p1:4:1789003869",
+            "path_id": null,
+            "mlip_id": null,
+            "status": "completed",
+            "artifact_uri": null,
+            "accuracy_score": null,
+            "wall_seconds": null,
+            "updated_at": "2026-09-10T01:31:09.000Z"
+        }
+    ]
+}
