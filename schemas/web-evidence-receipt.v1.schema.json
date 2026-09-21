@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lupine.dev/schemas/web-evidence-receipt.v1.schema.json",
+  "title": "WebEvidenceReceipt v1",
+  "description": "A provenance receipt for one browser-agent research task. Every quote is verbatim page text captured by the agent; the receipt records where it came from, when, what it cost, and whether the run was fully cited. Receipts are intake records, not claims: they enter the ledger as `observed` evidence and never upgrade a claim status on their own.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "receipt_id",
+    "receipt_sha256",
+    "tool",
+    "task",
+    "run_status",
+    "citable",
+    "quotes",
+    "cost_dollars",
+    "generated_at"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "web-evidence-receipt.v1"
+    },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^wer-[0-9a-f]{16}$",
+      "description": "Stable identifier derived from the receipt hash."
+    },
+    "receipt_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the canonical JSON of this receipt with `receipt_id` and `receipt_sha256` removed."
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "const": "fastbrowse" },
+        "version": { "$ref": "#/$defs/non_empty_string" },
+        "llm_models": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/non_empty_string" },
+          "description": "Model identifiers the run used for planning and reading, when known."
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": { "$ref": "#/$defs/non_empty_string" },
+        "start_url": { "type": "string", "format": "uri" },
+        "final_url": { "type": "string", "format": "uri" }
+      }
+    },
+    "run_status": {
+      "enum": [
+        "complete",
+        "unverified",
+        "needs_confirmation",
+        "needs_login",
+        "blocked",
+        "needs_input",
+        "stuck",
+        "budget_exceeded",
+        "error"
+      ],
+      "description": "The agent's own exit status, copied verbatim."
+    },
+    "citable": {
+      "type": "boolean",
+      "description": "True only when run_status is `complete` (every claim backed by a quote) and at least one quote exists."
+    },
+    "answer": {
+      "type": ["string", "null"],
+      "description": "The agent's free-text answer. Never cite this; cite `quotes`."
+    },
+    "data": {
+      "description": "Structured output matching the caller's schema, when one was supplied."
+    },
+    "quotes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/quote" }
+    },
+    "cost_dollars": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Sum of known dollar cost lines. Unknown-cost lines are counted in `cost_lines_unknown`."
+    },
+    "cost_lines_unknown": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "steps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[^/\\\\][^\\\\]*$",
+          "description": "Repo-relative path to the raw `fastbrowse --json` output this receipt was built from."
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "quote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quote", "quote_sha256", "url", "captured_at", "capture_sha256"],
+      "properties": {
+        "quote": {
+          "$ref": "#/$defs/non_empty_string",
+          "description": "Verbatim page text as captured by the agent."
+        },
+        "quote_sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "SHA-256 of the UTF-8 quote text, computed at receipt time."
+        },
+        "url": { "type": "string", "format": "uri" },
+        "source_id": { "type": "string" },
+        "frame_id": { "type": ["string", "null"] },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "capture_sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "The agent's hash of the page capture the quote was cut from."
+        },
+        "span": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start", "end"],
+          "properties": {
+            "start": { "type": "integer", "minimum": 0 },
+            "end": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  }
+}

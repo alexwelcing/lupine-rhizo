@@ -44,6 +44,13 @@ the claims live in [`conjectures/ledger.md`](./conjectures/ledger.md).
 - [`funding_landscape_report.md`](./funding_landscape_report.md) — federal materials-informatics /
   UQ funding landscape (2025–2026).
 
+## Discovery tooling
+- [`research/discovery-tools-fastbrowse-prove2me-2026-09-21.md`](./research/discovery-tools-fastbrowse-prove2me-2026-09-21.md) —
+  evaluation of fastbrowse (cited browser-agent lookups) and Prove2Me (crowdsourced Lean 4
+  formalization) for the gather and prove ends of the loop, with staged experiments.
+  Decision record: [`decisions/0007`](./decisions/0007-web-evidence-receipts-and-theorem-commons-trial.md);
+  intake contract: `schemas/web-evidence-receipt.v1.schema.json` + `tools/web_evidence_receipt.py`.
+
 > Note: three `docs/EXTRACTION_*.md` files are one-time content-extraction *process logs* (with
 > dead `/sessions/...` paths) that are still listed in the public catalog
 > (`library-site/scripts/catalog.js`). Whether they belong on the public site is a content

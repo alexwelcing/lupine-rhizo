@@ -16,6 +16,34 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-09-21 - Discovery tooling evaluation: cited browser lookups and a rented theorem commons
+
+- **Why.** Two external tools looked like they fit the receipt-first loop: fastbrowse,
+  a browser agent whose answers cite verbatim page quotes with capture hashes, and
+  Prove2Me, a crowdsourced Lean 4 platform with kernel-checked proofs, disproofs, and
+  blind read-back audits. The Command Center names a shared theorem commons as the
+  program's amplifier; we had not yet asked whether one already exists.
+- **What.** Verified both against live sites, the Prove2Me paper (arXiv:2608.28433), the
+  installed fastbrowse 0.4.2 package, and this repo's Lean pins. Wrote the evaluation
+  (`docs/research/discovery-tools-fastbrowse-prove2me-2026-09-21.md`), ADR 0007, a
+  `web-evidence-receipt.v1` schema, and `tools/web_evidence_receipt.py`, which turns
+  a `fastbrowse --json` run into a hashed receipt and refuses `citable` unless the run
+  ended `complete` with quotes. Ten unit tests; stdlib only; no API keys needed.
+- **Results.** fastbrowse installs and its CLI/MCP flags match the docs; no task was
+  run here because the environment has no API keys. Prove2Me's API (v0.10.7) needs a
+  bearer token for every listing call. Its environments are Lean v4.33.1 (default),
+  v4.30.0, v4.29.0-rc3 with Mathlib pins that differ from ours (v4.29.0, `8a178386`).
+  Twenty of our modules use `native_decide`, whose axiom the platform's upload playbook
+  excludes, so the receipt-style `DiscoveryChains` and `ErrorLandscape` modules are not
+  upload candidates. `SharpLicense.lean` and the `Shapes/Certificates.lean` definitions
+  are. Public Prove2Me theorems are Apache 2.0; ours are AGPL-3.0, so any public release
+  is an owner decision.
+- **Next.** E1: ten cited lookups against checked-in ground truth (the 163-identifier
+  citation audit, the Matbench CSV), budget under $1, kill if fewer than 7/10 complete.
+  E3: private Prove2Me mission round-tripping the sharp correction-license theorems to
+  an `ACCEPTED` verdict, recording every elaboration difference. E4 (public captain
+  proposal with read-backs) stops at the owner's desk.
+
 ## 2026-07-17 - Round-3 consequence wave: B0 correction gate denial + assumption-link CI + contract compiler
 
 - **Why.** Round-3 produced a kill-condition verdict for B0 correction (both

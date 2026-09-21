@@ -16,6 +16,7 @@ evidence ledger.
 | **Long-demo registry** | `mlip_long_demo_registry.py`, `mlip_long_demo_ribbon_prep.py` — ribbon prep and demo registry management. |
 | **MLIP/model analysis** | `mlip_sim_matrix.py`, `mlip_deep_accuracy_campaign.py`, `mlip_distill_atlas.py`, `mlip_kimi_evidence.py` |
 | **Build support** | `build_mlip_first_day_viewer.py`, `build_ni_distill_support.py` |
+| **Evidence intake** | `web_evidence_receipt.py` — turn a `fastbrowse --json` run into a hashed `web-evidence-receipt.v1` record and re-check it (stdlib only, no keys). |
 | **Tests** | `test_*.py` for most tool modules. |
 | **Python deps** | `requirements.txt`, `requirements-telemetry.txt` |
 
