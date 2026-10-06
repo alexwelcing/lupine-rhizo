@@ -17,7 +17,8 @@ Rhizo connects an hourly PI's deliberate scientific checks with the automated Gl
 
 The Library now has a dedicated reviewed-public-activity contract, separate from private conversations and execution records. The read-only `/research/activity` feed exposes explicit summaries and timestamps; protected imports append immutable records. It does not mirror private tables or infer success from a model receipt.
 
-- [Latest archived diagnostic: shared, aligned residuals](docs/research-progress/2026-10-06-common-error.md)
+- [Final archive control: uniform offsets ruled out; next evidence planned](docs/research-progress/2026-10-06-uniform-offset.md)
+- [Archived diagnostic: shared, aligned residuals](docs/research-progress/2026-10-06-common-error.md)
 - [Source audit: prospective validation stops at eligibility](docs/research-progress/2026-10-06-roster-readiness.md)
 - [Tested predictor and cache provenance repair](docs/research-progress/2026-10-06-predictor-provenance.md)
 - [Preserved proposed ranking study: stopped before execution](docs/research-progress/2026-10-06-prospective-ranking-protocol.md)
