@@ -12,8 +12,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
     "paths": {
       "@microlabs/otel-cf-workers": ["./node_modules/@microlabs/otel-cf-workers/dist/index.d.ts"]
     }

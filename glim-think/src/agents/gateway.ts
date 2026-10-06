@@ -7,25 +7,30 @@
  * URL format:
  *   https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/{provider}
  *
- * Supported providers: openai, anthropic, google-vertex-ai, workers-ai
+ * Supported providers: openai, anthropic, google-ai-studio, workers-ai
  * The gateway exposes provider-native endpoints (e.g. /v1/chat/completions
  * for OpenAI, /v1/messages for Anthropic).
  */
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import type { LanguageModel } from "ai";
 import type { Env } from "../types";
+import { resolveModelId } from "./modelProfiles";
 
 const GATEWAY_BASE = "https://gateway.ai.cloudflare.com/v1";
 
-export type GatewayProvider = "openai" | "anthropic" | "google-vertex-ai" | "workers-ai";
+export type GatewayProvider = "openai" | "anthropic" | "google-ai-studio" | "google-vertex-ai" | "workers-ai";
 
 function gatewayBaseURL(env: Env, provider: GatewayProvider): string | undefined {
   const accountId = env.AI_GATEWAY_ACCOUNT_ID?.trim();
   const gatewayId = env.AI_GATEWAY_ID?.trim();
   if (!accountId || !gatewayId) return undefined;
-  return `${GATEWAY_BASE}/${accountId}/${gatewayId}/${provider}`;
+  // Retain the old resolver name as an alias; GOOGLE_API_KEY is an AI Studio
+  // API key, not the service-account access token required by Vertex AI.
+  const nativeProvider = provider === "google-vertex-ai" ? "google-ai-studio" : provider;
+  return `${GATEWAY_BASE}/${accountId}/${gatewayId}/${nativeProvider}`;
 }
 
 export function gatewayEnabled(env: Env): boolean {
@@ -44,7 +49,7 @@ function gatewayHeaders(env: Env): Record<string, string> | undefined {
 // ---------------------------------------------------------------------------
 
 /** OpenAI via AI Gateway. */
-export function openaiViaGateway(env: Env): LanguageModel | undefined {
+export function openaiViaGateway(env: Env, modelId?: string): LanguageModel | undefined {
   const baseURL = gatewayBaseURL(env, "openai");
   if (!baseURL || !env.OPENAI_API_KEY) return undefined;
   const headers = gatewayHeaders(env);
@@ -52,38 +57,35 @@ export function openaiViaGateway(env: Env): LanguageModel | undefined {
     apiKey: env.OPENAI_API_KEY,
     baseURL,
     ...(headers ? { headers } : {}),
-  })(env.OPENAI_MODEL?.trim() || "gpt-5.5");
+  }).responses(modelId || resolveModelId(env, "openai"));
 }
 
 /** Anthropic via AI Gateway. */
-export function anthropicViaGateway(env: Env): LanguageModel | undefined {
+export function anthropicViaGateway(env: Env, modelId?: string): LanguageModel | undefined {
   const baseURL = gatewayBaseURL(env, "anthropic");
   if (!baseURL || !env.ANTHROPIC_API_KEY) return undefined;
   const headers = gatewayHeaders(env);
   return createAnthropic({
     apiKey: env.ANTHROPIC_API_KEY,
-    baseURL,
+    baseURL: `${baseURL}/v1`,
     ...(headers ? { headers } : {}),
-  }).languageModel(env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-20250514");
+  }).languageModel(modelId || resolveModelId(env, "anthropic"));
 }
 
-/** Google Vertex AI via AI Gateway. */
-export function googleViaGateway(env: Env): LanguageModel | undefined {
-  const baseURL = gatewayBaseURL(env, "google-vertex-ai");
+/** Google AI Studio via its native Gemini endpoint in AI Gateway. */
+export function googleViaGateway(env: Env, modelId?: string): LanguageModel | undefined {
+  const baseURL = gatewayBaseURL(env, "google-ai-studio");
   if (!baseURL || !env.GOOGLE_API_KEY) return undefined;
   const headers = gatewayHeaders(env);
-  // Google Vertex AI exposes an OpenAI-compatible chat completions endpoint
-  // through AI Gateway, so we drive it via @ai-sdk/openai-compatible.
-  return createOpenAICompatible({
-    name: "google-vertex-ai",
+  return createGoogleGenerativeAI({
     apiKey: env.GOOGLE_API_KEY,
-    baseURL,
+    baseURL: `${baseURL}/v1beta`,
     ...(headers ? { headers } : {}),
-  }).chatModel(env.GOOGLE_MODEL?.trim() || "gemini-2.5-pro");
+  }).languageModel(modelId || resolveModelId(env, "google"));
 }
 
 /** Workers AI via AI Gateway (unified compat endpoint). */
-export function workersAiViaGateway(env: Env): LanguageModel | undefined {
+export function workersAiViaGateway(env: Env, modelId?: string): LanguageModel | undefined {
   const baseURL = gatewayBaseURL(env, "workers-ai");
   if (!baseURL) return undefined;
   const headers = gatewayHeaders(env);
@@ -92,7 +94,7 @@ export function workersAiViaGateway(env: Env): LanguageModel | undefined {
     apiKey: "", // Workers AI binding auth is handled by gateway
     baseURL,
     ...(headers ? { headers } : {}),
-  }).chatModel(env.WORKERS_AI_MODEL?.trim() || "@cf/meta/llama-4-scout-17b-16e-instruct");
+  }).chatModel(modelId || resolveModelId(env, "workers-ai"));
 }
 
 // ---------------------------------------------------------------------------
@@ -119,24 +121,25 @@ export function gatewayModel(
 
   switch (provider) {
     case "openai": {
-      const m = openaiViaGateway(env);
+      const m = openaiViaGateway(env, modelId);
       if (!m) return undefined;
-      return { model: m, provider: "openai", modelId: modelId || env.OPENAI_MODEL?.trim() || "gpt-5.5" };
+      return { model: m, provider: "openai", modelId: modelId || resolveModelId(env, "openai") };
     }
     case "anthropic": {
-      const m = anthropicViaGateway(env);
+      const m = anthropicViaGateway(env, modelId);
       if (!m) return undefined;
-      return { model: m, provider: "anthropic", modelId: modelId || env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-20250514" };
+      return { model: m, provider: "anthropic", modelId: modelId || resolveModelId(env, "anthropic") };
     }
+    case "google-ai-studio":
     case "google-vertex-ai": {
-      const m = googleViaGateway(env);
+      const m = googleViaGateway(env, modelId);
       if (!m) return undefined;
-      return { model: m, provider: "google-vertex-ai", modelId: modelId || env.GOOGLE_MODEL?.trim() || "gemini-2.5-pro" };
+      return { model: m, provider: "google-ai-studio", modelId: modelId || resolveModelId(env, "google") };
     }
     case "workers-ai": {
-      const m = workersAiViaGateway(env);
+      const m = workersAiViaGateway(env, modelId);
       if (!m) return undefined;
-      return { model: m, provider: "workers-ai", modelId: modelId || env.WORKERS_AI_MODEL?.trim() || "@cf/meta/llama-4-scout-17b-16e-instruct" };
+      return { model: m, provider: "workers-ai", modelId: modelId || resolveModelId(env, "workers-ai") };
     }
     default:
       return undefined;
@@ -172,7 +175,8 @@ export async function probeGatewayProvider(
   const start = Date.now();
   try {
     // Use the provider's models endpoint as a lightweight probe
-    const probeURL = `${baseURL}/v1/models`;
+    const google = provider === "google-ai-studio" || provider === "google-vertex-ai";
+    const probeURL = `${baseURL}${google ? "/v1beta/models" : provider === "openai" ? "/models" : "/v1/models"}`;
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -184,8 +188,8 @@ export async function probeGatewayProvider(
     } else if (provider === "anthropic" && env.ANTHROPIC_API_KEY) {
       headers["x-api-key"] = env.ANTHROPIC_API_KEY;
       headers["anthropic-version"] = "2023-06-01";
-    } else if (provider === "google-vertex-ai" && env.GOOGLE_API_KEY) {
-      headers["Authorization"] = `Bearer ${env.GOOGLE_API_KEY}`;
+    } else if (google && env.GOOGLE_API_KEY) {
+      headers["x-goog-api-key"] = env.GOOGLE_API_KEY;
     }
 
     const gatewayHeaders_ = gatewayHeaders(env);
@@ -238,7 +242,7 @@ export async function probeGateway(env: Env): Promise<{
   results: GatewayProbeResult[];
 }> {
   const enabled = gatewayEnabled(env);
-  const providers: GatewayProvider[] = ["openai", "anthropic", "google-vertex-ai", "workers-ai"];
+  const providers: GatewayProvider[] = ["openai", "anthropic", "google-ai-studio", "workers-ai"];
   const results = await Promise.all(
     providers.map((p) => probeGatewayProvider(env, p)),
   );

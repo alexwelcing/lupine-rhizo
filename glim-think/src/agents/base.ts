@@ -42,7 +42,7 @@ export abstract class GlimThinkAgent extends Think<Env> {
     super(ctx, env);
   }
   /**
-   * Default model: Workers AI Llama 4 Scout (fast, current, zero egress).
+   * Default model: the configured Workers AI fast tier.
    * Subclasses override for specific model requirements.
    */
   getModel() {
@@ -50,14 +50,17 @@ export abstract class GlimThinkAgent extends Think<Env> {
   }
 
   /**
-   * When true, the one-shot `synthesize()` RPC path routes through the
-   * eval-aware multi-provider deep tier (`selectDeepRoute`: MiniMax/GLM
-   * scorecard-balanced, OpenAI gpt-5.5 last decider) instead of the sync
-   * `getModel()`. Deep specialists (Theorist/Causal/Orchestrator) set this
-   * to true. The Think framework's agentic tool-loop still uses `getModel()`
-   * (sync) regardless — only the one-shot synthesis path is eval-steered.
+   * Deep specialists use the same eval-aware, budget-checked selector for
+   * synthesis and interactive Think turns. The synchronous getModel() is
+   * only the initial fallback before the asynchronous turn hook resolves.
    */
   protected deepTier = false;
+
+  override async beforeTurn() {
+    if (!this.deepTier) return;
+    const route = await selectDeepRoute(this.env);
+    return { model: route.model };
+  }
 
   /**
    * Default system prompt. Overridden by each specialist.

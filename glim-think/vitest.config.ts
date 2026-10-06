@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import { transform } from "esbuild";
 
 /**
  * Vitest configuration for glim-think.
@@ -18,6 +19,19 @@ import { defineConfig } from "vitest/config";
  * at `pnpm lint` time.
  */
 export default defineConfig({
+  plugins: [{
+    name: "workspace-standard-decorators",
+    enforce: "pre",
+    async transform(source, id) {
+      // Vite 8's Oxc currently preserves standard decorators that Node 22
+      // cannot execute. Use the same lowering engine as the Worker bundle.
+      if (!id.endsWith("/workspace/ResearchWorkspace.ts")) return;
+      return transform(source, {
+        loader: "ts", target: "es2022", format: "esm", sourcemap: "inline",
+        sourcefile: id, tsconfigRaw: { compilerOptions: { experimentalDecorators: false } },
+      });
+    },
+  }],
   test: {
     include: ["src/**/__tests__/**/*.test.ts"],
     environment: "node",

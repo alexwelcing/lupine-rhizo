@@ -1,22 +1,20 @@
 /**
  * Tiered model selection for GLIM agents.
  *
- * - `fast` tier  → Cloudflare Workers AI (Llama 4 Scout / Kimi K2.5).
- *                  Free, zero egress, ~hundred-ms latency.
- *                  Use for ingestion, summarization, light reasoning.
+ * - `fast` uses WORKERS_AI_MODEL, with Scout as its compatibility default.
+ * - `deep` honors a configured DEEP_PROVIDER preference, otherwise consulting
+ *   the quality scorecard and then balancing available providers.
+ * - The workspace can explicitly choose generation profiles from the shared
+ *   modelProfiles catalog. Clef is a decision model, never a chat generator.
  *
- * - `deep` tier  → MiniMax (M3) via OpenAI-compatible endpoint.
- *                  Strong reasoning, paid. Used for Theorist hypothesis
- *                  generation, Causal paradox detection, Orchestrator
- *                  strategic dispatch. The exact MiniMax model id is a
- *                  per-deployment (MINIMAX_MODEL) and per-call
- *                  (selectDeepRoute modelOverride) knob — see the model
- *                  axis below, used by the M2.7→M3 A/B comparison.
+ * Provider model overrides remain deployment settings. Explicit experiment
+ * pins preserve the existing A/B behavior. Credential or binding presence is
+ * configuration evidence only; account access has not been verified here.
  *
- * Falls back to fast tier when:
- *   - MINIMAX_API_KEY is unset
- *   - The monthly budget is exceeded (recordSpend / hasBudget)
- *   - Caller explicitly requests fast tier
+ * Automatic deep selection falls back to the configured fast tier when no
+ * eligible deep provider remains. MiniMax's monthly token guard applies to
+ * ordinary routing and provider-failure fallback, and explicit workspace
+ * selections reject an exhausted budget instead of substituting a model.
  *
  * Spend tracking: KV-backed monthly counter under
  *   `budget:YYYY-MM:minimax` → { tokens, calls, last_at }
@@ -25,10 +23,16 @@ import { createWorkersAI } from "workers-ai-provider";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, wrapLanguageModel, type LanguageModel, type LanguageModelMiddleware } from "ai";
 import type { Env } from "../types";
 import { getModelQualityTrend } from "../evals/store";
 import { openaiViaGateway, anthropicViaGateway, googleViaGateway } from "./gateway";
+import {
+  MODEL_DEFAULTS, DEEP_PROVIDERS, WORKERS_FAST_PROFILE, WORKERS_DEEP_PROFILE,
+  configuredProvider, resolveModelId, preferredDeepProvider, getInteractiveDeepSelection,
+  getModelCatalog, type DeepProviderId,
+} from "./modelProfiles";
 
 export type ReasoningTier = "fast" | "deep";
 
@@ -72,7 +76,7 @@ const MINIMAX_ANTHROPIC_DEFAULT_BASE_URL = "https://api.minimax.io/anthropic/v1"
 // Deep-tier hypothesis-generation model. Per-deployment override: MINIMAX_MODEL
 // secret. Per-call override: selectDeepRoute({ modelOverride }). The documented
 // pre-upgrade baseline (for A/B comparison) is MINIMAX_BASELINE_MODEL below.
-const MINIMAX_DEFAULT_MODEL = "MiniMax-M3";
+const MINIMAX_DEFAULT_MODEL = MODEL_DEFAULTS.minimax;
 /** The pre-upgrade deep-tier model, kept as the canonical A/B baseline id so the
  * eval harness and docs reference one source of truth. */
 export const MINIMAX_BASELINE_MODEL = "MiniMax-M2.7";
@@ -80,7 +84,7 @@ export const MINIMAX_BASELINE_MODEL = "MiniMax-M2.7";
 // usage exceeds it and falls back to Workers AI.
 const MINIMAX_MONTHLY_TOKEN_BUDGET = 500_000_000;
 
-export const FAST_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
+export const FAST_MODEL = MODEL_DEFAULTS["workers-ai"];
 
 function miniMaxConfig(env: Env): { baseURL: string; model: string } {
   return {
@@ -100,7 +104,7 @@ function monthKey(): string {
 }
 
 export async function hasMiniMaxBudget(env: Env): Promise<boolean> {
-  if (!env.MINIMAX_API_KEY) return false;
+  if (!configuredProvider(env, "minimax")) return false;
   try {
     const raw = await env.CONFIG.get(`budget:${monthKey()}:minimax`);
     if (!raw) return true;
@@ -133,7 +137,13 @@ export async function recordMiniMaxSpend(
 }
 
 export function fastModel(env: Env) {
-  return createWorkersAI({ binding: env.AI })(FAST_MODEL);
+  return workersModel(env, resolveModelId(env, "workers-ai"));
+}
+
+function workersModel(env: Env, modelId: string) {
+  // GLM Flash defaults to max reasoning; the interactive fast profile uses low.
+  return createWorkersAI({ binding: env.AI })(modelId,
+    modelId === WORKERS_FAST_PROFILE ? { reasoning_effort: "low" } : {});
 }
 
 function usageTotal(usage: unknown): number {
@@ -532,14 +542,15 @@ export async function sweepMiniMaxEndpoints(
  * Synchronous selector. Use when the caller can't await
  * (e.g. inside @cloudflare/think `getModel()`).
  *
- *   tier "deep" → MiniMax-M3 (or env override via MINIMAX_MODEL)
- *   tier "fast" → Workers AI (free, llama-4-scout)
+ * Async beforeTurn hooks enforce the budget/eval decision for actual turns.
+ * The synchronous path honors configured credentials and DEEP_PROVIDER.
  */
 export function selectModel(env: Env, tier: ReasoningTier) {
-  if (tier === "deep" && env.MINIMAX_API_KEY) {
-    return miniMaxModel(env);
-  }
-  return fastModel(env);
+  if (tier !== "deep") return fastModel(env);
+  const selected = getInteractiveDeepSelection(env);
+  return selected.provider === "workers-ai"
+    ? workersModel(env, selected.modelId)
+    : buildDeepRoute(env, selected.provider).model;
 }
 
 /**
@@ -551,10 +562,7 @@ export async function selectModelChecked(
   env: Env,
   tier: ReasoningTier,
 ): Promise<ReturnType<typeof selectModel>> {
-  if (tier === "deep" && (await hasMiniMaxBudget(env))) {
-    return miniMaxModel(env);
-  }
-  return fastModel(env);
+  return tier === "deep" ? (await selectDeepRoute(env)).model : fastModel(env);
 }
 
 // ---------------------------------------------------------------------------
@@ -565,22 +573,19 @@ export async function selectModelChecked(
 // and steer. The legacy hand-rolled gateway (ModelRouter/providers) was 0/300
 // spans in Phoenix — unobservable and unsteerable. This is its replacement.
 //
-//   minimax (MiniMax-M2.7)  — proven default + budget-metered fallback
-//   zai     (glm-5.1)       — eval-aware alternate (GLM Coding Plan endpoint)
-//   openai  (gpt-5.5)       — strength-first "last decider", official provider
-//                             (handles gpt-5 max_completion_tokens / no-temp)
-//
-// Endpoints/models below are the values verified working in the old gateway
-// before deletion; salvaged here so nothing regresses.
+// Current model identities live in modelProfiles.ts. Configuration indicates
+// credential/binding presence; account entitlement requires separate validation.
 // ---------------------------------------------------------------------------
 
-export type DeepProvider = "minimax" | "zai" | "openai" | "anthropic" | "google";
+export type DeepProvider = DeepProviderId;
 
 /** A resolved deep route: the AI-SDK model plus its identity for spans/scorecard. */
 export interface DeepRoute {
   model: LanguageModel;
   provider: DeepProvider | "workers-ai";
   modelId: string;
+  /** Safe routing explanation; never includes provider error bodies or secrets. */
+  reason: string;
 }
 
 // Minimum scorecard sample size before a measured pass-rate is allowed to
@@ -612,16 +617,14 @@ function zaiModel(env: Env) {
     baseURL: env.ZAI_BASE_URL?.trim() || "https://api.z.ai/api/coding/paas/v4",
     apiKey: env.ZAI_API_KEY!,
     name: "zai",
-  }).chatModel(env.ZAI_MODEL?.trim() || "glm-5.1");
+  }).chatModel(resolveModelId(env, "zai"));
 }
 
 function openaiModel(env: Env) {
   // Prefer AI Gateway when configured
   const gateway = openaiViaGateway(env);
   if (gateway) return gateway;
-  return createOpenAI({ apiKey: env.OPENAI_API_KEY! })(
-    env.OPENAI_MODEL?.trim() || "gpt-5.5",
-  );
+  return createOpenAI({ apiKey: env.OPENAI_API_KEY! }).responses(resolveModelId(env, "openai"));
 }
 
 function anthropicModel(env: Env) {
@@ -629,7 +632,7 @@ function anthropicModel(env: Env) {
   const gateway = anthropicViaGateway(env);
   if (gateway) return gateway;
   return createAnthropic({ apiKey: env.ANTHROPIC_API_KEY! }).languageModel(
-    env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-20250514",
+    resolveModelId(env, "anthropic"),
   );
 }
 
@@ -637,48 +640,58 @@ function googleModel(env: Env) {
   // Prefer AI Gateway when configured
   const gateway = googleViaGateway(env);
   if (gateway) return gateway;
-  return createOpenAICompatible({
-    name: "google-vertex-ai",
-    apiKey: env.GOOGLE_API_KEY!,
-    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
-  }).chatModel(env.GOOGLE_MODEL?.trim() || "gemini-2.5-pro");
+  return createGoogleGenerativeAI({ apiKey: env.GOOGLE_API_KEY! })
+    .languageModel(resolveModelId(env, "google"));
 }
 
 /** Deep providers whose credentials are present, in safe-default order. */
 export function availableDeepProviders(env: Env): DeepProvider[] {
-  const out: DeepProvider[] = [];
-  if (env.MINIMAX_API_KEY) out.push("minimax");
-  if (env.ZAI_API_KEY) out.push("zai");
-  if (env.OPENAI_API_KEY) out.push("openai");
-  if (env.ANTHROPIC_API_KEY) out.push("anthropic");
-  if (env.GOOGLE_API_KEY) out.push("google");
-  return out;
+  return DEEP_PROVIDERS.filter((p) => configuredProvider(env, p));
 }
 
-function buildDeepRoute(env: Env, p: DeepProvider, modelOverride?: string): DeepRoute {
+function buildDeepRoute(env: Env, p: DeepProvider, modelOverride?: string, reason = "configured-provider"): DeepRoute {
   switch (p) {
     case "zai":
-      return { model: zaiModel(env), provider: "zai", modelId: env.ZAI_MODEL?.trim() || "glm-5.1" };
+      return { model: zaiModel(env), provider: "zai", modelId: resolveModelId(env, "zai"), reason };
     case "openai":
-      return { model: openaiModel(env), provider: "openai", modelId: env.OPENAI_MODEL?.trim() || "gpt-5.5" };
+      return { model: openaiModel(env), provider: "openai", modelId: resolveModelId(env, "openai"), reason };
     case "anthropic":
-      return { model: anthropicModel(env), provider: "anthropic", modelId: env.ANTHROPIC_MODEL?.trim() || "claude-sonnet-4-20250514" };
+      return { model: anthropicModel(env), provider: "anthropic", modelId: resolveModelId(env, "anthropic"), reason };
     case "google":
-      return { model: googleModel(env), provider: "google", modelId: env.GOOGLE_MODEL?.trim() || "gemini-2.5-pro" };
+      return { model: googleModel(env), provider: "google", modelId: resolveModelId(env, "google"), reason };
     default: {
       // modelOverride pins a specific MiniMax id (e.g. the M2.7→M3 A/B). Model
       // ids are provider-specific, so the override only applies to MiniMax.
       const modelId = modelOverride?.trim() || miniMaxConfig(env).model;
-      return { model: miniMaxModel(env, modelId), provider: "minimax", modelId };
+      return { model: miniMaxModel(env, modelId), provider: "minimax", modelId, reason };
     }
   }
+}
+
+function fastRoute(env: Env, reason: string): DeepRoute {
+  return { model: fastModel(env), provider: "workers-ai", modelId: resolveModelId(env, "workers-ai"), reason };
+}
+
+/** Explicit workspace choice: reject unavailable/decision profiles rather than
+ * silently substituting a different model. No model calls or metadata probes. */
+export async function selectModelProfile(env: Env, profileId: string): Promise<DeepRoute> {
+  const profile = getModelCatalog(env).profiles.find((p) => p.id === profileId);
+  if (!profile) throw new Error("Unknown model profile.");
+  if (profile.role === "decision") throw new Error("Decision profiles cannot generate chat replies.");
+  if (!profile.configured) throw new Error("This model provider is not configured.");
+  if (profile.provider === "minimax" && !(await hasMiniMaxBudget(env))) {
+    throw new Error("The MiniMax monthly token budget is exhausted.");
+  }
+  return profile.provider === "workers-ai"
+    ? { model: workersModel(env, profile.modelId), provider: "workers-ai", modelId: profile.modelId, reason: "selected-profile" }
+    : buildDeepRoute(env, profile.provider, undefined, "selected-profile");
 }
 
 /**
  * Eval-aware deep-tier selection. Consults the latest ModelScorecard
  * (written hourly by the eval harness) and routes to the highest-scoring
  * well-sampled provider. Until the scorecard has signal, balances
- * MiniMax/GLM round-robin and reserves OpenAI gpt-5.5 as the strength-first
+ * configured providers round-robin and reserves OpenAI as the explicit
  * last decider (used when it is the only credentialed provider or when it
  * measurably wins). Always budget-guards MiniMax → Workers AI.
  */
@@ -686,57 +699,48 @@ export async function selectDeepRoute(
   env: Env,
   opts?: { force?: DeepProvider; modelOverride?: string },
 ): Promise<DeepRoute> {
+  const selected = await selectDeepIdentity(env, opts);
+  return selected.provider === "workers-ai"
+    ? { ...selected, model: workersModel(env, selected.modelId) }
+    : buildDeepRoute(env, selected.provider, selected.modelId, selected.reason);
+}
+
+async function selectDeepIdentity(env: Env, opts?: { force?: DeepProvider; modelOverride?: string }) {
   const candidates = availableDeepProviders(env);
-  if (candidates.length === 0) {
-    return { model: fastModel(env), provider: "workers-ai", modelId: FAST_MODEL };
-  }
-
-  // Pinned MiniMax model (controlled M2.7→M3 A/B via /ops/experiment-generate):
-  // honor it when MiniMax is credentialed, bypassing scorecard/budget so the
-  // experiment measures exactly the requested id. Model ids are
-  // provider-specific, so an override implies the minimax provider; an explicit
-  // non-minimax `force` still wins (handled just below).
   const modelOverride = opts?.modelOverride?.trim();
-  if (
-    modelOverride &&
-    candidates.includes("minimax") &&
-    (!opts?.force || opts.force === "minimax")
-  ) {
-    return buildDeepRoute(env, "minimax", modelOverride);
+  const identity = (provider: DeepProvider | "workers-ai", reason: string, modelId?: string) => ({
+    provider, modelId: modelId ?? resolveModelId(env, provider), reason,
+  });
+  // Explicit experiment pins retain the existing A/B semantics.
+  if (modelOverride && candidates.includes("minimax") && (!opts?.force || opts.force === "minimax")) {
+    return identity("minimax", "experiment-model-override", modelOverride);
   }
+  if (opts?.force && candidates.includes(opts.force)) return identity(opts.force, "experiment-provider-override");
 
-  // Forced provider (controlled A/B via /ops/experiment-generate): honor it
-  // when credentialed, bypassing scorecard/budget so experiments can test
-  // any provider deterministically.
-  if (opts?.force && candidates.includes(opts.force)) {
-    return buildDeepRoute(env, opts.force);
+  const preferred = preferredDeepProvider(env);
+  if (preferred === "workers-ai") {
+    return identity("workers-ai", "preferred-provider", env.WORKERS_AI_DEEP_MODEL?.trim() || WORKERS_DEEP_PROFILE);
   }
-
-  // MiniMax budget guard: drop it from candidates when exhausted.
+  const missingPreference = Boolean(env.DEEP_PROVIDER?.trim()) && !preferred;
+  if (candidates.length === 0) {
+    return identity("workers-ai", missingPreference ? "preferred-provider-unavailable" : "no-deep-provider-configured");
+  }
   let pool = candidates;
-  if (pool.includes("minimax") && !(await hasMiniMaxBudget(env))) {
-    pool = pool.filter((p) => p !== "minimax");
-    if (pool.length === 0) {
-      return { model: fastModel(env), provider: "workers-ai", modelId: FAST_MODEL };
-    }
-  }
+  const budgetExhausted = pool.includes("minimax") && !(await hasMiniMaxBudget(env));
+  if (budgetExhausted) pool = pool.filter((p) => p !== "minimax");
+  if (pool.length === 0) return identity("workers-ai", "minimax-budget-exhausted");
+  if (preferred && pool.includes(preferred)) return identity(preferred, "preferred-provider");
 
-  // Scorecard-steered: pick the best well-sampled provider in the pool.
+  const fallbackReason = preferred === "minimax" && budgetExhausted ? "minimax-budget-exhausted"
+    : missingPreference ? "preferred-provider-unavailable" : null;
   const trend = await getModelQualityTrend(env);
-  const scored = pool
-    .map((p) => ({ p, s: trend[p] }))
-    .filter((x): x is { p: DeepProvider; s: { score: number; n: number } } =>
-      !!x.s && x.s.n >= MODEL_SCORE_MIN_N)
+  const scored = pool.map((p) => ({ p, s: trend[p] }))
+    .filter((x): x is { p: DeepProvider; s: { score: number; n: number } } => !!x.s && x.s.n >= MODEL_SCORE_MIN_N)
     .sort((a, b) => b.s.score - a.s.score);
-  if (scored.length > 0) {
-    return buildDeepRoute(env, scored[0].p);
-  }
-
-  // No signal yet: round-robin MiniMax/GLM; OpenAI only if it's all we have.
+  if (scored.length > 0) return identity(scored[0].p, fallbackReason ?? "quality-scorecard");
   const balance = pool.filter((p) => p !== "openai");
   const ring = balance.length > 0 ? balance : pool;
-  const pick = ring[await nextRoundRobin(env, ring.length)];
-  return buildDeepRoute(env, pick);
+  return identity(ring[await nextRoundRobin(env, ring.length)], fallbackReason ?? "round-robin");
 }
 
 export interface ResearchTextOpts {
@@ -775,7 +779,7 @@ export interface ResearchTextOpts {
 export async function generateResearchText(
   env: Env,
   opts: ResearchTextOpts,
-): Promise<{ text: string; provider: string; model: string }> {
+): Promise<{ text: string; provider: string; model: string; routing?: { reason: string; fallbackFrom?: string } }> {
   const tier = opts.tier ?? "deep";
 
   // Opt-in multi-model coordination (Omnigents). Loaded lazily via dynamic
@@ -796,13 +800,13 @@ export async function generateResearchText(
       strategy: opts.coordination.strategy,
       confidenceThreshold: opts.coordination.confidenceThreshold,
     });
-    return { text: result.text, provider: result.provider, model: result.model };
+    return { text: result.text, provider: result.provider, model: result.model, routing: { reason: "coordination" } };
   }
 
   const route: DeepRoute =
     tier === "deep"
       ? await selectDeepRoute(env, { force: opts.forceProvider, modelOverride: opts.modelOverride })
-      : { model: fastModel(env), provider: "workers-ai", modelId: FAST_MODEL };
+      : fastRoute(env, "fast-tier");
 
   try {
     const result = await generateText({
@@ -810,7 +814,7 @@ export async function generateResearchText(
       system: opts.system,
       prompt: opts.prompt,
       maxOutputTokens: opts.maxOutputTokens ?? 2048,
-      // gpt-5.x rejects non-default temperature; omit it for OpenAI.
+      // Reasoning models may reject sampling settings; omit for OpenAI.
       ...(route.provider === "openai" || opts.temperature === undefined
         ? {}
         : { temperature: opts.temperature }),
@@ -824,11 +828,12 @@ export async function generateResearchText(
       text,
       provider: route.provider,
       model: route.modelId,
+      routing: { reason: route.reason },
     };
   } catch (e) {
     // Merciless-but-safe: if a non-MiniMax route fails, fall back to the
     // proven MiniMax path once before surfacing the error.
-    if (route.provider !== "minimax" && env.MINIMAX_API_KEY) {
+    if (route.provider !== "minimax" && (await hasMiniMaxBudget(env))) {
       const fb = await generateText({
         model: miniMaxModel(env, opts.modelOverride),
         system: opts.system,
@@ -845,6 +850,7 @@ export async function generateResearchText(
         text,
         provider: "minimax",
         model: opts.modelOverride?.trim() || miniMaxConfig(env).model,
+        routing: { reason: "provider-failure", fallbackFrom: route.provider },
       };
     }
     throw e;
@@ -905,7 +911,7 @@ export async function generateForProvider(
   const start = Date.now();
   const route: DeepRoute =
     provider === "workers-ai"
-      ? { model: fastModel(env), provider: "workers-ai", modelId: FAST_MODEL }
+      ? fastRoute(env, "explicit-provider")
       : buildDeepRoute(env, provider);
   const result = await generateText({
     model: route.model,
@@ -961,38 +967,11 @@ export function pickStrongProvider(env: Env): DeepProvider | "workers-ai" {
  * that selectDeepRoute performs. Used by the coordinator's specialist strategy
  * so it can pick a provider identity and then call it through the injected
  * callProvider (which builds the model once) instead of building it twice.
- * Mirrors selectDeepRoute's branch order; if the two ever drift, update both.
+ * Shares the same decision implementation as selectDeepRoute.
  */
 export async function selectDeepProviderId(
   env: Env,
   opts?: { force?: DeepProvider; modelOverride?: string },
 ): Promise<DeepProvider | "workers-ai"> {
-  const candidates = availableDeepProviders(env);
-  if (candidates.length === 0) return "workers-ai";
-  const modelOverride = opts?.modelOverride?.trim();
-  if (
-    modelOverride &&
-    candidates.includes("minimax") &&
-    (!opts?.force || opts.force === "minimax")
-  ) {
-    return "minimax";
-  }
-  if (opts?.force && candidates.includes(opts.force)) return opts.force;
-  let pool = candidates;
-  if (pool.includes("minimax") && !(await hasMiniMaxBudget(env))) {
-    pool = pool.filter((p) => p !== "minimax");
-    if (pool.length === 0) return "workers-ai";
-  }
-  const trend = await getModelQualityTrend(env);
-  const scored = pool
-    .map((p) => ({ p, s: trend[p] }))
-    .filter(
-      (x): x is { p: DeepProvider; s: { score: number; n: number } } =>
-        !!x.s && x.s.n >= MODEL_SCORE_MIN_N,
-    )
-    .sort((a, b) => b.s.score - a.s.score);
-  if (scored.length > 0) return scored[0].p;
-  const balance = pool.filter((p) => p !== "openai");
-  const ring = balance.length > 0 ? balance : pool;
-  return ring[await nextRoundRobin(env, ring.length)];
+  return (await selectDeepIdentity(env, opts)).provider;
 }

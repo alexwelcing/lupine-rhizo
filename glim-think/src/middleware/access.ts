@@ -18,6 +18,7 @@
  * standing up a real Access tunnel. This MUST never be true in production.
  */
 import type { Env } from "../types";
+import { isWorkspaceRoute } from "./workspaceAccess";
 
 export type AccessHandler = (
   request: Request,
@@ -252,6 +253,9 @@ export function requireAccess(allowedEmails: readonly string[]) {
  * `/health`, `/research`, `/live`) are deliberately NOT covered.
  */
 export function isGatedRoute(pathname: string, method: string): boolean {
+  // Private conversations, their history, model catalog, and static client.
+  // Include GET/WebSocket upgrades and SDK-normalized repeated slashes.
+  if (isWorkspaceRoute(pathname)) return true;
   if (pathname.startsWith("/admin/") || pathname === "/admin") return true;
   if (pathname.startsWith("/ops/") || pathname === "/ops") {
     // OPTIONS preflights for CORS must pass through unguarded; the browser
