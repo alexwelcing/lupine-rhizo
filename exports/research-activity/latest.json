@@ -3,6 +3,86 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "common-error-20261006-completed-v1",
+      "activityId": "common-error-20261006",
+      "evidenceKind": "archived_analysis",
+      "state": "completed",
+      "verification": "arithmetic_checked",
+      "title": "Shared aligned residuals carry most error on both archived panels",
+      "summary": "The fixed common-error test passes on all 800 reused configurations: aligned residuals carry 71.00 percent of ensemble squared error on MatPES and 76.52 percent on OMat24 when averaging configuration fractions with equal original group weights. Exact arithmetic independently confirmed the result. This is descriptive evidence, with the cause of shared residuals unresolved.",
+      "observedAt": "2026-10-06T19:54:13.492Z",
+      "reviewedAt": "2026-10-06T19:56:39.825Z",
+      "datasets": [
+        {
+          "name": "MatPES",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3324
+        },
+        {
+          "name": "OMat24",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3912
+        }
+      ],
+      "findings": [
+        "The sole fixed mask requires common residual energy to exceed model contrast and all three residual pair dot products to be positive. Both primary panel means exceed the fixed one-half threshold.",
+        "Pooled fractions of total ensemble squared error are 84.93 percent on MatPES and 86.84 percent on OMat24. Pooling weights configurations by their total error and differs from the primary average.",
+        "The mask contains 2,061 of 3,324 atoms on MatPES and 2,488 of 3,912 on OMat24. Every original configuration and group was retained.",
+        "Independent exact-decimal reconstruction verified both identities for all 7,236 atoms and passed 292,766 numeric comparisons. There were no mask or decision discrepancies and no zero-error denominator cases."
+      ],
+      "limitations": [
+        "Repeatedly inspected historical data; no independent holdout, significance test, calibration, new score, force-error reduction or generalization claim.",
+        "Shared model limitations and reference mismatch remain competing explanations. Model agreement does not identify the cause of common residuals or certify accuracy.",
+        "Historical predictor names do not establish exact checkpoints or training independence. Raw artifacts stay private; published hashes identify them without supplying public reproduction inputs.",
+        "No new predictions or candidate-data analysis occurred. Historical A6 remains INCONCLUSIVE and the proposed independent validation stays stopped before execution."
+      ],
+      "nextStep": "One final archived control, planned: quantify uniform per-configuration force offsets using a full-configuration translation/internal decomposition with fixed group weighting. Then close this diagnostic branch regardless of outcome; further empirical progress must add new reference or predictor evidence.",
+      "sources": [
+        {
+          "label": "Checked common-error method, results and next control",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/28a0fb8e464b61a88aa158621850fe2366415c5e/docs/research-progress/2026-10-06-common-error.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private frozen protocol",
+          "sha256": "840f1f1010c8a0ab26abf83d4fa31f72c8717354713ab83a0e5b2a0275d0c632"
+        },
+        {
+          "label": "Private primary result",
+          "sha256": "2fd6c3a97d3685800cd6cde2b27a1fcfdc5628d66f7e344029068d0ac0a3abdf"
+        },
+        {
+          "label": "Independent exact-arithmetic verification",
+          "sha256": "05e63759dd4da805522b08d56b76d01878b52d6f496f3b6a61dba5345e397934"
+        },
+        {
+          "label": "Private scientific review",
+          "sha256": "d96b12bd7f9204a212dbec1280ed30164464814642e8ff64256909e88ca87269"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Lupine program",
+          "url": "https://github.com/alexwelcing/lupine"
+        },
+        {
+          "label": "Rhizo research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        },
+        {
+          "label": "Library reader",
+          "url": "https://github.com/alexwelcing/lupine-ledger"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "id": "roster-readiness-20261006-completed-v1",
       "activityId": "roster-readiness-20261006",
       "evidenceKind": "archived_analysis",
@@ -74,7 +154,7 @@
       "state": "completed",
       "verification": "source_checked",
       "title": "Offline guard binds cached force predictions to loaded model identity",
-      "summary": "A tested prospective runner path now checks actual loaded state and inference settings before cache reuse or prediction, and preserves each cached prediction’s original producer. The first adapter is limited to CHGNet on CPU with legacy graph conversion. This is an offline workflow repair; no new model performance result was produced.",
+      "summary": "A tested prospective runner path now checks actual loaded state and inference settings before cache reuse or prediction, and preserves each cached prediction\u2019s original producer. The first adapter is limited to CHGNet on CPU with legacy graph conversion. This is an offline workflow repair; no new model performance result was produced.",
       "observedAt": "2026-10-06T18:02:46.725Z",
       "reviewedAt": "2026-10-06T18:04:39.994Z",
       "datasets": [],
