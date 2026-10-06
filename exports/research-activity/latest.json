@@ -4,7 +4,7 @@
     {
       "schema": "lupine.public_research_activity.v1",
       "evidenceKind": "archived_analysis",
-      "reviewedAt": "2026-10-06T13:10:45.000Z",
+      "reviewedAt": "2026-10-06T13:57:13.726Z",
       "repositoryLinks": [
         {
           "label": "Research system",
@@ -12,15 +12,15 @@
         }
       ],
       "releaseLinks": [],
-      "supersedes": null,
+      "supersedes": "disagreement-pairs-20261006-plan-v1",
       "correctionReason": null,
-      "id": "disagreement-pairs-20261006-plan-v1",
+      "id": "disagreement-pairs-20261006-completed-v1",
       "activityId": "disagreement-pairs-20261006",
-      "state": "planned",
-      "verification": "pending",
-      "title": "Next test: do all three models add ranking value?",
-      "summary": "Compare every pairwise force distance with the full disagreement score, keeping the three-model mean prediction and reference error fixed.",
-      "observedAt": "2026-10-06T13:10:45.000Z",
+      "state": "completed",
+      "verification": "arithmetic_checked",
+      "title": "Full disagreement beats each pair on both archived panels",
+      "summary": "With the original three-model prediction held fixed, full disagreement beats every pair in mean error-capture area. Its advantage over the strongest pair is 0.81 percentage points on MatPES and 0.95 on OMat24.",
+      "observedAt": "2026-10-06T13:55:17.051Z",
       "datasets": [
         {
           "name": "Same archived panels",
@@ -28,19 +28,42 @@
           "groups": 100
         }
       ],
-      "findings": [],
-      "limitations": [
-        "This analysis has not started.",
-        "Choosing the best pair in-sample cannot establish independent validation."
+      "findings": [
+        "The frozen all-pairs, both-panels criterion passed across 800 archived configurations and 100 recorded groups.",
+        "Against the strongest pair, full wins in 27 of 50 MatPES groups and 32 of 50 OMat groups; the mean gain is not uniform.",
+        "Independent verification passed 104,934 numeric and 47,521 structural checks, with no ranking or sign-count changes. Original predictions and errors were unchanged."
       ],
-      "nextStep": "Freeze the comparison protocol, calculate equal-group capture increments, and check whether one pair matches or exceeds the full score.",
+      "limitations": [
+        "Historical correlated data; no independent holdout, calibration or generalization claim.",
+        "This changes error-ranking scores, not force accuracy or the cost of the three-model target prediction.",
+        "The full score is the sum of pair distances divided by nine. Pair rankings and magnitudes may both contribute.",
+        "Raw artifacts remain private; hashes provide traceability, not public reproduction inputs. Historical A6 remains INCONCLUSIVE."
+      ],
+      "nextStep": "Planned: combine within-configuration pair midranks with equal weights, preserving exact ties, and test whether a positive mean advantage over every pair survives without raw score magnitudes.",
       "sources": [
         {
-          "label": "Reviewed method, results and limitations",
-          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/f6bb6bc99df6fe42785b617361a80e699abb4d0f/docs/research-progress/2026-10-06-disagreement-panels.md"
+          "label": "Reviewed pairwise method, results and limitations",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/f10ad0f9c3da2e372617604b3a9cf3eca683f3f4/docs/research-progress/2026-10-06-pairwise-disagreement.md"
         }
       ],
-      "hashes": []
+      "hashes": [
+        {
+          "label": "Private frozen protocol",
+          "sha256": "87bd4fdb70a0e5b23205678bd48458e5f6bd5a2a0f879e064267e6f411a5a594"
+        },
+        {
+          "label": "Private primary result",
+          "sha256": "329c95481aa45c4f7635ff379e59d862961b3d919634c3ba737db9993ca8ff3f"
+        },
+        {
+          "label": "Private secondary counts",
+          "sha256": "bd24cb97f828bd674ce8046829a43ae0e65038e08f584e806044be7305f6d79f"
+        },
+        {
+          "label": "Private independent verification",
+          "sha256": "a48b726c9a0c866c088f5496f1afc55aca07605322966e8c982a7db7e146cb84"
+        }
+      ]
     },
     {
       "schema": "lupine.public_research_activity.v1",
