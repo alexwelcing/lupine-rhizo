@@ -6,6 +6,8 @@ import { ResearchWorkspace as ProductionWorkspace } from "../../src/workspace/Re
 import { workspaceHtml, workspaceJavaScript } from "../../src/workspace/html";
 import { getModelCatalog } from "../../src/agents/modelProfiles";
 import { listWorkspaceConversations } from "../../src/workspace/registry";
+import { workspaceProgressResponse } from "../../src/workspace/progress";
+import { researchRunsResponse } from "../../src/workspace/researchRuns";
 import { conversationIdSchema, type WorkspaceSettings } from "../../src/workspace/contracts";
 import type { Env } from "../../src/types";
 
@@ -71,14 +73,17 @@ export default {
     if (origin && origin !== url.origin) return new Response("Same-origin preview only", { status: 403 });
     const env = previewEnv(bindings);
     const headers = { "Cache-Control": "no-store" };
+    const researchRunResponse = await researchRunsResponse(request, env, true);
+    if (researchRunResponse) return researchRunResponse;
     if (url.pathname === "/workspace" || url.pathname === "/") {
-      const html = workspaceHtml().replace("<body>", '<body><div style="background:#f6d58a;color:#171914;padding:8px 18px;font:13px system-ui;position:relative;z-index:9">LOCAL PREVIEW · synthetic evidence · deterministic replies · no model calls</div>');
+      const html = workspaceHtml().replace("<body>", '<body><div style="background:#f6d58a;color:#171914;padding:8px 18px;font:13px system-ui;position:relative;z-index:9">LOCAL PREVIEW · synthetic chat evidence · saved Progress analyses · deterministic replies</div>');
       return new Response(html, { headers: { ...headers, "Content-Type": "text/html;charset=utf-8" } });
     }
     if (url.pathname === "/workspace/app.js") return new Response(workspaceJavaScript, { headers: { ...headers, "Content-Type": "text/javascript;charset=utf-8" } });
     if (url.pathname === "/workspace/models") return Response.json(getModelCatalog(env), { headers });
     if (url.pathname === "/workspace/conversations") return Response.json(await listWorkspaceConversations(env), { headers });
-    if (url.pathname === "/live") return new Response("Local preview: all ledger records are synthetic fixtures. No production data or model calls.", { headers });
+    if (url.pathname === "/workspace/progress" && request.method === "GET") return workspaceProgressResponse(env);
+    if (url.pathname === "/live") return new Response("Local preview: chat evidence tables contain synthetic fixtures. Progress shows saved source-report analyses when imported; it does not mean a new experiment ran. No production database or live model calls are connected.", { headers });
     const segments = url.pathname.split("/").filter(Boolean);
     if (segments[0] !== "agents" || segments[1] !== "research-workspace" || !conversationIdSchema.safeParse(segments[2]).success) return new Response("Not found", { status: 404 });
     return await routeAgentRequest(request, env) ?? new Response("Not found", { status: 404 });

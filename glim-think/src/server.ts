@@ -45,6 +45,8 @@ import { ExtensionManager as ExtensionManagerDO } from "./extensions/manager";
 import { ResearchWorkspace as ResearchWorkspaceDO } from "./workspace/ResearchWorkspace";
 import { getModelCatalog } from "./agents/modelProfiles";
 import { listWorkspaceConversations } from "./workspace/registry";
+import { workspaceProgressResponse } from "./workspace/progress";
+import { researchRunsResponse } from "./workspace/researchRuns";
 import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
 import { checkWorkspaceRequest, isWorkspaceRoute, WORKSPACE_PRIVATE_HEADERS } from "./middleware/workspaceAccess";
 import { generateResearchText } from "./agents/models";
@@ -202,6 +204,10 @@ const baseHandler = {
         if (denial) return denial;
       }
 
+      // Research imports stream through a bounded reader before generic body parsing.
+      const researchRunResponse = await researchRunsResponse(request, env);
+      if (researchRunResponse) return researchRunResponse;
+
       // Pre-read POST/PATCH body so it can be reused after agent routing
       const bodyText = request.method === "POST" || request.method === "PATCH"
         ? await request.text()
@@ -243,6 +249,9 @@ const baseHandler = {
       }
       if (url.pathname === "/workspace/conversations" && request.method === "GET") {
         return Response.json(await listWorkspaceConversations(env), { headers: WORKSPACE_PRIVATE_HEADERS });
+      }
+      if (url.pathname === "/workspace/progress" && request.method === "GET") {
+        return workspaceProgressResponse(env);
       }
 
       if (url.pathname === "/health") {

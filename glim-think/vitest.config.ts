@@ -12,8 +12,10 @@ import { transform } from "esbuild";
  * at the call site and keep the runtime lightweight. Revisit only if a
  * test ever needs the real workerd runtime (DOs, Workers AI, real cron).
  *
- * `typecheck.enabled` runs `tsc --noEmit` on every test file and fails the
- * run on type errors — this is what makes the schema-contract test
+ * Both projects run `tsc --noEmit` on their test files and fail the run on
+ * type errors. Worker tests retain Workers globals; workspace client tests
+ * use DOM globals without introducing them into the Worker typecheck.
+ * This is what makes the schema-contract test
  * (`src/literature/__tests__/schema_contract.test.ts`) catch field drift
  * in `ClaimRecord` / `VectorizeClaimMetadata` at test-run time, not only
  * at `pnpm lint` time.
@@ -33,14 +35,36 @@ export default defineConfig({
     },
   }],
   test: {
-    include: ["src/**/__tests__/**/*.test.ts"],
     environment: "node",
     globals: false,
     testTimeout: 10_000,
-    typecheck: {
-      enabled: true,
-      tsconfig: "./tsconfig.test.json",
-      include: ["src/**/__tests__/**/*.test.ts"],
-    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "worker",
+          include: ["src/**/__tests__/**/*.test.ts"],
+          exclude: ["src/workspace/client/**"],
+          typecheck: {
+            enabled: true,
+            tsconfig: "./tsconfig.test.json",
+            include: ["src/**/__tests__/**/*.test.ts"],
+            exclude: ["src/workspace/client/**"],
+          },
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "workspace-client",
+          include: ["src/workspace/client/**/__tests__/**/*.test.{ts,tsx}"],
+          typecheck: {
+            enabled: true,
+            tsconfig: "./tsconfig.workspace-client.test.json",
+            include: ["src/workspace/client/**/__tests__/**/*.test.{ts,tsx}"],
+          },
+        },
+      },
+    ],
   },
 });

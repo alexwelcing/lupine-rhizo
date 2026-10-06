@@ -11,6 +11,10 @@ this is not a multi-tenant workspace with per-user isolation.
 - Resume a saved conversation, rename it, and cancel a streamed response.
 - Ask for saved hypotheses, literature, and lab activity. The evidence tool
   runs bounded, fixed read queries and returns record IDs.
+- Open **Research runs** for imported local PI cycles: the original question,
+  discovery, independent critique, decision, source links and execution receipts.
+  Pending, stopped and completed discussions remain distinct. Chat can read the
+  same saved runs through `read_research_runs`, one scientific packet at a time.
 - Follow **See the research** to the public
   [Lupine Library Research Index](https://library.lupine.science/#/read/research-index).
 
@@ -96,6 +100,86 @@ Local previews may set `DEV_MODE=true` in an untracked `.dev.vars`; never set
 it on a deployed worker. A successful bundle or mocked test is not proof of
 live authentication, provider entitlement, streaming, or cross-device recovery.
 Validate those on an authenticated staging deployment before production use.
+
+## Private local research receipts
+
+The existing local `tools/pi-cycle.py` ledger remains the authority for the
+Mac discovery → aledev critique → Mac PI decision workflow. The workspace holds
+a private, read-only projection in the same D1 `LEDGER`, using migration
+`0020_workspace_research_runs.sql`. This is separate from the parked Progress
+feed, which contains report analyses rather than execution receipts.
+
+Several deliberately named cycles may reference the same completed discovery
+job and packet. This means the original evidence was adopted, not that discovery
+ran again. Critique and decision jobs keep their own identities, and failed or
+stopped cycles remain visible. The CLI adapter now handles exact observed builtin
+and empty-command metadata without granting tools, compresses the reviewed
+handoff, and checks Homebase's command-size limit before transmission. See the
+[scientific PI guide](../../tools/scientific-pi/README.md) for protocol validation,
+transport bounds and the backward-compatible stage-ledger migration.
+
+From the repository root, export one local cycle to a new private file:
+
+```sh
+python3 tools/pi-export.py --state-dir /path/to/private/pi-runs \
+  --cycle-id the-cycle-id --output /path/to/private/research-snapshot.json
+```
+
+The exporter makes no network, model or device call. It reads SQLite in read-only
+mode, validates job manifests, roles, receipts, packet hashes and exact prior-stage
+links, and checks completed process exit status. A manifest without a receipt is
+**pending**, not proof that the model ran. The refined scientific question in a
+proposal is preserved separately from the original operator question.
+
+Open `/workspace?view=research-runs`, expand the operator import control, paste
+that JSON and review the run and stage states before saving. Import uses
+`POST /workspace/research-runs/import` with `Content-Type: application/json`.
+It requires verified operator Access, independently of legacy service-token or
+development bypasses, and rejects cross-origin browser requests. The response
+acknowledges `{id,status,duplicate}`. No new machine secret or shared bearer is
+created; unattended machine ingestion is not configured by this change.
+
+`GET /workspace/research-runs` returns `{runs,truncated}` (newest 20); GET with a
+run ID appended returns `{run}`. Missing storage or malformed saved records fail
+visibly. Each import is limited to 192 KiB; each scientific packet to 48 KiB. Original
+packet JSON bytes are fingerprinted before parsing so Python/JavaScript numeric
+formatting cannot invalidate a legitimate packet. Updates use an atomic stored
+fingerprint check. Older snapshots, changed started-job identities, terminal-stage
+edits, and any stage change after a stopped/completed cycle are rejected. Reusing
+an import never reruns work.
+
+Snapshots exclude local CLI paths, raw provider/transport logs, credentials and
+Homebase data. Receipt fields are allowlisted; stop messages are replaced with a
+generic stage-status explanation. Private host paths found inside scientific
+content cause export to fail rather than rewriting reviewed packet bytes.
+An import is an operator-attested local record, not a provider-signed proof or
+independent verification of its scientific claims. A completed discussion leaves
+the proposed experiment **not started**, novelty **unverified**, and publication
+**held**. The displayed capture time describes a snapshot; use Refresh after a
+new import, rather than inferring live activity from an old pending record.
+
+The `read_research_runs` tool lists bounded metadata or one selected stage packet,
+with receipt attribution. Its text is evidence, never executable instructions.
+It cannot launch, retry, cancel, modify or publish research. Access to actual
+research runs does not grant the older synthetic evidence fixture scientific
+validity in hosted preview.
+
+### Verified live acceptance — 2026-10-06
+
+Cycle `pi-20261006-risk-tradeoff-07` completed all three research stages with
+zero process exit codes and validated exact job/result-hash links. It adopted
+the earlier completed Codex discovery 01 on the Mac (04:14:53.095Z–04:15:49.108Z),
+received critique 07 from `claude-opus-5-5` on aledev
+(04:38:13.642Z–04:40:01.317Z), and completed Codex decision 07 on the Mac
+(04:40:03.759Z–04:40:49.952Z). All times are UTC. Codex did not report an actual
+model identifier; its recorded model remains `null`.
+
+The complete snapshot was imported through the signed-in private UI at about
+04:48 UTC. This was manual launch and operator import, not unattended dispatch.
+Earlier failed receipts are preserved, discovery was shared without rerunning
+it, and automatic retry remains off. Separate local CPU analysis findings do
+not mean the PI's proposed experiment ran: it remains **not started**, novelty
+is **unverified**, and public Library publication is **held**.
 
 ## Cloudflare's new CLI on the Mac
 

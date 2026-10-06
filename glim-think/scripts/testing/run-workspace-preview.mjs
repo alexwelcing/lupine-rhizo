@@ -19,4 +19,6 @@ function run(args) {
 await run(["scripts/build-workspace.mjs"]);
 const wrangler = resolve(root, "node_modules/wrangler/bin/wrangler.js");
 await run([wrangler, "d1", "execute", "LEDGER", "--config", config, "--local", "--persist-to", state, "--file", resolve(root, "scripts/testing/workspace-preview.sql")]);
+await run([wrangler, "d1", "execute", "LEDGER", "--config", config, "--local", "--persist-to", state, "--file", resolve(root, "migrations/0018_workspace_progress.sql")]);
+await run([wrangler, "d1", "execute", "LEDGER", "--config", config, "--local", "--persist-to", state, "--file", resolve(root, "migrations/0020_workspace_research_runs.sql")]);
 await run([wrangler, "dev", "--config", config, "--local", "--persist-to", state]);

@@ -55,7 +55,7 @@ describe("hosted preview isolation", () => {
     expect(isolated.CLEF_ROUTER_MODE).toBe("disabled");
     expect(getModelCatalog(isolated).profiles.filter(profile => profile.configured).every(profile => profile.provider === "workers-ai")).toBe(true);
   });
-  it.each(["/workspace", "/workspace/app.js", "/workspace/models", "/agents/research-workspace/test/get-messages", "/agents//research-workspace//test", "/live"])(
+  it.each(["/workspace", "/workspace/app.js", "/workspace/models", "/workspace/progress", "/workspace/research-runs", "/workspace/research-runs/example", "/workspace/research-runs/import", "/agents/research-workspace/test/get-messages", "/agents//research-workspace//test", "/live"])(
     "rejects unauthenticated %s before touching agent storage", async path => {
       const response = await previewFetch(new Request(`https://preview.example.test${path}`, { headers: { "X-Internal-Token": "private" } }), { ...env, DEV_MODE: "true", INTERNAL_TASK_TOKEN: "private" } as Env);
       expect(response.status).toBe(403);
@@ -66,13 +66,37 @@ describe("hosted preview isolation", () => {
   it("serves the real catalog only after verified Access and identifies the preview", async () => {
     const page = await previewFetch(request("/workspace"), env);
     expect(page.status).toBe(200);
-    expect(await page.text()).toContain("HOSTED PREVIEW");
+    expect(await page.text()).toContain("PRIVATE PREVIEW");
     expect(page.headers.get("Content-Security-Policy")).toContain("connect-src 'self'");
     const catalog = await previewFetch(request("/workspace/models"), env);
     expect((await catalog.json() as { accountAvailability: string }).accountAvailability).toBe("unverified");
   });
   it("fails closed when the operator setting is removed", async () => {
     expect((await previewFetch(request("/workspace"), { ...env, ADMIN_EMAIL: undefined })).status).toBe(403);
+  });
+  it("reads progress only after Access, preserves private headers, and has no generation endpoint", async () => {
+    const all = vi.fn().mockResolvedValue({ success: true, results: [] });
+    const prepare = vi.fn(() => ({ all }));
+    const progressEnv = { ...env, LEDGER: { prepare } } as unknown as Env;
+    const denied = await previewFetch(new Request("https://preview.example.test/workspace/progress"), progressEnv);
+    expect(denied.status).toBe(403);
+    expect(prepare).not.toHaveBeenCalled();
+    const response = await previewFetch(request("/workspace/progress"), progressEnv);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(await response.json()).toEqual({ clips: [], truncated: false });
+    expect(prepare).toHaveBeenCalledOnce();
+    const post = new Request(request("/workspace/progress"), { method: "POST" });
+    expect((await previewFetch(post, progressEnv)).status).toBe(404);
+    expect(prepare).toHaveBeenCalledOnce();
+  });
+  it("authenticates imports before body parsing and requires same-origin JSON", async () => {
+    const unauthenticated = new Request("https://preview.example.test/workspace/research-runs/import", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    expect((await previewFetch(unauthenticated, env)).status).toBe(403);
+    const authenticated = new Request(request("/workspace/research-runs/import"), { method: "POST", headers: { "Cf-Access-Jwt-Assertion": token, "Content-Type": "application/json" }, body: "{}" });
+    expect((await previewFetch(authenticated, env)).status).toBe(400);
+    const crossOrigin = new Request(request("/workspace/research-runs/import"), { method: "POST", headers: { "Cf-Access-Jwt-Assertion": token, "Content-Type": "application/json", Origin: "https://other.test" }, body: "{}" });
+    expect((await previewFetch(crossOrigin, env)).status).toBe(403);
   });
   it("authenticates history and rejects cross-origin WebSockets", async () => {
     const history = await previewFetch(request("/agents/research-workspace/test/get-messages"), env);

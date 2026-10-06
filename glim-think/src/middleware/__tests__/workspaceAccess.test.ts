@@ -5,7 +5,7 @@ import { buildStubEnv } from "../../testing/envStub";
 
 describe("private research workspace access", () => {
   it.each([
-    "/workspace", "/workspace/app.js", "/workspace/models", "/workspace/conversations",
+    "/workspace", "/workspace/app.js", "/workspace/models", "/workspace/conversations", "/workspace/progress",
     "/agents/research-workspace/research-one",
     "/agents/research-workspace/research-one/get-messages",
     "/agents//research-workspace//research-one/get-messages",

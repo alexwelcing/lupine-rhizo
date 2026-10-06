@@ -9,6 +9,9 @@ Every HTTP route, asset, chat history request and WebSocket handshake requires
 Access. The runtime discards extra keys, telemetry settings and authentication
 bypass flags. Clef routing stays disabled. The banner and system prompt identify
 synthetic ledger data; model calls and conversation persistence are real.
+Imported **Research runs** use separate private PI receipt records and can be
+read by chat. Synthetic legacy evidence and report-analysis Progress remain
+distinct from those actual research discussions; none proves a new experiment ran.
 
 ## Install the separate tooling
 
@@ -58,6 +61,20 @@ node hosted-preview/node_modules/cf/bin/cf d1 query "$PREVIEW_LEDGER_D1_ID" --sq
 The SQL contains three small tables and one synthetic row per table. It has
 no production data and is safe to reapply to this preview database.
 
+For the private Research runs surface, apply migration 0020 only to the approved
+preview D1 database (inspect the ID/name/account first):
+
+```sh
+node hosted-preview/node_modules/cf/bin/cf d1 query "$PREVIEW_LEDGER_D1_ID" --sql "$(cat migrations/0020_workspace_research_runs.sql)"
+```
+
+This creates an empty private receipt table and index. It starts no work and
+copies no production ledger. If the retained Progress feed is enabled, its
+separate migration 0018 is also required. Import real local cycle snapshots
+through the signed-in operator control described in
+[research-workspace.md](../docs/research-workspace.md#private-local-research-receipts).
+No service-token or machine authorization change is needed for this manual path.
+
 ## Supply runtime settings and build
 
 Copy `.env.example` to `.env` in this directory and fill its six inputs with the
@@ -103,6 +120,11 @@ Do not run the repository's production deployment workflow for this preview.
 - Open the same conversation URL on the other authorized device and confirm
   history continuity. This is a shared operator workspace, not per-user tenancy.
 - Request synthetic evidence and verify record IDs and fixture labeling.
+- Import a validated local cycle, refresh **Research runs**, and verify exact
+  job/result fingerprints and honest pending/stopped/completed stage labels.
+  Ask chat to read that run ID and distinguish the real recorded research
+  discussion from an experiment proposal. An empty feed or successful import
+  alone does not verify model quality or end-to-end remote execution.
 - Keep model checks small. Account entitlement and generated content must be
   verified separately from a successful bundle or a configured model catalog.
 - `/run`, `/fleet/run` and other agent namespaces must remain unavailable.
