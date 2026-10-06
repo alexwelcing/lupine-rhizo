@@ -107,6 +107,12 @@ Do not run the repository's production deployment workflow for this preview.
   verified separately from a successful bundle or a configured model catalog.
 - `/run`, `/fleet/run` and other agent namespaces must remain unavailable.
 
+Private system validation comes first. Next, demonstrate useful evidence-backed
+runs and prepare a series of reviewable progress clips. Explicit user acceptance
+of the system and clips is required before any new Library publication, including
+public Library previews. Clip creation remains follow-up work; this preview does
+not create clips or automate publication.
+
 Focused offline checks from `glim-think`:
 
 ```sh

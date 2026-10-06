@@ -120,9 +120,16 @@ and [Wrangler compatibility notes](https://developers.cloudflare.com/cf/wrangler
 
 ## Publication to Lupine Library
 
+Release order is: validate the upgraded system privately, demonstrate useful
+evidence-backed runs, then prepare a series of reviewable progress clips showing
+the results and their limits. Obtain explicit user acceptance of the system and
+clips before any new Library publication, including public Library previews.
+Progress-clip creation is follow-up work; this upgrade does not implement or
+generate clips. Keep publication manual and subject to that acceptance gate.
+
 The Research Index and its **Show me the research** reading journey are in the
 Rhizo curated export, with report dates, catalog statuses, corrections, proof
-scope, and reproduction links preserved. Publish by regenerating
+scope, and reproduction links preserved. After acceptance, publish by regenerating
 `exports/library-content/latest`, syncing it into the Library reader's
 `content/latest`, verifying hashes/provenance, then building and deploying the
 reader. A local export is not yet a live page. Do not automatically publish
