@@ -17,7 +17,8 @@ Rhizo connects an hourly PI's deliberate scientific checks with the automated Gl
 
 The Library now has a dedicated reviewed-public-activity contract, separate from private conversations and execution records. The read-only `/research/activity` feed exposes explicit summaries and timestamps; protected imports append immutable records. It does not mirror private tables or infer success from a model receipt.
 
-- [Current scientific progress and limitations](docs/research-progress/2026-10-06-disagreement-panels.md)
+- [Latest checked result: rank-only combination and its limits](docs/research-progress/2026-10-06-rank-fusion.md)
+- [Archived-panel method and provenance](docs/research-progress/2026-10-06-disagreement-panels.md)
 - [Public activity contract and publishing](docs/public-research-activity.md)
 - [Release notes](docs/releases/research-live-2026-10-06.md)
 - [Lupine program](https://github.com/alexwelcing/lupine) · [Library reader](https://github.com/alexwelcing/lupine-ledger)
