@@ -24,6 +24,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { ToolSet } from "ai";
 import { dispatchGroundedChild } from "./groundedDispatch";
+import { enqueueScientificJob, readBridgeJob, scientificDispatchEnabled, scientificJobInputSchema } from "../bridge/jobs";
 
 // Re-export so existing importers of the orchestrator module keep working;
 // the definitions live in the Worker-runtime-free leaf module so plain-node
@@ -52,7 +53,31 @@ export class Orchestrator extends GlimThinkAgent {
   // inherited from GlimThinkAgent → enables Evolver-driven prompt evolution.
 
   getTools(): ToolSet {
+    // Local CLI authority is configured on each host, never selected by a
+    // model. These tools only create/read scientific handoffs in the ledger.
+    const scientificTools: ToolSet = scientificDispatchEnabled(this.env) ? {
+      dispatch_mac_discovery: tool({
+        description: "Ask the configured Codex Mac researcher for a literature-grounded, falsifiable hypothesis. Queues a private scientific handoff; does not run an experiment or authorize shell commands. Save the returned job_id and retrieve its result later.",
+        inputSchema: scientificJobInputSchema.omit({ role: true, parentJobId: true, parentReceiptSha256: true }),
+        execute: async input => enqueueScientificJob(this.env, { ...input, role: "codex_mac_discovery" }),
+      }),
+      dispatch_aledev_critique: tool({
+        description: "Ask Claude on aledev to independently critique a completed Codex discovery receipt. The question must match that discovery. This is a reasoning handoff only; an experiment proposal is not execution approval.",
+        inputSchema: scientificJobInputSchema.omit({ role: true, parentReceiptSha256: true }).extend({ parentJobId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/) }),
+        execute: async input => enqueueScientificJob(this.env, { ...input, role: "claude_aledev_critique" }),
+      }),
+      get_scientific_job: tool({
+        description: "Read a private scientific handoff and its validated receipt. Pending/claimed is not completion; timeout or result_uncertain needs reconciliation and must not trigger a rerun. A receipt is agent analysis, not source verification or experiment evidence.",
+        inputSchema: z.object({ jobId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/) }).strict(),
+        execute: async ({ jobId }) => {
+          const job = await readBridgeJob(this.env, jobId);
+          if (!job?.scientific_role) return { error: "scientific job not found" };
+          return job;
+        },
+      }),
+    } : {};
     return {
+      ...scientificTools,
       dispatch_manifold: tool({
         description: "Delegate a manifold analysis task to the Manifold sub-agent (α). The sub-agent will use its own Think loop to analyze eigenvalue spectra.",
         inputSchema: z.object({

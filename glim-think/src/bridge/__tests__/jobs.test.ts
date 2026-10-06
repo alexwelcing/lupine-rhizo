@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { handleBridgeRoute, claimNextBridgeJob, MAX_ATTEMPTS, STALE_CLAIM_SECONDS } from "../jobs";
+import { handleBridgeRoute, claimNextBridgeJob, STALE_CLAIM_SECONDS } from "../jobs";
 import { handleBeatsPost } from "../../feed/beats";
 import { checkAccess, isGatedRoute } from "../../middleware/access";
 import { buildStubEnv, stubLedger, type D1Row } from "../../testing/envStub";
@@ -24,6 +24,7 @@ function bridgeEnv(rows: { claim?: D1Row | null; existing?: D1Row | null } = {},
       queries: [
         { match: "SET status = 'claimed'", first: rows.claim ?? null },
         { match: "FROM herdr_bridge_jobs WHERE job_id", first: rows.existing ?? null },
+        { match: "SET status = ?2", first: rows.existing ? { job_id: rows.existing.job_id } : null },
       ],
       onPrepare: (sql, bindings) => prepared.push({ sql, bindings }),
     }),
@@ -38,7 +39,9 @@ function bridgeEnv(rows: { claim?: D1Row | null; existing?: D1Row | null } = {},
 function call(env: ReturnType<typeof bridgeEnv>["env"], method: string, path: string, body?: unknown) {
   const url = new URL(path, WORKER);
   const request = new Request(url, { method });
-  return handleBridgeRoute(request, env, url, body === undefined ? "" : JSON.stringify(body));
+  const supplied = path.endsWith("/result") && body && typeof body === "object" && !Array.isArray(body)
+    ? { machine_id: "aledev", claim_token: "aaaabbbb-1111-4111-8111-111122223333", ...body } : body;
+  return handleBridgeRoute(request, env, url, supplied === undefined ? "" : JSON.stringify(supplied));
 }
 
 const claimedRow: D1Row = {
@@ -50,7 +53,9 @@ const claimedRow: D1Row = {
   status: "claimed",
   attempts: 1,
   created_at: 1_788_000_000,
-  claimed_at: 1_788_000_100,
+  claimed_at: Math.floor(Date.now() / 1000),
+  claim_token: "aaaabbbb-1111-4111-8111-111122223333",
+  claim_expires_at: Math.floor(Date.now() / 1000) + STALE_CLAIM_SECONDS,
 };
 
 describe("bridge job routes", () => {
@@ -70,7 +75,6 @@ describe("bridge job routes", () => {
     expect(body.job).toMatchObject({
       machine_id: "aledev",
       agent_kind: "hermes",
-      prompt: "Run the lit cycle.",
       campaign_id: null,
       status: "pending",
       attempts: 0,
@@ -94,7 +98,7 @@ describe("bridge job routes", () => {
     expect(prepared).toHaveLength(0);
   });
 
-  it("claims the oldest dispatchable job atomically with stale-claim recovery bounds", async () => {
+  it("claims only never-run pending jobs with a fresh bounded claim", async () => {
     const { env, prepared } = bridgeEnv({ claim: claimedRow });
     const now = Math.floor(Date.now() / 1000);
     const response = await call(env, "GET", "/bridge/jobs/next?machine_id=aledev");
@@ -105,8 +109,10 @@ describe("bridge job routes", () => {
     expect(claim?.sql).toContain("RETURNING");
     expect(claim?.bindings[0]).toBe("aledev");
     expect(Math.abs((claim?.bindings[1] as number) - now)).toBeLessThan(5);
-    expect((claim?.bindings[2] as number)).toBe((claim?.bindings[1] as number) - STALE_CLAIM_SECONDS);
-    expect(claim?.bindings[3]).toBe(MAX_ATTEMPTS);
+    expect(claim?.bindings[2]).toMatch(/^[a-f0-9-]{36}$/);
+    expect(claim?.bindings[3]).toBe((claim?.bindings[1] as number) + STALE_CLAIM_SECONDS);
+    expect(claim?.sql).toContain("status = 'pending' AND attempts = 0");
+    expect(claim?.sql).not.toContain("OR (status = 'claimed'");
   });
 
   it("returns 204 when nothing is pending and 400 without a machine id", async () => {
@@ -150,14 +156,15 @@ describe("bridge job routes", () => {
     expect(update?.bindings.slice(0, 4)).toEqual(["job-1", "timeout", null, null]);
   });
 
-  it("leaves the job claimed when the result beat is rejected", async () => {
+  it("keeps the private result durable when the optional legacy beat is rejected", async () => {
     const { env, prepared } = bridgeEnv({ existing: claimedRow });
     const response = await call(env, "POST", "/bridge/jobs/job-1/result", {
       status: "done",
       beat: { beat_id: "", agent: "herdr-bridge", summary: "x" },
     });
-    expect(response?.status).toBe(400);
-    expect(prepared.some((p) => p.sql.includes("SET status = ?2"))).toBe(false);
+    expect(response?.status).toBe(200);
+    expect(await response!.json()).toHaveProperty("warning");
+    expect(prepared.some((p) => p.sql.includes("SET status = ?2"))).toBe(true);
   });
 
   it("rejects unknown, terminal, and malformed results", async () => {
