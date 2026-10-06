@@ -3,15 +3,15 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
-      "id": "common-error-20261006-completed-v1",
+      "id": "common-error-20261006-completed-v2",
       "activityId": "common-error-20261006",
       "evidenceKind": "archived_analysis",
       "state": "completed",
       "verification": "arithmetic_checked",
       "title": "Shared aligned residuals carry most error on both archived panels",
-      "summary": "The fixed common-error test passes on all 800 reused configurations: aligned residuals carry 71.00 percent of ensemble squared error on MatPES and 76.52 percent on OMat24 when averaging configuration fractions with equal original group weights. Exact arithmetic independently confirmed the result. This is descriptive evidence, with the cause of shared residuals unresolved.",
+      "summary": "Analysis of all 800 reused configurations passes the fixed criterion for both panel averages: aligned residuals carry 71.00 percent of ensemble squared error on MatPES and 76.52 percent on OMat24 with equal original group weights. Exact arithmetic independently confirmed this descriptive result; the cause of shared residuals remains unresolved.",
       "observedAt": "2026-10-06T19:54:13.492Z",
-      "reviewedAt": "2026-10-06T19:56:39.825Z",
+      "reviewedAt": "2026-10-06T20:00:34.023Z",
       "datasets": [
         {
           "name": "MatPES",
@@ -29,7 +29,7 @@
       "findings": [
         "The sole fixed mask requires common residual energy to exceed model contrast and all three residual pair dot products to be positive. Both primary panel means exceed the fixed one-half threshold.",
         "Pooled fractions of total ensemble squared error are 84.93 percent on MatPES and 86.84 percent on OMat24. Pooling weights configurations by their total error and differs from the primary average.",
-        "The mask contains 2,061 of 3,324 atoms on MatPES and 2,488 of 3,912 on OMat24. Every original configuration and group was retained.",
+        "The mask contains 2,061 of 3,324 atoms on MatPES and 2,488 of 3,912 on OMat24. Individually, 306 of 400 MatPES configurations and 329 of 400 OMat24 configurations exceed the half threshold; all cases and groups were retained.",
         "Independent exact-decimal reconstruction verified both identities for all 7,236 atoms and passed 292,766 numeric comparisons. There were no mask or decision discrepancies and no zero-error denominator cases."
       ],
       "limitations": [
@@ -78,8 +78,8 @@
         }
       ],
       "releaseLinks": [],
-      "supersedes": null,
-      "correctionReason": null
+      "supersedes": "common-error-20261006-completed-v1",
+      "correctionReason": "Clarify that the fixed criterion passes for both panel averages, not every individual configuration. Values and scientific decision are unchanged."
     },
     {
       "schema": "lupine.public_research_activity.v1",
