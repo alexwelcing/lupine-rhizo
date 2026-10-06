@@ -54,6 +54,9 @@ evidence timestamp. HTTP cache duration is 30 seconds; it is not evidence age.
 Consumers must accept a new evidence kind before the producer publishes it.
 For `workflow_repair`, release the coordinated Library consumer first; already
 open older clients may need a reload. Unknown kinds continue to fail closed.
+After an additive kind enters the immutable feed, rollback must retain support
+for it in the producer and consumer; reverting to a pre-kind validator would
+reject the preserved record.
 
 ## Authorized browser import
 

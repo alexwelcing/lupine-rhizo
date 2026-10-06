@@ -3,6 +3,75 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "predictor-provenance-20261006-completed-v1",
+      "activityId": "predictor-provenance-20261006",
+      "evidenceKind": "workflow_repair",
+      "state": "completed",
+      "verification": "source_checked",
+      "title": "Offline guard binds cached force predictions to loaded model identity",
+      "summary": "A tested prospective runner path now checks actual loaded state and inference settings before cache reuse or prediction, and preserves each cached prediction’s original producer. The first adapter is limited to CHGNet on CPU with legacy graph conversion. This is an offline workflow repair; no new model performance result was produced.",
+      "observedAt": "2026-10-06T18:02:46.725Z",
+      "reviewedAt": "2026-10-06T18:04:39.994Z",
+      "datasets": [],
+      "findings": [
+        "All 133 focused offline runner, provenance and packaging checks passed using fake calculators and tiny fixtures. Independent adversarial review checked cache preservation and failure behavior.",
+        "Changed weights or effective settings, missing identity, incompatible caches and batch downgrades are rejected. Reused predictions retain their original producer; incomplete force outputs cannot be reported complete.",
+        "A distinct proposed study specifies 128 groups, one configuration per group, three model families, a fixed selection seed and fixed ranking decisions. It remains unstarted."
+      ],
+      "limitations": [
+        "Real CHGNet runtime compatibility has not been accepted. The strict adapter covers package 0.4.2, CPU, baseline forces, legacy graph conversion and Distill off only; other model adapters remain unimplemented.",
+        "This repair does not identify historical weights, establish training independence or reference compatibility, prove cross-machine bitwise identity, or support concurrent checkpoint writers.",
+        "Candidate outcomes were not inspected, no panel was sampled, no real model loaded or predicted, and no runner image was deployed. Historical A6 remains INCONCLUSIVE."
+      ],
+      "nextStep": "Prepare one checkpoint/provenance package per proposed model family plus one pinned reference/training-split packet. Produce a bounded readiness matrix, then either establish eligibility or stop this validation claim with the concrete incompatibility. All three adapters and real-runtime acceptance remain prerequisites.",
+      "sources": [
+        {
+          "label": "Reviewed offline repair and limits",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/a761f85b21e2398a73c38c2dd6f3da56a176dcd0/docs/research-progress/2026-10-06-predictor-provenance.md"
+        },
+        {
+          "label": "Proposed prospective ranking protocol; not started",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/a761f85b21e2398a73c38c2dd6f3da56a176dcd0/docs/research-progress/2026-10-06-prospective-ranking-protocol.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Offline verification receipt",
+          "sha256": "4a91c19983ded15d70a2fd05ad4d5b1d596555d59d249e722165ddadede47845"
+        },
+        {
+          "label": "Independent scientific scope review",
+          "sha256": "8076cb4d554f6a864aec34c7c55dc995840b35952f480cf37d3a5824e9050cdd"
+        },
+        {
+          "label": "Runner source",
+          "sha256": "c54365fa4c1262fd0b665fbb763d4ddfd8efd15ea91ca5387ad5250de85bf5af"
+        },
+        {
+          "label": "Loaded predictor identity helper",
+          "sha256": "4ddd4615f1c3c925c9b6be0269f055c67b042e025673be2f1ba5daa73dd2dd3d"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Lupine program",
+          "url": "https://github.com/alexwelcing/lupine"
+        },
+        {
+          "label": "Rhizo research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        },
+        {
+          "label": "Library reader",
+          "url": "https://github.com/alexwelcing/lupine-ledger"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "id": "pinned-source-overlap-20261006-completed-v1",
       "activityId": "pinned-source-overlap-20261006",
       "evidenceKind": "archived_analysis",
