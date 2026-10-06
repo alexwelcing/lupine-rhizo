@@ -1,6 +1,8 @@
 # Proposed prospective test of fixed error-ranking scores
 
-Date: 2026-10-06. **Status: PROPOSED — NOT_STARTED.**
+Date: 2026-10-06. **Status: STOPPED BEFORE EXECUTION — eligibility not established.**
+
+The subsequent [four-packet source audit](./2026-10-06-roster-readiness.md) did not establish checkpoint-specific training independence or candidate reference compatibility. The stop rule below has been applied. The original proposed design is retained for history; no panel was selected or inference started. It must not be resumed by assuming a test label proves eligibility.
 
 This is a distinct proposed study with newly pinned predictors. No final panel has been selected, roster sealed, candidate force/error values inspected for this study, or predictions executed. The size, seed and decision rules below are concrete proposed choices. Publication of this proposal is not evidence that its prerequisites passed.
 
