@@ -3,6 +3,72 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "pinned-source-overlap-20261006-completed-v1",
+      "activityId": "pinned-source-overlap-20261006",
+      "evidenceKind": "archived_analysis",
+      "state": "completed",
+      "verification": "source_checked",
+      "title": "Pinned validation source contains all five previously inspected pilot cases",
+      "summary": "The exact pinned candidate file contains all five earlier pilot configurations. Identity-only checks leave 9,304 structurally eligible configurations in 8,844 linked groups after known exposure exclusions. This is a candidate pool; model-weight and reference provenance still gate fresh validation.",
+      "observedAt": "2026-10-06T17:02:13.347Z",
+      "reviewedAt": "2026-10-06T17:02:13.347Z",
+      "datasets": [
+        {
+          "name": "Pinned MPtrj identity inventory",
+          "configurations": 10273,
+          "groups": 9750
+        }
+      ],
+      "findings": [
+        "All five prior pilot cases match both exact ordered geometry and full source identity in the hash-verified pinned file.",
+        "One additional row shares a recorded MatPES material identity. Of six exposed components, five rows also pass structural checks; 9,304 rows in 8,844 groups remain.",
+        "Independent implementations agree on all 10,273 fingerprints, 82,184 identity, geometry and eligibility fields, component partitions and exclusion reasons.",
+        "Six original execution records establish container-image digests. They do not establish exact loaded weights or original cache-producer weight identity."
+      ],
+      "limitations": [
+        "Identity recovery is completed; no candidate outcome columns were decoded, panel sampled or predictions run. Earlier ranking results are not newly validated.",
+        "Exact ordered representations do not prove physical independence. The OMat24-to-MP crosswalk, training independence and reference compatibility remain unresolved.",
+        "Structural rules differ from the historical label gate. Historical A6 and failed/stopped jobs retain their original states.",
+        "Verification used an independent implementation; aggregate primary counts were known before execution. It is not a blinded replication.",
+        "Raw artifacts remain private. Published hashes identify evidence without supplying public reproduction inputs."
+      ],
+      "nextStep": "Implement and test explicit loaded-weight/configuration digests and immutable cache-producer binding using fake fixtures only. Then freeze a distinct prospective study with fixed scores and known exposure exclusions. Newly pinned models must not be called the unresolved historical roster.",
+      "sources": [
+        {
+          "label": "Reviewed pinned-source overlap and provenance findings",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/5a680e11db5a18389f4d4058aaff84f8775d28dc/docs/research-progress/2026-10-06-pinned-source-overlap.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private frozen recovery protocol",
+          "sha256": "bff219532d721a40e0550ebe876acef382ce5a065733ef087058b7564c2fc3a8"
+        },
+        {
+          "label": "Private primary identity result",
+          "sha256": "6ba1a547219b92b32850a92e5ce6f47dc46ba5dc302bdd171a14b50da24d6048"
+        },
+        {
+          "label": "Private independent agreement",
+          "sha256": "44dc4dcbd2dbf4df1e7c2bb56fd70669b719b8dba9971304b202c8ca7f5e847b"
+        },
+        {
+          "label": "Private PI adjudication",
+          "sha256": "f4f3b5f4044011fb1fdfe1ae69969c97b8c987131577be1773dcd47b87ff9b46"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "id": "validation-eligibility-20261006-completed-v1",
       "activityId": "validation-eligibility-20261006",
       "evidenceKind": "archived_analysis",
