@@ -3,6 +3,71 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "roster-readiness-20261006-completed-v1",
+      "activityId": "roster-readiness-20261006",
+      "evidenceKind": "archived_analysis",
+      "state": "completed",
+      "verification": "source_checked",
+      "title": "Proposed independent validation stops at training-split eligibility",
+      "summary": "A bounded source audit cannot establish that the pinned MPtrj candidate is held out from the three proposed checkpoints, or that its reference conventions are sufficiently documented. The proposed 128-group validation has stopped before selection or inference. This does not prove exact-row contamination or refute the ranking hypothesis.",
+      "observedAt": "2026-10-06T18:50:46.905Z",
+      "reviewedAt": "2026-10-06T18:54:00.384Z",
+      "datasets": [],
+      "findings": [
+        "CHGNet 0.3.0 documents 90 percent training and 5 percent each for validation and test. Its original paper describes an older 80 percent training split with 10 percent each for validation and test; that holdout cannot certify the proposed checkpoint.",
+        "Original M3GNet and MACE-MP0 small source locations were identified, but no checkpoint-specific candidate exclusion crosswalk was recovered. Shared Materials Project ancestry alone is not an overlap count.",
+        "The pinned dataset README lists schema and split counts, without the required force conversion lineage or candidate-to-checkpoint split mapping. Model-side units do not complete that evidence."
+      ],
+      "limitations": [
+        "No candidate outcomes decoded, panel selected, weights loaded or model predictions run. Source metadata is not measured checkpoint identity.",
+        "This bounded inspection is not an exhaustive search of all training archives. Neither independence nor a per-row contamination rate has been established.",
+        "The 800 reused archived cases remain exploratory. Historical A6 and failed/stopped model invocations retain their original states."
+      ],
+      "nextStep": "Freeze a distinct archived-force analysis of shared, pairwise-aligned errors versus model disagreement on the original 800 cases. Use fixed residual identities and equal original group weights, independent arithmetic verification and no new predictions, ranking scores or generalization claim.",
+      "sources": [
+        {
+          "label": "Reviewed four-packet readiness decision and planned next test",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/29bf23d9ea1bb4b1a8e84c2c2dc301519ac9d505/docs/research-progress/2026-10-06-roster-readiness.md"
+        },
+        {
+          "label": "CHGNet 0.3.0 model card",
+          "url": "https://github.com/CederGroupHub/chgnet/blob/8d04abc467630b30cd8349c2fe12eeab10f62171/chgnet/pretrained/0.3.0/README.md"
+        },
+        {
+          "label": "Pinned candidate dataset documentation",
+          "url": "https://huggingface.co/datasets/nimashoghi/mptrj/blob/f88fbe46e16524223210654bad9e1b05a15c2adb/README.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Four-packet readiness result",
+          "sha256": "8eacf4594929843c5a2305eb02da46562fe71727867df45eec626785669b042a"
+        },
+        {
+          "label": "Independent source and scope review",
+          "sha256": "78ac6ae9f8521485180dbbf7b2fe55516fc4d4374ee39cf9dd01a903000f8d92"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Lupine program",
+          "url": "https://github.com/alexwelcing/lupine"
+        },
+        {
+          "label": "Rhizo research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        },
+        {
+          "label": "Library reader",
+          "url": "https://github.com/alexwelcing/lupine-ledger"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "id": "predictor-provenance-20261006-completed-v1",
       "activityId": "predictor-provenance-20261006",
       "evidenceKind": "workflow_repair",
