@@ -78,14 +78,8 @@ jobs:
           workingDirectory: glim-think
           command: d1 execute glim-ledger --remote --file migrations/0021_public_research_activity.sql
 
-      - name: Publish reviewed public activity records
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: glim-think
-          command: d1 execute glim-ledger --remote --file /tmp/lupine-public-activity.sql
-
+      # Activate support for additive evidence kinds before inserting them.
+      # A failed publication then leaves the previous valid feed intact.
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
@@ -93,6 +87,14 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: glim-think
           command: deploy
+
+      - name: Publish reviewed public activity records
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: glim-think
+          command: d1 execute glim-ledger --remote --file /tmp/lupine-public-activity.sql
 
       - name: Report deploy status
         if: always()

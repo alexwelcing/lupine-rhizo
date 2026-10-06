@@ -178,6 +178,66 @@ inspection/replay, or `--checkpoint-mode write-only` to force recomputation
 while preserving the new checkpoint. A custom local or `gs://` path can be
 provided with `--checkpoint-url`.
 
+### Strict prospective predictor identity (opt-in, offline-tested)
+
+For a **new prospective cell**, use `--predictor-provenance strict` and
+`--expected-predictor /path/to/reviewed-expectation.json`. The expectation must
+have exactly these four fields (the digest placeholders below are not valid pins):
+
+```json
+{
+  "schema": "lupine.predictor.expectation.v1",
+  "model_identifier": "chgnet:0.3.0",
+  "loaded_state_sha256": "sha256:<64 lowercase hex characters>",
+  "inference_config_sha256": "sha256:<64 lowercase hex characters>"
+}
+```
+
+The initial adapter supports **CHGNet package 0.4.2 on CPU, the `forces` baseline
+row, legacy graph conversion, Distill off**. Other packages, backends, GPU execution, fast compiled graph conversion and
+other rows fail closed. This is offline fixture-tested software;
+compatibility with an actual installed CHGNet runtime has not yet been accepted.
+Do not enable it on a scientific validation run before that separate check.
+
+The state hash comes from the calculator's actual loaded model, including
+persistent and additional registered nonpersistent buffers. It is not a checkpoint-file hash or a container digest.
+Serialization v1 adds nonpersistent buffers under reserved NUL-prefixed keys,
+sorts the resulting mapping, and hashes length-prefixed names,
+dtypes, shapes and contiguous little-endian tensor bytes, using the versioned
+prefix in `src/predictor_provenance.py`. Sparse, quantized, nonfinite and
+unsupported states are rejected. The configuration hash binds observed model,
+graph-conversion, calculator and CPU settings, implementation hashes and package
+versions. The adapter establishes evaluation mode, as CHGNet prediction does.
+See the upstream [model](https://github.com/CederGroupHub/chgnet/blob/v0.4.2/chgnet/model/model.py)
+and [calculator](https://github.com/CederGroupHub/chgnet/blob/v0.4.2/chgnet/model/dynamics.py)
+for the narrowly supported source contract. Read verified identity from `execution.predictor_provenance`; the existing
+top-level `model_id` is a display label and can be overridden.
+A match is provenance evidence, not
+proof of scientific accuracy, training independence or cross-machine bit equality.
+
+Prepare a pin from a separately reviewed no-prediction inspection of the intended
+loaded model and effective configuration. `observe_chgnet` exposes the observed
+identity; it does not choose or certify an expectation. No production pin is
+included in this change. Review state and settings before freezing the expectation;
+never change a pin just to accept a mismatch. Missing or mismatched pins stop
+before cache access and prediction. Batch defaults and cells cannot downgrade an
+inherited strict setting or replace its pin.
+
+Strict checkpoints use context v3 and bind predictor identity. Each prediction
+retains its original producer, timestamp, case hash and prediction digest when
+reused alongside newly computed cases. Unreadable, incompatible or incomplete
+cache provenance raises an error without replacing that file. Strict write-only
+requires a fresh destination. Concurrent writers to one destination are unsupported;
+the operator must prevent overlap. Use separate destinations for prospective work;
+do not upgrade, rewrite or relabel historical caches. Legacy mode remains the
+default and explicitly reports unknown loaded-predictor provenance. A historical
+container label alone does not satisfy strict identity.
+
+The runner's generic checkpoint support does **not** authorize retrying a stopped,
+failed, timed-out or completion-unknown research invocation. Preserve the research
+ledger's stop states. No model, cloud job or runner-image deployment was executed
+as part of the offline repair.
+
 ## GCP Build And Canary
 
 Build and create/update the five default Cloud Run Jobs:

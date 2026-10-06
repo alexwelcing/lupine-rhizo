@@ -20,7 +20,8 @@
     "evidenceKind": {
       "enum": [
         "archived_analysis",
-        "research_cycle"
+        "research_cycle",
+        "workflow_repair"
       ]
     },
     "state": {

@@ -244,12 +244,19 @@ jobs:
 
       - name: Run Z2 execution and packaging contracts
         env:
-          PYTHONPATH: .
+          PYTHONPATH: .:python
         run: |
           python -m pytest \
             gcp/mlip-cell-runner/test_z2_soc_tc.py \
             gcp/mlip-cell-runner/test_z2_soc_tc_runner.py \
             gcp/mlip-cell-runner/test_z2_soc_tc_contract.py \
+            gcp/mlip-cell-runner/test_predictor_provenance.py \
+            gcp/mlip-cell-runner/test_runner_provenance.py \
+            gcp/mlip-cell-runner/test_runner_provenance_adversarial.py \
+            gcp/mlip-cell-runner/test_runner_checkpoint.py \
+            gcp/mlip-cell-runner/test_runner_offline.py \
+            gcp/mlip-cell-runner/test_runner_batch.py \
+            gcp/mlip-cell-runner/test_runner_backends.py \
             python/tests/test_z2_cloud_packaging.py \
             -q
 
