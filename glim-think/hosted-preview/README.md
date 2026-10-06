@@ -1,0 +1,122 @@
+# Isolated hosted research workspace
+
+This is a separate `cf` project named **lupine-workspace-preview**. It reuses
+the real ResearchWorkspace, Access middleware, model catalog and bundled UI.
+It does not import `src/server.ts` or change the production Wrangler project.
+
+Only new preview KV, D1, a SQLite Durable Object and Workers AI are bound.
+Every HTTP route, asset, chat history request and WebSocket handshake requires
+Access. The runtime discards extra keys, telemetry settings and authentication
+bypass flags. Clef routing stays disabled. The banner and system prompt identify
+synthetic ledger data; model calls and conversation persistence are real.
+
+## Install the separate tooling
+
+From `glim-think`, install its normal dependencies if needed. Then:
+
+```sh
+cd hosted-preview
+npm ci --ignore-scripts --no-audit --no-fund
+```
+
+Node 22.18+ is required. The isolated lockfile pins `cf` 1.0.0-beta.12 and
+Wrangler 4.136.0. The existing production package and lockfile are unchanged.
+The newer Wrangler is used only as cf's bundler; deployment uses cf's existing
+OAuth profile. No Wrangler login, auth-file reads or credential copying is needed.
+
+## Provision preview resources and Access
+
+First obtain the agreed Cloudflare account ID, preview hostname, operator email,
+Access identity provider and session duration. Create a new Access application
+covering the entire `lupine-workspace-preview.<account-subdomain>.workers.dev`
+hostname, with an Allow policy limited to that operator. Record its audience.
+The worker verifies the same team, audience and email itself, so it fails closed
+until those settings and a valid Access JWT are present.
+
+Resource commands below deliberately run from **glim-think**, outside this
+directory: the new project's required configuration is not populated yet.
+Set `CLOUDFLARE_ACCOUNT_ID` in that launching process to the confirmed account.
+These commands create remote resources; run them only for the approved preview.
+
+```sh
+cd ..
+node hosted-preview/node_modules/cf/bin/cf kv namespaces create --title lupine-workspace-preview-config
+node hosted-preview/node_modules/cf/bin/cf d1 create --name lupine-workspace-preview-ledger
+```
+
+Record the returned KV `id` and D1 `uuid`. Verify both names and account before
+using them. If a name already exists, inspect its purpose before reusing it;
+do not delete or replace an existing resource to resolve the conflict.
+Never use the production `CONFIG` or `LEDGER` IDs.
+
+Seed only that new D1 database using the standalone fixture:
+
+```sh
+node hosted-preview/node_modules/cf/bin/cf d1 query "$PREVIEW_LEDGER_D1_ID" --sql "$(cat hosted-preview/seed.sql)"
+```
+
+The SQL contains three small tables and one synthetic row per table. It has
+no production data and is safe to reapply to this preview database.
+
+## Supply runtime settings and build
+
+Copy `.env.example` to `.env` in this directory and fill its six inputs with the
+new resources and approved Access details. `.env` and `.cloudflare/` are ignored.
+`PREVIEW_ACCESS_TEAM_DOMAIN` accepts either the team name or its
+`<team>.cloudflareaccess.com` hostname. The scripts explicitly load these inputs;
+cf's automatic `.env` handling alone does not load arbitrary preview variables.
+Do not add provider API keys or Cloudflare tokens. cf reads its existing login.
+
+```sh
+cd hosted-preview
+npm run build
+npm run check:deploy
+```
+
+Both commands are local checks. The first also rebuilds the existing UI source.
+The second validates the already-built output without uploading it.
+Inspect `.cloudflare/output/v0/`: the Worker name must be
+`lupine-workspace-preview`; bindings must be exactly `RESEARCH_WORKSPACE`,
+`CONFIG`, `LEDGER`, `AI`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `ADMIN_EMAIL`.
+There must be no cron/queue triggers, Workflows, production resource IDs,
+provider secrets, tail consumers or telemetry exporters.
+
+**Rebuild after changing any setting.** `--prebuilt` deploys the values captured
+in Build Output, not newly edited environment values. Placeholder IDs used in an
+offline check are not deployment configuration.
+
+After those checks and approval for the concrete resource/authentication setup:
+
+```sh
+npm run deploy
+```
+
+This deploys only this separately named Worker using the inspected Build Output.
+Do not run the repository's production deployment workflow for this preview.
+
+## Live acceptance
+
+- Without Access, `/workspace`, `/workspace/app.js`, history and WebSockets must
+  be rejected or redirected to sign-in before storage/model calls.
+- With the approved operator, create a conversation and verify its actual
+  provider/model identity, streaming, Stop reply and reload recovery.
+- Open the same conversation URL on the other authorized device and confirm
+  history continuity. This is a shared operator workspace, not per-user tenancy.
+- Request synthetic evidence and verify record IDs and fixture labeling.
+- Keep model checks small. Account entitlement and generated content must be
+  verified separately from a successful bundle or a configured model catalog.
+- `/run`, `/fleet/run` and other agent namespaces must remain unavailable.
+
+Focused offline checks from `glim-think`:
+
+```sh
+npx vitest run src/workspace/__tests__/hostedPreview.test.ts --typecheck.enabled=false
+```
+
+No production secrets, cron schedules, queue consumers or experiment resources
+are needed. Removing this preview later requires a separately reviewed cleanup
+of its Worker, Access application, KV and D1, without touching production.
+
+References: [cf projects and prebuilt deployments](https://developers.cloudflare.com/cf/projects/),
+[programmatic configuration](https://developers.cloudflare.com/cf/projects/cloudflare-config/),
+[Wrangler build settings](https://developers.cloudflare.com/cf/wrangler/migrate/#build-settings).
