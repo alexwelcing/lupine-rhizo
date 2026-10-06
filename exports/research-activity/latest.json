@@ -3,6 +3,72 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "validation-eligibility-20261006-completed-v1",
+      "activityId": "validation-eligibility-20261006",
+      "evidenceKind": "archived_analysis",
+      "state": "completed",
+      "verification": "source_checked",
+      "title": "Validation audit expands exclusion checks to 805 inspected cases",
+      "summary": "The earlier five-case pilot used the MPtrj test source family, so exclusion checks must cover 805 inspected cases. Candidate overlap remains uncomputed, and exact original model weights and reference compatibility are unestablished. The audit is complete; fresh validation is not ready.",
+      "observedAt": "2026-10-06T15:59:49.886Z",
+      "reviewedAt": "2026-10-06T16:02:39.675Z",
+      "datasets": [
+        {
+          "name": "Previously inspected exclusion index",
+          "configurations": 805,
+          "atoms": 7343
+        }
+      ],
+      "findings": [
+        "Built and independently verified an exclusion index for 800 archived panel cases plus five prior MPtrj-test-family pilot cases.",
+        "All 805 exact ordered geometry fingerprints are distinct; candidate intersection cannot be computed without the pinned candidate identities.",
+        "Six archived headers lack exact loaded weight identities. Both M3GNet artifacts reused cached predictions, leaving original producer provenance unresolved.",
+        "Independent source/index verification passed 4,129 assertions with zero failures. Historical A6 and stopped jobs retain their states."
+      ],
+      "limitations": [
+        "Completed audit, not completed validation. No candidate errors inspected or new predictions run.",
+        "Pilot source revision was unrecorded: source-family exposure is established, pinned-revision overlap is not.",
+        "Candidate absence is limited to the declared local search and evidence bundle. Historical source counts were not recomputed.",
+        "Distinct ordered representations do not prove physical or material independence. Model-training independence and reference compatibility remain unknown.",
+        "Raw artifacts stay private; hashes identify evidence without providing public reproduction inputs. Source-checked refers to stored records and code, not unavailable candidate bytes."
+      ],
+      "nextStep": "One bounded read-only recovery of pinned candidate identity/geometry metadata and original checkpoint/cache provenance. Verify source identity and compute exclusions before opening candidate errors. If historical weights cannot be recovered, design a distinct pinned-roster study; no further score variants on reused cases.",
+      "sources": [
+        {
+          "label": "Reviewed validation eligibility audit and next recovery step",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/e41fe37a7e34c52fd1aa88707afeecdc79d3bc0b/docs/research-progress/2026-10-06-validation-eligibility.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private frozen audit protocol",
+          "sha256": "b4791d82babf247d4084381d759d141b085602a3e3a2b2781dfd3a7492db06e2"
+        },
+        {
+          "label": "Private primary audit result",
+          "sha256": "c9cef4cac0e5f322c608ef4d959802e7a717c44817def9b16fcf000c25d57efb"
+        },
+        {
+          "label": "Private independent verification",
+          "sha256": "4e07117a7ddd53f56af6246ca73547b306508bde4e5d68a9c249ea83b245c5b2"
+        },
+        {
+          "label": "Private PI adjudication",
+          "sha256": "84baef069c37ba0b57d55984ade234f20e76d842618bc69cd43dc11d68151016"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "id": "disagreement-rank-fusion-20261006-completed-v1",
       "activityId": "disagreement-rank-fusion-20261006",
       "evidenceKind": "archived_analysis",
