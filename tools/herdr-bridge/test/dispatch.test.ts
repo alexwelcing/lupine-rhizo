@@ -15,6 +15,9 @@ const job: BridgeJob = {
   attempts: 1,
   created_at: 1_700_000_000,
   claimed_at: 1_700_000_010,
+  claim_token: "aaaabbbb-1111-4111-8111-111122223333",
+  claim_expires_at: Math.floor(Date.now() / 1000) + 7_200,
+  scientific_role: null,
 };
 
 function happyHerdr(fake: FakeHerdr, opts: { finalStatus?: string; promptError?: RpcError } = {}) {
@@ -111,6 +114,8 @@ test("runJob: full herdr sequence, result beat carries provenance, workspace clo
     assert.deepEqual(panes, [["w9:p1", job], ["w9:p1", null]]);
 
     const result = dispatcher.buildResult(job, outcome);
+    assert.equal(result.machine_id, job.machine_id);
+    assert.equal(result.claim_token, job.claim_token);
     assert.equal(result.status, "done");
     assert.equal(result.beat?.beat_id, `herdr-job:${job.job_id}:1:done`);
     assert.equal(result.beat?.metrics?.source, "herdr-bridge");
@@ -119,6 +124,36 @@ test("runJob: full herdr sequence, result beat carries provenance, workspace clo
     assert.equal(result.beat?.metrics?.status, "completed");
   } finally {
     await fake.close();
+  }
+});
+
+test("scientific jobs are blocked and reported with their claim before any herdr operation", async () => {
+  // An in-memory herdr trap makes an accidental workspace/agent launch fail.
+  for (const role of ["codex_mac_discovery", "claude_aledev_critique"] as const) {
+    const calls: string[] = [];
+    const herdr = new Proxy({}, { get: (_target, method) => async () => { calls.push(String(method)); throw new Error("must never launch"); } }) as HerdrClient;
+    const worker = fakeWorker();
+    const { log } = captureLogger();
+    const dispatcher = new Dispatcher({ config: testConfig(), herdr, worker: new WorkerClient({ baseUrl: "https://worker.test", token: "tok", fetchImpl: worker.fetch }), log });
+    const scientificJob = { ...job, scientific_role: role };
+    const outcome = await dispatcher.runJob(scientificJob);
+    assert.equal(outcome.status, "blocked");
+    assert.match(outcome.error ?? "", /bounded scientific CLI worker/);
+    assert.equal(outcome.workspace_id, null);
+    assert.deepEqual(calls, []);
+    assert.equal(await dispatcher.report(scientificJob, outcome), true);
+    assert.deepEqual(worker.calls[0].body, {
+      machine_id: job.machine_id, claim_token: job.claim_token, status: "blocked", output_excerpt: outcome.output_excerpt,
+    });
+  }
+});
+
+test("worker rejects foreign, missing-token and expired claims before dispatch", async () => {
+  for (const fields of [{ machine_id: "foreign" }, { claim_token: undefined }, { claim_expires_at: 1 }]) {
+    const worker = fakeWorker();
+    worker.respond("/bridge/jobs/next", () => Response.json({ job: { ...job, ...fields } }));
+    const client = new WorkerClient({ baseUrl: "https://worker.test", token: "tok", fetchImpl: worker.fetch });
+    await assert.rejects(client.nextJob(job.machine_id, 0), /missing, foreign or expired claim/);
   }
 });
 

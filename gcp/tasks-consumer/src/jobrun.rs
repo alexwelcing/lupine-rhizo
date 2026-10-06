@@ -25,6 +25,8 @@ pub struct JobRunRequest {
     pub container_env: Vec<(String, String)>,
 }
 
+// async_trait adds a redundant must_use to boxed futures (Clippy 1.99).
+#[allow(clippy::double_must_use)]
 #[async_trait]
 pub trait JobRunner: Send + Sync {
     async fn run(&self, req: &JobRunRequest) -> anyhow::Result<String>;

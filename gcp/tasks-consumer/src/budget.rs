@@ -95,6 +95,8 @@ pub struct Admission {
     pub duplicate: bool,
 }
 
+// async_trait adds a redundant must_use to boxed futures (Clippy 1.99).
+#[allow(clippy::double_must_use)]
 #[async_trait]
 pub trait BudgetLedger: Send + Sync {
     async fn reserve(

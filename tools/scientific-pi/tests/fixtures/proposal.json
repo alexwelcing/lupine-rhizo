@@ -1,0 +1,67 @@
+{
+  "role": "proposer",
+  "research_question": "Fixture research question",
+  "synthesis": "Fictional test result, not research.",
+  "sources": [
+    {
+      "id": "s1",
+      "title": "Fictional primary fixture paper 1",
+      "url": "https://example.org/fixture-paper-1",
+      "publication_kind": "preprint",
+      "year": 2026,
+      "supports": "Fixture claim only.",
+      "limitations": "Not scientific evidence."
+    },
+    {
+      "id": "s2",
+      "title": "Fictional primary fixture paper 2",
+      "url": "https://example.org/fixture-paper-2",
+      "publication_kind": "preprint",
+      "year": 2026,
+      "supports": "Fixture claim only.",
+      "limitations": "Not scientific evidence."
+    }
+  ],
+  "proposals": [
+    {
+      "id": "p1",
+      "hypothesis": "Fixture hypothesis",
+      "mechanism": "Fixture mechanism",
+      "closest_prior_art": [
+        {
+          "source_ids": [
+            "s1",
+            "s2"
+          ],
+          "overlap": "Fixture overlap",
+          "difference": "Fixture difference"
+        }
+      ],
+      "possible_novelty": "Unverified fixture difference",
+      "novelty_status": "unverified",
+      "competing_explanations": [
+        "Fixture confound"
+      ],
+      "falsifier": "Fixture outcome would refute it.",
+      "cheap_discriminating_experiment": {
+        "design": "Fixture design",
+        "baseline": "Fixture baseline",
+        "measurement": "Fixture measurement",
+        "decision_rule": "Fixture criterion",
+        "estimated_compute_minutes": 1,
+        "execution": "not_started"
+      },
+      "priority_reason": "Fixture information gain"
+    }
+  ],
+  "independent_critique": {
+    "status": "required",
+    "questions_for_critic": [
+      "Check fixture confound."
+    ]
+  },
+  "decision": {
+    "status": "awaiting_independent_critique",
+    "rationale": "Fixture needs independent review."
+  }
+}

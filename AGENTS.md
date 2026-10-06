@@ -23,6 +23,17 @@ elsewhere.
 - Route compute through the resource fabric: Cloudflare for control, local GPU
   first for heavy work, GCP only for burst or reproducible cloud runs.
 
+## Clef decision use
+
+- Prefer Clef for recurring semantic choices with a bounded set of outcomes:
+  model routing, evidence selection, research-task triage, and candidate relevance.
+- Batch questions over shared context in one call, reuse decisions during turn
+  recovery, and record bounded decision metadata so usefulness can be measured.
+- Keep deterministic checks in code. Evaluate category agreement, fallback rate,
+  latency and downstream usefulness before expanding a decision's effect.
+- A Clef score is a recommendation, not scientific evidence, novelty validation,
+  experiment authorization or publication approval. Preserve manual model choices.
+
 ## Verification
 
 Use focused checks first:

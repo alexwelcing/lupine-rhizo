@@ -15,6 +15,9 @@ export interface BridgeJob {
   attempts: number;
   created_at: number;
   claimed_at: number | null;
+  claim_token: string;
+  claim_expires_at: number;
+  scientific_role: "codex_mac_discovery" | "claude_aledev_critique" | null;
 }
 
 export type JobOutcomeStatus = "done" | "failed" | "blocked" | "timeout";
@@ -28,6 +31,8 @@ export interface Beat {
 }
 
 export interface JobResult {
+  machine_id: string;
+  claim_token: string;
   status: JobOutcomeStatus;
   output_excerpt?: string;
   beat?: Beat;
@@ -105,6 +110,11 @@ export class WorkerClient {
       return null;
     }
     const body = await this.expectJson<{ job: BridgeJob }>(response, path);
+    if (!body.job || body.job.machine_id !== machineId || body.job.status !== "claimed"
+      || !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(body.job.claim_token ?? "")
+      || !Number.isFinite(body.job.claim_expires_at) || body.job.claim_expires_at <= Date.now() / 1000) {
+      throw new Error("worker returned a missing, foreign or expired claim; no local work was started");
+    }
     return body.job;
   }
 

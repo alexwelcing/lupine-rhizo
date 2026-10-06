@@ -11,6 +11,17 @@ public research record, read **Lupine Ledger**. If you want the math, LAMMPS
 bridges, MLIP loops, proof obligations, and control-plane machinery, this is
 the place.
 
+## Current release: Research in View
+
+Rhizo connects an hourly PI's deliberate scientific checks with the automated Glim Think system. Clef supports bounded planning, evidence triage and routing; deterministic checks and scientific judgments remain explicit. Model execution, accepted discussion, completed analysis and independently checked arithmetic are different evidence states.
+
+The Library now has a dedicated reviewed-public-activity contract, separate from private conversations and execution records. The read-only `/research/activity` feed exposes explicit summaries and timestamps; protected imports append immutable records. It does not mirror private tables or infer success from a model receipt.
+
+- [Current scientific progress and limitations](docs/research-progress/2026-10-06-disagreement-panels.md)
+- [Public activity contract and publishing](docs/public-research-activity.md)
+- [Release notes](docs/releases/research-live-2026-10-06.md)
+- [Lupine program](https://github.com/alexwelcing/lupine) · [Library reader](https://github.com/alexwelcing/lupine-ledger)
+
 ## Boundary
 
 Owns:

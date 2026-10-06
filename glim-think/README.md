@@ -73,14 +73,18 @@ avoid PowerShell process-tree hangs.
 
 ## Multi-Provider Model Routing
 
-The Orchestrator uses AI Gateway to route tasks to the cheapest capable model:
+The shared model catalog lives in `src/agents/modelProfiles.ts`. Interactive
+deep-agent turns and synthesis use the same asynchronous provider selector,
+with provider overrides, scorecard evidence, and MiniMax budget checks.
 
-| Task | Preferred Model | Fallback |
-|---|---|---|
-| Ingestion / screening | `@cf/meta/llama-3.1-8b` | `@cf/mistral/mistral-7b` |
-| Hypothesis generation | `@cf/moonshotai/kimi-k2.5` | `gpt-4.1` via gateway |
-| Experiment design | `@cf/meta/llama-3.3-70b` | `claude-3-7-sonnet` via gateway |
-| Code execution review | `@cf/deepseek/deepseek-r1` | Local fine-tuned model |
+The private `/workspace` adds named, persistent conversations, visible model
+selection, bounded research evidence tools, and a link to Lupine Library.
+Modern Workers profiles include GLM 5.3 Flash and Kimi K2.6. Clef Flash is an
+optional decision router with manual override and fallback; it is not a chat
+model. Provider entitlement is not inferred from a configured key.
+
+See [Research workspace and model routing](docs/research-workspace.md) for
+model defaults, Access setup, the new Cloudflare CLI, and Library publication.
 
 ## Execution Ladder
 

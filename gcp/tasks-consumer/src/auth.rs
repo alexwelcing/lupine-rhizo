@@ -28,6 +28,8 @@ pub struct Claims {
     pub email: Option<String>,
 }
 
+// async_trait adds a redundant must_use to boxed futures (Clippy 1.99).
+#[allow(clippy::double_must_use)]
 #[async_trait]
 pub trait OidcVerifier: Send + Sync {
     async fn verify(&self, token: &str, expected_aud: Option<&str>) -> anyhow::Result<Claims>;

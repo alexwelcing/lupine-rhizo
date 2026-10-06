@@ -195,6 +195,26 @@ export const CATALOG = {
   },
   "journeys": [
     {
+      "id": "research-progress",
+      "label": {
+        "en": "Show me the research",
+        "zh": "查看研究进展"
+      },
+      "description": {
+        "en": "Follow results, open questions, corrections, and the evidence behind them.",
+        "zh": "查看结果、开放问题、自我纠正及其证据。"
+      },
+      "path": [
+        "research-index",
+        "conjecture-ledger",
+        "z1-union-campaign-verdict",
+        "z1-union-cost-ledger",
+        "born-screening-re-audit",
+        "formal-proof-ledger",
+        "reproduce"
+      ]
+    },
+    {
       "id": "new-here",
       "label": {
         "en": "I'm new here",
@@ -308,11 +328,13 @@ export const CATALOG = {
       "id": "research-index",
       "source": "docs/research-index.md",
       "title": "Research Index",
-      "subtitle": "Annotated catalog of every research, planning, and presentation document.",
+      "subtitle": "Start with the results, open questions, corrections, and proof records; follow each claim to its evidence.",
       "category": "foundations",
       "tags": [
         "index",
-        "overview"
+        "overview",
+        "research-progress",
+        "evidence"
       ]
     },
     {

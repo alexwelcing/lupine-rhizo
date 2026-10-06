@@ -27,6 +27,7 @@ jobs:
   test:
     name: Lint + test
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     defaults:
       run:
         working-directory: glim-think
@@ -39,7 +40,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: glim-think/package.json
+          cache-dependency-path: glim-think/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -47,5 +48,14 @@ jobs:
       - name: Fast lint
         run: npm run lint:fast
 
+      - name: Check research workspace UI
+        run: npm run check:workspace
+
       - name: Test
         run: npm test
+
+      - name: Test reviewed public activity import preparation
+        run: node --test scripts/prepare-public-activity-import.test.mjs
+
+      - name: Build Worker and bundled research workspace (no deployment)
+        run: npx wrangler deploy --dry-run --outdir .wrangler/ci-build

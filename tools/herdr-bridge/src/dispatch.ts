@@ -167,6 +167,14 @@ export class Dispatcher {
 
   async runJob(job: BridgeJob, signal?: AbortSignal): Promise<JobOutcome> {
     const { config, herdr, log } = this.options;
+    // Terminal status/tail extraction cannot establish a scientific receipt or
+    // enforce the scientific CLI's tool policy. Never launch these jobs here.
+    if (job.scientific_role) {
+      const error = "scientific handoff requires the bounded scientific CLI worker with validated receipts and enforced execution limits; legacy herdr dispatch cannot run it";
+      this.stats.failed += 1;
+      log.warn("scientific_job_blocked", { job_id: job.job_id, scientific_role: job.scientific_role });
+      return { status: "blocked", output_excerpt: error, error, agent_status: "unknown", workspace_id: null, pane_id: null, duration_ms: 0 };
+    }
     const started = Date.now();
     const name = agentNameFor(job);
     let workspaceId: string | null = null;
@@ -287,9 +295,13 @@ export class Dispatcher {
   }
 
   buildResult(job: BridgeJob, outcome: JobOutcome): JobResult {
+    const fenced = { machine_id: job.machine_id, claim_token: job.claim_token };
+    // Scientific content belongs only in the private ledger, never public beats.
+    if (job.scientific_role) return { ...fenced, status: outcome.status, output_excerpt: outcome.output_excerpt };
     const now = this.options.now ?? (() => Math.floor(Date.now() / 1000));
     const ts = now();
     return {
+      ...fenced,
       status: outcome.status,
       output_excerpt: outcome.output_excerpt,
       beat: {

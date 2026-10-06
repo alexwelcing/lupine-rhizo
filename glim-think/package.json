@@ -1,6 +1,6 @@
 {
   "name": "glim-think",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,14 +14,20 @@
     "lint:full": "node --max-old-space-size=8192 node_modules/typescript/bin/tsc --noEmit --pretty false --extendedDiagnostics",
     "lint:profile": "node scripts/lint-profile.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:workspace": "node scripts/build-workspace.mjs",
+    "check:workspace": "npm run build:workspace && tsc -p tsconfig.workspace-client.json --noEmit && vitest run src/workspace/__tests__/workspace.test.ts --typecheck.enabled=false",
+    "preview:workspace": "node scripts/testing/run-workspace-preview.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",
+    "@ai-sdk/google": "3.0.130",
     "@ai-sdk/openai": "^3.0.64",
     "@ai-sdk/openai-compatible": "^2.0.45",
+    "@ai-sdk/react": "3.0.304",
     "@arizeai/openinference-semantic-conventions": "^2.3.0",
     "@arizeai/openinference-vercel": "^2.7.5",
+    "@cloudflare/ai-chat": "0.5.2",
     "@cloudflare/shell": "^0.3.3",
     "@cloudflare/think": "^0.4.0",
     "@microlabs/otel-cf-workers": "^1.0.0-rc.52",
@@ -32,12 +38,18 @@
     "@opentelemetry/sdk-trace-node": "^2.7.1",
     "agents": "^0.11.5",
     "ai": "^6.0.168",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-markdown": "10.1.0",
     "workers-ai-provider": "^3.1.12",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250410.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@vitest/coverage-v8": "^4.1.6",
+    "esbuild": "0.28.2",
     "typescript": "^5.8.0",
     "vitest": "^4.1.6",
     "wrangler": "^4.0.0"

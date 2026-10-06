@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.workspace-client.json",
+  "compilerOptions": {
+    "types": ["react", "react-dom", "node", "vitest/globals"]
+  },
+  "include": [
+    "src/workspace/client/**/__tests__/**/*.ts",
+    "src/workspace/client/**/__tests__/**/*.tsx"
+  ]
+}

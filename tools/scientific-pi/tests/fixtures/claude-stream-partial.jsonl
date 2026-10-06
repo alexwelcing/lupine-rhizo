@@ -1,0 +1,4 @@
+{"type": "system", "subtype": "init", "session_id": "fixture-session", "model": "fixture-model", "tools": ["StructuredOutput"], "mcp_servers": [], "plugins": [], "capabilities": ["future_capability_is_metadata"]}
+{"type": "stream_event", "session_id": "fixture-session", "event": {"type": "content_block_start", "index": 0, "content_block": {"type": "text", "text": ""}}}
+{"type": "stream_event", "session_id": "fixture-session", "event": {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "Fixture incomplete research reasoning"}}}
+{"type":"stream_event","event":

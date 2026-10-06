@@ -6,5 +6,8 @@
   "include": [
     "src/types.ts",
     "src/**/__tests__/**/*.ts"
+  ],
+  "exclude": [
+    "src/workspace/client/**"
   ]
 }

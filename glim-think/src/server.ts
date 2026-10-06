@@ -42,6 +42,14 @@ import { FleetOrchestrator as FleetOrchestratorDO } from "./fleet/orchestrator";
 import { CampaignConsole as CampaignConsoleDO } from "./console/campaignConsole";
 import { DashboardAgent as DashboardAgentDO } from "./dashboard/stream";
 import { ExtensionManager as ExtensionManagerDO } from "./extensions/manager";
+import { ResearchWorkspace as ResearchWorkspaceDO } from "./workspace/ResearchWorkspace";
+import { getModelCatalog } from "./agents/modelProfiles";
+import { listWorkspaceConversations } from "./workspace/registry";
+import { workspaceProgressResponse } from "./workspace/progress";
+import { researchRunsResponse } from "./workspace/researchRuns";
+import { researchActivityResponse } from "./workspace/researchActivity";
+import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
+import { checkWorkspaceRequest, isWorkspaceRoute, WORKSPACE_PRIVATE_HEADERS } from "./middleware/workspaceAccess";
 import { generateResearchText } from "./agents/models";
 import type { DeepProvider } from "./agents/models";
 import { getPromptVariant } from "./registry/promptRegistry";
@@ -172,6 +180,8 @@ export const DashboardAgent = instrumentDO(DashboardAgentDO, phoenixConfig);
 export const ExtensionManager = instrumentDO(ExtensionManagerDO, phoenixConfig);
 export const Literaturist = instrumentDO(LiteraturistDO, phoenixConfig);
 export const CampaignConsole = instrumentDO(CampaignConsoleDO, phoenixConfig);
+// Private chat stays outside automatic DO telemetry instrumentation.
+export { ResearchWorkspaceDO as ResearchWorkspace };
 export class MlipBaselineGridWorkflow extends MlipBaselineGridWorkflowBase {}
 
 // Worker entrypoint wrapped with OpenTelemetry → Phoenix Cloud export.
@@ -183,6 +193,26 @@ const baseHandler = {
     try {
       traceEnv(env);
       const url = new URL(request.url);
+
+      // Reviewed public activity has a separate table and strict operator import.
+      // Handle it before Access gating and before generic unbounded body parsing.
+      const activityResponse = await researchActivityResponse(request, env);
+      if (activityResponse) return activityResponse;
+
+      // Authenticate private conversation routes BEFORE the Agents SDK can
+      // return history or upgrade a WebSocket. The SDK normalizes empty path
+      // segments, so the access predicate does the same.
+      const invalidWorkspaceRequest = checkWorkspaceRequest(request);
+      if (invalidWorkspaceRequest) return invalidWorkspaceRequest;
+      if (isGatedRoute(url.pathname, request.method)) {
+        const allowed = [env.ADMIN_EMAIL ?? ""].filter(Boolean);
+        const denial = await checkAccess(request, env, allowed);
+        if (denial) return denial;
+      }
+
+      // Research imports stream through a bounded reader before generic body parsing.
+      const researchRunResponse = await researchRunsResponse(request, env);
+      if (researchRunResponse) return researchRunResponse;
 
       // Pre-read POST/PATCH body so it can be reused after agent routing
       const bodyText = request.method === "POST" || request.method === "PATCH"
@@ -196,22 +226,39 @@ const baseHandler = {
           new Request(request.url, { method: request.method, headers: request.headers, body: bodyText || undefined }),
           env
         );
-        if (agentResponse) return agentResponse;
-      }
-
-      // ─── Cloudflare Access gate (unit 10) ───
-      // Gates /admin/*, /ops/* (non-GET), and the write endpoints
-      // POST /run, POST /fleet/run, POST /ingest/batch, POST /broadcasts/trigger.
-      // Public routes (/feed/*, /health, /research/*, /live, /agents/*, /graph*)
-      // are intentionally unguarded — see middleware/access.ts::isGatedRoute.
-      // DEV bypass via env.DEV_MODE === "true" is documented in wrangler.toml.
-      if (isGatedRoute(url.pathname, request.method)) {
-        const allowed = [env.ADMIN_EMAIL ?? ""].filter(Boolean);
-        const denial = await checkAccess(request, env, allowed);
-        if (denial) return denial;
+        if (agentResponse) {
+          if (isWorkspaceRoute(url.pathname) && agentResponse.status !== 101) {
+            const privateResponse = new Response(agentResponse.body, agentResponse);
+            for (const [key, value] of Object.entries(WORKSPACE_PRIVATE_HEADERS)) privateResponse.headers.set(key, value);
+            return privateResponse;
+          }
+          return agentResponse;
+        }
       }
 
       // ─── HTTP API routes ───
+
+      if ((url.pathname === "/workspace" || url.pathname === "/workspace/") && request.method === "GET") {
+        return new Response(workspaceHtml(), { headers: {
+          ...WORKSPACE_PRIVATE_HEADERS,
+          "Content-Type": "text/html; charset=utf-8",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+        } });
+      }
+      if (url.pathname === "/workspace/app.js" && request.method === "GET") {
+        return new Response(workspaceJavaScript, { headers: {
+          ...WORKSPACE_PRIVATE_HEADERS, "Content-Type": "text/javascript; charset=utf-8",
+        } });
+      }
+      if (url.pathname === "/workspace/models" && request.method === "GET") {
+        return Response.json(getModelCatalog(env), { headers: WORKSPACE_PRIVATE_HEADERS });
+      }
+      if (url.pathname === "/workspace/conversations" && request.method === "GET") {
+        return Response.json(await listWorkspaceConversations(env), { headers: WORKSPACE_PRIVATE_HEADERS });
+      }
+      if (url.pathname === "/workspace/progress" && request.method === "GET") {
+        return workspaceProgressResponse(env);
+      }
 
       if (url.pathname === "/health") {
         let activeHypotheses: string[] = [...HARDCODED_HYPOTHESES];
@@ -3943,4 +3990,3 @@ function buildAnalysisArticlePrompt(results: Record<string, any>): string {
   lines += `Based on the quantitative data above, write the research diary entry noting interesting patterns, structure, or anomalies.`;
   return lines;
 }
-

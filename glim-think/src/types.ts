@@ -160,17 +160,30 @@ export interface Env {
   RESEARCH_QUEUE: Queue<unknown>;
   MLIP_BASELINE_GRID?: Workflow<import("./research/mlipBaselineGrid").MlipBaselineGridWorkflowParams>;
   OPENAI_API_KEY?: string;
-  /** OpenAI model. Default gpt-5.5 (requires max_completion_tokens +
-   * default temperature — handled in OpenAIProvider). */
+  /** OpenAI model. Default gpt-6.1-sol, using the Responses API. */
   OPENAI_MODEL?: string;
   ANTHROPIC_API_KEY?: string;
-  /** Anthropic model. Default claude-sonnet-4-20250514. */
+  /** Anthropic model. Default claude-sonnet-5-5. */
   ANTHROPIC_MODEL?: string;
   GOOGLE_API_KEY?: string;
-  /** Google model. Default gemini-2.5-pro. */
+  /** Google model. Default gemini-3.8-flash. */
   GOOGLE_MODEL?: string;
   /** Workers AI model. Default @cf/meta/llama-4-scout-17b-16e-instruct. */
   WORKERS_AI_MODEL?: string;
+  /** Optional preferred deep provider: minimax, zai, openai, anthropic,
+   * google, or workers-ai. Missing credentials never become implied access. */
+  DEEP_PROVIDER?: string;
+  /** Explicit Workers AI deep profile. Default @cf/moonshotai/kimi-k2.6;
+   * used only when selected, preserving the Scout background fallback. */
+  WORKERS_AI_DEEP_MODEL?: string;
+  /** Clef advises model selection and bounded evidence/task planning. Auto requires a configured task map. */
+  CLEF_ROUTER_MODE?: "disabled" | "shadow" | "auto";
+  /** JSON partial map of fast/deep/code/research to configured profile IDs. */
+  CLEF_ROUTER_TASK_PROFILES?: string;
+  CLEF_ROUTER_MIN_CONFIDENCE?: string;
+  CLEF_ROUTER_MIN_MARGIN?: string;
+  /** Bounded by the router to 100–3000ms; default 1200ms. */
+  CLEF_ROUTER_TIMEOUT_MS?: string;
   /** Cloudflare AI Gateway account id (e.g. from the dashboard URL). */
   AI_GATEWAY_ACCOUNT_ID?: string;
   /** Cloudflare AI Gateway id (the gateway name). */
@@ -182,7 +195,7 @@ export interface Env {
   /** Z.ai base URL. Default https://api.z.ai/api/coding/paas/v4 (GLM Coding
    * Plan — token-plan accounts 429 on the standard paas/v4 endpoints). */
   ZAI_BASE_URL?: string;
-  /** Z.ai model. Default glm-5.1. */
+  /** Z.ai model. Default glm-5.3. */
   ZAI_MODEL?: string;
   MINIMAX_API_KEY?: string;
   /** Override the MiniMax model used by deep-tier agents. Default: MiniMax-M3
@@ -304,6 +317,7 @@ export interface Env {
   DASHBOARD: DurableObjectNamespace;
   EXTENSION_MANAGER: DurableObjectNamespace;
   CAMPAIGN_CONSOLE: DurableObjectNamespace;
+  RESEARCH_WORKSPACE: DurableObjectNamespace;
   /** Edge-local Vectorize index for coordination traces (384-dim, cosine). */
   COORD_MEMORY?: VectorizeIndex;
   /** Mode for the edge memory flywheel: off | shadow | active. Default off. */

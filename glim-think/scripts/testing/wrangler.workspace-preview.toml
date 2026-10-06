@@ -1,0 +1,27 @@
+name = "rhizo-workspace-local-preview"
+main = "workspace-preview.ts"
+compatibility_date = "2026-04-25"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+
+[dev]
+ip = "127.0.0.1"
+port = 8797
+local_protocol = "http"
+
+[[durable_objects.bindings]]
+name = "RESEARCH_WORKSPACE"
+class_name = "ResearchWorkspace"
+
+[[migrations]]
+tag = "preview-v1"
+new_sqlite_classes = ["ResearchWorkspace"]
+
+[[kv_namespaces]]
+binding = "CONFIG"
+id = "00000000000000000000000000000001"
+
+[[d1_databases]]
+binding = "LEDGER"
+database_name = "workspace-preview-fixtures"
+database_id = "00000000-0000-0000-0000-000000000001"

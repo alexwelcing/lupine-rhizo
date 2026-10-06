@@ -1,0 +1,30 @@
+{
+  "role": "critic",
+  "reviewed_job_id": "proposer-1",
+  "reviewed_packet_sha256": "cda61ab7c7421f91c76d5de5d4862a953bac662c5cd4df0d7e805b1ac4fc32c7",
+  "verdict": "revise",
+  "source_checks": [
+    {
+      "source_id": "s1",
+      "status": "provided_only",
+      "reason": "Fixture packet only."
+    }
+  ],
+  "critiques": [
+    {
+      "proposal_id": "p1",
+      "prior_art_overlap": "Fixture overlap",
+      "confounds": [
+        "Fixture leakage"
+      ],
+      "discriminating_experiment_assessment": "Fixture baseline needed",
+      "decision": "revise",
+      "required_changes": [
+        "Fixture baseline"
+      ]
+    }
+  ],
+  "strongest_alternative": "Fixture confound",
+  "next_step": "Revise fixture design",
+  "execution": "not_started"
+}
