@@ -3,6 +3,86 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "uniform-offset-20261006-completed-v1",
+      "activityId": "uniform-offset-20261006",
+      "evidenceKind": "archived_analysis",
+      "state": "completed",
+      "verification": "arithmetic_checked",
+      "title": "Uniform force offsets do not explain the archived common error",
+      "summary": "Uniform offsets account for less than 0.000001 percent of common residual energy on MatPES and 0.01746 percent on OMat24, averaged with equal original group weights. Both panel means are below the fixed 50 percent threshold. The remaining shared error is atom dependent; this closes the archived diagnostic branch.",
+      "observedAt": "2026-10-06T20:50:56.056Z",
+      "reviewedAt": "2026-10-06T20:55:44.493Z",
+      "datasets": [
+        {
+          "name": "MatPES",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3324
+        },
+        {
+          "name": "OMat24",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3912
+        }
+      ],
+      "findings": [
+        "The full-configuration projection splits common residual energy exactly into uniform-offset and atom-dependent components. All 800 configurations and 100 original groups were retained; no mask, rank or prediction was changed.",
+        "Primary averages use eight configuration fractions per group and fifty equal groups per panel. Secondary pooled offset shares are less than 0.000001 percent on MatPES and 0.002405 percent on OMat24; pooling weights by total common residual energy.",
+        "An independent exact-rational reconstruction passed 60,344 numeric comparisons, verified every decomposition and internal-vector zero sum, and found no zero denominator or decision discrepancy.",
+        "The final planned archive control is completed. Further empirical work must introduce new reference or predictor evidence under a separately justified design."
+      ],
+      "limitations": [
+        "Repeatedly inspected historical data; no independent holdout, significance test, calibration, corrected model performance or generalization claim.",
+        "Atom-dependent reference mismatch and shared model limitations remain unresolved. Net-force vectors do not identify an offset origin; exact arithmetic is not physical provenance validation.",
+        "Tiny MatPES ratios are rounded as bounds and do not establish physical accuracy at that decimal precision. Historical checkpoint identity and training independence remain unresolved.",
+        "Raw artifacts stay private; published hashes identify them without supplying public reproduction inputs. Historical A6 remains INCONCLUSIVE and the independent MPtrj validation remains stopped before execution."
+      ],
+      "nextStep": "Planned: investigate a bounded paired-reference microstudy on new exactly matched geometries. Source identity, geometry pairing, units, calculation conventions and prior-exposure exclusions must pass before freezing and executing the new comparison. No further decomposition of these 800 cases.",
+      "sources": [
+        {
+          "label": "Checked uniform-offset control and archive closure",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/8b2070f613de20c49667f5db5fef9bb065596a08/docs/research-progress/2026-10-06-uniform-offset.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private frozen protocol",
+          "sha256": "fe02dc3c083c10f846766d7acea5ecdb696c24ecf722d7e076feab2d37707409"
+        },
+        {
+          "label": "Private primary result",
+          "sha256": "7d2eb3ab2c12e50a5154ae41d313e65ba957782960b56cab920cb75342c4fd4b"
+        },
+        {
+          "label": "Independent exact-arithmetic verification",
+          "sha256": "cb5a0fdfa21dc1c2a666e6df54f96089e396afd92b50e397cb4ba03d534ee591"
+        },
+        {
+          "label": "Private scientific review",
+          "sha256": "e21ddb65d6e9494ae838bad018009e97cd7eee852cd2dcb6682de0959fb5b32b"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Lupine program",
+          "url": "https://github.com/alexwelcing/lupine"
+        },
+        {
+          "label": "Rhizo research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        },
+        {
+          "label": "Library reader",
+          "url": "https://github.com/alexwelcing/lupine-ledger"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "id": "common-error-20261006-completed-v2",
       "activityId": "common-error-20261006",
       "evidenceKind": "archived_analysis",
