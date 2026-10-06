@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         working-directory: glim-think
         run: |
-          npm install --prefer-offline --no-audit
+          npm ci --prefer-offline --no-audit
 
       # `tsc --noEmit` hangs indefinitely in CI on this project (observed:
       # 15 min, killed by the job cap, deploy skipped). continue-on-error
@@ -41,6 +41,13 @@ jobs:
         continue-on-error: true
         timeout-minutes: 4
         run: npm run lint
+
+      # Match PR CI: html.ts imports the generated client, so build and check
+      # the workspace before Vitest performs its source typecheck.
+      - name: Check research workspace UI
+        working-directory: glim-think
+        timeout-minutes: 4
+        run: npm run check:workspace
 
       - name: Run unit tests
         working-directory: glim-think
