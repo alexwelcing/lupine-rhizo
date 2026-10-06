@@ -3,6 +3,74 @@
   "items": [
     {
       "schema": "lupine.public_research_activity.v1",
+      "id": "disagreement-rank-fusion-20261006-completed-v1",
+      "activityId": "disagreement-rank-fusion-20261006",
+      "evidenceKind": "archived_analysis",
+      "state": "completed",
+      "verification": "arithmetic_checked",
+      "title": "Rank-only combination retains the average advantage over individual pairs",
+      "summary": "Combining pair rankings without distance magnitudes beats every individual pair on both reused panels: +0.55 area percentage points on MatPES and +0.99 on OMat24 over the strongest pair. It does not consistently beat full disagreement.",
+      "observedAt": "2026-10-06T14:59:44.084Z",
+      "reviewedAt": "2026-10-06T15:01:57.158Z",
+      "datasets": [
+        {
+          "name": "MatPES",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3324
+        },
+        {
+          "name": "OMat24",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3912
+        }
+      ],
+      "findings": [
+        "The fixed rank-fusion criterion passed on both panels. Original three-model force predictions and errors were unchanged.",
+        "Fusion minus full disagreement: -0.2629 area points on MatPES and +0.0367 on OMat24. No replacement score is selected.",
+        "Against the strongest pair, fusion improves 31/50 and 29/50 groups, and 137/400 and 184/400 configurations. Benefits are uneven.",
+        "Independent verification passed 106,518 numeric and 61,914 structural checks with no ranking, tie or sign-count discrepancies."
+      ],
+      "limitations": [
+        "Historical, repeatedly inspected and correlated data; no independent holdout, calibrated alarm, novelty or generalization claim.",
+        "Fusion creates ties in 202/400 and 233/400 configurations. Magnitude removal also changes spacing and tie structure; no unique mechanism is isolated.",
+        "Ranking-area differences are not force-error reductions or cheaper inference. Exact training overlap and reference provenance remain incomplete.",
+        "Raw artifacts stay private; published hashes identify them without supplying public reproduction inputs. Historical A6 remains INCONCLUSIVE."
+      ],
+      "nextStep": "Planned: audit a new validation panel for source identity, development-set disjointness, model checkpoints, reference settings and outcome-blind grouping. Freeze a separate test only if eligible; no further score variants on these 800 cases.",
+      "sources": [
+        {
+          "label": "Reviewed rank-fusion method, results and limitations",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/35db95adec6b3eacc76aaa992165137760f8d84b/docs/research-progress/2026-10-06-rank-fusion.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private frozen protocol",
+          "sha256": "ae65d93dfc87688f67e7b701988c905a8e0a37ef231cdee6e390b5bc0e803b84"
+        },
+        {
+          "label": "Private primary result",
+          "sha256": "ffe8952bf96189132e80b2911455d967e71b5b3dc9443fd11ed5f44ab19c2c6c"
+        },
+        {
+          "label": "Private independent verification",
+          "sha256": "ceb87bd0c799eb148a0d59285001722475382a0e668def15c5b712e9a03ab046"
+        }
+      ],
+      "repositoryLinks": [
+        {
+          "label": "Research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
       "evidenceKind": "archived_analysis",
       "reviewedAt": "2026-10-06T13:57:13.726Z",
       "repositoryLinks": [
