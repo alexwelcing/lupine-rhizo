@@ -1,10 +1,10 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-08-26T15:43:02.124Z",
+  "generatedAt": "2026-10-06T02:06:56.996Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "13b4c8bf4491675b5500a05ec8c2febf52f6002d",
-    "dirty": true,
+    "commit": "ea92ee63c895ea2d46a579790c98b963c2aa4284",
+    "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
   "catalog": {
@@ -179,6 +179,26 @@
     ],
     "journeys": [
       {
+        "id": "research-progress",
+        "label": {
+          "en": "Show me the research",
+          "zh": "查看研究进展"
+        },
+        "description": {
+          "en": "Follow results, open questions, corrections, and the evidence behind them.",
+          "zh": "查看结果、开放问题、自我纠正及其证据。"
+        },
+        "path": [
+          "research-index",
+          "conjecture-ledger",
+          "z1-union-campaign-verdict",
+          "z1-union-cost-ledger",
+          "born-screening-re-audit",
+          "formal-proof-ledger",
+          "reproduce"
+        ]
+      },
+      {
         "id": "new-here",
         "label": {
           "en": "I'm new here",
@@ -294,11 +314,13 @@
         "id": "research-index",
         "source": "articles/docs/research-index.md",
         "title": "Research Index",
-        "subtitle": "Annotated catalog of every research, planning, and presentation document.",
+        "subtitle": "Start with the results, open questions, corrections, and proof records; follow each claim to its evidence.",
         "category": "foundations",
         "tags": [
           "index",
-          "overview"
+          "overview",
+          "research-progress",
+          "evidence"
         ],
         "originalSource": "docs/research-index.md"
       },
@@ -1678,8 +1700,8 @@
     {
       "source": "docs/research-index.md",
       "bundleSource": "articles/docs/research-index.md",
-      "bytes": 3038,
-      "sha256": "4b3e5298d732b38e274d35f8f4ae69ce9c0d34ce3c4ab75a49ef0e791a0761e4"
+      "bytes": 8678,
+      "sha256": "bf70db1c726b048412d64b0d4ba051174ae39aa16390576c1115fafd2e2d49aa"
     },
     {
       "source": "docs/navigation.md",
@@ -1888,8 +1910,8 @@
     {
       "source": "docs/projection-law-round2-results.md",
       "bundleSource": "articles/docs/projection-law-round2-results.md",
-      "bytes": 30616,
-      "sha256": "3229ebd59594dea5bd3bb50014633709968b539134bba72f94408680fd5dc77e"
+      "bytes": 30997,
+      "sha256": "80978efb5bfe30f470abba7aa6ba08e662e260239727a21fab40716b3b09c606"
     },
     {
       "source": "paper/environment-error-field-2026-07-02.md",
@@ -1936,26 +1958,26 @@
     {
       "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
-      "bytes": 20192,
-      "sha256": "d2452eea61923db9d3cbce26563fa51eda94ae1ed9751466b40fac86e1b93dba"
+      "bytes": 20550,
+      "sha256": "4570268b4e1d3453d3634e8f06f681a37540b9e7fcf894a20f2afcca82f485b7"
     },
     {
       "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
-      "bytes": 3242,
-      "sha256": "5c6bfc676bf50809cb9b23bb3b8e47e2f4a635d88a2698fe4ea5c406565ab094"
+      "bytes": 3629,
+      "sha256": "221ca2b653400d18f07e34319490250aca04ad322176c6b9da1fb752b4867d75"
     },
     {
       "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
-      "bytes": 18088,
-      "sha256": "d7395d21a613d4f2a03568fc561625f2d3a5391c31367f76d7a490aabc8b612c"
+      "bytes": 18455,
+      "sha256": "f5ff07686b9f4f0e3a095578cbb8b16fbabefe533e5af7424004fc9942b9582f"
     },
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
-      "bytes": 17455,
-      "sha256": "a8df0eac902d444b3e41aa7971f8c8860e846c55e131a6f75cba824e064938f6"
+      "bytes": 17930,
+      "sha256": "da726ff67514f8a6b562db228c8ee8c5a5e8a97064117b62567bfb13bed055b0"
     },
     {
       "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
@@ -2122,8 +2144,8 @@
     {
       "source": "docs/projection-law-in-plain-language.md",
       "bundleSource": "articles/docs/projection-law-in-plain-language.md",
-      "bytes": 3270,
-      "sha256": "2ea5c903e4b45996ee6834421c1eced35dc317f0b7793f314de93d55ab0aab81"
+      "bytes": 3736,
+      "sha256": "963b76fb0384decfbc4b1bef44716f62e72efda81aece84fde11f518d3e61cdb"
     },
     {
       "source": "lit-review/savings-surrogate-neb.md",
