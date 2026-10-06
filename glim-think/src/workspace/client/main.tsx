@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { useAgent } from "agents/react";
 import { useAgentChat } from "@cloudflare/ai-chat/react";
 import type { UIMessage } from "ai";
-import { conversationIdSchema, safeEvidenceHref, type ConversationSummary, type PublicModelProfile, type WorkspaceState } from "../contracts";
+import { conversationIdSchema, safeEvidenceHref, workspaceRoutingSummary, type ConversationSummary, type PublicModelProfile, type WorkspaceState } from "../contracts";
 import { ProgressFeed, nextStepDiscussion } from "./ProgressFeed";
 import { ResearchRuns } from "./ResearchRuns";
 import "./style.css";
@@ -147,7 +147,7 @@ function Chat({ room, onMetadata }: { room: Room; onMetadata: (entry: Conversati
   return <main className="workspace-main">
     <header className="conversation-header">
       <div><p className="eyebrow">RESEARCH WORKSPACE</p>
-        {editing ? <form onSubmit={(e) => { e.preventDefault(); void saveSettings(state?.profile ?? "workers-flash", title); }} className="rename-form">
+        {editing ? <form onSubmit={(e) => { e.preventDefault(); void saveSettings(state?.profile ?? "auto", title); }} className="rename-form">
           <input aria-label="Conversation name" maxLength={80} value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
           <button disabled={saving || !title.trim()}>Save</button><button type="button" onClick={() => { setTitle(state?.title ?? title); setEditing(false); }}>Cancel</button>
         </form> : <h1><button className="title-button" disabled={!loaded || busy} title="Rename conversation" onClick={() => setEditing(true)}>{state?.title ?? room.title ?? "Research conversation"} <span>↗</span></button></h1>}
@@ -157,21 +157,35 @@ function Chat({ room, onMetadata }: { room: Room; onMetadata: (entry: Conversati
     </header>
 
     <section className="model-bar" aria-label="Model selection">
-      <label>Reply profile<select value={state?.profile ?? "workers-flash"} disabled={!loaded || saving || busy} onChange={(e) => void saveSettings(e.target.value)}>
-        {catalog.length === 0 && <option value="workers-flash">Loading models…</option>}
-        {catalog.length > 0 && <option value="auto">Auto · decision routing</option>}
+      <label>Reply profile<select value={state?.profile ?? "auto"} disabled={!loaded || saving || busy} onChange={(e) => void saveSettings(e.target.value)}>
+        {catalog.length === 0 && <option value="auto">Loading models…</option>}
+        {catalog.length > 0 && <option value="auto">Auto · Clef planning</option>}
         {state && catalog.length > 0 && state.profile !== "auto" && !catalog.some((profile) => profile.id === state.profile) && <option value={state.profile} disabled>{state.profile} · unavailable</option>}
         {catalog.filter((p) => p.role !== "decision").map((p) => <option key={p.id} value={p.id} disabled={!p.configured}>{p.label}{!p.configured ? " · not configured" : ""}</option>)}
       </select></label>
       <div className="model-identity"><span>{state?.provider ?? "Model provider"}</span><strong>{state?.modelId ?? "Waiting for configuration"}</strong></div>
       <span className="permission-pill">Evidence reads only</span>
     </section>
-    <div className="routing-note">Model access is checked when you send.{state?.routing && <> Last selection: {state.routing.mode} · {state.routing.profileId}{state.routing.confidence !== undefined ? ` · ${Math.round(state.routing.confidence * 100)}% classifier confidence` : ""}. {state.routing.reason}
-      {state.routing.suggestedProfileId && <> Suggested: {state.routing.suggestedProfileId}.</>}
-      {state.routing.task && <> Task: {state.routing.task}.</>}
-      {state.routing.margin !== undefined && <> Margin: {Math.round(state.routing.margin * 100)}%.</>}
-      {state.routing.contextTruncated && <> Decision used the first 2,000 characters.</>}
-    </>}</div>
+    <div className="routing-note">Auto uses Clef to plan the model, evidence reads and research task. Model access is checked when you send.
+      {state?.routing && <p>Last decision: {workspaceRoutingSummary(state.routing)}.
+        {state.routing.mode === "manual" && <> Your selected model was kept; Clef was not called.</>}
+        {state.routing.mode === "shadow" && <> Suggestions only; the default reply model was kept.</>}
+        {state.routing.mode === "fallback" && <> The default reply model was kept ({state.routing.reason}).</>}
+        {state.routing.mode === "disabled" && <> Clef is disabled in this deployment.</>}
+        {state.routing.contextTruncated && <> Decision used the beginning and end of your request.</>}
+      </p>}
+      {Boolean(state?.routingHistory?.length) && <details><summary>Recent reply decisions ({state!.routingHistory!.length})</summary>
+        <p>Saved planning metadata only. Classifier confidence is not scientific certainty. Unlisted evidence or task suggestions did not pass validation.</p>
+        <ol>{[...state!.routingHistory!].reverse().map((decision, index) => <li key={`${decision.timestamp}-${index}`}>
+          <time dateTime={decision.timestamp}>{new Date(decision.timestamp).toLocaleString()}</time> — {workspaceRoutingSummary(decision)}.
+          <br />{decision.provider} · {decision.modelId} · {decision.mode} · {decision.reason}
+          {decision.confidence !== undefined && <> · Model-route confidence {Math.round(decision.confidence * 100)}%</>}
+          {decision.evidence && <> · Evidence confidence {Math.round(decision.evidence.confidence * 100)}%</>}
+          {decision.workflow && <> · Task confidence {Math.round(decision.workflow.confidence * 100)}%</>}
+          {decision.inputTokens !== undefined && <> · {decision.inputTokens} Clef input tokens</>}
+        </li>)}</ol>
+      </details>}
+    </div>
     {notice && <div className="notice" role="status">{notice}</div>}
     {selectedUnavailable && <div className="notice" role="status">This conversation’s selected profile is unavailable. Choose a configured reply profile to continue.</div>}
     {error && <div className="error" role="alert">{error}</div>}

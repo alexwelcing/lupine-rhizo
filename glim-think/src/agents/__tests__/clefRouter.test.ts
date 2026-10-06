@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Env } from "../../types";
 import { CLEF_DECISION_MODEL } from "../modelProfiles";
-import { CLEF_ROUTER_CONTEXT_LIMIT, resolveClefRoute } from "../clefRouter";
+import { buildClefRequest, clefRequestContext, CLEF_ROUTER_CONTEXT_LIMIT, resolveClefRoute } from "../clefRouter";
 import offlineCases from "../../../evals/__datasets__/clef-routing.json";
 
 const mapping = JSON.stringify({ fast: "fast", deep: "workers-deep", code: "openai", research: "workers-deep" });
@@ -21,6 +21,74 @@ function setup(overrides: Partial<Env> = {}) {
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
 describe("optional Clef routing", () => {
+  it("batches model, evidence and research-operation decisions into one bounded call", async () => {
+    const { env, run } = setup();
+    const value = response();
+    run.mockResolvedValueOnce({ ...value, answers: { ...value.answers,
+      evidence: { type: "choice", choice: "research_runs", confidence: 0.95,
+        probabilities: { none: 0.02, research_runs: 0.94, ledger: 0.02, both: 0.02 } },
+      workflow: { type: "choice", choice: "critique", confidence: 0.9,
+        probabilities: { answer: 0.02, literature: 0.03, hypothesis: 0.05, critique: 0.85, analysis: 0.05 } },
+    } });
+    const decision = await resolveClefRoute(env, { prompt: "What did Claude challenge in our saved PI run?" });
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(Object.keys(buildClefRequest("question").questions)).toEqual(["route", "evidence", "workflow"]);
+    expect(decision).toMatchObject({ planningMode: "auto", inputTokens: 100,
+      evidence: { choice: "research_runs", confidence: 0.95 }, workflow: { choice: "critique", confidence: 0.9 } });
+    expect(decision.latencyMs).toBeGreaterThanOrEqual(0);
+    expect(decision.evidence?.margin).toBeCloseTo(0.92);
+  });
+
+  it("gates axes independently and exposes shadow suggestions without activating them", async () => {
+    const { env, run } = setup();
+    const value = response({ confidence: 0.5 });
+    const evidence = { type: "choice", choice: "research_runs", confidence: 0.9,
+      probabilities: { none: 0.05, research_runs: 0.85, ledger: 0.05, both: 0.05 } };
+    run.mockResolvedValue({ ...value, answers: { ...value.answers, evidence,
+      workflow: { type: "choice", choice: "execute-shell", confidence: 1, probabilities: { "execute-shell": 1 } },
+    } });
+    const fallback = await resolveClefRoute(env, { prompt: "Saved PI decision" });
+    expect(fallback).toMatchObject({ mode: "fallback", planningMode: "auto", reason: "low-confidence", evidence: { choice: "research_runs" } });
+    expect(fallback.workflow).toBeUndefined();
+    env.CLEF_ROUTER_MODE = "shadow";
+    expect(await resolveClefRoute(env, { prompt: "Saved PI decision" })).toMatchObject({ mode: "fallback", planningMode: "shadow" });
+  });
+
+  it("drops low-confidence or tied evidence hints without losing a valid model route", async () => {
+    const { env, run } = setup();
+    const value = response();
+    for (const evidence of [
+      { type: "choice", choice: "none", confidence: 0.6, probabilities: { none: 0.85, research_runs: 0.05, ledger: 0.05, both: 0.05 } },
+      { type: "choice", choice: "none", confidence: 0.9, probabilities: { none: 0.4, research_runs: 0.4, ledger: 0.1, both: 0.1 } },
+    ]) {
+      run.mockResolvedValueOnce({ ...value, usage: { input_tokens: -1 }, answers: { ...value.answers, evidence } });
+      const result = await resolveClefRoute(env, { prompt: "question" });
+      expect(result).toMatchObject({ mode: "auto", profileId: "openai" });
+      expect(result.evidence).toBeUndefined();
+      expect(result.inputTokens).toBeUndefined();
+    }
+  });
+
+  it("keeps a valid evidence decision even if the separate route answer is malformed", async () => {
+    const { env, run } = setup();
+    run.mockResolvedValueOnce({ model: "clef-flash", answers: { evidence: {
+      type: "choice", choice: "research_runs", confidence: 0.95,
+      probabilities: { none: 0.02, research_runs: 0.94, ledger: 0.02, both: 0.02 },
+    } } });
+    expect(await resolveClefRoute(env, { prompt: "Read the PI decision" })).toMatchObject({
+      mode: "fallback", reason: "invalid-classifier-response", evidence: { choice: "research_runs" }, planningMode: "auto",
+    });
+  });
+
+  it("preserves request instructions at the end of long pasted material", () => {
+    const prompt = "Paper excerpt: " + "x".repeat(4_000) + "\nNow critique the saved PI decision.";
+    const result = buildClefRequest(prompt).state.user_request;
+    expect(result).toHaveLength(CLEF_ROUTER_CONTEXT_LIMIT);
+    expect(result).toContain("[Middle omitted]");
+    expect(result).toMatch(/^Paper excerpt:/);
+    expect(result).toMatch(/Now critique the saved PI decision\.$/);
+  });
+
   it("defaults disabled with no classifier call and supports the workspace default", async () => {
     const { env, run } = setup({ CLEF_ROUTER_MODE: undefined });
     expect(await resolveClefRoute(env, { prompt: "Fix a bug", defaultProfileId: "workers-flash" }))
@@ -91,7 +159,7 @@ describe("optional Clef routing", () => {
     const decision = await resolveClefRoute(env, { prompt });
     expect(decision.contextTruncated).toBe(true);
     expect((run.mock.calls[0][1] as { state: { user_request: string } }).state.user_request)
-      .toBe("x".repeat(CLEF_ROUTER_CONTEXT_LIMIT));
+      .toBe(clefRequestContext(prompt));
     expect(JSON.stringify(run.mock.calls[0][1])).not.toContain("test-configured");
     expect(JSON.stringify(decision)).not.toContain("PRIVATE_TAIL");
     run.mockRejectedValueOnce(new Error("PRIVATE_PROVIDER_ERROR"));

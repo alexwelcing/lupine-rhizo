@@ -10,6 +10,11 @@ export function workspacePreviewEnv(env: PreviewEnv): Env {
     CF_ACCESS_TEAM_DOMAIN: env.CF_ACCESS_TEAM_DOMAIN,
     CF_ACCESS_AUD: env.CF_ACCESS_AUD,
     ADMIN_EMAIL: env.ADMIN_EMAIL,
-    CLEF_ROUTER_MODE: "disabled",
+    // Reviewed private-preview policy; no caller-supplied provider or routing overrides.
+    CLEF_ROUTER_MODE: "auto",
+    CLEF_ROUTER_TASK_PROFILES: JSON.stringify({ fast: "workers-flash", deep: "workers-deep", code: "workers-deep", research: "workers-deep" }),
+    CLEF_ROUTER_MIN_CONFIDENCE: "0.7",
+    CLEF_ROUTER_MIN_MARGIN: "0.15",
+    CLEF_ROUTER_TIMEOUT_MS: "1500",
   } as Env;
 }

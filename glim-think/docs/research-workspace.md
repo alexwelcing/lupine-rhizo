@@ -7,7 +7,9 @@ this is not a multi-tenant workspace with per-user isolation.
 
 ## What the operator can do
 
-- Choose a configured model and see the actual model used for the turn.
+- Use **Auto · Clef planning** in the private preview or choose a configured
+  model directly, and see the actual model used for the turn. Inspect the latest
+  routing decision and up to 20 recent decision metadata entries.
 - Resume a saved conversation, rename it, and cancel a streamed response.
 - Ask for saved hypotheses, literature, and lab activity. The evidence tool
   runs bounded, fixed read queries and returns record IDs.
@@ -58,21 +60,42 @@ Model descriptions and current IDs were checked against the official
 [MiniMax guide](https://platform.minimax.io/docs/guides/text-generation).
 Account availability and performance on Lupine tasks still require validation.
 
-## Clef as a model router
+## Clef as a request planner
 
 Clef scores a fixed set of choices from supplied context. It can classify a
-request as quick assistance, deep reasoning, coding, or research. Application
-policy then maps the decision to an eligible model profile. It is compatible
+request as quick assistance, deep reasoning, coding, or research. One batched call
+also asks which saved evidence would help (`none`, `research_runs`, `ledger`,
+`both`) and the research task (`answer`, `literature`, `hypothesis`, `critique`,
+`analysis`). Application policy maps an accepted route to an eligible model and
+passes independently accepted evidence/task hints to the response. It is compatible
 with the Jev/System One typed-question approach and has open weights.
 See [Cloudflare's announcement](https://blog.cloudflare.com/clef-decision-models/)
 and [Clef Flash API](https://developers.cloudflare.com/workers-ai/models/clef-flash/).
 
-The router is disabled by default. Explicit model selection wins. Only
-allowlisted configured chat profiles are eligible; low confidence, ambiguity,
-invalid output, or a timeout returns the ordinary fallback. A routing decision
-does not grant permission to execute tools or launch jobs. Evaluate representative
-requests in shadow mode before enabling routing, checking answer quality,
-misrouting, total latency, and total model cost against the current baseline.
+The reusable router remains disabled by default. The isolated private preview
+enables Auto with `fast` → `workers-flash` and the other three route choices →
+`workers-deep`. Manual model selection bypasses Clef. All three axes require
+confidence at least `0.7` and probability margin at least `0.15`, with ties
+rejected. A rejected route retains the ordinary default while independently
+accepted evidence/task hints may still apply. The preview deadline is `1500` ms;
+there is one classifier attempt and no retry.
+
+Only the latest user text is sent, at most 2,000 characters with beginning and end
+retained for longer requests. The classifier receives no conversation history or
+tool results. Matching tool continuations reuse a validated decision; a fresh
+user turn classifies again. The private conversation stores up to 20 bounded
+decision metadata entries and a continuation cache, without raw classifier
+output or prompt text in that metadata. Ordinary conversation history is separate.
+
+Only configured chat profiles remain eligible. Evidence hints select among the
+existing read tools; they cannot grant permissions, launch jobs or establish that
+a requested record exists. The ledger provides bounded reports, not direct access
+to underlying experiment artifacts. Classifier confidence is not scientific
+certainty. See [Clef request planning](clef-routing.md) and the
+[17-case synthetic evaluation](clef-evaluation-2026-10-06.md) for measured label
+agreement, coverage, latency and limits. The
+[private evaluation runner](../scripts/testing/CLEF-ROUTING-EVAL.md) makes
+classification calls only; answer quality and hosted behavior need separate checks.
 
 ## Authentication and deployment
 
@@ -131,8 +154,9 @@ links, and checks completed process exit status. A manifest without a receipt is
 **pending**, not proof that the model ran. The refined scientific question in a
 proposal is preserved separately from the original operator question.
 
-Open `/workspace?view=research-runs`, expand the operator import control, paste
-that JSON and review the run and stage states before saving. Import uses
+Open `/workspace?view=research-runs`, expand the operator import control, choose
+the exported JSON file or paste it, then preview the run and stage states before
+explicitly selecting **Import snapshot**. Import uses
 `POST /workspace/research-runs/import` with `Content-Type: application/json`.
 It requires verified operator Access, independently of legacy service-token or
 development bypasses, and rejects cross-origin browser requests. The response

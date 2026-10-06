@@ -7,11 +7,35 @@ It does not import `src/server.ts` or change the production Wrangler project.
 Only new preview KV, D1, a SQLite Durable Object and Workers AI are bound.
 Every HTTP route, asset, chat history request and WebSocket handshake requires
 Access. The runtime discards extra keys, telemetry settings and authentication
-bypass flags. Clef routing stays disabled. The banner and system prompt identify
+bypass flags. **Auto · Clef planning** is enabled with a fixed preview policy;
+manual model selections bypass Clef. The banner and system prompt identify
 synthetic ledger data; model calls and conversation persistence are real.
 Imported **Research runs** use separate private PI receipt records and can be
 read by chat. Synthetic legacy evidence and report-analysis Progress remain
 distinct from those actual research discussions; none proves a new experiment ran.
+
+## Clef planning in this preview
+
+Auto makes one batched call for model route, saved-evidence selection and
+research-task triage. It maps `fast` to `workers-flash` and `deep`, `code`, and
+`research` to `workers-deep`. Each choice is independently gated at confidence
+`0.7` and probability margin `0.15`, with ties rejected. The deadline is `1500`
+ms with no retry. A rejected route keeps `workers-flash`; independently accepted
+evidence/task hints can still help the response. Clef does not expand tool access.
+
+The latest user text is capped at 2,000 characters, retaining the beginning and
+end when truncated. Matching tool continuations reuse the validated decision;
+fresh user turns classify again. Each private conversation retains at most 20
+decision metadata entries, visible under **Recent reply decisions**. Routing
+metadata excludes raw prompts and classifier responses; ordinary chat history
+is stored separately.
+
+The policy is fixed by `workspacePreviewEnv`, not extra caller-supplied bindings.
+Generic deployments remain disabled unless explicitly enabled. See
+[routing behavior](../docs/clef-routing.md), the
+[synthetic evaluation](../docs/clef-evaluation-2026-10-06.md) and the
+[private evaluation runner](../scripts/testing/CLEF-ROUTING-EVAL.md). Classifier
+label agreement does not establish generation quality or scientific certainty.
 
 ## Install the separate tooling
 
@@ -98,6 +122,10 @@ Inspect `.cloudflare/output/v0/`: the Worker name must be
 There must be no cron/queue triggers, Workflows, production resource IDs,
 provider secrets, tail consumers or telemetry exporters.
 
+The five fixed Clef settings are injected inside the preview runtime adapter;
+they are not additional deployment bindings or `.env` inputs. Inspect that the
+built adapter preserves the Auto mapping, `0.7`/`0.15` gates and `1500` ms deadline.
+
 **Rebuild after changing any setting.** `--prebuilt` deploys the values captured
 in Build Output, not newly edited environment values. Placeholder IDs used in an
 offline check are not deployment configuration.
@@ -117,6 +145,11 @@ Do not run the repository's production deployment workflow for this preview.
   be rejected or redirected to sign-in before storage/model calls.
 - With the approved operator, create a conversation and verify its actual
   provider/model identity, streaming, Stop reply and reload recovery.
+- In Auto, inspect model route, accepted evidence/task hints, fallback status
+  and classifier latency. Confirm manual model selection bypasses Clef, tool
+  continuations reuse the turn decision, and recent metadata survives reload.
+  Exercise a long request to check the beginning/end truncation notice. The
+  private CLI evaluation is separate from these hosted checks.
 - Open the same conversation URL on the other authorized device and confirm
   history continuity. This is a shared operator workspace, not per-user tenancy.
 - Request synthetic evidence and verify record IDs and fixture labeling.

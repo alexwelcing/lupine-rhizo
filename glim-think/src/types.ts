@@ -176,7 +176,7 @@ export interface Env {
   /** Explicit Workers AI deep profile. Default @cf/moonshotai/kimi-k2.6;
    * used only when selected, preserving the Scout background fallback. */
   WORKERS_AI_DEEP_MODEL?: string;
-  /** Clef only advises model selection. Auto requires a configured task map. */
+  /** Clef advises model selection and bounded evidence/task planning. Auto requires a configured task map. */
   CLEF_ROUTER_MODE?: "disabled" | "shadow" | "auto";
   /** JSON partial map of fast/deep/code/research to configured profile IDs. */
   CLEF_ROUTER_TASK_PROFILES?: string;

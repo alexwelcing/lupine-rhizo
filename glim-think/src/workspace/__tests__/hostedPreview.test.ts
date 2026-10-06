@@ -50,9 +50,10 @@ describe("hosted preview isolation", () => {
     expect(() => readPreviewSettings({ ...inputs, PREVIEW_ACCESS_TEAM_DOMAIN: "https://other.test" })).toThrow("PREVIEW_ACCESS_TEAM_DOMAIN");
   });
   it("discards accidentally supplied bypass flags, production providers and telemetry", () => {
-    const isolated = workspacePreviewEnv({ ...env, DEV_MODE: "true", INTERNAL_TASK_TOKEN: "private", OPENAI_API_KEY: "private", PHOENIX_API_KEY: "private", CLEF_ROUTER_MODE: "auto" } as Env);
-    expect(Object.keys(isolated).sort()).toEqual(["AI", "CONFIG", "LEDGER", "RESEARCH_WORKSPACE", "CF_ACCESS_TEAM_DOMAIN", "CF_ACCESS_AUD", "ADMIN_EMAIL", "CLEF_ROUTER_MODE"].sort());
-    expect(isolated.CLEF_ROUTER_MODE).toBe("disabled");
+    const isolated = workspacePreviewEnv({ ...env, DEV_MODE: "true", INTERNAL_TASK_TOKEN: "private", OPENAI_API_KEY: "private", PHOENIX_API_KEY: "private", CLEF_ROUTER_MODE: "disabled", CLEF_ROUTER_TASK_PROFILES: '{"research":"openai-deep"}', CLEF_ROUTER_MIN_CONFIDENCE: "0" } as Env);
+    expect(Object.keys(isolated).sort()).toEqual(["AI", "CONFIG", "LEDGER", "RESEARCH_WORKSPACE", "CF_ACCESS_TEAM_DOMAIN", "CF_ACCESS_AUD", "ADMIN_EMAIL", "CLEF_ROUTER_MODE", "CLEF_ROUTER_TASK_PROFILES", "CLEF_ROUTER_MIN_CONFIDENCE", "CLEF_ROUTER_MIN_MARGIN", "CLEF_ROUTER_TIMEOUT_MS"].sort());
+    expect(isolated).toMatchObject({ CLEF_ROUTER_MODE: "auto", CLEF_ROUTER_MIN_CONFIDENCE: "0.7", CLEF_ROUTER_MIN_MARGIN: "0.15", CLEF_ROUTER_TIMEOUT_MS: "1500" });
+    expect(JSON.parse(isolated.CLEF_ROUTER_TASK_PROFILES!)).toEqual({ fast: "workers-flash", deep: "workers-deep", code: "workers-deep", research: "workers-deep" });
     expect(getModelCatalog(isolated).profiles.filter(profile => profile.configured).every(profile => profile.provider === "workers-ai")).toBe(true);
   });
   it.each(["/workspace", "/workspace/app.js", "/workspace/models", "/workspace/progress", "/workspace/research-runs", "/workspace/research-runs/example", "/workspace/research-runs/import", "/agents/research-workspace/test/get-messages", "/agents//research-workspace//test", "/live"])(

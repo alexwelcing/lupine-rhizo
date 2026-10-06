@@ -1,115 +1,116 @@
-# Optional Clef request routing
+# Clef request planning
 
-Clef Flash can classify a chat request into `fast`, `deep`, `code`, or `research`.
-The application maps that task to an explicitly configured generation profile.
-This is advisory model selection. It never authorizes tools, research jobs,
-deployment, or spending, and it does not turn Clef into a conversational model.
+The workspace's **Auto · Clef planning** option asks Clef Flash three fixed-choice
+questions in one batched call. Application policy checks each answer before use.
 
-Routing is **disabled by default**. A manual model selection wins and does not
-call Clef. `resolveClefRoute` returns bounded decision metadata; the caller then
-uses `selectModelProfile` for the actual model and its existing provider/budget
-checks. Configured profiles do not establish account entitlement or model quality.
-
-## Evaluate before enabling selection
-
-These optional Worker variables control routing; adding this documentation does
-not change deployment configuration:
-
-| Variable | Default | Meaning |
+| Question | Choices | Effect of an accepted answer |
 | --- | --- | --- |
-| `CLEF_ROUTER_MODE` | `disabled` | `shadow` classifies but retains the default profile; `auto` may recommend a mapped profile. |
-| `CLEF_ROUTER_TASK_PROFILES` | unset | JSON map from task to configured profile ID; no implicit provider ranking. |
-| `CLEF_ROUTER_MIN_CONFIDENCE` | `0.7` | Minimum API confidence, finite and between 0 and 1. |
-| `CLEF_ROUTER_MIN_MARGIN` | `0.15` | Minimum difference between the top two probabilities, finite and between 0 and 1; ties always fall back. |
-| `CLEF_ROUTER_TIMEOUT_MS` | `1200` | One attempt, between 100 and 3000 ms. |
+| Model route | `fast`, `deep`, `code`, `research` | Recommend an explicitly mapped, configured generation profile. |
+| Saved evidence | `none`, `research_runs`, `ledger`, `both` | Suggest which existing read tools would help answer the request. |
+| Research task | `answer`, `literature`, `hypothesis`, `critique`, `analysis` | Suggest how to organize the response. |
 
-For example, an operator could evaluate this mapping in `shadow` mode:
+`research_runs` refers to imported PI proposals, critiques, decisions and stage
+receipts. `ledger` refers to bounded saved papers, hypotheses and reported lab
+activity, without direct access to underlying experiment artifacts. `both`
+suggests comparing those sources. A choice does not establish that a record exists.
 
-```json
-{"fast":"workers-flash","deep":"workers-deep","code":"workers-deep","research":"workers-deep"}
-```
+Clef does not generate the chat response, establish scientific certainty, or
+authorize tools, jobs, experiments, deployment, spending or publication. Model
+selection still passes through `selectModelProfile` and its provider/budget checks.
+The workspace's tools remain `read_evidence` and `read_research_runs`.
 
-This example expresses operator preference, not measured task performance.
-`fast` tasks must map to a configured `fast` role; the other tasks must map to a
-configured `deep` role. Any configured generation provider can be selected for
-those deep tasks. Unknown profiles, unavailable credentials, decision models
-(including Clef hidden behind a model override), and invalid mappings are rejected.
-Partial mappings are allowed; an unmapped winning task retains the default.
+## Defaults and private preview
 
-Review task agreement and usefulness with representative, authorized prompts in
-shadow mode before changing the environment to `auto`. A shadow decision includes
-the task, probabilities, confidence, margin, and suggested profile while keeping
-`profileId` at the caller's default. No model calls or quality evaluation were
-performed as part of implementing this module; the tests use synthetic fixtures.
+The reusable router is **disabled by default**. The isolated private preview
+explicitly enables `auto` with the fixed policy below; other deployments are
+unchanged. A manual model choice bypasses Clef and its planning hints.
 
-### Small shadow review
+| Variable | Generic default | Private preview |
+| --- | --- | --- |
+| `CLEF_ROUTER_MODE` | `disabled` | `auto` |
+| `CLEF_ROUTER_TASK_PROFILES` | unset | `fast` → `workers-flash`; `deep`, `code`, `research` → `workers-deep` |
+| `CLEF_ROUTER_MIN_CONFIDENCE` | `0.7` | `0.7` |
+| `CLEF_ROUTER_MIN_MARGIN` | `0.15` | `0.15` |
+| `CLEF_ROUTER_TIMEOUT_MS` | `1200` | `1500` |
 
-The [offline review fixture](../evals/__datasets__/clef-routing.json) contains 12
-handwritten Lupine prompts, three per task, with provisional expected labels and
-reasons. It includes an adversarial routing instruction. These are review inputs,
-not observed Clef outputs, scientific findings, or a statistically representative
-benchmark. Its integrity test checks only shape and bounds.
+The preview policy is fixed inside its environment adapter, rather than accepted
+from arbitrary extra bindings. Access still protects all workspace requests.
+See the [preview guide](../hosted-preview/README.md).
 
-Before enabling `auto` in a deployment:
+`shadow` classifies but keeps the default model and does not apply evidence/task
+hints. Task mappings express operator preference, not a measured ranking of
+models. `fast` must map to an eligible fast profile; the other tasks to eligible
+deep profiles. Unknown profiles, decision models and invalid mappings are
+rejected. An unmapped route keeps the default.
 
-1. Choose task mappings appropriate for the operator's configured generation
-   profiles. Set `CLEF_ROUTER_MODE=shadow` on the intended test deployment and
-   keep the workspace's profile selection at **Auto**. This does make a paid
-   classifier call for each submitted prompt, followed by the ordinary chat turn.
-2. Submit each authorized fixture prompt once. Compare the returned routing
-   `task` with `expectedTask`, and inspect `confidence`, `margin`, `reason`, and
-   `suggestedProfileId`. Confirm the selected `profileId` remains the default.
-   If a caller exposes only summary state, retain the bounded decision returned
-   by `resolveClefRoute` in the test harness; do not add raw prompt logging.
-3. Record only case ID, expected/observed task, confidence, margin, fallback
-   reason, and selected/suggested profile. Count disagreements, fallbacks, and
-   timeouts separately. Review the actual generation separately: a matching task
-   label does not establish a model's response quality or tool compatibility.
-4. Resolve label ambiguity with the operator before altering criteria or limits.
-   Verify that manual selections bypass Clef and that injected launch instructions
-   grant no extra tools. Keep `shadow` or `disabled` for unresolved behavior;
-   enable `auto` only after accepting the measured tradeoffs.
+## Independent gates and fallback
 
-No shadow deployment or live evaluation has been performed by adding this fixture.
-Run its offline checks with:
+Each answer must match the expected model and choice schema, contain exactly its
+allowed finite probabilities in `[0,1]`, sum to one within `0.001`, and select a
+highest-probability choice. Clef's confidence is a separate API field, not the
+selected choice's probability.
+
+Each axis is accepted independently at confidence **≥ 0.7** and top-two probability
+margin **≥ 0.15**. Ties always fall back. A rejected route keeps the default model
+while an independently accepted planning hint can still help the response in
+`auto` mode. Rejected hints are omitted.
+
+Malformed output, low confidence, ambiguity, missing mappings, provider failure
+or timeout preserve the ordinary fallback. The workspace defaults to
+`workers-flash`; the standalone router defaults to `fast` unless supplied another
+configured default. Invalid manual selections fail visibly. Catalog eligibility
+does not prove live availability, response quality, tool support or affordability.
+
+## Context and conversation recovery
+
+- Only the latest supplied user text goes to Clef, capped at 2,000 characters.
+  Long text retains its beginning and end with a marked omission in the middle.
+  Conversation history, tool payloads and environment credentials are not added.
+- One Workers AI call carries all three questions, without retry. The deadline
+  aborts and bounds the local wait even if cancellation is ignored; it cannot
+  prove that already-started remote work stopped.
+- Matching tool continuations reuse a validated decision only when the latest
+  text, selected profile, routing policy and configured model catalog still match.
+  Fresh user turns classify again. A changed provider/model invalidates reuse.
+- The private conversation keeps at most **20** decision metadata entries and a
+  validated continuation cache. Metadata contains choices, scores, reasons,
+  timing and provider/model identity, not raw prompts or classifier responses.
+  Ordinary chat history is stored separately.
+- The interface shows the latest decision, fallback/manual state, truncation
+  notice and recent decisions. Classifier confidence is not scientific certainty.
+
+## Recorded evaluation
+
+The 2026-10-06 evaluation made **17 classifier calls and zero generation calls**
+on public synthetic fixtures. All 17 route choices matched provisional labels;
+9 passed the unchanged confidence/margin gates. The five labeled planning cases
+matched both additional axes, with accepted coverage of 1/5 for evidence and 3/5
+for research task. These measure label agreement and abstention on a small set,
+not general quality or scientific truth.
+
+See the [sanitized evaluation summary](clef-evaluation-2026-10-06.md) for latency,
+usage and limits, and the [private evaluation runner guide](../scripts/testing/CLEF-ROUTING-EVAL.md)
+for reproduction. The runner imports the shared request builder, records its
+hash, and stores bounded receipts privately without raw prompts or credentials.
+Later prompt/policy edits require their own evaluation; recorded metrics do not
+establish that every subsequent version behaves identically.
+
+Call-free checks from `glim-think`:
 
 ```sh
-cd glim-think
+node scripts/testing/clef-routing-eval.mjs
+node scripts/testing/clef-routing-eval.mjs --dataset evals/__datasets__/clef-planning.json
+node --test scripts/testing/clef-routing-eval.test.mjs
 npx vitest run src/agents/__tests__/clefRouter.test.ts
 ```
 
-## Bounds and failure behavior
-
-- Only the supplied last user text is classified, at most 2,000 characters.
-  No conversation history, tool payload, or environment credentials are appended.
-  Do not supply text that the caller is not authorized to send to Workers AI.
-- The router issues one Workers AI call. A deadline triggers an abort and fallback;
-  a promise race bounds the wait even if the binding ignores cancellation. This
-  cannot guarantee that already-started remote compute has stopped. Unexpected
-  response streams are cancelled, including bodies arriving after the deadline;
-  fallback does not wait for cancellation to complete.
-- Low confidence, a small margin, malformed probabilities, missing task mappings,
-  or provider failures retain the default. Invalid configuration never enables
-  the classifier. No retry or model generation occurs inside the router.
-- Manual and default profiles are checked against the configured catalog.
-  An invalid manual selection raises an error; it is never silently overridden.
-- The returned metadata contains fixed reason codes and profile IDs, never raw
-  request text, raw model output, or provider errors. The module does not log them.
-  Cloudflare's own account retention settings remain separate.
-- The leaf defaults to profile `fast`; callers may explicitly supply another
-  configured generation profile through `defaultProfileId` (the workspace uses
-  `workers-flash`). Classifier output cannot change that default or the allowlist.
-- Catalog roles and configured credentials are admission checks, not live tests
-  of model availability, tool support, response quality, or affordability. A
-  selected provider may still fail or be rejected by its downstream budget guard.
+Measure downstream usefulness and response quality alongside agreement, coverage,
+latency and cost. The observed fallbacks are not a reason to lower thresholds.
 
 ## API provenance
 
-The input follows Cloudflare's [Clef Flash usage](https://developers.cloudflare.com/workers-ai/models/clef-flash/):
+The input follows Cloudflare's [Clef Flash API](https://developers.cloudflare.com/workers-ai/models/clef-flash/):
 `AI.run("@cf/cloudflare/clef-flash", {model:"clef-flash", state, questions})`.
-The [`choice` response schema](https://developers.cloudflare.com/workers-ai/models/clef-flash/schema-output.json)
-is `answers.route = {type:"choice", choice, probabilities, confidence}`.
-Confidence is distinct from the winning probability. The router verifies four
-finite probabilities in `[0,1]`, their sum (rounding tolerance `0.001`), a winning
-choice consistent with those probabilities, and finite confidence in `[0,1]`.
-These schema checks validate a response, not the truth of its classification.
+The [choice response schema](https://developers.cloudflare.com/workers-ai/models/clef-flash/schema-output.json)
+provides choice, probabilities and confidence for each question. Schema validation
+checks response structure, not the truth of a classification.
