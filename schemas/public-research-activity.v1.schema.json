@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alexwelcing/lupine-rhizo/blob/main/schemas/public-research-activity.v1.schema.json",
+  "title": "Reviewed public research activity record v1",
+  "description": "Maximum UTF-8 serialized record size: 16384 bytes. Records are append-only. IDs cannot be overwritten. Successors identify the current record for the same activity. Corrections to completed/failed records require a new ID and explicit reason, preserving terminal state and evidence kind. No model packets, operator identities, private paths or model receipts are accepted.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "lupine.public_research_activity.v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$"
+    },
+    "activityId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$"
+    },
+    "evidenceKind": {
+      "enum": [
+        "archived_analysis",
+        "research_cycle"
+      ]
+    },
+    "state": {
+      "enum": [
+        "planned",
+        "running",
+        "completed",
+        "failed",
+        "blocked"
+      ]
+    },
+    "verification": {
+      "enum": [
+        "pending",
+        "arithmetic_checked",
+        "source_checked"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+      "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1200,
+      "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+      "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+      "description": "Actual observation/review time, not import or polling time. Review must be at or after observation and cannot be in the future."
+    },
+    "reviewedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+      "description": "Actual observation/review time, not import or polling time. Review must be at or after observation and cannot be in the future."
+    },
+    "datasets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+            "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+          },
+          "configurations": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "groups": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "atoms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          }
+        },
+        "required": [
+          "name",
+          "configurations"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 8
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 600,
+        "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+        "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+      },
+      "minItems": 0,
+      "maxItems": 8
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 600,
+        "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+        "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+      },
+      "minItems": 1,
+      "maxItems": 8
+    },
+    "nextStep": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600,
+      "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+      "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+            "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 1024,
+            "pattern": "^https://",
+            "description": "Public HTTPS URL only. Runtime rejects userinfo, ports, IP/device/private hosts, tailnet links, credentials, local paths and credential query parameters."
+          }
+        },
+        "required": [
+          "label",
+          "url"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 12
+    },
+    "hashes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+            "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "label",
+          "sha256"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 12
+    },
+    "repositoryLinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+            "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 1024,
+            "pattern": "^https://github\\.com/alexwelcing/(lupine|lupine-rhizo|lupine-ledger)(/|$)",
+            "description": "Known public GitHub repository only; no query string."
+          }
+        },
+        "required": [
+          "label",
+          "url"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 3
+    },
+    "releaseLinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+            "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 1024,
+            "pattern": "^https://github\\.com/alexwelcing/(lupine|lupine-rhizo|lupine-ledger)/releases(/|$)",
+            "description": "Known public GitHub release only; no query string."
+          }
+        },
+        "required": [
+          "label",
+          "url"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 6
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "correctionReason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600,
+          "pattern": "^[^\\u0000-\\u001f\\u007f<>]+$",
+          "description": "Reviewed plain public text; the importer also rejects local paths, private identifiers, email addresses and credential-shaped content."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "id",
+    "activityId",
+    "evidenceKind",
+    "state",
+    "verification",
+    "title",
+    "summary",
+    "observedAt",
+    "reviewedAt",
+    "datasets",
+    "findings",
+    "limitations",
+    "nextStep",
+    "sources",
+    "hashes",
+    "repositoryLinks",
+    "releaseLinks",
+    "supersedes",
+    "correctionReason"
+  ]
+}

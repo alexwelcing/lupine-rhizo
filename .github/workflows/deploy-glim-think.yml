@@ -45,7 +45,9 @@ jobs:
       - name: Run unit tests
         working-directory: glim-think
         timeout-minutes: 6
-        run: npm test
+        run: |
+          npm test
+          node --test scripts/prepare-public-activity-import.test.mjs
 
       # Compile src/registry/prompts/*.md → prompts.gen.ts so Evolver-committed
       # prompt variants land in the Worker bundle (wrangler can't read .md at
@@ -53,6 +55,29 @@ jobs:
       - name: Regenerate prompt registry
         working-directory: glim-think
         run: node scripts/gen-prompts.mjs
+
+      # Publish only the explicitly reviewed public export. The preparation tool
+      # validates the same schema as the operator import route; table triggers
+      # preserve immutable records and reject contradictory terminal corrections.
+      - name: Prepare reviewed public activity
+        working-directory: glim-think
+        run: node scripts/prepare-public-activity-import.mjs ../exports/research-activity/latest.json --sql /tmp/lupine-public-activity.sql
+
+      - name: Create isolated public activity ledger
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: glim-think
+          command: d1 execute glim-ledger --remote --file migrations/0021_public_research_activity.sql
+
+      - name: Publish reviewed public activity records
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: glim-think
+          command: d1 execute glim-ledger --remote --file /tmp/lupine-public-activity.sql
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3

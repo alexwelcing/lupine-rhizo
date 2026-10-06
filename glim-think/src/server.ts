@@ -47,6 +47,7 @@ import { getModelCatalog } from "./agents/modelProfiles";
 import { listWorkspaceConversations } from "./workspace/registry";
 import { workspaceProgressResponse } from "./workspace/progress";
 import { researchRunsResponse } from "./workspace/researchRuns";
+import { researchActivityResponse } from "./workspace/researchActivity";
 import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
 import { checkWorkspaceRequest, isWorkspaceRoute, WORKSPACE_PRIVATE_HEADERS } from "./middleware/workspaceAccess";
 import { generateResearchText } from "./agents/models";
@@ -192,6 +193,11 @@ const baseHandler = {
     try {
       traceEnv(env);
       const url = new URL(request.url);
+
+      // Reviewed public activity has a separate table and strict operator import.
+      // Handle it before Access gating and before generic unbounded body parsing.
+      const activityResponse = await researchActivityResponse(request, env);
+      if (activityResponse) return activityResponse;
 
       // Authenticate private conversation routes BEFORE the Agents SDK can
       // return history or upgrade a WebSocket. The SDK normalizes empty path

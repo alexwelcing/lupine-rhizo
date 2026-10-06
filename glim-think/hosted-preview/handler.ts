@@ -5,6 +5,7 @@ import { getModelCatalog } from "../src/agents/modelProfiles";
 import { listWorkspaceConversations } from "../src/workspace/registry";
 import { workspaceProgressResponse } from "../src/workspace/progress";
 import { researchRunsResponse } from "../src/workspace/researchRuns";
+import { researchActivityResponse } from "../src/workspace/researchActivity";
 import { workspaceHtml, workspaceJavaScript } from "../src/workspace/html";
 import { workspacePreviewEnv, type PreviewEnv } from "./environment";
 
@@ -19,7 +20,10 @@ function privateResponse(response: Response) {
 export async function previewFetch(request: Request, bindings: PreviewEnv): Promise<Response> {
   const env = workspacePreviewEnv(bindings);
   const url = new URL(request.url);
-  // Every staging response, including assets and evidence links, requires Access.
+  // Only the explicitly reviewed activity projection is public. Its import
+  // verifies operator Access independently; all other preview routes stay private.
+  const activityResponse = await researchActivityResponse(request, env);
+  if (activityResponse) return activityResponse;
   if (!env.ADMIN_EMAIL?.trim()) return privateResponse(new Response("Preview operator is not configured", { status: 403 }));
   const denial = await checkAccess(request, env, [env.ADMIN_EMAIL ?? ""].filter(Boolean));
   if (denial) return privateResponse(denial);

@@ -44,6 +44,30 @@ const request = (path: string, headers: Record<string, string> = {}) => new Requ
 });
 
 describe("hosted preview isolation", () => {
+  it("serves only the reviewed public activity projection before Access", async () => {
+    const all = vi.fn().mockResolvedValue({ success: true, results: [] });
+    const prepare = vi.fn((_sql: string) => ({ bind: vi.fn(() => ({ all })) }));
+    const publicEnv = { ...env, ADMIN_EMAIL: undefined, LEDGER: { prepare } } as unknown as Env;
+    const response = await previewFetch(new Request("https://preview.example.test/research/activity", { headers: { Origin: "https://library.example.org" } }), publicEnv);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ schema: "lupine.public_research_activity_feed.v1", items: [], truncated: false });
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+    expect(response.headers.has("Access-Control-Allow-Credentials")).toBe(false);
+    expect(prepare).toHaveBeenCalledOnce();
+    expect(prepare.mock.calls[0][0]).toContain("public_research_activity");
+    expect(doubles.route).not.toHaveBeenCalled();
+  });
+  it("keeps activity import behind same-origin operator Access", async () => {
+    const prepare = vi.fn();
+    const privateEnv = { ...env, LEDGER: { prepare }, DEV_MODE: "true", INTERNAL_TASK_TOKEN: "private" } as unknown as Env;
+    const makeRequest = (headers: Record<string, string>) => new Request("https://preview.example.test/workspace/research-activity/import", {
+      method: "POST", headers: { "Content-Type": "application/json", Origin: "https://preview.example.test", ...headers }, body: "{}",
+    });
+    expect((await previewFetch(makeRequest({ "X-Internal-Token": "private" }), privateEnv)).status).toBe(403);
+    expect((await previewFetch(makeRequest({ "Cf-Access-Jwt-Assertion": token, Origin: "https://other.example.org" }), privateEnv)).status).toBe(403);
+    expect((await previewFetch(makeRequest({ "Cf-Access-Jwt-Assertion": token }), privateEnv)).status).toBe(400);
+    expect(prepare).not.toHaveBeenCalled();
+  });
   it("requires explicit resource and Access inputs without baking identities into source", () => {
     expect(readPreviewSettings(inputs)).toMatchObject({ team: "preview-test", adminEmail: "operator@example.test" });
     for (const key of Object.keys(inputs)) expect(() => readPreviewSettings({ ...inputs, [key]: undefined })).toThrow(key);

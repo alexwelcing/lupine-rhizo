@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alexwelcing/lupine-rhizo/blob/main/schemas/public-research-activity-feed.v1.schema.json",
+  "title": "Public research activity feed v1",
+  "description": "GET /research/activity?limit=20, max50. Latest immutable reviewed record per activity, sorted by observedAt descending then id descending. GET /research/activity/{id} returns the same envelope for one historical public record. No server-generated evidence timestamp: polling does not refresh observedAt or reviewedAt.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "lupine.public_research_activity_feed.v1"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "public-research-activity.v1.schema.json"
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "truncated": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema",
+    "items",
+    "truncated"
+  ]
+}

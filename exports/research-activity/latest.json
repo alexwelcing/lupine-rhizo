@@ -1,0 +1,167 @@
+{
+  "schema": "lupine.public_research_activity_feed.v1",
+  "items": [
+    {
+      "schema": "lupine.public_research_activity.v1",
+      "evidenceKind": "archived_analysis",
+      "reviewedAt": "2026-10-06T13:10:45.000Z",
+      "repositoryLinks": [
+        {
+          "label": "Research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null,
+      "id": "disagreement-pairs-20261006-plan-v1",
+      "activityId": "disagreement-pairs-20261006",
+      "state": "planned",
+      "verification": "pending",
+      "title": "Next test: do all three models add ranking value?",
+      "summary": "Compare every pairwise force distance with the full disagreement score, keeping the three-model mean prediction and reference error fixed.",
+      "observedAt": "2026-10-06T13:10:45.000Z",
+      "datasets": [
+        {
+          "name": "Same archived panels",
+          "configurations": 800,
+          "groups": 100
+        }
+      ],
+      "findings": [],
+      "limitations": [
+        "This analysis has not started.",
+        "Choosing the best pair in-sample cannot establish independent validation."
+      ],
+      "nextStep": "Freeze the comparison protocol, calculate equal-group capture increments, and check whether one pair matches or exceeds the full score.",
+      "sources": [
+        {
+          "label": "Reviewed method, results and limitations",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/f6bb6bc99df6fe42785b617361a80e699abb4d0f/docs/research-progress/2026-10-06-disagreement-panels.md"
+        }
+      ],
+      "hashes": []
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
+      "evidenceKind": "archived_analysis",
+      "reviewedAt": "2026-10-06T13:10:45.000Z",
+      "repositoryLinks": [
+        {
+          "label": "Research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null,
+      "id": "disagreement-panels-20261006-v1",
+      "activityId": "disagreement-panels-20261006",
+      "state": "completed",
+      "verification": "arithmetic_checked",
+      "title": "800 archived configurations: modest ranking gain, uneven benefits",
+      "summary": "Disagreement improves equal-group mean error-capture area over the force-magnitude control on both panels: +2.04 percentage points on MatPES and +1.34 on OMat24. About half of individual configurations improve.",
+      "observedAt": "2026-10-06T12:57:53.958Z",
+      "datasets": [
+        {
+          "name": "MatPES",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3324
+        },
+        {
+          "name": "OMat24",
+          "configurations": 400,
+          "groups": 50,
+          "atoms": 3912
+        }
+      ],
+      "findings": [
+        "The fixed positive-mean criterion passed on both panels. Positive groups: 37 of 50 and 29 of 50.",
+        "Positive configurations: 208 of 400 and 207 of 400. These are ranking gains, not reductions in force error.",
+        "Six archived files matched recorded hashes. Independent verification passed 42,954 numeric and 8,962 structural checks."
+      ],
+      "limitations": [
+        "Historical correlated archive data; not a new sealed held-out benchmark.",
+        "CHGNet, M3GNet and MACE-MP-small differ from the pilot roster. Reference settings and training overlap remain incomplete.",
+        "No novelty, calibration, deployment-alarm or generalization claim. Historical A6 remains INCONCLUSIVE.",
+        "Raw artifacts remain private; published hashes do not supply public reproduction inputs."
+      ],
+      "nextStep": "Test all pairwise distances against the full score while holding the original mean prediction and error fixed.",
+      "sources": [
+        {
+          "label": "Reviewed method, results and limitations",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/f6bb6bc99df6fe42785b617361a80e699abb4d0f/docs/research-progress/2026-10-06-disagreement-panels.md"
+        },
+        {
+          "label": "Heterogeneous ensemble prior art",
+          "url": "https://www.nature.com/articles/s41524-025-01905-x"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private result",
+          "sha256": "66df43105c309a38729610efe01f6f5f5c32af4e6c8e4fc53f7e3d54ab220e55"
+        },
+        {
+          "label": "Private protocol",
+          "sha256": "27661525752472b24f12c2c1a34442f1018b098d9db9fed8b64aca4b3a36a575"
+        },
+        {
+          "label": "Private independent verification",
+          "sha256": "6c57375356117c53ae4082125321a5660c9701343fb87dd3fe9af3d913008e5f"
+        }
+      ]
+    },
+    {
+      "schema": "lupine.public_research_activity.v1",
+      "evidenceKind": "archived_analysis",
+      "reviewedAt": "2026-10-06T13:10:45.000Z",
+      "repositoryLinks": [
+        {
+          "label": "Research system",
+          "url": "https://github.com/alexwelcing/lupine-rhizo"
+        }
+      ],
+      "releaseLinks": [],
+      "supersedes": null,
+      "correctionReason": null,
+      "id": "disagreement-pilot-20261006-v1",
+      "activityId": "disagreement-pilot-20261006",
+      "state": "completed",
+      "verification": "arithmetic_checked",
+      "title": "Five-configuration pilot exposes disagreement limits",
+      "summary": "Disagreement ranked error above the uniform-subset baseline on four of five configurations but beat the force-magnitude control on only three. The strict all-five criterion failed.",
+      "observedAt": "2026-10-06T12:38:25.000Z",
+      "datasets": [
+        {
+          "name": "Previously inspected pilot",
+          "configurations": 5,
+          "atoms": 107
+        }
+      ],
+      "findings": [
+        "Independent arithmetic verification passed 586 checks.",
+        "One configuration was nearly uninformative; it does not establish a significant failure mode."
+      ],
+      "limitations": [
+        "Tiny previously inspected sample; no novelty, calibration or generalization claim.",
+        "The later broader panels use a different model roster and are not an exact replication."
+      ],
+      "nextStep": "Follow the broader archived-panel analysis, keeping roster differences and the control explicit.",
+      "sources": [
+        {
+          "label": "Reviewed method, results and limitations",
+          "url": "https://github.com/alexwelcing/lupine-rhizo/blob/f6bb6bc99df6fe42785b617361a80e699abb4d0f/docs/research-progress/2026-10-06-disagreement-panels.md"
+        }
+      ],
+      "hashes": [
+        {
+          "label": "Private pilot result",
+          "sha256": "9779533b40d92f894156088c84a1579076460f97f2e1f8484b36d23956911174"
+        }
+      ]
+    }
+  ],
+  "truncated": false
+}
