@@ -14,6 +14,7 @@ import copy
 import hashlib
 import importlib.metadata
 import json
+import math
 import os
 import pathlib
 import sys
@@ -27,7 +28,7 @@ from typing import Any
 import numpy as np
 import requests
 import rfc8785
-from lupine_distill.fixture_contract import run_row, validate_manifest
+from lupine_distill.fixture_contract import run_row, validate_manifest, select_row
 from z1_barrier import BARRIER_ROW_ID, load_campaign_panel, run_barrier_row
 from z1_sparse_dft import SPARSE_DFT_ROW_ID, run_sparse_dft_row
 try:
@@ -166,6 +167,7 @@ def raw_prediction_checkpoint_context(
     manifest_hash: str,
     calculator_dtype: str | None = None,
     runner_image_digest: str | None = None,
+    predictor_provenance: dict[str, Any] | None = None,
 ) -> dict[str, str]:
     context = {
         "schema": "lupine.mlip.cell_checkpoint.context.v2",
@@ -174,6 +176,9 @@ def raw_prediction_checkpoint_context(
         "mlip_id": mlip_id,
         "manifest_hash": manifest_hash,
     }
+    if predictor_provenance and predictor_provenance.get("mode") == "strict":
+        context["schema"] = "lupine.mlip.cell_checkpoint.context.v3"
+        context["predictor_sha256"] = predictor_provenance["predictor_sha256"]
     if calculator_dtype is not None:
         # Calculator precision changes prediction semantics; a checkpoint
         # written under a different dtype must fail closed to recompute.
@@ -204,9 +209,17 @@ def normalize_checkpoint_context(context: Any) -> dict[str, str] | None:
     runner_image_digest = context.get("runner_image_digest")
     if runner_image_digest is not None and not isinstance(runner_image_digest, str):
         return None
-    return raw_prediction_checkpoint_context(
+    normalized = raw_prediction_checkpoint_context(
         row_id, mlip_id, manifest_hash, calculator_dtype, runner_image_digest
     )
+    if context.get("schema") == "lupine.mlip.cell_checkpoint.context.v3":
+        predictor = context.get("predictor_sha256")
+        if not isinstance(predictor, str) or not predictor.startswith("sha256:") or len(predictor) != 71:
+            return None
+        normalized.update(schema=context["schema"], predictor_sha256=predictor)
+    elif "predictor_sha256" in context:
+        return None
+    return normalized
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -283,6 +296,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="Optional local or gs:// JSON checkpoint path. Defaults to artifact-prefix/cell_checkpoint.json.",
     )
+    parser.add_argument("--predictor-provenance", choices=("legacy", "strict"), default="legacy",
+                        help="Strict prospective CHGNet 0.4.2 CPU baseline identity gate; legacy identity is unknown.")
+    parser.add_argument("--expected-predictor", default=None,
+                        help="Local JSON pin of actual loaded model version, state digest and observed config digest.")
     parser.add_argument("--phoenix-trace-id", default=None)
     parser.add_argument("--phoenix-span-id", default=None)
     effective_argv = list(sys.argv[1:] if argv is None else argv)
@@ -429,11 +446,34 @@ class CellCheckpoint:
         manifest_hash: str,
         calculator_dtype: str | None = None,
         runner_image_digest: str | None = None,
+        predictor_provenance: dict[str, Any] | None = None,
     ) -> None:
+        if mode not in ("read-write", "read-only", "write-only"):
+            raise ValueError("unsupported checkpoint mode; off means no checkpoint object")
         self.url = url
         self.mode = mode
+        self.provenance = copy.deepcopy(predictor_provenance or {
+            "status": "unknown", "mode": "legacy", "reason": "loaded_predictor_not_verified",
+        })
+        self.strict = self.provenance.get("mode") == "strict"
+        if self.strict:
+            from src.predictor_provenance import ProvenanceError, digest, DIGEST, SCHEMA
+            identity = {key: self.provenance.get(key) for key in (
+                "model_identifier", "loaded_state_sha256", "inference_config_sha256")}
+            if (self.provenance.get("schema") != SCHEMA or self.provenance.get("status") != "verified"
+                or not isinstance(identity["model_identifier"], str) or not identity["model_identifier"]
+                or any(not isinstance(identity[key], str) or not DIGEST.fullmatch(identity[key])
+                       for key in ("loaded_state_sha256", "inference_config_sha256"))
+                or not isinstance(self.provenance.get("inference_config"), dict)
+                or digest(self.provenance["inference_config"]) != identity["inference_config_sha256"]
+                or digest(identity) != self.provenance.get("predictor_sha256")):
+                raise ProvenanceError("strict checkpoint requires a verified consistent predictor identity")
+        elif self.provenance.get("mode") != "legacy" or self.provenance.get("status") != "unknown":
+            raise ValueError("unrecognized checkpoint predictor provenance")
+        self.entry_provenance = ({"status": "verified", "predictor_sha256": self.provenance["predictor_sha256"]}
+                                 if self.strict else copy.deepcopy(self.provenance))
         self.context = raw_prediction_checkpoint_context(
-            row_id, mlip_id, manifest_hash, calculator_dtype, runner_image_digest
+            row_id, mlip_id, manifest_hash, calculator_dtype, runner_image_digest, self.provenance
         )
         self.producer_context = {
             "run_id": run_id,
@@ -450,7 +490,8 @@ class CellCheckpoint:
         self.dirty = False
         self.ignored_reason: str | None = None
         self.payload = self._empty_payload()
-        if mode in ("read-write", "read-only"):
+        # All writers inspect first so legacy write-only cannot destroy strict evidence.
+        if mode in ("read-write", "read-only", "write-only"):
             self._load_existing()
 
     def _empty_payload(self) -> dict[str, Any]:
@@ -458,9 +499,16 @@ class CellCheckpoint:
             "schema": "lupine.mlip.cell_checkpoint.v1",
             "context": self.context,
             "producer_context": self.producer_context,
+            "predictor_provenance": self.provenance,
             "predictions": {},
             "updated_at_unix": int(time.time()),
         }
+
+    def _reject_existing(self, reason: str) -> None:
+        if self.strict:
+            from src.predictor_provenance import ProvenanceError
+            raise ProvenanceError(reason + "; existing checkpoint left unchanged")
+        self.ignored_reason = reason
 
     def _load_existing(self) -> None:
         try:
@@ -472,18 +520,46 @@ class CellCheckpoint:
                 return
             raise
         except Exception as exc:
-            self.ignored_reason = f"unreadable_checkpoint:{exc.__class__.__name__}"
+            self._reject_existing(f"unreadable_checkpoint:{exc.__class__.__name__}")
             return
+        saved_context = payload.get("context") if isinstance(payload, dict) else None
+        saved_provenance = payload.get("predictor_provenance") if isinstance(payload, dict) else None
+        if not self.strict and (
+            isinstance(saved_context, dict) and saved_context.get("schema") == "lupine.mlip.cell_checkpoint.context.v3"
+            or isinstance(saved_provenance, dict) and saved_provenance.get("mode") == "strict"
+        ):
+            raise ValueError("strict checkpoint cannot be downgraded to legacy; existing evidence left unchanged")
+        if self.strict and self.mode == "write-only":
+            self._reject_existing("strict write-only requires a new checkpoint destination")
         if not isinstance(payload, dict) or payload.get("schema") != "lupine.mlip.cell_checkpoint.v1":
-            self.ignored_reason = "unsupported_checkpoint_schema"
+            self._reject_existing("unsupported_checkpoint_schema")
             return
         existing_context = normalize_checkpoint_context(payload.get("context"))
-        if existing_context != self.context:
-            self.ignored_reason = "checkpoint_context_mismatch"
+        if existing_context != self.context or (self.strict and saved_context != self.context):
+            self._reject_existing("checkpoint_context_mismatch")
             return
         if not isinstance(payload.get("predictions"), dict):
-            self.ignored_reason = "checkpoint_predictions_not_object"
+            self._reject_existing("checkpoint_predictions_not_object")
             return
+        if self.strict and payload.get("predictor_provenance") != self.provenance:
+            self._reject_existing("checkpoint_predictor_mismatch")
+        for entry in payload["predictions"].values():
+            if self.strict:
+                from src.predictor_provenance import DIGEST, digest
+                if (not isinstance(entry, dict) or not isinstance(entry.get("prediction"), dict)
+                    or not isinstance(entry.get("case_hash"), str)
+                    or not DIGEST.fullmatch("sha256:" + entry["case_hash"])
+                    or not isinstance(entry.get("producer_context"), dict)
+                    or not all(isinstance(entry["producer_context"].get(k), str) and entry["producer_context"][k]
+                               for k in ("run_id", "cell_id", "variant_id", "distill_profile"))
+                    or entry.get("predictor_provenance") != self.entry_provenance
+                    or entry["prediction"].get("status", "completed") != "completed"
+                    or entry.get("prediction_sha256") != digest(entry["prediction"])):
+                    self._reject_existing("checkpoint_entry_provenance_invalid")
+            elif isinstance(entry, dict):
+                # Copy original aggregate producer before any mixed reuse/new writes.
+                entry.setdefault("producer_context", copy.deepcopy(payload.get("producer_context") or {"status": "unknown"}))
+                entry.setdefault("predictor_provenance", copy.deepcopy(self.entry_provenance))
         self.payload = payload
 
     def get_prediction(self, row_id: str, case_index: int, case: dict[str, Any]) -> dict[str, Any] | None:
@@ -496,6 +572,8 @@ class CellCheckpoint:
             self.cache_misses += 1
             return None
         if entry.get("case_hash") != sha256_hex(case):
+            if self.strict:
+                self._reject_existing("checkpoint_case_hash_mismatch")
             self.cache_misses += 1
             return None
         prediction = entry.get("prediction")
@@ -516,13 +594,25 @@ class CellCheckpoint:
             return
         key = case_cache_key(row_id, case_index, case)
         predictions = self.payload.setdefault("predictions", {})
+        if self.strict:
+            from src.predictor_provenance import ProvenanceError, canonical
+            if prediction.get("status", "completed") != "completed":
+                raise ProvenanceError("strict checkpoint refuses failed predictions")
+            canonical(prediction)
+        if self.strict and key in predictions:
+            self._reject_existing("strict checkpoint refuses to replace an existing prediction")
         predictions[key] = {
             "case_index": case_index,
             "case_hash": sha256_hex(case),
             "structure_id": case.get("structure_id"),
             "prediction": prediction,
+            "producer_context": copy.deepcopy(self.producer_context),
+            "predictor_provenance": copy.deepcopy(self.entry_provenance),
             "recorded_at_unix": int(time.time()),
         }
+        if self.strict:
+            from src.predictor_provenance import digest
+            predictions[key]["prediction_sha256"] = digest(prediction)
         self.payload["updated_at_unix"] = int(time.time())
         self.written_predictions += 1
         self.dirty = True
@@ -559,6 +649,7 @@ class CellCheckpoint:
             "schema": "lupine.mlip.cell_checkpoint.summary.v1",
             "url": self.url,
             "mode": self.mode,
+            "predictor_provenance": self.provenance,
             "loaded_predictions": self.loaded_predictions,
             "written_predictions": self.written_predictions,
             "cache_misses": self.cache_misses,
@@ -655,8 +746,10 @@ MACE_CHECKPOINTS = {
 }
 
 
-def load_calculator(mlip_id: str, default_dtype: str = "float32"):
-    dev = device()
+def load_calculator(mlip_id: str, default_dtype: str = "float32", device_override: str | None = None):
+    if device_override not in (None, "cpu"):
+        raise ValueError("unsupported calculator device override")
+    dev = device_override or device()
     if mlip_id == "chgnet":
         from chgnet.model import CHGNet
         from chgnet.model.dynamics import CHGNetCalculator
@@ -769,6 +862,23 @@ def attach_cached_support_model(
         support_cache[cache_key] = copy.deepcopy(session.support_model)
 
 
+def predictor_policy(args: argparse.Namespace) -> tuple[bool, dict[str, Any] | None]:
+    """Validate the opt-in policy before loading models, caches or remote inputs."""
+    provenance_mode = getattr(args, "predictor_provenance", "legacy")
+    if provenance_mode not in ("legacy", "strict"):
+        raise ValueError("unrecognized predictor provenance mode")
+    strict = provenance_mode == "strict"
+    expected_predictor = None
+    if strict:
+        from src.predictor_provenance import load_expected, ProvenanceError
+        expected_predictor = load_expected(getattr(args, "expected_predictor", None))
+        if args.mlip_id != "chgnet" or args.distill_profile != "off" or args.row_id != "forces":
+            raise ProvenanceError("strict v1 supports CHGNet CPU baseline forces row only")
+    elif getattr(args, "expected_predictor", None):
+        raise ValueError("expected predictor supplied without strict mode; refusing silent downgrade")
+    return strict, expected_predictor
+
+
 def run_cell(
     args: argparse.Namespace,
     *,
@@ -777,6 +887,7 @@ def run_cell(
     preloaded_model_load_s: float | None = None,
 ) -> CellResult:
     require_cell_args(args)
+    strict, expected_predictor = predictor_policy(args)
     manifest_url = args.manifest_url or args.fixture_url
     if not manifest_url:
         raise ValueError("--manifest-url or --fixture-url is required")
@@ -838,6 +949,30 @@ def run_cell(
         if args.support_manifest_url and args.distill_profile != "off"
         else None
     )
+    policy_limits_path = None
+    policy_limits_hash = None
+    policy_limits_tmp = None
+    if args.distill_profile != "off" and args.distill_policy_url:
+        policy_limits_path, policy_limits_hash, policy_limits_tmp = materialize_distill_policy_url(args.distill_policy_url)
+    if preloaded_calc is None:
+        load_started = time.perf_counter()
+        calc = (load_calculator(args.mlip_id, default_dtype=calc_dtype, device_override="cpu")
+                if strict else load_calculator(args.mlip_id, default_dtype=calc_dtype))
+        model_load_s = max(time.perf_counter() - load_started, 0.0)
+        model_preloaded = False
+    else:
+        calc = preloaded_calc
+        model_load_s = float(preloaded_model_load_s or 0.0)
+        model_preloaded = True
+
+    provenance = {"status": "unknown", "mode": "legacy", "reason": "loaded_predictor_not_verified"}
+    if strict:
+        from src.predictor_provenance import observe_chgnet, verify_expected, source_identity
+        provenance = verify_expected(observe_chgnet(calc, calculator_dtype=calc_dtype, semantics={
+            "row_id": args.row_id, "mlip_id": args.mlip_id, "distill_profile": "off",
+            "fixture_contract": source_identity(run_row), "runner": source_identity(run_cell),
+            "stress_unit_override": getattr(calc, "_glim_stress_unit", None),
+        }), expected_predictor)
     checkpoint = None
     if args.checkpoint_mode != "off":
         checkpoint = CellCheckpoint(
@@ -852,21 +987,8 @@ def run_cell(
             manifest_hash=manifest_hash,
             calculator_dtype=calc_dtype,
             runner_image_digest=runner_image_digest,
+            predictor_provenance=provenance,
         )
-    policy_limits_path = None
-    policy_limits_hash = None
-    policy_limits_tmp = None
-    if args.distill_profile != "off" and args.distill_policy_url:
-        policy_limits_path, policy_limits_hash, policy_limits_tmp = materialize_distill_policy_url(args.distill_policy_url)
-    if preloaded_calc is None:
-        load_started = time.perf_counter()
-        calc = load_calculator(args.mlip_id, default_dtype=calc_dtype)
-        model_load_s = max(time.perf_counter() - load_started, 0.0)
-        model_preloaded = False
-    else:
-        calc = preloaded_calc
-        model_load_s = float(preloaded_model_load_s or 0.0)
-        model_preloaded = True
 
     warm_started = time.perf_counter()
     distill_session = None
@@ -933,6 +1055,25 @@ def run_cell(
             runtime_session=distill_session,
             checkpoint=checkpoint,
         )
+    if strict:
+        from src.predictor_provenance import ProvenanceError, canonical
+        cases = select_row(manifest, "forces").cases
+        predictions = row_result.get("predictions")
+        if (not isinstance(predictions, list) or not cases or len(predictions) != len(cases)
+            or row_result.get("n_structures") != len(cases)
+            or isinstance(row_result.get("score"), bool)
+            or not isinstance(row_result.get("score"), (int, float))
+            or not math.isfinite(row_result["score"])):
+            raise ProvenanceError("strict forces output is incomplete or has an invalid score")
+        canonical(row_result)
+        for case, prediction in zip(cases, predictions):
+            if not isinstance(prediction, dict) or prediction.get("status", "completed") != "completed":
+                raise ProvenanceError("strict forces output contains a failed prediction")
+            forces = np.asarray(prediction.get("forces_ev_per_angstrom"))
+            if (prediction.get("structure_id") != case.get("structure_id")
+                or forces.dtype.kind not in "iuf" or forces.shape != (len(case.get("symbols", [])), 3)
+                or forces.shape[0] == 0 or not np.isfinite(forces).all()):
+                raise ProvenanceError("strict forces output has incomplete or invalid atom forces")
     if checkpoint is not None:
         checkpoint.flush(force=True)
     warm_duration_s = max(time.perf_counter() - warm_started, 1e-9)
@@ -953,6 +1094,7 @@ def run_cell(
         "runner_image_digest": os.environ.get("RUNNER_IMAGE_DIGEST"),
         "runner_image_uri": os.environ.get("RUNNER_IMAGE_URI"),
         "model_preloaded": model_preloaded,
+        "predictor_provenance": provenance,
     }
     distill_events_uri = None
     distill_summary = None
@@ -1088,10 +1230,16 @@ def batch_cell_namespace(global_args: argparse.Namespace, spec: dict[str, Any], 
         "profile": spec.get("profile") or global_args.profile,
         "fixture_id": spec.get("fixture_id") or global_args.fixture_id,
     }
-    for key, value in defaults.items():
-        merged[key.replace("-", "_")] = value
-    for key, value in cell.items():
-        merged[key.replace("-", "_")] = value
+    for layer in (defaults, cell):
+        normalized = {key.replace("-", "_"): value for key, value in layer.items()}
+        if len(normalized) != len(layer):
+            raise ValueError("duplicate normalized batch fields")
+        if merged.get("predictor_provenance") == "strict":
+            if normalized.get("predictor_provenance", "strict") != "strict":
+                raise ValueError("batch cannot downgrade inherited strict predictor provenance")
+            if merged.get("expected_predictor") and normalized.get("expected_predictor", merged["expected_predictor"]) != merged["expected_predictor"]:
+                raise ValueError("batch cannot replace inherited expected predictor pin")
+        merged.update(normalized)
     if not merged.get("manifest_url"):
         merged["manifest_url"] = merged.get("fixture_url")
     if not merged.get("fixture_url"):
@@ -1140,13 +1288,18 @@ def run_batch(args: argparse.Namespace) -> dict[str, Any]:
     if len(mlip_ids) != 1:
         raise ValueError(f"run-batch requires exactly one mlip_id; found {sorted(mlip_ids)}")
     mlip_id = next(iter(mlip_ids))
+    strict_batch = False
+    for cell in cells:
+        cell_args = batch_cell_namespace(args, spec, {**cell, "mlip_id": mlip_id})
+        strict_cell, _expected = predictor_policy(cell_args)
+        strict_batch = strict_batch or strict_cell
     started = time.perf_counter()
     load_started = time.perf_counter()
     completed: list[dict[str, Any]] = []
     failed: list[dict[str, Any]] = []
     support_cache: dict[tuple[str, str, str], Any] = {}
     try:
-        calc = load_calculator(mlip_id)
+        calc = load_calculator(mlip_id, device_override="cpu") if strict_batch else load_calculator(mlip_id)
         model_load_s = max(time.perf_counter() - load_started, 0.0)
     except Exception as exc:
         for cell in cells:

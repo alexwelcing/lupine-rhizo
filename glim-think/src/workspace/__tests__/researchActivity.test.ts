@@ -78,6 +78,18 @@ describe("reviewed public activity contract", () => {
     }
     expect(() => decodePublicResearchActivity({ ...value, datasets: [{ ...value.datasets[0], path: "private" }] })).toThrow();
   });
+  it("accepts an explicit workflow repair without model receipts and rejects unknown kinds", async () => {
+    expect(recordContract.properties.evidenceKind.enum).toContain("workflow_repair");
+    const value = { ...record(), evidenceKind: "workflow_repair", verification: "source_checked", datasets: [] };
+    expect(decodePublicResearchActivity(value).evidenceKind).toBe("workflow_repair");
+    expect(() => decodePublicResearchActivity({ ...value, evidenceKind: "unknown_kind" })).toThrow();
+    expect(() => decodePublicResearchActivity({ ...value, receipt: "fabricated" })).toThrow();
+    const h = harness();
+    expect((await importPublicResearchActivity(h.env, value)).duplicate).toBe(false);
+    const feed = await listPublicResearchActivity(h.env, 20);
+    expect(feed.items[0].evidenceKind).toBe("workflow_repair");
+    expect(feed.items[0].datasets).toEqual([]);
+  });
   it.each(["/Users/person/private.json", "work/private/result.json", "outputs/private.json", "gs://private-bucket/object", "user@example.org", "10.0.0.1", "device.tail000.ts.net", "awphone", "Bearer abcdefghijklmnop", "sk-proj-abcdefghijklmnop", "ghp_abcdefghijklmnop", "<script>unsafe</script>"])("rejects private text %s", text => {
     expect(() => decodePublicResearchActivity({ ...record(), summary: text })).toThrow();
   });

@@ -34,7 +34,10 @@ both before import. No URL is fetched by the importer.
 
 `evidenceKind: archived_analysis` describes calculations on existing data; it
 does not manufacture LLM draft, critique or decision receipts. `research_cycle`
-is a separate kind for an explicitly reviewed cycle summary. Neither accepts
+is a separate kind for an explicitly reviewed cycle summary. `workflow_repair`
+describes a tested change to research infrastructure, not a scientific outcome
+or an executed model cycle. Publish its test scope and unverified runtime
+boundaries explicitly. None of these kinds accepts
 private packets or receipt/identity fields. `state` is one of `planned`,
 `running`, `completed`, `failed`, or `blocked`. `verification` is a separate
 claim: `pending`, `arithmetic_checked`, or `source_checked`. The checked states
@@ -47,6 +50,10 @@ observed; `reviewedAt` records the actual public-summary review. Both use UTC
 with milliseconds. Review must not precede observation or lie in the future.
 Imports and refreshes never replace either time. Responses have no generated
 evidence timestamp. HTTP cache duration is 30 seconds; it is not evidence age.
+
+Consumers must accept a new evidence kind before the producer publishes it.
+For `workflow_repair`, release the coordinated Library consumer first; already
+open older clients may need a reload. Unknown kinds continue to fail closed.
 
 ## Authorized browser import
 
@@ -95,9 +102,10 @@ preserves parameterized `sql`/`params` for D1 API clients. The SQL file uses
 UTF-8 hex literals so reviewed text cannot inject SQL. Existing output files
 are never overwritten.
 
-Before publishing the worker, the authorized deployment applies only
-`glim-think/migrations/0021_public_research_activity.sql`, then its prepared
-public insert file to the chosen D1 binding. Database triggers independently
+The authorized deployment first applies only
+`glim-think/migrations/0021_public_research_activity.sql`, then deploys the validated worker, then applies its prepared
+public insert file to the chosen D1 binding. This ordering lets the new validator
+accept additive evidence kinds before they enter the live feed. Database triggers independently
 enforce immutable IDs, duplicate idempotency, current ancestry and same-state
 terminal corrections, including for this offline path. A conflict aborts its
 insert; the workflow must fail and review it rather than replacing history.

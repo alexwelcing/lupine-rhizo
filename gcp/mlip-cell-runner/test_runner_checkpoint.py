@@ -100,6 +100,8 @@ def test_cell_checkpoint_reuses_raw_predictions_across_variants(tmp_path) -> Non
 def test_gcs_checkpoint_buffers_rapid_prediction_writes(monkeypatch) -> None:
     writes = []
     case = {"structure_id": "Al-1", "symbols": ["Al"], "positions": [[0.0, 0.0, 0.0]]}
+    # Read-before-write protects existing strict evidence, even for legacy writers.
+    monkeypatch.setattr(runner, "read_url", lambda _url: (_ for _ in ()).throw(FileNotFoundError()))
     checkpoint = CellCheckpoint("gs://bucket/cell_checkpoint.json", "write-only", **context())
 
     def fake_write_url(url, data, content_type="application/octet-stream"):

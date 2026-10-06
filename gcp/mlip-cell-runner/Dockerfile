@@ -36,6 +36,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir -r requirements-backend.txt
 
 COPY gcp/mlip-cell-runner/mlip_cell_runner.py ./
+COPY gcp/mlip-cell-runner/src/predictor_provenance.py ./src/predictor_provenance.py
 COPY gcp/mlip-cell-runner/z1_barrier.py ./
 # Sparse-DFT row imports gpaw lazily; images without gpaw keep every other
 # row working and fail the sparse row closed at evaluation time.

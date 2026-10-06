@@ -64,7 +64,7 @@ export const publicResearchActivitySchema = z.strictObject({
   schema: z.literal(PUBLIC_ACTIVITY_SCHEMA),
   id: publicActivityIdSchema,
   activityId: publicActivityIdSchema,
-  evidenceKind: z.enum(["archived_analysis", "research_cycle"]),
+  evidenceKind: z.enum(["archived_analysis", "research_cycle", "workflow_repair"]),
   state: z.enum(["planned", "running", "completed", "failed", "blocked"]),
   verification: z.enum(["pending", "arithmetic_checked", "source_checked"]),
   title: text(160),

@@ -17,7 +17,9 @@ Rhizo connects an hourly PI's deliberate scientific checks with the automated Gl
 
 The Library now has a dedicated reviewed-public-activity contract, separate from private conversations and execution records. The read-only `/research/activity` feed exposes explicit summaries and timestamps; protected imports append immutable records. It does not mirror private tables or infer success from a model receipt.
 
-- [Latest checked advance: pinned-source overlap and model provenance](docs/research-progress/2026-10-06-pinned-source-overlap.md)
+- [Latest checked advance: offline predictor and cache provenance repair](docs/research-progress/2026-10-06-predictor-provenance.md)
+- [Proposed next study: fixed error-ranking scores](docs/research-progress/2026-10-06-prospective-ranking-protocol.md)
+- [Pinned-source overlap and historical model provenance](docs/research-progress/2026-10-06-pinned-source-overlap.md)
 - [Archived-panel method and provenance](docs/research-progress/2026-10-06-disagreement-panels.md)
 - [Public activity contract and publishing](docs/public-research-activity.md)
 - [Release notes](docs/releases/research-live-2026-10-06.md)
