@@ -7,6 +7,8 @@ use sha2::{Digest, Sha256};
 use crate::budget::Admission;
 use crate::CloudCellTelemetry;
 
+// async_trait adds a redundant must_use to boxed futures (Clippy 1.99).
+#[allow(clippy::double_must_use)]
 #[axum::async_trait]
 pub trait TraceEmitter: Send + Sync {
     fn enabled(&self) -> bool {
