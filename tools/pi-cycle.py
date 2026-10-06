@@ -11,6 +11,7 @@ import base64
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shlex
 import sqlite3
@@ -37,6 +38,7 @@ def emit(value):
 REMOTE_WAIT_SECONDS = 360
 REMOTE_POLL_SECONDS = 15
 REMOTE_CALL_SECONDS = 25
+REMOTE_COMMAND_CHAR_LIMIT = 32768  # The original Homebase controller's limit.
 TERMINAL_FAILURES = {
     "blocked", "failed", "timeout", "output_limit", "interrupted", "invalid_result", "policy_violation",
     "launch_unknown", "launch_failed", "transport_unknown", "status_unknown", "poll_timeout",
@@ -56,10 +58,11 @@ def remote_command(job, source, action="launch"):
             "source_sha256": hashlib.sha256(source_bytes).hexdigest(), "source_bytes": len(source_bytes)}
     if action == "launch":
         data.update(job=job, source=source)
-    payload = base64.b64encode(zlib.compress(runner.canonical(data))).decode()
+    # Base85 reduces command expansion without another runtime dependency.
+    payload = base64.b85encode(zlib.compress(runner.canonical(data), 9)).decode()
     program = """import base64,hashlib,importlib.util,json,os,pathlib,sys,zlib
 sys.dont_write_bytecode=True
-p=json.loads(zlib.decompress(base64.b64decode(PAYLOAD)))
+p=json.loads(zlib.decompress(base64.b85decode(PAYLOAD)))
 root=pathlib.Path.home()/'.local/share/lupine-scientific-pi'
 if root.is_symlink():raise RuntimeError('worker directory must not be a symlink')
 if p['action']=='launch':
@@ -107,6 +110,7 @@ def remote_critique(job, state):
     deadline = time.monotonic() + REMOTE_WAIT_SECONDS
     acknowledged = False
     sequence = 0
+    launch_command = None
 
     def stopped(status, message, unknown=True):
         # This is controller evidence of an unresolved/failed handoff, never a
@@ -123,14 +127,20 @@ def remote_critique(job, state):
     def request(action):
         nonlocal sequence
         sequence += 1
-        command = remote_command(job, source, action)
-        if len(command.encode()) > 100000:
+        command = launch_command if action == "launch" else remote_command(job, source, action)
+        if len(command) > REMOTE_COMMAND_CHAR_LIMIT:
             raise RuntimeError("research handoff exceeds command transport bound")
         process = runner.bounded_process([
             HOMEBASE, "exec", "linux-laptop", command, "--timeout", "20", "--label",
             "Launch one bounded independent critique" if action == "launch" else "Read the same independent critique status",
         ], b"", str(Path.cwd()), runner.cli_environment(), REMOTE_CALL_SECONDS, 262144)
         transport_path = folder / f"transport-{sequence:03d}-{action}.json"
+        # Bounded private diagnostics stay local, never in exported snapshots.
+        for stream in ("stdout", "stderr"):
+            diagnostic = folder / f"transport-{sequence:03d}-{action}.{stream}.log"
+            fd = os.open(diagnostic, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(fd, "wb") as out:
+                out.write(process[stream])
         summary = {"action": action, "job_id": job["job_id"], "runner_source_sha256": source_hash,
                    "stop_reason": process["stop_reason"], "returncode": process["returncode"], "automatic_retry": False}
         runner.write_json(transport_path, summary)
@@ -155,6 +165,11 @@ def remote_critique(job, state):
         return value
 
     try:
+        # Check the exact command limit before any transport. An oversized
+        # request is a known local launch failure, not remote uncertainty.
+        launch_command = remote_command(job, source, "launch")
+        if len(launch_command) > REMOTE_COMMAND_CHAR_LIMIT:
+            return stopped("launch_failed", "Research brief and runner exceed the Homebase command limit; nothing was sent", False)
         # Exactly one launch request. Even a definite launch failure is retained
         # under this immutable ID; a later action requires an explicit new job.
         launch = request("launch")
@@ -258,6 +273,58 @@ def validate_adopted_discovery(state, job_id, brief):
     read_completed(state, job_id)
 
 
+def open_ledger(db_path):
+    db = sqlite3.connect(db_path)
+    db_path.chmod(0o600)
+    db.executescript("""CREATE TABLE IF NOT EXISTS scientific_pi_cycles (
+      cycle_id TEXT PRIMARY KEY, question TEXT NOT NULL, started_at TEXT NOT NULL,
+      finished_at TEXT, status TEXT NOT NULL, decision_json TEXT, error TEXT);
+      CREATE TABLE IF NOT EXISTS scientific_pi_stages (
+      cycle_id TEXT NOT NULL, stage TEXT NOT NULL, job_id TEXT NOT NULL,
+      receipt_json TEXT NOT NULL, result_json TEXT NOT NULL,
+      PRIMARY KEY(cycle_id,stage));""")
+    # A completed immutable discovery can inform another explicitly requested
+    # cycle. It is a reference to saved evidence, not another model execution.
+    # Legacy ledgers accidentally made job_id unique across ALL cycles. Remove
+    # only that constraint, transactionally preserving every original row.
+    def has_legacy_index():
+        for index in db.execute("PRAGMA index_list(scientific_pi_stages)").fetchall():
+            name = index[1].replace('"', '""')
+            columns = [row[2] for row in db.execute(f'PRAGMA index_info("{name}")')]
+            if index[2] and columns == ["job_id"]:
+                return True
+        return False
+    if has_legacy_index():
+        backup = db_path.with_name("pi-ledger.before-stage-sharing.sqlite3")
+        if not backup.exists():
+            fd = os.open(backup, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            os.close(fd)
+            snapshot = sqlite3.connect(backup)
+            try: db.backup(snapshot)
+            finally: snapshot.close()
+        try:
+            db.execute("BEGIN IMMEDIATE")
+            if has_legacy_index():
+                columns = [row[1] for row in db.execute("PRAGMA table_info(scientific_pi_stages)")]
+                if columns != ["cycle_id", "stage", "job_id", "receipt_json", "result_json"]:
+                    raise RuntimeError("Unknown stage schema; ledger preserved without migration")
+                db.execute("""CREATE TABLE scientific_pi_stages_shared (
+                  cycle_id TEXT NOT NULL, stage TEXT NOT NULL, job_id TEXT NOT NULL,
+                  receipt_json TEXT NOT NULL, result_json TEXT NOT NULL,
+                  PRIMARY KEY(cycle_id,stage))""")
+                db.execute("INSERT INTO scientific_pi_stages_shared SELECT * FROM scientific_pi_stages")
+                if db.execute("SELECT * FROM scientific_pi_stages EXCEPT SELECT * FROM scientific_pi_stages_shared").fetchone():
+                    raise RuntimeError("Stage migration did not preserve records")
+                db.execute("DROP TABLE scientific_pi_stages")
+                db.execute("ALTER TABLE scientific_pi_stages_shared RENAME TO scientific_pi_stages")
+            db.commit()
+        except BaseException:
+            db.rollback()
+            db.close()
+            raise
+    return db
+
+
 def run_cycle(brief, state, cycle_id, adopt_discovery=None):
     if not runner.ID.fullmatch(cycle_id) or len(cycle_id) > 70:
         raise ValueError("cycle-id must be a safe identifier of at most 70 characters")
@@ -270,15 +337,7 @@ def run_cycle(brief, state, cycle_id, adopt_discovery=None):
     folder.mkdir(mode=0o700)  # Exclusive: reusing the cycle ID never starts work.
     runner.write_json(folder / "brief.json", brief)
     db_path = state / "pi-ledger.sqlite3"
-    db = sqlite3.connect(db_path)
-    db_path.chmod(0o600)
-    db.executescript("""CREATE TABLE IF NOT EXISTS scientific_pi_cycles (
-      cycle_id TEXT PRIMARY KEY, question TEXT NOT NULL, started_at TEXT NOT NULL,
-      finished_at TEXT, status TEXT NOT NULL, decision_json TEXT, error TEXT);
-      CREATE TABLE IF NOT EXISTS scientific_pi_stages (
-      cycle_id TEXT NOT NULL, stage TEXT NOT NULL, job_id TEXT NOT NULL UNIQUE,
-      receipt_json TEXT NOT NULL, result_json TEXT NOT NULL,
-      PRIMARY KEY(cycle_id,stage));""")
+    db = open_ledger(db_path)
     db.execute("INSERT INTO scientific_pi_cycles(cycle_id,question,started_at,status) VALUES(?,?,?,'running')",
                (cycle_id, brief["question"], runner.now()))
     db.commit()

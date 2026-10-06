@@ -81,6 +81,20 @@ class ProtocolTests(unittest.TestCase):
         with self.assertRaises(pi.Invalid):
             pi.scientific_checks(result, job)
 
+    def test_review_schema_constrains_references_before_model_generation(self):
+        job = critic()
+        schema = pi.schema_for(job)
+        properties = schema["properties"]
+        self.assertEqual(properties["reviewed_job_id"]["enum"], [job["review_of"]["job_id"]])
+        self.assertEqual(properties["source_checks"]["items"]["properties"]["source_id"]["enum"],
+                         [s["id"] for s in job["review_of"]["packet"]["sources"]])
+        packet = fixture("critique.json")
+        packet["source_checks"][0]["source_id"] = "invented-source"
+        with self.assertRaises(pi.Invalid):
+            pi.validate(packet, schema)
+        self.assertNotIn("enum", pi.CRITIC_SCHEMA["properties"]["source_checks"]["items"]["properties"]["source_id"])
+        self.assertIn("additional prior-art leads", pi.prompt_for(job))
+
     def test_experiment_execution_and_missing_falsifier_rejected(self):
         for modify in (lambda p: p["proposals"][0].pop("falsifier"),
                        lambda p: p["proposals"][0]["cheap_discriminating_experiment"].update(execution="completed")):
@@ -121,16 +135,23 @@ class ProtocolTests(unittest.TestCase):
         self.assertNotIn("--dangerously-skip-permissions", claude)
         self.assertEqual(claude[claude.index("--output-format") + 1], "stream-json")
         self.assertIn("--verbose", claude)
-        self.assertIn("--include-partial-messages", claude)
+        # Complete assistant/tool/result frames preserve the audit without
+        # duplicating every token in thousands of partial-message envelopes.
+        self.assertNotIn("--include-partial-messages", claude)
         codex = pi.argv_for(proposer(), "/bin/codex", "/tmp/cwd", Path("/tmp/schema"))
         self.assertEqual(codex[codex.index("--sandbox") + 1], "read-only")
         self.assertIn("--ignore-user-config", codex)
         self.assertIn("shell_tool", codex)
-        with mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "fixture-secret", "OPENAI_API_KEY": "fixture-secret", "HOME": "/tmp/auth-home"}):
+        with mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "fixture-secret", "OPENAI_API_KEY": "fixture-secret", "HOME": "/tmp/auth-home",
+                                         "OTEL_EXPORTER_OTLP_ENDPOINT": "https://fixture.invalid", "CLAUDE_CODE_ENABLE_TELEMETRY": "1"}):
             env = pi.cli_environment()
         self.assertNotIn("ANTHROPIC_API_KEY", env)
         self.assertNotIn("OPENAI_API_KEY", env)
         self.assertEqual(env["HOME"], "/tmp/auth-home")
+        self.assertEqual(env["DISABLE_TELEMETRY"], "1")
+        self.assertEqual(env["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"], "1")
+        self.assertNotIn("OTEL_EXPORTER_OTLP_ENDPOINT", env)
+        self.assertEqual(env["CLAUDE_CODE_ENABLE_TELEMETRY"], "0")
 
     def test_preflight_rejects_api_auth_without_inference(self):
         help_text = "--ignore-user-config --ephemeral --sandbox --json --output-schema --disable"
@@ -168,6 +189,38 @@ class ClaudeStreamTests(unittest.TestCase):
         self.assertEqual(metadata["output_protocol"], "claude_legacy_buffered_json")
         with self.assertRaises(pi.Invalid):
             pi.parse_completion("claude", raw, critic(), require_claude_stream=True)
+
+    def test_only_exact_bundled_engine_plugins_are_compatible(self):
+        events = [json.loads(line) for line in (FIXTURES / "claude-stream-completed.jsonl").read_text().splitlines()]
+        builtins = [{"name": name, "path": "builtin", "source": name + "@builtin"} for name in ("agents-md", "telemetry")]
+        raw = b"\n".join(pi.canonical(event) for event in [{**events[0], "plugins": builtins}, *events[1:]])
+        _, metadata = pi.parse_completion("claude", raw, critic(), require_claude_stream=True)
+        self.assertEqual(metadata["builtin_plugins"], ["agents-md", "telemetry"])
+        for plugins in ([{**builtins[0], "path": "/tmp/installed"}], [{**builtins[0], "source": "agents-md@marketplace"}],
+                        [{**builtins[0], "extra": "unreviewed"}], [builtins[0], builtins[0]], "builtin", [{"name": "other", "path": "builtin", "source": "other@builtin"}]):
+            with self.subTest(plugins=plugins), self.assertRaises(pi.Invalid):
+                pi.parse_completion("claude", b"\n".join(pi.canonical(event) for event in [{**events[0], "plugins": plugins}, *events[1:]]), critic(), require_claude_stream=True)
+
+    def test_empty_command_registry_notification_does_not_expand_tools(self):
+        events = [json.loads(line) for line in (FIXTURES / "claude-stream-completed.jsonl").read_text().splitlines()]
+        notification = {"type": "system", "subtype": "commands_changed", "commands": []}
+        raw = b"\n".join(pi.canonical(event) for event in [events[0], notification, *events[1:]])
+        pi.parse_completion("claude", raw, critic(), require_claude_stream=True)
+        for commands in (None, ["shell"], {}, ""):
+            with self.subTest(commands=commands), self.assertRaises(pi.Invalid):
+                pi.parse_completion("claude", b"\n".join(pi.canonical(event) for event in [events[0], {**notification,"commands":commands}, *events[1:]]), critic(), require_claude_stream=True)
+
+    def test_thinking_progress_is_numeric_only_and_never_completion(self):
+        events = [json.loads(line) for line in (FIXTURES / "claude-stream-completed.jsonl").read_text().splitlines()]
+        progress = {"type": "system", "subtype": "thinking_tokens", "estimated_tokens": 50, "estimated_tokens_delta": 50}
+        raw = b"\n".join(pi.canonical(event) for event in [events[0], progress, *events[1:]])
+        pi.parse_completion("claude", raw, critic(), require_claude_stream=True)
+        for change in ({"estimated_tokens": True}, {"estimated_tokens": -1}, {"estimated_tokens_delta": None},
+                       {"estimated_tokens": 1_000_001}, {"estimated_tokens": "50"}, {"command": "example"}):
+            with self.subTest(change=change), self.assertRaises(pi.Invalid):
+                pi.parse_completion("claude", b"\n".join(pi.canonical(event) for event in [events[0], {**progress, **change}, *events[1:]]), critic(), require_claude_stream=True)
+        with self.assertRaises(pi.Invalid):
+            pi.parse_completion("claude", b"\n".join(pi.canonical(event) for event in [events[0], progress]), critic(), require_claude_stream=True)
 
     def test_partial_stream_has_diagnostics_never_completion(self):
         raw = (FIXTURES / "claude-stream-partial.jsonl").read_bytes()

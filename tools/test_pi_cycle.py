@@ -137,6 +137,32 @@ class ControllerProvenanceTests(unittest.TestCase):
         self.assertEqual(emit.call_args_list[-1].args[0]["status"], "timeout")
         self.assertFalse((self.state / "timeout-cycle-decision").exists())
 
+    def test_legacy_stage_migration_preserves_history_and_reuses_completed_evidence(self):
+        path = self.state / "pi-ledger.sqlite3"
+        original = ("prior-cycle", "discovery", self.job["job_id"], json.dumps(self.receipt), json.dumps(self.result))
+        with closing(sqlite3.connect(path)) as db:
+            db.execute("""CREATE TABLE scientific_pi_stages(cycle_id TEXT NOT NULL, stage TEXT NOT NULL,
+                job_id TEXT NOT NULL UNIQUE, receipt_json TEXT NOT NULL, result_json TEXT NOT NULL,
+                PRIMARY KEY(cycle_id,stage))""")
+            db.execute("INSERT INTO scientific_pi_stages VALUES(?,?,?,?,?)", original)
+            db.commit()
+        with mock.patch.object(cycle, "remote_critique", side_effect=self.save_failed_fixture) as remote, \
+                mock.patch.object(cycle.runner, "run_job") as run, mock.patch.object(cycle, "emit"):
+            with self.assertRaisesRegex(RuntimeError, "did not complete"):
+                cycle.run_cycle(self.brief, self.state, "explicit-new-cycle", self.job["job_id"])
+        run.assert_not_called(); remote.assert_called_once()
+        with closing(sqlite3.connect(path)) as db:
+            self.assertEqual(db.execute("SELECT * FROM scientific_pi_stages WHERE cycle_id='prior-cycle'").fetchone(), original)
+            self.assertEqual(db.execute("SELECT count(*) FROM scientific_pi_stages WHERE job_id=?", (self.job["job_id"],)).fetchone()[0], 2)
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("INSERT INTO scientific_pi_stages VALUES(?,?,?,?,?)", original)
+        backup = path.with_name("pi-ledger.before-stage-sharing.sqlite3")
+        self.assertEqual(backup.stat().st_mode & 0o777, 0o600)
+        with closing(sqlite3.connect(backup)) as db:
+            self.assertEqual(db.execute("SELECT * FROM scientific_pi_stages").fetchall(), [original])
+        with closing(cycle.open_ledger(path)) as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM scientific_pi_stages").fetchone()[0], 3)
+
     def test_blocked_discovery_is_durable_and_does_not_dispatch_critique(self):
         def blocked(raw, state, _cli):
             return self.save_failed_fixture(raw, state, "blocked")
@@ -261,6 +287,15 @@ class AsynchronousCritiqueTests(unittest.TestCase):
         self.assertEqual(process.call_count, 1)
         self.assertEqual([call.args[2] for call in command.call_args_list], ["launch"])
         self.assertFalse((self.state / self.job["job_id"] / "result.json").exists())
+
+    def test_oversized_handoff_is_rejected_locally_without_any_transport(self):
+        with mock.patch.object(cycle, "REMOTE_COMMAND_CHAR_LIMIT", 20), \
+                mock.patch.object(cycle.runner, "bounded_process") as process:
+            receipt = cycle.remote_critique(self.job, self.state)
+        process.assert_not_called()
+        self.assertEqual(receipt["status"], "launch_failed")
+        self.assertFalse(receipt["completion_unknown"])
+        self.assertFalse(receipt["model_execution_started"])
 
     def test_uncertain_launch_acknowledgment_does_not_even_poll(self):
         receipt, process, command = self.run_remote([self.response("launch", {**self.launch, "status": "launch_unknown"})])

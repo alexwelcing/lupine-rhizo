@@ -18,7 +18,7 @@ import time
 import uuid
 from urllib.parse import urlsplit
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$")
 MAX_JOB_BYTES = 131072
 CODEX_DISABLED = ("shell_tool", "unified_exec", "hooks", "plugins", "apps", "memories",
@@ -51,6 +51,7 @@ class ClaudeStreamAudit:
         self.results = []
         self.trailing_partial = False
         self.api_retries = 0
+        self.builtin_plugins = set()
         self.allowed = {"StructuredOutput"}
         if job["tool_mode"] == "web":
             self.allowed.update(("WebSearch", "WebFetch", "web_search", "web_fetch"))
@@ -119,13 +120,41 @@ class ClaudeStreamAudit:
                 startup_tools = event.get("tools")
                 if not isinstance(startup_tools, list) or any(t not in self.allowed for t in startup_tools if isinstance(t, str)) or any(not isinstance(t, str) for t in startup_tools):
                     self.problem("forbidden_startup_tools")
-                if any(event.get(key) for key in ("mcp_servers", "mcp_server_errors", "plugins", "plugin_errors")):
+                if any(event.get(key) for key in ("mcp_servers", "mcp_server_errors", "plugin_errors")):
                     self.problem("unexpected_extension_startup")
+                # Claude 2.1.283 advertises these bundled engine modules even in
+                # safe mode. That mode loads no instruction files; our child
+                # environment disables telemetry. Never accept installed plugins
+                # by name alone, or expand executable tool permissions here.
+                plugins = event.get("plugins", [])
+                if not isinstance(plugins, list):
+                    self.problem("unexpected_extension_startup")
+                else:
+                    for plugin in plugins:
+                        if (not isinstance(plugin, dict)
+                                or plugin.get("name") not in ("agents-md", "telemetry")
+                                or plugin != {"name": plugin.get("name"), "path": "builtin", "source": str(plugin.get("name")) + "@builtin"}
+                                or plugin["name"] in self.builtin_plugins):
+                            self.problem("unexpected_extension_startup")
+                        else:
+                            self.builtin_plugins.add(plugin["name"])
                 # Unknown capability strings are informational, never authority.
             elif subtype == "permission_denied":
                 self.problem("permission_denied")
             elif subtype == "api_retry":
                 self.api_retries += 1
+            elif subtype == "commands_changed":
+                # Observed in 2.1.283 after startup despite disabled slash
+                # commands. An empty registry grants no capabilities.
+                if event.get("commands") != []:
+                    self.problem("unexpected_command_registry")
+            elif subtype == "thinking_tokens":
+                # A documented progress counter, never text or tool authority.
+                allowed = {"type", "subtype", "session_id", "uuid", "user_message_uuid",
+                           "estimated_tokens", "estimated_tokens_delta"}
+                counts = [event.get("estimated_tokens"), event.get("estimated_tokens_delta")]
+                if set(event) - allowed or any(type(value) is not int or not 0 <= value <= 1_000_000 for value in counts):
+                    self.problem("invalid_thinking_progress")
             elif subtype in ("hook_started", "hook_progress", "hook_response", "plugin_install"):
                 self.problem("forbidden_startup_customization")
             elif subtype not in ("status", "compact_boundary", "warning"):
@@ -187,6 +216,7 @@ class ClaudeStreamAudit:
                 "output_protocol": "claude_stream_json", "stream_event_count": self.count,
                 "stream_event_types": sorted(self.types), "initialization_observed": self.initialized,
                 "trailing_partial_event": self.trailing_partial, "protocol_problems": self.problems,
+                "builtin_plugins": sorted(self.builtin_plugins),
                 "provider_retry_events": self.api_retries, "final_result_observed": len(self.results) == 1}
 
 
@@ -333,7 +363,25 @@ def checked_job(raw):
 
 
 def schema_for(job):
-    return {"proposer": PROPOSER_SCHEMA, "critic": CRITIC_SCHEMA, "adjudicator": ADJUDICATOR_SCHEMA}[job["role"]]
+    schema = json.loads(canonical({"proposer": PROPOSER_SCHEMA, "critic": CRITIC_SCHEMA, "adjudicator": ADJUDICATOR_SCHEMA}[job["role"]]))
+    review = job.get("review_of")
+    if review:
+        fields = schema["properties"]
+        fields["reviewed_job_id"] = choice(review["job_id"])
+        fields["reviewed_packet_sha256"] = choice(review["packet_sha256"])
+        source_ids = [source["id"] for source in review["packet"]["sources"]]
+        proposal_ids = [proposal["id"] for proposal in review["packet"]["proposals"]]
+        if job["role"] == "critic":
+            fields["source_checks"]["items"]["properties"]["source_id"] = choice(*source_ids)
+            fields["critiques"]["items"]["properties"]["proposal_id"] = choice(*proposal_ids)
+            if job["tool_mode"] == "none":
+                fields["source_checks"]["items"]["properties"]["status"] = choice("provided_only", "contradicted", "unverified")
+        else:
+            fields["selected_proposal_id"] = choice(*proposal_ids)
+            fields["source_ids"]["items"] = choice(*source_ids)
+            for key in ("job_id", "packet_sha256"):
+                fields["critique_" + key] = choice(job["critique_of"][key])
+    return schema
 
 
 def scientific_checks(result, job):
@@ -400,7 +448,7 @@ The complete JSON result must be under 48 KiB.
 
 def prompt_for(job):
     if job["role"] == "critic":
-        role = "Independently criticize the proposal packet. Do not rubber-stamp it. With no tools, label source checks provided_only or unverified; you have not retrieved the papers yourself."
+        role = "Independently criticize the proposal packet. Do not rubber-stamp it. With no tools, label source checks provided_only or unverified; you have not retrieved the papers yourself. Source checks must reference only IDs in review_of.packet.sources. Discuss any additional prior-art leads in prior_art_overlap or required_changes as explicitly unverified prose, without inventing new source-check IDs."
     elif job["role"] == "adjudicator":
         role = "Act as the PI after independent critique. Select the most informative hypothesis, adjudicate the critic's objections, revise the discriminating test, or reject it. Explicitly explain how critique changed your decision. No experiment or publication is authorized."
     else:
@@ -425,7 +473,7 @@ def argv_for(job, cli, workspace, schema_path):
     args = [cli, "-p", "--safe-mode", "--restricted", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
             "--tools", "WebSearch,WebFetch" if job["tool_mode"] == "web" else "", "--no-session-persistence",
             "--permission-prompts", "none", "--permission-mode", "dontAsk", "--disable-slash-commands",
-            "--output-format", "stream-json", "--verbose", "--include-partial-messages",
+            "--output-format", "stream-json", "--verbose",
             "--json-schema", canonical(schema_for(job)).decode(), "--max-turns", str(job["max_turns"])]
     if job["tool_mode"] == "web":
         args += ["--allowedTools", "WebSearch,WebFetch"]
@@ -440,7 +488,11 @@ def cli_environment():
     forbidden = {"ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "OPENAI_API_KEY", "OPENAI_BASE_URL",
                  "CODEX_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CODE_USE_VERTEX",
                  "CLAUDE_CODE_USE_FOUNDRY", "CLAUDE_CONFIG_DIR", "NODE_OPTIONS", "PYTHONPATH"}
-    return {k: v for k, v in os.environ.items() if k not in forbidden}
+    env = {k: v for k, v in os.environ.items() if k not in forbidden and not k.startswith("OTEL_")}
+    # Apply only to these bounded children, preserving the user's CLI settings.
+    env.update(CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1", DISABLE_TELEMETRY="1",
+               DISABLE_ERROR_REPORTING="1", CLAUDE_CODE_ENABLE_TELEMETRY="0")
+    return env
 
 
 def write_json(path, value):
@@ -569,7 +621,7 @@ def preflight(job, cli, cwd, env):
     required = (["--ignore-user-config", "--ephemeral", "--sandbox", "--json", "--output-schema", "--disable"]
         if job["provider"] == "codex" else ["--safe-mode", "--restricted", "--strict-mcp-config", "--mcp-config", "--tools", "--no-session-persistence",
         "--permission-prompts", "--permission-mode", "--disable-slash-commands", "--json-schema",
-        "--output-format", "--verbose", "--include-partial-messages"])
+        "--output-format", "--verbose"])
     if any(flag not in help_text for flag in required):
         raise Invalid("installed CLI lacks required isolation flags; no model was launched")
     version = bounded_process([cli, "--version"], b"", cwd, env, 5, 8192)
