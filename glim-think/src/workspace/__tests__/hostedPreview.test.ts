@@ -23,8 +23,8 @@ const env = {
 let token: string;
 let jwk: JsonWebKey;
 beforeAll(async () => {
-  const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
-  jwk = await crypto.subtle.exportKey("jwk", pair.publicKey);
+  const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]) as CryptoKeyPair;
+  jwk = await crypto.subtle.exportKey("jwk", pair.publicKey) as JsonWebKey;
   const encode = (value: unknown) => btoa(JSON.stringify(value)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
   const data = `${encode({ alg: "RS256", kid: "preview-key" })}.${encode({ email: env.ADMIN_EMAIL, aud: env.CF_ACCESS_AUD,
     iss: "https://preview-test.cloudflareaccess.com", exp: Math.floor(Date.now() / 1000) + 300 })}`;

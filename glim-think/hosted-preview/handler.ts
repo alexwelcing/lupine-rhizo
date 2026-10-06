@@ -29,7 +29,7 @@ export async function previewFetch(request: Request, bindings: PreviewEnv): Prom
     return privateResponse(await routeAgentRequest(request, env) ?? new Response("Not found", { status: 404 }));
   }
   if (request.method !== "GET") return privateResponse(new Response("Not found", { status: 404 }));
-  if (url.pathname === "/") return privateResponse(Response.redirect(new URL("/workspace", url), 302));
+  if (url.pathname === "/") return privateResponse(Response.redirect(new URL("/workspace", url).toString(), 302));
   if (url.pathname === "/workspace" || url.pathname === "/workspace/") {
     const html = workspaceHtml().replace("<body>", '<body><div style="background:#f6d58a;color:#171914;padding:8px 18px;font:13px system-ui">HOSTED PREVIEW · synthetic evidence · real model calls · separate conversation storage</div>');
     return privateResponse(new Response(html, { headers: {

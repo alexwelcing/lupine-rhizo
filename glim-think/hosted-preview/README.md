@@ -110,7 +110,7 @@ Do not run the repository's production deployment workflow for this preview.
 Focused offline checks from `glim-think`:
 
 ```sh
-npx vitest run src/workspace/__tests__/hostedPreview.test.ts --typecheck.enabled=false
+npx vitest run src/workspace/__tests__/hostedPreview.test.ts
 ```
 
 No production secrets, cron schedules, queue consumers or experiment resources
