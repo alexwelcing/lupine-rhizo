@@ -287,6 +287,16 @@ proposed experiment. That experiment remains **not started**, novelty remains
 **unverified**, and public Library publication remains **held**. Accepted research
 packets establish the recorded discussion and provenance, not scientific truth.
 
+## Reviewed public progress after the coordinated release
+
+The earlier publication holds above describe the private research-cycle receipts
+and their original acceptance context. Alex subsequently authorized reviewed
+public activity summaries for the live Library on 2026-10-06. Follow
+[the public activity workflow](../../docs/public-research-activity.md), preserving
+original evidence times, scientific limitations and immutable history. This
+authorization does not publish raw packets or archives and does not turn an
+accepted research discussion into a completed experiment.
+
 ## Focused tests
 
 ```sh
