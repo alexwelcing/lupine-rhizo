@@ -47,6 +47,7 @@ import { getModelCatalog } from "./agents/modelProfiles";
 import { listWorkspaceConversations } from "./workspace/registry";
 import { workspaceProgressResponse } from "./workspace/progress";
 import { researchRunsResponse } from "./workspace/researchRuns";
+import { proofJobsResponse } from "./workspace/proofJobs";
 import { researchActivityResponse } from "./workspace/researchActivity";
 import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
 import { checkWorkspaceRequest, isWorkspaceRoute, WORKSPACE_PRIVATE_HEADERS } from "./middleware/workspaceAccess";
@@ -204,6 +205,9 @@ const baseHandler = {
       // segments, so the access predicate does the same.
       const invalidWorkspaceRequest = checkWorkspaceRequest(request);
       if (invalidWorkspaceRequest) return invalidWorkspaceRequest;
+      // Proofs have a narrowly scoped workspace audience, verified independently.
+      const proofResponse = await proofJobsResponse(request, env);
+      if (proofResponse) return proofResponse;
       if (isGatedRoute(url.pathname, request.method)) {
         const allowed = [env.ADMIN_EMAIL ?? ""].filter(Boolean);
         const denial = await checkAccess(request, env, allowed);

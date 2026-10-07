@@ -7,6 +7,7 @@ import type { Env } from "../../types";
 const doubles = vi.hoisted(() => ({ route: vi.fn() }));
 vi.mock("agents", () => ({ routeAgentRequest: doubles.route }));
 vi.mock("../html", () => ({ workspaceHtml: () => "<html><body>Workspace</body></html>", workspaceJavaScript: "// preview test" }));
+import { proofJobsResponse } from "../proofJobs";
 import { previewFetch } from "../../../hosted-preview/handler";
 
 const inputs = {
@@ -80,7 +81,7 @@ describe("hosted preview isolation", () => {
     expect(JSON.parse(isolated.CLEF_ROUTER_TASK_PROFILES!)).toEqual({ fast: "workers-flash", deep: "workers-deep", code: "workers-deep", research: "workers-deep" });
     expect(getModelCatalog(isolated).profiles.filter(profile => profile.configured).every(profile => profile.provider === "workers-ai")).toBe(true);
   });
-  it.each(["/workspace", "/workspace/app.js", "/workspace/models", "/workspace/progress", "/workspace/research-runs", "/workspace/research-runs/example", "/workspace/research-runs/import", "/agents/research-workspace/test/get-messages", "/agents//research-workspace//test", "/live"])(
+  it.each(["/workspace", "/workspace/app.js", "/workspace/models", "/workspace/proof-jobs", "/workspace/proof-jobs/proof-1/cancel", "/workspace/progress", "/workspace/research-runs", "/workspace/research-runs/example", "/workspace/research-runs/import", "/agents/research-workspace/test/get-messages", "/agents//research-workspace//test", "/live"])(
     "rejects unauthenticated %s before touching agent storage", async path => {
       const response = await previewFetch(new Request(`https://preview.example.test${path}`, { headers: { "X-Internal-Token": "private" } }), { ...env, DEV_MODE: "true", INTERNAL_TASK_TOKEN: "private" } as Env);
       expect(response.status).toBe(403);
@@ -88,6 +89,25 @@ describe("hosted preview isolation", () => {
       expect(doubles.route).not.toHaveBeenCalled();
     },
   );
+  it("independently protects backend proof routes even with bypass flags",async()=>{
+    const db={prepare:vi.fn(()=>({all:async()=>({success:true,results:[]})}))};
+    const backend={...env,LEDGER:db,DEV_MODE:"true",INTERNAL_TASK_TOKEN:"secret",PROOF_ACCESS_TEAM_DOMAIN:env.CF_ACCESS_TEAM_DOMAIN,PROOF_ACCESS_AUD:env.CF_ACCESS_AUD,PROOF_ADMIN_EMAIL:env.ADMIN_EMAIL} as unknown as Env;
+    expect((await proofJobsResponse(new Request("https://preview.example.test/workspace/proof-jobs",{headers:{"X-Internal-Token":"secret"}}),backend))?.status).toBe(403);
+    expect(db.prepare).not.toHaveBeenCalled();
+    expect((await proofJobsResponse(request("/workspace/proof-jobs"),backend))?.status).toBe(200);
+    expect((await proofJobsResponse(request("/workspace/proof-jobs",{Origin:"https://other.test"}),backend))?.status).toBe(403);
+  });
+  it("forwards only signed-in same-origin proof routes to the fixed cloud service",async()=>{
+    const service={fetch:vi.fn(async()=>Response.json({jobs:[]}))} as unknown as Fetcher;
+    const wired={...env,PROOF_SERVICE:service};
+    expect((await previewFetch(new Request("https://preview.example.test/workspace/proof-jobs"),wired)).status).toBe(403);
+    expect((await previewFetch(request("/workspace/proof-jobs",{Origin:"https://other.test"}),wired)).status).toBe(403);
+    expect(service.fetch).not.toHaveBeenCalled();
+    expect((await previewFetch(request("/workspace/proof-jobs"),wired)).status).toBe(200);
+    expect(service.fetch).toHaveBeenCalledOnce();
+    expect((await previewFetch(request("/ops/private"),wired)).status).toBe(404);
+    expect(service.fetch).toHaveBeenCalledOnce();
+  });
   it("serves the real catalog only after verified Access and identifies the preview", async () => {
     const page = await previewFetch(request("/workspace"), env);
     expect(page.status).toBe(200);

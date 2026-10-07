@@ -7,6 +7,7 @@ import type { UIMessage } from "ai";
 import { conversationIdSchema, safeEvidenceHref, workspaceRoutingSummary, type ConversationSummary, type PublicModelProfile, type WorkspaceState } from "../contracts";
 import { ProgressFeed, nextStepDiscussion } from "./ProgressFeed";
 import { ResearchRuns } from "./ResearchRuns";
+import { ProofJobs } from "./ProofJobs";
 import "./style.css";
 
 const LIBRARY = "https://library.lupine.science/#/read/research-index";
@@ -218,6 +219,7 @@ function Chat({ room, onMetadata }: { room: Room; onMetadata: (entry: Conversati
 
 function App() {
   const [room, setRoom] = useState<Room | null>(startingRoom);
+  const [proofOpen, setProofOpen] = useState(() => new URL(location.href).searchParams.get("view") === "proof-jobs");
   const [researchOpen, setResearchOpen] = useState(() => new URL(location.href).searchParams.get("view") !== "progress");
   const lastRoom = useRef<Room>(room ?? { id: "research" });
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -234,22 +236,29 @@ function App() {
   }
   useEffect(() => { void refresh(); }, []);
   useEffect(() => {
-    const handler = () => { const next = startingRoom(); if (next) lastRoom.current = next; setRoom(next); setResearchOpen(new URL(location.href).searchParams.get("view") !== "progress"); };
+    const handler = () => { const next = startingRoom(); if (next) lastRoom.current = next; setRoom(next); setProofOpen(new URL(location.href).searchParams.get("view") === "proof-jobs"); setResearchOpen(new URL(location.href).searchParams.get("view") !== "progress"); };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
   }, []);
 
   function openRoom(next: Room) {
+    setProofOpen(false);
     const url = new URL(location.href); url.searchParams.set("conversation", next.id); url.searchParams.delete("view");
     history.pushState(null, "", url); lastRoom.current = next; setRoom(next); setResearchOpen(false);
   }
   function openProgress() {
+    setProofOpen(false);
     const url = new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view", "progress");
     history.pushState(null, "", url); setRoom(null); setResearchOpen(false);
   }
   function openResearchRuns() {
+    setProofOpen(false);
     const url = new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view", "research-runs");
     history.pushState(null, "", url); setRoom(null); setResearchOpen(true);
+  }
+  function openProofJobs() {
+    const url=new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view","proof-jobs");
+    history.pushState(null,"",url); setRoom(null); setProofOpen(true); setResearchOpen(false);
   }
   function navigate(event: React.MouseEvent<HTMLAnchorElement>, action: () => void) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -262,8 +271,9 @@ function App() {
     <aside className="sidebar">
       <a href="/workspace" className="brand"><span>✳</span><div>Lupine <em>Rhizo</em><small>RESEARCH, CONNECTED</small></div></a>
       <nav className="destinations" aria-label="Research navigation">
-        <a className={!room && researchOpen ? "selected" : ""} aria-current={!room && researchOpen ? "page" : undefined} href="/workspace?view=research-runs" onClick={(event) => navigate(event, openResearchRuns)}>Research runs <span>↗</span></a>
-        <a className={!room && !researchOpen ? "selected" : ""} aria-current={!room && !researchOpen ? "page" : undefined} href="/workspace?view=progress" onClick={(event) => navigate(event, openProgress)}>Progress <span>↗</span></a>
+        <a className={!room && proofOpen ? "selected" : ""} aria-current={!room && proofOpen ? "page" : undefined} href="/workspace?view=proof-jobs" onClick={(event) => navigate(event, openProofJobs)}>Proof jobs <span>↗</span></a>
+        <a className={!room && !proofOpen && researchOpen ? "selected" : ""} aria-current={!room && !proofOpen && researchOpen ? "page" : undefined} href="/workspace?view=research-runs" onClick={(event) => navigate(event, openResearchRuns)}>Research runs <span>↗</span></a>
+        <a className={!room && !proofOpen && !researchOpen ? "selected" : ""} aria-current={!room && !proofOpen && !researchOpen ? "page" : undefined} href="/workspace?view=progress" onClick={(event) => navigate(event, openProgress)}>Progress <span>↗</span></a>
         <a className={room ? "selected" : ""} aria-current={room ? "page" : undefined} href={`/workspace?conversation=${lastRoom.current.id}`} onClick={(event) => navigate(event, () => openRoom(lastRoom.current))}>Conversations <span>↗</span></a>
       </nav>
       <p className="private-workspace-note"><span aria-hidden="true">◈</span> Private workspace<br /><small>Library publication is on hold.</small></p>
@@ -275,7 +285,7 @@ function App() {
       <nav className="conversation-list" aria-label="Saved conversations">{conversations.map((item) => <button key={item.id} className={room?.id === item.id ? "active" : ""} onClick={() => openRoom({ id: item.id })}><span>{item.title}</span><small>{new Date(item.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</small></button>)}</nav>
       <div className="sidebar-footer"><i /><span>A shared, durable notebook.<br />Pick up on any signed-in device.</span></div>
     </aside>
-    {room ? <ConversationBoundary key={room.id}><React.Suspense fallback={<LoadingConversation />}><Chat room={room} onMetadata={remember} /></React.Suspense></ConversationBoundary> : researchOpen ? <ResearchRuns /> : <ProgressFeed onDiscuss={(clip) => { const discussion = nextStepDiscussion(clip); openRoom({ id: crypto.randomUUID(), title: discussion.title, draft: discussion.prompt }); }} />}
+    {room ? <ConversationBoundary key={room.id}><React.Suspense fallback={<LoadingConversation />}><Chat room={room} onMetadata={remember} /></React.Suspense></ConversationBoundary> : proofOpen ? <ProofJobs /> : researchOpen ? <ResearchRuns /> : <ProgressFeed onDiscuss={(clip) => { const discussion = nextStepDiscussion(clip); openRoom({ id: crypto.randomUUID(), title: discussion.title, draft: discussion.prompt }); }} />}
   </div>;
 }
 

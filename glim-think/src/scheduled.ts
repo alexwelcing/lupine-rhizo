@@ -11,6 +11,7 @@
  *   5. Insert a `deployments` row tagged `service='cron-fleet'`.
  */
 import { trace } from "@opentelemetry/api";
+import { tickProofJobs } from "./workspace/proofJobs";
 import type { Env } from "./types";
 import { traceEnv } from "./telemetry/storage";
 import { recordCronRun, runSmoketest } from "./ops/observability";
@@ -281,6 +282,11 @@ export async function scheduled(
   // tracking. The wrapper writes started_at/finished_at/outcome to the
   // cron_runs table; /health surfaces the latest row per cron.
   if (event.cron === "*/5 * * * *") {
+    // Native proof coordination uses this existing cadence. Reads may collect
+    // existing provider jobs; only explicit activation admits new API work.
+    if (env.PROOF_JOBS_ENABLED !== undefined) ctx.waitUntil(
+      recordCronRun(env, "proof-jobs", event.cron, () => tickProofJobs(env)),
+    );
     ctx.waitUntil(
       recordCronRun(env, "smoketest", event.cron, async () => {
         const result = await runSmoketest(env);

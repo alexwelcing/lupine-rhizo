@@ -4,7 +4,10 @@ This is a separate `cf` project named **lupine-workspace-preview**. It reuses
 the real ResearchWorkspace, Access middleware, model catalog and bundled UI.
 It does not import `src/server.ts` or change the production Wrangler project.
 
-Only new preview KV, D1, a SQLite Durable Object and Workers AI are bound.
+Preview chat uses its own KV, D1, SQLite Durable Object and Workers AI.
+A fixed `PROOF_SERVICE` binding now exposes the native Glim proof-job service
+after operator authentication; Anthropic credentials remain on that backend.
+See [native proof jobs](../docs/native-proof-jobs.md).
 Every HTTP route, asset, chat history request and WebSocket handshake requires
 Access. The runtime discards extra keys, telemetry settings and authentication
 bypass flags. **Auto · Clef planning** is enabled with a fixed preview policy;
@@ -118,8 +121,9 @@ Both commands are local checks. The first also rebuilds the existing UI source.
 The second validates the already-built output without uploading it.
 Inspect `.cloudflare/output/v0/`: the Worker name must be
 `lupine-workspace-preview`; bindings must be exactly `RESEARCH_WORKSPACE`,
-`CONFIG`, `LEDGER`, `AI`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `ADMIN_EMAIL`.
-There must be no cron/queue triggers, Workflows, production resource IDs,
+`CONFIG`, `LEDGER`, `AI`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `ADMIN_EMAIL`,
+and the fixed `PROOF_SERVICE` service binding to `glim-think-v1`.
+There must be no cron/queue triggers, Workflows, direct production database IDs,
 provider secrets, tail consumers or telemetry exporters.
 
 The five fixed Clef settings are injected inside the preview runtime adapter;
@@ -160,6 +164,9 @@ Do not run the repository's production deployment workflow for this preview.
   alone does not verify model quality or end-to-end remote execution.
 - Keep model checks small. Account entitlement and generated content must be
   verified separately from a successful bundle or a configured model catalog.
+- Proof jobs use only the fixed authenticated cloud service; test unauthenticated
+  and cross-origin rejection before any provider request. Distinguish a returned
+  candidate from a separately checked Lean proof.
 - `/run`, `/fleet/run` and other agent namespaces must remain unavailable.
 
 Private system validation comes first. Next, demonstrate useful evidence-backed
