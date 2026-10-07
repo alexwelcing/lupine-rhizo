@@ -242,3 +242,9 @@ scope, and reproduction links preserved. After acceptance, publish by regenerati
 `content/latest`, verifying hashes/provenance, then building and deploying the
 reader. A local export is not yet a live page. Do not automatically publish
 private conversations, internal agenda payloads, or unreviewed model output.
+
+## Native proof jobs
+
+The **Proof jobs** view manages reviewed Opus drafts directly through Cloudflare
+and the Anthropic API. See [lifecycle, recovery and deployment](native-proof-jobs.md).
+The private local Research runs import remains a separate historical evidence path.

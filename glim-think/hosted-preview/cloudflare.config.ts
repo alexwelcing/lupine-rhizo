@@ -22,6 +22,7 @@ export default defineConfig({
       CONFIG: bindings.kv({ id: settings.kvId }),
       LEDGER: bindings.d1({ id: settings.d1Id }),
       AI: bindings.ai(),
+      PROOF_SERVICE: bindings.worker({ worker: "glim-think-v1" }),
       CF_ACCESS_TEAM_DOMAIN: bindings.text(settings.team),
       CF_ACCESS_AUD: bindings.text(settings.audience),
       ADMIN_EMAIL: bindings.text(settings.adminEmail),

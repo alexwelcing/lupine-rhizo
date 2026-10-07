@@ -30,6 +30,12 @@ export async function previewFetch(request: Request, bindings: PreviewEnv): Prom
   const invalid = checkWorkspaceRequest(request);
   if (invalid) return privateResponse(invalid);
 
+  if (url.pathname === "/workspace/proof-jobs" || url.pathname.startsWith("/workspace/proof-jobs/")) {
+    if (!bindings.PROOF_SERVICE) return privateResponse(Response.json({error:"Native proof service unavailable"},{status:503}));
+    // Fixed Cloudflare service binding, limited to this prefix. The destination
+    // independently verifies the original operator JWT and same-origin header.
+    return privateResponse(await bindings.PROOF_SERVICE.fetch(request));
+  }
   const researchRunResponse = await researchRunsResponse(request, env);
   if (researchRunResponse) return privateResponse(researchRunResponse);
 
@@ -50,6 +56,6 @@ export async function previewFetch(request: Request, bindings: PreviewEnv): Prom
   if (url.pathname === "/workspace/models") return privateResponse(Response.json(getModelCatalog(env)));
   if (url.pathname === "/workspace/conversations") return privateResponse(Response.json(await listWorkspaceConversations(env)));
   if (url.pathname === "/workspace/progress") return privateResponse(await workspaceProgressResponse(env));
-  if (url.pathname === "/live") return privateResponse(new Response("Private preview: read_research_runs reads imported local PI cycle receipts; their research discussions do not mean an experiment ran. Legacy read_evidence uses synthetic fixtures. Progress remains separate source-report analysis. No production ledger or experiment dispatch is connected."));
+  if (url.pathname === "/live") return privateResponse(new Response("Private preview: read_research_runs reads imported local PI cycle receipts; their research discussions do not mean an experiment ran. Legacy read_evidence uses synthetic fixtures. Progress remains separate source-report analysis. Native proof jobs use a separately authorized production service. Other production ledger and experiment dispatch routes remain unavailable."));
   return privateResponse(new Response("Not found", { status: 404 }));
 }

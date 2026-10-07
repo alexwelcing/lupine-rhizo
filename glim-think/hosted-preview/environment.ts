@@ -1,7 +1,7 @@
 import type { Env } from "../src/types";
 
 export type PreviewEnv = Pick<Env, "AI" | "CONFIG" | "LEDGER" | "RESEARCH_WORKSPACE" |
-  "CF_ACCESS_TEAM_DOMAIN" | "CF_ACCESS_AUD" | "ADMIN_EMAIL">;
+  "CF_ACCESS_TEAM_DOMAIN" | "CF_ACCESS_AUD" | "ADMIN_EMAIL"> & { PROOF_SERVICE?: Fetcher };
 
 /** Discard accidental extra bindings, auth bypass flags, keys and telemetry. */
 export function workspacePreviewEnv(env: PreviewEnv): Env {

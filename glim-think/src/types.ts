@@ -163,6 +163,12 @@ export interface Env {
   /** OpenAI model. Default gpt-6.1-sol, using the Responses API. */
   OPENAI_MODEL?: string;
   ANTHROPIC_API_KEY?: string;
+  /** Native proof jobs require explicit API activation and an output-token ceiling. */
+  PROOF_ACCESS_TEAM_DOMAIN?: string;
+  PROOF_ACCESS_AUD?: string;
+  PROOF_ADMIN_EMAIL?: string;
+  PROOF_JOBS_ENABLED?: string;
+  PROOF_API_MAX_TOKENS?: string;
   /** Anthropic model. Default claude-sonnet-5-5. */
   ANTHROPIC_MODEL?: string;
   GOOGLE_API_KEY?: string;
