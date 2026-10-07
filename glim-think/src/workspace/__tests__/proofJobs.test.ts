@@ -4,7 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 // @ts-expect-error Test-only fixture loading.
 import { readFileSync } from "node:fs";
 import { advanceProofJob, enqueueProof, listProofJobs, requestProofCancellation, recoverProofJob, tickProofJobs, type ProofEnv } from "../proofJobs";
-import { batchBody, boundedText, collectCandidate, proofConfiguration } from "../proofProvider";
+import { batchBody, boundedText, collectCandidate, inspectProofConnection, proofConfiguration } from "../proofProvider";
 import { displayedProofStatus, PROOF_MODEL, proofRequestSchema, type ProofRequest } from "../proofContracts";
 const fixtureBase=(import.meta as ImportMeta & {url:string}).url;
 const migration=readFileSync(new URL("../../../migrations/0022_proof_jobs.sql",fixtureBase),"utf8");
@@ -113,6 +113,13 @@ describe("native cloud proof lifecycle with real SQLite",()=>{
     const h=harness();provider();await enqueueProof(h.env,request);await tickProofJobs(h.env);h.env.PROOF_JOBS_ENABLED="false";await tickProofJobs(h.env);
     expect((await listProofJobs(h.env)).jobs[0].status).toBe("candidate_ready");
   });
+  it("does not let paused queued work starve collection of submitted work",async()=>{
+    const h=harness();provider();await enqueueProof(h.env,request);await tickProofJobs(h.env);
+    for(let i=0;i<6;i++)await enqueueProof(h.env,{...request,id:`queued-${i}`,agendaTaskId:`other-${i}`});
+    h.db.exec("UPDATE proof_jobs SET updated_at='2020-01-01T00:00:00Z' WHERE status='queued'");
+    h.env.PROOF_JOBS_ENABLED="false";await tickProofJobs(h.env);
+    expect((await listProofJobs(h.env)).jobs.find(j=>j.id===request.id)?.status).toBe("candidate_ready");
+  });
   it("reports stale observations as unknown without releasing the active reservation",async()=>{
     const h=harness();await enqueueProof(h.env,request);h.db.exec("UPDATE proof_jobs SET status='processing',observed_at='2026-01-01T00:00:00Z'");
     expect((await listProofJobs(h.env)).jobs[0]).toMatchObject({displayStatus:"completion_unknown",active:true});
@@ -154,6 +161,13 @@ describe("provider result boundaries",()=>{
     const f=vi.fn(async(_url: string)=>new Response(JSON.stringify(entry)));vi.stubGlobal("fetch",f);
     const got=await collectCandidate(h.env,"msgbatch_test","proof-1");expect(got.status).toBe("candidate_ready");
     expect(JSON.stringify(got).length).toBeLessThan(2000);expect(f.mock.calls[0]?.[0]).toBe("https://api.anthropic.com/v1/messages/batches/msgbatch_test/results");
+  });
+  it("checks model access without inference or exposing provider errors",async()=>{
+    const h=harness();const f=vi.fn(async()=>Response.json({id:PROOF_MODEL}));vi.stubGlobal("fetch",f);
+    expect((await inspectProofConnection(h.env)).available).toBe(true);
+    expect(f).toHaveBeenCalledWith("https://api.anthropic.com/v1/models/"+PROOF_MODEL,expect.objectContaining({method:"GET"}));
+    f.mockResolvedValueOnce(new Response("secret provider diagnostic",{status:401}));
+    expect(await inspectProofConnection(h.env)).toEqual({model:PROOF_MODEL,available:false,diagnostic:"provider_http_401"});
   });
   it("bounds network frames and never saves a partial response",async()=>{await expect(boundedText(new Response("12345"),4)).rejects.toThrow("too_large");});
   it("pins Opus with no tools and one request, while bounding the returned candidate separately",()=>{

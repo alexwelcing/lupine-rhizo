@@ -92,7 +92,7 @@ export function ProofJobs() {
               <label>Existing provider batch ID<input value={recoverIds[job.id] ?? ""} onChange={e=>setRecoverIds({...recoverIds,[job.id]:e.target.value})}/></label>
               <button disabled={busy || !/^msgbatch_[A-Za-z0-9]+$/.test(recoverIds[job.id] ?? "")} onClick={()=>void recover(job.id)}>Verify and collect original result</button>
             </details>}
-            {job.active && job.status!=="cancel_requested" && <button disabled={busy} onClick={()=>void cancel(job.id)}>Request cancellation</button>}
+            {job.active && job.status!=="cancel_requested" && !(job.status==="completion_unknown" && !job.batchId) && <button disabled={busy} onClick={()=>void cancel(job.id)}>Request cancellation</button>}
           </div></article>)}
         {feed.truncated && <p>Showing the 20 newest jobs. Older records remain available by job ID.</p>}</>}
     </section>

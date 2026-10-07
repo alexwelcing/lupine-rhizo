@@ -59,6 +59,8 @@ export async function enqueueProof(env: ProofEnv, raw: unknown) {
   return { job: await view((await getRow(env,request.id))!), duplicate: false };
 }
 export async function requestProofCancellation(env: ProofEnv, id: string) {
+  const existing = await getRow(env,id);
+  if (existing?.status === "completion_unknown" && !existing.batch_id) throw new ProviderError("provider_identity_required_for_cancellation",true);
   const at = now();
   await env.LEDGER.prepare(`UPDATE proof_jobs SET status=CASE WHEN status='queued' THEN 'cancelled' ELSE 'cancel_requested' END,
     active=CASE WHEN status='queued' THEN 0 ELSE active END,updated_at=? WHERE id=? AND active=1`).bind(at,id).run();
@@ -128,18 +130,18 @@ export async function advanceProofJob(env: ProofEnv, id: string): Promise<void> 
       await update("status=?,active=0,candidate_json=?,candidate_sha256=?,receipt_json=?,failure_code=?,updated_at=?",result.status,result.candidate ? JSON.stringify(result.candidate) : null,result.hash,JSON.stringify(result.receipt),result.status === "candidate_ready" ? null : result.status,now());
     } catch (error) {
       // A transport failure while retrieving results is recoverable by GET only.
-      if (error instanceof TypeError || (error instanceof Error && error.name === "TimeoutError") || (error instanceof ProviderError && /^provider_http_(429|5\d\d)$/.test(error.code))) {
+      if (error instanceof TypeError || (error instanceof Error && ["TimeoutError","AbortError"].includes(error.name)) || (error instanceof ProviderError && /^provider_http_(429|5\d\d)$/.test(error.code))) {
         await update("failure_code=?",failureCode(error));
       } else await update("status='invalid_result',active=0,failure_code=?,updated_at=?",failureCode(error),now());
     }
   } catch (error) {
-    await update("failure_code=?",failureCode(error));
+    await update("failure_code=?,updated_at=?",failureCode(error),now());
   } finally {
     await env.LEDGER.prepare("UPDATE proof_jobs SET poll_token=NULL,poll_until=NULL WHERE id=? AND poll_token=?").bind(id,token).run();
   }
 }
 export async function tickProofJobs(env: ProofEnv) {
-  const rows = await env.LEDGER.prepare("SELECT id FROM proof_jobs WHERE active=1 AND NOT (status='completion_unknown' AND batch_id IS NULL) ORDER BY updated_at LIMIT 5").all<{id:string}>();
+  const rows = await env.LEDGER.prepare("SELECT id FROM proof_jobs WHERE active=1 AND NOT (status='completion_unknown' AND batch_id IS NULL) AND (status <> 'queued' OR ?=1) ORDER BY updated_at LIMIT 5").bind(proofConfiguration(env).ready ? 1 : 0).all<{id:string}>();
   if (!rows.success) throw new Error("Proof storage unavailable");
   for (const row of rows.results) await advanceProofJob(env,row.id);
 }
