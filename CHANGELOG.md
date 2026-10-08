@@ -16,6 +16,54 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-10-08 — A reader-controlled Library, a broader corpus, and mathematical checks
+
+- **Why.** The Library needed to expose the growing research as something readers can work with. This log had stopped at July 17 even as reports and reviewed activity continued.
+- **What.**
+  - Reworked the Library landing page around its document grid: pull full articles into movable reading windows, remove components from your own view, undo changes, and reset the arrangement. Reused Lupine Science's Newsreader and IBM Plex Mono faces; the background film is now an optional, removable element.
+  - Retained complete document preloading, selectable mathematics, adjustable equation size, relationship exploration, and workspace image capture. Layout changes are browser-local; they do not edit published research.
+  - Expanded the source-bound error corpus to **633 reported simulation/reference pairs across 18 studies**, observed October 8. References comprise 295 experimental pairs, 337 DFT pairs and one semiempirical pair. These are extracted published comparisons, not 633 new simulations or an automatically compatible analysis set.
+  - Applied conditional linear checks to 24 elastic-property tuples across six studies. Ten fall outside the specified hypothetical rounding intervals. These are triage flags for checking definitions, conditions and extraction; they are not proof of ten physical failures.
+- **Results.** The corpus provides more inputs for explicit mathematical consistency checks, alongside broader material and alloy coverage. The latest batch added 76 pairs from two studies; 46 were checked against source-page images and 30 against extracted text. Source-page inspection and internal arithmetic checks are not independent scientific validation. No new Lean proof or physical simulation is claimed here.
+- **Next.** Continue broad numerical extraction across distinct studies; resolve repeated comparability gaps and turn justified mathematical relationships into reusable error checks. The 20-study, analysis-ready milestone remains open. Keep the Library and this log coupled to reviewed evidence transitions.
+
+Evidence: [reviewed research activity](https://glim-think-v1.aw-ab5.workers.dev/research/activity?limit=50), record `corpus-batch06-20261008-completed-v1` (observation 2026-10-08 04:14 UTC; review 04:19 UTC). The interface changes are maintained in [lupine-ledger](https://github.com/alexwelcing/lupine-ledger).
+
+This is a documented catch-up, entered October 8. It does not reconstruct an unrecorded day-by-day history for August and September. The July 24 entry below summarizes existing dated reports and retains their current limitations.
+
+---
+
+## 2026-10-07 — Cloud-native proof-job infrastructure and a broader research program
+
+- **Why.** Local command-line orchestration had failed to deliver a proof candidate reliably. Separately, serial deep dives were constraining coverage of published simulation errors.
+- **What.** Moved proof-job orchestration into Cloudflare Workers and D1 with the existing API route, durable job states and explicit collection. Redirected research toward source acquisition, structured numerical extraction and cross-study mathematical checks. Distinguish leads, extracted pairs, compatible analysis sets, runnable proposals and completed simulations.
+- **Results.** [PR150](https://github.com/alexwelcing/lupine-rhizo/pull/150) merged and [the production rollout](https://github.com/alexwelcing/lupine-rhizo/actions/runs/37577101100) succeeded. Authenticated model validation remains pending; deployment is not evidence of a completed API inference or a Lean-checked proof. The stopped legacy attempts remain stopped.
+- **Next.** Complete the already authorized bounded connection validation when operator access is available, without replaying failed attempts. Continue corpus work independently. The accepted TMS2027 contribution remains the poster **“From Transferability to Prediction: The Error Geometry of Interatomic Potentials”**; no proceedings manuscript was submitted.
+
+---
+
+## 2026-10-06 — Reviewed public activity and closure of the archived force diagnostic
+
+- **Why.** Readers needed a truthful window into current research, and the shared residual component in the archived force predictions needed a discriminating check.
+- **What.** Coordinated the Lupine program, Rhizo research system and Library release. Added reviewed immutable public activity with original observation/review dates, evidence anchors and limitations. Tested whether a uniform force-vector offset explains the common residual on the existing 800-configuration archive.
+- **Results.** The equal-group average uniform-offset share was below 0.000001% on MatPES and 0.01746% on OMat24. A separate exact-arithmetic implementation checked all 800 saved configurations and the projection identity. This rules out a majority uniform-offset explanation on those saved panels under that averaging rule; it does not identify the physical mechanism, validate reference provenance, improve predictions or establish generalization. Historical A6 remains inconclusive. The archived diagnostic branch is closed.
+- **Next.** New physical-performance claims need new matched evidence and a justified design. Preserve the closed archive while expanding the source-bound corpus.
+
+Evidence: [uniform-offset control and limitations](https://github.com/alexwelcing/lupine-rhizo/blob/68365ea/docs/research-progress/2026-10-06-uniform-offset.md), [coordinated release record](https://github.com/alexwelcing/lupine-rhizo/blob/e07cf2c/docs/releases/research-live-2026-10-06.md).
+
+---
+
+## 2026-07-24 — Z1 campaign and cell-representation reports (retrospective entry)
+
+- **Why.** Sparse anchor selection and reference conventions must be assessed separately before claiming useful barrier accuracy.
+- **What.** The recorded campaign covered 23 active paths and four guiding models. Its verdict now explicitly separates sparse-versus-dense GPAW consistency from comparison to VASP references. A separate path-15 audit compared raw and Niggli-reduced cells.
+- **Results.** Reported same-engine mean errors were 0.0–6.8 meV, while VASP-referenced errors were 693.0–705.7 meV. The former is a **self-consistency check**, with partly structural agreement on short paths, not an external-reference accuracy win. Path-15's reported barrier changed by 3.5 meV despite an approximately 39 eV absolute-energy shift; that is a case-specific observation. Cost-provenance conflicts remain unresolved in the source report.
+- **Next.** Preserve the reference-basis distinction and test sparse guidance on longer paths before making prospective savings/accuracy claims. This catch-up launches no new campaign.
+
+Evidence: [campaign verdict](https://library.lupine.science/#/read/z1-union-campaign-verdict), [measured cost ledger](https://library.lupine.science/#/read/z1-union-cost-ledger), [cell-representation audit](https://library.lupine.science/#/read/t1-niggli-audit).
+
+---
+
 ## 2026-07-17 - Round-3 consequence wave: B0 correction gate denial + assumption-link CI + contract compiler
 
 - **Why.** Round-3 produced a kill-condition verdict for B0 correction (both

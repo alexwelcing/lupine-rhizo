@@ -1494,7 +1494,7 @@ export const CATALOG = {
       "id": "z1-union-campaign-verdict",
       "source": "docs/analysis/z1-union-campaign-verdict.md",
       "title": "Z1 Union Campaign — Verdict of Record (2026-07-24)",
-      "subtitle": "All four uMLIPs strong-win on the same-engine basis (≤15 meV) across 23 active paths; realized union economics 70.0% fewer evaluations (430 naive vs 129 executed), with the T1 wander map and law check.",
+      "subtitle": "Sparse-versus-dense GPAW self-consistency across 23 active paths: 0.0–6.8 meV mean error. VASP-referenced error is 693.0–705.7 meV; no external-reference accuracy win.",
       "category": "validation",
       "tags": [
         "z1",
@@ -1510,7 +1510,7 @@ export const CATALOG = {
       "id": "z1-union-cost-ledger",
       "source": "docs/analysis/z1-union-cost-ledger.md",
       "title": "Z1 Union Campaign — Measured Cost Ledger (2026-07-24)",
-      "subtitle": "129 anchors in 61.0 wall-hours (mean 28.4 min/anchor), 244 vCPU-hours → $14.65 cloud-equivalent plus $0.60 local electricity, with per-path wall-hours.",
+      "subtitle": "Recorded ledger: 129 anchors, 61.0 wall-hours, 244 vCPU-hours. The campaign retains an unresolved cost-provenance conflict; estimates are not a verified bill.",
       "category": "validation",
       "tags": [
         "z1",
