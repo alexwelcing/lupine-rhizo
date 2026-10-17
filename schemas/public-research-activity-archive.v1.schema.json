@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alexwelcing/lupine-rhizo/blob/main/schemas/public-research-activity-archive.v1.schema.json",
+  "title": "Public research activity archive v1",
+  "description": "Immutable reviewed versions in ingestion-sequence order within a pinned snapshot; no private joins. Hashes cover JSON.stringify of validated returned records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "records",
+    "cursor",
+    "coverage",
+    "hashes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "lupine.public_research_activity.archive.v1"
+    },
+    "records": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "$ref": "public-research-activity.v1.schema.json"
+      }
+    },
+    "cursor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "after",
+        "snapshot",
+        "nextAfter"
+      ],
+      "properties": {
+        "after": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "snapshot": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "nextAfter": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complete",
+        "returned"
+      ],
+      "properties": {
+        "complete": {
+          "type": "boolean"
+        },
+        "returned": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        }
+      }
+    },
+    "hashes": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

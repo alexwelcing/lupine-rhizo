@@ -1,3 +1,4 @@
+import { previewVerificationTask } from "./comparisonContracts";
 import type { Env } from "../types";
 import { checkAccess } from "../middleware/access";
 import { WORKSPACE_PRIVATE_HEADERS } from "../middleware/workspaceAccess";
@@ -128,6 +129,18 @@ export async function researchRunsResponse(request: Request, env: Env, localFixt
   const origin = request.headers.get("Origin");
   if (origin && origin !== url.origin) return json({ error: "Same-origin research workspace required" }, 403);
   try {
+    if (request.method === "POST" && url.pathname === "/workspace/research-runs/verification-preview") {
+      if (request.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") return json({ error: "Use application/json" }, 415);
+      let input: unknown;
+      try { input = JSON.parse(await readBounded(request)); }
+      catch (e) { return json({ error: "Invalid comparison body" }, e instanceof RangeError ? 413 : 400); }
+      const parsed = z.strictObject({ runId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$/), contract: z.unknown() }).safeParse(input);
+      if (!parsed.success) return json({ error: "Invalid comparison request" }, 400);
+      const run = await getResearchRun(env, parsed.data.runId);
+      if (!run) return json({ error: "Research run not found" }, 404);
+      try { return json(await previewVerificationTask(run, parsed.data.contract)); }
+      catch { return json({ error: "Comparison contract or saved proposal binding is invalid", code: "invalid_comparison_contract" }, 400); }
+    }
     if (request.method === "POST" && url.pathname === "/workspace/research-runs/import") {
       if (localFixture) {
         if (!["127.0.0.1", "localhost"].includes(url.hostname)) return json({ error: "Local fixture only" }, 403);
@@ -150,7 +163,7 @@ export async function researchRunsResponse(request: Request, env: Env, localFixt
     if (request.method !== "GET") return json({ error: "Not found" }, 404);
     if (url.pathname === "/workspace/research-runs") return json(await listResearchRuns(env));
     const id = url.pathname.slice("/workspace/research-runs/".length);
-    if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$/.test(id) || id === "import") return json({ error: "Not found" }, 404);
+    if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$/.test(id) || ["import", "verification-preview"].includes(id)) return json({ error: "Not found" }, 404);
     const run = await getResearchRun(env, id);
     return run ? json({ run }) : json({ error: "Research run not found" }, 404);
   } catch (e) {

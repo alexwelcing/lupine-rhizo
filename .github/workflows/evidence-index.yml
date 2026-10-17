@@ -1,9 +1,10 @@
 name: Evidence Index
 
 # Unit tests for the CocoIndex evidence pipeline (cocoindex/). Path-filtered:
-# only runs when the pipeline itself changes. Fast by design — no embedding
-# model download, no engine run; the tests cover the record contract, the
-# deterministic fallback embedder, the query layer, and the vec0 sidecar.
+# only runs when the pipeline itself changes. Unit tests cover the record
+# contract, hash-test embedder, query layer and exact vec0 KNN sidecar. A bounded
+# disposable offline engine fixture checks SQLite schema migration; no real
+# embedding model is loaded or downloaded by that fixture.
 
 on:
   push:
@@ -51,4 +52,13 @@ jobs:
         run: python seed_data.py
 
       - name: Unit tests
-        run: python -m pytest test_pipeline.py -q
+        env:
+          REQUIRE_SQLITE_VEC: "1"
+        run: python -B -m pytest test_pipeline.py test_build_vec_index.py test_embedding_contract.py test_discover_sources.py -q -p no:cacheprovider
+
+      - name: Offline disposable engine schema smoke
+        env:
+          HF_HUB_OFFLINE: "1"
+          TRANSFORMERS_OFFLINE: "1"
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python -B smoke_engine_schema.py

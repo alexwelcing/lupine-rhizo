@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { decodeResearchRuns, ImportResearchRun, loadResearchRuns, previewResearchImport, readResearchSnapshotFile, ResearchRunCard, saveResearchImport } from "../ResearchRuns";
+import { requestVerificationPreview, decodeResearchRuns, ImportResearchRun, loadResearchRuns, previewResearchImport, readResearchSnapshotFile, ResearchRunCard, saveResearchImport } from "../ResearchRuns";
 import { sha256, type ResearchRun, type ResearchRunImport, type ResearchRunStage, type ScientificPacket } from "../../researchRunContracts";
 
 const date = "2026-10-06T05:00:00.000Z";
@@ -150,3 +150,13 @@ describe("private research run interface", () => {
     await expect(saveResearchImport(text, run)).rejects.toThrow("Import failed");
   });
 });
+
+ it("requests only a private, unexecuted verification preview and rejects false execution", async () => {
+  const mock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ blockers: ["Unknown protocol"], contractSha256: "a".repeat(64), execution: "not_started", scheduled: false, visibility: "private" })));
+  vi.stubGlobal("fetch", mock);
+  expect((await requestVerificationPreview("fixture", "{} ")).blockers).toEqual(["Unknown protocol"]);
+  expect(mock.mock.calls[0][0]).toBe("/workspace/research-runs/verification-preview");
+  expect(JSON.parse(mock.mock.calls[0][1].body)).toEqual({runId:"fixture",contract:{}});
+  mock.mockResolvedValue(new Response(JSON.stringify({blockers:[],contractSha256:"a".repeat(64),execution:"completed",scheduled:false,visibility:"private"})));
+  await expect(requestVerificationPreview("fixture", "{}")).rejects.toThrow();
+ });

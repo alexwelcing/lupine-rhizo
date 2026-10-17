@@ -54,7 +54,7 @@ jobs:
         timeout-minutes: 6
         run: |
           npm test
-          node --test scripts/prepare-public-activity-import.test.mjs
+          node --test scripts/prepare-public-activity-import.test.mjs scripts/public-activity-archive-migration.test.mjs
 
       # Compile src/registry/prompts/*.md → prompts.gen.ts so Evolver-committed
       # prompt variants land in the Worker bundle (wrangler can't read .md at
@@ -85,6 +85,26 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: glim-think
           command: d1 execute glim-ledger --remote --file migrations/0022_proof_jobs.sql
+
+      # Add stable ingestion cursors before activating the archive endpoint.
+      - name: Create public activity archive sequence
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: glim-think
+          command: d1 execute glim-ledger --remote --file migrations/0023_public_activity_archive.sql
+
+      - name: Verify public activity archive before deployment
+        working-directory: glim-think
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: "false"
+        shell: bash
+        run: |
+          set -o pipefail
+          node node_modules/wrangler/bin/wrangler.js d1 execute glim-ledger --remote --json --file scripts/verify-public-activity-archive.sql | node scripts/verify-public-activity-archive.mjs
 
       # Activate support for additive evidence kinds before inserting them.
       # A failed publication then leaves the previous valid feed intact.

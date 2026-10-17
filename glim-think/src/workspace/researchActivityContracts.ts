@@ -105,3 +105,12 @@ export async function publicActivitySha256(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
 }
+
+export const PUBLIC_ACTIVITY_ARCHIVE_SCHEMA = "lupine.public_research_activity.archive.v1" as const;
+export interface PublicResearchActivityArchive {
+  schema: typeof PUBLIC_ACTIVITY_ARCHIVE_SCHEMA;
+  records: PublicResearchActivity[];
+  cursor: { after: number; snapshot: number; nextAfter: number | null };
+  coverage: { complete: boolean; returned: number };
+  hashes: { id: string; sha256: string }[];
+}

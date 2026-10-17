@@ -42,6 +42,7 @@ from cocoindex.ops.sentence_transformers import SentenceTransformerEmbedder
 from cocoindex.resources.chunk import Chunk
 from cocoindex.resources.file import FileLike, PatternFilePathMatcher
 from cocoindex.resources.id import IdGenerator
+from cocoindex.resources.schema import VectorSchema, VectorSchemaProvider
 
 # Shared embedder — the REAL SentenceTransformerEmbedder, which implements
 # VectorSchemaProvider so the SQLite vector column's dimension is inferred
@@ -49,11 +50,15 @@ from cocoindex.resources.id import IdGenerator
 # component reuses one loaded model. The offline fallback is applied at the
 # embed call site (see _embed), not here, so the column type stays native.
 # Embedding model — env-overridable for A/B runs through eval_retrieval.py.
-# BAAI/bge-small-en-v1.5 is the unification candidate: identical weights are
-# served by Cloudflare Workers AI (@cf/baai/bge-small-en-v1.5), so local,
-# GCP, and edge tiers can share one 384-dim embedding space.
+# BAAI/bge-small-en-v1.5 is a candidate for alignment across local, GCP and
+# edge tiers. A shared model name/dimension alone does not establish matching
+# weights or embedding space; generation admission below remains required.
 EMBED_MODEL = os.environ.get("EVIDENCE_EMBED_MODEL", "BAAI/bge-small-en-v1.5")
 EMBED_DIM = int(os.environ.get("EVIDENCE_EMBED_DIM", "384"))
+from embedding_contract import embedding_space, local_model_digest
+# Mutable remote model names remain unverified; lexical search stays available.
+EMBED_REVISION = local_model_digest(EMBED_MODEL)
+EMBED_SPACE_ID = embedding_space(EMBED_MODEL, EMBED_DIM, revision=EMBED_REVISION)
 REQUIRE_REAL_EMBEDDINGS = os.environ.get("EVIDENCE_REQUIRE_REAL_EMBEDDINGS") == "1"
 DB_PATH = pathlib.Path(os.environ.get("EVIDENCE_DB_PATH", "./evidence.db"))
 SOURCE_DIR = pathlib.Path("./data")
@@ -88,16 +93,38 @@ LIBRARY_REF_PREFIX = "library:"  # ref_id namespace for published articles
 EXTRA_DOC_DIRS = ("paper", "mlip-elastic-benchmark")
 # Set to True after the first real-embed failure so we stop retrying the
 # (possibly unreachable) HF Hub download on every chunk.
-_FALLBACK_ACTIVE: bool = False
+# CI schema smoke only: never ask the embedder to load/download a model.
+_HASH_TEST_ONLY = os.environ.get("EVIDENCE_TEST_HASH_ONLY") == "1"
+_FALLBACK_ACTIVE: bool = _HASH_TEST_ONLY
 
-EMBEDDER = coco.ContextKey[SentenceTransformerEmbedder]("evidence_embedder")
+class _StaticHashTestEmbedder:
+    """CI-only VectorSchemaProvider: static schema, no real model construction.
+
+    Implements the documented __coco_vector_schema__ protocol:
+    https://cocoindex.io/docs/common_resources/vector_schema/
+    Hash vectors remain test-only and fail semantic admission.
+    """
+    async def __coco_vector_schema__(self) -> VectorSchema:
+        return VectorSchema(dtype=np.dtype(np.float32), size=EMBED_DIM)
+
+    async def embed(self, text: str) -> NDArray:
+        return _fallback_vector(text)
+
+
+def _configured_embedder():
+    if _HASH_TEST_ONLY:
+        return _StaticHashTestEmbedder()
+    return SentenceTransformerEmbedder(EMBED_MODEL)
+
+
+EMBEDDER = coco.ContextKey[VectorSchemaProvider]("evidence_embedder")
 # The SQLite target DB. Per the connector contract, mount_table_target takes
 # the ContextKey (not the connection); the connection is provided via lifespan
 # so the engine resolves it per component.
 EVIDENCE_DB = coco.ContextKey[sqlite.ManagedConnection]("evidence_db")
 
 
-async def _embed(text: str) -> NDArray:
+async def _embed_tagged(text: str):
     """Embed via the shared real model, falling back to a deterministic
     hash-vector if the model can't be reached (offline sandbox / CI). Both
     paths emit EMBED_DIM-dim float32 vectors so the column is consistent."""
@@ -107,15 +134,22 @@ async def _embed(text: str) -> NDArray:
             vec = await coco.use_context(EMBEDDER).embed(text)
             vec = np.asarray(vec, dtype=np.float32)
             if int(vec.shape[-1]) == EMBED_DIM:
-                return vec
-            if REQUIRE_REAL_EMBEDDINGS:
-                raise RuntimeError(f"unexpected embedding dimension {vec.shape[-1]}")
+                norm = float(np.linalg.norm(vec))
+                if not np.isfinite(vec).all() or norm <= 0:
+                    raise ValueError("invalid embedding vector")
+                return (vec / norm).astype(np.float32), EMBED_SPACE_ID
+            raise ValueError(f"unexpected embedding dimension {vec.shape[-1]}")
         except Exception as e:  # noqa: BLE001 - network/model failure → fallback
             if REQUIRE_REAL_EMBEDDINGS:
                 raise RuntimeError("real embedding required but unavailable") from e
             print(f"[evidence] real embed unavailable ({e}); switching to hash-vector fallback")
             _FALLBACK_ACTIVE = True
-    return _fallback_vector(text)
+    return _fallback_vector(text), embedding_space("sha256-test-vector", EMBED_DIM, backend="hash_test", revision="sha256-v1")
+
+
+async def _embed(text: str) -> NDArray:
+    vector, _space = await _embed_tagged(text)
+    return vector
 
 
 def _fallback_vector(text: str) -> NDArray:
@@ -142,7 +176,7 @@ def _fallback_vector(text: str) -> NDArray:
 async def coco_lifespan(builder: coco.EnvironmentBuilder) -> AsyncIterator[None]:
     # Embedder: construction is cheap (no model download); download happens on
     # first embed and is caught by _embed's fallback if unreachable.
-    builder.provide(EMBEDDER, SentenceTransformerEmbedder(EMBED_MODEL))
+    builder.provide(EMBEDDER, _configured_embedder())
     # SQLite target DB — a single shared connection to ./evidence.db.
     builder.provide(EVIDENCE_DB, sqlite.connect(str(DB_PATH)))
     yield
@@ -158,6 +192,7 @@ class EvidenceChunk:
     embedding: Annotated[NDArray, EMBEDDER]
     chunk_start: int
     chunk_end: int
+    embedding_space_id: str | None
 
 
 _splitter = text_ops.RecursiveSplitter()
@@ -173,6 +208,7 @@ async def process_chunk(
     table: sqlite.TableTarget[EvidenceChunk],
 ) -> None:
     text = chunk.text
+    vector, space = await _embed_tagged(text)
     table.declare_row(
         row=EvidenceChunk(
             id=await id_gen.next_id(text),
@@ -180,7 +216,8 @@ async def process_chunk(
             kind=kind,
             ref_id=ref_id,
             text=text,
-            embedding=await _embed(text),
+            embedding=vector,
+            embedding_space_id=space,
             chunk_start=chunk.start.char_offset,
             chunk_end=chunk.end.char_offset,
         )

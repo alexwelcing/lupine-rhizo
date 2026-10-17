@@ -4,7 +4,7 @@ import { WORKSPACE_PRIVATE_HEADERS } from "../middleware/workspaceAccess";
 import {
   decodePublicResearchActivity, publicActivityIdSchema, publicActivitySha256,
   PUBLIC_ACTIVITY_DEFAULT_LIMIT, PUBLIC_ACTIVITY_FEED_SCHEMA, PUBLIC_ACTIVITY_MAX_BYTES,
-  PUBLIC_ACTIVITY_MAX_LIMIT, type PublicResearchActivity, type PublicResearchActivityFeed,
+  PUBLIC_ACTIVITY_MAX_LIMIT, PUBLIC_ACTIVITY_ARCHIVE_SCHEMA, type PublicResearchActivityArchive, type PublicResearchActivity, type PublicResearchActivityFeed,
 } from "./researchActivityContracts";
 
 const PUBLIC_PATH = "/research/activity";
@@ -37,6 +37,42 @@ async function decodeRow(row: Row): Promise<PublicResearchActivity> {
         record.reviewedAt !== row.reviewed_at || record.supersedes !== row.supersedes_id) throw new Error();
     return record;
   } catch { throw new InvalidRecord(); }
+}
+
+/** Fixed ingestion snapshot; no private joins and no observation-time pagination. */
+export async function archivePublicResearchActivity(env: Pick<Env, "LEDGER">, after = 0,
+  snapshot?: number, limit = PUBLIC_ACTIVITY_DEFAULT_LIMIT): Promise<PublicResearchActivityArchive> {
+  if (!Number.isSafeInteger(after) || after < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > PUBLIC_ACTIVITY_MAX_LIMIT ||
+      (snapshot !== undefined && (!Number.isSafeInteger(snapshot) || snapshot < after))) throw new RangeError();
+  const maximum = await env.LEDGER.prepare("SELECT COALESCE(MAX(sequence), 0) AS maximum FROM public_activity_archive_sequence").first<{ maximum: number }>();
+  if (!maximum || !Number.isSafeInteger(maximum.maximum) || maximum.maximum < 0) throw new InvalidRecord();
+  const upper = snapshot ?? maximum.maximum;
+  if (upper > maximum.maximum || after > upper) throw new RangeError();
+  const query = SELECT.replace("SELECT a.id", "SELECT s.sequence AS archive_sequence, a.id") + `
+    JOIN public_activity_archive_sequence s ON s.record_id = a.id
+    WHERE s.sequence > ? AND s.sequence <= ? ORDER BY s.sequence ASC LIMIT ?`;
+  const result = await env.LEDGER.prepare(query).bind(after, upper, limit + 1).all<Row & { archive_sequence: number }>();
+  if (!result.success || !Array.isArray(result.results)) throw new InvalidRecord();
+  let previous = after;
+  for (const row of result.results) {
+    if (!Number.isSafeInteger(row.archive_sequence) || row.archive_sequence <= previous || row.archive_sequence > upper) throw new InvalidRecord();
+    previous = row.archive_sequence;
+  }
+  // Decode/hash-check lookahead too; no partial success around corrupt records.
+  const decoded = await Promise.all(result.results.map(decodeRow));
+  const records = decoded.slice(0,limit), more = decoded.length > limit;
+  return { schema: PUBLIC_ACTIVITY_ARCHIVE_SCHEMA, records,
+    cursor: { after, snapshot: upper, nextAfter: more ? result.results[limit - 1].archive_sequence : null },
+    coverage: { complete: !more, returned: records.length },
+    hashes: await Promise.all(records.map(async record => ({ id: record.id, sha256: await publicActivitySha256(JSON.stringify(record)) }))),
+  };
+}
+function archiveNumber(params: URLSearchParams, key: string, fallback?: number): number | undefined {
+  const values = params.getAll(key);
+  if (values.length > 1 || values.length && !/^(0|[1-9]\d*)$/.test(values[0])) throw new RangeError();
+  const value = values.length ? Number(values[0]) : fallback;
+  if (value !== undefined && !Number.isSafeInteger(value)) throw new RangeError();
+  return value;
 }
 
 export async function listPublicResearchActivity(env: Pick<Env, "LEDGER">, limit = PUBLIC_ACTIVITY_DEFAULT_LIMIT): Promise<PublicResearchActivityFeed> {
@@ -122,6 +158,16 @@ export async function researchActivityResponse(request: Request, env: Env): Prom
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: PUBLIC_HEADERS });
     if (request.method !== "GET") return new Response(null, { status: 405, headers: { ...PUBLIC_HEADERS, Allow: "GET, OPTIONS", "Cache-Control": "no-store" } });
     try {
+      if (url.pathname === `${PUBLIC_PATH}/archive`) {
+        if ([...url.searchParams.keys()].some(key => !["after","snapshot","limit"].includes(key))) return publicJson({ error: "Invalid archive query" },400);
+        try {
+          return publicJson(await archivePublicResearchActivity(env, archiveNumber(url.searchParams,"after",0),
+            archiveNumber(url.searchParams,"snapshot"), archiveNumber(url.searchParams,"limit",PUBLIC_ACTIVITY_DEFAULT_LIMIT)));
+        } catch (error) {
+          if (error instanceof RangeError) return publicJson({ error: "Invalid archive cursor or limit" },400);
+          throw error;
+        }
+      }
       if (url.pathname === PUBLIC_PATH) {
         if ([...url.searchParams.keys()].some(key => key !== "limit") || url.searchParams.getAll("limit").length > 1) return publicJson({ error: "Invalid activity query" }, 400);
         const supplied = url.searchParams.get("limit");
