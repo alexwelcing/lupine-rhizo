@@ -192,7 +192,7 @@ class EvidenceChunk:
     embedding: Annotated[NDArray, EMBEDDER]
     chunk_start: int
     chunk_end: int
-    embedding_space_id: str
+    embedding_space_id: str | None
 
 
 _splitter = text_ops.RecursiveSplitter()

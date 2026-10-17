@@ -295,8 +295,11 @@ own reviewed-public visibility boundary; this private local index is not that AP
 CI also runs `python -B smoke_engine_schema.py`: within one disposable directory,
 it creates the immediately preceding chunk schema using the real CocoIndex CLI,
 updates to the current schema, checks that original rows/embeddings survive and
-that every row receives a hash-test identity, then repeats the update to check
-stability. All three engine calls share a 60-second budget. Model access is
+that the identity column is added losslessly, then repeats the update to check
+stability. Retained legacy identities may stay NULL and fail semantic admission;
+no default generation is invented. A deliberate changed-source update then checks
+that newly produced rows carry hash-test identity. All four engine calls share a
+60-second budget. Model access is
 forced offline and the hash-test backend is explicitly selected. Unsupported
 migration fails CI with a preservation instruction; it never deletes/recreates
 production data. This gate requires the already installed CI pipeline dependencies
@@ -309,3 +312,9 @@ real embedder's schema-metadata lookup loading a model before any row is embedde
 The SQLite connector and engine still create and migrate the target. The provider
 implements CocoIndex's documented `__coco_vector_schema__` protocol; a unit fixture
 forbids constructing `SentenceTransformerEmbedder` in this test-only mode.
+
+
+`EvidenceChunk.embedding_space_id` is nullable specifically for additive migration
+of retained SQLite rows. A NULL value is unknown, not a compatible/default model.
+Newly emitted rows still supply their actual identity explicitly. The offline
+engine smoke checks lossless migration before exercising changed-source tagging.

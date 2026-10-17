@@ -1,9 +1,10 @@
 name: Evidence Index
 
 # Unit tests for the CocoIndex evidence pipeline (cocoindex/). Path-filtered:
-# only runs when the pipeline itself changes. Fast by design — no embedding
-# model download, no engine run; the tests cover the record contract, the
-# deterministic fallback embedder, the query layer, and the vec0 sidecar.
+# only runs when the pipeline itself changes. Unit tests cover the record
+# contract, hash-test embedder, query layer and exact vec0 KNN sidecar. A bounded
+# disposable offline engine fixture checks SQLite schema migration; no real
+# embedding model is loaded or downloaded by that fixture.
 
 on:
   push:

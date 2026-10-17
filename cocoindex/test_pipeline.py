@@ -402,3 +402,8 @@ def test_hash_smoke_provider_supplies_static_schema_without_real_model(monkeypat
     assert schema.size == pipeline.EMBED_DIM
     assert schema.dtype == np.dtype(np.float32)
     assert np.array_equal(asyncio.run(provider.embed("fixture")), pipeline._fallback_vector("fixture"))
+
+
+def test_new_embedding_identity_column_is_nullable_for_retained_legacy_rows():
+    import typing
+    assert typing.get_type_hints(pipeline.EvidenceChunk, include_extras=True)["embedding_space_id"] == str | None

@@ -19,7 +19,7 @@ def run():
     current = (here / 'main.py').read_text()
     # Reproduce the immediately preceding target schema using the actual engine,
     # not a hand-built SQLite approximation. The embedding fixture is test-only.
-    legacy = current.replace('    embedding_space_id: str\n', '').replace('            embedding_space_id=space,\n', '')
+    legacy = current.replace('    embedding_space_id: str | None\n', '').replace('            embedding_space_id=space,\n', '')
     if legacy == current:
         raise RuntimeError('Legacy fixture transform no longer matches; review smoke explicitly')
     deadline = time.monotonic() + 60
@@ -68,16 +68,29 @@ def run():
             raise RuntimeError('Legacy engine fixture did not establish the intended one-row old schema')
         source.write_text(current); update('Legacy-to-current target update')
         columns, new_rows, spaces = rows()
-        if 'embedding_space_id' not in columns or new_rows != old_rows or not spaces or not all(row[0] for row in spaces):
-            raise RuntimeError('Schema addition was not lossless and fully tagged. Preserve production data; explicit migration required')
-        if any(json.loads(row[0])['backend'] != 'hash_test' for row in spaces):
+        if 'embedding_space_id' not in columns or new_rows != old_rows or not spaces:
+            raise RuntimeError('Nullable schema addition was not lossless. Preserve production data; explicit migration required')
+        # Untouched retained rows may remain NULL: never invent a generation for
+        # legacy vectors. If the engine reprocesses a row, only hash_test is valid.
+        if any(row[0] is not None and json.loads(row[0])['backend'] != 'hash_test' for row in spaces):
             raise RuntimeError('Offline smoke unexpectedly used a real embedding backend')
         update('Repeated current update')
         if rows() != (columns, new_rows, spaces):
             raise RuntimeError('Repeated unchanged update changed fixture rows/schema')
+        # A deliberate source edit requires a newly produced row to be tagged.
+        (root / 'data' / 'fixture.jsonl').write_text(json.dumps({
+            'id': 'fictional-schema-smoke', 'kind': 'claim', 'ref_id': 'fictional-schema-smoke',
+            'text': 'Changed fictional engine fixture; still not scientific evidence.',
+        }) + '\n')
+        update('Changed-source current update')
+        _, changed_rows, changed_spaces = rows()
+        if len(changed_rows) != 1 or changed_rows[0][1] == old_rows[0][1] or not changed_spaces or any(
+                not row[0] or json.loads(row[0])['backend'] != 'hash_test' for row in changed_spaces):
+            raise RuntimeError('Newly produced rows did not receive their actual hash-test identity')
         print(json.dumps({'ok': True, 'scope': 'disposable offline engine schema fixture only',
                           'rows': len(new_rows), 'legacy_addition_preserved_rows': True,
-                          'repeated_update_stable': True, 'embedding_backend': 'hash_test',
+                          'repeated_update_stable': True, 'changed_source_tagged': True,
+                          'legacy_null_is_unknown': True, 'embedding_backend': 'hash_test',
                           'production_touched': False}))
     # TemporaryDirectory cleans target DB, engine state and fixture caches on all exits.
 
