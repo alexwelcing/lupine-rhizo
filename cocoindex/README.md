@@ -301,3 +301,11 @@ forced offline and the hash-test backend is explicitly selected. Unsupported
 migration fails CI with a preservation instruction; it never deletes/recreates
 production data. This gate requires the already installed CI pipeline dependencies
 and has not been substituted by the stdlib/AST fixture tests.
+
+
+The schema smoke's hash-only mode also supplies a static `VectorSchemaProvider`
+(`float32`, configured dimension) through the real context key. This avoids the
+real embedder's schema-metadata lookup loading a model before any row is embedded.
+The SQLite connector and engine still create and migrate the target. The provider
+implements CocoIndex's documented `__coco_vector_schema__` protocol; a unit fixture
+forbids constructing `SentenceTransformerEmbedder` in this test-only mode.

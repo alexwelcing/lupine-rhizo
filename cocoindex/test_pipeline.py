@@ -389,3 +389,16 @@ def test_same_count_source_edit_never_queries_stale_fts_postings(tmp_path):
         assert all(row["id"] != "row-7" for row in query.keyword_search(conn,"number",20,None))
     finally:
         conn.close()
+
+
+def test_hash_smoke_provider_supplies_static_schema_without_real_model(monkeypatch):
+    import asyncio
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Offline schema smoke must not construct a real model")
+    monkeypatch.setattr(pipeline, "_HASH_TEST_ONLY", True)
+    monkeypatch.setattr(pipeline, "SentenceTransformerEmbedder", forbidden)
+    provider = pipeline._configured_embedder()
+    schema = asyncio.run(provider.__coco_vector_schema__())
+    assert schema.size == pipeline.EMBED_DIM
+    assert schema.dtype == np.dtype(np.float32)
+    assert np.array_equal(asyncio.run(provider.embed("fixture")), pipeline._fallback_vector("fixture"))

@@ -42,6 +42,7 @@ from cocoindex.ops.sentence_transformers import SentenceTransformerEmbedder
 from cocoindex.resources.chunk import Chunk
 from cocoindex.resources.file import FileLike, PatternFilePathMatcher
 from cocoindex.resources.id import IdGenerator
+from cocoindex.resources.schema import VectorSchema, VectorSchemaProvider
 
 # Shared embedder — the REAL SentenceTransformerEmbedder, which implements
 # VectorSchemaProvider so the SQLite vector column's dimension is inferred
@@ -93,9 +94,30 @@ EXTRA_DOC_DIRS = ("paper", "mlip-elastic-benchmark")
 # Set to True after the first real-embed failure so we stop retrying the
 # (possibly unreachable) HF Hub download on every chunk.
 # CI schema smoke only: never ask the embedder to load/download a model.
-_FALLBACK_ACTIVE: bool = os.environ.get("EVIDENCE_TEST_HASH_ONLY") == "1"
+_HASH_TEST_ONLY = os.environ.get("EVIDENCE_TEST_HASH_ONLY") == "1"
+_FALLBACK_ACTIVE: bool = _HASH_TEST_ONLY
 
-EMBEDDER = coco.ContextKey[SentenceTransformerEmbedder]("evidence_embedder")
+class _StaticHashTestEmbedder:
+    """CI-only VectorSchemaProvider: static schema, no real model construction.
+
+    Implements the documented __coco_vector_schema__ protocol:
+    https://cocoindex.io/docs/common_resources/vector_schema/
+    Hash vectors remain test-only and fail semantic admission.
+    """
+    async def __coco_vector_schema__(self) -> VectorSchema:
+        return VectorSchema(dtype=np.dtype(np.float32), size=EMBED_DIM)
+
+    async def embed(self, text: str) -> NDArray:
+        return _fallback_vector(text)
+
+
+def _configured_embedder():
+    if _HASH_TEST_ONLY:
+        return _StaticHashTestEmbedder()
+    return SentenceTransformerEmbedder(EMBED_MODEL)
+
+
+EMBEDDER = coco.ContextKey[VectorSchemaProvider]("evidence_embedder")
 # The SQLite target DB. Per the connector contract, mount_table_target takes
 # the ContextKey (not the connection); the connection is provided via lifespan
 # so the engine resolves it per component.
@@ -154,7 +176,7 @@ def _fallback_vector(text: str) -> NDArray:
 async def coco_lifespan(builder: coco.EnvironmentBuilder) -> AsyncIterator[None]:
     # Embedder: construction is cheap (no model download); download happens on
     # first embed and is caught by _embed's fallback if unreachable.
-    builder.provide(EMBEDDER, SentenceTransformerEmbedder(EMBED_MODEL))
+    builder.provide(EMBEDDER, _configured_embedder())
     # SQLite target DB — a single shared connection to ./evidence.db.
     builder.provide(EVIDENCE_DB, sqlite.connect(str(DB_PATH)))
     yield
