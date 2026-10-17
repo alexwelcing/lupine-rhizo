@@ -1,3 +1,4 @@
+import { canonicalComparisonJSON, draftComparisonContract, previewVerificationTask } from "../comparisonContracts";
 import { afterEach, describe, expect, it } from "vitest";
 // @ts-expect-error Test-only SQLite, excluded from Worker types.
 import { DatabaseSync } from "node:sqlite";
@@ -192,4 +193,80 @@ describe("private D1 research imports and reads", () => {
     expect(detail).toMatchObject({ stages: [{ result: proposal }, { result: null, resultOmitted: true }, { result: null, resultOmitted: true }] });
     for (const input of [{ limit: 100 }, { runId: "../secrets" }, { sql: "DELETE" }, { stage: "discovery" }]) await expect(readResearchRuns(h.env, input)).rejects.toThrow();
   });
+});
+
+// A source-audit fixture, not new physical results or an asserted historical run.
+function chandranContract(run: ResearchRunImport) {
+  return { schemaVersion: 1, id: "chandran-sisf-audit", visibility: "private", authorization: "proposed",
+    runId: run.id, proposalId: "p1", discoveryPacketSha256: run.stages[0].receipt!.resultSha256,
+    intent: "descriptive", executionKind: "source_audit",
+    findings: [{ sourceId: "doi:10.3389/fmats.2024.1466793", sourceSha256: "34be477326e434491d4577424052916067511eaabf1f6cc2a9dd9423c74045c3",
+      anchor: "Table 5 footnote a; XML T5", rowIds: ["chandran2024-b17-123", "chandran2024-b17-125"] }],
+    evaluation: { material: "Ti3Al", composition: "0 at.% Nb", phase: "D019", observable: "SISF energy", unit: "mJ/m2",
+      temperature: null, referenceId: "Qi2023 Table5 footnote a", protocol: null, candidateSet: "Current Chandran MTP and DeePMD only" },
+    arms: [{ modelId: "MTP level18 rcut7A", artifactSha256: null, intervention: "Published comparator; not isolated ablation", fitExposure: null, referenceId: "Qi2023 Table5 footnote a" },
+      { modelId: "DeePMD DeepPot-SE rcut6A", artifactSha256: null, intervention: "Published comparator; not isolated ablation", fitExposure: null, referenceId: "Qi2023 Table5 footnote a" }],
+    unknowns: ["Selection exposure and relaxation conventions unresolved"], excludedScope: ["No inference to continuous slip or ductility"],
+    decisionRule: "Compare absolute SISF discrepancies: MTP97 and DP206 against cited93; descriptive only",
+    falsifier: "Matched reference/protocol reconciliation reverses preference", stoppingRule: "Stop after source protocol reconciliation; do not simulate" };
+}
+
+it("previews a private Chandran comparison without writes, scheduling or packet mutation", async () => {
+  const h = harness(); const run = await snapshot(); await importResearchRun(h.env, JSON.stringify(run));
+  const before = h.db.prepare("SELECT payload FROM workspace_research_runs").get();
+  h.hooks.beforeRun = () => { throw new Error("Preview attempted a write"); };
+  const response = await researchRunsResponse(new Request("http://localhost/workspace/research-runs/verification-preview", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId: run.id, contract: chandranContract(run) }),
+  }), h.env, true);
+  expect(response!.status).toBe(200); expect(response!.headers.get("Cache-Control")).toContain("no-store");
+  const body = await response!.json() as any;
+  expect(body).toMatchObject({ status: "needs_clarification", scheduled: false, execution: "not_started", publication: "held", visibility: "private", sourceVerification: "not_performed" });
+  expect(body.blockers).toContain("Missing evaluation protocol");
+  expect(h.db.prepare("SELECT payload FROM workspace_research_runs").get()).toEqual(before);
+  expect(JSON.stringify(run)).toBe(JSON.stringify(await snapshot()));
+});
+
+it("rejects unknown proposal, mismatched reference/hash, public visibility and cross-origin previews", async () => {
+  const h = harness(); const run = await snapshot(); await importResearchRun(h.env, JSON.stringify(run));
+  for (const change of [ {proposalId:"unknown"}, {discoveryPacketSha256:"f".repeat(64)}, {visibility:"public"},
+    {arms:chandranContract(run).arms.map((a,i)=>({...a,referenceId:i ? "different DFT" : a.referenceId}))} ]) {
+    const response = await researchRunsResponse(new Request("http://localhost/workspace/research-runs/verification-preview", {
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({runId:run.id,contract:{...chandranContract(run),...change}}),
+    }),h.env,true);
+    expect(response!.status).toBe(400);
+  }
+  const cross = await researchRunsResponse(new Request("http://localhost/workspace/research-runs/verification-preview", {
+    method:"POST", headers:{Origin:"https://untrusted.invalid"},body:"{}",
+  }),h.env,true);
+  expect(cross!.status).toBe(403);
+});
+
+it("fingerprints deterministically and keeps a specified contract unexecuted", async () => {
+  const imported = await fullSnapshot();
+  const decision = JSON.parse(imported.stages[2].packetJson!); decision.recommendation = "investigate";
+  imported.stages[2].packetJson = JSON.stringify(decision);
+  imported.stages[2].receipt!.resultSha256 = await sha256(imported.stages[2].packetJson!);
+  const run = await decodeResearchRun(imported);
+  const input = chandranContract(imported);
+  input.unknowns = []; input.evaluation.temperature = "Nominal static, stated contract for fixture only" as any;
+  input.evaluation.protocol = "Synthetic matched protocol for this contract test only" as any;
+  for (const arm of input.arms) arm.fitExposure = "Synthetic resolved exposure for this contract test only" as any;
+  const before = JSON.stringify(run);
+  const a = await previewVerificationTask(run, input);
+  const b = await previewVerificationTask(run, Object.fromEntries(Object.entries(input).reverse()));
+  expect(a.contractSha256).toBe(b.contractSha256);
+  expect(JSON.parse(canonicalComparisonJSON(a.contract))).toEqual(a.contract);
+  expect(a.taskPreview.payload.comparisonContract).toEqual(a.contract);
+  expect(a.taskPreview.payload.comparisonContractSha256).toBe(a.contractSha256);
+  expect(a).toMatchObject({status:"specified",scheduled:false,execution:"not_started",publication:"held"});
+  expect(a.blockers).toEqual([]); expect(JSON.stringify(run)).toBe(before);
+});
+
+it("prepares an editable source-audit draft without inventing source verification", async () => {
+ const run = await decodeResearchRun(await snapshot()); const draft = draftComparisonContract(run,"p1");
+ expect(draft.findings[0].sourceSha256).toBeNull(); expect(draft.findings[0].rowIds).toEqual([]);
+ const preview = await previewVerificationTask(run,draft);
+ expect(preview.status).toBe("needs_clarification"); expect(preview.sourceVerification).toBe("not_performed");
+ expect(preview.blockers).toContain(`Missing source hash: ${draft.findings[0].sourceId}`);
+ expect(preview.blockers.length).toBeGreaterThan(5);
 });

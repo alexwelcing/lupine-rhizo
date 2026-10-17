@@ -7,6 +7,39 @@ the maximum is 50. Each item is the latest immutable reviewed record for one
 activity, ordered by `observedAt` descending, then `id` descending. `truncated`
 indicates additional activities. There is no automatic ingestion or generation.
 
+## Complete public archive
+
+`GET /research/activity/archive?after=0&limit=50` returns
+`lupine.public_research_activity.archive.v1` (schema in
+`schemas/public-research-activity-archive.v1.schema.json`). It reads only the
+reviewed public table and its append-only ingestion sequence. All immutable
+versions are included, not only current activity heads.
+
+The first request omits `snapshot` and pins the maximum ingestion sequence.
+Continue with `after=cursor.nextAfter&snapshot=cursor.snapshot`; records are
+ordered by ascending ingestion sequence in `(after, snapshot]`. `nextAfter`
+is null exactly when `coverage.complete` is true. Never advance using evidence
+dates: late/backdated imports and corrections appear in the next refresh,
+starting at the previous completed snapshot with `snapshot` omitted. Clients
+must not skip an unfinished snapshot when refreshing. One request returns at
+most50 records; there is no automatic full-archive crawl.
+
+The envelope contains `records`, `cursor:{after,snapshot,nextAfter}`,
+`coverage:{complete,returned}`, and `hashes:[{id,sha256}]`. Response hashes cover
+UTF-8 `JSON.stringify(record)` after validation, distinct from the stored-payload
+integrity hash when stored JSON whitespace/order differs. The whole selected
+page, including lookahead, is validated against stored hashes and public-record
+metadata before responding. Invalid cursors, duplicated/unknown query fields,
+limits outside1–50, unsafe integers, `after>snapshot`, or a snapshot beyond the
+current maximum return400. Missing migration0023 or malformed selected data
+returns generic503; clients retain the existing feed/snapshot as partial coverage.
+
+Migration0023 backfills existing records deterministically by `(imported_at,id)`,
+appends a sequence for each new immutable public record, and refuses sequence
+updates/deletes. Duplicate imports do not append. Reapplying the migration is
+safe. Ingestion sequence is a pagination clock, not an evidence timestamp or a
+scientific freshness claim. The immutable detail route below remains available.
+
 `GET /research/activity/{id}` returns the same feed envelope containing one
 historical public record. This makes a `supersedes` reference inspectable. GET
 and OPTIONS permit credential-free CORS (`*`); other public methods return 405.

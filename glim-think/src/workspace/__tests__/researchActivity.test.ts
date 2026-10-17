@@ -8,10 +8,11 @@ import {
   decodePublicResearchActivity, isPublicSourceUrl, PUBLIC_ACTIVITY_MAX_BYTES,
   publicActivitySha256, type PublicResearchActivity,
 } from "../researchActivityContracts";
-import { getPublicResearchActivity, importPublicResearchActivity, listPublicResearchActivity, researchActivityResponse } from "../researchActivity";
+import { archivePublicResearchActivity, getPublicResearchActivity, importPublicResearchActivity, listPublicResearchActivity, researchActivityResponse } from "../researchActivity";
 
 const base = (import.meta as ImportMeta & { url: string }).url;
 const migration = readFileSync(new URL("../../../migrations/0021_public_research_activity.sql", base), "utf8");
+const archiveMigration = readFileSync(new URL("../../../migrations/0023_public_activity_archive.sql", base), "utf8");
 const recordContract = JSON.parse(readFileSync(new URL("../../../../schemas/public-research-activity.v1.schema.json", base), "utf8"));
 const feedContract = JSON.parse(readFileSync(new URL("../../../../schemas/public-research-activity-feed.v1.schema.json", base), "utf8"));
 const databases: InstanceType<typeof DatabaseSync>[] = [];
@@ -197,5 +198,50 @@ describe("public read and operator import boundaries", () => {
     expect((await researchActivityResponse(h.request(record(), { "Content-Type": "text/plain" }), h.env))!.status).toBe(415);
     expect((await researchActivityResponse(h.request({ summary: "é".repeat(PUBLIC_ACTIVITY_MAX_BYTES) }), h.env))!.status).toBe(413);
     expect(h.queries).toHaveLength(0);
+  });
+});
+
+
+describe("complete public archive", () => {
+  it("pins 121 tied records over three pages, excludes late history, verifies canonical hashes", async()=>{
+    const h=harness();h.db.exec(archiveMigration);
+    for(let i=0;i<121;i++)await importPublicResearchActivity(h.env,record(`archive-${i}`,`activity-${i}`));
+    const p1=await archivePublicResearchActivity(h.env,0,undefined,50);
+    expect(p1.cursor).toEqual({after:0,snapshot:121,nextAfter:50});
+    const late={...record("late-record","late-activity"),observedAt:"2026-09-01T10:00:00.000Z"};
+    const correction={...record("correction-record","activity-0"),supersedes:"archive-0",reviewedAt:"2026-10-02T11:00:00.000Z",correctionReason:"Correcting the fixture."};
+    await importPublicResearchActivity(h.env,late);await importPublicResearchActivity(h.env,correction);
+    const p2=await archivePublicResearchActivity(h.env,50,121,50),p3=await archivePublicResearchActivity(h.env,100,121,50);
+    const old=[...p1.records,...p2.records,...p3.records];expect(old).toHaveLength(121);expect(new Set(old.map(r=>r.id)).size).toBe(121);
+    expect(old.some(r=>[late.id,correction.id].includes(r.id))).toBe(false);expect(p3.coverage.complete).toBe(true);
+    const next=await archivePublicResearchActivity(h.env,121);expect(next.records.map(r=>r.id)).toEqual([late.id,correction.id]);
+    expect((await importPublicResearchActivity(h.env,correction)).duplicate).toBe(true);
+    expect(h.db.prepare("SELECT COUNT(*) AS n FROM public_activity_archive_sequence").get().n).toBe(123);
+    for(const page of [p1,p2,p3,next])for(const [i,r]of page.records.entries())expect(page.hashes[i]).toEqual({id:r.id,sha256:await publicActivitySha256(JSON.stringify(r))});
+    expect(h.queries.every(q=>!q.includes("FROM hypotheses")&&!q.includes("FROM claims"))).toBe(true);
+  });
+  it("backfills in deterministic order, reapplies once safely and refuses mutations",async()=>{
+    const h=harness();await importPublicResearchActivity(h.env,record("z-record","z-activity"));await importPublicResearchActivity(h.env,record("a-record","a-activity"));
+    h.db.exec(archiveMigration);const before=h.db.prepare("SELECT * FROM public_activity_archive_sequence ORDER BY sequence").all();
+    const expected=h.db.prepare("SELECT id FROM public_research_activity ORDER BY imported_at,id").all().map((x:{id:string})=>x.id);
+    expect(before.map((x:{record_id:string})=>x.record_id)).toEqual(expected);
+    h.db.exec(archiveMigration);expect(h.db.prepare("SELECT * FROM public_activity_archive_sequence ORDER BY sequence").all()).toEqual(before);
+    expect(()=>h.db.exec("UPDATE public_activity_archive_sequence SET sequence=99")).toThrow();expect(()=>h.db.exec("DELETE FROM public_activity_archive_sequence")).toThrow();
+  });
+  it("returns complete empty archive, fails503 before migration and on malformed lookahead",async()=>{
+    const h=harness();expect((await researchActivityResponse(new Request("https://worker.example.org/research/activity/archive"),h.env))!.status).toBe(503);
+    h.db.exec(archiveMigration);expect((await archivePublicResearchActivity(h.env)).cursor).toEqual({after:0,snapshot:0,nextAfter:null});
+    await importPublicResearchActivity(h.env,record("first","first-activity"));const r=record("bad","bad-activity");
+    h.db.prepare("INSERT INTO public_research_activity(id,activity_id,observed_at,reviewed_at,supersedes_id,payload_sha256,payload) VALUES(?,?,?,?,?,?,?)").run(r.id,r.activityId,r.observedAt,r.reviewedAt,null,"f".repeat(64),JSON.stringify(r));
+    await expect(archivePublicResearchActivity(h.env,0,undefined,1)).rejects.toThrow();
+    expect((await researchActivityResponse(new Request("https://worker.example.org/research/activity/archive?limit=1"),h.env))!.status).toBe(503);
+  });
+  it("returns hashes of validated record bytes, not stored whitespace",async()=>{
+    const h=harness();h.db.exec(archiveMigration);const r=record("pretty-record","pretty-activity"),payload=JSON.stringify(r,null,2);
+    h.db.prepare("INSERT INTO public_research_activity(id,activity_id,observed_at,reviewed_at,supersedes_id,payload_sha256,payload) VALUES(?,?,?,?,?,?,?)").run(r.id,r.activityId,r.observedAt,r.reviewedAt,null,await publicActivitySha256(payload),payload);
+    const page=await archivePublicResearchActivity(h.env);expect(page.hashes[0].sha256).toBe(await publicActivitySha256(JSON.stringify(page.records[0])));expect(page.hashes[0].sha256).not.toBe(await publicActivitySha256(payload));
+  });
+  it.each(["after=-1","after=01","after=1.2","after=9007199254740992","snapshot=9007199254740992","after=0&after=1","snapshot=0&snapshot=0","limit=0","limit=51","limit=2&limit=3","unexpected=1","after=1&snapshot=0","snapshot=1"])("rejects invalid cursor %s",async query=>{
+    const h=harness();h.db.exec(archiveMigration);expect((await researchActivityResponse(new Request(`https://worker.example.org/research/activity/archive?${query}`),h.env))!.status).toBe(400);
   });
 });

@@ -144,7 +144,7 @@ def test_query_missing_db_returns_clean_error():
     assert rc == 2
 
 
-def _make_synthetic_db(path: pathlib.Path, n: int = 8) -> None:
+def _make_synthetic_db(path: pathlib.Path, n: int = 8, mechanics_space: bool = False) -> None:
     """A minimal evidence.db: n rows with deterministic fallback embeddings."""
     import sqlite3
     conn = sqlite3.connect(str(path))
@@ -161,6 +161,12 @@ def _make_synthetic_db(path: pathlib.Path, n: int = 8) -> None:
                 "INSERT INTO evidence_chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (f"row-{i}", "synthetic.jsonl", "claim", f"ref-{i}", text, vec, 0, len(text)),
             )
+        if mechanics_space:
+            # Artificial admitted identity for sidecar mechanics only. These hash
+            # vectors are NOT scientific/semantic embeddings or production data.
+            from embedding_contract import embedding_space
+            conn.execute("ALTER TABLE evidence_chunks ADD COLUMN embedding_space_id TEXT")
+            conn.execute("UPDATE evidence_chunks SET embedding_space_id=?", (embedding_space("fictional-mechanics-fixture", pipeline.EMBED_DIM, revision="a" * 64),))
         conn.commit()
     finally:
         conn.close()
@@ -174,7 +180,7 @@ def test_build_vec_index_creates_knn_sidecar(tmp_path):
     import query
 
     db = tmp_path / "evidence.db"
-    _make_synthetic_db(db)
+    _make_synthetic_db(db, mechanics_space=True)
     assert build_vec_index.build(db) == 0
     assert build_vec_index.build(db) == 0  # second run: up-to-date no-op
 
@@ -286,9 +292,8 @@ def test_fts_bm25_and_hybrid_search(tmp_path):
         res = query.keyword_search(conn, "record number 7", limit=3, kind_filter=None)
         assert res and res[0]["id"] == "row-7"           # BM25 puts rare-term match first
         assert res[0].get("score") is not None           # scored (LIKE path isn't)
-        # Hybrid runs both legs and fuses by RRF. On synthetic hash-vector
-        # embeddings the semantic leg is noise, so we assert structure (fused,
-        # scored, RRF descending) not ordering — real ranking is the eval's job.
+        # Legacy/hash vectors fail semantic admission; hybrid gracefully uses
+        # lexical fallback and preserves bounded ranked result structure.
         assert query._load_vec(conn)
         fused = query.hybrid_search(conn, "record number 7", limit=3, kind_filter=None)
         assert fused and all(r.get("score") is not None for r in fused)
@@ -349,3 +354,38 @@ def test_eval_distinct_source_rank():
     assert ev._distinct_source_rank(results, "docs/b.md") == 2
     assert ev._distinct_source_rank(results, "hyp-1") == 3
     assert ev._distinct_source_rank(results, "missing") is None
+
+
+def test_legacy_index_schema_stays_lexical_and_source_is_preserved(tmp_path):
+    import sqlite3
+    import build_vec_index
+    from dataclasses import fields
+    from embedding_contract import semantic_compatible
+    db = tmp_path / "legacy.db"
+    _make_synthetic_db(db)
+    conn = sqlite3.connect(str(db))
+    try:
+        before = conn.execute("SELECT * FROM evidence_chunks ORDER BY id").fetchall()
+        assert "embedding_space_id" in {field.name for field in fields(pipeline.EvidenceChunk)}
+        assert not semantic_compatible(conn,pipeline.EMBED_SPACE_ID)
+        build_vec_index.build_sidecars(conn)
+        assert conn.execute("SELECT * FROM evidence_chunks ORDER BY id").fetchall() == before
+        assert not query._table_exists(conn,"evidence_chunks_vec_row")
+        assert query.keyword_search(conn,"record number 7",3,None)[0]["id"] == "row-7"
+    finally:
+        conn.close()
+
+
+def test_same_count_source_edit_never_queries_stale_fts_postings(tmp_path):
+    import sqlite3
+    import build_vec_index
+    db = tmp_path / "stale.db"
+    _make_synthetic_db(db)
+    conn = sqlite3.connect(str(db))
+    try:
+        build_vec_index.build_fts(conn,8)
+        conn.execute("UPDATE evidence_chunks SET text='replacementtoken' WHERE id='row-7'")
+        assert query.keyword_search(conn,"replacementtoken",3,None)[0]["id"] == "row-7"
+        assert all(row["id"] != "row-7" for row in query.keyword_search(conn,"number",20,None))
+    finally:
+        conn.close()

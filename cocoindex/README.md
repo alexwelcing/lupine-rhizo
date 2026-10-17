@@ -253,3 +253,51 @@ run, hypotheses changing status, claims added. CocoIndex handles the
 incremental bookkeeping (only re-embed what changed, by content fingerprint)
 declaratively, so the index stays current without a full re-embed every time.
 That's the property that makes the evidence tier cheap to keep live.
+
+
+### Embedding generation admission (2026-10-17)
+
+`embedding_contract.py` records backend, model revision, dimension, normalization,
+query prefix and splitter identity per newly emitted chunk. A real model revision
+is the digest of a local model directory's bytes; mutable remote names, legacy rows
+without identity, mixed spaces and deterministic hash-test vectors are **not**
+admitted for semantic retrieval. Those indexes remain available to lexical search.
+No model is downloaded by this admission check. Configure `EVIDENCE_EMBED_MODEL`
+to an already provisioned immutable local model directory for semantic admission;
+its name determines the existing BGE query-prefix convention. The digest is a
+startup snapshot, not a filesystem lock: admission assumes those local bytes stay
+unchanged throughout indexing/querying. Avoid symlinked or concurrently changing
+model files. This is a retrieval compatibility contract,
+not evidence of model quality or scientific validity.
+
+The vector sidecar fingerprint includes embedding generation. Query-time vec0 use
+also checks its source fingerprint; a stale sidecar falls back to a compatible
+exact scan. Stale FTS fingerprints bypass postings and use the source-text LIKE scan.
+Query embedding failure falls back to lexical retrieval, never to hash
+vectors against a real index. Existing legacy vectors are preserved and require
+an explicit re-index under the new chunk schema before semantic use; they are not
+silently assigned a revision. CocoIndex schema migration/re-index behavior must be
+verified against a disposable copy before updating an existing production index.
+
+The stable extension dependency is pinned to `sqlite-vec==0.1.9`. Run the stdlib
+fixtures without loading an embedding model:
+
+```sh
+python -B -m unittest test_embedding_contract test_build_vec_index -v
+```
+
+Use `REQUIRE_SQLITE_VEC=1` in the extension-enabled validation environment so the
+real-vector rollback test cannot silently skip. Package pinning does not install
+models or the full pipeline. A public Library projection must still enforce its
+own reviewed-public visibility boundary; this private local index is not that API.
+
+
+CI also runs `python -B smoke_engine_schema.py`: within one disposable directory,
+it creates the immediately preceding chunk schema using the real CocoIndex CLI,
+updates to the current schema, checks that original rows/embeddings survive and
+that every row receives a hash-test identity, then repeats the update to check
+stability. All three engine calls share a 60-second budget. Model access is
+forced offline and the hash-test backend is explicitly selected. Unsupported
+migration fails CI with a preservation instruction; it never deletes/recreates
+production data. This gate requires the already installed CI pipeline dependencies
+and has not been substituted by the stdlib/AST fixture tests.

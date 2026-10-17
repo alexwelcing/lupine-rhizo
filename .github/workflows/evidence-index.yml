@@ -51,4 +51,13 @@ jobs:
         run: python seed_data.py
 
       - name: Unit tests
-        run: python -m pytest test_pipeline.py -q
+        env:
+          REQUIRE_SQLITE_VEC: "1"
+        run: python -B -m pytest test_pipeline.py test_build_vec_index.py test_embedding_contract.py test_discover_sources.py -q -p no:cacheprovider
+
+      - name: Offline disposable engine schema smoke
+        env:
+          HF_HUB_OFFLINE: "1"
+          TRANSFORMERS_OFFLINE: "1"
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python -B smoke_engine_schema.py

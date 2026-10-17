@@ -829,3 +829,8 @@ CREATE TABLE IF NOT EXISTS herdr_bridge_jobs (
 );
 CREATE INDEX IF NOT EXISTS idx_herdr_bridge_jobs_machine_status
   ON herdr_bridge_jobs(machine_id, status, created_at);
+
+-- Public activity initialization requires migrations/0021_public_research_activity.sql
+-- followed by migrations/0023_public_activity_archive.sql. This legacy schema
+-- snapshot does not define the prerequisite public_research_activity table;
+-- do not apply 0023 alone or treat schema.sql as the complete latest schema.

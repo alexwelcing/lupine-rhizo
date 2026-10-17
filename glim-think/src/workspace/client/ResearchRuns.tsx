@@ -1,3 +1,4 @@
+import { draftComparisonContract } from "../comparisonContracts";
 import React, { useEffect, useRef, useState } from "react";
 import { safeEvidenceHref } from "../contracts";
 import { decodeResearchRun, researchRunSchema, RESEARCH_RUN_MAX_BYTES, type ResearchRun,
@@ -117,6 +118,48 @@ function StageReceipt({ stage }: { stage: ResearchRunStage }) {
   </dl></details>;
 }
 
+/** Preview sends only an explicitly supplied contract to the private workspace. */
+export async function requestVerificationPreview(runId: string, text: string): Promise<{ blockers: string[]; contractSha256: string }> {
+  if (new TextEncoder().encode(text).length > RESEARCH_RUN_MAX_BYTES / 2) throw new Error("Comparison is too large");
+  const response = await fetch("/workspace/research-runs/verification-preview", { method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId, contract: JSON.parse(text) }) });
+  if (!response.ok) throw new Error("Comparison preview unavailable");
+  const result = await response.json() as Record<string, unknown>;
+  if (result.execution !== "not_started" || result.scheduled !== false || result.visibility !== "private" ||
+      !Array.isArray(result.blockers) || result.blockers.some(item => typeof item !== "string") ||
+      typeof result.contractSha256 !== "string" || !/^[a-f0-9]{64}$/.test(result.contractSha256)) throw new Error("Invalid preview");
+  return { blockers: result.blockers as string[], contractSha256: result.contractSha256 };
+}
+
+function VerificationPreview({ run }: { run: ResearchRun }) {
+  const packet = run.stages[0].result;
+  const proposals = packet?.role === "proposer" ? packet.proposals : [];
+  const [proposalId, setProposalId] = useState(proposals[0]?.id ?? "");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<Awaited<ReturnType<typeof requestVerificationPreview>> | null>(null);
+  const [error, setError] = useState("");
+  const revision = useRef(0);
+  async function preview() {
+    const current = ++revision.current; setBusy(true); setError(""); setResult(null);
+    try { const value = await requestVerificationPreview(run.id, text); if (current === revision.current) setResult(value); }
+    catch { if (current === revision.current) setError("The comparison could not be previewed. Check its contract and saved proposal reference."); }
+    finally { if (current === revision.current) setBusy(false); }
+  }
+  return <details className="research-verification"><summary>Preview a verification task</summary>
+    <p>Start from a saved proposal, then review the comparison and its unresolved conditions. Execution and publication require separate gates.</p>
+    <label>Saved proposal<select value={proposalId} onChange={event => setProposalId(event.target.value)}>{proposals.map(proposal => <option key={proposal.id} value={proposal.id}>{proposal.hypothesis}</option>)}</select></label>
+    <button disabled={busy || !proposalId} onClick={() => { ++revision.current; setText(JSON.stringify(draftComparisonContract(run, proposalId), null, 2)); setResult(null); setError(""); }}>Prepare editable draft</button>
+    <label>Comparison contract JSON<textarea value={text} maxLength={RESEARCH_RUN_MAX_BYTES / 2} rows={6}
+      onChange={event => { ++revision.current; setText(event.target.value); setResult(null); setError(""); setBusy(false); }} /></label>
+    <button disabled={busy || !text.trim()} onClick={() => void preview()}>{busy ? "Checking…" : "Preview comparison"}</button>
+    {error && <p role="alert">{error}</p>}
+    {result && <div role="status"><p>{result.blockers.length ? "Conditions to resolve" : "Contract specified; execution is not authorized"}</p>
+      <ul>{result.blockers.map((item, index) => <li key={index}>{item}</li>)}</ul><p>Contract fingerprint: <code>{result.contractSha256}</code></p>
+      <p>No task was scheduled. No experiment was executed. Publication remains held.</p></div>}
+  </details>;
+}
+
 export function ResearchRunCard({ run }: { run: ResearchRun }) {
   const discovery = run.stages[0].status === "completed" && run.stages[0].result?.role === "proposer" ? run.stages[0].result : null;
   const completed = run.stages.filter(stage => stage.status === "completed").length;
@@ -151,6 +194,7 @@ export function ResearchRunCard({ run }: { run: ResearchRun }) {
         </article>;
       })}
     </section>}
+    {discovery && <VerificationPreview run={run} />}
     <footer className="research-run-footer"><p>Novelty remains unverified. Experiments are not started. Library publication is on hold.</p>
       <details><summary>Snapshot details</summary><p>Run <code>{run.id}</code></p><p>Captured <DateLabel value={run.capturedAt} />{run.finishedAt && <> · Finished <DateLabel value={run.finishedAt} /></>}</p></details>
     </footer>

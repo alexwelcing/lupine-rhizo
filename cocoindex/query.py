@@ -24,6 +24,8 @@ import sqlite3
 import sys
 import pathlib
 
+from build_vec_index import sidecar_matches_source
+from embedding_contract import semantic_compatible
 import numpy as np
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -101,6 +103,9 @@ def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
 
 def semantic_search(conn: sqlite3.Connection, query: str, limit: int,
                     kind_filter: str | None) -> list[dict]:
+    if not semantic_compatible(conn, pipeline.EMBED_SPACE_ID):
+        print("[query] unknown, mixed or incompatible embedding generation; using lexical search", file=sys.stderr)
+        return keyword_search(conn, query, limit, kind_filter)
     vec_ok = _load_vec(conn)
     if not vec_ok:
         print("[query] sqlite-vec unavailable; falling back to keyword search",
@@ -110,8 +115,11 @@ def semantic_search(conn: sqlite3.Connection, query: str, limit: int,
         return []
     # Embed the query through the same path the indexer used (real model or
     # hash-vector fallback), so query/index vector spaces match.
-    qvec = pipeline._fallback_vector(query) if pipeline._FALLBACK_ACTIVE \
-        else np.asarray(_safe_embed(query), dtype=np.float32)
+    try:
+        qvec = np.asarray(_safe_embed(query), dtype=np.float32)
+    except RuntimeError:
+        print("[query] real query embedding unavailable; using lexical search", file=sys.stderr)
+        return keyword_search(conn, query, limit, kind_filter)
     blob = np.asarray(qvec, dtype=np.float32).tobytes()
     # Unfiltered queries use the vec0 KNN sidecar (built by build_vec_index.py).
     # Kind-filtered queries deliberately do NOT: vec0 ranks globally and a
@@ -154,14 +162,15 @@ def _safe_embed(text: str):
     except Exception as e:  # noqa: BLE001
         if pipeline.REQUIRE_REAL_EMBEDDINGS:
             raise RuntimeError("real query embedding required but unavailable") from e
-        print(f"[query] embed failed ({e}); using fallback", file=sys.stderr)
-        return pipeline._fallback_vector(text)
+        raise RuntimeError("real query embedding unavailable; lexical fallback required") from e
 
 
 def _try_vec0_query(conn, blob: bytes, limit: int):
     """Unfiltered KNN via the vec0 virtual table (built by build_vec_index.py).
     Returns None if the virtual table isn't present (caller falls back to
     manual cosine)."""
+    if not sidecar_matches_source(conn, "evidence_chunks_vec_row", "embedding"):
+        return None
     has_vec0 = conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'evidence_chunks_vec%'"
     ).fetchone()
@@ -206,7 +215,7 @@ def keyword_search(conn: sqlite3.Connection, query: str, limit: int,
     else the original LIKE scan."""
     if not _table_exists(conn, "evidence_chunks"):
         return []
-    if _table_exists(conn, "evidence_chunks_fts"):
+    if _table_exists(conn, "evidence_chunks_fts") and sidecar_matches_source(conn, "evidence_chunks_fts", "text"):
         rows = _bm25_search(conn, query, limit, kind_filter)
         if rows is not None:
             return rows
