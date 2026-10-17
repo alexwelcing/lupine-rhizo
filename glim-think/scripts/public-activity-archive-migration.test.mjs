@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
@@ -49,6 +50,52 @@ test('remote metrics verifier accepts actual SQL and rejects every violated inva
     const workflow = readFileSync(new URL('../../.github/workflows/deploy-glim-think.yml', import.meta.url),'utf8');
     assert.ok(workflow.indexOf('Verify public activity archive before deployment') < workflow.indexOf('command: deploy'));
     assert.ok(workflow.includes('set -o pipefail'));
-    assert.ok(workflow.includes('--remote --json --file scripts/verify-public-activity-archive.sql | node scripts/verify-public-activity-archive.mjs'));
+    assert.ok(workflow.includes('node scripts/query-public-activity-archive.mjs | node scripts/verify-public-activity-archive.mjs'));
   } finally { db.close(); }
+});
+
+test('workflow query runner passes SQL as one --command argument without shell/import mode', async () => {
+  const { queryArchive, archiveQueryArguments } = await import('./query-public-activity-archive.mjs');
+  const sql = readFileSync(new URL('./verify-public-activity-archive.sql',import.meta.url),'utf8');
+  let called=false;
+  queryArchive((executable,args,options) => {
+    called=true;
+    assert.equal(executable,process.execPath);
+    assert.deepEqual(args.slice(0,-1), ['node_modules/wrangler/bin/wrangler.js','d1','execute','glim-ledger','--remote','--json','--command']);
+    assert.equal(args.at(-1),sql);
+    assert.equal(options.shell,false);
+    assert.equal(options.env.WRANGLER_SEND_METRICS,'false');
+    return {status:0,stdout:'[]'};
+  });
+  assert(called);
+  assert.equal(archiveQueryArguments("SELECT '$(never-run)';").at(-1),"SELECT '$(never-run)';");
+});
+
+test('verifier CLI rejects import summaries/malformed JSON without echoing untrusted data', () => {
+  const script = new URL('./verify-public-activity-archive.mjs',import.meta.url);
+  for (const [input,category] of [
+    ['not-json SECRET', 'invalid_json'],
+    [JSON.stringify([{success:true,results:[{'Total queries executed':1,'Rows read':4,secret:'SECRET'}]}]),'invalid_metrics'],
+    [JSON.stringify({secret:'SECRET'}),'invalid_result_shape'],
+    [JSON.stringify([{success:true,results:[] }]),'invalid_result_shape'],
+  ]) {
+    const result=spawnSync(process.execPath,[script.pathname],{input,encoding:'utf8'});
+    assert.equal(result.status,1);
+    assert.equal(JSON.parse(result.stderr).category,category);
+    assert(!result.stderr.includes('SECRET'));
+  }
+});
+
+test('verifier CLI exposes only allowlisted counts on invariant failure', () => {
+  const row={public_count:2,archive_count:1,missing_sequence:1,orphan_sequence:0,
+    duplicate_records:0,duplicate_sequences:0,invalid_sequences:0,append_trigger:1,immutable_triggers:2,
+    privatePayload:'SECRET'};
+  const result=spawnSync(process.execPath,[new URL('./verify-public-activity-archive.mjs',import.meta.url).pathname],
+    {input:JSON.stringify([{success:true,results:[row]}]),encoding:'utf8'});
+  assert.equal(result.status,1);
+  const diagnostic=JSON.parse(result.stderr);
+  assert.equal(diagnostic.category,'invariant_failure');
+  assert.equal(diagnostic.metrics.missing_sequence,1);
+  assert(!result.stderr.includes('SECRET'));
+  assert(!Object.hasOwn(diagnostic.metrics,'privatePayload'));
 });

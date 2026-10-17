@@ -104,7 +104,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          node node_modules/wrangler/bin/wrangler.js d1 execute glim-ledger --remote --json --file scripts/verify-public-activity-archive.sql | node scripts/verify-public-activity-archive.mjs
+          node scripts/query-public-activity-archive.mjs | node scripts/verify-public-activity-archive.mjs
 
       # Activate support for additive evidence kinds before inserting them.
       # A failed publication then leaves the previous valid feed intact.
