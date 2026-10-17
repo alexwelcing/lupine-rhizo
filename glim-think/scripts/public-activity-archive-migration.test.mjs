@@ -61,14 +61,14 @@ test('workflow query runner passes SQL as one --command argument without shell/i
   queryArchive((executable,args,options) => {
     called=true;
     assert.equal(executable,process.execPath);
-    assert.deepEqual(args.slice(0,-1), ['node_modules/wrangler/bin/wrangler.js','d1','execute','glim-ledger','--remote','--json','--command']);
-    assert.equal(args.at(-1),sql);
+    assert.deepEqual(args.slice(0,-1), ['node_modules/wrangler/bin/wrangler.js','d1','execute','glim-ledger','--remote','--json']);
+    assert.equal(args.at(-1),`--command=${sql}`);
     assert.equal(options.shell,false);
     assert.equal(options.env.WRANGLER_SEND_METRICS,'false');
     return {status:0,stdout:'[]'};
   });
   assert(called);
-  assert.equal(archiveQueryArguments("SELECT '$(never-run)';").at(-1),"SELECT '$(never-run)';");
+  assert.equal(archiveQueryArguments("SELECT '$(never-run)';").at(-1),"--command=SELECT '$(never-run)';");
 });
 
 test('verifier CLI rejects import summaries/malformed JSON without echoing untrusted data', () => {
@@ -98,4 +98,30 @@ test('verifier CLI exposes only allowlisted counts on invariant failure', () => 
   assert.equal(diagnostic.metrics.missing_sequence,1);
   assert(!result.stderr.includes('SECRET'));
   assert(!Object.hasOwn(diagnostic.metrics,'privatePayload'));
+});
+
+test('actual Wrangler parser accepts comment-leading SQL as equals argument before failing closed without credentials', { timeout:30000 }, async () => {
+  const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const { archiveQueryArguments, queryFailureCategory } = await import('./query-public-activity-archive.mjs');
+  const sql=readFileSync(new URL('./verify-public-activity-archive.sql',import.meta.url),'utf8');
+  const dir=mkdtempSync(join(tmpdir(),'archive-wrangler-parser-'));
+  try {
+    const config=join(dir,'wrangler.toml');
+    writeFileSync(config,'name="archive-offline-test"\naccount_id="offline-account"\n[[d1_databases]]\nbinding="LEDGER"\ndatabase_name="glim-ledger"\ndatabase_id="00000000-0000-0000-0000-000000000001"\n');
+    // Isolated HOME/config and no token: both cases stop before any API request.
+    const options={cwd:fileURLToPath(new URL('../',import.meta.url)),encoding:'utf8',timeout:20000,
+      env:{PATH:process.env.PATH,HOME:dir,XDG_CONFIG_HOME:dir,CI:'true',WRANGLER_SEND_METRICS:'false',WRANGLER_LOG_PATH:join(dir,'logs')}};
+    const good=spawnSync(process.execPath,[...archiveQueryArguments(sql),'--config',config],options);
+    assert.equal(good.status,1);
+    assert.equal(queryFailureCategory(good),'query_authentication_error',JSON.stringify({stdout:good.stdout,stderr:good.stderr}));
+    assert(!good.stderr.includes('Unknown argument'));
+    const oldArgs=[...archiveQueryArguments(sql).slice(0,-1),'--command',sql,'--config',config];
+    const bad=spawnSync(process.execPath,oldArgs,options);
+    assert.equal(bad.status,1);
+    assert.equal(queryFailureCategory(bad),'query_argument_parse_error');
+    assert.match(bad.stderr,/Unknown argument/);
+  } finally { rmSync(dir,{recursive:true,force:true}); }
 });
