@@ -2,6 +2,14 @@ import type { Env } from "../types";
 import { checkAccess } from "../middleware/access";
 import { WORKSPACE_PRIVATE_HEADERS } from "../middleware/workspaceAccess";
 
+/** The private routes require no research execution or public-serving bindings.
+ * Optional public bindings exist only to reject accidental aliasing in the main Worker.
+ */
+export type PrivateEvidenceEnv = Pick<Env,
+  "ADMIN_EMAIL" | "CF_ACCESS_TEAM_DOMAIN" | "CF_ACCESS_AUD" |
+  "PRIVATE_EVIDENCE" | "PRIVATE_EVIDENCE_ENABLED" | "PRIVATE_CORPUS" | "PRIVATE_CORPUS_ENABLED"
+> & Partial<Pick<Env, "ARTIFACTS" | "LEDGER">>;
+
 export const EVIDENCE_OBJECT_MAX_BYTES = 25 * 1024 * 1024;
 const ROOT = "/workspace/evidence-objects";
 const HASH = /^[a-f0-9]{64}$/;
@@ -53,7 +61,7 @@ function validObject(object: R2Object, hash: string): boolean {
     object.size <= EVIDENCE_OBJECT_MAX_BYTES && object.customMetadata?.sha256 === hash;
 }
 
-export async function requireEvidenceOperator(request: Request, env: Env): Promise<Response | null> {
+export async function requireEvidenceOperator(request: Request, env: PrivateEvidenceEnv): Promise<Response | null> {
   const url = new URL(request.url);
   if (request.headers.has("Origin") && request.headers.get("Origin") !== url.origin)
     return json({ error: "Same-origin request required" }, 403);
@@ -70,7 +78,7 @@ export async function requireEvidenceOperator(request: Request, env: Env): Promi
  * No public ARTIFACTS fallback, source fetching, model calls, or automatic retries.
  * PRIVATE_EVIDENCE must bind a distinct bucket with all public access disabled.
  */
-export async function evidenceObjectsResponse(request: Request, env: Env): Promise<Response | null> {
+export async function evidenceObjectsResponse(request: Request, env: PrivateEvidenceEnv): Promise<Response | null> {
   const url = new URL(request.url);
   if (url.pathname !== ROOT && !url.pathname.startsWith(ROOT + "/")) return null;
   const denial = await requireEvidenceOperator(request, env);

@@ -1,0 +1,14 @@
+{
+  "name": "glim-private-evidence-acceptance",
+  "main": "src/privateEvidenceAcceptance.ts",
+  "compatibility_date": "2026-04-25",
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "PRIVATE_EVIDENCE_ENABLED": "false",
+    "PRIVATE_CORPUS_ENABLED": "false"
+  }
+}

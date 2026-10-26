@@ -20,6 +20,7 @@ function loadTs(path) {
   return url;
 }
 
+const { default: acceptance } = await import(loadTs("src/privateEvidenceAcceptance.ts"));
 const { corpusResponse: route } = await import(loadTs("src/workspace/corpus.ts"));
 const { evidenceObjectsResponse } = await import(loadTs("src/workspace/evidenceObjects.ts"));
 const { dispatchPrivateEvidence } = await import(loadTs("src/workspace/evidenceDispatch.ts"));
@@ -409,6 +410,67 @@ test("private corpus D1 and R2 integration", async t => {
     const context=await (await route(req("/source-context?source_id=source-A"),h.env)).json();
     assert.equal(context.context.nodes[0].qualificationHistory.revision,"1");
     assert.equal(h.stats().writes,writes);assert.equal(h.stats().batches,1);
+  });
+
+
+  const acceptanceEnv = h => Object.fromEntries(
+    ["ADMIN_EMAIL","CF_ACCESS_TEAM_DOMAIN","CF_ACCESS_AUD","PRIVATE_EVIDENCE",
+      "PRIVATE_EVIDENCE_ENABLED","PRIVATE_CORPUS","PRIVATE_CORPUS_ENABLED"]
+      .map(key=>[key,h.env[key]]));
+  await t.test("acceptance has no execution handlers or public and research routes",async()=>{
+    assert.deepEqual(Object.keys(acceptance),["fetch"]);
+    const env=new Proxy({}, {get(){throw Error("An unrelated route touched a binding")}});
+    for(const path of ["/artifacts/hash","/run","/fleet/run","/feed","/workspace/research-runs","/agents/research-workspace/test","/health","/"]){
+      const response=await acceptance.fetch(new Request("https://acceptance.example"+path,{method:"POST"}),env);
+      assert.equal(response.status,404);assert.match(response.headers.get("Cache-Control"),/no-store/);
+    }
+  });
+  await t.test("acceptance rejects unexpected bindings and bypass flags before storage or inference",async()=>{
+    const h=harness();
+    for(const key of ["LEDGER","ARTIFACTS","AI","RESEARCH_QUEUE","ORCHESTRATOR","ANTHROPIC_API_KEY","DEV_MODE","INTERNAL_TASK_TOKEN"]){
+      const env=acceptanceEnv(h);
+      Object.defineProperty(env,key,{enumerable:true,get(){throw Error("Unexpected binding was read")}});
+      const response=await acceptance.fetch(req("/observations"),env);
+      assert.equal(response.status,503);assert.deepEqual(await response.json(),{error:"Private acceptance configuration rejected"});
+    }
+    assert.deepEqual(h.stats(),{reads:0,writes:0,batches:0,storageReads:0});
+  });
+  await t.test("acceptance reuses operator Access and same-origin denial with disabled defaults",async()=>{
+    const h=harness(),env=acceptanceEnv(h);
+    assert.equal((await acceptance.fetch(req("/observations","GET",undefined,{"Cf-Access-Jwt-Assertion":""}),env)).status,403);
+    assert.equal((await acceptance.fetch(req("/observations","GET",undefined,{"Cf-Access-Jwt-Assertion":await token("other@example.test")}),env)).status,403);
+    assert.equal((await acceptance.fetch(req("/observations","GET",undefined,{Origin:"https://other.example"}),env)).status,403);
+    assert.equal((await acceptance.fetch(req("/observations"),{...env,PRIVATE_CORPUS_ENABLED:"false"})).status,503);
+    assert.deepEqual(h.stats(),{reads:0,writes:0,batches:0,storageReads:0});
+  });
+  await t.test("acceptance executes the same bounded private receipt import and context path",async()=>{
+    const h=harness(),env=acceptanceEnv(h);
+    const receipt=await acceptance.fetch(req("/objects/"+sha,"POST"),env);assert.equal(receipt.status,201);
+    const r=await row();const imported=await acceptance.fetch(req("/imports/acceptance","PUT",payload([r])),env);
+    assert.equal(imported.status,201,await imported.clone().text());
+    const read=await acceptance.fetch(req("/source-context?source_id=source-A&import_id=acceptance"),env);
+    const out=await read.json();assert.equal(read.status,200);assert.equal(out.context.nodes[0].recordSha256,r.recordSha256);
+    assert.equal(out.context.analysis.modelCalls,0);
+    const bytes=await acceptance.fetch(new Request("https://research.example/workspace/evidence-objects/"+sha,
+      {headers:{"Cf-Access-Jwt-Assertion":jwt}}),env);
+    assert.equal(bytes.status,200);assert.equal(await hash(await bytes.arrayBuffer()),sha);
+  });
+  await t.test("acceptance sanitizes failures and canonical-path rejections without fallback execution",async()=>{
+    const h=harness(),env=acceptanceEnv(h);
+    assert.equal((await acceptance.fetch(req("//observations"),env)).status,400);
+    env.PRIVATE_CORPUS={prepare(){throw Error("PRIVATE_SQL_AND_CREDENTIAL_MARKER")}};
+    const response=await acceptance.fetch(req("/observations"),env);
+    assert.equal(response.status,503);assert.doesNotMatch(await response.text(),/PRIVATE_SQL_AND_CREDENTIAL_MARKER/);
+    assert.equal(h.stats().writes,0);
+  });
+  await t.test("checked-in acceptance configuration declares disabled storage and no public endpoints",()=>{
+    const config=JSON.parse(readFileSync("wrangler.private-evidence-acceptance.json","utf8"));
+    assert.equal(config.name,"glim-private-evidence-acceptance");
+    assert.equal(config.main,"src/privateEvidenceAcceptance.ts");
+    assert.equal(config.workers_dev,false);assert.equal(config.preview_urls,false);
+    assert.deepEqual(config.observability,{enabled:false});
+    assert.deepEqual(config.vars,{PRIVATE_EVIDENCE_ENABLED:"false",PRIVATE_CORPUS_ENABLED:"false"});
+    assert.deepEqual(Object.keys(config).sort(),["name","main","compatibility_date","workers_dev","preview_urls","observability","vars"].sort());
   });
 
 });

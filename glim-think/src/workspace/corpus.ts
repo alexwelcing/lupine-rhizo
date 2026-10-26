@@ -1,4 +1,4 @@
-import type { Env } from "../types";
+import type { PrivateEvidenceEnv } from "./evidenceObjects";
 import { WORKSPACE_PRIVATE_HEADERS } from "../middleware/workspaceAccess";
 import { acquireEvidenceBuffer, digest, readBounded, requireEvidenceOperator, EVIDENCE_OBJECT_MAX_BYTES } from "./evidenceObjects";
 
@@ -86,7 +86,7 @@ function metadataMatches(obj: R2Object, sha: string) {
 function sourceStillMatches(obj: R2Object | null, receipt: Receipt) {
   return obj && metadataMatches(obj, receipt.sha256) && obj.size === receipt.bytes && obj.etag === receipt.etag;
 }
-async function objectReceipt(request: Request, env: Env, sha: string) {
+async function objectReceipt(request: Request, env: PrivateEvidenceEnv, sha: string) {
   if (!HASH.test(sha)) return json({ error: "Invalid object SHA-256" },400);
   if (!["GET","POST"].includes(request.method)) return json({error:"Method not allowed"},405);
   const db = env.PRIVATE_CORPUS!, bucket = env.PRIVATE_EVIDENCE!;
@@ -115,7 +115,7 @@ async function objectReceipt(request: Request, env: Env, sha: string) {
     return json({receipt,state:"readback_verified",scientificValidation:"not_assessed"},201);
   } finally { release(); }
 }
-async function importRecords(request: Request, env: Env, id: string) {
+async function importRecords(request: Request, env: PrivateEvidenceEnv, id: string) {
   if (!ID.test(id)) return json({error:"Invalid import identifier"},400);
   const db=env.PRIVATE_CORPUS!;
   if (request.method === "GET") {
@@ -177,7 +177,7 @@ async function importRecords(request: Request, env: Env, id: string) {
     return json({import:committed,state:"committed",scientificValidation:"not_assessed",provenanceLink:"operator_supplied"},201);
   } finally { release(); }
 }
-async function queryRecords(url: URL, env: Env) {
+async function queryRecords(url: URL, env: PrivateEvidenceEnv) {
   const allowed=new Set(["source_id","study_id","material","observable","model_id","after_id","after_sha256","limit","include_quarantined","import_id"]);
   for (const key of url.searchParams.keys()) if (!allowed.has(key) || url.searchParams.getAll(key).length!==1) fail("Unknown or repeated query parameter");
   const limitString=url.searchParams.get("limit")??"20";
@@ -206,7 +206,7 @@ async function queryRecords(url: URL, env: Env) {
     state:"imported",scientificValidation:"not_assessed",provenanceLink:"operator_supplied",
     includesQuarantined:include==="true",pagination:"live keyset; pin import_id for fixed membership"});
 }
-async function recordDetail(url: URL, env: Env) {
+async function recordDetail(url: URL, env: PrivateEvidenceEnv) {
   const params=url.searchParams;
   if ([...params.keys()].some(k=>!["record_id","record_sha256"].includes(k)) || params.getAll("record_id").length!==1 || params.getAll("record_sha256").length!==1) fail("Use record_id and record_sha256");
   const id=text(params.get("record_id"),256)!, sha=hash(params.get("record_sha256"));
@@ -216,7 +216,7 @@ async function recordDetail(url: URL, env: Env) {
   return json({observation:row,state:"imported",scientificValidation:"not_assessed",provenanceLink:"operator_supplied"});
 }
 
-async function queryQualifications(url: URL, env: Env) {
+async function queryQualifications(url: URL, env: PrivateEvidenceEnv) {
   const p=url.searchParams, allowed=new Set(["record_id","record_sha256","after_event_id","limit","expected_revision"]);
   for (const key of p.keys()) if (!allowed.has(key)||p.getAll(key).length!==1) fail("Unknown or repeated query parameter");
   const id=text(p.get("record_id"),256)!, sha=hash(p.get("record_sha256"));
@@ -247,7 +247,7 @@ async function queryQualifications(url: URL, env: Env) {
 
 
 /** Deterministic input for per-source analysis; no inferred relation or model call. */
-async function sourceContext(url: URL, env: Env) {
+async function sourceContext(url: URL, env: PrivateEvidenceEnv) {
   const p=url.searchParams, allowed=new Set(["source_id","after_id","after_sha256","limit","import_id","expected_context_sha256"]);
   for (const key of p.keys()) if (!allowed.has(key)||p.getAll(key).length!==1) fail("Unknown or repeated source context parameter");
   const sourceId=text(p.get("source_id"),256)!;
@@ -303,7 +303,7 @@ async function sourceContext(url: URL, env: Env) {
 }
 
 /** Private projection API. Does not calculate scientific discrepancies or admit comparability. */
-export async function corpusResponse(request: Request, env: Env): Promise<Response|null> {
+export async function corpusResponse(request: Request, env: PrivateEvidenceEnv): Promise<Response|null> {
   const url=new URL(request.url);
   if (url.pathname!==ROOT && !url.pathname.startsWith(ROOT+"/")) return null;
   const denial=await requireEvidenceOperator(request,env); if (denial) return denial;

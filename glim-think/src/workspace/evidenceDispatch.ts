@@ -1,11 +1,11 @@
-import type { Env } from "../types";
+import type { PrivateEvidenceEnv } from "./evidenceObjects";
 import { WORKSPACE_PRIVATE_HEADERS } from "../middleware/workspaceAccess";
 import { evidenceObjectsResponse } from "./evidenceObjects";
 import { corpusResponse } from "./corpus";
 
 /** Route private evidence before automatic request/binding telemetry. */
 export async function dispatchPrivateEvidence(
-  request: Request, env: Env, fallback: () => Promise<Response>,
+  request: Request, env: PrivateEvidenceEnv, fallback: () => Promise<Response>,
 ): Promise<Response> {
   const pathname = new URL(request.url).pathname;
   const canonical = "/" + pathname.split("/").filter(Boolean).join("/");

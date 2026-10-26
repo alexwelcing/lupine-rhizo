@@ -432,6 +432,54 @@ are integration points. Their runtime/public storage and embedding calls must no
 be repurposed as the private corpus authorization boundary. No kgtree package,
 global hook, local snapshot store or daemon is installed by this work.
 
+## Isolated private acceptance entrypoint
+
+The existing `deploy-glim-think.yml` applies runtime-ledger migrations, deploys
+the research Worker and publishes reviewed public activity. It is not a private
+evidence preflight. Do not dispatch it merely to test these routes.
+
+`src/privateEvidenceAcceptance.ts` reuses the same object, corpus and operator
+Access handlers through a minimal entrypoint. It has only a fetch handler and
+returns 404 for unrelated public, research, agent and execution routes. An exact
+binding allow-list rejects accidental runtime ledger, public artifact, provider,
+queue and bypass configuration before touching storage. Errors stay private and
+sanitized. The narrower `PrivateEvidenceEnv` type also makes the required
+capabilities explicit without importing the main research server.
+
+`wrangler.private-evidence-acceptance.json` is a standalone **disabled**
+configuration. It declares no resource bindings, routes, crons, queues, Durable
+Objects, provider credentials, schema migrations or workspace UI build. Both
+storage flags are false; workers.dev and preview URLs are false; automatic
+observability is disabled. PR CI typechecks and dry-run builds this entrypoint:
+
+    npx wrangler deploy --config wrangler.private-evidence-acceptance.json --dry-run
+
+That command is verification, not an acceptance deployment. Local execution still
+requires the build storage guard. The ordinary research deployment configuration
+and workflow are unchanged.
+
+Before an authorized activation, review a complete private deployment
+configuration and the **live** account state: exact account/Worker, distinct
+private bucket and D1 identities, current included capacity, existing route and
+preview settings, and coverage by the existing operator Access identity. A new
+Worker does not inherit another Worker's Access configuration or policy. Do not
+copy provider secrets or broaden the authorized operator population. This
+entrypoint has no login UI, credential copying, provisioning or deployment action.
+
+The allow-list cannot discover that an allowed private binding points to a public
+bucket or runtime database. Inspect bucket r2.dev/custom-domain access and all
+readers, database identity, service bindings, and existing dashboard routes before
+activation. Apply both private corpus migrations explicitly to the reviewed
+private database. Do not apply the runtime/public migrations as part of this path.
+
+Acceptance remains bounded: first synthetic denial/readback and unknown-outcome
+checks; then the reviewed retained-evidence pilot, exact source and row hashes,
+qualification-aware queries, and a live export/restore into an isolated private
+target. A passing in-memory rehearsal or dry-run build is not a deployed privacy,
+capacity, backup or physical-validation receipt. Stop after an unknown write
+outcome and collect it read-only. Disabling this entrypoint must preserve its
+evidence objects and immutable database history.
+
 ## Remaining slices and acceptance
 
 1. **Private deployment boundary.** Verify that the selected bucket has no public
