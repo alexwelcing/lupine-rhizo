@@ -15,6 +15,9 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
+#[path = "corpus-migrate/provenance.rs"]
+mod provenance;
+
 const FILE_CAP: u64 = 25 * 1024 * 1024;
 const INPUT_CAP: u64 = 100 * 1024 * 1024;
 const ROW_CAP: usize = 65536;
@@ -213,10 +216,15 @@ impl Reader for LocalReader {
         let metadata = fs::symlink_metadata(&p)?;
         ensure!(metadata.is_file(), "component is not a regular file");
         ensure!(metadata.len() <= FILE_CAP, "component exceeds 25 MiB");
+        ensure!(
+            metadata.len() <= INPUT_CAP.saturating_sub(self.consumed),
+            "preflight exceeds remaining read budget"
+        );
         let f = fs::File::open(&p)?;
         ensure!(f.metadata()?.is_file(), "component is not a regular file");
         let mut bytes = Vec::new();
-        f.take(FILE_CAP + 1).read_to_end(&mut bytes)?;
+        f.take(FILE_CAP.min(INPUT_CAP.saturating_sub(self.consumed)) + 1)
+            .read_to_end(&mut bytes)?;
         ensure!(bytes.len() as u64 <= FILE_CAP, "component exceeds 25 MiB");
         self.consumed = self
             .consumed
@@ -565,8 +573,14 @@ struct Args {
     #[arg(long)]
     manifest_sha256: String,
     /// Emit ONE private request plan instead of the aggregate report (zero based).
-    #[arg(long)]
+    #[arg(long, conflicts_with = "provenance")]
     batch_index: Option<usize>,
+    /// Audit declared local file references without preparing imports.
+    #[arg(long)]
+    provenance: bool,
+    /// Include PRIVATE per-reference paths and anchors in the audit report.
+    #[arg(long, requires = "provenance")]
+    provenance_details: bool,
 }
 fn run(args: Args) -> Result<Value> {
     let root = fs::canonicalize(&args.root)?;
@@ -577,6 +591,14 @@ fn run(args: Args) -> Result<Value> {
         sha256: args.manifest_sha256.clone(),
         bytes: None,
     })?;
+    if args.provenance {
+        return provenance::audit(
+            &bytes,
+            &args.manifest_sha256,
+            &mut reader,
+            args.provenance_details,
+        );
+    }
     let p = prepare(&bytes, &args.manifest_sha256, &mut reader)?;
     let plans = batches(&p)?;
     if let Some(i) = args.batch_index {

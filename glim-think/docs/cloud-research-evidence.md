@@ -263,13 +263,57 @@ Plans include a GET recovery path. After an unknown upload/import outcome, colle
 its actual receipt read-only and match the exact payload hash; emitting the same
 deterministic plan is not authorization to replay a stopped operation.
 
-**Scope:** this slice checks row containers, qualification packets and their
-direct structured evidence. It does not traverse primary-paper descriptors,
-supporting-artifact/history closure or validate scientific extractions. Every
-report labels provenance closure `not_verified` and scientific validation
-`not_assessed`; projected rows retain a matching missingness flag. A full source
-closure walker, cloud executor, fixed corpus publication and export/restore remain
-required before switching the primary path.
+**Import-plan scope:** the planner checks row containers, qualification packets
+and their direct structured evidence. The separate reference audit below traverses
+additional declared links; it does not change import eligibility or promote a
+scientific claim. Every report labels provenance closure `not_verified` and
+scientific validation `not_assessed`; projected rows retain a matching missingness
+flag. Source-to-row attribution checks, a cloud executor, fixed corpus publication
+and export/restore remain required before switching the primary path.
+
+### Read-only declared-reference audit
+
+Add `--provenance` to the same pinned-manifest command to audit supported local
+file references instead of preparing imports. Add `--provenance-details` only
+when private per-reference paths, hashes and JSON pointers are needed. The default
+report contains counts and limits, without file paths. Neither mode makes network
+requests, uploads, writes files, retries downloads or executes source content.
+Detailed output is private and requires storage admission before redirection.
+
+The audit follows `path/sha256`, `local_source/source_sha256`,
+`local_path/sha256`, `file/sha256`, `pdf_path/pdf_sha256`,
+`text_path/text_sha256`, `tool_text/tool_text_sha256` and legacy
+`files: {filename: digest}` maps. Nested JSON references include supporting
+artifacts and historical manifests. Original declaring-object hashes and escaped
+JSON pointers identify each edge; declarations are retained even when unresolved.
+Relative paths always use the explicit trusted root. A basename is never guessed
+from another directory or searched for automatically.
+
+The reader rejects paths outside the root, symlinks and non-regular files. It
+checks the remaining byte budget before opening a file and bounds the read if the
+file grows. The audit independently verifies returned hashes; conflicting size
+declarations remain separate outcomes even when the same bytes are shared.
+Repeated identical path/hash attempts, including failures, are collected once
+without another read. JSON content is expanded once per verified hash, with
+duplicate keys rejected. Only files named `.json` are parsed; PDFs, HTML, text,
+JSONL and other opaque objects are hashed without interpreting their contents.
+
+Limits are 25 MiB per file, 100 MiB of local reads including the root manifest,
+512 distinct path/hash attempts, 20,000 reference declarations and 1,000,000 JSON
+nodes. Budget exhaustion, malformed JSON, missing pins, unreadable files and
+unrecognized reference fields are explicit outcomes. `truncated` indicates a
+traversal limit. Outcome counts can exceed declarations when a file is hash
+verified but its JSON traversal is rejected. `returnedBytesIncludingManifest`
+counts bytes returned to the audit; the filesystem reader also counts bytes read
+before a failed verification.
+
+URLs, DOIs and tool receipts remain unresolvable anchors in this local audit.
+Unfamiliar path fields are reported without following them. Supported-field
+coverage is deliberately explicit: no detected gaps does **not** establish
+complete provenance. Hash agreement establishes retained-byte integrity, not
+source attribution, independence, extraction correctness or physical validity.
+The audit cannot authorize upload, substitute for a compatible comparison
+contract, or clear a quarantine.
 
 Run focused synthetic tests:
 
