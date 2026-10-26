@@ -47,6 +47,7 @@ import { getModelCatalog } from "./agents/modelProfiles";
 import { listWorkspaceConversations } from "./workspace/registry";
 import { workspaceProgressResponse } from "./workspace/progress";
 import { researchRunsResponse } from "./workspace/researchRuns";
+import { evidenceObjectsResponse } from "./workspace/evidenceObjects";
 import { proofJobsResponse } from "./workspace/proofJobs";
 import { researchActivityResponse } from "./workspace/researchActivity";
 import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
@@ -217,6 +218,10 @@ const baseHandler = {
       // Research imports stream through a bounded reader before generic body parsing.
       const researchRunResponse = await researchRunsResponse(request, env);
       if (researchRunResponse) return researchRunResponse;
+
+      // Private evidence bytes must not pass through generic text parsing.
+      const evidenceResponse = await evidenceObjectsResponse(request, env);
+      if (evidenceResponse) return evidenceResponse;
 
       // Pre-read POST/PATCH body so it can be reused after agent routing
       const bodyText = request.method === "POST" || request.method === "PATCH"

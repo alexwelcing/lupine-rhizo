@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "build:workspace": "node scripts/build-workspace.mjs",
     "check:workspace": "npm run build:workspace && tsc -p tsconfig.workspace-client.json --noEmit && vitest run src/workspace/__tests__/workspace.test.ts --typecheck.enabled=false",
-    "preview:workspace": "node scripts/testing/run-workspace-preview.mjs"
+    "preview:workspace": "node scripts/testing/run-workspace-preview.mjs",
+    "test:private-evidence": "node --test scripts/private-evidence-objects.test.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",

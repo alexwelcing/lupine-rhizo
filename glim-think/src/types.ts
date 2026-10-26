@@ -155,6 +155,10 @@ export interface BenchmarkRecord {
 export interface Env {
   AI: Ai;
   ARTIFACTS: R2Bucket;
+  /** Separate private bucket; never bind the public ARTIFACTS bucket here. */
+  PRIVATE_EVIDENCE?: R2Bucket;
+  /** Enable only after private bucket and Access read/write checks pass. */
+  PRIVATE_EVIDENCE_ENABLED?: string;
   CONFIG: KVNamespace;
   LEDGER: D1Database;
   RESEARCH_QUEUE: Queue<unknown>;
