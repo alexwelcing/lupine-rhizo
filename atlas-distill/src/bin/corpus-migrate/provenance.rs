@@ -168,13 +168,12 @@ impl Graph {
         };
         let key = (PathBuf::from(path), hash.to_owned());
         if let Some((status, size)) = self.visited.get(&key).cloned() {
-            let status = if size.is_some()
-                && expected_size.is_some_and(|n| Some(n as usize) != size)
-            {
-                "byte_count_mismatch"
-            } else {
-                &status
-            };
+            let status =
+                if size.is_some() && expected_size.is_some_and(|n| Some(n as usize) != size) {
+                    "byte_count_mismatch"
+                } else {
+                    &status
+                };
             self.result(&link, status, size);
             return Ok(());
         }
@@ -253,9 +252,7 @@ pub(super) fn audit<R: Reader>(
     details: bool,
 ) -> Result<Value> {
     ensure!(
-        bytes.len() as u64 <= FILE_CAP
-            && valid_hash(manifest_hash)
-            && sha(bytes) == manifest_hash,
+        bytes.len() as u64 <= FILE_CAP && valid_hash(manifest_hash) && sha(bytes) == manifest_hash,
         "manifest digest mismatch"
     );
     checked_json(bytes)?;
@@ -352,7 +349,10 @@ mod tests {
     fn nested_history_and_shared_objects_expand_once() {
         let mut r = Memory::new();
         let leaf = r.put("leaf.pdf", b"leaf");
-        let packet = r.put("nested.json", &json!({"sources":[leaf]}).to_string().into_bytes());
+        let packet = r.put(
+            "nested.json",
+            &json!({"sources":[leaf]}).to_string().into_bytes(),
+        );
         let out = run(&mut r, json!({"base":packet,"previous_manifest":packet}));
         assert_eq!(r.reads, 2);
         assert_eq!(out["outcomes"]["verified_file"], 3);
@@ -362,9 +362,12 @@ mod tests {
     #[test]
     fn missing_pins_and_external_anchors_are_never_read() {
         let mut r = Memory::new();
-        let out = run(&mut r, json!({"local_source":null,"file":"README.md",
+        let out = run(
+            &mut r,
+            json!({"local_source":null,"file":"README.md",
             "url":"https://example.org/paper","doi":"10.1/example",
-            "new_source_path":"unknown.pdf"}));
+            "new_source_path":"unknown.pdf"}),
+        );
         assert_eq!(r.reads, 0);
         assert_eq!(out["outcomes"]["missing_or_invalid_path"], 1);
         assert_eq!(out["outcomes"]["missing_or_invalid_hash"], 1);
@@ -420,9 +423,40 @@ mod tests {
         let m = json!({"schema":"lupine.corpus.base_plus_deltas.v2","a~/b":entry});
         let bytes = m.to_string().into_bytes();
         let private = audit(&bytes, &sha(&bytes), &mut r, true).unwrap();
-        assert_eq!(private["privateReferenceDetails"][0]["pointer"], "/a~0~1b/path");
+        assert_eq!(
+            private["privateReferenceDetails"][0]["pointer"],
+            "/a~0~1b/path"
+        );
         let public = audit(&bytes, &sha(&bytes), &mut r, false).unwrap();
         assert!(public.get("privateReferenceDetails").is_none());
         assert!(!public.to_string().contains("private.pdf"));
+    }
+    #[test]
+    fn ambiguous_basenames_are_not_searched_for() {
+        let mut r = Memory::new();
+        let item = r.put("elsewhere/paper.pdf", b"x");
+        let out = run(&mut r, json!({"files":{"paper.pdf":item["sha256"]}}));
+        assert_eq!(r.reads, 1);
+        assert_eq!(out["outcomes"]["read_failed"], 1);
+        assert!(out["outcomes"].get("verified_file").is_none());
+    }
+    #[test]
+    fn reader_budget_exhaustion_is_explicit_and_not_retried() {
+        struct Budget(usize);
+        impl Reader for Budget {
+            fn read(&mut self, _: &Entry) -> Result<Vec<u8>> {
+                self.0 += 1;
+                anyhow::bail!("preflight exceeds remaining read budget")
+            }
+        }
+        let item = json!({"path":"large.pdf","sha256":sha(b"x")});
+        let m = json!({"schema":"lupine.corpus.base_plus_deltas.v2","sources":[item,item]});
+        let bytes = m.to_string().into_bytes();
+        let mut r = Budget(0);
+        let out = audit(&bytes, &sha(&bytes), &mut r, false).unwrap();
+        assert_eq!(r.0, 1);
+        assert_eq!(out["outcomes"]["read_budget_exhausted"], 2);
+        assert_eq!(out["truncated"], true);
+        assert_eq!(out["uploads"], 0);
     }
 }

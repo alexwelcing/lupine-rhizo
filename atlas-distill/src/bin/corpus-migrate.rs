@@ -12,7 +12,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     fmt, fs,
     io::{self, Read, Write},
-    path::{Component, Path, PathBuf},
+    path::{Component, PathBuf},
 };
 
 #[path = "corpus-migrate/provenance.rs"]
