@@ -146,6 +146,7 @@ test("private corpus D1 and R2 integration", async t => {
       payload([{...r,recordSha256:"a".repeat(64)}]),
       payload([{...r,observedAt:"yesterday"}]),
       payload([{...r,observedAt:"2021-02-30T00:00:00Z"}]),
+      payload([{...r,observedAt:"2020-01-01T00:00:00+24:00"}]),
       payload([{...r,material:undefined}]),
       payload([r,r]),payload(Array.from({length:21},(_,i)=>({...r,recordId:String(i)}))),
       payload([{...r,recordJson:"x".repeat(65537)}]),
@@ -158,7 +159,7 @@ test("private corpus D1 and R2 integration", async t => {
   });
   await t.test("atomic import retains exact row bytes, identifiers, missingness and original times",async()=>{
     const h=harness();await verified(h);
-    const r=await row(),s=await row("row-02",{studyId:"study-B",unit:null,reviewedAt:"2021-04-05T00:00:00Z"});
+    const r=await row("row-01",{observedAt:"2020-01-02T03:04:05.123456+00:00"}),s=await row("row-02",{studyId:"study-B",unit:null,reviewedAt:"2021-04-05T03:04:05.123456789+05:30"});
     const response=await put(h,"batch-A",payload([r,s]));
     assert.equal(response.status,201,await response.clone().text());const result=await response.json();
     assert.equal(result.state,"committed");assert.equal(result.scientificValidation,"not_assessed");
@@ -169,7 +170,7 @@ test("private corpus D1 and R2 integration", async t => {
     assert.equal(d.record_json,r.recordJson);assert.equal(d.record_sha256,r.recordSha256);assert.equal(d.observed_at,r.observedAt);assert.equal(d.reviewed_at,null);
     assert.deepEqual(JSON.parse(d.missing_fields_json),r.missingFields);
     const q=await route(req("/observations?study_id=study-B"),h.env);const data=await q.json();
-    assert.equal(data.observations.length,1);assert.equal(data.observations[0].unit,null);
+    assert.equal(data.observations.length,1);assert.equal(data.observations[0].unit,null);assert.equal(data.observations[0].reviewed_at,s.reviewedAt);
     assert.equal("record_json" in data.observations[0],false);
   });
   await t.test("same import bytes are an idempotent no-op; divergent bytes conflict",async()=>{

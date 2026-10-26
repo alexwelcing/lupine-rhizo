@@ -141,7 +141,7 @@ Each observation includes:
   original source/study identities and table/figure/JSON-pointer anchor.
 - `material`, `observable`, `unit`, `modelId`, `referenceKind`: supplied
   search projections; explicitly use null for unknown fields.
-- `observedAt`, `reviewedAt`: original UTC ISO timestamps or null. Import
+- `observedAt`, `reviewedAt`: original ISO timestamps with an explicit timezone, or null. Microsecond/nanosecond precision and offset notation are retained exactly. Import
   time is separate and never substitutes for an observation or review.
 - `originalRowSha256`: retained legacy row fingerprint or null. Its original
   serialization algorithm is not inferred or silently replaced.

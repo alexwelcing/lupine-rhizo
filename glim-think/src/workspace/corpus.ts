@@ -27,9 +27,16 @@ function text(value: unknown, max: number, nullable = false): string | null {
 function hash(value: unknown): string { if (typeof value !== "string" || !HASH.test(value)) fail("Invalid SHA-256"); return value; }
 function time(value: unknown): string | null {
   if (value === null) return null;
-  const s = text(value, 40)!;
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(s) || !Number.isFinite(Date.parse(s))) fail("Use original UTC ISO time or null");
-  if (new Date(s).toISOString().slice(0,19)!==s.slice(0,19)) fail("Invalid calendar date");
+  const s = text(value, 64)!;
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/.exec(s);
+  if (!m) fail("Use original ISO timestamp with explicit timezone or null");
+  const [year, month, day, hour, minute, second] = m.slice(1,7).map(Number);
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31,leap?29:28,31,30,31,30,31,31,30,31,30,31];
+  if (month<1 || month>12 || day<1 || day>days[month-1] || hour>23 || minute>59 || second>59 ||
+    (m[7]!=="Z" && (Number(m[7].slice(1,3))>23 || Number(m[7].slice(4,6))>59)))
+    fail("Invalid calendar timestamp");
+  // Preserve timezone notation and sub-millisecond precision exactly.
   return s;
 }
 type Observation = {
