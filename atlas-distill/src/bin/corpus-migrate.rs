@@ -225,11 +225,11 @@ impl Reader for LocalReader {
         let mut bytes = Vec::new();
         f.take(FILE_CAP.min(INPUT_CAP.saturating_sub(self.consumed)) + 1)
             .read_to_end(&mut bytes)?;
-        ensure!(bytes.len() as u64 <= FILE_CAP, "component exceeds 25 MiB");
         self.consumed = self
             .consumed
             .checked_add(bytes.len() as u64)
             .context("input overflow")?;
+        ensure!(bytes.len() as u64 <= FILE_CAP, "component exceeds 25 MiB");
         ensure!(
             self.consumed <= INPUT_CAP,
             "preflight exceeds 100 MiB read budget"

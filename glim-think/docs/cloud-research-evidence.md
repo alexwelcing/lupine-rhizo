@@ -300,7 +300,8 @@ JSONL and other opaque objects are hashed without interpreting their contents.
 
 Limits are 25 MiB per file, 100 MiB of local reads including the root manifest,
 512 distinct path/hash attempts, 20,000 reference declarations and 1,000,000 JSON
-nodes. Budget exhaustion, malformed JSON, missing pins, unreadable files and
+nodes. Bounded reads use at most one additional byte to detect a file that grows
+past the remaining budget; rejected bytes still consume the read allowance. Budget exhaustion, malformed JSON, missing pins, unreadable files and
 unrecognized reference fields are explicit outcomes. `truncated` indicates a
 traversal limit. Outcome counts can exceed declarations when a file is hash
 verified but its JSON traversal is rejected. `returnedBytesIncludingManifest`
