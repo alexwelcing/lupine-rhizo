@@ -210,6 +210,73 @@ quarantine targeting, keyset paging, unknown metadata and private telemetry
 dispatch. R2 and the D1 binding transport are doubles; these checks do not
 establish live Cloudflare acceptance or a completed migration.
 
+## Read-only Rust migration planner
+
+The `corpus-migrate` binary in `atlas-distill` prepares bounded request plans from
+a pinned v2 base-plus-deltas manifest. It uses the existing crate and dependencies;
+it has no network client, credential handling, upload, retry, simulation dispatch
+or file-writing path. Run the installed binary after any required build has passed
+its storage admission gate:
+
+    corpus-migrate --root /trusted/research/root \
+      --manifest /trusted/research/root/manifest.json \
+      --manifest-sha256 <original-manifest-sha256>
+
+The default report contains counts and verification scope. Add `--batch-index 0`
+to emit one **private** request plan. Its `payload` string is the exact UTF-8
+request body to send through the authorized private API; do not reserialize its
+embedded rows. Hash that string and check `payloadSha256`. stdout may contain
+private evidence, so do not publish it or redirect it into a growing local archive
+without storage admission.
+
+The planner reads at most 100 MiB total, at most 25 MiB per component and at most
+10,000 rows. Relative paths resolve against the explicit root. It rejects paths
+outside that root, `..`, symlinks, nonregular files, duplicate JSON keys, changed
+hashes or lengths, duplicate IDs and preannotated originals. Row strings preserve
+their exact original JSON tokens and interior whitespace, including numeric
+spelling, Unicode escapes and timestamp precision. The container hash plus JSON
+pointer anchors those bytes. Search projections use string fields only; null
+remains unknown.
+
+Each plan satisfies the endpoint's 20-row, 20-event, 16-object and 1 MiB limits.
+A target row and its existing quarantine are emitted in the same atomic request,
+so a partially completed migration cannot briefly expose that row without its
+known exclusion. Original qualification packets and their evidence are also
+hash-checked. The import ID embeds the full original manifest hash and the exact
+payload hash; qualification anchors retain the packet hash, pointer and original
+target digest. Preserve all `allRequiredArchiveObjects`, including the original
+manifest and qualification packets, and verify private readback before publishing
+any planned import. This prerequisite is a migration-executor obligation; the API
+only enforces the object receipts directly referenced by its observation rows.
+
+Legacy qualification digests are **not** replaced by new row-byte hashes. The
+planner checks compact sorted JSON with original numeric lexemes; a second,
+value-preserving candidate pads exponent spelling (for example `e-9` to `e-09`).
+A candidate is accepted only when its full digest matches the retained original
+qualification hash. The method is included in the mapping receipt. This is not a
+general Python JSON serializer: unsupported legacy representations stop planning
+and require an explicit checked mapping. No numerical value is changed.
+Observation time is never relabeled review time.
+
+Plans include a GET recovery path. After an unknown upload/import outcome, collect
+its actual receipt read-only and match the exact payload hash; emitting the same
+deterministic plan is not authorization to replay a stopped operation.
+
+**Scope:** this slice checks row containers, qualification packets and their
+direct structured evidence. It does not traverse primary-paper descriptors,
+supporting-artifact/history closure or validate scientific extractions. Every
+report labels provenance closure `not_verified` and scientific validation
+`not_assessed`; projected rows retain a matching missingness flag. A full source
+closure walker, cloud executor, fixed corpus publication and export/restore remain
+required before switching the primary path.
+
+Run focused synthetic tests:
+
+    cargo test --locked --manifest-path atlas-distill/Cargo.toml --bin corpus-migrate
+
+The existing Verify workflow compiles and tests this binary in its Rust workspace
+job. Public fixtures are synthetic; private corpus files never enter CI.
+
 ## Remaining slices and acceptance
 
 1. **Private deployment boundary.** Verify that the selected bucket has no public
