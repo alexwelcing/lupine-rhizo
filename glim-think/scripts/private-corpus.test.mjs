@@ -173,6 +173,19 @@ test("private corpus D1 and R2 integration", async t => {
     assert.equal(data.observations.length,1);assert.equal(data.observations[0].unit,null);assert.equal(data.observations[0].reviewed_at,s.reviewedAt);
     assert.equal("record_json" in data.observations[0],false);
   });
+
+  await t.test("unknown source and study identities stay null without fabricated identifiers",async()=>{
+    const h=harness();await verified(h);
+    const r=await row("unknown-identity",{sourceId:null,studyId:null,missingFields:["sourceId","studyId"]});
+    assert.equal((await put(h,"unknown-identity",payload([r]))).status,201);
+    const result=await route(req("/observations"),h.env);
+    const list=(await result.json()).observations;
+    assert.equal(list[0].source_id,null);assert.equal(list[0].study_id,null);
+    assert.deepEqual(JSON.parse(list[0].missing_fields_json),["sourceId","studyId"]);
+    const stored=h.sql.prepare("SELECT record_json FROM workspace_corpus_observations").get();
+    assert.equal(stored.record_json,r.recordJson);
+  });
+
   await t.test("same import bytes are an idempotent no-op; divergent bytes conflict",async()=>{
     const h=harness();await verified(h);const p=payload([await row()]);
     assert.equal((await put(h,"same",p)).status,201);

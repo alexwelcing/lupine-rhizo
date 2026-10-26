@@ -138,7 +138,7 @@ Each observation includes:
   string. Preserve the original object as R2 evidence even when the adapter
   must serialize a row out of a larger source.
 - `evidenceSha256`, `sourceId`, `studyId`, `locator`: a verified R2 object,
-  original source/study identities and table/figure/JSON-pointer anchor.
+  original source/study identities (explicit null when unknown) and table/figure/JSON-pointer anchor.
 - `material`, `observable`, `unit`, `modelId`, `referenceKind`: supplied
   search projections; explicitly use null for unknown fields.
 - `observedAt`, `reviewedAt`: original ISO timestamps with an explicit timezone, or null. Microsecond/nanosecond precision and offset notation are retained exactly. Import
@@ -236,7 +236,8 @@ hashes or lengths, duplicate IDs and preannotated originals. Row strings preserv
 their exact original JSON tokens and interior whitespace, including numeric
 spelling, Unicode escapes and timestamp precision. The container hash plus JSON
 pointer anchors those bytes. Search projections use string fields only; null
-remains unknown.
+remains unknown, including absent source and study identities. Missing identities
+are not filled with invented identifiers, and do not count as distinct known studies.
 
 Each plan satisfies the endpoint's 20-row, 20-event, 16-object and 1 MiB limits.
 A target row and its existing quarantine are emitted in the same atomic request,

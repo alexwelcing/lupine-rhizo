@@ -41,7 +41,7 @@ function time(value: unknown): string | null {
 }
 type Observation = {
   recordId: string; recordSha256: string; evidenceSha256: string;
-  sourceId: string; studyId: string; locator: string;
+  sourceId: string | null; studyId: string | null; locator: string;
   material: string | null; observable: string | null; unit: string | null;
   modelId: string | null; referenceKind: string | null;
   observedAt: string | null; reviewedAt: string | null; originalRowSha256: string | null;
@@ -62,7 +62,7 @@ async function observation(value: unknown): Promise<Observation> {
   if ((await digest(encoder.encode(v.recordJson))).hex !== recordSha256) fail("Record JSON hash mismatch");
   return {
     recordId: text(v.recordId,256)!, recordSha256, evidenceSha256: hash(v.evidenceSha256),
-    sourceId: text(v.sourceId,256)!, studyId: text(v.studyId,256)!, locator: text(v.locator,1024)!,
+    sourceId: text(v.sourceId,256,true), studyId: text(v.studyId,256,true), locator: text(v.locator,1024)!,
     material: text(v.material,256,true), observable: text(v.observable,256,true), unit: text(v.unit,128,true),
     modelId: text(v.modelId,256,true), referenceKind: text(v.referenceKind,128,true),
     observedAt: time(v.observedAt), reviewedAt: time(v.reviewedAt),
