@@ -123,9 +123,13 @@ fn checked_json(bytes: &[u8]) -> Result<()> {
 }
 
 fn timestamp(v: &str) -> Result<()> {
-    let re = regex::Regex::new(
-        r"^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\.[0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})$",
-    )?;
+    static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        regex::Regex::new(
+            r"^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\.[0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})$",
+        )
+        .expect("constant timestamp pattern")
+    });
     let m = re
         .captures(v)
         .context("original timestamp needs an explicit ISO timezone")?;
@@ -206,6 +210,9 @@ impl Reader for LocalReader {
                 "symlink component denied"
             );
         }
+        let metadata = fs::symlink_metadata(&p)?;
+        ensure!(metadata.is_file(), "component is not a regular file");
+        ensure!(metadata.len() <= FILE_CAP, "component exceeds 25 MiB");
         let f = fs::File::open(&p)?;
         ensure!(f.metadata()?.is_file(), "component is not a regular file");
         let mut bytes = Vec::new();
@@ -900,6 +907,13 @@ mod tests {
             bad.path = PathBuf::from("link");
             assert!(r.read(&bad).is_err());
         }
+        fs::File::create(root.join("large.json"))
+            .unwrap()
+            .set_len(FILE_CAP + 1)
+            .unwrap();
+        bad = e.clone();
+        bad.path = PathBuf::from("large.json");
+        assert!(r.read(&bad).is_err());
         r.consumed = INPUT_CAP;
         assert!(r.read(&e).is_err());
     }
