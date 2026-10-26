@@ -196,7 +196,7 @@ async function queryRecords(url: URL, env: Env) {
   if (!["true","false"].includes(include)) fail("Invalid quarantine option");
   if (include!=="true") clauses.push("NOT EXISTS (SELECT 1 FROM workspace_corpus_qualifications q WHERE q.record_id=o.record_id AND q.record_sha256=o.record_sha256 AND q.kind='quarantine')");
   // Return projections only, not whole 64 KiB source rows. Each page has a fixed cap.
-  const columns="o.record_id,o.record_sha256,o.evidence_sha256,o.source_id,o.study_id,o.locator,o.material,o.observable,o.unit,o.model_id,o.reference_kind,o.observed_at,o.reviewed_at,o.original_row_sha256,o.missing_fields_json,EXISTS (SELECT 1 FROM workspace_corpus_qualifications q WHERE q.record_id=o.record_id AND q.record_sha256=o.record_sha256 AND q.kind=\'quarantine\') AS quarantined";
+  const columns="o.record_id,o.record_sha256,o.evidence_sha256,o.source_id,o.study_id,o.locator,o.material,o.observable,o.unit,o.model_id,o.reference_kind,o.observed_at,o.reviewed_at,o.original_row_sha256,o.missing_fields_json,CAST(COALESCE((SELECT h.revision FROM workspace_corpus_review_heads h WHERE h.record_id=o.record_id AND h.record_sha256=o.record_sha256),0) AS TEXT) AS qualification_revision,EXISTS (SELECT 1 FROM workspace_corpus_qualifications q WHERE q.record_id=o.record_id AND q.record_sha256=o.record_sha256 AND q.kind=\'quarantine\') AS quarantined";
   const result=await env.PRIVATE_CORPUS!.prepare("SELECT "+columns+" FROM workspace_corpus_observations o"+(clauses.length?" WHERE "+clauses.join(" AND "):"")+" ORDER BY o.record_id,o.record_sha256 LIMIT ?").bind(...args,limit+1).all<Record<string,unknown>>();
   const hasMore=result.results.length>limit;
   const rows=result.results.slice(0,limit);
@@ -217,28 +217,46 @@ async function recordDetail(url: URL, env: Env) {
 }
 
 async function queryQualifications(url: URL, env: Env) {
-  const p=url.searchParams, allowed=new Set(["record_id","record_sha256","after_event_id","limit"]);
+  const p=url.searchParams, allowed=new Set(["record_id","record_sha256","after_event_id","limit","expected_revision"]);
   for (const key of p.keys()) if (!allowed.has(key)||p.getAll(key).length!==1) fail("Unknown or repeated query parameter");
   const id=text(p.get("record_id"),256)!, sha=hash(p.get("record_sha256"));
   const ls=p.get("limit")??"20";
   if (!/^\d+$/.test(ls)||Number(ls)<1||Number(ls)>50) fail("Limit must be 1-50");
+  const expected=p.get("expected_revision");
+  if (expected!==null && (!/^(0|[1-9][0-9]{0,15})$/.test(expected) || !Number.isSafeInteger(Number(expected)))) fail("Invalid expected review revision");
   const limit=Number(ls), after=p.get("after_event_id"), args:(string|number)[]=[id,sha];
   if (after!==null) args.push(text(after,256)!);
   args.push(limit+1);
-  const result=await env.PRIVATE_CORPUS!.prepare("SELECT * FROM workspace_corpus_qualifications WHERE record_id=? AND record_sha256=?"+(after===null?"":" AND event_id>?")+" ORDER BY event_id LIMIT ?").bind(...args).all<Record<string,unknown>>();
-  const rows=result.results.slice(0,limit);
-  return json({qualifications:rows,next:result.results.length>limit?{after_event_id:rows.at(-1)!.event_id}:null,scope:"original events; correction does not replace observations"});
+  // One SELECT observes the head and page in the same SQLite read snapshot.
+  // LEFT JOIN retains the head even when the requested page has no events.
+  const result=await env.PRIVATE_CORPUS!.prepare(
+    "SELECT h.qualification_revision,q.* FROM "+
+    "(SELECT CAST(COALESCE((SELECT revision FROM workspace_corpus_review_heads WHERE record_id=? AND record_sha256=?),0) AS TEXT) AS qualification_revision) h "+
+    "LEFT JOIN (SELECT * FROM workspace_corpus_qualifications WHERE record_id=? AND record_sha256=?"+
+    (after===null?"":" AND event_id>?")+" ORDER BY event_id LIMIT ?) q ON 1=1 ORDER BY q.event_id")
+    .bind(id,sha,...args).all<Record<string,unknown>>();
+  const revision=String(result.results[0].qualification_revision);
+  if (expected!==null && expected!==revision) return json({error:"Qualification history changed",state:"context_changed",
+    qualificationRevision:revision,scope:"Read-only comparison; no commit lease or retry"},409);
+  const events=result.results.filter(row=>row.event_id!==null).map(({qualification_revision,...row})=>row);
+  const rows=events.slice(0,limit);
+  return json({qualifications:rows,qualificationRevision:revision,
+    next:events.length>limit?{after_event_id:rows.at(-1)!.event_id,expected_revision:revision}:null,
+    scope:"original events; correction does not replace observations; pin expected_revision across pages"});
 }
 
 
 /** Deterministic input for per-source analysis; no inferred relation or model call. */
 async function sourceContext(url: URL, env: Env) {
-  const p=url.searchParams, allowed=new Set(["source_id","after_id","after_sha256","limit","import_id"]);
+  const p=url.searchParams, allowed=new Set(["source_id","after_id","after_sha256","limit","import_id","expected_context_sha256"]);
   for (const key of p.keys()) if (!allowed.has(key)||p.getAll(key).length!==1) fail("Unknown or repeated source context parameter");
   const sourceId=text(p.get("source_id"),256)!;
   const ls=p.get("limit")??"10";
   if (!/^\d+$/.test(ls)||Number(ls)<1||Number(ls)>20) fail("Source context limit must be 1-20");
+  const expected=p.get("expected_context_sha256");
+  if (expected!==null) hash(expected);
   const query=new URL(url);
+  query.searchParams.delete("expected_context_sha256");
   query.searchParams.set("limit",ls);
   // A source analysis must see exclusions, not silently select only favored rows.
   query.searchParams.set("include_quarantined","true");
@@ -258,15 +276,16 @@ async function sourceContext(url: URL, env: Env) {
       missingFields:JSON.parse(String(r.missing_fields_json)) as string[],
       protection:"immutable_original",
       quarantined:!!r.quarantined,
-      qualificationHistory:{complete:false,href:ROOT+"/qualifications?"+revision},
+      qualificationHistory:{complete:false,revision:r.qualification_revision,
+        href:ROOT+"/qualifications?"+revision+"&expected_revision="+r.qualification_revision},
       originalRecordHref:ROOT+"/observation?"+revision,
     };
   });
   const context={
-    schema:"lupine-source-context-v1",sourceId,nodes,next:page.next,
+    schema:"lupine-source-context-v2",sourceId,nodes,next:page.next,
     scope:"one bounded page of imported projections; not a complete source analysis",
     membership:p.get("import_id")===null?"live":{importId:p.get("import_id")},
-    qualificationState:"live; full history must be collected separately",
+    qualificationState:"live revision included; collect history with expected_revision",
     semanticRelations:[],
     analysis:{state:"not_run",modelCalls:0,scientificValidation:"not_assessed",
       comparability:"not_assessed",calibration:"not_assessed"},
@@ -277,6 +296,9 @@ async function sourceContext(url: URL, env: Env) {
   const response={context,contextSha256:(await digest(encoder.encode(contextJson))).hex,
     fingerprintScope:"JSON.stringify(context) UTF-8 bytes only; not a persisted snapshot"};
   if (encoder.encode(JSON.stringify(response)).length>262144) fail("Source context exceeds response budget; request fewer rows");
+  if (expected!==null && expected!==response.contextSha256) return json({
+    error:"Source context changed",state:"context_changed",contextSha256:response.contextSha256,
+    scope:"Read-only page comparison; no commit lease or retry"},409);
   return json(response);
 }
 

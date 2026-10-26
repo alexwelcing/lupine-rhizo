@@ -28,6 +28,7 @@ const raw = new TextEncoder().encode("synthetic public source bytes for integrat
 const sha = await hash(raw);
 const root = "https://research.example/workspace/corpus";
 const schema = readFileSync("corpus-migrations/0001_private_corpus.sql","utf8");
+const reviewSchema = readFileSync("corpus-migrations/0002_review_revisions.sql","utf8");
 test("private corpus D1 and R2 integration", async t => {
   const keys = await crypto.subtle.generateKey(
     { name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
@@ -52,7 +53,7 @@ test("private corpus D1 and R2 integration", async t => {
 
   function harness(options={}) {
     const sql=new DatabaseSync(":memory:");
-    sql.exec("PRAGMA foreign_keys=ON;"+schema);
+    sql.exec("PRAGMA foreign_keys=ON;"+schema+(options.legacySchema?"":reviewSchema));
     const objects=new Map([["sha256/"+sha,{bytes:raw,etag:"source-v1",metadata:{sha256:sha}}]]);
     let reads=0,writes=0, batches=0, storageReads=0;
     function statement(query,bindings=[]) {
@@ -324,6 +325,90 @@ test("private corpus D1 and R2 integration", async t => {
     const absent=await (await route(req("/source-context?source_id=absent"),h.env)).json();
     assert.equal(absent.context.nodes.length,0);
     assert.equal(absent.context.analysis.scientificValidation,"not_assessed");
+  });
+
+  await t.test("every qualification changes source context even when quarantine is unchanged",async()=>{
+    const h=harness();await verified(h);const r=await row();
+    await put(h,"original",payload([r]));
+    const get=async()=> (await route(req("/source-context?source_id=source-A"),h.env)).json();
+    const before=await get();
+    await put(h,"annotation",payload([],[event(r,{kind:"annotation",reason:"Original uncertainty requires review"})]));
+    const annotated=await get();
+    assert.equal(before.context.nodes[0].quarantined,false);
+    assert.equal(annotated.context.nodes[0].quarantined,false);
+    assert.notEqual(annotated.contextSha256,before.contextSha256);
+    await put(h,"correction",payload([],[event(r,{eventId:"correction",kind:"correction",reason:"Source protocol differs"})]));
+    const corrected=await get();
+    assert.notEqual(corrected.contextSha256,annotated.contextSha256);
+  });
+
+  await t.test("conditional source reads reject stale page fingerprints without writes",async()=>{
+    const h=harness();await verified(h);const r=await row();
+    await put(h,"conditional",payload([r]));
+    const url="/source-context?source_id=source-A";
+    const before=await (await route(req(url),h.env)).json();
+    assert.equal((await route(req(url+"&expected_context_sha256="+before.contextSha256),h.env)).status,200);
+    await put(h,"new-review",payload([],[event(r,{kind:"correction"})]));
+    const writes=h.stats().writes;
+    const stale=await route(req(url+"&expected_context_sha256="+before.contextSha256),h.env);
+    assert.equal(stale.status,409);
+    const changed=await stale.json();assert.equal(changed.state,"context_changed");
+    assert.notEqual(changed.contextSha256,before.contextSha256);
+    assert.equal(h.stats().writes,writes);
+    assert.equal((await route(req(url+"&expected_context_sha256=invalid"),h.env)).status,400);
+  });
+  await t.test("review history pins one revision across empty and nonempty pages",async()=>{
+    const h=harness();await verified(h);const r=await row();
+    await put(h,"history",payload([r],[event(r,{eventId:"b",kind:"annotation"}),event(r,{eventId:"c",kind:"correction"})]));
+    const url="/qualifications?record_id="+r.recordId+"&record_sha256="+r.recordSha256;
+    const first=await (await route(req(url+"&limit=1&expected_revision=2"),h.env)).json();
+    assert.equal(first.qualificationRevision,"2");
+    assert.deepEqual(first.next,{after_event_id:"b",expected_revision:"2"});
+    const last=await (await route(req(url+"&limit=1&after_event_id=b&expected_revision=2"),h.env)).json();
+    assert.equal(last.qualifications[0].event_id,"c");assert.equal(last.next,null);
+    const empty=await (await route(req(url+"&after_event_id=z&expected_revision=2"),h.env)).json();
+    assert.deepEqual(empty.qualifications,[]);assert.equal(empty.qualificationRevision,"2");
+    // An insertion before a previously returned cursor must not be silently missed.
+    await put(h,"earlier-key",payload([],[event(r,{eventId:"a",kind:"annotation"})]));
+    assert.equal((await route(req(url+"&after_event_id=b&expected_revision=2"),h.env)).status,409);
+    assert.equal((await route(req(url+"&after_event_id=z&expected_revision=2"),h.env)).status,409);
+    for(const v of ["-1","01","1.5","9007199254740992"])
+      assert.equal((await route(req(url+"&expected_revision="+v),h.env)).status,400);
+    const plan=h.sql.prepare("EXPLAIN QUERY PLAN SELECT event_id FROM workspace_corpus_qualifications WHERE record_id=? AND record_sha256=? AND event_id>? ORDER BY event_id LIMIT 2").all(r.recordId,r.recordSha256,"a");
+    assert.ok(plan.some(x=>x.detail.includes("idx_workspace_corpus_qualification_page")));
+  });
+  await t.test("review heads advance only for committed new events, not replays or rolled back imports",async()=>{
+    const h=harness();await verified(h);const r=await row(),e=event(r,{kind:"annotation"});
+    await put(h,"first",payload([r],[e]));
+    const current=()=>h.sql.prepare("SELECT revision FROM workspace_corpus_review_heads").get().revision;
+    assert.equal(current(),1);
+    assert.equal((await put(h,"same-event-new-import",payload([],[e]))).status,201);assert.equal(current(),1);
+    const bad=await put(h,"rollback-review",payload([],[event(r,{eventId:"new"}),event(r,{eventId:"orphan",recordId:"absent"})]));
+    assert.equal(bad.status,503);assert.equal(current(),1);
+    assert.equal(count(h,"workspace_corpus_qualifications"),1);
+    assert.equal((await route(req("/imports/rollback-review"),h.env)).status,404);
+    assert.throws(()=>h.sql.exec("DELETE FROM workspace_corpus_review_heads"),/immutable/);
+  });
+  await t.test("review migration backfills old events and does not reset later revisions",async()=>{
+    const h=harness({legacySchema:true});await verified(h);const r=await row();
+    await put(h,"legacy",payload([r],[event(r),event(r,{eventId:"old-correction",kind:"correction"})]));
+    h.sql.exec(reviewSchema);
+    const current=()=>h.sql.prepare("SELECT revision FROM workspace_corpus_review_heads").get().revision;
+    assert.equal(current(),2);
+    await put(h,"new",payload([],[event(r,{eventId:"new",kind:"annotation"})]));assert.equal(current(),3);
+    h.sql.exec(reviewSchema);assert.equal(current(),3);
+    const context=await (await route(req("/source-context?source_id=source-A"),h.env)).json();
+    assert.equal(context.context.nodes[0].qualificationHistory.revision,"3");
+  });
+  await t.test("unknown acknowledgement keeps the committed review revision recoverable read-only",async()=>{
+    const h=harness({lostAcknowledgement:true});await verified(h);const r=await row();
+    assert.equal((await put(h,"unknown-review",payload([r],[event(r,{kind:"annotation"})]))).status,503);
+    const writes=h.stats().writes;
+    const receipt=await (await route(req("/imports/unknown-review"),h.env)).json();
+    assert.equal(receipt.state,"committed");
+    const context=await (await route(req("/source-context?source_id=source-A"),h.env)).json();
+    assert.equal(context.context.nodes[0].qualificationHistory.revision,"1");
+    assert.equal(h.stats().writes,writes);assert.equal(h.stats().batches,1);
   });
 
 });

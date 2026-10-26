@@ -342,12 +342,44 @@ original times, units, missingness, immutable-original directive, and links to t
 original row and paginated qualification history. An evidence container is not
 implicitly the primary paper. Missing source/study identities are never invented.
 
-The bundle has a SHA-256 fingerprint of its exact serialized context, but is not a
-persisted corpus snapshot. Import membership can be pinned; qualification state
-remains live, and full history must be fetched separately. The response explicitly
-reports analysis not run, zero model calls, no inferred relations, unassessed
-comparability/calibration and unknown token count. A byte ceiling is not a token
-ceiling. This is an analysis input, not a complete source summary.
+The v2 bundle has a SHA-256 fingerprint of its exact serialized context, including
+each returned record's qualification revision. It is not a persisted corpus
+snapshot. Import membership can be pinned; qualification state remains live, and
+full history must be fetched separately. The response explicitly reports analysis
+not run, zero model calls, no inferred relations, unassessed comparability/calibration
+and unknown token count. A byte ceiling is not a token ceiling. This is an analysis
+input, not a complete source summary.
+
+Apply `corpus-migrations/0002_review_revisions.sql` after 0001 in the dedicated
+private database before using these queries. It backfills a per-record-version
+review counter from immutable events and advances it in the same transaction as
+each new annotation, correction or quarantine. A duplicate event or rolled-back
+import does not advance the counter. A counter is invalidation metadata, not a
+quality score or a cryptographic digest of the review text.
+
+This closes a demonstrated gap in v1: an annotation/correction could leave the
+quarantine bit unchanged and therefore leave the context fingerprint unchanged.
+The v2 fingerprint changes for every new qualification on a returned record,
+including events inserted before a previously read pagination cursor.
+
+Conditional read checks are available:
+
+    GET /workspace/corpus/source-context?source_id=<id>&expected_context_sha256=<sha>
+    GET /workspace/corpus/qualifications?record_id=<id>&record_sha256=<sha>&expected_revision=<n>
+
+A stale expectation returns HTTP 409 `context_changed`, without writes or an
+automatic retry. Source-context links and qualification-page cursors carry the
+expected review revision. The history page and its current revision are selected
+in one SQL read snapshot, including empty pages. The indexed page query avoids
+scanning the full review history at request time.
+
+These are read-time checks, **not commit leases or general MVCC**. They cover only
+the returned source page and each explicitly pinned record history. They do not
+detect changes to omitted records, prove complete source membership, or prevent a
+new review after the read returns. A future semantic-assertion writer must compare
+its full dependency revisions atomically with its commit. Unknown import outcomes
+remain recoverable through existing read-only receipts; a newer revision is not
+authorization to repeat a stopped model or source job.
 
 The next semantic layer should preserve these contracts:
 
