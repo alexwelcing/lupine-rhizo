@@ -155,6 +155,13 @@ validation `not_assessed`. Original claim/evidence labels remain in recordJson.
 A migration adapter must independently check source-to-row linkage and preserve
 its receipts before claiming the corpus migration verified.
 
+The planner preserves explicit study attribution from `study_key` or
+`study_group`; an absent study does not inherit `source_id`. Likewise,
+`reference_kind` describes evidence such as DFT or experiment, while a nested
+`reference.kind` such as `point` describes the value's shape. Missing attribution
+or evidence kind stays null with an explicit missingness label. These projection
+rules never change the original record bytes or manufacture independent studies.
+
 Object receipts retain their original time. Imports check current R2 metadata,
 size and ETag against the receipt before committing. R2 and D1 do not share a
 transaction: this assumes out-of-band writes to the content-addressed bucket

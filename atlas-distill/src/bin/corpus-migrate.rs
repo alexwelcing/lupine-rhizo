@@ -454,10 +454,12 @@ fn projected(row: &Row, event: Option<&Event>) -> Result<Value> {
     // lexemes in recordJson always come from RawValue above.
     let v: Value = serde_json::from_str(&row.exact)?;
     let source = &v["source_id"];
+    // Source identity is not study attribution. An absent study remains unknown.
+    let unknown = Value::Null;
     let study = v
         .get("study_key")
         .or_else(|| v.get("study_group"))
-        .unwrap_or(source);
+        .unwrap_or(&unknown);
     let mut out = json!({"recordId":row.id,"recordSha256":row.digest,"recordJson":row.exact,
         "evidenceSha256":row.evidence,"locator":format!("json-pointer:{}",row.pointer),
         "sourceId":source,"studyId":study,"originalRowSha256":event.map(|e|e.legacy.as_str()),
@@ -474,11 +476,8 @@ fn projected(row: &Row, event: Option<&Event>) -> Result<Value> {
         ),
         ("unit", &v["unit"], 128),
         ("modelId", &v["potential"], 256),
-        (
-            "referenceKind",
-            v.get("reference_kind").unwrap_or(&v["reference"]["kind"]),
-            128,
-        ),
+        // reference.kind describes a value shape (e.g. point), not DFT/experiment.
+        ("referenceKind", &v["reference_kind"], 128),
         (
             "observedAt",
             v.get("observed_at").unwrap_or(&v["extracted_at"]),
@@ -804,6 +803,54 @@ mod tests {
             .unwrap()
             .contains(&json!("sourceId")));
     }
+
+    #[test]
+    fn source_identity_does_not_fill_unknown_study_identity() {
+        let raw = r#"{"id":"source-only","source_id":"doi:10.example/source"}"#;
+        let p = ready(raw, false);
+        let v = projected(&p.rows[0], None).unwrap();
+        assert_eq!(v["sourceId"], "doi:10.example/source");
+        assert!(v["studyId"].is_null());
+        assert!(v["missingFields"]
+            .as_array()
+            .unwrap()
+            .contains(&json!("studyId")));
+        assert_eq!(v["recordJson"], raw);
+        assert_eq!(v["recordSha256"], sha(raw.as_bytes()));
+    }
+
+    #[test]
+    fn value_shape_is_not_a_reference_evidence_kind() {
+        let p = ready(
+            r#"{"id":"point-reference","reference":{"kind":"point","value":"1.0"}}"#,
+            false,
+        );
+        let v = projected(&p.rows[0], None).unwrap();
+        assert!(v["referenceKind"].is_null());
+        assert!(v["missingFields"]
+            .as_array()
+            .unwrap()
+            .contains(&json!("referenceKind")));
+    }
+
+    #[test]
+    fn explicit_identity_fields_and_nulls_keep_their_precedence() {
+        let p = ready(
+            r#"{"id":"explicit","source_id":"source","study_group":"study","reference_kind":"DFT","reference":{"kind":"point"}}"#,
+            false,
+        );
+        let v = projected(&p.rows[0], None).unwrap();
+        assert_eq!(v["studyId"], "study");
+        assert_eq!(v["referenceKind"], "DFT");
+        let p = ready(
+            r#"{"id":"nulls","source_id":"source","study_key":null,"study_group":"other","reference_kind":null,"reference":{"kind":"point"}}"#,
+            false,
+        );
+        let v = projected(&p.rows[0], None).unwrap();
+        assert!(v["studyId"].is_null());
+        assert!(v["referenceKind"].is_null());
+    }
+
     #[test]
     fn twenty_row_limit_and_determinism() {
         let mut p = ready(ROW, true);
