@@ -1,6 +1,6 @@
 # Cloud research evidence
 
-Status: first implementation slice; deployment, migration and live acceptance pending.
+Status: private object storage and database projection implemented; deployment, migration and live acceptance pending.
 
 ## Objective
 
@@ -9,8 +9,9 @@ should be able to find a model or material, inspect a reported observation,
 trace its source and revisions, compare compatible evidence, and see what would
 change a simulation decision. Local machines hold bounded working caches.
 
-Glim Think remains the control plane. Reuse its D1 ledger and existing operator
-Access identity. Use a distinct private R2 bucket for evidence bytes. The
+Glim Think remains the control plane. Reuse its existing operator Access identity
+and agenda. Use a separate private D1 corpus database and a distinct private R2
+bucket for evidence bytes. The
 existing ARTIFACTS binding is served through a public /artifacts route and must
 not receive private evidence. A prefix is not an access-control boundary.
 
@@ -39,7 +40,7 @@ value through usable scientific retrieval and decisions.
 | Layer | Responsibility |
 | --- | --- |
 | Private R2 | Original bounded source bytes and immutable artifacts addressed by SHA-256 |
-| D1 | Source/model identities, observations, units, provenance pointers, qualifications, contracts, manifests and receipts |
+| Private D1 corpus | Observations, source/model identity projections, provenance, qualifications, import manifests and receipts; explicit comparison contracts remain next |
 | Worker API | Authenticated ingestion/readback, bounded queries and source acquisition |
 | Existing queues / agenda | Ownership, bounded work items, checkpoints and terminal outcomes |
 | Library | Explicitly reviewed public projections |
@@ -81,7 +82,7 @@ is explicitly unknown; inspect with GET/HEAD before deciding any next action.
 
 There is no list, delete, arbitrary source-fetch or publication endpoint here.
 The route does not dispatch simulations or model calls. Content addresses enable
-deduplication; source origin and scientific identities belong in the next D1
+deduplication; source origin and scientific identity projections belong in the D1
 slice, not in filenames or user-supplied object metadata.
 
 Run focused checks from glim-think:
@@ -91,7 +92,125 @@ Run focused checks from glim-think:
 These checks use the actual Access verifier with locally signed synthetic JWTs
 and in-memory R2 doubles. They do not prove deployed Access/R2 behavior.
 
-## Next slices and acceptance
+## Private database projection implemented
+
+This revision adds a separately bound `PRIVATE_CORPUS` D1 database. The shared
+`LEDGER` remains the runtime/agenda database: its public routes, agent tools and
+storage instrumentation must not gain implicit access to private corpus rows.
+The dedicated schema is in `corpus-migrations/0001_private_corpus.sql`, outside
+the runtime ledger migration directory. No database or binding is provisioned
+by this change. Set `PRIVATE_CORPUS_ENABLED=true` only after its targeted
+migration, private binding review and deployed acceptance.
+
+Both evidence-object and corpus routes dispatch **before** the automatic
+request/binding telemetry wrapper. The ordinary handler receives an environment
+copy before its telemetry wrappers mutate bindings. Private route errors are
+sanitized and never logged with source content, SQL parameters or provider
+exceptions. Deployed tracing/access behavior still requires verification.
+
+| Method and path | Meaning |
+| --- | --- |
+| POST /workspace/corpus/objects/:sha256 | Read and hash private R2 bytes; save an immutable verification receipt |
+| GET /workspace/corpus/objects/:sha256 | Collect the existing receipt, with its original verification time |
+| PUT /workspace/corpus/imports/:id | Atomically commit one bounded import |
+| GET /workspace/corpus/imports/:id | Read-only recovery after interruption or unknown acknowledgement |
+| GET /workspace/corpus/observations | Filtered, paginated observation projections |
+| GET /workspace/corpus/observation?record_id=...&record_sha256=... | Exact retained record and projection |
+| GET /workspace/corpus/qualifications?record_id=...&record_sha256=... | Paginated original quarantine, annotation and correction events |
+
+All endpoints require operator Access, the separate private bucket and the
+separate private corpus database. No DEV_MODE or internal-token bypass applies.
+The database and bucket identity checks reject obvious aliases; deployment
+review must verify the actual resources, not merely different binding names.
+
+### Import contract
+
+The body is UTF-8 JSON with exactly `schema: "lupine-private-corpus-v1"`,
+`observations` and `qualifications`. A batch contains at most 20 observations
+and 20 qualification events, at least one entry overall, at most 16 distinct
+source objects and at most 1 MiB of request bytes. Each original record JSON
+string is capped at 64 KiB. These are ingestion bounds, not scientific quotas.
+
+Each observation includes:
+
+- `recordId`, `recordSha256` and `recordJson`: the original ID and the exact
+  supplied JSON representation. SHA-256 must match the UTF-8 bytes of that
+  string. Preserve the original object as R2 evidence even when the adapter
+  must serialize a row out of a larger source.
+- `evidenceSha256`, `sourceId`, `studyId`, `locator`: a verified R2 object,
+  original source/study identities and table/figure/JSON-pointer anchor.
+- `material`, `observable`, `unit`, `modelId`, `referenceKind`: supplied
+  search projections; explicitly use null for unknown fields.
+- `observedAt`, `reviewedAt`: original UTC ISO timestamps or null. Import
+  time is separate and never substitutes for an observation or review.
+- `originalRowSha256`: retained legacy row fingerprint or null. Its original
+  serialization algorithm is not inferred or silently replaced.
+- `missingFields`: explicit missingness labels, retained without fabrication.
+
+**Verification scope:** the server verifies object bytes and supplied record
+bytes. It does not parse a paper to confirm the locator or extraction, verify
+the legacy hash algorithm, or prove that projected metadata matches the source.
+Responses label those provenance links `operator_supplied` and scientific
+validation `not_assessed`. Original claim/evidence labels remain in recordJson.
+A migration adapter must independently check source-to-row linkage and preserve
+its receipts before claiming the corpus migration verified.
+
+Object receipts retain their original time. Imports check current R2 metadata,
+size and ETag against the receipt before committing. R2 and D1 do not share a
+transaction: this assumes out-of-band writes to the content-addressed bucket
+are prohibited. The implementation cannot prevent an external operator from
+mutating R2 after the check.
+
+### Immutable, idempotent publication
+
+An import ID is bound to the SHA-256 of the exact request bytes. Exact replay
+returns the existing receipt without writing; different bytes under that ID
+conflict. After an unknown outcome, use GET before deciding any new action.
+The handler never automatically retries an operation or launches a model or
+simulation job.
+
+One D1 batch transaction writes the import marker, observations, memberships
+and events. A failed statement rolls the whole transaction back. SQL triggers
+reject updates and deletions. The same record ID and byte hash can belong to
+several imports without duplicating the observation. A divergent projection
+for that same identity is rejected. The receipt's entry counts describe the
+submitted batch; they are not counts of new distinct observations or studies.
+
+Qualification events target exact record IDs and hashes. A correction event
+retains the original and records the reason; it does not silently replace
+values, remove quarantine or certify a replacement. A corrected representation
+requires a separately identified revision with preserved lineage. Structured
+field corrections and adjudicated replacement views remain future work.
+
+### Bounded retrieval
+
+The list supports exact `study_id`, `material`, `observable`, `model_id` and
+`import_id` filters. Query values are bound SQL parameters. Pages default to 20
+and cap at 50; use both returned `after_id` and `after_sha256` for the next
+page. Qualification history uses `after_event_id`. List responses omit full
+recordJson; fetch an individual revision for it.
+
+Quarantined revisions are excluded by default. `include_quarantined=true`
+returns them with explicit flags; original qualification events remain
+accessible. General pagination is over a live append-only view, not a frozen
+corpus-wide snapshot. `import_id` fixes membership; qualification visibility
+can still change when a later event quarantines a record.
+
+Indexes cover material/observable, study, observable and model filters.
+No cross-study discrepancy is calculated by this endpoint. A declared
+compatibility contract and scientific review still govern comparison.
+
+Run the actual route, Access verifier and SQL schema against in-memory SQLite:
+
+    node --test scripts/private-corpus.test.mjs
+
+Tests cover real SQL constraints/transactions, rollback, duplicate/conflicting
+imports, read-only recovery after lost acknowledgement, source integrity,
+quarantine targeting, keyset paging, unknown metadata and private telemetry
+dispatch. R2 and the D1 binding transport are doubles; these checks do not
+establish live Cloudflare acceptance or a completed migration.
+
+## Remaining slices and acceptance
 
 1. **Private deployment boundary.** Verify that the selected bucket has no public
    custom domain or r2.dev access and is not bound to any public artifact reader.
@@ -99,14 +218,14 @@ and in-memory R2 doubles. They do not prove deployed Access/R2 behavior.
    Prove unauthenticated denial, authenticated PUT/GET hash agreement and no
    corresponding public artifact access. Do not infer privacy from an unknown
    object key. Production deployment requires its specific authorization.
-2. **D1 corpus projection.** Preserve existing row IDs and source IDs. Record the
+2. **D1 corpus migration acceptance.** Exercise the implemented projection with real records; preserve existing row IDs and source IDs. Record the
    immutable source-object hash plus JSON pointer, original row hash, schema,
    original observation/review time, unit, observable, material/state, model,
    reference and missing fields. Preserve quarantine events as separate immutable
    rows targeting exact row hashes; never silently repair or delete originals.
    Keep imported observations distinct from executed or independently checked
    results. Include original OpenKIM/NIST identifiers and DOI aliases.
-3. **Transactional manifest publication.** Upload/check objects first; publish
+3. **Transactional manifest acceptance.** Exercise the implemented per-import transaction and extend it to a corpus-wide pinned view if needed. Upload/check objects first; publish
    D1 rows and a committed manifest only after object readback is verified.
    An interrupted import leaves the prior committed query view available.
    Use an ingestion ID plus payload hash: exact replay is a no-op, divergent
@@ -136,8 +255,8 @@ and in-memory R2 doubles. They do not prove deployed Access/R2 behavior.
    the scientific decision. Do not turn each visit into a new architecture document.
 
 Completion requires the verified source-to-observation-to-comparison-to-decision
-path and a migrated, recoverable corpus. This initial private byte route alone
-does not satisfy that objective.
+path and a migrated, recoverable corpus. The implemented storage and projection routes alone
+do not satisfy that objective.
 
 ## Resource and publication boundaries
 

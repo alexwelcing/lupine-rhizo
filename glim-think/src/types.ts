@@ -159,6 +159,10 @@ export interface Env {
   PRIVATE_EVIDENCE?: R2Bucket;
   /** Enable only after private bucket and Access read/write checks pass. */
   PRIVATE_EVIDENCE_ENABLED?: string;
+  /** Explicit activation after the private corpus D1 migration and acceptance. */
+  PRIVATE_CORPUS_ENABLED?: string;
+  /** Separate private evidence database, never an alias for the public/runtime LEDGER. */
+  PRIVATE_CORPUS?: D1Database;
   CONFIG: KVNamespace;
   LEDGER: D1Database;
   RESEARCH_QUEUE: Queue<unknown>;

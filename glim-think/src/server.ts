@@ -48,6 +48,8 @@ import { listWorkspaceConversations } from "./workspace/registry";
 import { workspaceProgressResponse } from "./workspace/progress";
 import { researchRunsResponse } from "./workspace/researchRuns";
 import { evidenceObjectsResponse } from "./workspace/evidenceObjects";
+import { corpusResponse } from "./workspace/corpus";
+import { dispatchPrivateEvidence } from "./workspace/evidenceDispatch";
 import { proofJobsResponse } from "./workspace/proofJobs";
 import { researchActivityResponse } from "./workspace/researchActivity";
 import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
@@ -193,6 +195,8 @@ const baseHandler = {
 
   async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
     try {
+      // Keep instrumentation wrappers local to this request.
+      env = { ...env };
       traceEnv(env);
       const url = new URL(request.url);
 
@@ -222,6 +226,8 @@ const baseHandler = {
       // Private evidence bytes must not pass through generic text parsing.
       const evidenceResponse = await evidenceObjectsResponse(request, env);
       if (evidenceResponse) return evidenceResponse;
+      const privateCorpus = await corpusResponse(request, env);
+      if (privateCorpus) return privateCorpus;
 
       // Pre-read POST/PATCH body so it can be reused after agent routing
       const bodyText = request.method === "POST" || request.method === "PATCH"
@@ -3940,7 +3946,14 @@ async function backfillCoordMemory(
   return result;
 }
 
-export default instrument(baseHandler, phoenixConfig);
+const instrumentedHandler = instrument(baseHandler, phoenixConfig);
+export default {
+  ...instrumentedHandler,
+  fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    return dispatchPrivateEvidence(request, env, () =>
+      instrumentedHandler.fetch!(request, env, ctx) as Promise<Response>);
+  },
+} satisfies ExportedHandler<Env>;
 
 
 function buildDiaryPrompt(element: string, potential: string, structure: string, records: Array<{ property: string; reference: number; predicted: number; unit: string }>): string {

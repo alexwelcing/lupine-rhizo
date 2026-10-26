@@ -6,12 +6,17 @@ export const EVIDENCE_OBJECT_MAX_BYTES = 25 * 1024 * 1024;
 const ROOT = "/workspace/evidence-objects";
 const HASH = /^[a-f0-9]{64}$/;
 // Bound buffering to one upload per isolate; GET/HEAD remain streaming.
-let uploadInFlight = false;
+let bufferInFlight = false;
+export function acquireEvidenceBuffer(): (() => void) | null {
+  if (bufferInFlight) return null;
+  bufferInFlight = true;
+  return () => { bufferInFlight = false; };
+}
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: WORKSPACE_PRIVATE_HEADERS });
 
-async function readBounded(body: ReadableStream<Uint8Array> | null, declared: number | null): Promise<Uint8Array> {
-  if (declared !== null && declared > EVIDENCE_OBJECT_MAX_BYTES) {
+export async function readBounded(body: ReadableStream<Uint8Array> | null, declared: number | null, cap = EVIDENCE_OBJECT_MAX_BYTES): Promise<Uint8Array> {
+  if (declared !== null && declared > cap) {
     await body?.cancel().catch(() => {});
     throw new RangeError("Object too large");
   }
@@ -24,7 +29,7 @@ async function readBounded(body: ReadableStream<Uint8Array> | null, declared: nu
         const part = await reader.read();
         if (part.done) break;
         bytes += part.value.byteLength;
-        if (bytes > EVIDENCE_OBJECT_MAX_BYTES) {
+        if (bytes > cap) {
           await reader.cancel().catch(() => {});
           throw new RangeError("Object too large");
         }
@@ -39,13 +44,26 @@ async function readBounded(body: ReadableStream<Uint8Array> | null, declared: nu
   return result;
 }
 
-async function digest(bytes: Uint8Array): Promise<{ hex: string; raw: ArrayBuffer }> {
+export async function digest(bytes: Uint8Array): Promise<{ hex: string; raw: ArrayBuffer }> {
   const raw = await crypto.subtle.digest("SHA-256", bytes as BufferSource);
   return { raw, hex: Array.from(new Uint8Array(raw), b => b.toString(16).padStart(2, "0")).join("") };
 }
 function validObject(object: R2Object, hash: string): boolean {
   return Number.isSafeInteger(object.size) && object.size >= 0 &&
     object.size <= EVIDENCE_OBJECT_MAX_BYTES && object.customMetadata?.sha256 === hash;
+}
+
+export async function requireEvidenceOperator(request: Request, env: Env): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (request.headers.has("Origin") && request.headers.get("Origin") !== url.origin)
+    return json({ error: "Same-origin request required" }, 403);
+  if (!env.ADMIN_EMAIL?.trim()) return json({ error: "Operator is not configured" }, 403);
+  // Deliberately omit DEV_MODE and all legacy service-token bypasses.
+  const denial = await checkAccess(request, {
+    CF_ACCESS_AUD: env.CF_ACCESS_AUD, CF_ACCESS_TEAM_DOMAIN: env.CF_ACCESS_TEAM_DOMAIN,
+  } as Env, [env.ADMIN_EMAIL]);
+  if (denial) return json({ error: "Verified operator Access required" }, 403);
+  return null;
 }
 
 /** Private immutable bytes only. Stored bytes are not admitted scientific evidence.
@@ -55,14 +73,8 @@ function validObject(object: R2Object, hash: string): boolean {
 export async function evidenceObjectsResponse(request: Request, env: Env): Promise<Response | null> {
   const url = new URL(request.url);
   if (url.pathname !== ROOT && !url.pathname.startsWith(ROOT + "/")) return null;
-  if (request.headers.has("Origin") && request.headers.get("Origin") !== url.origin)
-    return json({ error: "Same-origin request required" }, 403);
-  if (!env.ADMIN_EMAIL?.trim()) return json({ error: "Operator is not configured" }, 403);
-  // Deliberately omit DEV_MODE and all legacy service-token bypasses.
-  const denial = await checkAccess(request, {
-    CF_ACCESS_AUD: env.CF_ACCESS_AUD, CF_ACCESS_TEAM_DOMAIN: env.CF_ACCESS_TEAM_DOMAIN,
-  } as Env, [env.ADMIN_EMAIL]);
-  if (denial) return json({ error: "Verified operator Access required" }, 403);
+  const denial = await requireEvidenceOperator(request, env);
+  if (denial) return denial;
   if (!["PUT", "GET", "HEAD"].includes(request.method))
     return json({ error: "Method not allowed" }, 405);
   const hash = url.pathname.slice(ROOT.length + 1);
@@ -72,8 +84,8 @@ export async function evidenceObjectsResponse(request: Request, env: Env): Promi
     return json({ error: "Private evidence storage is not configured" }, 503);
   const key = "sha256/" + hash;
   const uploading = request.method === "PUT";
-  if (uploading && uploadInFlight) return json({ error: "An upload is already in progress; no retry scheduled" }, 429);
-  if (uploading) uploadInFlight = true;
+  const release = uploading ? acquireEvidenceBuffer() : null;
+  if (uploading && !release) return json({ error: "An upload is already in progress; no retry scheduled" }, 429);
   try {
     if (request.method === "PUT") {
       const encoding = request.headers.get("Content-Encoding");
@@ -129,6 +141,6 @@ export async function evidenceObjectsResponse(request: Request, env: Env): Promi
   } catch {
     return json({ error: "Evidence storage unavailable; outcome may be unknown; no retry performed" }, 503);
   } finally {
-    if (uploading) uploadInFlight = false;
+    release?.();
   }
 }
