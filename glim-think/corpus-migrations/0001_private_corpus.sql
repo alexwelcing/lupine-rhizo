@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS workspace_corpus_observations (
 );
 CREATE INDEX IF NOT EXISTS idx_workspace_corpus_material_observable
  ON workspace_corpus_observations(material,observable,record_id,record_sha256);
+CREATE INDEX IF NOT EXISTS idx_workspace_corpus_source
+ ON workspace_corpus_observations(source_id,record_id,record_sha256);
 CREATE INDEX IF NOT EXISTS idx_workspace_corpus_study
  ON workspace_corpus_observations(study_id,record_id,record_sha256);
 CREATE INDEX IF NOT EXISTS idx_workspace_corpus_observable

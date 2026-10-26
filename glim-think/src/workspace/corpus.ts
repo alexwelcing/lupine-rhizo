@@ -178,12 +178,12 @@ async function importRecords(request: Request, env: Env, id: string) {
   } finally { release(); }
 }
 async function queryRecords(url: URL, env: Env) {
-  const allowed=new Set(["study_id","material","observable","model_id","after_id","after_sha256","limit","include_quarantined","import_id"]);
+  const allowed=new Set(["source_id","study_id","material","observable","model_id","after_id","after_sha256","limit","include_quarantined","import_id"]);
   for (const key of url.searchParams.keys()) if (!allowed.has(key) || url.searchParams.getAll(key).length!==1) fail("Unknown or repeated query parameter");
   const limitString=url.searchParams.get("limit")??"20";
   if (!/^\d+$/.test(limitString) || Number(limitString)<1 || Number(limitString)>50) fail("Limit must be 1-50");
   const limit=Number(limitString), clauses:string[]=[], args:(string|number)[]=[];
-  for (const column of ["study_id","material","observable","model_id"]) {
+  for (const column of ["source_id","study_id","material","observable","model_id"]) {
     const v=url.searchParams.get(column);
     if (v!==null) { clauses.push("o."+column+"=?"); args.push(text(v,256)!); }
   }
@@ -230,6 +230,56 @@ async function queryQualifications(url: URL, env: Env) {
   return json({qualifications:rows,next:result.results.length>limit?{after_event_id:rows.at(-1)!.event_id}:null,scope:"original events; correction does not replace observations"});
 }
 
+
+/** Deterministic input for per-source analysis; no inferred relation or model call. */
+async function sourceContext(url: URL, env: Env) {
+  const p=url.searchParams, allowed=new Set(["source_id","after_id","after_sha256","limit","import_id"]);
+  for (const key of p.keys()) if (!allowed.has(key)||p.getAll(key).length!==1) fail("Unknown or repeated source context parameter");
+  const sourceId=text(p.get("source_id"),256)!;
+  const ls=p.get("limit")??"10";
+  if (!/^\d+$/.test(ls)||Number(ls)<1||Number(ls)>20) fail("Source context limit must be 1-20");
+  const query=new URL(url);
+  query.searchParams.set("limit",ls);
+  // A source analysis must see exclusions, not silently select only favored rows.
+  query.searchParams.set("include_quarantined","true");
+  const page=await (await queryRecords(query,env)).json() as {
+    observations: Record<string,unknown>[]; next: unknown;
+  };
+  const nodes=page.observations.map(r=>{
+    const revision=new URLSearchParams({record_id:String(r.record_id),record_sha256:String(r.record_sha256)});
+    return {
+      kind:"imported_observation",recordId:r.record_id,recordSha256:r.record_sha256,
+      sourceId:r.source_id,studyId:r.study_id,
+      anchor:{kind:"retained_record_container",objectSha256:r.evidence_sha256,locator:r.locator,
+        linkValidation:"operator_supplied",primaryDocumentClosure:"not_verified"},
+      material:r.material,observable:r.observable,unit:r.unit,modelId:r.model_id,
+      referenceKind:r.reference_kind,observedAt:r.observed_at,reviewedAt:r.reviewed_at,
+      originalRowSha256:r.original_row_sha256,
+      missingFields:JSON.parse(String(r.missing_fields_json)) as string[],
+      protection:"immutable_original",
+      quarantined:!!r.quarantined,
+      qualificationHistory:{complete:false,href:ROOT+"/qualifications?"+revision},
+      originalRecordHref:ROOT+"/observation?"+revision,
+    };
+  });
+  const context={
+    schema:"lupine-source-context-v1",sourceId,nodes,next:page.next,
+    scope:"one bounded page of imported projections; not a complete source analysis",
+    membership:p.get("import_id")===null?"live":{importId:p.get("import_id")},
+    qualificationState:"live; full history must be collected separately",
+    semanticRelations:[],
+    analysis:{state:"not_run",modelCalls:0,scientificValidation:"not_assessed",
+      comparability:"not_assessed",calibration:"not_assessed"},
+    budgets:{maxRecords:20,maxResponseBytes:262144,tokenCount:null},
+  };
+  // Fingerprint exactly the serialized bundle, not unseen source or review history.
+  const contextJson=JSON.stringify(context);
+  const response={context,contextSha256:(await digest(encoder.encode(contextJson))).hex,
+    fingerprintScope:"JSON.stringify(context) UTF-8 bytes only; not a persisted snapshot"};
+  if (encoder.encode(JSON.stringify(response)).length>262144) fail("Source context exceeds response budget; request fewer rows");
+  return json(response);
+}
+
 /** Private projection API. Does not calculate scientific discrepancies or admit comparability. */
 export async function corpusResponse(request: Request, env: Env): Promise<Response|null> {
   const url=new URL(request.url);
@@ -239,9 +289,9 @@ export async function corpusResponse(request: Request, env: Env): Promise<Respon
   try {
     if (url.pathname.startsWith(ROOT+"/objects/")) { if(url.search) fail("Unexpected query parameters"); return await objectReceipt(request,env,url.pathname.slice((ROOT+"/objects/").length)); }
     if (url.pathname.startsWith(ROOT+"/imports/")) { if(url.search) fail("Unexpected query parameters"); return await importRecords(request,env,url.pathname.slice((ROOT+"/imports/").length)); }
-    if (["/observations","/observation","/qualifications"].some(p=>url.pathname===ROOT+p)) {
+    if (["/observations","/observation","/qualifications","/source-context"].some(p=>url.pathname===ROOT+p)) {
       if (request.method!=="GET") return json({error:"Method not allowed"},405);
-      return url.pathname===ROOT+"/observations" ? await queryRecords(url,env) : url.pathname===ROOT+"/qualifications" ? await queryQualifications(url,env) : await recordDetail(url,env);
+      return url.pathname===ROOT+"/source-context" ? await sourceContext(url,env) : url.pathname===ROOT+"/observations" ? await queryRecords(url,env) : url.pathname===ROOT+"/qualifications" ? await queryQualifications(url,env) : await recordDetail(url,env);
     }
     return json({error:"Corpus route not found"},404);
   } catch (e) {

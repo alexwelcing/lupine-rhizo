@@ -282,4 +282,48 @@ test("private corpus D1 and R2 integration", async t => {
     assert.match(source,/env = \{ \.\.\.env \};\s+traceEnv\(env\)/);
   });
 
+  await t.test("source context preserves exact revisions, unknowns and quarantines without inference",async()=>{
+    const h=harness();await verified(h);
+    const a=await row("a"),b=await row("b",{studyId:null,unit:null}),other=await row("other",{sourceId:"source-B"});
+    await put(h,"sources",payload([a,b,other],[event(b)]));
+    const before=h.stats();
+    const response=await route(req("/source-context?source_id=source-A&limit=1&import_id=sources"),h.env);
+    assert.equal(response.status,200,await response.clone().text());
+    assert.match(response.headers.get("Cache-Control"),/no-store/);
+    const {context,contextSha256}=await response.json();
+    assert.equal(contextSha256,await hash(new TextEncoder().encode(JSON.stringify(context))));
+    assert.deepEqual(context.nodes.map(n=>n.recordId),["a"]);
+    assert.equal(context.nodes[0].recordSha256,a.recordSha256);
+    assert.equal(context.nodes[0].anchor.objectSha256,sha);
+    assert.equal(context.nodes[0].anchor.kind,"retained_record_container");
+    assert.equal(context.nodes[0].anchor.primaryDocumentClosure,"not_verified");
+    assert.deepEqual(context.nodes[0].missingFields,a.missingFields);
+    assert.deepEqual(context.semanticRelations,[]);
+    assert.equal(context.analysis.state,"not_run");assert.equal(context.analysis.modelCalls,0);
+    const after=new URLSearchParams({source_id:"source-A",limit:"1",import_id:"sources",...context.next});
+    const second=await (await route(req("/source-context?"+after),h.env)).json();
+    assert.equal(second.context.nodes[0].recordId,"b");
+    assert.equal(second.context.nodes[0].quarantined,true);
+    assert.equal(second.context.nodes[0].unit,null);assert.equal(second.context.nodes[0].studyId,null);
+    assert.equal(second.context.nodes[0].qualificationHistory.complete,false);
+    assert.equal(second.context.next,null);
+    assert.equal(h.stats().writes,before.writes);assert.equal(h.stats().storageReads,before.storageReads);
+    const plan=h.sql.prepare("EXPLAIN QUERY PLAN SELECT record_id FROM workspace_corpus_observations WHERE source_id=? ORDER BY record_id,record_sha256 LIMIT 20").all("source-A");
+    assert.ok(plan.some(x=>x.detail.includes("idx_workspace_corpus_source")));
+    const filtered=await (await route(req("/observations?source_id=source-B"),h.env)).json();
+    assert.deepEqual(filtered.observations.map(o=>o.record_id),["other"]);
+  });
+  await t.test("source context is Access protected, bounded and never hides qualifications",async()=>{
+    const h=harness();
+    const noAccess=await route(new Request(root+"/source-context?source_id=source-A"),h.env);
+    assert.equal(noAccess.status,403);assert.equal(h.stats().reads,0);
+    for(const query of ["","?source_id=","?source_id=a&source_id=b","?source_id=a&limit=21",
+      "?source_id=a&include_quarantined=false","?source_id=a&after_id=x","?source_id=a&raw=true"])
+      assert.equal((await route(req("/source-context"+query),h.env)).status,400);
+    assert.equal((await route(req("/source-context?source_id=a","POST"),h.env)).status,405);
+    const absent=await (await route(req("/source-context?source_id=absent"),h.env)).json();
+    assert.equal(absent.context.nodes.length,0);
+    assert.equal(absent.context.analysis.scientificValidation,"not_assessed");
+  });
+
 });

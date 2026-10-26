@@ -323,6 +323,83 @@ Run focused synthetic tests:
 The existing Verify workflow compiles and tests this binary in its Rust workspace
 job. Public fixtures are synthetic; private corpus files never enter CI.
 
+## Per-source knowledge and semantic analysis
+
+The private evidence layer is the source of record. Semantic extraction is a
+versioned derived view over exact source revisions, not a replacement for the
+original bytes or an automatic scientific review.
+
+Implemented read surface:
+
+    GET /workspace/corpus/observations?source_id=<exact-identity>
+    GET /workspace/corpus/source-context?source_id=<exact-identity>&limit=10
+
+The source-context route requires operator Access, uses a dedicated source index,
+and returns at most 20 projections and 256 KiB. It includes quarantined rows with
+their status so an analysis cannot silently omit contradictory or excluded data.
+Each node retains its exact row revision, evidence-container hash and locator,
+original times, units, missingness, immutable-original directive, and links to the
+original row and paginated qualification history. An evidence container is not
+implicitly the primary paper. Missing source/study identities are never invented.
+
+The bundle has a SHA-256 fingerprint of its exact serialized context, but is not a
+persisted corpus snapshot. Import membership can be pinned; qualification state
+remains live, and full history must be fetched separately. The response explicitly
+reports analysis not run, zero model calls, no inferred relations, unassessed
+comparability/calibration and unknown token count. A byte ceiling is not a token
+ceiling. This is an analysis input, not a complete source summary.
+
+The next semantic layer should preserve these contracts:
+
+- **Anchored extraction:** keep source identity, source SHA-256, extractor and
+  rule versions, original passage/table coordinates, and derived claims distinct.
+  Use typed byte, page/region and temporal anchors only when that modality has a
+  verified normalizer. Record unknowns instead of fabricating page coordinates.
+- **Versioned interpretation:** append proposed, reviewed, rejected and superseded
+  semantic assertions with their exact input revisions. A new extraction cannot
+  overwrite observations or clear a quarantine. Changes invalidate dependent
+  interpretations; they do not require repeating unchanged acquisition.
+- **Typed relations:** distinguish reports, cites, supports, contradicts and
+  derived-from links from subject similarity. A shared source or citation does
+  not establish independent evidence. Protocol compatibility requires an explicit
+  material/state/observable/reference contract.
+- **Deterministic orchestration:** keep mutation validation separate from external
+  inference. Responses carry request identity and expected input revision; stale
+  responses cannot commit against a newer source. Time and lease expiry are
+  explicit transition inputs. Reuse Glim ownership and terminal outcomes.
+- **Bounded context:** retain required anchors, qualifications and exclusions in
+  any selected subgraph. Report omitted nodes and actual tokenizer/version when
+  enforcing token limits. A greedy k-hop selection is a heuristic unless an exact
+  optimization method and its assumptions are established.
+
+The supplied knowledge-tree design is a useful direction, with several guarantees
+that must be verified rather than inherited:
+
+1. Evidence identity remains SHA-256. FNV is a
+   [non-cryptographic hash](https://datatracker.ietf.org/doc/html/rfc9923);
+   any FNV acceleration would be a disposable hint with collision-safe validation.
+2. A containment tree requires root reachability and exactly one parent for each
+   non-root node. An acyclic graph with at most one parent can be a disconnected
+   forest. Semantic citation/contradiction edges have separate cycle rules.
+3. A cached root comparison is constant time; building hashes and parsing changed
+   content are additional work. Logarithmic behavior needs stated tree-shape and
+   incremental-update assumptions. No millisecond performance claim is made here.
+4. Reverse-operation journals alone do not establish concurrency isolation.
+   Commit authority needs an atomic expected-revision check, complete rollback
+   coverage and read/write conflict rules. Existing bounded D1 import transactions
+   do not yet implement a general knowledge-graph MVCC engine.
+5. A probability threshold is not evidence of calibration or truth. Validate
+   classification and abstention on reviewed examples before enabling promotion.
+   This change does not activate external inference, automatic locks or providers.
+   For code, ast-grep metavariables match
+   [syntax nodes](https://ast-grep.github.io/advanced/pattern-parse.html), not
+   universally single lexical tokens; multimodal matchers need their own contract.
+
+The existing literature similarity search and reviewed Library passage bindings
+are integration points. Their runtime/public storage and embedding calls must not
+be repurposed as the private corpus authorization boundary. No kgtree package,
+global hook, local snapshot store or daemon is installed by this work.
+
 ## Remaining slices and acceptance
 
 1. **Private deployment boundary.** Verify that the selected bucket has no public
