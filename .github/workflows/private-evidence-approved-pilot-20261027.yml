@@ -14,7 +14,10 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.run_attempt == 1 && github.repository == 'alexwelcing/lupine-rhizo'
+    # One-time run 40461900713 deployed the Worker and schemas; never replay.
+    # The final observability assertion failed. Live dashboard review confirmed
+    # Logs, Traces, Issues and Logpush disabled. Acceptance remains pending.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -43,7 +46,7 @@ jobs:
           import crypto from "node:crypto";
           import assert from "node:assert/strict";
           import {build} from "esbuild";
-          
+
           const account = "ab547d0fb51be7294e883ca90a00929c";
           const worker = "glim-private-evidence-acceptance";
           const bucket = "lupine-private-evidence";
@@ -91,7 +94,7 @@ jobs:
             assert(rowsRead<=100000 && rowsWritten<=5000,"D1 operation ceiling reached");
             return result;
           }
-          
+
           try {
             // No runtime requests, provider credentials or private corpus inputs enter CI.
             const prior=await api("/workers/scripts/"+worker+"/settings",{absent:true,label:"acceptance-worker-must-be-new"});
