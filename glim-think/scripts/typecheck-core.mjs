@@ -34,6 +34,10 @@ const args = [
   "src/research/__tests__/sync.test.ts",
   "src/research/__tests__/workflowRoutes.test.ts",
   "src/feed/beats.ts",
+  "src/workspace/evidenceObjects.ts",
+  "src/workspace/corpus.ts",
+  "src/workspace/evidenceDispatch.ts",
+  "src/privateEvidenceAcceptance.ts",
 ];
 
 const child = spawnSync(args[0], args.slice(1), {
