@@ -1,6 +1,49 @@
 # Cloud research evidence
 
-Status: private object storage and database projection implemented; deployment, migration and live acceptance pending.
+Status: isolated pilot resources, schemas and Worker deployed; operator Access login, data transfer and authenticated acceptance pending.
+
+## Approved isolated pilot state — 27 October 2026
+
+The dedicated private resources and isolated Worker have been created under the
+approved bounded pilot. Research data migration and authenticated acceptance are
+still pending. The remaining design sections describe contracts; older
+undeployed statements below are historical preparation evidence.
+
+- R2 `lupine-private-evidence`: Standard storage, public development URL disabled,
+  no custom domains, CORS rules or event notifications.
+- D1 `lupine-private-corpus` (`f4bcecf0-7492-435d-94ae-99a6e2a35b55`) and
+  restore database `lupine-private-corpus-restore`
+  (`904121f3-9297-4bb4-bb8d-5d6a8e0aa95a`) both received private migrations
+  0001 and 0002; the six private table names were verified.
+- `glim-private-evidence-acceptance` runs unchanged source commit
+  `6972f8c4386f988485fd596f3763ad8b32996071`. Uploaded bundle: 38,540 bytes,
+  SHA-256 `488fd118e634c5f0279e1b98c0c609ab164fe5ade6f17ed1466a8993b8fb8682`;
+  Worker version `46841c1ab8914778b819b0311c23aa97`.
+- Exact seven bindings passed API readback: the dedicated R2 and main D1,
+  the existing three operator Access variables, and the two private feature flags.
+  The restore database is not bound to the Worker.
+- The existing operator-only Access application covers
+  `glim-private-evidence-acceptance.aw-ab5.workers.dev`. This exact production
+  hostname is enabled; preview URLs remain disabled. A browser request to
+  `/workspace/evidence-objects` reached the Access login page without returning
+  research data. This verifies the observed unauthenticated gate, not an
+  authenticated API request or a complete privacy test.
+- Live dashboard review confirmed Logs, Traces, Issues and Logpush disabled,
+  no telemetry export destinations, cron triggers or queue consumers.
+
+[One-time preparation run 40461900713](https://github.com/alexwelcing/lupine-rhizo/actions/runs/40461900713)
+passed all 43 focused tests, applied the schemas and uploaded the Worker. It
+stopped at its final strict observability assertion after successful binding
+readback. Preserve its failure: the later dashboard confirmation is separate
+recovery evidence, not a successful rerun. Control-plane accounting was
+18 requests, 126 D1 rows read and 76 written. The one-time workflow is now
+permanently disabled; do not replay it or the migrations.
+
+No research objects or observations have been uploaded. The approved pilot is
+nine original objects / twelve observations, with a 32 MiB R2 ceiling and 2 MiB
+combined D1 ceiling. Authenticated hash readback, two-study queries and cloud
+export/restore remain required. Primary reads remain local. No merge, inference,
+public research release, plan upgrade or deletion is part of this pilot.
 
 ## Objective
 
