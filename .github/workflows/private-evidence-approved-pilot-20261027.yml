@@ -1,0 +1,163 @@
+name: Private evidence approved pilot 20261027
+
+on:
+  push:
+    branches: [codex/cloud-research-evidence]
+    paths: [.github/workflows/private-evidence-approved-pilot-20261027.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-evidence-approved-pilot-20261027
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.run_attempt == 1 && github.repository == 'alexwelcing/lupine-rhizo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 6972f8c4386f988485fd596f3763ad8b32996071
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned source dependencies
+        working-directory: glim-think
+        run: npm ci --no-audit --no-fund
+      - name: Verify isolated evidence routes
+        working-directory: glim-think
+        run: node --test scripts/private-evidence-objects.test.mjs scripts/private-corpus.test.mjs
+      - name: Apply dedicated schema and deploy disabled acceptance Worker once
+        working-directory: glim-think
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          node --input-type=module <<'PILOT_NODE'
+          import fs from "node:fs/promises";
+          import crypto from "node:crypto";
+          import assert from "node:assert/strict";
+          import {build} from "esbuild";
+          
+          const account = "ab547d0fb51be7294e883ca90a00929c";
+          const worker = "glim-private-evidence-acceptance";
+          const bucket = "lupine-private-evidence";
+          const databases = [
+            ["lupine-private-corpus","f4bcecf0-7492-435d-94ae-99a6e2a35b55"],
+            ["lupine-private-corpus-restore","904121f3-9297-4bb4-bb8d-5d6a8e0aa95a"]
+          ];
+          const sourceCommit = "6972f8c4386f988485fd596f3763ad8b32996071";
+          const token = process.env.CLOUDFLARE_API_TOKEN;
+          assert(token && process.env.CLOUDFLARE_ACCOUNT_ID === account, "Missing or mismatched existing deployment credentials");
+          let requests=0, rowsRead=0, rowsWritten=0;
+          const receipt = {sourceCommit,worker,bucket,databases,steps:[],requests:0,rowsRead:0,rowsWritten:0};
+          const allowed = new Set(["ADMIN_EMAIL","CF_ACCESS_TEAM_DOMAIN","CF_ACCESS_AUD","PRIVATE_EVIDENCE","PRIVATE_EVIDENCE_ENABLED","PRIVATE_CORPUS","PRIVATE_CORPUS_ENABLED"]);
+          const sha = b => crypto.createHash("sha256").update(b).digest("hex");
+          async function boundedText(response) {
+            const chunks=[]; let bytes=0;
+            for await (const chunk of response.body) {bytes+=chunk.length; assert(bytes<=2*1024*1024,"Control response exceeded bound");chunks.push(chunk);}
+            return Buffer.concat(chunks).toString("utf8");
+          }
+          async function api(path,{method="GET",body,absent=false,label=path}={}) {
+            assert(++requests<=32,"Control request budget exhausted");
+            console.log(JSON.stringify({stage:label,method,state:"starting",request:requests}));
+            let response;
+            try {
+              response=await fetch("https://api.cloudflare.com/client/v4/accounts/"+account+path,{
+                method,redirect:"error",signal:AbortSignal.timeout(30000),
+                headers:{Authorization:"Bearer "+token,...(body && !(body instanceof FormData)?{"Content-Type":"application/json"}:{})},
+                ...(body?{body:body instanceof FormData?body:JSON.stringify(body)}:{})
+              });
+            } catch {throw new Error(label+": transport outcome unknown; no retry performed");}
+            if(absent && response.status===404) {await response.body?.cancel();return null;}
+            const text=await boundedText(response);
+            let data;try {data=JSON.parse(text);} catch {throw new Error(label+": unexpected control response; no retry performed");}
+            if(!response.ok || data.success!==true) throw new Error(label+": HTTP "+response.status+"; codes="+(data.errors??[]).map(e=>e.code).join(",")+"; stop, no retry");
+            receipt.steps.push({label,method,status:response.status});
+            return data.result;
+          }
+          async function query(id,sql,label) {
+            const result=await api("/d1/database/"+id+"/query",{method:"POST",body:{sql},label});
+            assert(Array.isArray(result) && result.every(r=>r.success===true),"D1 query did not succeed");
+            for(const r of result) {
+              assert(Number.isSafeInteger(r.meta?.rows_read) && Number.isSafeInteger(r.meta?.rows_written),"Missing D1 accounting");
+              rowsRead+=r.meta.rows_read;rowsWritten+=r.meta.rows_written;
+            }
+            assert(rowsRead<=100000 && rowsWritten<=5000,"D1 operation ceiling reached");
+            return result;
+          }
+          
+          try {
+            // No runtime requests, provider credentials or private corpus inputs enter CI.
+            const prior=await api("/workers/scripts/"+worker+"/settings",{absent:true,label:"acceptance-worker-must-be-new"});
+            assert(prior===null,"Worker already exists; collect its state, do not replay this run");
+            const reference=await api("/workers/scripts/lupine-workspace-preview/settings",{label:"read-existing-operator-configuration"});
+            const vars=Object.fromEntries((reference.bindings??[]).filter(b=>b.type==="plain_text" && ["ADMIN_EMAIL","CF_ACCESS_TEAM_DOMAIN","CF_ACCESS_AUD"].includes(b.name)).map(b=>[b.name,b.text]));
+            assert(Object.keys(vars).length===3 && typeof vars.ADMIN_EMAIL==="string" && vars.ADMIN_EMAIL.includes("@"),"Existing operator configuration incomplete");
+            console.log("::add-mask::"+vars.ADMIN_EMAIL);
+            assert(vars.CF_ACCESS_TEAM_DOMAIN==="welcing" && vars.CF_ACCESS_AUD==="69ad2c925512f26e58e915e44ccaf013b5d80f4818ad250d581c44d47b0d7e02","Access configuration changed");
+            const bucketState=await api("/r2/buckets/"+bucket,{label:"read-private-bucket-identity"});
+            assert(bucketState.name===bucket,"Bucket identity mismatch");
+            const managed=await api("/r2/buckets/"+bucket+"/domains/managed",{label:"verify-r2-development-url-disabled"});
+            const custom=await api("/r2/buckets/"+bucket+"/domains/custom",{label:"verify-no-r2-custom-domains"});
+            assert(managed.enabled===false && Array.isArray(custom.domains) && custom.domains.length===0,"Bucket public access differs from approval");
+            for(const [name,id] of databases) {
+              const db=await api("/d1/database/"+id,{label:"verify-database-"+name});
+              assert(db.uuid===id && db.name===name && db.file_size<=1024*1024,"Database identity/size changed");
+              const tables=await query(id,"SELECT name FROM sqlite_schema WHERE type='table' AND name LIKE 'workspace_%';","verify-empty-schema-"+name);
+              assert(tables.flatMap(r=>r.results??[]).length===0,"Dedicated schema already exists; do not replay migrations");
+            }
+            const built=await build({entryPoints:["src/privateEvidenceAcceptance.ts"],bundle:true,format:"esm",platform:"browser",target:"es2022",write:false,minify:false,metafile:true,logLevel:"silent"});
+            assert(built.outputFiles.length===1,"Unexpected deployment outputs");
+            const bundle=built.outputFiles[0].contents;
+            assert(bundle.length<=512*1024,"Worker bundle exceeds 512KiB ceiling");
+            assert(Object.values(built.metafile.outputs).every(o=>o.imports.length===0),"Unbundled deployment dependency");
+            receipt.bundleSha256=sha(bundle);receipt.bundleBytes=bundle.length;
+            for(const [name,id] of databases) {
+              for(const file of ["0001_private_corpus.sql","0002_review_revisions.sql"]) {
+                const sql=await fs.readFile("corpus-migrations/"+file,"utf8");
+                assert(Buffer.byteLength(sql)<=16384,"Migration size changed");
+                await query(id,sql,"apply-"+file+"-"+name);
+              }
+              const verified=await query(id,"SELECT name FROM sqlite_schema WHERE type='table' AND name LIKE 'workspace_%' ORDER BY name;","verify-six-private-tables-"+name);
+              assert.deepEqual(verified.flatMap(r=>r.results??[]).map(r=>r.name),["workspace_corpus_imports","workspace_corpus_members","workspace_corpus_observations","workspace_corpus_qualifications","workspace_corpus_review_heads","workspace_evidence_receipts"]);
+            }
+            const bindings=[
+              ...Object.entries(vars).map(([name,text])=>({type:"plain_text",name,text})),
+              {type:"plain_text",name:"PRIVATE_EVIDENCE_ENABLED",text:"true"},
+              {type:"plain_text",name:"PRIVATE_CORPUS_ENABLED",text:"true"},
+              {type:"r2_bucket",name:"PRIVATE_EVIDENCE",bucket_name:bucket},
+              {type:"d1",name:"PRIVATE_CORPUS",id:databases[0][1]}
+            ];
+            assert(bindings.length===7 && bindings.every(b=>allowed.has(b.name)),"Unexpected binding");
+            const metadata={main_module:"worker.js",bindings,compatibility_date:"2026-04-25",compatibility_flags:[],logpush:false,tail_consumers:[],observability:{enabled:false}};
+            const form=new FormData();
+            form.set("metadata",new Blob([JSON.stringify(metadata)],{type:"application/json"}));
+            form.set("worker.js",new Blob([bundle],{type:"application/javascript+module"}),"worker.js");
+            const uploaded=await api("/workers/scripts/"+worker,{method:"PUT",body:form,label:"upload-isolated-pinned-worker"});
+            receipt.deploymentId=uploaded.deployment_id??null;
+            // Leave activation to the separately checked Access/domain step.
+            const routing=await api("/workers/scripts/"+worker+"/subdomain",{method:"POST",body:{enabled:false,previews_enabled:false},label:"disable-worker-and-preview-urls"});
+            assert(routing.enabled===false && routing.previews_enabled===false,"Routing disable acknowledgement differs");
+            const settings=await api("/workers/scripts/"+worker+"/settings",{label:"verify-isolated-bindings"});
+            assert.deepEqual((settings.bindings??[]).map(b=>b.name).sort(),[...allowed].sort(),"Live binding names differ");
+            for(const expected of bindings) {
+              const actual=settings.bindings.find(b=>b.name===expected.name);
+              for(const [k,v] of Object.entries(expected)) assert.equal(actual[k],v,"Live binding mismatch: "+expected.name);
+            }
+            assert(settings.observability?.enabled===false,"Observability was not disabled");
+            receipt.status="deployed_disabled_schema_verified_acceptance_pending";
+          } catch(error) {
+            receipt.status="stopped_no_retry";receipt.error=String(error.message).slice(0,400);
+            process.exitCode=1;
+          } finally {
+            Object.assign(receipt,{requests,rowsRead,rowsWritten,finishedAt:new Date().toISOString()});
+            console.log(JSON.stringify(receipt,null,2));
+            await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,"\n### Isolated private acceptance preparation\n\n```json\n"+JSON.stringify(receipt,null,2)+"\n```\n");
+          }
+          PILOT_NODE
