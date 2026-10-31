@@ -49,6 +49,8 @@ import { workspaceProgressResponse } from "./workspace/progress";
 import { researchRunsResponse } from "./workspace/researchRuns";
 import { proofJobsResponse } from "./workspace/proofJobs";
 import { researchActivityResponse } from "./workspace/researchActivity";
+import { discoveryPublicationPublicResponse } from "./workspace/discoveryPublication";
+export { ResearchPublication } from "./workspace/ResearchPublication";
 import { workspaceHtml, workspaceJavaScript } from "./workspace/html";
 import { checkWorkspaceRequest, isWorkspaceRoute, WORKSPACE_PRIVATE_HEADERS } from "./middleware/workspaceAccess";
 import { generateResearchText } from "./agents/models";
@@ -197,6 +199,8 @@ const baseHandler = {
 
       // Reviewed public activity has a separate table and strict operator import.
       // Handle it before Access gating and before generic unbounded body parsing.
+      const publicationResponse = await discoveryPublicationPublicResponse(request, env);
+      if (publicationResponse) return publicationResponse;
       const activityResponse = await researchActivityResponse(request, env);
       if (activityResponse) return activityResponse;
 
