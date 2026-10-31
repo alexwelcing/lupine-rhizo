@@ -79,6 +79,23 @@ describe("public discovery contract",()=>{
       (v:DiscoveryPublication)=>{v.evidence.sources[0].reference="src-"+hash(99);},(v:DiscoveryPublication)=>{v.evidence.report.claims[0].sourceReferences=["src-"+hash(99)];}]){
       const bad=structuredClone(p);mutate(bad);await expect(decodeDiscoveryPublication(bad)).rejects.toThrow();}
   });
+  it("retains train/validation/test prose while rejecting path variants and original-byte overflow",async()=>{
+    for(const text of ["train/validation/test","A train/validation/test split.","Use (train/validation/test), then compare."])
+      expect(isDiscoveryEvidenceText(text),text).toBe(true);
+    for(const text of ["work/train/validation/test","/train/validation/test","train/validation/test/private","train/validation/test.txt",
+      "xtrain/validation/test","train/validation/testx","αtrain/validation/test","train/validation/testα","train/validation/test-other",
+      "train/validation/test%2Fprivate","train/validation/test%252Fprivate","train/validation/test\u0301","\u0301train/validation/test","KOKKOS/GPU/OPENMP%2Fprivate","Train/validation/test","train/validation/other","train/validation/test and work/private/file","train/validation/test user@example.org"])
+      expect(isDiscoveryEvidenceText(text),text).toBe(false);
+    const p=await publication(),summary="A MACE demonstration uses a simple train/validation/test split.",statement="A train/validation/test split may overstate generalization.";
+    p.evidence.report.summary=summary;p.evidence.report.claims[0].statement=statement;await repin(p);
+    const before=canonicalPublicJson(p),accepted=await decodeDiscoveryPublication(p);
+    expect(accepted.evidence.report.summary).toBe(summary);expect(accepted.evidence.report.claims[0].statement).toBe(statement);
+    expect(canonicalPublicJson(p)).toBe(before);expect(isPublicText(summary)).toBe(false);
+    p.record.summary=summary;await expect(decodeDiscoveryPublication(p)).rejects.toThrow();
+    p.record.summary="Public scientific evidence report.";p.evidence.report.summary="train/validation/test "+"é".repeat(890);await repin(p);
+    expect(new TextEncoder().encode(p.evidence.report.summary).length).toBeGreaterThan(1800);
+    await expect(decodeDiscoveryPublication(p)).rejects.toThrow();
+  });
   it.each(["/Users/person/private.txt","user@example.org","Bearer abcdefghijklmno","work/private/result.txt","<script>bad</script>","private\nsecond line"])("quarantines unsafe report text %s",async text=>{
     const p=await publication();p.evidence.report.claims[0].statement=text;await repin(p);await expect(decodeDiscoveryPublication(p)).rejects.toThrow();
   });

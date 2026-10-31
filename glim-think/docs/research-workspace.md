@@ -17,6 +17,9 @@ this is not a multi-tenant workspace with per-user isolation.
   discovery, independent critique, decision, source links and execution receipts.
   Pending, stopped and completed discussions remain distinct. Chat can read the
   same saved runs through `read_research_runs`, one scientific packet at a time.
+- Open **Library corrections** to preview a reviewed clarification of an existing
+  public completed or failed record, then explicitly publish its attributed
+  successor while retaining the original record.
 - Follow **See the research** to the public
   [Lupine Library Research Index](https://library.lupine.science/#/read/research-index).
 
@@ -123,6 +126,35 @@ Local previews may set `DEV_MODE=true` in an untracked `.dev.vars`; never set
 it on a deployed worker. A successful bundle or mocked test is not proof of
 live authentication, provider entitlement, streaming, or cross-device recovery.
 Validate those on an authenticated staging deployment before production use.
+
+## Public Library clarifications
+
+Open `/workspace?view=library-corrections` and select one reviewed public-activity
+JSON file, or paste its contents (at most 16 KiB). File selection stays in the
+browser. **Preview correction** validates the existing public schema and reads
+only the exact public original named by `supersedes`. Compare the original and
+clarified summaries, identities, outcome, attribution, limits, all proposed
+public fields and their fingerprints before checking the review confirmation.
+**Publish clarification to Library** is the only write action.
+
+The form uses the existing same-origin
+`POST /workspace/research-activity/import` endpoint. This requires a verified
+operator Access session and configured operator email; development and service
+token bypasses do not apply. No new token, authentication scope or permission is
+introduced. The form preserves the original activity, evidence kind, observation
+time and terminal outcome. A later review and correction reason are required.
+Inherited discovery evidence must be labelled as original evidence rather than
+claiming a new `Public evidence` or `Source availability notice` sidecar.
+The server retains its append-only schema and ancestry checks, including fork
+rejection. Neither the UI nor import performs research, invokes a model, or
+turns a local review into a hosted agent response.
+
+Publication is confirmed only after the exact new record is read back and the
+original matches its preview fingerprint. A denied, conflicting or interrupted
+submission is never retried automatically. **Check published record** performs
+only readback; keep the prepared payload if publication remains unconfirmed.
+The clarification is a public activity/history record. Generic clarifications
+do not create new discovery knowledge nodes or scientific evidence sidecars.
 
 ## Private local research receipts
 

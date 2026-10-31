@@ -13,11 +13,11 @@ export const publicationIdSchema = z.string().regex(/^discovery-[a-f0-9]{64}$/);
 const topicId = z.string().regex(/^topic-[a-f0-9]{64}$/);
 const reference = z.string().regex(/^src-[a-f0-9]{64}$/);
 const role = z.enum(DISCOVERY_ROLES);
-/** One scientific package-family token, not a general path exception. Apply
+/** Exact scientific identifiers, not a general path exception. Apply
  * only to discovery evidence checks; never change retained bytes or the older
  * activity-v1 publication contract. Prefix/suffix paths and extensions fail. */
 export function isDiscoveryEvidenceText(value:string):boolean {
-  return isPublicText(value.replace(/(?<![\p{L}\p{N}_.\/\\-])KOKKOS\/GPU\/OPENMP(?![\p{L}\p{N}_\/\\-]|\.[\p{L}\p{N}_])/gu,"KOKKOS_GPU_OPENMP"));
+  return isPublicText(value.replace(/(?<![\p{L}\p{M}\p{N}_.%\/\\-])(?:KOKKOS\/GPU\/OPENMP|train\/validation\/test)(?![\p{L}\p{M}\p{N}_%\/\\-]|\.[\p{L}\p{M}\p{N}_])/gu,token=>token.replaceAll("/","_")));
 }
 const text = (bytes: number) => z.string().min(1).max(bytes).refine(isDiscoveryEvidenceText)
   .refine(value => new TextEncoder().encode(value).length <= bytes);
