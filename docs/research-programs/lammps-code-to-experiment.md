@@ -1,5 +1,7 @@
 # LAMMPS as a research instrument: from source code to trustworthy experiments
 
+Date: 2026-10-31
+
 *31 October 2026 · Local source review and proposed research program · No new simulation results*
 
 LAMMPS should be a first-class research instrument in Lupine: software whose numerical choices we understand, a controlled execution backend, and a source of testable scientific questions. This article starts that work by reading an immutable source revision, connecting its implementation boundaries to our existing materials research, and proposing a small experiment that can expose mistakes before a larger campaign begins.
