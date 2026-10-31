@@ -56,7 +56,11 @@ function harness() {
   function statement(sql: string, values: unknown[] = []): D1PreparedStatement {
     return { bind: (...bound: unknown[]) => statement(sql, [...values, ...bound]),
       first: async () => db.prepare(sql).get(...values) ?? null,
-      all: async () => ({ results: db.prepare(sql).all(...values), success: true, meta: {} }),
+      all: async () => {
+        if (/^INSERT INTO public_research_activity\b/.test(sql)) hooks.beforeRun?.();
+        const results = db.prepare(sql).all(...values);
+        return { results, success: true, meta: { changes: Number(db.prepare("SELECT changes() AS n").get().n) } };
+      },
       run: async () => { hooks.beforeRun?.(); return { results: [], success: true, meta: { changes: Number(db.prepare(sql).run(...values).changes) } }; },
     } as unknown as D1PreparedStatement;
   }

@@ -121,11 +121,16 @@ export async function importPublicResearchActivity(env: Pick<Env, "LEDGER">, val
   // ON CONFLICT does not mutate an existing record or manufacture a retry.
   const saved = await env.LEDGER.prepare(`INSERT INTO public_research_activity
     (id, activity_id, observed_at, reviewed_at, supersedes_id, payload_sha256, payload)
-    VALUES(?,?,?,?,?,?,?) ON CONFLICT DO NOTHING`)
-    .bind(record.id, record.activityId, record.observedAt, record.reviewedAt, record.supersedes, fingerprint, payload).run();
-  if (!saved.success) throw new Error();
-  if (saved.meta.changes !== 1) throw new Conflict();
-  return { record, duplicate: false };
+    VALUES(?,?,?,?,?,?,?) ON CONFLICT DO NOTHING RETURNING id`)
+    .bind(record.id, record.activityId, record.observedAt, record.reviewedAt, record.supersedes, fingerprint, payload).all<{ id: string }>();
+  if (!saved.success || !Array.isArray(saved.results) || !Number.isSafeInteger(saved.meta.changes) || saved.meta.changes < 0) throw new Error();
+  // D1 changes includes the archive trigger's insert. RETURNING identifies the
+  // one top-level row; aggregate changes alone cannot acknowledge publication.
+  if (saved.results.length === 0 || saved.meta.changes === 0) throw new Conflict();
+  if (saved.results.length !== 1 || Object.keys(saved.results[0]).sort().join() !== "id" || saved.results[0].id !== record.id) throw new Error();
+  const committed = await getPublicResearchActivity(env, record.id);
+  if (!committed || JSON.stringify(committed) !== payload) throw new Error();
+  return { record: committed, duplicate: false };
 }
 
 async function readBounded(request: Request): Promise<string> {
