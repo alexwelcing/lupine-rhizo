@@ -1,0 +1,288 @@
+{
+  "schema": "lupine-lammps-source-contract-experiment-proposal/v2",
+  "title": "Does the LAMMPS Cu EAM force and full virial tensor match energy derivatives?",
+  "preparedAt": "2026-10-31T20:34:16.036141+00:00",
+  "status": "PROPOSED-NOT-RUN",
+  "executionEligible": false,
+  "liveOperationId": null,
+  "actualEvaluations": 0,
+  "objective": "Qualify the LAMMPS energy/force/stress data contract on a nontrivial many-body periodic solid before importing MLIP results into the research system.",
+  "sourcePin": {
+    "tag": "stable_30Sep2026",
+    "commit": "8de817dd79bfe4525d5d39246a212d833e6dee07",
+    "potential": "potentials/Cu_u3.eam",
+    "potentialSha256": "3436c491a4c75ea8b7141adbc6ee382a118f5fdb47f609c2a660fc1eb772599f"
+  },
+  "scientificScope": {
+    "kind": "numerical implementation and integration qualification",
+    "isPhysicalValidation": false,
+    "isMLIPTransferabilityEvidence": false,
+    "isIndependentPotentialValidation": false,
+    "whyNew": "Exercises LAMMPS EAM interpolation, embedding-force chain rule, periodic virial, full six-component strain response, and signed/unit-aware output. It does not repeat the old two-atom LJ, four-atom EMT, or NEP development-set audit."
+  },
+  "hypothesis": "For this fixed Cu EAM solid, LAMMPS Cartesian forces equal minus the central energy derivative and its pair-only global pressure equals minus the affine strain-energy derivative divided by baseline volume; sum(stress/atom)/volume equals the negative pressure tensor.",
+  "system": {
+    "atoms": 108,
+    "species": [
+      "Cu"
+    ],
+    "atomTypeCount": 1,
+    "atomicMassGramsPerMole": 63.55,
+    "lattice": "FCC, 3 x 3 x 3 conventional cells; 4 basis sites/cell",
+    "a0Angstrom": 3.615,
+    "basisFractional": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0.5,
+        0.5
+      ],
+      [
+        0.5,
+        0,
+        0.5
+      ],
+      [
+        0.5,
+        0.5,
+        0
+      ]
+    ],
+    "ordering": "Enumerate ix=0..2 outermost, iy=0..2, iz=0..2, basis index=0..3 innermost; atom ID = 1 + 4*(9*ix+3*iy+iz)+basis index.",
+    "baselineCell": "H0 = diag(3*a0*1.010, 3*a0*0.995, 3*a0*1.002); Cartesian column vectors r = H0*s.",
+    "fractionalCoordinates": "s = (cell index + basis)/3; add the Cartesian perturbation below, then wrap through H0 into [0,1).",
+    "perturbation": "For atom ID i, raw displacement in Angstrom = 0.01*[sin(17*i), cos(13*i), sin(7*i)] using radians; subtract the mean displacement over all 108 atoms. Freeze generated Cartesian positions to 15 significant decimal digits before execution and retain their checksum.",
+    "boundary": [
+      "periodic",
+      "periodic",
+      "periodic"
+    ],
+    "velocityAngstromPerPs": [
+      0,
+      0,
+      0
+    ],
+    "minimize": false,
+    "dynamicsSteps": 0,
+    "fixtureChecks": [
+      "Exactly108 finite unique IDs and type1 only",
+      "Positive cell determinant",
+      "All pair minimum-image distances >2.2 Angstrom",
+      "All evaluated structures remain at least0.02 Angstrom away from the4.95 Angstrom force cutoff for every pair distance",
+      "Minimum perpendicular cell height >2*4.95 Angstrom",
+      "No EAM density-table extrapolation warning; any such warning makes the case unqualified"
+    ],
+    "inputDataSha256": null,
+    "fixtureGeneratorSha256": null
+  },
+  "lammpsConfiguration": {
+    "units": "metal",
+    "length": "Angstrom",
+    "energy": "eV",
+    "force": "eV/Angstrom",
+    "pressure": "bar",
+    "stressAtom": "bar*Angstrom^3",
+    "atomStyle": "atomic",
+    "pairStyle": "eam",
+    "pairCoeff": "* * Cu_u3.eam",
+    "newton": "on",
+    "neighbor": "0.3 bin",
+    "neighModify": "every 1 delay 0 check yes",
+    "suffix": "none",
+    "accelerator": "none",
+    "mpiRanks": 1,
+    "cpuThreads": 1,
+    "gpuDevices": 0,
+    "computes": [
+      "compute PE all pe pair",
+      "compute P all pressure NULL pair",
+      "compute S all stress/atom NULL pair",
+      "compute Ssum all reduce sum c_S[1] c_S[2] c_S[3] c_S[4] c_S[5] c_S[6]"
+    ],
+    "staticEvaluation": "Each fresh structure receives run 0 with default pre yes. Never use pre no after changing positions or box; no integrator or thermostat is installed.",
+    "tensorOrder": [
+      "xx",
+      "yy",
+      "zz",
+      "xy",
+      "xz",
+      "yz"
+    ],
+    "metalEnergyDensityToBar": 1602176.5,
+    "conversionSource": "src/update.cpp Update::set_units metal branch, line181. This code-contract test uses the exact pinned LAMMPS constant, not a silently substituted modern SI rounding."
+  },
+  "evaluationPlan": {
+    "baseline": 1,
+    "forceProbeAtomId": 54,
+    "forceProbeAxes": [
+      "x",
+      "y",
+      "z"
+    ],
+    "forceStepsAngstrom": [
+      0.001,
+      0.0005,
+      0.00025
+    ],
+    "forcePerturbedEvaluations": 18,
+    "strainComponents": [
+      "xx",
+      "yy",
+      "zz",
+      "xy",
+      "xz",
+      "yz"
+    ],
+    "strainStepsDimensionless": [
+      0.0001,
+      5e-05,
+      2.5e-05
+    ],
+    "strainPerturbedEvaluations": 36,
+    "totalStaticEvaluations": 55,
+    "additionalRetryEvaluations": 0,
+    "forcePerturbation": "For each axis/step/sign, restore exact baseline then displace only atom54 by +/-h along that Cartesian axis at fixed H0. Wrap only as a representation change; retain unwrapped intended coordinate.",
+    "strainPerturbation": "For each component/step/sign, restore exact baseline then H(g)=F(g)*H0 and r_i(g)=F(g)*r_i0 at fixed fractional coordinates. xx/yy/zz: F=I+g*e_a*e_a^T. xy/xz/yz: F=I+g*e_a*e_b^T with a<b; these are engineering simple-shear parameters, not symmetric tensor strains. No factor of2 is added.",
+    "energyFormat": "Retain total pair energy using at least17 significant decimal digits; do not use normalized per-atom thermo energy for derivatives."
+  },
+  "observables": {
+    "forceFiniteDifference": "F_FD(i,a;h) = -[U(r_i+h e_a)-U(r_i-h e_a)]/(2h)",
+    "pressureFiniteDifference": "P_FD(ab;h) = -1602176.5*[U(F(+h))-U(F(-h))]/(2*h*V0) bar, where the exact deformation generators above define each derivative and V0=det(H0).",
+    "pressureStressJoin": "For each evaluated configuration g and all6 components: P_LAMMPS(g)[ab] + sum_i S_i(g)[ab]/V(g) =0 in bar; V(g)=det(H(g)). Use pair-only terms on both sides. V(g)=V0 only for baseline and fixed-cell atom displacements.",
+    "forceBalance": "sum_i F_i=0 within a floating-point-scaled residual; record all three components without using this identity alone to certify correctness.",
+    "outputPerEvaluation": [
+      "total pair energy",
+      "box matrix and volume",
+      "IDs/types/positions/forces",
+      "six pair-only pressure components",
+      "six summed per-atom stress components",
+      "process exit and bounded stdout/stderr",
+      "potential and binary identity"
+    ],
+    "comparisonTargets": "Every finite-difference estimate is compared against forces or pressure from the single unperturbed baseline configuration. V0 is used only in the baseline strain-energy derivative. The per-atom/global stress closure is checked independently at every one of the55 configurations using that configuration's own volume."
+  },
+  "predeclaredAcceptance": {
+    "finiteValuesAndIdentity": "Every required scalar/vector finite; exactly108 atoms/IDs and exact intended box/coordinates within text-rounding tolerance; all55 outputs present once.",
+    "forceAtSmallestStep": "For each of3 axes: |F-F_FD| <=1e-5 +2e-4*max(|F|,|F_FD|) eV/Angstrom.",
+    "pressureAtSmallestStep": "For all6 components: |P-P_FD| <=0.1 +2e-4*max(|P|,|P_FD|) bar.",
+    "twoFinestForceAgreement": "|F_FD(h/2)-F_FD(h/4)| <=2e-5 +2e-4*max(abs of those estimates) eV/Angstrom.",
+    "twoFinestPressureAgreement": "|P_FD(h/2)-P_FD(h/4)| <=0.2 +2e-4*max(abs of those estimates) bar.",
+    "stressPressureIdentity": "For each of55 evaluated configurations and all6 components: |P(g)+sum(S(g))/V(g)| <=1e-6 +1e-10*max(|P(g)|,|sum(S(g))/V(g)|) bar.",
+    "rationale": "These are proposed numerical contract tolerances, not copper accuracy thresholds. Three steps expose truncation/roundoff or table-knot sensitivity. Absolute floors avoid meaningless relative errors near zero. The EAM interpolation is tabulated, so a universal fourfold h-halving improvement is not assumed. Both the smallest-step residual and two-finest-step agreement must pass; observed failure cannot be repaired by silently changing tolerance or spending extra evaluations.",
+    "falsifier": "Any finite-difference or sign/unit/tensor-order residual above its threshold, nonconvergent two-finest estimate, wrong/missing identity, warning, or process failure leaves this contract unqualified; retain all results for a separately reviewed correction."
+  },
+  "bounds": {
+    "maxAtoms": 108,
+    "maxStaticEvaluations": 55,
+    "maxTimeSteps": 0,
+    "maxProcesses": 55,
+    "maxConcurrentProcesses": 1,
+    "maxSecondsPerProcess": 2,
+    "maxTotalExecutionWallSeconds": 150,
+    "maxResidentMemoryMiB": 512,
+    "maxRawOutputBytesPerProcess": 65536,
+    "maxTotalArtifactBytes": 8388608,
+    "maxPublicSummaryBytes": 65536,
+    "providerInvocations": 0,
+    "networkDuringExecution": false,
+    "automaticRetries": 0,
+    "paidCloudCompute": false,
+    "automaticNextStage": false
+  },
+  "requiredBeforeExecution": [
+    "A concrete reviewed adapter/runner with checksum that enforces55 fixed evaluations, time/memory/output limits, offline execution and terminal cleanup.",
+    "Exact LAMMPS executable SHA256, platform/architecture, compiler/toolchain/flags, package list proving MANYBODY, and pinned-source build receipt; an executable version string alone is insufficient.",
+    "Freeze generated input.data, generator, every evaluated coordinate/cell projection, analysis code and manifest SHA256; all null pins must be resolved in a new immutable executable manifest, not edited into this proposal.",
+    "Confirm approved local compute resource and available disk/memory without changing historical research tasks or scheduled check-ins.",
+    "Independently review affine shear tensor convention and planned fixture cutoff/table-domain checks."
+  ],
+  "notYetPinned": {
+    "executableSha256": null,
+    "runnerSha256": null,
+    "analysisSha256": null,
+    "compilerIdentity": null,
+    "platform": null
+  },
+  "followOnIfQualified": {
+    "automatic": false,
+    "proposal": "Reuse this exact output contract on a separately chosen and versioned MLIP, then investigate a held-out strained/defect configuration chain against independently qualified DFT or measured references. Same-engine finite-difference agreement is necessary for an adapter but cannot establish transferability.",
+    "mustNotInfer": [
+      "No claim that Cu_u3 is accurate for all copper states",
+      "No CrCoNi defect/damage conclusions",
+      "No validation of earlier NEP development labels",
+      "No MLIP superiority from classical EAM checks",
+      "No causal knowledge graph edge from source review alone"
+    ]
+  },
+  "sources": [
+    {
+      "path": "doc/src/compute_pressure.rst",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/doc/src/compute_pressure.rst",
+      "bytes": 6673,
+      "sha256": "2815af22bb3b1d50910721eaf3a9bfe20357c8f64eb5b1fe14efed08c21433fc"
+    },
+    {
+      "path": "doc/src/compute_stress_atom.rst",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/doc/src/compute_stress_atom.rst",
+      "bytes": 14730,
+      "sha256": "c4a0a48c58c3718fc69f99cbb4184c240da768784e0f5716d5a1e9c7185daab6"
+    },
+    {
+      "path": "doc/src/pair_eam.rst",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/doc/src/pair_eam.rst",
+      "bytes": 22547,
+      "sha256": "c43198156f499a21fb29cbe5a53dd69823ba41cd0361da72c34246ebed549cc7"
+    },
+    {
+      "path": "doc/src/run.rst",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/doc/src/run.rst",
+      "bytes": 8637,
+      "sha256": "f61fbf8afe271325d8aefd664039de42de1d30ea26fd05c954aa37cffce9f9d6"
+    },
+    {
+      "path": "potentials/Cu_u3.eam",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/potentials/Cu_u3.eam",
+      "bytes": 36588,
+      "sha256": "3436c491a4c75ea8b7141adbc6ee382a118f5fdb47f609c2a660fc1eb772599f"
+    },
+    {
+      "path": "src/MANYBODY/pair_eam.cpp",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/src/MANYBODY/pair_eam.cpp",
+      "bytes": 51485,
+      "sha256": "579fe5221d8e5e598553b238e5a3f7f8b54c7127cd41ef89fad635fa7c7efcaf"
+    },
+    {
+      "path": "src/compute_pressure.cpp",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/src/compute_pressure.cpp",
+      "bytes": 11841,
+      "sha256": "a263602b7a1c7d77c4fa03a5e39ff42a4a66ffcf10606d59687b436ce82d1c92"
+    },
+    {
+      "path": "src/compute_stress_atom.cpp",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/src/compute_stress_atom.cpp",
+      "bytes": 11904,
+      "sha256": "af19e935071a20bd3beb0c46b3a366c15e559738b1612f7ac7deb5835f3529a2"
+    },
+    {
+      "path": "src/update.cpp",
+      "url": "https://github.com/lammps/lammps/blob/8de817dd79bfe4525d5d39246a212d833e6dee07/src/update.cpp",
+      "bytes": 15794,
+      "sha256": "11eb34cf222b67fcbb532bbc5eceb34db9d0a9fbfd3846939d067242f0bc0dba"
+    }
+  ],
+  "priorEvidenceRead": {
+    "path": "outputs/lupine-research-team/receipts/continuous-nep-hosted-audit.json",
+    "sha256": "acdaa742cc3ad1481ce2b4b54cec3094be4cb6d784ab0ebf2c062dc7f4b63be6",
+    "relevance": "Existing33-check hosted audit already used3x108-atom frames and11 evaluations including force/isotropic-pressure derivatives; preserve it separately."
+  },
+  "executionReady": false,
+  "supersedesProposal": {
+    "path": "experiment-proposal.json",
+    "sha256": "b954790b0e2155a10c743b497eabca123de4b609ebe690fd486659ebca7b534f",
+    "reason": "Separate baseline-volume finite-difference comparison from each evaluated configuration's own-volume stress closure."
+  }
+}
