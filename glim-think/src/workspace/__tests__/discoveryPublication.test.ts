@@ -8,9 +8,11 @@ import { canonicalPublicJson, decodeDiscoveryPublication, DISCOVERY_ROLES, isDis
 import { discoveryProjection, discoveryPublicationPublicResponse, discoveryPublicationServiceResponse, publishDiscovery } from "../discoveryPublication";
 import { archivePublicResearchActivity, researchActivityResponse } from "../researchActivity";
 import { isPublicText, publicActivitySha256 } from "../researchActivityContracts";
+import { decodeDiscoveryWithdrawal, type DiscoveryWithdrawal } from "../discoveryWithdrawalContracts";
+import { publishDiscoveryWithdrawal } from "../discoveryWithdrawal";
 
 const base=(import.meta as ImportMeta & {url:string}).url;
-const migrations=["0021_public_research_activity.sql","0023_public_activity_archive.sql","0024_discovery_publication.sql"]
+const migrations=["0021_public_research_activity.sql","0023_public_activity_archive.sql","0024_discovery_publication.sql","0025_discovery_source_availability.sql"]
   .map(name=>readFileSync(new URL("../../../migrations/"+name,base),"utf8"));
 const databases:InstanceType<typeof DatabaseSync>[]=[];
 afterEach(()=>{for(const db of databases.splice(0))db.close();});
@@ -258,5 +260,113 @@ describe("service boundary and public retrieval",()=>{
     expect((await last.json() as any).coverage.complete).toBe(true);
     for(const query of ["limit=11","after=-1","after=1&after=2","snapshot=999","unknown=1"])
       expect((await discoveryPublicationPublicResponse(publicRequest("/research/knowledge?"+query),h.env))?.status).toBe(400);
+  });
+});
+
+async function withdrawal(p:DiscoveryPublication,changes:Partial<DiscoveryWithdrawal>={}):Promise<DiscoveryWithdrawal>{
+  const core={schema:"lupine.discovery_source_withdrawal.v1" as const,producer:"lupine-research-team-v02" as const,
+    publicationId:p.record.id,recordSha256:await publicActivitySha256(JSON.stringify(p.record)),
+    evidenceSha256:await publicActivitySha256(canonicalPublicJson(p.evidence)),sourceSemanticSha256:p.evidence.sources[0].semanticSha256,
+    observedAt:"2026-10-02T10:00:00.000Z",...changes};
+  delete (core as Partial<DiscoveryWithdrawal>).id;
+  return {...core,id:"withdrawal-"+await publicActivitySha256(canonicalPublicJson(core))};
+}
+
+describe("additive source availability publication",()=>{
+  it("publishes a linked notice to the existing archive and graph without changing any original bytes",async()=>{
+    const h=harness(),p=await publication();await publishDiscovery(h.env,p);
+    const before=await (await discoveryPublicationPublicResponse(publicRequest(`/research/activity/${p.record.id}/evidence`),h.env))!.text();
+    const original=h.db.prepare("SELECT * FROM public_discovery_evidence").all();
+    const notice=await withdrawal(p),response=await discoveryPublicationServiceResponse(serviceRequest(notice),h.env),ack=await response.json() as any;
+    expect(response.status).toBe(200);expect(ack).toEqual({schema:"lupine.discovery_source_withdrawal_ack.v1",id:notice.id,
+      payloadSha256:await publicActivitySha256(canonicalPublicJson(notice)),duplicate:false,knowledgeProjected:true});
+    const archive=await archivePublicResearchActivity(h.env);
+    expect(archive.records.map(x=>x.id)).toEqual([p.record.id,notice.id]);
+    const record=archive.records[1];expect(record.supersedes).toBeNull();expect(record.activityId).toBe(notice.id);
+    expect(record.limitations[0]).toContain("does not establish publisher retraction");expect(record.verification).toBe("pending");
+    expect(record.sources).toEqual([{label:"Affected cited source",url:p.evidence.sources[0].url}]);
+    const graph=(await discoveryPublicationPublicResponse(publicRequest("/research/knowledge"),h.env))!;
+    const body=await graph.json() as any;expect(graph.status).toBe(200);expect(body.publicationIds).toEqual([p.record.id,notice.id]);
+    expect(body.edges).toContainEqual({from:"publications/"+notice.id,to:"publications/"+p.record.id,kind:"publication:availability-notice-for",label:"Original report preserved"});
+    expect(body.edges.some((e:any)=>e.kind==="publication:source-withdrawn-from-feed"&&e.to==="publication-sources/"+p.evidence.sources[0].reference)).toBe(true);
+    expect(h.db.prepare("SELECT * FROM public_discovery_evidence").all()).toEqual(original);
+    expect(await (await discoveryPublicationPublicResponse(publicRequest(`/research/activity/${p.record.id}/evidence`),h.env))!.text()).toBe(before);
+    const read=(await discoveryPublicationPublicResponse(publicRequest(`/research/activity/${notice.id}/evidence`),h.env))!;
+    expect(await read.text()).toBe(canonicalPublicJson(notice));
+    expect(h.queries.some(sql=>/workspace_research|FROM claims|FROM hypotheses/.test(sql))).toBe(false);
+  });
+  it("exact retries do not grow the archive, graph or change notice timestamps",async()=>{
+    const h=harness(),p=await publication();await publishDiscovery(h.env,p);const notice=await withdrawal(p);await publishDiscoveryWithdrawal(h.env,notice);
+    const before=h.db.prepare("SELECT * FROM knowledge_documents ORDER BY concept_id").all();
+    expect((await publishDiscoveryWithdrawal(h.env,notice)).duplicate).toBe(true);
+    expect(h.scalar("SELECT count(*) FROM public_activity_archive_sequence")).toBe(2);
+    expect(h.scalar("SELECT count(*) FROM public_discovery_withdrawals")).toBe(1);
+    expect(h.db.prepare("SELECT * FROM knowledge_documents ORDER BY concept_id").all()).toEqual(before);
+    for(const sql of ["UPDATE public_discovery_withdrawals SET payload='{}'", "DELETE FROM public_discovery_withdrawals", "DELETE FROM public_discovery_withdrawal_nodes"])
+      expect(()=>h.db.exec(sql)).toThrow();
+  });
+  it("rejects wrong original hashes, uncited source and missing publication before mutation",async()=>{
+    const h=harness(),p=await publication(),notice=await withdrawal(p);
+    await expect(publishDiscoveryWithdrawal(h.env,notice)).rejects.toMatchObject({code:"publication_dependency_missing"});
+    await publishDiscovery(h.env,p);
+    for(const patch of [{recordSha256:hash(31)},{evidenceSha256:hash(32)},{sourceSemanticSha256:hash(33)}])
+      await expect(publishDiscoveryWithdrawal(h.env,await withdrawal(p,patch))).rejects.toMatchObject({code:"publication_conflict"});
+    expect(h.scalar("SELECT count(*) FROM public_research_activity")).toBe(1);
+    expect(h.scalar("SELECT count(*) FROM public_discovery_withdrawals")).toBe(0);
+  });
+  it("rejects extra text, accessors, duplicate wire keys and noncanonical or future observation times",async()=>{
+    const h=harness(),p=await publication(),notice=await withdrawal(p);let accessed=false;
+    const getter={...notice};Object.defineProperty(getter,"observedAt",{get(){accessed=true;return notice.observedAt;}});
+    await expect(decodeDiscoveryWithdrawal(getter)).rejects.toThrow();expect(accessed).toBe(false);
+    for(const bad of [{...notice,title:"Private supplied content"},{...notice,url:"https://example.com"},{...notice,id:"withdrawal-"+hash(1)},
+      await withdrawal(p,{observedAt:"2099-01-01T00:00:00.000Z"}),await withdrawal(p,{observedAt:"2026-02-31T00:00:00.000Z"})])
+      expect((await discoveryPublicationServiceResponse(serviceRequest(bad),h.env)).status).toBe(400);
+    const raw=canonicalPublicJson(notice),duplicate=raw.replace('"producer":','"producer":"lupine-research-team-v02","producer":');
+    for(const text of [" "+raw,duplicate])expect((await discoveryPublicationServiceResponse(new Request("https://receiver.internal/publish",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:text}),h.env)).status).toBe(400);
+    expect(h.queries).toHaveLength(0);
+  });
+  it("rolls all notice writes back when the transaction fails, preserving original publication",async()=>{
+    for(const failBatchAt of [0,1,2,3,4,5]){
+      const h=harness(),p=await publication();await publishDiscovery(h.env,p);const nodeCount=h.scalar("SELECT count(*) FROM knowledge_documents"),edgeCount=h.scalar("SELECT count(*) FROM knowledge_edges");
+      h.hooks.failBatchAt=failBatchAt;await expect(publishDiscoveryWithdrawal(h.env,await withdrawal(p))).rejects.toMatchObject({code:"publication_unavailable"});
+      expect(h.scalar("SELECT count(*) FROM public_research_activity")).toBe(1);expect(h.scalar("SELECT count(*) FROM public_activity_archive_sequence")).toBe(1);
+      expect(h.scalar("SELECT count(*) FROM public_discovery_withdrawals")).toBe(0);expect(h.scalar("SELECT count(*) FROM public_discovery_withdrawal_nodes")).toBe(0);
+      expect(h.scalar("SELECT count(*) FROM knowledge_documents")).toBe(nodeCount);expect(h.scalar("SELECT count(*) FROM knowledge_edges")).toBe(edgeCount);
+    }
+  });
+  it("lost acknowledgement retains committed notice and exact retry reconciles it",async()=>{
+    const h=harness(),p=await publication();await publishDiscovery(h.env,p);const notice=await withdrawal(p);
+    h.hooks.afterBatch=()=>{h.hooks.failReadback=true;};
+    await expect(publishDiscoveryWithdrawal(h.env,notice)).rejects.toThrow();
+    expect(h.scalar("SELECT count(*) FROM public_discovery_withdrawals")).toBe(1);
+    h.hooks.failReadback=false;h.hooks.afterBatch=undefined;
+    expect((await publishDiscoveryWithdrawal(h.env,notice)).duplicate).toBe(true);
+    expect(h.scalar("SELECT count(*) FROM public_research_activity")).toBe(2);
+  });
+  it("missing graph or event readback never acknowledges success; exact retry repairs only additive projection",async()=>{
+    const h=harness(),p=await publication();await publishDiscovery(h.env,p);const notice=await withdrawal(p);
+    h.hooks.afterBatch=()=>{h.db.exec("DROP TRIGGER publication_event_delete");h.db.prepare("DELETE FROM knowledge_events WHERE event_id=?").run("publication:"+notice.id);};
+    await expect(publishDiscoveryWithdrawal(h.env,notice)).rejects.toMatchObject({code:"publication_unavailable"});
+    h.hooks.afterBatch=undefined;h.db.exec(migrations[2]);
+    expect((await publishDiscoveryWithdrawal(h.env,notice)).duplicate).toBe(true);
+    expect((await discoveryPublicationPublicResponse(publicRequest(`/research/activity/${p.record.id}/evidence`),h.env))?.status).toBe(200);
+  });
+  it("snapshot cursor excludes later notices and new pagination includes them without changing old graph",async()=>{
+    const h=harness(),p=await publication();await publishDiscovery(h.env,p);
+    const first=await (await discoveryPublicationPublicResponse(publicRequest("/research/knowledge?limit=1"),h.env))!.json() as any;
+    const notice=await withdrawal(p);await publishDiscoveryWithdrawal(h.env,notice);
+    const old=await (await discoveryPublicationPublicResponse(publicRequest(`/research/knowledge?limit=1&snapshot=${first.cursor.snapshot}`),h.env))!.json();expect(old).toEqual(first);
+    const page1=await (await discoveryPublicationPublicResponse(publicRequest("/research/knowledge?limit=1"),h.env))!.json() as any;
+    expect(page1.coverage.complete).toBe(false);
+    const page2=await (await discoveryPublicationPublicResponse(publicRequest(`/research/knowledge?limit=1&snapshot=${page1.cursor.snapshot}&after=${page1.cursor.nextAfter}`),h.env))!.json() as any;
+    expect(page2.publicationIds).toEqual([notice.id]);expect(page2.coverage.complete).toBe(true);
+    expect(page2.hashes[0].evidenceSha256).toBe(await publicActivitySha256(canonicalPublicJson(notice)));
+  });
+  it("corrupt notice lookahead yields no partial graph page or private error detail",async()=>{
+    const h=harness(),p=await publication();await publishDiscovery(h.env,p);await publishDiscoveryWithdrawal(h.env,await withdrawal(p));
+    h.db.exec("DROP TRIGGER public_discovery_withdrawal_update; UPDATE public_discovery_withdrawals SET payload='{}'");
+    const response=(await discoveryPublicationPublicResponse(publicRequest("/research/knowledge?limit=1"),h.env))!;
+    expect(response.status).toBe(503);expect(await response.json()).toEqual({error:"Public discovery knowledge is unavailable",code:"publication_unavailable"});
   });
 });

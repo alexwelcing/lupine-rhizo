@@ -3,16 +3,18 @@ import { getPublicResearchActivity } from "./researchActivity";
 import { publicActivitySha256 } from "./researchActivityContracts";
 import { canonicalPublicJson, decodeDiscoveryEvidence, decodeDiscoveryPublication, DISCOVERY_ENVELOPE_MAX_BYTES,
   publicationIdSchema, type DiscoveryEvidence, type DiscoveryPublication, type DiscoveryPublicationAck } from "./discoveryPublicationContracts";
+import { decodeDiscoveryWithdrawal } from "./discoveryWithdrawalContracts";
+import { publishDiscoveryWithdrawal, readDiscoveryWithdrawal } from "./discoveryWithdrawal";
 
-type Database = Pick<D1Database, "prepare" | "batch">;
-type PublicationEnv = Pick<Env, "LEDGER">;
+export type Database = Pick<D1Database, "prepare" | "batch">;
+export type PublicationEnv = Pick<Env, "LEDGER">;
 export class PublicationError extends Error {
   constructor(readonly code: "publication_conflict" | "publication_dependency_missing" | "publication_unavailable", readonly status: number) { super(code); }
 }
 const conflict = () => new PublicationError("publication_conflict", 409);
 const unavailable = () => new PublicationError("publication_unavailable", 503);
 const dependency = () => new PublicationError("publication_dependency_missing", 409);
-function database(env: PublicationEnv): Database {
+export function database(env: PublicationEnv): Database {
   // First read is primary; the same D1 session joins readback to this write.
   const db = env.LEDGER as D1Database & { withSession?: (constraint: string) => Database };
   return db.withSession ? db.withSession("first-primary") : db;
@@ -22,7 +24,7 @@ export interface PublicationNode {
   tags: string[]; timestamp: string | null; body: string; sourceId: string;
 }
 export interface PublicationEdge { from: string; to: string; kind: string; label: string | null }
-interface Projection { nodes: PublicationNode[]; edges: PublicationEdge[] }
+export interface Projection { nodes: PublicationNode[]; edges: PublicationEdge[] }
 interface EvidenceRow { publication_id: string; evidence_sha256: string; record_sha256: string; projection_sha256: string; payload: string }
 const reportNode = (id: string) => "publications/" + id;
 const topicNode = (id: string) => "publication-topics/" + id;
@@ -85,7 +87,7 @@ async function evidenceRow(db: Database, id: string): Promise<EvidenceRow | null
     CASE WHEN length(CAST(payload AS BLOB))<=32768 THEN payload ELSE NULL END AS payload
     FROM public_discovery_evidence WHERE publication_id=?`).bind(id).first<EvidenceRow>();
 }
-async function readPublication(db: Database, id: string): Promise<{ publication: DiscoveryPublication; row: EvidenceRow } | null> {
+export async function readPublication(db: Database, id: string): Promise<{ publication: DiscoveryPublication; row: EvidenceRow } | null> {
   const row = await evidenceRow(db, id);
   if (!row) return null;
   if (typeof row.payload !== "string" || await publicActivitySha256(row.payload) !== row.evidence_sha256) throw unavailable();
@@ -119,7 +121,7 @@ async function validateLineage(db: Database, publication: DiscoveryPublication):
     await verifyProjection(db, parent.publication, parent.row);
   }
 }
-async function verifyProjection(db: Database, publication: DiscoveryPublication, row: EvidenceRow): Promise<Projection> {
+export async function verifyProjection(db: Database, publication: DiscoveryPublication, row: EvidenceRow): Promise<Projection> {
   const expected = discoveryProjection(publication);
   if (await publicActivitySha256(canonicalPublicJson(expected)) !== row.projection_sha256) throw unavailable();
   const documents = await db.prepare(`SELECT d.* FROM knowledge_documents d JOIN public_discovery_nodes m ON m.concept_id=d.concept_id
@@ -137,7 +139,7 @@ async function verifyProjection(db: Database, publication: DiscoveryPublication,
   if (!outgoing.success || canonicalPublicJson({ nodes: sorted(nodes), edges: sorted(outgoing.results) }) !== canonicalPublicJson(expected)) throw unavailable();
   return expected;
 }
-async function assertCompatibleNodes(db: Database, projection: Projection): Promise<void> {
+export async function assertCompatibleNodes(db: Database, projection: Projection): Promise<void> {
   const rows=await db.prepare(`SELECT * FROM knowledge_documents WHERE concept_id IN
     (SELECT json_extract(value,'$.id') FROM json_each(?)) LIMIT 101`).bind(canonicalPublicJson(projection.nodes)).all<Record<string,unknown>>();
   if(!rows.success)throw unavailable();
@@ -213,10 +215,14 @@ export async function discoveryPublicationPublicResponse(request: Request, env: 
   if (!match && url.pathname !== "/research/knowledge") return null;
   if (request.method === "OPTIONS") return new Response(null,{status:204,headers:publicHeaders});
   if (request.method !== "GET") return response({error:"Use GET"},405);
-  if (match && (!publicationIdSchema.safeParse(match[1]).success || url.search)) return response({error:"Publication not found"},404);
+  if (match && ((!publicationIdSchema.safeParse(match[1]).success&&!/^withdrawal-[a-f0-9]{64}$/.test(match[1])) || url.search)) return response({error:"Publication not found"},404);
   try {
     const db=database(env);
     if (match) {
+      if(match[1].startsWith("withdrawal-")){
+        const saved=await readDiscoveryWithdrawal(db,match[1]);if(!saved)return response({error:"Publication not found"},404);
+        return new Response(saved.row.payload,{headers:publicHeaders});
+      }
       const saved=await readPublication(db,match[1]); if(!saved)return response({error:"Publication not found"},404);
       await verifyProjection(db,saved.publication,saved.row);
       return new Response(saved.row.payload,{headers:publicHeaders});
@@ -229,12 +235,19 @@ export async function discoveryPublicationPublicResponse(request: Request, env: 
     const maximum=await db.prepare("SELECT COALESCE(MAX(sequence),0) AS maximum FROM public_activity_archive_sequence").first<{maximum:number}>();
     if(!maximum||!Number.isSafeInteger(maximum.maximum))throw unavailable();
     const upper=snapshot??maximum.maximum;if(upper>maximum.maximum||after>upper)return response({error:"Invalid knowledge cursor"},400);
-    const selected=await db.prepare(`SELECT s.sequence,e.publication_id FROM public_activity_archive_sequence s
-      JOIN public_discovery_evidence e ON e.publication_id=s.record_id WHERE s.sequence>? AND s.sequence<=? ORDER BY s.sequence LIMIT ?`)
+    const selected=await db.prepare(`SELECT s.sequence,s.record_id AS publication_id FROM public_activity_archive_sequence s
+      WHERE s.sequence>? AND s.sequence<=? AND (EXISTS(SELECT 1 FROM public_discovery_evidence e WHERE e.publication_id=s.record_id)
+      OR EXISTS(SELECT 1 FROM public_discovery_withdrawals w WHERE w.id=s.record_id)) ORDER BY s.sequence LIMIT ?`)
       .bind(after,upper,limit+1).all<{sequence:number;publication_id:string}>();
     if(!selected.success)throw unavailable();
     const nodes=new Map<string,PublicationNode>(),edges=new Map<string,PublicationEdge>(),hashes:unknown[]=[],publicationIds:string[]=[];
     for(const item of selected.results){
+      if(item.publication_id.startsWith("withdrawal-")){
+        const saved=await readDiscoveryWithdrawal(db,item.publication_id);if(!saved)throw unavailable();
+        if(publicationIds.length===limit)continue;
+        publicationIds.push(item.publication_id);for(const node of saved.projection.nodes)nodes.set(node.id,node);for(const edge of saved.projection.edges)edges.set(canonicalPublicJson(edge),edge);
+        hashes.push({id:item.publication_id,recordSha256:saved.row.record_sha256,evidenceSha256:saved.row.payload_sha256,projectionSha256:saved.row.projection_sha256});continue;
+      }
       const saved=await readPublication(db,item.publication_id);if(!saved)throw unavailable();
       const projection=await verifyProjection(db,saved.publication,saved.row);
       // Verify the lookahead too; do not claim a successful partial page around corruption.
@@ -265,8 +278,9 @@ export async function discoveryPublicationServiceResponse(request: Request, env:
     // Producer sends the fixed canonical envelope. This also rejects duplicate
     // object keys and alternate serialized meanings before any database access.
     if(canonicalPublicJson(input)!==text)throw Error();
-    await decodeDiscoveryPublication(input);
+    if((input as {schema?:unknown})?.schema==="lupine.discovery_source_withdrawal.v1")await decodeDiscoveryWithdrawal(input);
+    else await decodeDiscoveryPublication(input);
   } catch {return reply({error:"Invalid public publication",code:"publication_invalid"},400);}
-  try {return reply(await publishDiscovery(env,input),200);}
+  try {return reply((input as {schema?:unknown})?.schema==="lupine.discovery_source_withdrawal.v1"?await publishDiscoveryWithdrawal(env,input):await publishDiscovery(env,input),200);}
   catch(error){return error instanceof PublicationError?reply({error:error.code,code:error.code},error.status):reply({error:"Publication storage unavailable",code:"publication_unavailable"},503);}
 }

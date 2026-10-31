@@ -107,3 +107,37 @@ node node_modules/vitest/vitest.mjs run src/workspace/__tests__/discoveryPublica
 Local tests and a successful bundle do not prove the service binding is deployed,
 the migration is installed remotely, the producer delivered an event, or the
 Library rendered it. Verify those gates separately after release.
+
+## Additive source availability notices
+
+The same fixed `ResearchPublication` entrypoint accepts the separate
+`lupine.discovery_source_withdrawal.v1` envelope. It contains only the producer,
+notice and original publication identities, original record/evidence digests,
+cited source semantic digest, and original withdrawal observation time. Its
+`withdrawal-` identity is the SHA-256 of the canonical envelope without `id`.
+The canonical envelope is capped at 2,048 bytes. Unknown fields, accessors,
+noncanonical wire bytes, duplicate JSON keys, future timestamps and changed
+identities are rejected before writes.
+
+Migration `0025_discovery_source_availability.sql` adds immutable notice and
+public graph-membership tables. The receiver verifies the original public
+record, evidence, citation and existing graph projection. One D1 transaction
+adds a standard activity record, the exact envelope, one notice node, two typed
+edges, and an event. All of these, including the archive sequence, are read
+back before acknowledgement. A lost acknowledgement permits an exact
+idempotent retry; an unknown or incomplete readback never reports success.
+
+The notice is available through the existing activity/archive endpoints and
+`/research/activity/<withdrawal-id>/evidence`. Its activity hash label is
+`Source availability notice`; the sidecar is the exact canonical withdrawal
+envelope. The knowledge endpoint includes it in the same bounded archive
+sequence pagination, linking the notice to the original report and cited
+source. Edges originate at the new notice so the original report's graph
+projection and all old hashes remain unchanged.
+
+A feed withdrawal is an availability observation. It does not establish
+publisher retraction, falsity, scientific invalidation or current source
+inaccessibility. The notice is an additive activity with `supersedes: null`;
+it does not replace or reopen the original report. The receiver derives every
+public sentence and URL from a fixed template and the already public record;
+the producer cannot submit arbitrary notice text or links.
