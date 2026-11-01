@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from lupine_distill.odf.promotion_gate import CandidateMetadata, evaluate_promotion
+from lupine_distill.odf.promotion_gate import CandidateMetadata, evaluate, evaluate_promotion
 from lupine_distill.schemas import BenchmarkMetrics, BenchmarkResult
 from pydantic import ValidationError
 
@@ -29,6 +29,30 @@ def cli_environment():
     # These are local packet/validation tests; never inherit opt-in telemetry.
     env.pop("PHOENIX_OTLP_RELAY_URL", None)
     return env
+
+
+@pytest.mark.parametrize("entrypoint", [evaluate, evaluate_promotion])
+@pytest.mark.parametrize("mutation", ["pop", "nan", "inf"])
+def test_public_gate_revalidates_mutated_typed_candidate(entrypoint, mutation):
+    candidate = CandidateMetadata.model_validate(
+        BASE | {"reference_ranking": [1, 2], "model_ranking": [1, 2]}
+    )
+    # frozen=True protects field assignment, not mutations of a contained list.
+    if mutation == "pop":
+        candidate.model_ranking.pop()
+    else:
+        candidate.model_ranking[1] = float(mutation)
+    with pytest.raises(ValueError, match="Invalid promotion candidate metadata"):
+        entrypoint(candidate)
+
+
+@pytest.mark.parametrize("entrypoint", [evaluate, evaluate_promotion])
+def test_public_gate_typed_candidate_keeps_valid_semantics(entrypoint):
+    candidate = CandidateMetadata.model_validate(
+        BASE | {"reference_ranking": [1, 2], "model_ranking": [1, 2]}
+    )
+    assert entrypoint(candidate).decision.value == "promote"
+    assert candidate.model_ranking == [1, 2]
 
 
 @pytest.mark.parametrize("value", [float("inf"), float("-inf"), float("nan")])

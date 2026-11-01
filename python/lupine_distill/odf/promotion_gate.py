@@ -26,8 +26,9 @@ A missing/empty formal field downgrades an otherwise-promotable model to
 The decision is returned as an immutable, structured value with reasons.
 
 Design notes:
-  - Immutable: inputs are validated into frozen pydantic models; the decision
-    is a frozen dataclass. Nothing is mutated in place.
+  - Each evaluation validates a detached snapshot of the candidate: frozen
+    pydantic models can still contain mutable lists. The decision is a frozen
+    dataclass, and the caller's input is never mutated in place.
   - Boundary validation: untrusted candidate metadata is validated via
     :func:`evaluate_promotion` before any logic runs.
 """
@@ -157,7 +158,7 @@ def _uplift_band(uplift_pct: float | None) -> tuple[PromotionDecision, str]:
 
 
 def evaluate(candidate: CandidateMetadata) -> GateResult:
-    """Run the formal-verification promotion gate on validated metadata.
+    """Run the gate on a freshly validated value snapshot of the metadata.
 
     Logic:
       1. Classify the uplift score into promote / review / reject.
@@ -168,6 +169,14 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
            downgrade to ``reject`` (cannot promote unverified, marginal model).
          - A ``reject`` uplift band stays ``reject``.
     """
+    # Do not validate the model instance directly: Pydantic may reuse it,
+    # leaving list edits made after construction unchecked. model_dump copies
+    # the contained values so validation and evaluation use one detached view.
+    try:
+        candidate = CandidateMetadata.model_validate(candidate.model_dump(mode="python"))
+    except ValidationError as exc:
+        raise ValueError(f"Invalid promotion candidate metadata: {exc}") from exc
+
     reasons: list[str] = []
     uplift = candidate.overall_uplift_pct
     band_decision, band_label = _uplift_band(uplift)
@@ -277,11 +286,11 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
     )
 
 
-def evaluate_promotion(metadata: Mapping[str, Any]) -> GateResult:
+def evaluate_promotion(metadata: Mapping[str, Any] | CandidateMetadata) -> GateResult:
     """Boundary entry point: validate raw candidate metadata, then evaluate.
 
-    Accepts an untrusted mapping (e.g. parsed JSON from a benchmark run),
-    validates it into :class:`CandidateMetadata`, and runs the gate.
+    Accepts an untrusted mapping (e.g. parsed JSON from a benchmark run) or a
+    typed candidate, validates its current values, and runs the gate.
 
     Raises:
         ValueError: if the metadata fails validation (wraps pydantic's
