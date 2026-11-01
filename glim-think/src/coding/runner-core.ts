@@ -125,6 +125,15 @@ export class CodingRunnerCore {
     await this.deps.blobs.put(ref.artifactKey,bytes,{onlyIf:{etagDoesNotMatch:'*'},httpMetadata:{contentType:'application/octet-stream'}});
     await this.verifyStored(ref);return ref;
   }
+  private async saveSetup(stage:'source-receive'|'checkout',result:{stdout:Uint8Array;stderr:Uint8Array;exitCode:number|null;incomplete:boolean}){
+    // Preserve exact bounded raw bytes before a validation failure can discard diagnostics.
+    const stdout=await this.save(`${stage}-stdout`,result.stdout);
+    await this.changeCapture(s=>{s.evidence.push(stdout);});
+    const stderr=await this.save(`${stage}-stderr`,result.stderr);
+    await this.changeCapture(s=>{s.evidence.push(stderr);});
+    const detail=await this.save(stage,new TextEncoder().encode(canonical({schema:'lupine.coding-setup-stage.v1',stage,exitCode:result.exitCode,incomplete:result.incomplete,stdout,stderr,streamByteLimit:L.logBytes})));
+    await this.changeCapture(s=>{s.evidence.push(detail);});
+  }
   private sourceStream(body:ReadableStream<Uint8Array>,task:CodingTask):ReadableStream<Uint8Array>{
     const hash=createHash('sha256');let bytes=0;const reader=body.getReader();
     return new ReadableStream<Uint8Array>({pull:async controller=>{
@@ -145,6 +154,7 @@ export class CodingRunnerCore {
       await this.active();
       this.deps.container.start({image:'cloudflare/debian-trixie',entrypoint:['sleep','infinity'],instance:'standard-1',enableInternet:claimed.task.enableInternet,env:{PATH:ENV.PATH}});
       await this.deps.container.setInactivityTimeout((claimed.task.timeoutSeconds+L.setupSeconds+L.captureSeconds)*1000);
+      await this.changeActive(s=>{s.setupStage='bootstrap';});
       const bootstrap=await this.execute(['/bin/sh','-c',BOOTSTRAP,'bootstrap',String(claimed.task.enableInternet)],'/');
       const bootLog=await this.save('bootstrap',new TextEncoder().encode(canonical({stdout:new TextDecoder().decode(bootstrap.stdout),stderr:new TextDecoder().decode(bootstrap.stderr),exitCode:bootstrap.exitCode})));
       await this.changeCapture(s=>{s.evidence.push(bootLog);});
@@ -152,9 +162,13 @@ export class CodingRunnerCore {
       let environment:{osRelease:string;versions:string};try{environment=JSON.parse(new TextDecoder().decode(bootstrap.stdout));}catch{throw new RunnerError(409,'Bootstrap metadata unavailable');}
       assertRunner(typeof environment.osRelease==='string'&&environment.osRelease.length<=4096&&typeof environment.versions==='string'&&environment.versions.length<=8192,'Invalid bootstrap metadata');
       await this.changeActive(s=>{s.environment={image:'cloudflare/debian-trixie',...environment};});
+      await this.changeActive(s=>{s.setupStage='source-receive';});
       const received=await this.execute(['python3','-I','-c',RECEIVE_BUNDLE,claimed.task.source.sha256,String(claimed.task.source.bytes)],'/run/lupine-coding',this.sourceStream(source.body,claimed.task));
+      await this.saveSetup('source-receive',received);
       assertRunner(!received.incomplete&&received.exitCode===0&&new TextDecoder().decode(received.stdout).trim()==='source-verified','Source integrity check failed',409);
+      await this.changeActive(s=>{s.setupStage='checkout';});
       const checkout=await this.execute(['/bin/sh','-c','set -eu; git -c core.hooksPath=/dev/null clone --quiet --no-checkout /run/lupine-coding/source.bundle /workspace/repo; git -C /workspace/repo -c core.hooksPath=/dev/null checkout --quiet --detach "$1"; git -C /workspace/repo rev-parse HEAD','checkout',claimed.task.repository.commit],'/workspace');
+      await this.saveSetup('checkout',checkout);
       assertRunner(!checkout.incomplete&&checkout.exitCode===0&&new TextDecoder().decode(checkout.stdout).trim()===claimed.task.repository.commit,'Pinned commit checkout failed',409);
       await this.active();await this.changeActive(s=>{s.status='executing';s.executionStarted=true;});
       const command=await this.execute(['/usr/bin/timeout','--signal=TERM','--kill-after=5',String(claimed.task.timeoutSeconds),'/bin/bash','--noprofile','--norc','-c',claimed.task.command],'/workspace/repo');
@@ -170,7 +184,7 @@ export class CodingRunnerCore {
     // Consume rejection even if deadline wins. No deferred stage can run after active() refuses it.
     const running=work();void running.catch(()=>{});
     try{await Promise.race([running,timeout]);}catch(error){const current=await this.status();
-      outcome=current?.executionStarted?'unknown':'failed';reason=error instanceof RunnerError?(error.code===504?'attempt-deadline-reached':current?.executionStarted?'command-evidence-incomplete':'pre-execution-failed'):'transport-or-storage-outcome-unconfirmed';
+      outcome=current?.executionStarted?'unknown':'failed';reason=error instanceof RunnerError?(error.code===504?'attempt-deadline-reached':current?.executionStarted?'command-evidence-incomplete':current?.setupStage?`${current.setupStage}-failed`:'pre-execution-failed'):current?.setupStage&&!current.executionStarted?`${current.setupStage}-outcome-unconfirmed`:'transport-or-storage-outcome-unconfirmed';
       if(!(error instanceof RunnerError))outcome='unknown';
     }finally{if(timer!==undefined)clearTimeout(timer);this.halted=true;}
     await this.finish(outcome,reason);
@@ -189,7 +203,7 @@ export class CodingRunnerCore {
     const payload={schema:'lupine.coding-terminal.v1',taskId:current.task.taskId,attemptId:current.task.attemptId,inputSha256:current.inputSha256,ownerId:current.ownerId,
       repository:current.task.repository,source:current.task.source,mode:current.task.mode,outcome,reason,executionStarted:current.executionStarted,executionExitCode:current.executionExitCode,
       claimedAt:current.claimedAt,finishedAt:this.iso(),cleanupConfirmed:cleaned,evidence:current.evidence,environment:current.environment,
-      sourceCommitChecked:current.executionStarted,providerCredentialsSupplied:false,modelExecutionQualified:false,guestPrivilege:'root-within-dedicated-container',
+      setupStage:current.setupStage??null,sourceCommitChecked:current.executionStarted,providerCredentialsSupplied:false,modelExecutionQualified:false,guestPrivilege:'root-within-dedicated-container',
       artifactScope:'Guest-produced bytes observed after command exit; not a semantic verdict or atomic filesystem snapshot.',acceptance:'separate-review-required',automaticReplay:false};
     const receiptJson=canonical(payload),receiptSha256=await sha256(receiptJson);
     await this.change(s=>{assertRunner(s.status==='finalizing'&&!s.terminalIntent,'Terminal intent already fixed',409);s.cleanupConfirmed=cleaned;s.cleanupAttempts++;s.terminalIntent={outcome,reason,receiptJson,receiptSha256,cleanupConfirmed:cleaned};});

@@ -8,12 +8,13 @@ export type CodingTask = {
   source: { kind: 'git-bundle'; artifactKey: string; sha256: string; bytes: number };
   mode: 'code-execution'; command: string; timeoutSeconds: number; enableInternet: boolean; artifactPaths: string[];
 };
-export type EvidenceRef = { artifactKey: string; sha256: string; bytes: number; kind: 'stdout'|'stderr'|'artifact'|'bootstrap'|'receipt'; path?: string };
+export type EvidenceRef = { artifactKey: string; sha256: string; bytes: number; kind: 'stdout'|'stderr'|'artifact'|'bootstrap'|'receipt'|'source-receive-stdout'|'source-receive-stderr'|'source-receive'|'checkout-stdout'|'checkout-stderr'|'checkout'; path?: string };
 export type CodingState = {
   schema: 'lupine.coding-attempt.v1'; task: CodingTask; inputSha256: string; ownerId: string;
   status: 'claimed'|'preparing'|'executing'|'collecting'|'finalizing'|'succeeded'|'failed'|'unknown';
   claimedAt: string; deadlineAtMs: number; updatedAt: string; executionStarted: boolean;
   executionExitCode: number|null; reason: string|null; cleanupConfirmed: boolean;
+  setupStage?: 'bootstrap'|'source-receive'|'checkout';
   evidence: EvidenceRef[]; receipt: EvidenceRef|null; ledgerRecorded: boolean;
   pendingExec: boolean; cleanupAttempts: number; terminalIntent: {outcome:'succeeded'|'failed'|'unknown';reason:string;receiptJson:string;receiptSha256:string;cleanupConfirmed:boolean}|null;
   environment: { image: string; osRelease: string; versions: string }|null;
@@ -49,6 +50,6 @@ export function publicCodingState(s:CodingState|null) {
   return {schema:s.schema,taskId:s.task.taskId,attemptId:s.task.attemptId,inputSha256:s.inputSha256,repository:s.task.repository,source:s.task.source,
     mode:s.task.mode,providerMode:'unqualified-no-provider-credentials',status:s.status,claimedAt:s.claimedAt,updatedAt:s.updatedAt,deadlineAtMs:s.deadlineAtMs,
     timeoutSeconds:s.task.timeoutSeconds,enableInternet:s.task.enableInternet,executionStarted:s.executionStarted,executionExitCode:s.executionExitCode,
-    reason:s.reason,pendingExec:s.pendingExec,cleanupAttempts:s.cleanupAttempts,terminalReconciliationPending:!!s.terminalIntent&&!s.ledgerRecorded,cleanupConfirmed:s.cleanupConfirmed,evidence:s.evidence,receipt:s.receipt,ledgerRecorded:s.ledgerRecorded,environment:s.environment,
+    reason:s.reason,setupStage:s.setupStage??null,pendingExec:s.pendingExec,cleanupAttempts:s.cleanupAttempts,terminalReconciliationPending:!!s.terminalIntent&&!s.ledgerRecorded,cleanupConfirmed:s.cleanupConfirmed,evidence:s.evidence,receipt:s.receipt,ledgerRecorded:s.ledgerRecorded,environment:s.environment,
     acceptance:'separate-review-required',automaticReplay:false};
 }

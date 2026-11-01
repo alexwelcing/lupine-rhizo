@@ -2,7 +2,7 @@ import {it,expect} from 'vitest';
 import {mkdtempSync,writeFileSync,mkdirSync,symlinkSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
 import {CodingRunnerCore,READ_ARTIFACT,type RunnerStore,type RunnerProcess,type RunnerDependencies} from '../runner-core';
-import {canonical,sha256,parseCodingTask,RUNNER_LIMITS,type CodingTask,type CodingState} from '../runner-contract';
+import {canonical,sha256,parseCodingTask,RUNNER_LIMITS,publicCodingState,type CodingTask,type CodingState} from '../runner-contract';
 import {codingFetch} from '../runner-http';import type {CodingRunnerEnv} from '../runner-worker';
 const enc=new TextEncoder(),bytes=(s:string)=>enc.encode(s);
 const stream=(b:Uint8Array|string)=>new ReadableStream<Uint8Array>({start(c){c.enqueue(typeof b==='string'?bytes(b):b);c.close();}});
@@ -32,7 +32,7 @@ async function fixture(){
  return {store,task,deps,core:new CodingRunnerCore(deps),blobs,events,receipts,get execs(){return execs;},get starts(){return starts;},get destroys(){return destroys;},setCommand(fn:()=>Promise<RunnerProcess>){command=fn;},setPut(fn:(k:string)=>Promise<void>){put=fn;},corrupt(){corrupt=true;},loseLedger(){lost=true;},deny(){deny=true;},hang(){hang=true;},advance(){clock+=100000000;}};
 }
 const until=async(fn:()=>boolean)=>{for(let i=0;i<200&&!fn();i++)await new Promise(r=>setTimeout(r,1));expect(fn()).toBe(true);};
-it('persists claim before start and byte-verifies artifacts before cleaned terminal settlement',async()=>{const f=await fixture();expect((await f.core.submit(f.task,'runner')).created).toBe(true);expect(f.starts).toBe(0);await f.core.run();const s=await f.core.status();expect(s?.status).toBe('succeeded');expect(s?.ledgerRecorded).toBe(true);expect(s?.cleanupConfirmed).toBe(true);expect(s?.executionExitCode).toBe(0);expect(s?.evidence.map(x=>x.kind)).toEqual(['bootstrap','stdout','stderr','artifact']);expect(f.events.indexOf('admit')).toBeLessThan(f.events.indexOf('start'));expect(f.events.lastIndexOf('destroy')).toBeLessThan(f.events.indexOf('terminal'));expect(f.receipts[0]).not.toContain(f.task.command);});
+it('persists claim before start and byte-verifies artifacts before cleaned terminal settlement',async()=>{const f=await fixture();expect((await f.core.submit(f.task,'runner')).created).toBe(true);expect(f.starts).toBe(0);await f.core.run();const s=await f.core.status();expect(s?.status).toBe('succeeded');expect(s?.ledgerRecorded).toBe(true);expect(s?.cleanupConfirmed).toBe(true);expect(s?.executionExitCode).toBe(0);expect(s?.evidence.map(x=>x.kind)).toEqual(['bootstrap','source-receive-stdout','source-receive-stderr','source-receive','checkout-stdout','checkout-stderr','checkout','stdout','stderr','artifact']);expect(f.events.indexOf('admit')).toBeLessThan(f.events.indexOf('start'));expect(f.events.lastIndexOf('destroy')).toBeLessThan(f.events.indexOf('terminal'));expect(f.receipts[0]).not.toContain(f.task.command);});
 it('concurrent admissions, reconstruction and duplicate run never replay code',async()=>{const f=await fixture(),other=new CodingRunnerCore(f.deps);const a=await Promise.all([f.core.submit(f.task,'runner'),other.submit(f.task,'runner')]);expect(a.filter(x=>x.created)).toHaveLength(1);await Promise.all([f.core.run(),other.run()]);expect(f.starts).toBe(1);expect((await other.submit(f.task,'runner')).created).toBe(false);await other.run();expect(f.starts).toBe(1);await expect(other.submit({...f.task,command:'different'},'runner')).rejects.toThrow('conflict');});
 it('metadata GET equivalent never starts or execs a guest',async()=>{const f=await fixture();expect(await f.core.status()).toBeNull();await f.core.submit(f.task,'runner');expect((await new CodingRunnerCore(f.deps).status())?.status).toBe('claimed');expect(f.starts).toBe(0);expect(f.execs).toBe(0);});
 it('uncertain ledger admission stops before guest start',async()=>{const f=await fixture();f.deny();await f.core.submit(f.task,'runner');await f.core.run();expect(f.starts).toBe(0);expect((await f.core.status())?.status).toBe('unknown');});
@@ -50,3 +50,31 @@ async function httpFixture(){const f=await fixture();let calls=0;const env={RUNN
 it('auth denies anonymous/cross-origin before DO lookup',async()=>{const h=await httpFixture();expect((await codingFetch(new Request('https://runner.test/coding/tasks'),h.env)).status).toBe(403);expect((await codingFetch(new Request('https://runner.test/coding/tasks',{headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN,Origin:'https://other.test'}}),h.env)).status).toBe(403);expect(h.calls).toBe(0);});
 it('auth accepts fixed bounded operator task; metadata response is no-store',async()=>{const h=await httpFixture();const response=await codingFetch(new Request('https://runner.test/coding/tasks',{method:'POST',headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN,'Content-Type':'application/json'},body:JSON.stringify(h.f.task)}),h.env);expect(response.status).toBe(202);expect(response.headers.get('Cache-Control')).toBe('private, no-store');expect((await codingFetch(new Request('https://runner.test/coding/tasks/attempt-1',{headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN}}),h.env)).status).toBe(200);expect(h.calls).toBe(2);});
 it('oversize and unqualified HTTP requests never reach a durable object',async()=>{const h=await httpFixture();for(const body of [' '.repeat(25000),JSON.stringify({...h.f.task,mode:'dsh'})]){const r=await codingFetch(new Request('https://runner.test/coding/tasks',{method:'POST',headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN,'Content-Type':'application/json'},body}),h.env);expect([400,413]).toContain(r.status);}expect(h.calls).toBe(0);});
+
+it('source-receive rejection archives exact binary streams and exit metadata before fixed failure',async()=>{
+ const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container),raw=new Uint8Array([255,0,10,128]);
+ f.deps.container.exec=async(args,options)=>{const result=await original(args,options);return args.includes(f.task.source.sha256)?{stdout:stream(raw),stderr:stream('fixture source rejection'),exitCode:Promise.resolve(7)}:result;};
+ await f.core.submit(f.task,'runner');await f.core.run();const state=(await f.core.status())!;
+ expect(state.status).toBe('failed');expect(state.reason).toBe('source-receive-failed');expect(state.setupStage).toBe('source-receive');expect(state.executionStarted).toBe(false);expect(state.executionExitCode).toBeNull();expect(state.cleanupConfirmed&&state.ledgerRecorded).toBe(true);expect(f.execs).toBe(2);
+ const stdout=state.evidence.find(r=>r.kind==='source-receive-stdout')!,stderr=state.evidence.find(r=>r.kind==='source-receive-stderr')!,detail=state.evidence.find(r=>r.kind==='source-receive')!;
+ expect(f.blobs.get(stdout.artifactKey)).toEqual(raw);expect(stdout.sha256).toBe(await sha256(raw));expect(f.blobs.get(stderr.artifactKey)).toEqual(bytes('fixture source rejection'));
+ expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey)))).toEqual({schema:'lupine.coding-setup-stage.v1',stage:'source-receive',exitCode:7,incomplete:false,stdout,stderr,streamByteLimit:RUNNER_LIMITS.logBytes});
+ expect(JSON.stringify(publicCodingState(state))).not.toContain('fixture source rejection');expect(JSON.parse(f.receipts[0]).evidence).toEqual(state.evidence);
+});
+it('checkout rejection retains stage diagnostics and never reopens immutable failed attempt',async()=>{
+ const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container);
+ f.deps.container.exec=async(args,options)=>{const result=await original(args,options);return args.includes('checkout')?process('','fixture missing parent',128):result;};
+ await f.core.submit(f.task,'runner');await f.core.run();const state=(await f.core.status())!;
+ expect(state.status).toBe('failed');expect(state.reason).toBe('checkout-failed');expect(state.executionStarted).toBe(false);expect(f.execs).toBe(3);
+ const detail=state.evidence.find(r=>r.kind==='checkout')!,stderr=state.evidence.find(r=>r.kind==='checkout-stderr')!;
+ expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey)))).toMatchObject({stage:'checkout',exitCode:128,incomplete:false});expect(stderr.sha256).toBe(await sha256('fixture missing parent'));
+ const frozen=canonical(state),other=new CodingRunnerCore(f.deps);expect((await other.submit(f.task,'runner')).created).toBe(false);await other.run();await other.alarm();expect(canonical(await other.status())).toBe(frozen);expect(f.execs).toBe(3);
+});
+it('setup diagnostic output is capped and its incomplete flag prevents command execution',async()=>{
+ const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container);
+ f.deps.container.exec=async(args,options)=>{const result=await original(args,options);return args.includes(f.task.source.sha256)?process('source-verified\n','x'.repeat(RUNNER_LIMITS.logBytes+1)):result;};
+ await f.core.submit(f.task,'runner');await f.core.run();const state=(await f.core.status())!;
+ expect(state.executionStarted).toBe(false);expect(f.execs).toBe(2);expect(state.reason).toBe('source-receive-failed');
+ const stderr=state.evidence.find(r=>r.kind==='source-receive-stderr')!,detail=state.evidence.find(r=>r.kind==='source-receive')!;
+ expect(stderr.bytes).toBe(RUNNER_LIMITS.logBytes);expect(f.blobs.get(stderr.artifactKey)?.length).toBe(RUNNER_LIMITS.logBytes);expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey))).incomplete).toBe(true);
+});
