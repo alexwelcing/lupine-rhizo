@@ -410,38 +410,24 @@ export async function listAgendaTasks(env: Env, status: TaskStatus = "queued", l
 export async function claimAgendaTasks(env: Env, agentId: string, limit = 10, specialty?: string) {
   await ensureAgendaSchema(env);
   const cappedLimit = Math.min(Math.max(limit, 1), 100);
-  const rows = specialty
-    ? await env.LEDGER.prepare(`
-        SELECT task_id
-        FROM intelligence_tasks
-        WHERE status = 'queued' AND specialty = ?1
-        ORDER BY priority ASC, due_at ASC, created_at ASC
-        LIMIT ?2
-      `).bind(specialty, cappedLimit).all()
-    : await env.LEDGER.prepare(`
-        SELECT task_id
-        FROM intelligence_tasks
-        WHERE status = 'queued'
-        ORDER BY priority ASC, due_at ASC, created_at ASC
-        LIMIT ?1
-      `).bind(cappedLimit).all();
-
-  const ids = rows.results.map((row) => String((row as { task_id: string }).task_id));
-  for (const taskId of ids) {
-    await env.LEDGER.prepare(`
-      UPDATE intelligence_tasks
-      SET status = 'claimed', claimed_by = ?1, claimed_at = datetime('now'), updated_at = datetime('now')
-      WHERE task_id = ?2 AND status = 'queued'
-    `).bind(agentId, taskId).run();
-  }
-
-  const tasks = ids.length === 0
-    ? { results: [] }
-    : await env.LEDGER.prepare(`
-        SELECT *
-        FROM intelligence_tasks
-        WHERE task_id IN (${ids.map((_, index) => `?${index + 1}`).join(",")})
-      `).bind(...ids).all();
+  // Claim and return ownership in one SQLite/D1 statement. A prior SELECT
+  // followed by a conditional UPDATE can lose a race and still return another
+  // worker's task. RETURNING contains only rows changed by this acquisition.
+  // Claimed work never expires into eligibility here: replay requires an
+  // explicit operator requeue after reconciling any running executor.
+  const tasks = await env.LEDGER.prepare(`
+    UPDATE intelligence_tasks
+    SET status = 'claimed', claimed_by = ?1,
+        claimed_at = datetime('now'), updated_at = datetime('now')
+    WHERE task_id IN (
+      SELECT task_id
+      FROM intelligence_tasks
+      WHERE status = 'queued' AND (?3 IS NULL OR specialty = ?3)
+      ORDER BY priority ASC, due_at ASC, created_at ASC, task_id ASC
+      LIMIT ?2
+    ) AND status = 'queued'
+    RETURNING *
+  `).bind(agentId, cappedLimit, specialty || null).all();
   return tasks.results;
 }
 
