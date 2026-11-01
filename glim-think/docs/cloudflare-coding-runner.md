@@ -132,3 +132,5 @@ document review feature must use exact, inert, manifest-pinned files beneath an
 authenticated workspace route or separately protected storage. Executable
 previews need a separate origin so they cannot exercise workspace administrator
 cookies. Browser URL-policy restrictions remain independent of guest permissions.
+
+Observed release evidence: [Cloudflare source import and DeepSeek orchestration validation](cloudflare-coding-validation-20261101.md).
