@@ -34,11 +34,12 @@ Design notes:
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from lupine_distill.odf.field_certificates import check_ranking_pair
 
@@ -64,7 +65,7 @@ class CandidateMetadata(BaseModel):
     composite); the two list fields carry the ATLAS formal contract.
     """
 
-    model_config = ConfigDict(frozen=True, extra="ignore")
+    model_config = ConfigDict(frozen=True, extra="ignore", allow_inf_nan=False)
 
     model_id: str = Field(..., min_length=1)
     distill_version: int = Field(..., ge=0)
@@ -97,6 +98,20 @@ class CandidateMetadata(BaseModel):
             "promotion decision."
         ),
     )
+
+    @model_validator(mode="after")
+    def validate_ranking_evidence(self) -> CandidateMetadata:
+        """Omitted rankings are optional; supplied rankings must be assessable."""
+        ref, mod = self.reference_ranking, self.model_ranking
+        if ref is None and mod is None:
+            return self
+        if ref is None or mod is None:
+            raise ValueError("reference_ranking and model_ranking must be supplied together")
+        if len(ref) != len(mod):
+            raise ValueError("reference_ranking and model_ranking must have equal length")
+        if len(ref) < 2:
+            raise ValueError("ranking evidence requires at least two ranked materials")
+        return self
 
 
 @dataclass(frozen=True)
