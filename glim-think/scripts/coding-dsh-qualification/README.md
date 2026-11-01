@@ -1,7 +1,11 @@
 # Prepared DSH scripted qualification for the coding runner
 
-This recipe has been prepared and syntax-checked locally. It has **not** been
-installed or executed. Keep the first core coding-runner smoke and its source
+This repaired recipe revision is prepared and locally checked, but has **not**
+been installed or executed. The first hosted DSH qualification installed its
+captured dependency graph, then failed at bundle construction because the graph
+omitted `dsh-scope`; no actual Runtime/Harness task ran. That failed attempt and
+its artifacts remain immutable. This revision adds three verified runtime-import
+peers before a distinct follow-up task. Keep the first core coding-runner smoke and its source
 bundle immutable. A run of this recipe requires a second distinct authorized
 coding task, attempt, source bundle and input digest after core acceptance.
 
@@ -20,8 +24,8 @@ python3 glim-think/scripts/coding-dsh-qualification/bootstrap-node.py
 ```
 
 Use the ordinary `lupine.coding-task.v1` manifest with `mode='code-execution'`,
-`timeoutSeconds=900` and an exact source-bundle digest. This first-resolution
-recipe requires `enableInternet=true` for public GitHub/npm acquisition.
+`timeoutSeconds=900` and an exact source-bundle digest. The recipe requires
+`enableInternet=true` for the pinned public Node/GitHub/npm artifacts.
 No inference route is used, but networking remains permitted by that outer
 setting; this recipe does not claim kernel egress isolation or zero total HTTP.
 An offline rerun needs a separately prepared, reviewed dependency image/tree.
@@ -46,7 +50,7 @@ recipe artifacts were produced. No extra export path is allocated.
 The command maintains one 850-second internal deadline inside the unchanged
 900-second runner command ceiling, starting before Node bootstrap; setup time
 reduces the remaining recipe budget. Individual one-shot phases cap source
-fetch at 120 seconds, npm lock resolution at 180, installation at 300, bundling
+fetch at 120 seconds, installation from the reviewed lock at 300, bundling
 at 45 and the joined task at 60. The remaining deadline can only shorten those
 caps. There are no command/provider retries. npm lifecycle scripts are disabled,
 and a fresh child HOME plus separate empty npm configs and disabled global/system
@@ -62,17 +66,29 @@ against the retained package hash. The exact snapshot setup patch is checked
 and applied; the resulting Runtime/setup file hashes must match the retained
 cloud qualification. Existing historical sources/archives are unchanged.
 
-Exact top-level packages are the documented official
+The original four exact top-level packages remain
 `@deepseek-ai/dsh@0.2.1-rc.3`, `esbuild@0.28.2`, `proper-lockfile@4.1.2` and
-`zod@4.4.3`. The recipe first produces a bounded package lock and validates the
-top-level pins, npm-registry tarball locations and SHA-512 integrity entries
-before `npm ci --ignore-scripts`. `--legacy-peer-deps` is explicit. Dependencies
-bundled inside another integrity-bound tarball inherit that archive boundary.
-The first resolution is **not** a pre-existing frozen transitive graph: its
-complete captured lock is the reproducibility input for a later repeat.
+`zod@4.4.3`. Three additional explicit `0.2.1-rc.3` pins are `dsh-scope`,
+`dsh-sandbox` and `dsh-session-persistence` under `@deepseek-ai`. Official
+integrity-bound JavaScript establishes their static imports from the selected
+services. Their own runtime imports resolve to modules already in the captured
+graph. Metadata-only PTC/filesystem/compaction peers are not broadly installed;
+this remains the native-tool scripted composition, not every Harness mode.
 
-The installed Harness package manifest and six installed service files must
-match retained hashes. Bundling deliberately maps all prototype
+`dependency-lock.json` derives from the first hosted lock, SHA-256
+`0ebeb5a735422c8e29c1a16722aae5b9bb2da99754fa0084c806ce42bdd0325b`.
+All 644 original non-root package records remain identical, and the root's
+non-dependency fields remain unchanged. The root gains three pins and the graph
+gains their three package records: 648 entries including the root, up from 645.
+This is an explicit augmentation, not an unchanged dependency graph. There is
+no fresh lock resolution. The recipe checks the reviewed full lock hash, count,
+top-level pins, registry locations and integrity entries before `npm ci` with
+lifecycle scripts disabled and `--legacy-peer-deps`, then verifies npm left the
+reviewed lock unchanged. Installation and build success of this augmented graph
+still require a distinct hosted observation.
+The installed Harness package manifest and six service files must match the
+original retained hashes; the three added modules must match their newly
+qualified official JavaScript hashes. Bundling deliberately maps all prototype
 `@deepseek-ai/*` imports to those installed rc.3 packages. The alpha-era peer
 graph is not asserted to work unchanged. `build-runtime-bundle.mjs` records
 the actual Node/esbuild versions, compiled bundle hash and bundled-input

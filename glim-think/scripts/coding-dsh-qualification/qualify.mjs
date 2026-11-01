@@ -63,7 +63,7 @@ const summary = { schema: 'lupine.dsh-coding-qualification.v1', startedAt: new D
   commandCeilingSeconds: 850, runnerCeilingSeconds: 900, node: process.version,
   modelExecution: 'not-performed-scripted-transport-only', realProvider: null, realModel: null, providerTokens: null,
   externalDshInferenceCalls: 0, credentialStoreRead: false, containerCleanupConfirmed: null,
-  dependencyMode: 'bounded first lock resolution; captured lock permits later repeat; not original transitive graph',
+  dependencyMode: 'captured first-hosted lock plus three explicit source-qualified peers; all 644 baseline nonroot entries preserved',
   networkScope: 'Network permitted for public Git/npm acquisition by the outer task. No claim of total HTTP count or kernel-level egress denial.',
   finalReportDeliveryQualified: false, joinedCrashRecoveryQualified: false, commands };
 try {
@@ -112,10 +112,12 @@ try {
 
   const dependencies = path.join(scratch, 'dependencies'); mkdirSync(dependencies);
   writeFileSync(path.join(dependencies, 'package.json'), readFileSync(path.join(here, 'dependencies.json')));
-  run('dependency-lock', 'npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund', '--legacy-peer-deps', '--loglevel=error'], dependencies, 180000);
-  const packageLockBytes = readFileSync(path.join(dependencies, 'package-lock.json'));
+  const packageLockBytes = readFileSync(path.join(here, 'dependency-lock.json'));
+  assert.equal(sha(packageLockBytes), lock.dependencyGraph.augmentedLockSha256, 'Reviewed dependency lock differs');
+  writeFileSync(path.join(dependencies, 'package-lock.json'), packageLockBytes, { flag: 'wx' });
   assert(packageLockBytes.length <= 2 * 1024 * 1024, 'Dependency lock exceeds artifact bound');
   const packageLock = JSON.parse(packageLockBytes), entries = Object.entries(packageLock.packages ?? {});
+  assert.equal(entries.length, lock.dependencyGraph.augmentedPackageEntries, 'Reviewed dependency entry count changed');
   assert(entries.length > 1 && entries.length <= 4000, 'Dependency graph outside bounded recipe');
   const expected = JSON.parse(readFileSync(path.join(here, 'dependencies.json'), 'utf8')).dependencies;
   assert.deepEqual(packageLock.packages[''].dependencies, expected, 'Top-level dependency pins changed');
@@ -126,6 +128,8 @@ try {
   }
   writeFileSync(path.join(output, 'dsh-package-lock.json'), packageLockBytes, { flag: 'wx' });
   run('dependency-install', 'npm', ['ci', '--ignore-scripts', '--no-audit', '--no-fund', '--legacy-peer-deps', '--loglevel=error'], dependencies, 300000);
+  summary.dependencyLockAfterInstallSha256 = sha(readFileSync(path.join(dependencies, 'package-lock.json')));
+  assert.equal(summary.dependencyLockAfterInstallSha256, lock.dependencyGraph.augmentedLockSha256, 'npm ci changed the reviewed lock');
   const topManifest = path.join(dependencies, 'node_modules/@deepseek-ai/dsh/package.json');
   assert.equal(sha(readFileSync(topManifest)), lock.harness.manifestSha256, 'Installed Harness manifest differs from retained version');
   const installed = lock.harness.serviceFiles.map(source => {
@@ -134,6 +138,7 @@ try {
   });
   write('dsh-installed-identities.json', { schema: 'lupine.dsh-installed-identities.v1', packageLockSha256: sha(packageLockBytes),
     topLevel: expected, dependencyEntries: entries.length, lifecycleScriptsExecuted: false,
+    dependencyGraph: lock.dependencyGraph,
     harnessManifestSha256: sha(readFileSync(topManifest)), installed, originalAlphaGraphQualified: false });
   const bundle = path.join(prototype, 'eval-runtime-bundle.mjs');
   run('runtime-build', process.execPath, [path.join(here, 'build-runtime-bundle.mjs'), prototype, dependencies,
