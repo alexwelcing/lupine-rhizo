@@ -107,3 +107,19 @@ test('default sample floor accepts nonempty emitter cells without imposing a new
   const result = await run(rows(current, previous), { env: { EVAL_REGRESSION_MIN_SAMPLES: undefined } });
   assert.equal(result.exit, 0, result.output); assert.match(result.output, /minimum samples per model\/evaluator: 1/);
 });
+
+// Producer shape from ab-oracle.ts persistScorecard: same claim type but
+// window=experiment and n/mean_score cells, deliberately not pass-rate data.
+function oracleClaim(created_at) {
+  return { claim_type: 'ModelScorecard', created_at,
+    claim_data: JSON.stringify({ window: 'experiment', dataset: 'synthetic-only', generated_at: created_at,
+      scorecard: { modelA: { completeness: { n: 20, mean_score: .9 } } },
+      ab: { agent: 'synthetic-agent', axis: 'model', baseline: 'synthetic-baseline', candidate: 'modelA', n: 20, deltas: {}, regression: false, verdict: 'synthetic-only' } }) };
+}
+test('actual A/B oracle mean_score producer shape is insufficient and never coerced to pass_rate', async () => {
+  await insufficient([oracleClaim('2026-01-02T00:00:00Z'), oracleClaim('2026-01-01T00:00:00Z')]);
+});
+test('a recent incompatible A/B oracle scorecard is not bypassed for older pass-rate claims', async () => {
+  await insufficient([oracleClaim('2026-01-03T00:00:00Z'), ...rows()]);
+  await insufficient([claim(scorecard(), '2026-01-04T00:00:00Z'), oracleClaim('2026-01-03T00:00:00Z'), ...rows()]);
+});

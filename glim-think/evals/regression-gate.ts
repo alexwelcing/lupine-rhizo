@@ -20,6 +20,9 @@
  * emitter's variable per-model sample sizes. Configure a higher policy floor
  * with --min-samples or EVAL_REGRESSION_MIN_SAMPLES; this is not a statistical
  * significance test. Unequal sample counts above the floor are allowed.
+ * The A/B oracle also emits ModelScorecard claims but supplies mean_score,
+ * not pass_rate. Those claims are INSUFFICIENT here: a mean judge score is
+ * not a measured pass rate, and incompatible recent claims are not skipped.
  *
  * Sources scorecards from the worker's public /feed/recent-claims (no new
  * endpoint, no secrets needed for the read).
