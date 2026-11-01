@@ -61,6 +61,16 @@ its tool-result continuation; actual complete Harness execution remains a
 separate live qualification. Missing reports receive explicit absence records
 and cannot become successful assessments.
 
+The [schema-compatible recipe](../scripts/coding-dsh-model-v3/README.md) additionally
+projects the pinned Zod output at Runtime tool registration. It removes only
+the identified nonenumerable `~standard` metadata after checking its descriptor
+and origin; all JSON-schema content and execute-side argument validation remain
+unchanged. Tests use actual pinned Zod and Harness utilities for all 20 Runtime
+tool schemas. The first attempt's exact failing predicate was not captured;
+the tool-count mismatch was reproduced with source-derived plain schemas. The
+second attempt directly captured the hidden-metadata incompatibility. These
+are separate findings, and both earlier recipes remain unchanged.
+
 ## Install and verify
 
 The small `coding-runner/` toolchain pins Wrangler and Container types separately
