@@ -197,3 +197,20 @@ task within the remaining policy budget. Guest model capabilities cannot reach
 this administrative action.
 
 For subscription tasks, fresh credits-OFF evidence and authenticated quota remain required. An expired proof yields a wait, not a paid fallback. This route still depends on a real browser observation for credit-control freshness; enabling scheduling does not establish fully unattended subscription eligibility. Native/Claude scientific work and public Library publication are separate authorities.
+
+
+## Diagnosing a model result that was withheld
+
+The v5 guest recipe preserves the first broker failure and up to four later local
+refusals separately. These bounded diagnostics do not establish a provider
+terminal or authorize another dispatch. Incomplete delivery may include output
+already yielded to Harness; do not equate it with no delivery.
+
+A captured HTTP 200 response with a provider error stop can still leave the
+account and coding attempt unknown. Inspect the exact archived outcome and
+operation identity. Fresh sign-in or quota proof cannot clear ownership, and the
+zero-model-dispatch disposition cannot release a task that already used models.
+A new operator recovery action must be reviewed against the original receipt,
+account revision, closed broker and confirmed guest cleanup. Preserve original
+outcomes and reservations. See the dated validation for the current unresolved
+v4 attempt and the locally reviewed, unexecuted v5 diagnostic recipe.

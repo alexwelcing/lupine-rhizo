@@ -1,0 +1,79 @@
+{
+  "schema": "lupine.dsh-source-shape-fixture.v1",
+  "qualification": "Exact extracted source methods with synthetic registry/clock/message text; not a full Harness or provider execution",
+  "sources": [
+    {
+      "path": "work/cloudflare-coding-implementation-20261101/dsh-dependency-repair/dsh-tools--package_lib_index.js",
+      "sha256": "1e53932e7c4213ea24a7d87f06960b7a7702cb21f8a5741c97242b4a470a442a"
+    },
+    {
+      "path": "work/cloudflare-coding-implementation-20261101/dsh-dependency-repair/dsh-session--package_lib_index.js",
+      "sha256": "2f5dd07cb5c744a29abbb8003a8a4cefd9e582c6e2538074ca299a0ddd02a3bf"
+    },
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/dsh-llm-source/package--lib--index.js",
+      "sha256": "d18d8ae4c8d961e628708c1e4698e09716a0ebb80e55a672e0bde1029bec1155"
+    },
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/model-v2-source/src--app--tools--main.ts",
+      "sha256": "88603eb5a94c67e93141e07bd09bde85d65f980a1f42503c53ab9c22ec5c538d"
+    },
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/model-v2-source/src--app--tools--executor.ts",
+      "sha256": "9869d8a5043725847f18814e23b29c11ae93aa974defa72d2eab62c61a6def47"
+    }
+  ],
+  "mainTools": [
+    "orchestrator_read",
+    "orchestrator_route",
+    "orchestrator_ticket_retry",
+    "orchestrator_ticket_request_status",
+    "orchestrator_ticket_note",
+    "orchestrator_trigger_requeue",
+    "orchestrator_eval",
+    "orchestrator_eval_read",
+    "orchestrator_eval_decide",
+    "orchestrator_reply",
+    "orchestrator_thread_unsubscribe",
+    "orchestrator_settings_save",
+    "orchestrator_policy_sync",
+    "orchestrator_prompts_save"
+  ],
+  "workerTools": [
+    "orchestrator_read",
+    "orchestrator_ack",
+    "orchestrator_thread_unrelated",
+    "orchestrator_thread_follow",
+    "orchestrator_trigger_handback",
+    "orchestrator_report"
+  ],
+  "inheritedTools": [
+    "skill",
+    "bash",
+    "read",
+    "read_image",
+    "job_output",
+    "job_list",
+    "job_kill"
+  ],
+  "snippets": {
+    "view": "view(scope) {\n\t\tconst layers = this.layers.chainLayers(scope);\n\t\tconst own = this.layers.peek(scope);\n\t\tconst inherited = new Map(this.layers.global.tools.entries());\n\t\tfor (const layer of layers) {\n\t\t\tif (layer === own) continue;\n\t\t\tfor (const [name, definition] of layer.tools.entries()) inherited.set(name, definition);\n\t\t}\n\t\tconst visible = /* @__PURE__ */ new Map();\n\t\tconst knownNames = /* @__PURE__ */ new Set();\n\t\tconst restrictableNames = /* @__PURE__ */ new Set();\n\t\tfor (const [name, definition] of inherited) {\n\t\t\tknownNames.add(name);\n\t\t\trestrictableNames.add(name);\n\t\t\tif (layers.every((layer) => layer.admits(name))) visible.set(name, definition);\n\t\t}\n\t\tif (own !== void 0) for (const [name, definition] of own.tools.entries()) {\n\t\t\tknownNames.add(name);\n\t\t\tvisible.set(name, definition);\n\t\t}\n\t\tif (this.modeFor(scope) !== \"native\") visible.set(RUN_CODE_NAME, this.requirePtcTransport());\n\t\treturn {\n\t\t\tvisible,\n\t\t\tknownNames,\n\t\t\trestrictableNames\n\t\t};\n\t}",
+    "schemaOf": "schemaOf(definition, detachParameters) {\n\t\tconst { name, description, parameters, deferLoading } = definition;\n\t\tconst detached = detachParameters ? snapshotJsonValue(parameters) : parameters;\n\t\tif (detached === void 0) throw new Error(`tool \"${name}\" parameters must be lossless JSON before schema projection`);\n\t\treturn {\n\t\t\tname,\n\t\t\tdescription,\n\t\t\tparameters: detached,\n\t\t\t...deferLoading === true ? { deferLoading } : {}\n\t\t};\n\t}",
+    "ToolHistoryProjection": "var ToolHistoryProjection = class {\n\t/** Historical declarations indexed by the header sequence referenced by additions. */\n\theaders = /* @__PURE__ */ new Map();\n\t/** Definitions retained in the current declaration series, including removed tools. */\n\tdeclared = /* @__PURE__ */ new Map();\n\t/** Active definitions from the latest request header. */\n\tactive = [];\n\t/** Active names reconstructed from the baseline and recorded updates. */\n\tavailable = /* @__PURE__ */ new Set();\n\t/** Header that starts the current declaration series; absent before the first header. */\n\tbaselineSeq;\n\t/** Immutable request snapshot of the current baseline and resolved updates. */\n\thistory = deepFreeze({\n\t\ttools: [],\n\t\tupdates: []\n\t});\n\t/**\n\t* Consume the next committed event in log order.\n\t* @param event - a session event, including inherited events during restoration.\n\t*/\n\tapply(event) {\n\t\tif (event.type === \"request/header\") {\n\t\t\tconst tools = event.data.header.tools ?? [];\n\t\t\tthis.headers.set(event.seq, tools);\n\t\t\tconst redeclared = tools.some((tool) => {\n\t\t\t\tconst before = this.declared.get(tool.name);\n\t\t\t\treturn before !== void 0 && JSON.stringify(before) !== JSON.stringify(tool);\n\t\t\t});\n\t\t\tif (this.baselineSeq === void 0 || event.data.reason === \"series\" || event.data.startsSeries || redeclared) {\n\t\t\t\tthis.baselineSeq = event.seq;\n\t\t\t\tthis.declared = new Map(tools.map((tool) => [tool.name, tool]));\n\t\t\t\tthis.history = deepFreeze({\n\t\t\t\t\ttools,\n\t\t\t\t\tupdates: []\n\t\t\t\t});\n\t\t\t\tthis.available = new Set(tools.map((tool) => tool.name));\n\t\t\t}\n\t\t\tthis.active = tools;\n\t\t} else if (event.type === \"developer/message\") {\n\t\t\tconst { message, headerSeq } = event.data;\n\t\t\tconst definitions = headerSeq === void 0 ? [] : this.headers.get(headerSeq);\n\t\t\tconst additions = message.content.flatMap((block) => {\n\t\t\t\tif (block.type !== \"tool-addition\") return [];\n\t\t\t\tconst tool = definitions?.find((tool) => tool.name === block.toolName);\n\t\t\t\tif (tool === void 0) throw new Error(`tool history: missing definition for ${block.toolName}`);\n\t\t\t\treturn [tool];\n\t\t\t});\n\t\t\tfor (const tool of additions) this.declared.set(tool.name, tool);\n\t\t\tfor (const block of message.content) if (block.type === \"tool-addition\") this.available.add(block.toolName);\n\t\t\telse if (block.type === \"tool-removal\") this.available.delete(block.toolName);\n\t\t\tthis.history = deepFreeze({\n\t\t\t\ttools: this.history.tools,\n\t\t\t\tupdates: [...this.history.updates, {\n\t\t\t\t\tmessageId: message.id,\n\t\t\t\t\tadditions\n\t\t\t\t}]\n\t\t\t});\n\t\t}\n\t}\n\t/**\n\t* Read an immutable snapshot; subsequent events do not mutate it.\n\t* @returns initial declarations and historically resolved additions for the current series.\n\t*/\n\tsnapshot() {\n\t\tif (this.active.length !== this.available.size || this.active.some((tool) => !this.available.has(tool.name))) return deepFreeze({\n\t\t\ttools: this.active,\n\t\t\tupdates: []\n\t\t});\n\t\treturn this.history;\n\t}\n};",
+    "createMessage": "function createMessage(input) {\n\treturn deepFreeze(structuredClone({\n\t\t...input,\n\t\tid: brandString(randomUUID())\n\t}));\n}",
+    "createUserMessage": "function createUserMessage(input) {\n\treturn createMessage({\n\t\t...input,\n\t\trole: \"user\"\n\t});\n}",
+    "createAssistantMessage": "function createAssistantMessage(input) {\n\treturn createMessage({\n\t\trole: \"assistant\",\n\t\tcontent: input.content,\n\t\tsource: {\n\t\t\tkind: \"model\",\n\t\t\t...input.source\n\t\t}\n\t});\n}",
+    "createSystemMessage": "function createSystemMessage(text) {\n\treturn createMessage({\n\t\trole: \"system\",\n\t\tcontent: text.length === 0 ? [] : [{\n\t\t\ttype: \"text\",\n\t\t\ttext\n\t\t}],\n\t\tsource: { kind: \"system-prompt\" }\n\t});\n}",
+    "createToolResultMessage": "function createToolResultMessage(input) {\n\treturn createMessage({\n\t\trole: \"tool\",\n\t\tsource: {\n\t\t\tkind: \"tool\",\n\t\t\tcallId: input.callId\n\t\t},\n\t\ttoolCallId: input.callId,\n\t\tcontent: input.content,\n\t\tisError: input.isError\n\t});\n}"
+  },
+  "snippetSha256": {
+    "view": "ee43b0186d1433e31cbe1cc340459b13d49d344f22150a2d8c15e7e667a50b5f",
+    "schemaOf": "2b2b966e9579d00adf52c82b4e65e8c6d28412d6dfb3356456f5e49dda86c81b",
+    "ToolHistoryProjection": "2303c72b36ca4b08d62a39fc70d45b021fdaab5d99399120f6262626d9b8ef30",
+    "createMessage": "74baa44c9dea1821d97bd4fe592b21baf31f60eaf06962a269fcf2ec88e352ae",
+    "createUserMessage": "2c4929c2c18e511aa0fefe216eb50e703191057bb15ba1412ddcfdcc8bfc020f",
+    "createAssistantMessage": "c6c2530be87d4ddae6676d28158000e10eebec3e3c0b3cd72082766d44998741",
+    "createSystemMessage": "8f2172a336e945fb0baf99f3fd4d14a2822876866332bf87b78451fda39e9808",
+    "createToolResultMessage": "55690f7218363e893895d47ac10ead2d9d9b97f057c3cc6e509cb789fcaca9cb"
+  }
+}

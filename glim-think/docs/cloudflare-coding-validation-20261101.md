@@ -219,3 +219,78 @@ its adapter hash is
 The worker's structured coverage and source-path checks are not independent
 semantic acceptance or proof that each file was read. A failure retains explicit
 incomplete state, not a manufactured successful report.
+
+
+### V4 live result: provider error response and retained ownership
+
+The distinct `coding-repository-assessment-v4-20261101-01` attempt was dispatched
+by the Cloudflare alarm at **21:00:36 UTC**, using source commit
+`0e47b7935b8d932edcf7daecf230c5f9b528a4ab`. It checked out the exact 63,334,542-byte
+bundle. The command ended with exit **1** and confirmed container cleanup and
+ledger recording. Its terminal is **unknown**, reason
+`model-terminal-unconfirmed`, with SHA-256
+`6e5672758013ad2ec9aa72e8fe124df57a6d3d374dbc888d86a83d57992e1748`.
+All **21** captured objects (510,973 bytes) were retrieved and hash-verified.
+
+Eight calls completed and reached Harness: three master and five worker turns.
+The ninth operation was dispatched and returned HTTP **200**, but its exact
+10,982-byte archived response used **`stop_reason: "error"`**. The unchanged
+MiniMax validator rejected that control value; the account retained
+`invalid-provider-response` and the broker retained `provider-unknown`.
+Independent offline execution of the exact validation helpers identified this
+predicate. The response contained zero tool-use blocks and was never released to
+Harness. Private reasoning and message text are not published. Raw usage fields
+in this unaccepted response are excluded from completed-call totals.
+
+This failure occurred at nine local reservations, without a role-budget refusal;
+it does not establish a budget or conversation-prefix failure. A subsequent
+master request encountered the already stopped transport and produced a generic
+error. That later error is not the primary cause. The writer was never attempted,
+and the assessment files remain explicit absence records. There is no new coding
+acceptance, scientific acceptance or publication.
+
+Read-only account metadata confirms that the exact ninth request still owns the
+shared MiniMax account pool. The scheduler retains an unresolved **active** slot
+(`active=1`, `held=0`, `queued=0`), with **four attempts / 4,920 reserved seconds**
+and no next alarm. The policy remains enabled; neither its daily budget nor its
+ownership rules were reset. The account admission gate is `attention`, reason
+`account-pool-owned-no-replay`. A new login or quota observation does not resolve
+that ownership.
+
+The existing zero-dispatch scheduler disposition is inapplicable: this attempt
+has eight completed calls and a ninth confirmed dispatch. The old compactor
+acknowledgement and task-specific scientific reconciliation paths also do not
+apply to this primary coding operation. Further recovery needs a separately
+reviewed operator acknowledgement for this exact captured error response,
+binding the account operation revision, original receipt, closed broker,
+container cleanup and ledger terminal. It must preserve the unknown outcome,
+reservation, unaccepted usage and prohibition on replay. No such authority was
+added or invoked during these trials. No further model attempt was launched.
+
+
+### V5 diagnostic preparation; no further live attempt
+
+The final independent V4 audit passed **108 checks**, joining all 21 archived
+objects, nine installed identities and 21 recipe pins. It confirmed that the
+primary error response, shared account ownership and scheduler reservation
+remain unchanged. The provider's underlying reason for the error is unknown.
+
+The separately versioned v5 recipe preserves the first broker failure before a
+later local refusal can mask it. Diagnostics retain only fixed, bounded protocol
+metadata. Interrupted output delivery is labelled incomplete and possibly
+partial; it is not misrepresented as zero delivery. The initial review finding
+and its correction are recorded separately.
+
+The author passed **111 Node tests and eight mocked-process Python tests**. The
+independent reviewer reran **seven focused diagnostic tests** and passed **96
+identity and preservation checks**; the full author counts were verified from
+logs, not independently rerun or added to these counts. The final source lock is
+`ecf45076ae03bfa0888733af49394d2da10f653402a3724b0c07596efaddc12a` and adapter hash is
+`daf191e2c0300feee89b2717469a0e459bcdf3bca36564032279845ba5a5e438`.
+
+This is local diagnostic preparation only. It changes no provider terminal
+validation, Worker or broker source, model cap, ownership, settlement or replay
+rule. No v5 task was enqueued, run or deployed. Four scheduled attempts consumed
+the installed daily reservation budget. The exact-identity operator recovery
+contract remains a proposal requiring separate implementation and review, not an
+available release action. No new subscription-model assessment was accepted.
