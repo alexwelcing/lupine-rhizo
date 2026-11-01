@@ -39,6 +39,16 @@ function fixture() {
 }
 
 describe("agenda claim ownership on real SQLite", () => {
+  it("reserves coding tasks for their dedicated immutable-attempt ledger", async () => {
+    const h = fixture(); await ensureAgendaSchema(h.env);
+    h.insert("coding", "coding", 0); h.insert("normal", "test", 1);
+    h.db.prepare("UPDATE intelligence_tasks SET domain = 'coding' WHERE task_id = 'coding'").run();
+    expect((await claimAgendaTasks(h.env, "general-agent", 10)).map(row => row.task_id)).toEqual(["normal"]);
+    expect(await claimAgendaTasks(h.env, "general-agent", 10, "coding")).toEqual([]);
+    expect(h.db.prepare("SELECT status, claimed_by FROM intelligence_tasks WHERE task_id='coding'").get())
+      .toMatchObject({ status: "queued", claimed_by: null });
+  });
+
   it("returns one dispatch-eligible owner when two claims interleave for one task", async () => {
     const h = fixture(); await ensureAgendaSchema(h.env); h.insert("one"); h.synchronize();
     const results = await Promise.all([claimAgendaTasks(h.env, "worker-a", 1), claimAgendaTasks(h.env, "worker-b", 1)]);

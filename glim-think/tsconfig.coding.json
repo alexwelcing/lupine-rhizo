@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "lib": ["ES2022"],
+    "typeRoots": ["./coding-runner/node_modules", "./coding-runner/node_modules/@types"],
+    "types": ["@cloudflare/workers-types", "node"],
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/coding/**/*.ts"],
+  "exclude": ["src/coding/__tests__"]
+}

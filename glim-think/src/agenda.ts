@@ -422,10 +422,10 @@ export async function claimAgendaTasks(env: Env, agentId: string, limit = 10, sp
     WHERE task_id IN (
       SELECT task_id
       FROM intelligence_tasks
-      WHERE status = 'queued' AND (?3 IS NULL OR specialty = ?3)
+      WHERE status = 'queued' AND domain != 'coding' AND (?3 IS NULL OR specialty = ?3)
       ORDER BY priority ASC, due_at ASC, created_at ASC, task_id ASC
       LIMIT ?2
-    ) AND status = 'queued'
+    ) AND status = 'queued' AND domain != 'coding'
     RETURNING *
   `).bind(agentId, cappedLimit, specialty || null).all();
   return tasks.results;
