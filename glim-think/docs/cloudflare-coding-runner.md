@@ -52,6 +52,15 @@ package resolution or a universal network-isolation proof.
 
 Version 1 keeps `mode: "code-execution"` unchanged. Version 2 adds `mode: "dsh-subscription"` with a fixed MiniMax included-plan model and explicit request/output limits. A private service binding owns provider credentials; the guest receives only a short-lived task capability. Actual hosted model access requires separate live evidence. There is no paid API or Workers AI fallback. See [the model recipe](../scripts/coding-dsh-model/README.md) and [broker installation](../integrations/research-coding-broker/README.md).
 
+The separately versioned [corrected model recipe](../scripts/coding-dsh-model-v2/README.md)
+excludes five unavailable inherited placeholder tools from each agent's visible
+surface. It preserves all Runtime-owned tools and the available native read/bash
+tools within the existing 16-tool limit. The original recipe and first failed
+attempt remain frozen. Source-derived regressions cover the initial request and
+its tool-result continuation; actual complete Harness execution remains a
+separate live qualification. Missing reports receive explicit absence records
+and cannot become successful assessments.
+
 ## Install and verify
 
 The small `coding-runner/` toolchain pins Wrangler and Container types separately
