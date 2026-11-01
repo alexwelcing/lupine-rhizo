@@ -3,9 +3,14 @@ import { codingFetch } from './runner-http';
 import { admitCodingAttempt, recordCodingTerminal } from './ledger';
 import { CodingRunnerCore, type RunnerContainer, type RunnerStore, type RunnerBlobs } from './runner-core';
 import { assertRunner, publicCodingState } from './runner-contract';
+import { CodingSchedule } from './scheduler-worker';
+import { openCodingModel, invokeCodingModel, closeCodingModel } from './model-bridge';
+export { CodingSchedule };
 
 export interface CodingRunnerEnv {
   CODING_RUNNER: DurableObjectNamespace<CodingRunner>;
+  CODING_SCHEDULER: DurableObjectNamespace<CodingSchedule>;
+  CODING_MODELS?:Fetcher;
   CODING_EVIDENCE: R2Bucket; LEDGER: D1Database;
   RUNNER_OPERATOR_TOKEN?:string; CODING_AGENT_ID?:string;
   CF_ACCESS_TEAM_DOMAIN?:string;CF_ACCESS_AUD?:string;ADMIN_EMAIL?:string;
@@ -17,7 +22,8 @@ export class CodingRunner extends DurableObject<CodingRunnerEnv>{
     const container=ctx.container as unknown as RunnerContainer|undefined;
     // Construction/status never starts a container. Missing binding is rejected on admission.
     this.core=new CodingRunnerCore({store:ctx.storage as unknown as RunnerStore,container:container as RunnerContainer,blobs:env.CODING_EVIDENCE as unknown as RunnerBlobs,
-      admit:input=>admitCodingAttempt(env.LEDGER,input),terminal:input=>recordCodingTerminal(env.LEDGER,input)});
+      admit:input=>admitCodingAttempt(env.LEDGER,input),terminal:input=>recordCodingTerminal(env.LEDGER,input),
+      commandEnvironment:state=>openCodingModel(env,ctx.storage,state),modelTerminal:state=>closeCodingModel(env,ctx.storage,state)});
   }
   async submit(raw:unknown){
     assertRunner(this.ctx.container,'Coding container binding unavailable',503);
@@ -27,6 +33,7 @@ export class CodingRunner extends DurableObject<CodingRunnerEnv>{
   }
   async reconcile(){await this.core.reconcileTerminal();return this.status();}
   async status(){return publicCodingState(await this.core.status());}
+  async model(capability:string,turn:unknown):Promise<Record<string,unknown>>{return invokeCodingModel(this.env,this.ctx.storage,await this.core.status(),capability,turn);}
   async evidence(hash:string):Promise<Response>{
     assertRunner(/^[0-9a-f]{64}$/.test(hash),'Invalid evidence digest');
     const state=await this.core.status();assertRunner(state,'Attempt not found',404);

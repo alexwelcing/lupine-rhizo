@@ -2,6 +2,7 @@ import { checkAccess } from '../middleware/access';
 import type { Env } from '../types';
 import type { CodingRunnerEnv } from './runner-worker';
 import { RUNNER_LIMITS, RunnerError, assertRunner, parseCodingTask, validId } from './runner-contract';
+import { CodingSchedulerError } from './scheduler-state';
 const headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const json=(value:unknown,status=200)=>Response.json(value,{status,headers});
 function sameSecret(a:string,b:string){if(a.length!==b.length)return false;let diff=0;for(let i=0;i<a.length;i++)diff|=a.charCodeAt(i)^b.charCodeAt(i);return diff===0;}
@@ -18,20 +19,36 @@ export async function authorizeCodingRequest(request:Request,env:CodingRunnerEnv
   }catch{return json({error:'Verified operator authentication required'},403);}
   return null;
 }
-async function boundedJson(request:Request):Promise<unknown>{
+async function boundedJson(request:Request,limit:number=RUNNER_LIMITS.manifestBytes):Promise<unknown>{
   assertRunner(request.headers.get('Content-Type')?.split(';')[0].trim()==='application/json','Use application/json',415);
   assertRunner(!request.headers.has('Content-Encoding')&&request.body,'A bounded uncompressed JSON body is required');
   const reader=request.body.getReader();let count=0;const chunks:Uint8Array[]=[];
-  try{for(;;){const next=await reader.read();if(next.done)break;count+=next.value.length;assertRunner(count<=RUNNER_LIMITS.manifestBytes,'Coding manifest too large',413);chunks.push(next.value);}}
+  try{for(;;){const next=await reader.read();if(next.done)break;count+=next.value.length;assertRunner(count<=limit,'Coding request too large',413);chunks.push(next.value);}}
   catch(error){await reader.cancel().catch(()=>{});throw error;}finally{reader.releaseLock();}
   const bytes=new Uint8Array(count);let offset=0;for(const b of chunks){bytes.set(b,offset);offset+=b.length;}
   try{return JSON.parse(new TextDecoder('utf-8',{fatal:true,ignoreBOM:false}).decode(bytes));}catch{throw new RunnerError(400,'Invalid coding JSON');}
 }
 export async function codingFetch(request:Request,env:CodingRunnerEnv):Promise<Response>{
     try{
-      const denial=await authorizeCodingRequest(request,env);if(denial)return denial;
       const path=new URL(request.url).pathname;
-      if(path==='/coding/capabilities'&&request.method==='GET')return json({schema:'lupine.coding-runner-capabilities.v1',mode:'code-execution',image:'cloudflare/debian-trixie',imageDigestPinned:false,modelExecution:'unqualified',providerCredentialsSupplied:false,metadataDoesNotStartContainer:true,automaticReplay:false,limits:RUNNER_LIMITS});
+      const model=/^\/coding\/tasks\/([^/]+)\/model$/.exec(path);
+      if(model&&request.method==='POST'&&validId(model[1])){
+        assertRunner(!request.headers.has('Origin'),'Browser model calls are not accepted',403);
+        const auth=request.headers.get('Authorization')??'';assertRunner(/^Bearer [a-f0-9]{64}$/.test(auth),'Task capability required',403);
+        return json(await env.CODING_RUNNER.getByName(model[1]).model(auth.slice(7),await boundedJson(request,300*1024)));
+      }
+      const denial=await authorizeCodingRequest(request,env);if(denial)return denial;
+      if(path==='/coding/capabilities'&&request.method==='GET')return json({schema:'lupine.coding-runner-capabilities.v2',modes:['code-execution','dsh-subscription'],image:'cloudflare/debian-trixie',imageDigestPinned:false,modelExecution:env.CODING_MODELS?'included-broker-configured-live-qualification-separate':'unavailable',providerCredentialsSupplied:false,metadataDoesNotStartContainer:true,automaticReplay:false,limits:RUNNER_LIMITS});
+      if(path==='/coding/scheduler'&&request.method==='GET')return json(await env.CODING_SCHEDULER.getByName('coding-scheduler-v1').status());
+      if(path.startsWith('/coding/scheduler/')&&request.method==='POST'){
+        const action=path.slice('/coding/scheduler/'.length),scheduler=env.CODING_SCHEDULER.getByName('coding-scheduler-v1');
+        const value:any=await boundedJson(request,32*1024);
+        if(action==='configure')return json(await scheduler.configure(value.policy,value.expectedPolicySha256));
+        if(action==='enqueue')return json(await scheduler.enqueue(value),202);
+        if(action==='tick') {assertRunner(value&&Object.keys(value).length===0,'Tick accepts no parameters');return json(await scheduler.tick());}
+        if(action==='stop')return json(await scheduler.stopQueued(value.attemptId));
+        if(action==='reconcile')return json(await scheduler.reconcile(value.attemptId));
+      }
       if(path==='/coding/tasks'&&request.method==='POST'){
         const task=parseCodingTask(await boundedJson(request));const result=await env.CODING_RUNNER.getByName(task.attemptId).submit(task);
         return json(result,result.created?202:200);
@@ -44,5 +61,5 @@ export async function codingFetch(request:Request,env:CodingRunnerEnv):Promise<R
         const state=await stub.status();return state?json({attempt:state}):json({error:'Attempt not found'},404);
       }
       return json({error:'Coding route not found'},404);
-    }catch(error){return error instanceof RunnerError?json({error:error.message},error.code):json({error:'Coding runner operation unavailable; inspect the existing attempt before any new action'},503);}
+    }catch(error){return error instanceof RunnerError?json({error:error.message},error.code):error instanceof CodingSchedulerError?json({error:error.message},error.code==='invalid-input'?400:409):json({error:'Coding runner operation unavailable; inspect the existing attempt before any new action'},503);}
 }

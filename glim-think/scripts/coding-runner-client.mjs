@@ -4,8 +4,10 @@ import { readFile, writeFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const [action, input, output] = process.argv.slice(2);
-if (!['submit', 'status'].includes(action) || !input || !output) {
-  console.error('Usage: node scripts/coding-runner-client.mjs submit manifest.json receipt.json | status attempt-id receipt.json');
+const scheduledActions=['configure','enqueue','tick','stop','reconcile'];
+const schedulerAction=action?.startsWith('schedule-')?action.slice(9):null;
+if (!['submit', 'status', 'schedule-status', ...scheduledActions.map(x=>'schedule-'+x)].includes(action) || !input || !output) {
+  console.error('Usage: coding-runner-client.mjs submit manifest.json receipt.json | status attempt-id receipt.json | schedule-status - receipt.json | schedule-{configure,enqueue,tick,stop,reconcile} request.json receipt.json');
   process.exit(2);
 }
 try {
@@ -22,18 +24,21 @@ try {
   const headers = new Headers({ Authorization: `Bearer ${token}`, Accept: 'application/json' });
   let body;
   let path;
-  if (action === 'submit') {
+  if (action === 'submit' || scheduledActions.includes(schedulerAction)) {
     body = await readFile(input, 'utf8');
-    if (Buffer.byteLength(body) > 65536) throw new Error('Manifest exceeds 64 KiB');
+    if (Buffer.byteLength(body) > (schedulerAction?32768:65536)) throw new Error('Request exceeds its byte bound');
     JSON.parse(body);
-    path = '/coding/tasks';
+    path = schedulerAction?'/coding/scheduler/'+schedulerAction:'/coding/tasks';
     headers.set('Content-Type', 'application/json');
+  } else if(action==='schedule-status') {
+    if(input!=='-')throw new Error('Schedule status takes - as its input');
+    path='/coding/scheduler';
   } else {
     if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$/.test(input)) throw new Error('Invalid attempt id');
     path = `/coding/tasks/${encodeURIComponent(input)}`;
   }
   const response = await fetch(new URL(path, origin), {
-    method: action === 'submit' ? 'POST' : 'GET', headers, body,
+    method: body!==undefined ? 'POST' : 'GET', headers, body,
     redirect: 'manual', signal: AbortSignal.timeout(30000),
   });
   const reader = response.body?.getReader();

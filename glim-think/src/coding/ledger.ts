@@ -173,7 +173,7 @@ export async function admitCodingAttempt(db: D1Database, supplied: CodingAdmissi
   identity(input);
   const manifest = await checkedJson(input.manifestJson, input.inputSha256);
   if (manifest.taskId !== input.taskId || manifest.attemptId !== input.attemptId
-    || manifest.schema !== "lupine.coding-task.v1") invalid("Manifest identity mismatch");
+    || !["lupine.coding-task.v1","lupine.coding-task.v2"].includes(String(manifest.schema))) invalid("Manifest identity mismatch");
   const results = await db.batch([
     db.prepare(`INSERT OR IGNORE INTO coding_attempts (attempt_id, task_id, owner_id, input_sha256, manifest_json)
       SELECT ?1, task_id, ?3, ?4, ?5 FROM intelligence_tasks

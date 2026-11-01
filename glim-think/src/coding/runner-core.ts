@@ -7,6 +7,8 @@ export interface RunnerContainer { running:boolean; start(options:{image:string;
 export interface RunnerBlobs { get(key:string):Promise<{body:ReadableStream<Uint8Array>;size:number}|null>; put(key:string,bytes:Uint8Array,options?:unknown):Promise<unknown> }
 export interface RunnerDependencies { store:RunnerStore; blobs:RunnerBlobs; container:RunnerContainer; now?:()=>number;
   cleanupTimeoutMs?:number;
+  commandEnvironment?(state:CodingState):Promise<Record<string,string>>;
+  modelTerminal?(state:CodingState):Promise<{confirmed:boolean;metadata:Record<string,unknown>}>;
   admit(input:{taskId:string;attemptId:string;ownerId:string;inputSha256:string;manifestJson:string}):Promise<{admission:'created'|'replay'}>;
   terminal(input:{taskId:string;attemptId:string;ownerId:string;inputSha256:string;outcome:'succeeded'|'failed'|'unknown';receiptJson:string;receiptSha256:string;executionExitCode:number|null;evidence:EvidenceRef|null;evidenceVerified:boolean;cleanupConfirmed:boolean}):Promise<unknown>;
 }
@@ -113,11 +115,11 @@ export class CodingRunnerCore {
     }}catch{incomplete=true;this.halted=true;void this.destroy();}finally{reader.releaseLock();}
     return {bytes:joined(chunks,size),incomplete};
   }
-  private async execute(args:string[],cwd='/run/lupine-coding',stdin?:ReadableStream<Uint8Array>,limit=L.logBytes){
+  private async execute(args:string[],cwd='/run/lupine-coding',stdin?:ReadableStream<Uint8Array>,limit=L.logBytes,extraEnv:Record<string,string>={}){
     await this.active();
     await this.changeActive(s=>{s.pendingExec=true;});
     this.pendingHandles++;
-    const promise=this.deps.container.exec(args,{cwd,user:'0:0',env:{...ENV},stdout:'pipe',stderr:'pipe',...(stdin?{stdin}: {})});
+    const promise=this.deps.container.exec(args,{cwd,user:'0:0',env:{...ENV,...extraEnv},stdout:'pipe',stderr:'pipe',...(stdin?{stdin}: {})});
     // A start acknowledgement arriving after timeout must not leave a live guest.
     void promise.then(()=>{this.pendingHandles--;if(this.halted)void this.bounded(this.deps.container.destroy('late-coding-exec'),this.deps.cleanupTimeoutMs??5000);},()=>{this.pendingHandles--;});
     const process=await promise;
@@ -186,8 +188,10 @@ export class CodingRunnerCore {
         :['/bin/sh','-c','set -eu; git -c core.hooksPath=/dev/null clone --quiet --no-checkout /run/lupine-coding/source.bundle /workspace/repo; git -C /workspace/repo -c core.hooksPath=/dev/null checkout --quiet --detach "$1"; git -C /workspace/repo rev-parse HEAD','checkout',claimed.task.repository.commit],'/workspace');
       await this.saveSetup('checkout',checkout);
       assertRunner(!checkout.incomplete&&checkout.exitCode===0&&new TextDecoder().decode(checkout.stdout).trim()===claimed.task.repository.commit,'Pinned commit checkout failed',409);
+      const commandEnv=claimed.task.model?await this.deps.commandEnvironment?.(await this.active()):{};
+      assertRunner(!claimed.task.model||commandEnv,'Included model broker unavailable',503);
       await this.active();await this.changeActive(s=>{s.status='executing';s.executionStarted=true;});
-      const command=await this.execute(['/usr/bin/timeout','--signal=TERM','--kill-after=5',String(claimed.task.timeoutSeconds),'/bin/bash','--noprofile','--norc','-c',claimed.task.command],'/workspace/repo');
+      const command=await this.execute(['/usr/bin/timeout','--signal=TERM','--kill-after=5',String(claimed.task.timeoutSeconds),'/bin/bash','--noprofile','--norc','-c',claimed.task.command],'/workspace/repo',undefined,L.logBytes,commandEnv??{});
       const stdout=await this.save('stdout',command.stdout),stderr=await this.save('stderr',command.stderr);
       await this.changeCapture(s=>{s.executionExitCode=command.exitCode;s.evidence.push(stdout,stderr);if(ACTIVE.has(s.status))s.status='collecting';});
       assertRunner(!command.incomplete,'Command output or terminal evidence incomplete',409);
@@ -216,10 +220,16 @@ export class CodingRunnerCore {
     if(!locked)return;
     const cleaned=await this.destroy();if(!cleaned){outcome='unknown';reason='container-cleanup-unconfirmed';}
     const current=await this.status();if(!current||current.terminalIntent)return;
+    let modelEvidence:Record<string,unknown>|null=null;
+    if(current.task.model){
+      const model=await this.bounded(this.deps.modelTerminal?.(current)??Promise.reject(Error('broker unavailable')),15000);
+      modelEvidence=model?.metadata??{state:'unavailable'};
+      if(!model?.confirmed){outcome='unknown';reason='model-terminal-unconfirmed';}
+    }
     const payload={schema:'lupine.coding-terminal.v1',taskId:current.task.taskId,attemptId:current.task.attemptId,inputSha256:current.inputSha256,ownerId:current.ownerId,
       repository:current.task.repository,source:current.task.source,mode:current.task.mode,outcome,reason,executionStarted:current.executionStarted,executionExitCode:current.executionExitCode,
       claimedAt:current.claimedAt,finishedAt:this.iso(),cleanupConfirmed:cleaned,evidence:current.evidence,environment:current.environment,
-      setupStage:current.setupStage??null,sourceCommitChecked:current.executionStarted,providerCredentialsSupplied:false,modelExecutionQualified:false,guestPrivilege:'root-within-dedicated-container',
+      setupStage:current.setupStage??null,sourceCommitChecked:current.executionStarted,providerCredentialsSupplied:false,modelExecutionQualified:!!modelEvidence&&Number(modelEvidence.completedRequests)>0&&outcome==='succeeded',modelEvidence,guestPrivilege:'root-within-dedicated-container',
       artifactScope:'Guest-produced bytes observed after command exit; not a semantic verdict or atomic filesystem snapshot.',acceptance:'separate-review-required',automaticReplay:false};
     const receiptJson=canonical(payload),receiptSha256=await sha256(receiptJson);
     await this.change(s=>{assertRunner(s.status==='finalizing'&&!s.terminalIntent,'Terminal intent already fixed',409);s.cleanupConfirmed=cleaned;s.cleanupAttempts++;s.terminalIntent={outcome,reason,receiptJson,receiptSha256,cleanupConfirmed:cleaned};});

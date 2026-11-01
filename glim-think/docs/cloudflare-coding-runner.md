@@ -6,7 +6,7 @@ task. Each task has one immutable attempt; execution results and review acceptan
 are different records. The runner does not admit new research or publish articles.
 
 The separate `wrangler.coding.jsonc` deploys `lupine-coding-runner-v01`. It does not
-redeploy `glim-think-v1` or `lupine-research-team-v02`. The runner uses a separate
+redeploy `glim-think-v1`. The model integration separately adds a binding-only broker to `lupine-research-team-v02`, preserving its public router and existing runtime bundles. The runner uses a separate
 private R2 bucket. Do not substitute Rhizo's public `ARTIFACTS` bucket.
 
 ## What a coding task can do
@@ -50,10 +50,7 @@ and tool versions. Online setup may install Git, Python and Bash; an offline tas
 must already have the required tools. These facts do not establish reproducible
 package resolution or a universal network-isolation proof.
 
-`mode: "code-execution"` is the implemented execution mode. The DSH prototype can
-be evaluated as software by an authorized command, but this does not establish a
-working DSH model route. There is no automatic provider invocation, subscription
-credential import, API-credit fallback or Workers AI fallback.
+Version 1 keeps `mode: "code-execution"` unchanged. Version 2 adds `mode: "dsh-subscription"` with a fixed MiniMax included-plan model and explicit request/output limits. A private service binding owns provider credentials; the guest receives only a short-lived task capability. Actual hosted model access requires separate live evidence. There is no paid API or Workers AI fallback. See [the model recipe](../scripts/coding-dsh-model/README.md) and [broker installation](../integrations/research-coding-broker/README.md).
 
 ## Install and verify
 
@@ -111,7 +108,7 @@ The runner saves its dispatch intent before starting a guest or issuing a
 command. Duplicate identical submissions return existing metadata; changed
 identities conflict. Reconstructed or uncertain execution never automatically
 replays. The task deadline and cleanup alarm belong to this finite attempt;
-there are no recurring check-ins or scheduled admissions.
+there are no chat check-ins. The optional durable scheduler admits only exact authorized queue items within its configured limits. It creates no idle alarm and does not invent new tasks.
 
 Bounded stdout and stderr are drained together. Requested artifact paths are
 read with containment checks, hashed, written outside the guest, and read back.
@@ -134,3 +131,17 @@ previews need a separate origin so they cannot exercise workspace administrator
 cookies. Browser URL-policy restrictions remain independent of guest permissions.
 
 Observed release evidence: [Cloudflare source import and DeepSeek orchestration validation](cloudflare-coding-validation-20261101.md).
+
+## Automatic queue dispatch
+
+The operator-authenticated scheduler is one Durable Object. Configure it with an exact versioned policy and compare-and-swap `expectedPolicySha256`; enqueue `{task, authorizationId, expiresAtMs}`. Enqueue creates/preclaims the coding agenda row atomically, avoiding the old generic scheduler. A task authorization expires within seven days. The policy limits concurrency, daily/lifetime attempt counts, and full wall-time reservations. Reservations are not measured billing.
+
+```sh
+node scripts/coding-runner-client.mjs schedule-configure policy-request.json configure-receipt.json
+node scripts/coding-runner-client.mjs schedule-enqueue authorization.json enqueue-receipt.json
+node scripts/coding-runner-client.mjs schedule-status - scheduler-observation.json
+```
+
+Cloudflare alarms own dispatch and bounded terminal observation. A lost dispatch acknowledgement is never replayed. Unknown executions retain capacity. `schedule-stop` removes only an undispatched queue item; `schedule-reconcile` observes the exact existing attempt and cannot restart it. Disabling the policy stops future admission while active attempts retain cleanup supervision. Empty queues have no alarm.
+
+For subscription tasks, fresh credits-OFF evidence and authenticated quota remain required. An expired proof yields a wait, not a paid fallback. This route still depends on a real browser observation for credit-control freshness; enabling scheduling does not establish fully unattended subscription eligibility. Native/Claude scientific work and public Library publication are separate authorities.

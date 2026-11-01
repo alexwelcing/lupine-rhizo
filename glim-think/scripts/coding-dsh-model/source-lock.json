@@ -1,0 +1,20 @@
+{
+  "schema": "lupine.dsh-model-source-lock.v1",
+  "createdAt": "2026-11-01T20:05:32.774407+00:00",
+  "frozenQualificationLockSha256": "4f57fc76549497aa45b4d56e06798622078d1b35dc6f66af05e100a9798b6835",
+  "files": {
+    "transport.mjs": "56c25b7bc0136803a4b8e2adbc7e8e13437ce2834c697e5f136e55047303cea7",
+    "transport.test.mjs": "5cf90fb0df0f17b89f9dbea0f7145f218366a6e0e4461fb8f47cd9f421e7f600",
+    "run-agent.mjs": "b84b0a7d2593dca7a0409f28404e328ecce286e09979efe4535a070f5f374e82",
+    "prepare.mjs": "0fff43d76d9ec8911b26c7e039a396653a40b33514fda0a6d125a106eabe16d8",
+    "execute.py": "f63e8caf23c2647be65d3625e0819344f672ad2755888b9d6e376438e7154a7b",
+    "execute.test.py": "3aa8f829b1e75f1d85a85b9fda7f299e977406e6997ede2bd5bec4373c402350",
+    "bootstrap-node.py": "ddfe9bb909415589ebff560e546dd58763b3621b3aa7dffcdcaa3ba0e8d73045",
+    "initial-assessment-task.json": "8a9de80bc34796cf12699068088045f07c7282b80d3eb20004c62f3a97b8f54b",
+    "README.md": "40522daceddbf3c1e44130d74b026aed38b0dad29ca5a7833c23315df5a4ed82"
+  },
+  "sourceQualificationReceiptSha256": "bf4f953c22aa69b09332ca2a0052a5e2b6d70f1cdbd341d78779bbf27e81bf56",
+  "sourceQualificationReceipt": "work/cloudflare-coding-autonomy-20261101/dsh-llm-source/receipt.json",
+  "qualification": "Local source and mocked protocol tests; model inference and hosted composition not yet performed",
+  "providerCredentialInGuest": false
+}
