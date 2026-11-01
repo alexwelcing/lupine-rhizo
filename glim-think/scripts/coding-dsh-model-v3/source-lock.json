@@ -1,0 +1,61 @@
+{
+  "schema": "lupine.dsh-model-source-lock.v3",
+  "createdAt": "2026-11-01T20:35:08.298180+00:00",
+  "parentModelRecipeSha256": "37bd9b538215da04bb3be976e9b0971a5fd8c529f09544fc1431deb18a8b96e3",
+  "frozenQualificationLockSha256": "4f57fc76549497aa45b4d56e06798622078d1b35dc6f66af05e100a9798b6835",
+  "files": {
+    "README.md": "86e67ac5c5362de4c6b9fe6c9cf7074a4825b258283f7bafe536d62dd9ce43c5",
+    "bootstrap-node.py": "ddfe9bb909415589ebff560e546dd58763b3621b3aa7dffcdcaa3ba0e8d73045",
+    "execute.py": "e92f51407baa174161101a391572ede5bc69ce2c0487d37daf359ace041fa3e4",
+    "execute.test.py": "06284bb6403b5d13bb0f42821e5c5ee07f0c06c40e36edd44cd9a819a8221237",
+    "initial-assessment-task.json": "8a9de80bc34796cf12699068088045f07c7282b80d3eb20004c62f3a97b8f54b",
+    "prepare.mjs": "c798e8173b2608c0283a7a596ee48b00e84ace0e31c6a402d77301d605433f43",
+    "projection-identity.json": "a4bd4bf25c97bb3e3d83419a02f7b8d8c5a30342c08b51088c39c3e8015c153a",
+    "projection-runtime-pins.json": "6c6eac0f9228938d20c5362a5844043c7e248ad7ef3dc8b75a61f6309ff17030",
+    "run-agent.mjs": "ff3a653df48927f2f5800e170d347f50f170182ff28cd41e3701f10e6508a66b",
+    "schema-families.json": "3a48fac9f17459908d91b1d65c1b1fabc72bcd9b71af7854e31bcc3952e93acc",
+    "schema-registration-v3.patch": "a2dcfc3993142379b35ee93c9662279721d34a267c1f3c157eadfcd5271ba292",
+    "source-shape-fixture.json": "449f3d530e80274c7110e5deab7b5223abffa6aa6b99045a1040ea4ae328ff96",
+    "source-shape.test.mjs": "d08010c34ce3e283b7e925427c9834db058b9b5847eb11f52c59ca1f3fcbba6f",
+    "tool-surface.mjs": "1752fd920e8b19c4a80c3fec25cabdfe52edce7f04c3b3f6749ebf1847f33ea2",
+    "transport.mjs": "470746174ccdfce250a4ba66ddaac521e2a01b65b2c6a2e77bdade97360b184c",
+    "transport.test.mjs": "657deaaa4e0fa3419585c1f1e0f5f0a5869a0ae2e31f70705b3f355a7325da5a",
+    "zod-schema.mjs": "037fd3aff87831ea159e498e5e83bc9b80c01eb814bc9fd844da891c8cdae2e4",
+    "zod-schema.test.mjs": "46e5ab65a67b09f73f98a5e06dd09f9e13157b4bfe73bef1333b783d1a5c098b"
+  },
+  "projectionRuntimePins": [
+    {
+      "path": "zod/package.json",
+      "sha256": "c630bd10b52dcf71c112a2bf78dbf2734b9db58d62de663b8d86c2ec2c8cda2e"
+    },
+    {
+      "path": "zod/v4/core/to-json-schema.js",
+      "sha256": "fb3c9ab59947582f7671a53c8e20a3ced5eaa92d1c220ce8b27717a59033ad0d"
+    },
+    {
+      "path": "@deepseek-ai/dsh-util-values/lib/index.js",
+      "sha256": "4322a2aacdfe38476d2bbc62338120beea1e1660346d7db5b6c1e1f927a26b7c"
+    }
+  ],
+  "registrationProjection": {
+    "sourcePath": "src/app/sessions.ts",
+    "sourceSha256": "ca2b98e57e9f27b2abb0afab59d44ea744a96d8be4cf81d7b3776901b56cd36b",
+    "derivedSha256": "669b737272cd11cdfb42ec69a628f0660a84468beffe8390c2c0778d2ebf7049",
+    "helperPath": "src/app/coding-zod-schema.mjs",
+    "helperSha256": "037fd3aff87831ea159e498e5e83bc9b80c01eb814bc9fd844da891c8cdae2e4",
+    "patchSha256": "a2dcfc3993142379b35ee93c9662279721d34a267c1f3c157eadfcd5271ba292"
+  },
+  "sourceQualificationReceipts": [
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/model-v3-source/receipt.json",
+      "sha256": "5a06185632dd3af7fb8a5378f04b7b2700540d0e4239bf43b5902968a49b33f2"
+    },
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/model-v3-source/schema-source-receipt.json",
+      "sha256": "e68595182ebf7bab02859c9a3480dba1f54f6b93ee514ab193b489fe3793c9d5"
+    }
+  ],
+  "qualification": "44 adapter/source-method +36 real pinned Zod/util-values schema tests,8 mocked process tests,7 patch/syntax checks. Complete Runtime/Harness and provider not rerun.",
+  "providerCredentialInGuest": false,
+  "oldAttemptsReplayed": false
+}

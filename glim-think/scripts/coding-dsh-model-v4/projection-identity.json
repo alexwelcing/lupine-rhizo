@@ -1,0 +1,8 @@
+{
+  "sourcePath": "src/app/sessions.ts",
+  "sourceSha256": "ca2b98e57e9f27b2abb0afab59d44ea744a96d8be4cf81d7b3776901b56cd36b",
+  "derivedSha256": "f7c22669cc10e717e76de9c799d37d068704332061d1dbffad447cf2db4e1afa",
+  "helperPath": "src/app/coding-zod-schema.mjs",
+  "helperSha256": "037fd3aff87831ea159e498e5e83bc9b80c01eb814bc9fd844da891c8cdae2e4",
+  "patchSha256": "b78e8239ef438bf7db14033b2173d095dff639945df597cf2e4b636c16f38f20"
+}

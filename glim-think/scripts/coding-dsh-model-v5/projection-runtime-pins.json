@@ -1,0 +1,14 @@
+[
+  {
+    "path": "zod/package.json",
+    "sha256": "c630bd10b52dcf71c112a2bf78dbf2734b9db58d62de663b8d86c2ec2c8cda2e"
+  },
+  {
+    "path": "zod/v4/core/to-json-schema.js",
+    "sha256": "fb3c9ab59947582f7671a53c8e20a3ced5eaa92d1c220ce8b27717a59033ad0d"
+  },
+  {
+    "path": "@deepseek-ai/dsh-util-values/lib/index.js",
+    "sha256": "4322a2aacdfe38476d2bbc62338120beea1e1660346d7db5b6c1e1f927a26b7c"
+  }
+]

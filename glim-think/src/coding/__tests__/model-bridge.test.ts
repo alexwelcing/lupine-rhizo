@@ -1,0 +1,83 @@
+import {it,expect} from 'vitest';
+import {openCodingModel,invokeCodingModel,closeCodingModel,codingBrokerCall} from '../model-bridge';
+import {canonical,sha256,parseCodingTask,type CodingState,type CodingTask} from '../runner-contract';
+import {CodingRunnerCore,type RunnerStore,type RunnerDependencies,type RunnerProcess} from '../runner-core';
+import {codingFetch} from '../runner-http';
+import type {CodingRunnerEnv} from '../runner-worker';
+import {CodingModelBrokerCore} from '../model-broker-core';
+class Store implements RunnerStore {
+  values=new Map<string,unknown>();private queue=Promise.resolve();alarm:number|null=null;
+  async get<T>(k:string){return structuredClone(this.values.get(k)) as T|undefined;}async put<T>(k:string,v:T){this.values.set(k,structuredClone(v));}
+  async setAlarm(at:number){this.alarm=at;}async deleteAlarm(){this.alarm=null;}
+  transaction<T>(fn:(tx:RunnerStore)=>Promise<T>):Promise<T>{const next=this.queue.then(()=>fn(this));this.queue=next.then(()=>{},()=>{});return next;}
+}
+const model={provider:'minimax' as const,route:'minimax-subscription' as const,model:'MiniMax-M3.1-Flash' as const,maxRequests:3,maxOutputTokens:4096,adapterSha256:'c'.repeat(64)};
+function task():CodingTask{return {schema:'lupine.coding-task.v2',taskId:'model-task',attemptId:'model-attempt',repository:{owner:'alexwelcing',name:'lupine-rhizo',commit:'a'.repeat(40)},source:{kind:'git-bundle',artifactKey:'sources/'+'b'.repeat(64)+'.bundle',sha256:'b'.repeat(64),bytes:1},mode:'dsh-subscription',command:'fixture-command',timeoutSeconds:30,enableInternet:true,artifactPaths:[],model:{...model}};}
+async function fixture(){
+ const store=new Store(),t=task(),now=Date.now(),state:CodingState={schema:'lupine.coding-attempt.v1',task:t,inputSha256:await sha256(canonical(t)),ownerId:'cloudflare-coding-runner',status:'preparing',claimedAt:new Date(now).toISOString(),deadlineAtMs:now+60000,updatedAt:new Date(now).toISOString(),executionStarted:false,executionExitCode:null,reason:null,cleanupConfirmed:false,evidence:[],receipt:null,ledgerRecorded:false,pendingExec:false,cleanupAttempts:0,terminalIntent:null,environment:null};await store.put('attempt',state);
+ const calls:Array<{path:string;body:any}>=[];let opened:any;
+ let handler=async(path:string,body:any):Promise<Response>=>{
+  if(path==='/open'){opened={taskId:body.permit.taskId,attemptId:body.permit.attemptId,inputSha256:body.permit.inputSha256,status:'open',expiresAtMs:body.permit.expiresAtMs,permitSha256:await sha256(canonical(body.permit))};return Response.json(opened);}
+  if(path==='/invoke')return Response.json({ok:true,state:'completed',content:[{type:'text',text:'fixture'}]});
+  if(path==='/close')return Response.json({confirmed:!!opened,inputSha256:body.inputSha256,completedRequests:1,pendingUnknown:false,status:opened?{...opened,status:'closed'}:null});
+  return Response.json({allowed:true});
+ };
+ const env={CODING_MODELS:{fetch:async(request:Request)=>{expect(request.redirect).toBe('manual');expect(new URL(request.url).origin).toBe('https://coding-broker.internal');const path=new URL(request.url).pathname,body=await request.json();calls.push({path,body});return handler(path,body);}}} as unknown as CodingRunnerEnv;
+ const storage=store as unknown as DurableObjectStorage;
+ return {store,storage,state,env,calls,setHandler(fn:typeof handler){handler=fn;},getHandler(){return handler;},async open(){const out=await openCodingModel(env,storage,state);return JSON.parse(out.LUPINE_CODING_MODEL_CONFIG_JSON);},async executing(){const s={...state,status:'executing' as const,executionStarted:true};await store.put('attempt',s);return s;},turn(){return {schema:'lupine.coding-model-turn.v1',taskId:t.taskId,attemptId:t.attemptId,inputSha256:state.inputSha256,ordinal:1,sessionId:'session-1',body:{model:model.model,max_tokens:4096,stream:false,messages:[{role:'user',content:'fixture'}]}};}};
+}
+const deferred=<T>()=>{let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {promise,resolve};};
+const until=async(fn:()=>boolean)=>{for(let i=0;i<100&&!fn();i++)await new Promise(r=>setTimeout(r,1));expect(fn()).toBe(true);};
+it('v2 requires the exact included model route, bounded requests/output and explicit network while v1 stays separate',()=>{
+ const t=task();expect(parseCodingTask(t)).toEqual(t);
+ for(const bad of [{...t,schema:'lupine.coding-task.v1'},{...t,mode:'code-execution'},{...t,enableInternet:false},{...t,model:{...model,provider:'openai'}},{...t,model:{...model,route:'paid-api'}},{...t,model:{...model,maxRequests:17}},{...t,model:{...model,maxRequests:0}},{...t,model:{...model,maxOutputTokens:4097}},{...t,model:{...model,adapterSha256:'bad'}},{...t,model:{...model,apiKey:'fixture'}}])expect(()=>parseCodingTask(bad)).toThrow();
+ const {model:_,...old}=t;expect(parseCodingTask({...old,schema:'lupine.coding-task.v1',mode:'code-execution'}).model).toBeUndefined();
+});
+it('open binds exact permit hash and saves only token hash, with scoped config returned once',async()=>{
+ const f=await fixture(),config=await f.open();expect(config.capability).toMatch(/^[a-f0-9]{64}$/);const session=await f.store.get<any>('model-session');expect(session.tokenSha256).toBe(await sha256(config.capability));expect(JSON.stringify([...f.store.values])).not.toContain(config.capability);expect(session.state).toBe('open');expect(config.endpoint).toBe('https://lupine-coding-runner-v01.aw-ab5.workers.dev/coding/tasks/model-attempt/model');expect(config.deadlineAtMs).toBeLessThanOrEqual(f.state.deadlineAtMs);expect(f.calls).toHaveLength(1);await expect(f.open()).rejects.toThrow('consumed');expect(f.calls).toHaveLength(1);
+});
+it('wrong broker permit identity never releases a capability',async()=>{const f=await fixture(),original=f.getHandler();f.setHandler(async(path,body)=>{const r=await original(path,body),v=await r.json() as any;return Response.json({...v,permitSha256:'f'.repeat(64)});});await expect(f.open()).rejects.toThrow('identity');expect((await f.store.get<any>('model-session')).state).toBe('opening');});
+it('late open cannot resurrect a closed capability after finalization',async()=>{
+ const f=await fixture(),pending=deferred<Response>(),original=f.getHandler();let response:Response|null=null;
+ f.setHandler(async(path,body)=>{if(path==='/open'){response=await original(path,body);return pending.promise;}return original(path,body);});
+ const opening=f.open();await until(()=>response!==null);await f.store.put('attempt',{...f.state,status:'finalizing'});const closed=await closeCodingModel(f.env,f.storage,{...f.state,status:'finalizing'});expect(closed.confirmed).toBe(true);const saved=canonical(await f.store.get('model-session'));pending.resolve(response!);await expect(opening).rejects.toThrow('Late');expect(canonical(await f.store.get('model-session'))).toBe(saved);expect((await f.store.get<any>('model-session')).state).toBe('closed');
+});
+it('open rejects a stale phase or deadline before broker traffic',async()=>{for(const variant of ['phase','deadline']){const f=await fixture();await f.store.put('attempt',{...f.state,...(variant==='phase'?{status:'finalizing'}:{deadlineAtMs:Date.now()-1})});await expect(f.open()).rejects.toThrow();expect(f.calls).toHaveLength(0);}});
+it('open cannot adopt a replaced opening token or a deadline that elapsed during the broker await',async()=>{
+ for(const variant of ['token','deadline','terminal']){const f=await fixture(),pending=deferred<Response>(),original=f.getHandler();let response:Response|null=null;f.setHandler(async(path,body)=>{response=await original(path,body);return pending.promise;});const opening=f.open();await until(()=>response!==null);
+  if(variant==='token'){const s=await f.store.get<any>('model-session');await f.store.put('model-session',{...s,tokenSha256:'e'.repeat(64)});}else await f.store.put('attempt',{...f.state,...(variant==='deadline'?{deadlineAtMs:Date.now()-1}:{terminalIntent:{receiptSha256:'e'.repeat(64)}})});
+  const before=canonical(await f.store.get('model-session'));pending.resolve(response!);await expect(opening).rejects.toThrow('Late');expect(canonical(await f.store.get('model-session'))).toBe(before);
+ }
+});
+it('capability, task identity, phase and deadline failures invoke no broker model call',async()=>{
+ for(const variant of ['token','task','phase','deadline','closed']){const f=await fixture(),config=await f.open(),state=await f.executing(),turn=f.turn();if(variant==='task')turn.taskId='foreign';if(variant==='phase')await f.store.put('attempt',{...state,status:'finalizing'});if(variant==='deadline')await f.store.put('attempt',{...state,deadlineAtMs:Date.now()-1});if(variant==='closed'){const s=await f.store.get<any>('model-session');await f.store.put('model-session',{...s,state:'closed'});}await expect(invokeCodingModel(f.env,f.storage,state,variant==='token'?'0'.repeat(64):config.capability,turn)).rejects.toThrow();expect(f.calls.filter(c=>c.path==='/invoke')).toHaveLength(0);}
+});
+it('late completed model output is withheld after task closure and is never retried',async()=>{
+ const f=await fixture(),config=await f.open(),state=await f.executing(),pending=deferred<Response>(),original=f.getHandler();let invoked=false;f.setHandler((path,body)=>{if(path==='/invoke'){invoked=true;return pending.promise;}return original(path,body);});
+ const invoke=invokeCodingModel(f.env,f.storage,state,config.capability,f.turn());await until(()=>invoked);await f.store.put('attempt',{...state,status:'finalizing'});pending.resolve(Response.json({ok:true,state:'completed',content:[{type:'text',text:'late'}]}));await expect(invoke).rejects.toThrow('withheld');expect(f.calls.filter(c=>c.path==='/invoke')).toHaveLength(1);
+});
+it('broker close cannot turn a pending unknown into confirmed model completion',async()=>{
+ for(const pendingUnknown of [true,undefined,false]){const f=await fixture();await f.open();const original=f.getHandler();f.setHandler(async(path,body)=>{const r=await original(path,body);if(path!=='/close')return r;return Response.json({...await r.json() as any,pendingUnknown});});const r=await closeCodingModel(f.env,f.storage,f.state);expect(r.confirmed).toBe(pendingUnknown===false);expect((await f.store.get<any>('model-session')).state).toBe('closed');}
+});
+it('actual broker composition keeps thinking private and binds closed terminal metadata to this permit',async()=>{
+ const f=await fixture(),objects=new Map<string,Uint8Array>();let providerCalls=0;
+ const broker=new CodingModelBrokerCore({store:new Store(),consumerService:'lupine-coding-runner-v01',archive:{async put(k,b){objects.set(k,b.slice());},async get(k){return objects.get(k)?.slice()??null;}},provider:{policySha256:'d'.repeat(64),credentialGenerationSha256:'e'.repeat(64),async ready(){return {allowed:true,reason:'fixture'};},async invoke(){providerCalls++;return {state:'completed',model:model.model,content:[{type:'thinking',thinking:'PRIVATE_FIXTURE_ONLY'},{type:'text',text:'visible fixture'}],stop_reason:'end_turn',usage:{input_tokens:10,output_tokens:5},receiptSha256:'f'.repeat(64),settlementConfirmed:true};}}});
+ f.setHandler(async(path,body)=>Response.json(path==='/open'?await broker.open(body.permit):path==='/invoke'?await broker.invoke(body.turn):await broker.close(body)));
+ const config=await f.open(),state=await f.executing(),result=await invokeCodingModel(f.env,f.storage,state,config.capability,f.turn());expect(result).toMatchObject({state:'completed',taskId:state.task.taskId,attemptId:state.task.attemptId,inputSha256:state.inputSha256,settlementConfirmed:true});expect(JSON.stringify(result)).not.toContain('PRIVATE_FIXTURE_ONLY');expect([...objects.values()].some(b=>new TextDecoder().decode(b).includes('PRIVATE_FIXTURE_ONLY'))).toBe(true);
+ const closed=await closeCodingModel(f.env,f.storage,state);expect(closed.confirmed).toBe(true);expect(closed.metadata).toMatchObject({pendingUnknown:false,completedRequests:1});await expect(invokeCodingModel(f.env,f.storage,state,config.capability,f.turn())).rejects.toThrow();expect(providerCalls).toBe(1);
+});
+it('broker responses are bounded, redirects rejected, and raw errors are not HTTP-visible',async()=>{
+ const f=await fixture();f.setHandler(async()=>new Response('x'.repeat(1024*1024+1)));await expect(codingBrokerCall(f.env,'ready',{})).rejects.toThrow('bound');f.setHandler(async()=>new Response('private-error',{status:302,headers:{Location:'https://foreign.invalid'}}));await expect(codingBrokerCall(f.env,'ready',{})).rejects.toThrow('redirect');
+ const env={CODING_RUNNER:{getByName(){return {model:async()=>{throw Error('private-error');}};}}} as unknown as CodingRunnerEnv;
+ const r=await codingFetch(new Request('https://runner.test/coding/tasks/model-attempt/model',{method:'POST',headers:{Authorization:'Bearer '+'a'.repeat(64),'Content-Type':'application/json'},body:'{}'}),env);expect(r.status).toBe(503);expect(await r.text()).not.toContain('private-error');
+});
+const encode=(s:string)=>new TextEncoder().encode(s),stream=(s:string|Uint8Array)=>new ReadableStream<Uint8Array>({start(c){c.enqueue(typeof s==='string'?encode(s):s);c.close();}});
+const proc=(s=''):RunnerProcess=>({stdout:stream(s),stderr:stream(''),exitCode:Promise.resolve(0)});
+async function coreFixture(){
+ const store=new Store(),t=task(),source=encode('fixture');t.source={...t.source,sha256:await sha256(source),bytes:source.length};t.source.artifactKey='sources/'+t.source.sha256+'.bundle';const blobs=new Map<string,Uint8Array>([[t.source.artifactKey,source]]),envs:Array<{args:string[];env:Record<string,string>}> =[];let now=Date.now();
+ const deps:RunnerDependencies={store,now:()=>now,cleanupTimeoutMs:10,admit:async()=>({admission:'created'}),terminal:async()=>{},blobs:{async get(k){const b=blobs.get(k);return b?{body:stream(b),size:b.length}:null;},async put(k,b){blobs.set(k,b.slice());}},container:{running:false,start(){this.running=true;},async destroy(){this.running=false;},async setInactivityTimeout(){},async exec(args,opts){envs.push({args,env:opts.env});if(args.includes('bootstrap'))return proc(JSON.stringify({osRelease:'fixture',versions:'fixture'}));if(args.includes(t.source.sha256)){await new Response(opts.stdin).arrayBuffer();return proc('source-verified\n');}if(args.includes('checkout'))return proc(t.repository.commit+'\n');return proc('command-success');}},commandEnvironment:async()=>({LUPINE_CODING_MODEL_CONFIG_JSON:'scoped-task-capability-fixture'}),modelTerminal:async()=>({confirmed:true,metadata:{completedRequests:1,pendingUnknown:false}})};
+ return {store,task:t,deps,core:new CodingRunnerCore(deps),envs,advance(){now+=10000000;}};
+}
+it('scoped model config appears only in the coding command environment, not setup or receipts',async()=>{const f=await coreFixture();await f.core.submit(f.task,'runner');await f.core.run();for(const {args,env} of f.envs){expect(env.LUPINE_CODING_MODEL_CONFIG_JSON).toBe(args[0]==='/usr/bin/timeout'?'scoped-task-capability-fixture':undefined);for(const forbidden of ['RUNNER_OPERATOR_TOKEN','ANTHROPIC_API_KEY','MINIMAX_API_KEY'])expect(env).not.toHaveProperty(forbidden);}const state=await f.core.status();expect(state?.status).toBe('succeeded');expect(state?.terminalIntent?.receiptJson).not.toContain('scoped-task-capability-fixture');});
+it('unknown model closure preserves exit0 evidence but cannot settle successful execution',async()=>{const f=await coreFixture();f.deps.modelTerminal=async()=>({confirmed:false,metadata:{completedRequests:1,pendingUnknown:true}});await f.core.submit(f.task,'runner');await f.core.run();const state=await f.core.status();expect(state?.status).toBe('unknown');expect(state?.executionExitCode).toBe(0);expect(state?.cleanupConfirmed).toBe(true);expect(state?.reason).toBe('model-terminal-unconfirmed');const p=JSON.parse(state!.terminalIntent!.receiptJson);expect(p.modelExecutionQualified).toBe(false);expect(p.modelEvidence.pendingUnknown).toBe(true);const count=f.envs.length;await new CodingRunnerCore(f.deps).run();expect(f.envs.length).toBe(count);});
+it('late model environment open after watchdog cannot launch the coding command',async()=>{const f=await coreFixture(),late=deferred<Record<string,string>>();let opening=false;f.deps.commandEnvironment=async()=>{opening=true;return late.promise;};await f.core.submit(f.task,'runner');const run=f.core.run();await until(()=>opening);f.advance();await f.core.alarm();const frozen=canonical(await f.core.status());late.resolve({LUPINE_CODING_MODEL_CONFIG_JSON:'late-capability'});await run;expect(canonical(await f.core.status())).toBe(frozen);expect(f.envs.some(x=>x.args[0]==='/usr/bin/timeout')).toBe(false);});

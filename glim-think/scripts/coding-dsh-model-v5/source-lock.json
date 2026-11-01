@@ -1,0 +1,81 @@
+{
+  "schema": "lupine.dsh-model-source-lock.v5",
+  "createdAt": "2026-11-01T21:14:19.678639+00:00",
+  "parentModelRecipeSha256": "281b5e73d583dda3632d24a38b07deab3501140e8122c86b5e9b9ab694182887",
+  "frozenQualificationLockSha256": "4f57fc76549497aa45b4d56e06798622078d1b35dc6f66af05e100a9798b6835",
+  "files": {
+    "README.md": "99d9ae93205e264c0395f2004b8a16170d36db03119aa52656710d6926b8b838",
+    "assessment-writer.mjs": "6a38923eb6bae5f96ca6acfc5be086fb0abe17cbefb5d0b7d90406b1f61dee64",
+    "bootstrap-node.py": "ddfe9bb909415589ebff560e546dd58763b3621b3aa7dffcdcaa3ba0e8d73045",
+    "completion-budget.mjs": "ac94f8e9f782c98b8564954a054a4808e0e1b119767e7736d730087b01f87255",
+    "completion-budget.test.mjs": "9b91213d389001a3ad70fc74ab17c4548fca928bfea20ef5d561d672db3b8a24",
+    "execute.py": "e92f51407baa174161101a391572ede5bc69ce2c0487d37daf359ace041fa3e4",
+    "execute.test.py": "06284bb6403b5d13bb0f42821e5c5ee07f0c06c40e36edd44cd9a819a8221237",
+    "initial-assessment-task.json": "abeca6cf95fcca23beb070aad4ef4452298941654c5a083efbbd44bbdc808c3e",
+    "prepare.mjs": "53e7185c6a58b148759fb507df13342b856e8ebfa6fa0f9282cba49d72a38c61",
+    "projection-identity.json": "36511dda29e62acaeb5526bdd77abd3b333077f323bb23d1205263f4ecda7af8",
+    "projection-runtime-pins.json": "6c6eac0f9228938d20c5362a5844043c7e248ad7ef3dc8b75a61f6309ff17030",
+    "run-agent.mjs": "72f40bf0b344d367684d4cd0282a52686413af7aa2a3377ef86943b81ce4188f",
+    "schema-families.json": "3a48fac9f17459908d91b1d65c1b1fabc72bcd9b71af7854e31bcc3952e93acc",
+    "schema-registration-v4.patch": "b78e8239ef438bf7db14033b2173d095dff639945df597cf2e4b636c16f38f20",
+    "source-shape-fixture.json": "449f3d530e80274c7110e5deab7b5223abffa6aa6b99045a1040ea4ae328ff96",
+    "source-shape.test.mjs": "594c9c2b1d49be8b5b09849bef5df79b9b84b1e58c04d8d312ce9ae1d4be05d8",
+    "tool-surface.mjs": "b2c20fe1e61f6aae98d021e90501fd61b8c63aade85259ecf2fed880504d84e6",
+    "transport-diagnostics.test.mjs": "f1c455fd7768034ac3c00b2fa220241cce1aa3b0966a95cc8294e9ceefa0f5de",
+    "transport.mjs": "daf191e2c0300feee89b2717469a0e459bcdf3bca36564032279845ba5a5e438",
+    "transport.test.mjs": "657deaaa4e0fa3419585c1f1e0f5f0a5869a0ae2e31f70705b3f355a7325da5a",
+    "zod-schema.mjs": "037fd3aff87831ea159e498e5e83bc9b80c01eb814bc9fd844da891c8cdae2e4",
+    "zod-schema.test.mjs": "63193515264270b1825de3d1e18acad59e4eb8dbff8567047f1ade14a5e8f5d1"
+  },
+  "projectionRuntimePins": [
+    {
+      "path": "zod/package.json",
+      "sha256": "c630bd10b52dcf71c112a2bf78dbf2734b9db58d62de663b8d86c2ec2c8cda2e"
+    },
+    {
+      "path": "zod/v4/core/to-json-schema.js",
+      "sha256": "fb3c9ab59947582f7671a53c8e20a3ced5eaa92d1c220ce8b27717a59033ad0d"
+    },
+    {
+      "path": "@deepseek-ai/dsh-util-values/lib/index.js",
+      "sha256": "4322a2aacdfe38476d2bbc62338120beea1e1660346d7db5b6c1e1f927a26b7c"
+    }
+  ],
+  "registrationProjection": {
+    "sourcePath": "src/app/sessions.ts",
+    "sourceSha256": "ca2b98e57e9f27b2abb0afab59d44ea744a96d8be4cf81d7b3776901b56cd36b",
+    "derivedSha256": "f7c22669cc10e717e76de9c799d37d068704332061d1dbffad447cf2db4e1afa",
+    "helperPath": "src/app/coding-zod-schema.mjs",
+    "helperSha256": "037fd3aff87831ea159e498e5e83bc9b80c01eb814bc9fd844da891c8cdae2e4",
+    "patchSha256": "b78e8239ef438bf7db14033b2173d095dff639945df597cf2e4b636c16f38f20"
+  },
+  "sourceQualificationReceipts": [
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/model-v3-source/receipt.json",
+      "sha256": "5a06185632dd3af7fb8a5378f04b7b2700540d0e4239bf43b5902968a49b33f2"
+    },
+    {
+      "path": "work/cloudflare-coding-autonomy-20261101/model-v3-source/schema-source-receipt.json",
+      "sha256": "e68595182ebf7bab02859c9a3480dba1f54f6b93ee514ab193b489fe3793c9d5"
+    }
+  ],
+  "qualification": "111 local Node tests plus8 unchanged mocked-process tests; exact v1-v4 preservation. Additive review correction distinguishes possibly partial output delivery from zero output release. No live model/provider/deployment/settlement/replay.",
+  "providerCredentialInGuest": false,
+  "oldAttemptsReplayed": false,
+  "completionPolicy": {
+    "masterReservations": 6,
+    "workerReservations": 10,
+    "masterBeforeGenuineReady": 3,
+    "sharedTotal": 16,
+    "explorationThroughGlobalReservation": 8,
+    "counterMeaning": "nonrefunded local reservations; provider invocations separately recorded"
+  },
+  "diagnosticOnly": true,
+  "changedFromParent": [
+    "README.md",
+    "run-agent.mjs",
+    "transport-diagnostics.test.mjs",
+    "transport.mjs"
+  ],
+  "preReviewLockSha256": "d832c4653585221ece92f88901809e2b80e429a5a64bb867e2815d73c6f72f74"
+}

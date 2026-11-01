@@ -1,0 +1,149 @@
+{
+  "schema": "lupine.dsh-qualification-source-lock.v1",
+  "prototype": {
+    "repository": "https://github.com/deepseek-ai/dsh-superagent-prototype.git",
+    "revision": "6337fc823ce20251c8de8085948165c81aaa701e",
+    "originalPackageSha256": "f5170d812137dd370c568decb481e19f4da9a3d1fd7bad341a0f07942020a559",
+    "patchedSources": [
+      {
+        "path": "src/app/runtime.ts",
+        "sha256": "1f5d2145c65b85f08109ee54ab19e95a0746d3ae6f36d48db8ae759d92bb9be3"
+      },
+      {
+        "path": "src/app/setup.ts",
+        "sha256": "306ae09205a30ffddc1b7b318a75e86c9df60530ef14d326831e1f12aaf53395"
+      }
+    ]
+  },
+  "harness": {
+    "version": "0.2.1-rc.3",
+    "manifestSha256": "11831849c0a40031562e07b6b650e6b417bf4741d15bac896f73397cf8606a91",
+    "serviceFiles": [
+      {
+        "path": "@deepseek-ai/dsh-agent-loop/lib/index.js",
+        "sha256": "cf57e3ecd487ac5c2553455aaa5cef2c6fb41e6bd61be5aa455675d1d7193033"
+      },
+      {
+        "path": "@deepseek-ai/dsh-agent/lib/index.js",
+        "sha256": "7b59cf82c2784c25bdce4e3e24e5e5303b02b9f1003efacf50255492d17baf8b"
+      },
+      {
+        "path": "@deepseek-ai/dsh-session/lib/index.js",
+        "sha256": "2f5dd07cb5c744a29abbb8003a8a4cefd9e582c6e2538074ca299a0ddd02a3bf"
+      },
+      {
+        "path": "@deepseek-ai/dsh-tools/lib/index.js",
+        "sha256": "1e53932e7c4213ea24a7d87f06960b7a7702cb21f8a5741c97242b4a470a442a"
+      },
+      {
+        "path": "@deepseek-ai/dsh-llm/lib/index.js",
+        "sha256": "d18d8ae4c8d961e628708c1e4698e09716a0ebb80e55a672e0bde1029bec1155"
+      },
+      {
+        "path": "@deepseek-ai/dsh-session-persistence-jsonl/lib/index.js",
+        "sha256": "973dd78679b2661d6f492343bc22b124ae958aa597d3b36c698a2c650f909984"
+      },
+      {
+        "path": "@deepseek-ai/dsh-scope/lib/index.js",
+        "sha256": "2829df71d76e08941457d4dd173eac60783e55354921137c8b75e8b5c0d2ecca"
+      },
+      {
+        "path": "@deepseek-ai/dsh-sandbox/lib/index.js",
+        "sha256": "b56373befbfcfe281c17c8892e9a4b2cdcb96851290b3ed0ff56b08915e2f743"
+      },
+      {
+        "path": "@deepseek-ai/dsh-session-persistence/lib/index.js",
+        "sha256": "cc0b6d3a224133af611b428d5a49020e300f86c3b4ba28037aeb219029bde3eb"
+      }
+    ]
+  },
+  "retainedParents": [
+    {
+      "path": "work/dsh-superagent-assessment-20261101/holistic-evaluation/cloud-full-access-results/dsh-superagent-full-access-20261101/harness/joined-runtime-agent.mjs",
+      "sha256": "be082f7849e92cac77ec0a0c581a03dafb52e819f8d86a05b08e983746ff0af1"
+    },
+    {
+      "path": "work/dsh-superagent-assessment-20261101/holistic-evaluation/cloud-full-access-results/dsh-superagent-full-access-20261101/harness/build-runtime-bundle.mjs",
+      "sha256": "5633a715ddbac45de6caf3a1ee6069ed1d85c766ccb34f653f7338b6b7465e4d"
+    },
+    {
+      "path": "work/dsh-superagent-assessment-20261101/holistic-evaluation/cloud-full-access-results/dsh-superagent-full-access-20261101/runtime/snapshot-setup-v2.patch",
+      "sha256": "c67817e09699ad8424e511ba4ff4326c7994f40b8fc2bf38b63fa61bc83fd02a"
+    },
+    {
+      "path": "work/dsh-superagent-assessment-20261101/holistic-evaluation/cloud-full-access-results/dsh-superagent-full-access-20261101/harness/composition-source-hashes.json",
+      "sha256": "ff48b9e45aa8f789f00fb8f9fd28e955b4ac4754038bc4eee9c1af96a2f6cd4e"
+    }
+  ],
+  "portableDerivation": {
+    "joined-runtime-agent.mjs": "821ee3a5f73e6a6be671116fdac55a09d2624950e124c4190aab26ad04f9ba5b",
+    "snapshot-setup-v2.patch": "c67817e09699ad8424e511ba4ff4326c7994f40b8fc2bf38b63fa61bc83fd02a",
+    "changes": [
+      "Explicit deps/bundle/output/scratch/snapshot paths replace guest literals.",
+      "Target snapshot revision is supplied by current pinned coding artifact; fixture arithmetic remains synthetic [1,2,4].",
+      "Require one successful arithmetic tool, one report, completed Ticket and at most sixteen scripted transport requests.",
+      "Cleanup failures retain failed status; result has a 2 MiB cap and excludes raw Session/SQLite files.",
+      "Record real-provider tokens null and final-report/recovery qualifications false.",
+      "Refuse the seventeenth scripted request before output and retain sticky first-refusal evidence; any refusal fails qualification.",
+      "Capture both subprocess channels on success and failure; incomplete subprocess captures remain explicit."
+    ]
+  },
+  "dependencyLockStatus": "Frozen captured first-hosted lock augmented with three exact source-qualified peers. All 644 original nonroot package entries and root nondependency fields unchanged; root dependency map gains three pins. No new npm resolution.",
+  "recipeFiles": {
+    "qualify.mjs": "3b7b6a61d22667a58d252f5f461d8476d1db789cc2444a1da8f63e83cf2dbebd",
+    "build-runtime-bundle.mjs": "9af0e787384d707f2e09d14e96c380d52303a44d025f17757a2ccd00b6de13d0",
+    "dependencies.json": "494037e45b289d89c4ea556cf8294cba0150ebaa30572984956d890f3b32dd9b",
+    "README.md": "7bdeaf1f2991b9606733cc35a0e0d1feee2a581cadc413a77ecc3aca11dd04be",
+    "bootstrap-node.py": "f83728c49c3693f6d9e87a6fb49a595753c0b78d5c6ff8105a625658a4fda16c",
+    "dependency-lock.json": "0b7d0142480117e51b15f1898a5e1dab503f54fa357290fe22eb72cc97b400de"
+  },
+  "runtime": {
+    "version": "v22.22.3",
+    "platform": "linux-x64",
+    "archiveUrl": "https://nodejs.org/dist/v22.22.3/node-v22.22.3-linux-x64.tar.gz",
+    "archiveSha256": "c7a10d6816da8eaaa7534dd73c71c6e2b2c391dbbf845e364902d156615dd1b8",
+    "checksumReceiptSha256": "b99296390cb403042da79c14d81e681076a9ac03af062d13f840dadc4ec751b3",
+    "checksumReceiptPath": "work/cloudflare-coding-implementation-20261101/node-v22.22.3-SHASUMS256.txt",
+    "bootstrapStatus": "Pinned runtime was verified in the first failed hosted qualification; this repaired recipe revision remains unexecuted.",
+    "downloadSeconds": 40,
+    "preparationSeconds": 50,
+    "globalBudgetSeconds": 850
+  },
+  "dependencyGraph": {
+    "schema": "lupine.dsh-dependency-augmentation.v1",
+    "baselineAttemptId": "coding-dsh-runtime-qualification-20261101-01",
+    "baselineLockSha256": "0ebeb5a735422c8e29c1a16722aae5b9bb2da99754fa0084c806ce42bdd0325b",
+    "baselinePackageEntries": 645,
+    "preservedNonrootEntries": 644,
+    "baselineRootOtherFieldsUnchanged": true,
+    "augmentedPackageEntries": 648,
+    "augmentedLockSha256": "0b7d0142480117e51b15f1898a5e1dab503f54fa357290fe22eb72cc97b400de",
+    "addedPackages": [
+      {
+        "name": "@deepseek-ai/dsh-scope",
+        "version": "0.2.1-rc.3",
+        "key": "node_modules/@deepseek-ai/dsh-scope",
+        "metadataSha256": "8bd3151c19a19418ff3890853cf7a3b0f7bafacb1368ab8267049f34174ab5a0",
+        "archiveSha256": "542a55c355a54d066eabe8bd6659afa497307bd6c8944bc032ab0c643eab49b1",
+        "entrySha256": "57fd3b82fb8cab57006c5b9a25e2809c86cef6a5ddb6402e01a8f202b119338e"
+      },
+      {
+        "name": "@deepseek-ai/dsh-sandbox",
+        "version": "0.2.1-rc.3",
+        "key": "node_modules/@deepseek-ai/dsh-sandbox",
+        "metadataSha256": "c87316b5850977887a6c9277ce956ee8e836e0b2b8d70af504b7efe94e62ae8d",
+        "archiveSha256": "72458f2f50313b30de7ef49c2d76abbb4f5646c1685a0a019414fc17df05f0cc",
+        "entrySha256": "c7b6a72efb971c6f620a667065017e8d7137ca9c841565d3c7eec4f0ce3c2e33"
+      },
+      {
+        "name": "@deepseek-ai/dsh-session-persistence",
+        "version": "0.2.1-rc.3",
+        "key": "node_modules/@deepseek-ai/dsh-session-persistence",
+        "metadataSha256": "5ca2b1348f0c3a994b3c3d15a5cd4fb3aef2acc994e7ac27b541f3f4df4752b0",
+        "archiveSha256": "ccac464fc2fe1ef03142dd2100076b7cc4db59107513f5dc1486457c0d174cf1",
+        "entrySha256": "804c359451b253aa06dd3b65ecc217fc0456941dd0fa84ca89d97799bb2fd7e1"
+      }
+    ],
+    "compositionScope": "Three static-import peers required by the scripted composition; other metadata-only peer/service dependencies not broadly installed or qualified."
+  }
+}

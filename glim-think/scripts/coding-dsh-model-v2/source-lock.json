@@ -1,0 +1,25 @@
+{
+  "schema": "lupine.dsh-model-source-lock.v2",
+  "createdAt": "2026-11-01T20:22:06.067881+00:00",
+  "parentModelRecipeSha256": "31102d192f6bcf30e7ac3c9e2450d0a2e9f681afabd2d3be1f00f26ee51ab5bf",
+  "frozenQualificationLockSha256": "4f57fc76549497aa45b4d56e06798622078d1b35dc6f66af05e100a9798b6835",
+  "files": {
+    "README.md": "ee50c595580673e2154eb83e166b5eb9c8fcf4291340e98f16164b4fbe3addd2",
+    "bootstrap-node.py": "ddfe9bb909415589ebff560e546dd58763b3621b3aa7dffcdcaa3ba0e8d73045",
+    "execute.py": "e92f51407baa174161101a391572ede5bc69ce2c0487d37daf359ace041fa3e4",
+    "execute.test.py": "06284bb6403b5d13bb0f42821e5c5ee07f0c06c40e36edd44cd9a819a8221237",
+    "initial-assessment-task.json": "8a9de80bc34796cf12699068088045f07c7282b80d3eb20004c62f3a97b8f54b",
+    "prepare.mjs": "0fff43d76d9ec8911b26c7e039a396653a40b33514fda0a6d125a106eabe16d8",
+    "run-agent.mjs": "0c92dbbe2848883d3398e6c626e40ce7010e47bcfee6245a5ecb5077b9f11b98",
+    "source-shape-fixture.json": "449f3d530e80274c7110e5deab7b5223abffa6aa6b99045a1040ea4ae328ff96",
+    "source-shape.test.mjs": "d08010c34ce3e283b7e925427c9834db058b9b5847eb11f52c59ca1f3fcbba6f",
+    "tool-surface.mjs": "1752fd920e8b19c4a80c3fec25cabdfe52edce7f04c3b3f6749ebf1847f33ea2",
+    "transport.mjs": "470746174ccdfce250a4ba66ddaac521e2a01b65b2c6a2e77bdade97360b184c",
+    "transport.test.mjs": "657deaaa4e0fa3419585c1f1e0f5f0a5869a0ae2e31f70705b3f355a7325da5a"
+  },
+  "sourceQualificationReceipt": "work/cloudflare-coding-autonomy-20261101/model-v2-source/receipt.json",
+  "sourceQualificationReceiptSha256": "bff11812bd6f6a8f53db4fa771382d028e4ae01c3c679f280175596af344ab6d",
+  "qualification": "Pinned-source method reconstruction, 44 local Node tests and 8 mocked Python tests; complete actual Runtime/Harness and model execution not repeated",
+  "providerCredentialInGuest": false,
+  "oldAttemptReplayed": false
+}

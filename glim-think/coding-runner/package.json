@@ -1,0 +1,20 @@
+{
+  "name": "lupine-cloudflare-coding-toolchain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc -p ../tsconfig.coding.json",
+    "test": "cd .. && node coding-runner/node_modules/vitest/vitest.mjs run --config src/coding/__tests__/vitest.config.mjs",
+    "build": "wrangler deploy --dry-run --config ../wrangler.coding.jsonc",
+    "deploy": "wrangler deploy --config ../wrangler.coding.jsonc"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261022.1",
+    "@types/node": "25.8.0",
+    "typescript": "7.0.2",
+    "vite": "8.0.12",
+    "vitest": "4.1.6",
+    "wrangler": "4.151.3"
+  }
+}

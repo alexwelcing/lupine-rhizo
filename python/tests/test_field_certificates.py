@@ -609,8 +609,8 @@ def test_mismatched_ranking_lengths_are_rejected():
         "reference_ranking": [0.30, 0.45, 0.50],
         "model_ranking": [0.10, 0.20],
     }
-    result = evaluate_promotion(metadata)
-    assert any("length" in r for r in result.reasons)
+    with pytest.raises(ValueError, match="equal length"):
+        evaluate_promotion(metadata)
 
 
 # ── Mirror integrity: every reference resolves to a Lean declaration ───────

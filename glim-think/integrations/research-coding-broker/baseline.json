@@ -1,0 +1,466 @@
+{
+  "service": "lupine-research-team-v02",
+  "workerVersion": "5645fc17-51ff-4934-8a80-2ab287f9a0c4",
+  "files": [
+    {
+      "path": "cloudflare/Dockerfile",
+      "sha256": "6a32b5083db9df9bbcf07b08d1b237110954bbfde5bf03cabfee21d2c31b0871",
+      "bytes": 1615
+    },
+    {
+      "path": "cloudflare/absent-native-io.ts",
+      "sha256": "d08785c55415f36c8d66939dfd080ad197418d1506fe68daa03412f9022ab183",
+      "bytes": 1423
+    },
+    {
+      "path": "cloudflare/absent-native-operator-route.ts",
+      "sha256": "f07a2787ee7e3faa66afb80407f480ced77eaa5e05821186b6315cd64e988d37",
+      "bytes": 10478
+    },
+    {
+      "path": "cloudflare/absent-native-reconciliation.ts",
+      "sha256": "2362a5bc882c449f596a1c42c01334a412a7a9f69f1b42e946ad2f9d1f23e044",
+      "bytes": 2764
+    },
+    {
+      "path": "cloudflare/absent-native-rpc.ts",
+      "sha256": "af4814b370864f81e2635c8c1d51c32f603992aba47194743f8cecfb020b2c50",
+      "bytes": 1300
+    },
+    {
+      "path": "cloudflare/absent-native-scheduling.ts",
+      "sha256": "eb957ea6fa7e83c7977ad234842ba53ae4b1a2cfb8fc00da63b1c557c4b9f19d",
+      "bytes": 5984
+    },
+    {
+      "path": "cloudflare/capability-recovery.ts",
+      "sha256": "7e7cd865b9e4ab57dc0d78cda9fbfd0a8aba9fba03d18cb86173b9ee180354d4",
+      "bytes": 9282
+    },
+    {
+      "path": "cloudflare/capability-router-store.ts",
+      "sha256": "49779a78bf2f9b59f080a1b72acc2f06bec470b9a95cd877d21fc888368e56dc",
+      "bytes": 410
+    },
+    {
+      "path": "cloudflare/capability-router.ts",
+      "sha256": "1d49b7d55cfda5d9568a406840d0bb2c1191e90f3b265ea72cf8aabd572db084",
+      "bytes": 1544
+    },
+    {
+      "path": "cloudflare/chat-completions.ts",
+      "sha256": "3c19b129b8fa6e6312e38bc4da83a75874118ec593bf862e57e37ed875b546c3",
+      "bytes": 6616
+    },
+    {
+      "path": "cloudflare/claude-research-account-state.ts",
+      "sha256": "e4d2365176dbe62f838354877ee89ce1de483d57bdba7592613be4a91a30966a",
+      "bytes": 32468
+    },
+    {
+      "path": "cloudflare/claude-research-observation.ts",
+      "sha256": "55a598b1df1e03565bb9e77b0d55a6e009d45c264b6967266c69cda928fb1b1b",
+      "bytes": 5632
+    },
+    {
+      "path": "cloudflare/claude-research.ts",
+      "sha256": "e9851ee47884e718d07f5741c10119093b1fe4c3312c7a7a8586e28dcc1aab87",
+      "bytes": 16261
+    },
+    {
+      "path": "cloudflare/claude-verification-state.ts",
+      "sha256": "c4fb007db83669dd58f00b4df00d942d8aa5968fedd85b35f6ae494dd00ab65e",
+      "bytes": 5238
+    },
+    {
+      "path": "cloudflare/claude-verification.ts",
+      "sha256": "50d67ea8cf0aaba0898a084c6cbfcf3570e7720505a8e0331b9374f1b54d4d74",
+      "bytes": 12664
+    },
+    {
+      "path": "cloudflare/discovery-admission-health.ts",
+      "sha256": "496b1b8b03124ad3299b92c709f2dafcaa8efbba04ed2aae811cd04b5ebafcf6",
+      "bytes": 1812
+    },
+    {
+      "path": "cloudflare/discovery-engine.ts",
+      "sha256": "0ac4c724ee406ea4d6056271eeca5e0ab7b5e0dd02ed85b346c93919cb01cb4c",
+      "bytes": 58990
+    },
+    {
+      "path": "cloudflare/discovery-evidence-agenda.ts",
+      "sha256": "c90e0d3aa2b32cb3fefc939644ff4ab4185cc2cdf5581136cb87e3f084ef0282",
+      "bytes": 6907
+    },
+    {
+      "path": "cloudflare/discovery-graph-projector.ts",
+      "sha256": "72a782c23d911e4c9b8c33212ec509b22bc28f9f4b3dcaad62af9194194f5aaf",
+      "bytes": 18052
+    },
+    {
+      "path": "cloudflare/discovery-graph-store.ts",
+      "sha256": "671e1fb60e012ec9671db1d75f1eb6c62e64ec9c7bd4c6e240e4062dfb8ac92d",
+      "bytes": 20322
+    },
+    {
+      "path": "cloudflare/discovery-publication-amendments.ts",
+      "sha256": "79ace74bd29341033af5f09d19ff39e94b0dc12dbdc4d1e062db4289ead0fe78",
+      "bytes": 7223
+    },
+    {
+      "path": "cloudflare/discovery-publication.ts",
+      "sha256": "136a24e49693777ac3a1da189b745188fecf13f7f3632fd7890de451fd1f5b6d",
+      "bytes": 38564
+    },
+    {
+      "path": "cloudflare/discovery-query-plan.ts",
+      "sha256": "569fd74719d738e37fe0f40c01279786f24a865f2b5e3b21771c28e9191fc91d",
+      "bytes": 1518
+    },
+    {
+      "path": "cloudflare/discovery-role-routing.ts",
+      "sha256": "c92448d884d7cfc26ee8b84669aee8385a80db0dbaa957df119a375d6724a6ca",
+      "bytes": 7060
+    },
+    {
+      "path": "cloudflare/discovery-search-contract.ts",
+      "sha256": "eadd2fd6573e6284b89669d7eeafb8d06daa833414e231b4d08073635f8219a3",
+      "bytes": 7308
+    },
+    {
+      "path": "cloudflare/discovery-sources.ts",
+      "sha256": "39ae4f6664394693aa6de27b72abbe707e7c8be75f38acd854206ffadd9d0440",
+      "bytes": 8860
+    },
+    {
+      "path": "cloudflare/discovery-transport-provenance.ts",
+      "sha256": "a089f9ef6f43189c2655444f6f7f4bfbb6eb74fc294433cce8352ce82e19ea1d",
+      "bytes": 5961
+    },
+    {
+      "path": "cloudflare/discovery-value-store.ts",
+      "sha256": "b41d70446fdcf85a3d2151496c3e5a65e8e8ae779021f035308b6b2e5889ea21",
+      "bytes": 1257
+    },
+    {
+      "path": "cloudflare/discovery.ts",
+      "sha256": "2fa107b1b61d2171c3312d3183b5b9de8dd22d0629e390c6007728675fc73cb9",
+      "bytes": 13637
+    },
+    {
+      "path": "cloudflare/frame33-decision-repair-proof.ts",
+      "sha256": "17584c08b8553552108535cd01ede772ae049c69fcb62913548f7719a6868ff9",
+      "bytes": 11480
+    },
+    {
+      "path": "cloudflare/frame33-decision-repair.ts",
+      "sha256": "1ba586a7d0b9bc28e2970c3f948d2e1f7083c79174ace9fe16290d8a427d7b96",
+      "bytes": 7371
+    },
+    {
+      "path": "cloudflare/inference-diagnostics.ts",
+      "sha256": "d53e11d1d1563c2a758a156c7862ad1beee5d0bfe6c3e521635b30c3ae4f0a36",
+      "bytes": 5089
+    },
+    {
+      "path": "cloudflare/inference.ts",
+      "sha256": "f66d623e6499f3cb8bfa6a633efdf34bc2c217504bd41cd0a78299c0a3404198",
+      "bytes": 8988
+    },
+    {
+      "path": "cloudflare/intake-dispatch.ts",
+      "sha256": "86d5fb9cf8ef933076d47209dd2717ed127a217674270695a2ab6d4dae106fd1",
+      "bytes": 11791
+    },
+    {
+      "path": "cloudflare/line-evidence-client.ts",
+      "sha256": "29b45d2fe37fc01800d725cf1f0b63b11e77078a46a9c710bd7c182a17a4017b",
+      "bytes": 16665
+    },
+    {
+      "path": "cloudflare/line-evidence-contract.ts",
+      "sha256": "d3a78a202386c0f706c141576b3603b3b0d7dc23cea2ab1bde7d172da2b7e4fe",
+      "bytes": 5209
+    },
+    {
+      "path": "cloudflare/line-intake-engine.ts",
+      "sha256": "82ff88e4e2e9539f548f502411cb7aedad07728c1b249e9b167b20b45afa5d89",
+      "bytes": 36133
+    },
+    {
+      "path": "cloudflare/line-intake.ts",
+      "sha256": "f16f436ffa85769268e32556407e81686ad41fefde70f420d7441f06957e0685",
+      "bytes": 1547
+    },
+    {
+      "path": "cloudflare/line.ts",
+      "sha256": "144562d0895bf94e5b0b5e08827eb113e8bb286cc3b1b4a436173c098b8161c1",
+      "bytes": 10959
+    },
+    {
+      "path": "cloudflare/local-no-dispatch-route.ts",
+      "sha256": "103397db6015271194248c5808466d4678d6caf378abebbeeb4daf08b71ce5f4",
+      "bytes": 6246
+    },
+    {
+      "path": "cloudflare/managed-entrypoint.ts",
+      "sha256": "6aa3076ab598c36bf7f4aaa2c93dd720c88d710e230b6b25fb8c7a3abcb2837d",
+      "bytes": 5861
+    },
+    {
+      "path": "cloudflare/minimax-account-state.ts",
+      "sha256": "0bd95a00928208588e9540c8f1524a46c0b576e2cfd7d9c3572a01a5ad09e06b",
+      "bytes": 20071
+    },
+    {
+      "path": "cloudflare/minimax-account.ts",
+      "sha256": "b22477a75270fb2746384b3588f23d4fecca2bc1ada5bf51ab09902b39eca4b8",
+      "bytes": 2708
+    },
+    {
+      "path": "cloudflare/minimax-admission-store.ts",
+      "sha256": "6aa1496d5d4b7d436351376b3b5654aae850187beee818a1cb357c02fd9c200d",
+      "bytes": 751
+    },
+    {
+      "path": "cloudflare/minimax-fleet-view.ts",
+      "sha256": "1bcdcdf05440660709cec9a72808969bc2f84a630e22a6925ae79223cd7b5cd0",
+      "bytes": 9385
+    },
+    {
+      "path": "cloudflare/minimax-reconciliation-auth.ts",
+      "sha256": "6a688dda79e00ff36900782ad79bc68bfcea139bf23e4439417413251ec856f7",
+      "bytes": 1557
+    },
+    {
+      "path": "cloudflare/minimax-recovery-proof.ts",
+      "sha256": "93f9a5a1ae351b465c28f9cfe93deed08a54c2dc60201ac83dd0475a074e7bfa",
+      "bytes": 3281
+    },
+    {
+      "path": "cloudflare/model-account-observations.ts",
+      "sha256": "0b9d2b43333c4afbb7d72843ee28521f47e545ba8ea2443cf70258b8c595c505",
+      "bytes": 7073
+    },
+    {
+      "path": "cloudflare/model-fleet.ts",
+      "sha256": "8bfce39da6b93c5e3d9ccab407926f2c669399848ae473e94a483a820334db7b",
+      "bytes": 51531
+    },
+    {
+      "path": "cloudflare/model-observability-store.ts",
+      "sha256": "4c756079d408dd6b25f96c2d2720cd3d39611d87948cb74962dd7806bae39224",
+      "bytes": 4773
+    },
+    {
+      "path": "cloudflare/model-runtime-read.ts",
+      "sha256": "4e17235ee1123c6403bd3c4c827c807c28710fcee0638373dc5ebc3bbee24340",
+      "bytes": 2149
+    },
+    {
+      "path": "cloudflare/operator-copper-source-proof.ts",
+      "sha256": "6adb3c5f63cd8d01e7f77545cafb36910d3ab085e40264f9d4f78617fc93ac29",
+      "bytes": 12280
+    },
+    {
+      "path": "cloudflare/progressive-research.ts",
+      "sha256": "30c67930da23a3e7a694a893a9f0775514b052d5ba799d1d090ad33bd90ca826",
+      "bytes": 27189
+    },
+    {
+      "path": "cloudflare/provider-setup.ts",
+      "sha256": "c0fb8e552b27594c61d0766a5f06fdb40d7cada11ded1855e8d9ee552c4e525e",
+      "bytes": 15433
+    },
+    {
+      "path": "cloudflare/research-budget-state.ts",
+      "sha256": "f7c3cf90c163a5f8a84c6d3a78d38ca38b12214eae2f3a40d6d214ae4a44329c",
+      "bytes": 6292
+    },
+    {
+      "path": "cloudflare/research-budget.ts",
+      "sha256": "82643e7f5508e922a4a93d1de3a8d2f6fc5d5b478cec64fa881306490378c272",
+      "bytes": 936
+    },
+    {
+      "path": "cloudflare/research-knowledge-graph.ts",
+      "sha256": "295150aef704c09d1356df29c1b9c269446c6dbffdc92f9de12c70190a1c4e6a",
+      "bytes": 37560
+    },
+    {
+      "path": "cloudflare/research-loop-contract.ts",
+      "sha256": "954f8318ec413cc7a62be1ea561093de6e3e16e06ff32a2d476c8b4c3a27a221",
+      "bytes": 11842
+    },
+    {
+      "path": "cloudflare/research-loop-engine.ts",
+      "sha256": "a0a28f09a3dbc446a216412e27af91d74554e43c6b0253fa2584bfb79a8d3555",
+      "bytes": 63617
+    },
+    {
+      "path": "cloudflare/research-loop.ts",
+      "sha256": "f5c6bdbc5d8ccf71d6909c776a746e5b3914a9194d5b68daf6d08d99a2ad29d2",
+      "bytes": 17174
+    },
+    {
+      "path": "cloudflare/research-routing.ts",
+      "sha256": "fd643fae5454eac76d34f8b2284d54a1a08fe16c6856ced011522194736e7ee5",
+      "bytes": 18819
+    },
+    {
+      "path": "cloudflare/research-source-bundle.ts",
+      "sha256": "49cdaafb459dd400c9935570373fdf0b6966d6b24a6efff78766fdf11883019a",
+      "bytes": 4085
+    },
+    {
+      "path": "cloudflare/reviewer-repair-proof.ts",
+      "sha256": "db581a10f3f426b42c17e73669687494dd27c23cd67cfc7d33b80c483f54a6d5",
+      "bytes": 11340
+    },
+    {
+      "path": "cloudflare/runtime-health-readiness.ts",
+      "sha256": "eefdc4434a79e0dde816e855a0630b78d6fd02a429f57d7dc58e835b21f267ac",
+      "bytes": 2120
+    },
+    {
+      "path": "cloudflare/runtime-status-timing.ts",
+      "sha256": "b643802bcce3737c2e7e368ca78fa5d3cef700f9083bb5d3aeeabb4efcef3964",
+      "bytes": 1508
+    },
+    {
+      "path": "cloudflare/source-format-repair-proof.ts",
+      "sha256": "55c13457027226d32b3d60615bcef66bb0ca7cd2115c8c8b9dca933a7f6ebb6f",
+      "bytes": 11019
+    },
+    {
+      "path": "cloudflare/team-console.ts",
+      "sha256": "cb6b55db92a02aa336435d6cb1946f9fc6ae597f565117427dd211f832624199",
+      "bytes": 91314
+    },
+    {
+      "path": "cloudflare/team-coordinator-state.ts",
+      "sha256": "2f58b2968c1a4d5b18674b933662aa9c3a91740df6ee6677db897f11fb047474",
+      "bytes": 57740
+    },
+    {
+      "path": "cloudflare/team-coordinator.ts",
+      "sha256": "17aa14bb11a61ca0ec0052f0db2dd37aac14467be0ee18f5825619bfc86e82d1",
+      "bytes": 12596
+    },
+    {
+      "path": "cloudflare/team-recurring-admission.ts",
+      "sha256": "65a284c1d32561bd5b41fb9e2e9f804819abf9ccfc32bac037ed883a124ed751",
+      "bytes": 7354
+    },
+    {
+      "path": "cloudflare/terminal-reconciliation-route.ts",
+      "sha256": "2111fcdd2fa18f24c09feba8446c0b1982667e7a10ca947683387311dfef71d6",
+      "bytes": 9771
+    },
+    {
+      "path": "cloudflare/terminal-request-proof.ts",
+      "sha256": "8423fe33ed20785d576e031b141cf053f12481603a421fa48f8db230e10141a0",
+      "bytes": 5782
+    },
+    {
+      "path": "cloudflare/worker.ts",
+      "sha256": "923c30da8633fd1ed940fde472223b427343636f8bf469ec4515955b425b7399",
+      "bytes": 58739
+    },
+    {
+      "path": "cloudflare/wrangler.jsonc",
+      "sha256": "6d8959a92ca1e57f4bff6604b46f11b85cb0528a29fff6886fcca54be9836bd6",
+      "bytes": 1690
+    },
+    {
+      "path": "cloudflare/wrangler.managed.jsonc",
+      "sha256": "39f80245d75fff1845809bee22e3dffb28c9a50ef4a0b4b66e13e39fd7c25805",
+      "bytes": 5842
+    },
+    {
+      "path": "cloudflare/zai-legacy-endpoint-policy.ts",
+      "sha256": "e26073dea441587853cdb736be62d80ea49a49f24a5b06ac76d699ac4c9a2f0c",
+      "bytes": 8091
+    },
+    {
+      "path": "cloudflare/zai-offline-artifact.ts",
+      "sha256": "eae9c2407973113cb3fa4181524be22c04f9e793aa409600e9531d6a0074e278",
+      "bytes": 9873
+    },
+    {
+      "path": "cloudflare/zai-offline-bootstrap.ts",
+      "sha256": "a0e6f4cd8db9c5326f0cf31da47d4ae2dcdfe29f071ad6f75f7d96c32fc7ee18",
+      "bytes": 16997
+    },
+    {
+      "path": "cloudflare/zai-offline-continuation-bootstrap.ts",
+      "sha256": "606b0491d8c8bd9710986cb069707836f99c144f3880bc9ce61da59d7517447f",
+      "bytes": 20645
+    },
+    {
+      "path": "cloudflare/zai-offline-continuation-core.ts",
+      "sha256": "7bdec8ca67771154b424b7b888b71242150a8099444649cb7e6de7626b1296b5",
+      "bytes": 27333
+    },
+    {
+      "path": "cloudflare/zai-offline-continuation-route.ts",
+      "sha256": "3ccaf7a0c6b959fe99398056b2619acee27d381bda54c782f3805ab609d2fb06",
+      "bytes": 3491
+    },
+    {
+      "path": "cloudflare/zai-offline-continuation.ts",
+      "sha256": "5e157d2c471cb38abac6ed8438b5e10f085999623618476e71e5a8a9da2a926f",
+      "bytes": 2937
+    },
+    {
+      "path": "cloudflare/zai-offline-qualification-core.ts",
+      "sha256": "46c36e1aedc456e3258dc8a7f6ea7aea5dc46b3fc672ad57a546775fcef13ae0",
+      "bytes": 20196
+    },
+    {
+      "path": "cloudflare/zai-offline-qualification-route.ts",
+      "sha256": "48ca044b2ae28720fd1892e467f6a8b0330f4476c9c86c18a861f265e3ac1786",
+      "bytes": 4041
+    },
+    {
+      "path": "cloudflare/zai-offline-qualification.ts",
+      "sha256": "2c0fc4dbba924e5b91512f496947b25a8a1563d1c0be2508e19aa67d1dbad6d8",
+      "bytes": 2413
+    },
+    {
+      "path": "cloudflare/zai-receiver-ingress.ts",
+      "sha256": "e60cf99666db792ac4259e742340e2b7754c7c6c20a3ec93fead9bd7ac42dcd9",
+      "bytes": 19477
+    },
+    {
+      "path": "cloudflare/zai-receiver-observation.ts",
+      "sha256": "b1ea654ccdfe4f50bc48b3cd219e11eb6685bf1707ad3cb2fb65e1fad335f606",
+      "bytes": 20755
+    },
+    {
+      "path": "cloudflare/zai-receiver-store-adapter.ts",
+      "sha256": "cd3e8539c0199e43964a956a2bca3b0e93c12f0fdabd9d97eee20aa9ee85ff9c",
+      "bytes": 14252
+    },
+    {
+      "path": "cloudflare/zai-research-account-state.ts",
+      "sha256": "245d49210d161de7bcc472903ffb3a7ad9b8c5c82f70bee5a4aa8b88c7c2e406",
+      "bytes": 25541
+    },
+    {
+      "path": "cloudflare/zai-transport-fixture-core.ts",
+      "sha256": "0da5d64a4d1d03bf700cd50021ec66c5c1828d0a7fc4c8cded14be770c07b02b",
+      "bytes": 18065
+    },
+    {
+      "path": "cloudflare/zai-transport-harness-bootstrap.ts",
+      "sha256": "c4133d597f0cd7f9aaa8d42ddd7e8d4b82ac00a1e4ada4112dff4b03d0680a19",
+      "bytes": 34294
+    },
+    {
+      "path": "cloudflare/zai-transport-harness-core.ts",
+      "sha256": "999dd3d11875d6212a3bff5f9836fad3645c571e56fa74992aa5e44aa15f208a",
+      "bytes": 25827
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "./coding-runner/node_modules/wrangler/config-schema.json",
+  "name": "lupine-coding-runner-v01",
+  "main": "src/coding/runner-worker.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "CODING_AGENT_ID": "cloudflare-coding-runner"
+  },
+  "containers": [
+    {
+      "class_name": "CodingRunner",
+      "scheduling_policy": "durable_object"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CODING_RUNNER",
+        "class_name": "CodingRunner"
+      },
+      {
+        "name": "CODING_SCHEDULER",
+        "class_name": "CodingSchedule"
+      }
+    ]
+  },
+  "exports": {
+    "CodingRunner": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    },
+    "CodingSchedule": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
+  "r2_buckets": [
+    {
+      "binding": "CODING_EVIDENCE",
+      "bucket_name": "lupine-coding-evidence"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "LEDGER",
+      "database_name": "glim-ledger",
+      "database_id": "b88f2156-6d74-41f7-a702-a7667cd6e0e2",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "services": [
+    {
+      "binding": "CODING_MODELS",
+      "service": "lupine-research-team-v02",
+      "entrypoint": "CodingModelBrokerEntrypoint",
+      "props": {
+        "consumerService": "lupine-coding-runner-v01",
+        "protocol": "lupine.coding-model-broker.v1"
+      }
+    }
+  ]
+}
