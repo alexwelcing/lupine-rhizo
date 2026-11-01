@@ -71,6 +71,25 @@ the tool-count mismatch was reproduced with source-derived plain schemas. The
 second attempt directly captured the hidden-metadata incompatibility. These
 are separate findings, and both earlier recipes remain unchanged.
 
+The [completion-budget recipe](../scripts/coding-dsh-model-v4/README.md) preserves
+those three versions and adds a fixed 6/10 master/worker allocation within the
+same sixteen-call ceiling. Only three master calls are available before a genuine
+ready worker report. Exploration closes after global call eight; the worker then
+uses a fixed assessment writer and the existing report tool. Tool results retain
+immutable budget feedback without changing earlier conversation history or tool
+schemas. A role's known pre-dispatch refusal does not spend the other role's
+reserve; an unknown provider outcome still stops the entire transport.
+
+The writer saves structured findings first and derives Markdown from them. It
+checks the exact revision, eight domain records, three proposed improvements,
+source-path existence, size limits and immutable readback of both artifacts.
+Ready admission and final success recheck those artifacts. These checks do not
+prove that every cited file was read or that a finding is true; independent
+semantic review remains required. Noncompliance produces a failed/incomplete
+record with available ticket, budget and artifact state. Reserved calls improve
+completion control but cannot guarantee useful model output. See the
+[dated live evidence](cloudflare-coding-validation-20261101.md) for actual outcomes.
+
 ## Install and verify
 
 The small `coding-runner/` toolchain pins Wrangler and Container types separately

@@ -124,3 +124,98 @@ acceptance. No provider token usage was measured. Public Node/Git/npm
 setup required network traffic; zero total HTTP traffic is not claimed. Frozen
 preparation recipes retain their pre-execution descriptions; this dated record
 states what actually ran.
+
+
+## Included-plan coding and durable queue scheduling
+
+A later, separately reviewed release added a binding-only MiniMax broker in
+`lupine-research-team-v02` and a durable exact-task queue in
+`lupine-coding-runner-v01`. The live coding Worker is
+`0f426b3e-c3bc-4a25-b668-d85468386596`; the research Worker is
+`f9228459-74df-4ad6-a9a7-c6a118533723`. The existing native and Claude runtime
+bundles are unchanged. The main `glim-think-v1` service was not redeployed.
+
+The enabled queue admits at most one task at a time, four attempts per day and
+sixteen over this policy's lifetime. Each attempt reserves 1,230 seconds without
+refund. Durable Object alarms dispatch authorized entries; there is no idle
+polling alarm, recurring chat task, or autonomous task generation. The scientific
+research supervisor remains paused. Enabling this queue does not resume it.
+
+The broker routes only to the existing included MiniMax subscription. Provider
+and operator credentials stay outside the guest. The guest receives a scoped
+attempt capability with a sixteen-call ceiling and original deadline. Fresh
+observations of credit controls and authenticated quota remain admission gates;
+this browser-dependent proof lifecycle is not fully unattended. Claude OAuth is
+not connected to this coding runner, and no new sign-in was required for MiniMax.
+
+Validation before these releases included **141 coding tests**, isolated
+TypeScript and Worker dry-run checks, and **1,985 research-package tests** with
+nine skipped, zero failed and 25,969 assertions. Source/runtime preservation was
+checked separately from model execution. The following attempts are distinct;
+none rewrites a historical failure or reuses its model allowance.
+
+### Model attempts and precise failure attribution
+
+1. `coding-repository-assessment-20261101-01` ended `unknown` with incomplete
+   command evidence, confirmed cleanup and **zero broker calls**. An oversized
+   tool surface was reproduced locally, but the generic archived error does not
+   identify its first failing predicate; the hidden-schema issue below could
+   occur earlier. A separately reviewed disposition released only its scheduler
+   hold after joining the terminal receipt, ledger and closed zero-call broker.
+   Its outcome and reserved budget remain unchanged.
+2. `coding-repository-assessment-v2-20261101-01` ended `failed` with **zero broker
+   calls**. Real Zod schema conversion attached hidden `~standard` metadata that
+   the strict JSON boundary rejected. The v3 recipe removes only that exact,
+   identity-checked root metadata while retaining JSON-schema bytes and all
+   other rejection rules. Its tests use actual pinned Zod and DSH utilities:
+   **80 Node tests and eight Python tests passed**. Earlier synthetic coverage
+   had substituted `structuredClone` at this boundary and missed the defect.
+3. `coding-repository-assessment-v3-20261101-01` reached **16 completed MiniMax
+   model turns**: three orchestrator turns and thirteen worker turns. The actual
+   sixteen-tool orchestrator and eight-tool worker surfaces worked. The worker
+   continued inspection until a seventeenth turn was refused before dispatch;
+   no assessment was produced. This is a finishing/budget orchestration failure,
+   not a provider outage or schema failure. The broker closed with no pending
+   unknown operation; container cleanup and ledger recording were confirmed.
+
+The third terminal SHA-256 is
+`37d7db1340ac641f8a75a078283a963dd8fa6a02b2e8f6d37f8bc3ce4ce19fde`.
+Its source revision is `3b68498f8a61f2a83be4c9faf9fc9cdf8f746981`, distinct from the
+Worker deployment revision. All 21 archived objects (524,911 bytes) were
+retrieved and hash-verified. The usage receipts report 57,437 input tokens, 4,684 output tokens and
+305,662 cache-read tokens, with zero cache-creation tokens reported. These are
+provider usage fields, not billed dollars or independently measured tokenization.
+An independent review passed 58 checks across all objects and joined model
+operations. The tracked-source patch is empty; untracked output is captured
+separately. Assessment files contain explicit absence records,
+not substitute reports. None of these three model attempts received coding,
+scientific, or publication acceptance. Provider HTTP request count and billed
+USD remain unknown; model turns are not an HTTP count.
+
+
+### Separately versioned completion controls
+
+The v4 guest recipe keeps the total sixteen-call limit and original task deadline.
+It allocates six calls to the master and ten to the worker, reserves master
+finalization capacity, and closes exploration after global call eight. A fixed
+writer creates immutable JSON/Markdown findings; the existing `ready` report is
+refused until the artifacts validate. Final readback catches later alteration.
+Known local role refusals preserve the other role's reserve; unknown provider
+outcomes retain the existing whole-attempt stop.
+
+Both the author and independent reviewer ran **104 Node tests and eight Python
+process-boundary tests**; the independent review also passed **85 source, patch
+and preservation checks**. A
+separate three-turn offline check passed **20 assertions** across the actual guest
+adapter and broker core, using synthetic store/archive/provider implementations.
+It verified distinct immutable budget-feedback snapshots, continuation-prefix
+integrity and server-only retention of synthetic private reasoning. This fixture
+did not execute Harness, native tools, real provider inference or platform storage.
+
+The v4 recipe hash is
+`281b5e73d583dda3632d24a38b07deab3501140e8122c86b5e9b9ab694182887`;
+its adapter hash is
+`8af187cbf5bc0af0c6c805fd1adfd5dac17989e84604589cff5ebb4a6341108e`.
+The worker's structured coverage and source-path checks are not independent
+semantic acceptance or proof that each file was read. A failure retains explicit
+incomplete state, not a manufactured successful report.
