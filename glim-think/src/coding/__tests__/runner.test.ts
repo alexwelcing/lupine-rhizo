@@ -1,7 +1,7 @@
 import {it,expect} from 'vitest';
-import {mkdtempSync,writeFileSync,mkdirSync,symlinkSync,rmSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,readFileSync,existsSync,mkdirSync,symlinkSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
-import {CodingRunnerCore,READ_ARTIFACT,type RunnerStore,type RunnerProcess,type RunnerDependencies} from '../runner-core';
+import {CodingRunnerCore,READ_ARTIFACT,SHALLOW_CHECKOUT,type RunnerStore,type RunnerProcess,type RunnerDependencies} from '../runner-core';
 import {canonical,sha256,parseCodingTask,RUNNER_LIMITS,publicCodingState,type CodingTask,type CodingState} from '../runner-contract';
 import {codingFetch} from '../runner-http';import type {CodingRunnerEnv} from '../runner-worker';
 const enc=new TextEncoder(),bytes=(s:string)=>enc.encode(s);
@@ -77,4 +77,36 @@ it('setup diagnostic output is capped and its incomplete flag prevents command e
  expect(state.executionStarted).toBe(false);expect(f.execs).toBe(2);expect(state.reason).toBe('source-receive-failed');
  const stderr=state.evidence.find(r=>r.kind==='source-receive-stderr')!,detail=state.evidence.find(r=>r.kind==='source-receive')!;
  expect(stderr.bytes).toBe(RUNNER_LIMITS.logBytes);expect(f.blobs.get(stderr.artifactKey)?.length).toBe(RUNNER_LIMITS.logBytes);expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey))).incomplete).toBe(true);
+});
+
+it('shallow source is explicitly versioned and cannot alter ordinary bundle identity',async()=>{
+ const f=await fixture(),shallow={...f.task,source:{...f.task.source,kind:'git-shallow-bundle-v1',boundaryCommit:f.task.repository.commit}};
+ expect(parseCodingTask(shallow).source).toEqual(shallow.source);expect(await sha256(canonical(shallow))).not.toBe(await sha256(canonical(f.task)));
+ for(const source of [{...shallow.source,boundaryCommit:'b'.repeat(40)},{...shallow.source,boundaryCommit:undefined},{...shallow.source,kind:'git-bundle'},{...f.task.source,kind:'git-shallow-bundle-v1'},{...shallow.source,boundaries:[f.task.repository.commit]}])expect(()=>parseCodingTask({...f.task,source})).toThrow();
+ await f.core.submit(f.task,'runner');await expect(f.core.submit(shallow,'runner')).rejects.toThrow('conflict');expect(f.starts).toBe(0);
+});
+it('only an explicit shallow source selects the shallow import script',async()=>{
+ for(const shallow of [false,true]){const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container);let checkout:string[]=[];
+ f.deps.container.exec=async(args,options)=>{if(args.includes('checkout'))checkout=args;return original(args,options);};
+ const task=shallow?{...f.task,source:{...f.task.source,kind:'git-shallow-bundle-v1' as const,boundaryCommit:f.task.repository.commit}}:f.task;
+ await f.core.submit(task,'runner');await f.core.run();expect((await f.core.status())?.status).toBe('succeeded');expect(checkout.includes(SHALLOW_CHECKOUT)).toBe(shallow);
+ if(shallow)expect(checkout.slice(4)).toEqual([task.repository.commit,task.repository.commit,'/run/lupine-coding/source.bundle','/workspace/repo']);else expect(checkout[2]).toContain('clone --quiet --no-checkout');
+ }
+});
+function tinyBundle(){
+ const root=mkdtempSync(join(tmpdir(),'coding-shallow-')),full=join(root,'full'),shallow=join(root,'shallow'),bundle=join(root,'source.bundle');mkdirSync(full);
+ const env={PATH:globalThis.process.env.PATH,HOME:root,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_AUTHOR_NAME:'Synthetic test',GIT_AUTHOR_EMAIL:'fixture@example.invalid',GIT_COMMITTER_NAME:'Synthetic test',GIT_COMMITTER_EMAIL:'fixture@example.invalid',GIT_AUTHOR_DATE:'2001-01-01T00:00:00Z',GIT_COMMITTER_DATE:'2001-01-01T00:00:00Z'};
+ const git=(cwd:string,args:string[],input?:string)=>execFileSync('git',['-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false',...args],{cwd,env,input,stdio:['pipe','pipe','pipe']});
+ try{git(full,['init','--quiet']);writeFileSync(join(full,'small.txt'),'first\n');git(full,['add','small.txt']);git(full,['commit','--quiet','-m','first']);const parent=git(full,['rev-parse','HEAD']).toString().trim();writeFileSync(join(full,'small.txt'),'second exact bytes\n');git(full,['add','small.txt']);git(full,['commit','--quiet','-m','second']);const head=git(full,['rev-parse','HEAD']).toString().trim(),tree=git(full,['rev-parse','HEAD^{tree}']).toString().trim();git(root,['clone','--quiet','--depth=1','file://'+full,shallow]);git(shallow,['bundle','create',bundle,'HEAD']);return {root,full,bundle,head,tree,parent,env,git};}catch(error){rmSync(root,{recursive:true,force:true});throw error;}
+}
+it('actual tiny Git shallow import preserves exact commit/tree/bytes and verifies the declared boundary',()=>{
+ const f=tinyBundle();try{const destination=join(f.root,'imported');const result=execFileSync('/bin/sh',['-c',SHALLOW_CHECKOUT,'checkout',f.head,f.head,f.bundle,destination],{env:f.env,stdio:['pipe','pipe','pipe']});
+ expect(result.toString()).toBe(f.head+'\n');expect(f.git(destination,['rev-parse','HEAD^{tree}']).toString().trim()).toBe(f.tree);expect(readFileSync(join(destination,'small.txt'),'utf8')).toBe('second exact bytes\n');expect(f.git(destination,['rev-parse','--is-shallow-repository']).toString().trim()).toBe('true');expect(f.git(destination,['rev-list','--count','HEAD']).toString().trim()).toBe('1');expect(f.git(destination,['cat-file','-p','HEAD']).toString()).toContain('parent '+f.parent);expect(()=>f.git(destination,['cat-file','-e',f.parent+'^{commit}'])).toThrow();expect(()=>f.git(destination,['fsck','--strict','--no-reflogs'])).not.toThrow();
+ const wrong=join(f.root,'wrong');expect(()=>execFileSync('/bin/sh',['-c',SHALLOW_CHECKOUT,'checkout',f.head,f.parent,f.bundle,wrong],{env:f.env,stdio:'pipe'})).toThrow();expect(existsSync(wrong)).toBe(false);
+ }finally{rmSync(f.root,{recursive:true,force:true});}
+});
+it('strict shallow import rejects a valid pack missing a current-tree blob',()=>{
+ const f=tinyBundle();try{const pack=f.git(f.full,['pack-objects','--stdout'],f.head+'\n'+f.tree+'\n'),broken=join(f.root,'missing-blob.bundle'),destination=join(f.root,'broken');writeFileSync(broken,Buffer.concat([Buffer.from('# v2 git bundle\n'+f.head+' HEAD\n\n'),pack]));
+ expect(()=>execFileSync('/bin/sh',['-c',SHALLOW_CHECKOUT,'checkout',f.head,f.head,broken,destination],{env:f.env,stdio:'pipe'})).toThrow();
+ }finally{rmSync(f.root,{recursive:true,force:true});}
 });

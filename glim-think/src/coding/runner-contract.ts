@@ -5,7 +5,7 @@ export const RUNNER_LIMITS = { sourceBytes: 256 * 1024 * 1024, manifestBytes: 24
 export type CodingTask = {
   schema: 'lupine.coding-task.v1'; taskId: string; attemptId: string;
   repository: { owner: string; name: string; commit: string };
-  source: { kind: 'git-bundle'; artifactKey: string; sha256: string; bytes: number };
+  source: { artifactKey: string; sha256: string; bytes: number } & ({kind:'git-bundle'}|{kind:'git-shallow-bundle-v1';boundaryCommit:string});
   mode: 'code-execution'; command: string; timeoutSeconds: number; enableInternet: boolean; artifactPaths: string[];
 };
 export type EvidenceRef = { artifactKey: string; sha256: string; bytes: number; kind: 'stdout'|'stderr'|'artifact'|'bootstrap'|'receipt'|'source-receive-stdout'|'source-receive-stderr'|'source-receive'|'checkout-stdout'|'checkout-stderr'|'checkout'; path?: string };
@@ -38,7 +38,10 @@ export function parseCodingTask(raw:unknown):CodingTask {
   assertRunner(raw.schema==='lupine.coding-task.v1'&&validId(raw.taskId)&&validId(raw.attemptId),'Invalid coding identity');
   assertRunner(raw.mode==='code-execution','DSH/model execution is unqualified; use code-execution mode');
   assertRunner(exact(raw.repository,['owner','name','commit'])&&typeof raw.repository.owner==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9-]{0,38}$/.test(raw.repository.owner)&&typeof raw.repository.name==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$/.test(raw.repository.name)&&typeof raw.repository.commit==='string'&&/^[0-9a-f]{40}$/.test(raw.repository.commit),'Invalid pinned repository');
-  assertRunner(exact(raw.source,['kind','artifactKey','sha256','bytes'])&&raw.source.kind==='git-bundle'&&typeof raw.source.sha256==='string'&&/^[0-9a-f]{64}$/.test(raw.source.sha256)&&raw.source.artifactKey===`sources/${raw.source.sha256}.bundle`&&Number.isSafeInteger(raw.source.bytes)&&Number(raw.source.bytes)>0&&Number(raw.source.bytes)<=RUNNER_LIMITS.sourceBytes,'Invalid pinned source bundle');
+  const source=raw.source;
+  const ordinary=exact(source,['kind','artifactKey','sha256','bytes'])&&source.kind==='git-bundle';
+  const shallow=exact(source,['kind','artifactKey','sha256','bytes','boundaryCommit'])&&source.kind==='git-shallow-bundle-v1'&&source.boundaryCommit===raw.repository.commit;
+  assertRunner((ordinary||shallow)&&typeof source.sha256==='string'&&/^[0-9a-f]{64}$/.test(source.sha256)&&source.artifactKey===`sources/${source.sha256}.bundle`&&Number.isSafeInteger(source.bytes)&&Number(source.bytes)>0&&Number(source.bytes)<=RUNNER_LIMITS.sourceBytes,'Invalid pinned source bundle');
   assertRunner(typeof raw.command==='string'&&raw.command.trim().length>0&&!raw.command.includes('\0')&&new TextEncoder().encode(raw.command).length<=RUNNER_LIMITS.commandBytes,'Invalid bounded command');
   assertRunner(Number.isSafeInteger(raw.timeoutSeconds)&&Number(raw.timeoutSeconds)>=1&&Number(raw.timeoutSeconds)<=RUNNER_LIMITS.commandSeconds&&typeof raw.enableInternet==='boolean','Invalid deadline/network policy');
   assertRunner(Array.isArray(raw.artifactPaths)&&raw.artifactPaths.length<=RUNNER_LIMITS.artifactCount&&new Set(raw.artifactPaths).size===raw.artifactPaths.length,'Invalid artifact list');

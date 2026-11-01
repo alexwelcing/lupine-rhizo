@@ -35,6 +35,20 @@ with open('/run/lupine-coding/source.bundle','xb') as f:
 if n!=size or h.hexdigest()!=expected:raise RuntimeError('source identity rejected')
 print('source-verified')
 `;
+/** Only the explicit v1 shallow source selects this path. No remote fetch or history inference. */
+export const SHALLOW_CHECKOUT=`set -eu
+test "$1" = "$2"
+test ! -e "$4"
+git -c core.hooksPath=/dev/null init --quiet "$4"
+printf '%s\\n' "$2" > "$4/.git/shallow"
+git -C "$4" -c core.hooksPath=/dev/null bundle unbundle "$3" >&2
+git -C "$4" -c core.hooksPath=/dev/null checkout --quiet --detach "$1"
+test "$(git -C "$4" rev-parse --is-shallow-repository)" = true
+test "$(cat "$4/.git/shallow")" = "$2"
+test "$(git -C "$4" rev-list --count HEAD)" = 1
+git -C "$4" fsck --strict --no-reflogs >&2
+git -C "$4" rev-parse HEAD
+`;
 export const READ_ARTIFACT=`import os,sys,stat
 parts=sys.argv[1].split('/');limit=int(sys.argv[2]);fd=os.open('/workspace/repo',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
 try:
@@ -167,7 +181,9 @@ export class CodingRunnerCore {
       await this.saveSetup('source-receive',received);
       assertRunner(!received.incomplete&&received.exitCode===0&&new TextDecoder().decode(received.stdout).trim()==='source-verified','Source integrity check failed',409);
       await this.changeActive(s=>{s.setupStage='checkout';});
-      const checkout=await this.execute(['/bin/sh','-c','set -eu; git -c core.hooksPath=/dev/null clone --quiet --no-checkout /run/lupine-coding/source.bundle /workspace/repo; git -C /workspace/repo -c core.hooksPath=/dev/null checkout --quiet --detach "$1"; git -C /workspace/repo rev-parse HEAD','checkout',claimed.task.repository.commit],'/workspace');
+      const checkout=await this.execute(claimed.task.source.kind==='git-shallow-bundle-v1'
+        ?['/bin/sh','-c',SHALLOW_CHECKOUT,'checkout',claimed.task.repository.commit,claimed.task.source.boundaryCommit,'/run/lupine-coding/source.bundle','/workspace/repo']
+        :['/bin/sh','-c','set -eu; git -c core.hooksPath=/dev/null clone --quiet --no-checkout /run/lupine-coding/source.bundle /workspace/repo; git -C /workspace/repo -c core.hooksPath=/dev/null checkout --quiet --detach "$1"; git -C /workspace/repo rev-parse HEAD','checkout',claimed.task.repository.commit],'/workspace');
       await this.saveSetup('checkout',checkout);
       assertRunner(!checkout.incomplete&&checkout.exitCode===0&&new TextDecoder().decode(checkout.stdout).trim()===claimed.task.repository.commit,'Pinned commit checkout failed',409);
       await this.active();await this.changeActive(s=>{s.status='executing';s.executionStarted=true;});
