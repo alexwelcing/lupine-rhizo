@@ -144,4 +144,18 @@ node scripts/coding-runner-client.mjs schedule-status - scheduler-observation.js
 
 Cloudflare alarms own dispatch and bounded terminal observation. A lost dispatch acknowledgement is never replayed. Unknown executions retain capacity. `schedule-stop` removes only an undispatched queue item; `schedule-reconcile` observes the exact existing attempt and cannot restart it. Disabling the policy stops future admission while active attempts retain cleanup supervision. Empty queues have no alarm.
 
+An operator may attach a separately reviewed `release-confirmed-no-model-dispatch`
+disposition to `schedule-reconcile`. This narrow exception requires matching
+Runner and D1 terminal hashes, confirmed cleanup, and a closed task broker with
+zero consumed or completed operations and no pending unknown. It applies only to
+the versioned subscription command-evidence failure covered by the implementation.
+The request binds an authorization ID, terminal hash, and independent review hash.
+It releases the scheduler's concurrency hold only: the original unknown record,
+attempt count, wall-time reservation, and absent acceptance remain unchanged.
+The disposition is immutable and separately identified in scheduler status. It
+does not establish zero arbitrary guest network traffic, and cannot authorize a
+replay. A corrected command requires a distinct source, manifest and authorized
+task within the remaining policy budget. Guest model capabilities cannot reach
+this administrative action.
+
 For subscription tasks, fresh credits-OFF evidence and authenticated quota remain required. An expired proof yields a wait, not a paid fallback. This route still depends on a real browser observation for credit-control freshness; enabling scheduling does not establish fully unattended subscription eligibility. Native/Claude scientific work and public Library publication are separate authorities.

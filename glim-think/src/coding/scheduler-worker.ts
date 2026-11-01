@@ -2,7 +2,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { canonical, sha256, assertRunner } from './runner-contract';
 import { createDurableCodingScheduler } from './scheduler-storage';
 import { getCodingAttempt } from './ledger';
-import type { CodingScheduler, CodingSchedulerPolicy, CodingSchedulerGate } from './scheduler-state';
+import type { CodingScheduler, CodingSchedulerPolicy, CodingSchedulerGate, CodingSchedulerNoModelDispatchInput } from './scheduler-state';
 import type { CodingRunnerEnv } from './runner-worker';
 import { codingBrokerCall } from './model-bridge';
 
@@ -31,6 +31,7 @@ export class CodingSchedule extends DurableObject<CodingRunnerEnv> {
         const record=await getCodingAttempt(env.LEDGER,identity.attemptId);
         return {...identity,status:state.status,ledgerRecorded:state.ledgerRecorded&&!!record?.terminal,cleanupConfirmed:state.cleanupConfirmed,
           inputSha256:state.inputSha256,taskId:state.taskId,attemptId:state.attemptId,ownerId:record?.ownerId??identity.ownerId,
+          runnerTerminalReceiptSha256:state.receipt?.sha256??null,
           terminal:record?.terminal?{receiptJson:record.terminal.receiptJson,receiptSha256:record.terminal.receiptSha256}:null};
       },
     });
@@ -39,7 +40,7 @@ export class CodingSchedule extends DurableObject<CodingRunnerEnv> {
   enqueue(value:Parameters<typeof this.scheduler.enqueue>[0]){return this.scheduler.enqueue(value);}
   status(){return this.scheduler.status();}
   stopQueued(attemptId:string){return this.scheduler.stopQueued(attemptId);}
-  reconcile(attemptId:string){return this.scheduler.reconcile(attemptId);}
+  reconcile(attemptId:string,disposition?:CodingSchedulerNoModelDispatchInput){return this.scheduler.reconcile(attemptId,disposition);}
   async tick(){await this.scheduler.tick();return this.scheduler.status();}
   async alarm(){await this.scheduler.tick();}
 }

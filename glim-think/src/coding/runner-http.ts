@@ -47,7 +47,7 @@ export async function codingFetch(request:Request,env:CodingRunnerEnv):Promise<R
         if(action==='enqueue')return json(await scheduler.enqueue(value),202);
         if(action==='tick') {assertRunner(value&&Object.keys(value).length===0,'Tick accepts no parameters');return json(await scheduler.tick());}
         if(action==='stop')return json(await scheduler.stopQueued(value.attemptId));
-        if(action==='reconcile')return json(await scheduler.reconcile(value.attemptId));
+        if(action==='reconcile')return json(await scheduler.reconcile(value.attemptId,value.disposition));
       }
       if(path==='/coding/tasks'&&request.method==='POST'){
         const task=parseCodingTask(await boundedJson(request));const result=await env.CODING_RUNNER.getByName(task.attemptId).submit(task);

@@ -3,7 +3,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {CodingScheduler,codingReservationSeconds,type CodingSchedulerStore,type CodingSchedulerPolicy,type CodingSchedulerDependencies,type CodingSchedulerObservation,type CodingSchedulerRecord} from '../scheduler-state';
+import {CodingScheduler,codingReservationSeconds,type CodingSchedulerStore,type CodingSchedulerPolicy,type CodingSchedulerDependencies,type CodingSchedulerObservation,type CodingSchedulerRecord,type CodingSchedulerNoModelDispatchInput} from '../scheduler-state';
 import {canonical,sha256,type CodingTask} from '../runner-contract';
 const cleanups:Array<()=>void>=[];afterEach(()=>{for(const fn of cleanups.splice(0))fn();});
 class SqlStore implements CodingSchedulerStore {
@@ -52,3 +52,48 @@ it('quota wait retries only metadata, at most fifteen minutes, and expires witho
 it('empty and paused queues have no idle polling; stop never mutates dispatched work',async()=>{const f=await fixture({enabled:false});await f.enqueue(1);expect((await f.engine.status()).nextWakeAtMs).toBeNull();await f.engine.tick();expect(f.gates).toBe(0);await f.engine.stopQueued('attempt-1');const s=await f.engine.status();expect(s.tasks[0].reason).toBe('operator-stopped');await f.engine.configure({...basePolicy},s.policySha256);await f.enqueue(2);await f.engine.tick();await expect(f.engine.stopQueued('attempt-2')).rejects.toThrow('Dispatched');});
 it('automatic observation ends after the reserved wall envelope and never resubmits',async()=>{const f=await fixture();await f.enqueue(1);await f.engine.tick();f.observations.clear();f.advance(500000);await f.engine.tick();const reads=f.reads;expect((await f.engine.status()).tasks[0].reason).toBe('observation-expired');expect((await f.engine.status()).nextWakeAtMs).toBeNull();f.advance(900000);await f.engine.tick();expect(f.reads).toBe(reads);expect(f.submits).toBe(1);await f.terminal(1);await f.engine.reconcile('attempt-1');expect((await f.engine.status()).counts.active).toBe(0);expect(f.submits).toBe(1);});
 it('queue/status/history and gate reads are bounded and status never exposes command/source bodies',async()=>{const f=await fixture();let gates=0;f.deps.gate=async()=>{gates++;return {state:'wait',reason:'route-unavailable'};};for(let n=1;n<=128;n++)await f.enqueue(n);await expect(f.enqueue(129)).rejects.toThrow('capacity');await f.engine.tick();const s=await f.engine.status();expect(gates).toBe(4);expect(s.tasks.length).toBe(128);expect(s.history.length).toBe(32);expect(JSON.stringify(s)).not.toContain('printf secret-free');expect(JSON.stringify(s)).not.toContain('manifestJson');});
+
+async function noModelHold(mutate?:(payload:any,observation:CodingSchedulerObservation)=>void){
+ const f=await fixture(),task:CodingTask={...makeTask(1),schema:'lupine.coding-task.v2',mode:'dsh-subscription',enableInternet:true,model:{provider:'minimax',route:'minimax-subscription',model:'MiniMax-M3.1-Flash',maxRequests:16,maxOutputTokens:4096,adapterSha256:'e'.repeat(64)}};
+ await f.engine.enqueue({task,authorizationId:'model-authorization',expiresAtMs:f.now()+3600000});await f.engine.tick();
+ const inputSha256=await sha256(canonical(task));
+ const p={schema:'lupine.coding-terminal.v1',taskId:task.taskId,attemptId:task.attemptId,inputSha256,ownerId:basePolicy.ownerId,mode:task.mode,repository:task.repository,source:task.source,outcome:'unknown',reason:'command-evidence-incomplete',executionStarted:true,executionExitCode:1,cleanupConfirmed:true,sourceCommitChecked:true,providerCredentialsSupplied:false,modelExecutionQualified:false,automaticReplay:false,
+  modelEvidence:{confirmed:true,closed:true,pendingUnknown:false,completedRequests:0,inputSha256,status:{schema:'lupine.coding-model-status.v1',status:'closed',taskId:task.taskId,attemptId:task.attemptId,inputSha256,model:task.model!.model,maxRequests:16,consumedRequests:0,operations:[],activeOrdinal:null,automaticReplay:false,permitSha256:'1'.repeat(64),policySha256:'2'.repeat(64),credentialGenerationSha256:'3'.repeat(64)}}};
+ const observation:CodingSchedulerObservation={taskId:task.taskId,attemptId:task.attemptId,inputSha256,ownerId:basePolicy.ownerId,status:'unknown',ledgerRecorded:true,cleanupConfirmed:true,terminal:null};mutate?.(p,observation);
+ const receiptJson=canonical(p),receiptSha256=await sha256(receiptJson);observation.terminal={receiptJson,receiptSha256};observation.runnerTerminalReceiptSha256=receiptSha256;f.observations.set(task.attemptId,observation);f.advance();await f.engine.tick();
+ const input:CodingSchedulerNoModelDispatchInput={kind:'release-confirmed-no-model-dispatch',authorizationId:'release-reviewed-1',expectedTerminalReceiptSha256:receiptSha256,reviewEvidenceSha256:'4'.repeat(64)};
+ return Object.assign(f,{task,input,observation});
+}
+it('explicit no-model disposition releases only scheduling while unknown record and full charges remain immutable',async()=>{
+ const f=await noModelHold(),before=await f.engine.status(),record=canonical(await f.store.get('scheduler/task/attempt-1')),observed=canonical(f.observation);
+ const status=await f.engine.reconcile('attempt-1',f.input),disposition=await f.engine.noModelDispatchDisposition('attempt-1');
+ expect(status.counts.active).toBe(0);expect(status.lifetime).toEqual(before.lifetime);expect(status.daily).toEqual(before.daily);expect(canonical(await f.store.get('scheduler/task/attempt-1'))).toBe(record);expect(canonical(f.observation)).toBe(observed);
+ expect(status.tasks[0]).toMatchObject({state:'unknown',terminalReceiptSha256:f.input.expectedTerminalReceiptSha256,releasedByDisposition:true,dispositionSha256:disposition?.sha256});
+ expect(disposition?.sha256).toBe(await sha256(canonical(disposition?.payload)));expect(disposition?.payload).toMatchObject({sourceSha256:f.task.source.sha256,adapterSha256:f.task.model!.adapterSha256,originalOutcome:'unknown',modelRequests:0,refundedAttempts:0,refundedSeconds:0,automaticReplay:false,acceptanceGranted:false});
+ const submits=f.submits;await f.engine.tick();expect(f.submits).toBe(submits);
+});
+it('ordinary reconciliation still holds zero-model unknown; release replay cannot clear a later active owner',async()=>{
+ const f=await noModelHold();await f.engine.reconcile('attempt-1');expect((await f.engine.status()).counts.active).toBe(1);
+ await f.engine.reconcile('attempt-1',f.input);await f.enqueue(2);await f.engine.tick();const active=await f.store.get<any>('scheduler/index');expect(active.active).toEqual(['attempt-2']);
+ const old=canonical(await f.engine.noModelDispatchDisposition('attempt-1')),calls=f.reads;await f.engine.reconcile('attempt-1',f.input);expect((await f.store.get<any>('scheduler/index')).active).toEqual(['attempt-2']);expect(f.reads).toBe(calls);expect(canonical(await f.engine.noModelDispatchDisposition('attempt-1'))).toBe(old);
+ await expect(f.engine.reconcile('attempt-1',{...f.input,reviewEvidenceSha256:'5'.repeat(64)})).rejects.toThrow('conflict');
+});
+it('no-model release refuses nonzero, unresolved, mismatched or unclosed broker evidence',async()=>{
+ for(const defect of ['pending','operation','consumed','completed','open','identity','model','max','source','reason','exit','qualified','replay']){
+  const f=await noModelHold((p)=>{const b=p.modelEvidence.status;if(defect==='pending')p.modelEvidence.pendingUnknown=true;if(defect==='operation')b.operations=[{state:'unknown'}];if(defect==='consumed')b.consumedRequests=1;if(defect==='completed')p.modelEvidence.completedRequests=1;if(defect==='open')b.status='open';if(defect==='identity')b.taskId='foreign';if(defect==='model')b.model='foreign';if(defect==='max')b.maxRequests=15;if(defect==='source')p.source={...p.source,sha256:'0'.repeat(64)};if(defect==='reason')p.reason='other-unknown';if(defect==='exit')p.executionExitCode=null;if(defect==='qualified')p.modelExecutionQualified=true;if(defect==='replay')p.automaticReplay=true;});
+  await expect(f.engine.reconcile('attempt-1',f.input)).rejects.toThrow();expect((await f.engine.status()).counts.active).toBe(1);expect(await f.engine.noModelDispatchDisposition('attempt-1')).toBeNull();
+ }
+});
+it('release requires fresh exact Runner and D1 readback, reviewed hash and operator identity',async()=>{
+ for(const defect of ['missing-runner','wrong-runner','ledger','cleanup','changed-receipt','read-failure','expected','authorization']){
+  const f=await noModelHold();if(defect==='missing-runner')delete f.observation.runnerTerminalReceiptSha256;if(defect==='wrong-runner')f.observation.runnerTerminalReceiptSha256='0'.repeat(64);if(defect==='ledger')f.observation.ledgerRecorded=false;if(defect==='cleanup')f.observation.cleanupConfirmed=false;if(defect==='changed-receipt')f.observation.terminal!.receiptSha256='0'.repeat(64);if(defect==='read-failure')f.deps.status=async()=>{throw Error('unavailable');};const input={...f.input,...(defect==='expected'?{expectedTerminalReceiptSha256:'0'.repeat(64)}:defect==='authorization'?{authorizationId:''}:{})};
+  await expect(f.engine.reconcile('attempt-1',input)).rejects.toThrow();expect((await f.engine.status()).counts.active).toBe(1);expect(await f.engine.noModelDispatchDisposition('attempt-1')).toBeNull();
+ }
+});
+it('lost disposition commit acknowledgement is idempotent after reconstruction, without another read or refund',async()=>{
+ const f=await noModelHold(),before=await f.engine.status();f.store.loseCommit=true;await expect(f.engine.reconcile('attempt-1',f.input)).rejects.toThrow('lost storage');
+ const saved=await f.engine.noModelDispatchDisposition('attempt-1');expect(saved).not.toBeNull();const reads=f.reads,e=f.reopen();const status=await e.reconcile('attempt-1',f.input);expect(status.counts.active).toBe(0);expect(status.lifetime).toEqual(before.lifetime);expect(status.daily).toEqual(before.daily);expect(f.reads).toBe(reads);expect(await e.noModelDispatchDisposition('attempt-1')).toEqual(saved);
+});
+it('midnight disposition retains the full carried charge for the new day',async()=>{
+ const f=await noModelHold();f.setNow(Date.parse('2026-11-02T00:00:01Z'));const status=await f.engine.reconcile('attempt-1',f.input);expect(status.counts.active).toBe(0);expect(status.daily.reservedAttempts).toBe(1);expect(status.daily.reservedSeconds).toBe(codingReservationSeconds(f.task));expect(status.daily.carriedAttemptIds).toEqual(['attempt-1']);expect(status.lifetime.attempts).toBe(1);
+});

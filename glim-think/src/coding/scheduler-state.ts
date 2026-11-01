@@ -13,7 +13,7 @@ export type CodingSchedulerPolicy = {
   maxConcurrent:number; maxDailyAttempts:number; maxLifetimeAttempts:number;
   maxDailyReservedSeconds:number; maxLifetimeReservedSeconds:number; pollIntervalMs:number;
 };
-export type CodingSchedulerReason = 'authorized'|'admission-paused'|'gate-ready'|'quota-wait'|'route-unavailable'|'gate-unavailable'|'gate-blocked'|'daily-budget'|'lifetime-budget'|'concurrency-limit'|'authorization-rejected'|'authorization-unknown'|'dispatch-unconfirmed'|'running'|'terminal-confirmed'|'observation-unavailable'|'observation-expired'|'task-expired'|'operator-stopped';
+export type CodingSchedulerReason = 'authorized'|'admission-paused'|'gate-ready'|'quota-wait'|'route-unavailable'|'gate-unavailable'|'gate-blocked'|'daily-budget'|'lifetime-budget'|'concurrency-limit'|'authorization-rejected'|'authorization-unknown'|'dispatch-unconfirmed'|'running'|'terminal-confirmed'|'observation-unavailable'|'observation-expired'|'task-expired'|'operator-stopped'|'operator-no-model-dispatch-release';
 export type CodingSchedulerGate = {state:'ready';reason:'gate-ready';receiptSha256:string}|{state:'wait';reason:'quota-wait'|'route-unavailable'|'gate-unavailable';nextCheckAtMs?:number}|{state:'blocked';reason:'gate-blocked'};
 export type CodingSchedulerIdentity = {taskId:string;attemptId:string;inputSha256:string;ownerId:string};
 /** Supplied by a trusted adapter reading the existing Runner and ledger, never by guest/model data. */
@@ -21,7 +21,15 @@ export type CodingSchedulerObservation = CodingSchedulerIdentity & {
   status:'claimed'|'preparing'|'executing'|'collecting'|'finalizing'|'succeeded'|'failed'|'unknown';
   ledgerRecorded:boolean;cleanupConfirmed:boolean;
   terminal:null|{receiptJson:string;receiptSha256:string};
+  /** Independently read from the trusted Runner state, not copied from D1. */
+  runnerTerminalReceiptSha256?:string|null;
 };
+export type CodingSchedulerNoModelDispatchInput={kind:'release-confirmed-no-model-dispatch';authorizationId:string;expectedTerminalReceiptSha256:string;reviewEvidenceSha256:string};
+export type CodingSchedulerNoModelDispatchDisposition={schema:'lupine.coding-scheduler-no-model-dispatch-disposition.v1';sha256:string;payload:CodingSchedulerIdentity&{
+  kind:'release-confirmed-no-model-dispatch';authorizationId:string;inputDispositionSha256:string;reviewEvidenceSha256:string;terminalReceiptSha256:string;
+  originalSchedulerRecordSha256:string;manifestSha256:string;sourceSha256:string;adapterSha256:string;brokerPermitSha256:string;recordedAtMs:number;
+  originalOutcome:'unknown';releasedSchedulingHold:true;modelRequests:0;modelRequestScope:'task-scoped-included-broker-only';refundedAttempts:0;refundedSeconds:0;automaticReplay:false;acceptanceGranted:false;
+}};
 export interface CodingSchedulerDependencies {
   claimAgenda(task:CodingTask,inputSha256:string,ownerId:string):Promise<{authorized:true;receiptSha256:string}|{authorized:false}>;
   /** Metadata-only freshness/quota check. It must not invoke a model or dispatch guest work. */
@@ -45,6 +53,7 @@ type Index = {schema:'lupine.coding-scheduler-index.v1';policySha256:string|null
 type Day = {utcDay:string;reservedAttempts:number;reservedSeconds:number;carriedAttemptIds:string[]};
 const INDEX='scheduler/index';
 const recordKey=(id:string)=>'scheduler/task/'+id;
+const dispositionKey=(id:string)=>'scheduler/no-model-dispatch-disposition/'+id;
 const HASH=/^[0-9a-f]{64}$/;
 const encoder=new TextEncoder();
 const initial=():Index=>({schema:'lupine.coding-scheduler-index.v1',policySha256:null,queue:[],active:[],held:[],recent:[],history:[],lifetimeAttempts:0,lifetimeReservedSeconds:0,lastNowMs:0,day:null,nextWakeAtMs:null,sequence:0});
@@ -155,7 +164,50 @@ export class CodingScheduler {
     });
   }
   /** Explicit metadata-only recovery after automatic observation expiry; never resubmits. */
-  async reconcile(attemptId:string){requireThat(validId(attemptId),'Invalid attempt');await this.observe(attemptId,true);return this.status();}
+  async reconcile(attemptId:string,disposition?:CodingSchedulerNoModelDispatchInput){requireThat(validId(attemptId),'Invalid attempt');
+    if(disposition!==undefined)await this.releaseNoModelDispatch(attemptId,disposition);else await this.observe(attemptId,true);return this.status();}
+  async noModelDispatchDisposition(attemptId:string){requireThat(validId(attemptId),'Invalid attempt');return await this.store.get<CodingSchedulerNoModelDispatchDisposition>(dispositionKey(attemptId))??null;}
+  /** Operator-only, exact reviewed zero-model-call terminal. This releases only
+   * the scheduling index; the original task, unknown receipt and charges remain. */
+  private async releaseNoModelDispatch(attemptId:string,supplied:CodingSchedulerNoModelDispatchInput){
+    const input=structuredClone(supplied);
+    requireThat(input&&Object.keys(input).sort().join(',')==='authorizationId,expectedTerminalReceiptSha256,kind,reviewEvidenceSha256'
+      &&input.kind==='release-confirmed-no-model-dispatch'&&validId(input.authorizationId)&&HASH.test(input.expectedTerminalReceiptSha256)&&HASH.test(input.reviewEvidenceSha256),'Invalid no-model-dispatch disposition');
+    const inputDispositionSha256=await sha256(canonical({attemptId,...input}));
+    const existing=await this.noModelDispatchDisposition(attemptId);
+    if(existing){if(existing.payload.inputDispositionSha256!==inputDispositionSha256)throw new CodingSchedulerError('conflict','Immutable disposition conflict');return;}
+    const before=await this.store.get<CodingSchedulerRecord>(recordKey(attemptId));
+    requireThat(before?.state==='unknown'&&before.dispatch&&before.terminal?.receiptSha256===input.expectedTerminalReceiptSha256,'Exact stored unknown terminal required');
+    const originalSchedulerRecordSha256=await sha256(canonical(before)),task=parseCodingTask(JSON.parse(before.manifestJson));
+    requireThat(await sha256(before.manifestJson)===before.inputSha256&&canonical(task)===before.manifestJson&&task.schema==='lupine.coding-task.v2'&&task.mode==='dsh-subscription'&&task.model,'Exact model task manifest required');
+    const identity={taskId:before.taskId,attemptId:before.attemptId,inputSha256:before.inputSha256,ownerId:before.ownerId};
+    const current=await this.call(()=>this.deps.status(identity));
+    requireThat(current&&await this.terminalMatches(before,current)==='unknown'&&current.terminal?.receiptJson===before.terminal.receiptJson
+      &&current.runnerTerminalReceiptSha256===input.expectedTerminalReceiptSha256,'Matching fresh Runner and D1 terminal readbacks required');
+    const p=JSON.parse(before.terminal.receiptJson),m=p.modelEvidence,b=m?.status;
+    requireThat(p.mode===task.mode&&canonical(p.repository)===canonical(task.repository)&&canonical(p.source)===canonical(task.source)
+      &&p.reason==='command-evidence-incomplete'&&p.executionStarted===true&&p.executionExitCode===1&&p.sourceCommitChecked===true
+      &&p.providerCredentialsSupplied===false&&p.modelExecutionQualified===false&&p.automaticReplay===false,'Terminal outside zero-model-dispatch release scope');
+    requireThat(m?.confirmed===true&&m.closed===true&&m.pendingUnknown===false&&m.completedRequests===0&&m.inputSha256===before.inputSha256
+      &&b?.schema==='lupine.coding-model-status.v1'&&b.status==='closed'&&b.taskId===before.taskId&&b.attemptId===attemptId&&b.inputSha256===before.inputSha256
+      &&b.model===task.model.model&&b.maxRequests===task.model.maxRequests&&b.consumedRequests===0&&b.activeOrdinal===null&&Array.isArray(b.operations)&&b.operations.length===0
+      &&b.automaticReplay===false&&HASH.test(b.permitSha256)&&HASH.test(b.policySha256)&&HASH.test(b.credentialGenerationSha256),'Confirmed closed zero-call broker evidence required');
+    await this.store.transaction(async tx=>{const c=await this.context(tx),prior=await tx.get<CodingSchedulerNoModelDispatchDisposition>(dispositionKey(attemptId));
+      if(prior){if(prior.payload.inputDispositionSha256!==inputDispositionSha256)throw new CodingSchedulerError('conflict','Immutable disposition conflict');return;}
+      const r=await tx.get<CodingSchedulerRecord>(recordKey(attemptId));
+      requireThat(r&&await sha256(canonical(r))===originalSchedulerRecordSha256&&c.index.active.includes(attemptId),'Scheduling hold or original record changed');
+      const authorizationKey='scheduler/disposition-authorization/'+input.authorizationId,used=await tx.get<string>(authorizationKey);
+      if(used&&used!==inputDispositionSha256)throw new CodingSchedulerError('conflict','Disposition authorization already used');
+      const payload:CodingSchedulerNoModelDispatchDisposition['payload']={...identity,kind:input.kind,authorizationId:input.authorizationId,inputDispositionSha256,reviewEvidenceSha256:input.reviewEvidenceSha256,
+        terminalReceiptSha256:input.expectedTerminalReceiptSha256,originalSchedulerRecordSha256,manifestSha256:before.inputSha256,sourceSha256:task.source.sha256,adapterSha256:task.model!.adapterSha256,
+        brokerPermitSha256:b.permitSha256,recordedAtMs:c.now,originalOutcome:'unknown',releasedSchedulingHold:true,modelRequests:0,modelRequestScope:'task-scoped-included-broker-only',refundedAttempts:0,refundedSeconds:0,automaticReplay:false,acceptanceGranted:false};
+      const result:CodingSchedulerNoModelDispatchDisposition={schema:'lupine.coding-scheduler-no-model-dispatch-disposition.v1',sha256:await sha256(canonical(payload)),payload};
+      await tx.put(dispositionKey(attemptId),result);await tx.put(authorizationKey,inputDispositionSha256);
+      c.index.active=remove(c.index.active,attemptId);
+      await this.event(tx,c.index,c.now,attemptId,'operator-no-model-dispatch-release','operator-no-model-dispatch-release',result.sha256);
+      await this.persist(tx,c.index,c.now,c.policy);
+    });
+  }
   /** Stops only undispatched authorization. It cannot cancel a running guest or refund a reservation. */
   async stopQueued(attemptId:string){requireThat(validId(attemptId),'Invalid attempt');await this.store.transaction(async tx=>{
     const c=await this.context(tx),r=await tx.get<CodingSchedulerRecord>(recordKey(attemptId));requireThat(r,'Attempt unavailable');
@@ -207,7 +259,7 @@ export class CodingScheduler {
   async status(){
     return this.store.transaction(async tx=>{const c=await this.context(tx);await tx.put(INDEX,c.index);
       const ids=[...new Set([...c.index.active,...c.index.queue,...c.index.held,...c.index.recent])];const tasks=[];
-      for(const id of ids){const r=await tx.get<CodingSchedulerRecord>(recordKey(id));if(r)tasks.push({taskId:r.taskId,attemptId:r.attemptId,inputSha256:r.inputSha256,authorizationId:r.authorizationId,state:r.state,reason:r.reason,createdAtMs:r.createdAtMs,expiresAtMs:r.expiresAtMs,nextCheckAtMs:r.nextCheckAtMs,reservedSeconds:r.dispatch?.reservedSeconds??0,terminalReceiptSha256:r.terminal?.receiptSha256??null});}
+      for(const id of ids){const r=await tx.get<CodingSchedulerRecord>(recordKey(id));if(r){const release=await tx.get<CodingSchedulerNoModelDispatchDisposition>(dispositionKey(id));tasks.push({taskId:r.taskId,attemptId:r.attemptId,inputSha256:r.inputSha256,authorizationId:r.authorizationId,state:r.state,reason:r.reason,createdAtMs:r.createdAtMs,expiresAtMs:r.expiresAtMs,nextCheckAtMs:r.nextCheckAtMs,reservedSeconds:r.dispatch?.reservedSeconds??0,terminalReceiptSha256:r.terminal?.receiptSha256??null,dispositionSha256:release?.sha256??null,releasedByDisposition:!!release});}}
       return {schema:'lupine.coding-scheduler-status.v1' as const,observedAtMs:c.now,policySha256:c.index.policySha256,policy:c.policy??null,nextWakeAtMs:c.index.nextWakeAtMs,
         units:{attempts:'durable dispatch intentions; no refunds',seconds:'full guest wall envelope plus 30 seconds settlement; reserved, not measured billing'},
         lifetime:{attempts:c.index.lifetimeAttempts,reservedSeconds:c.index.lifetimeReservedSeconds},daily:c.daily,
