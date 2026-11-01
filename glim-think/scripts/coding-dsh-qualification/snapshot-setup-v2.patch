@@ -1,0 +1,63 @@
+diff --git a/src/app/runtime.ts b/src/app/runtime.ts
+index a8cfe52..0531e30 100644
+--- a/src/app/runtime.ts
++++ b/src/app/runtime.ts
+@@ -37,7 +37,7 @@ import { pullEndNotices } from '../sources/github-pull.ts'
+ import { HealthBoard } from '../infra/health.ts'
+ import { Outbox } from './outbox.ts'
+ import { Passes } from './passes.ts'
+-import { Setup } from './setup.ts'
++import { Setup, type SnapshotSetupPort } from './setup.ts'
+ import { feishuSettings } from '../sources/feishu.ts'
+ import { health, type Health, type SourceContext, type SourceHost } from '../sources/host.ts'
+ import { Sessions } from './sessions.ts'
+@@ -84,7 +84,7 @@ export class Runtime extends Service implements SourceHost {
+   private readonly toolHost: MainToolsHost & ExecutorToolsHost
+   /** Non-zero while a main-Session tool is executing an Engine command, suppressing self-triggered domain event notices. */
+   private quiet = 0
+-  constructor(ctx: Context, readonly machine: Machine, restart: () => void) {
++  constructor(ctx: Context, readonly machine: Machine, restart: () => void, snapshot?: SnapshotSetupPort) {
+     super(ctx, 'orchestrator')
+     const runtime = this
+     // Lock the state directory before opening the database so another process cannot migrate or write concurrently.
+@@ -96,7 +96,7 @@ export class Runtime extends Service implements SourceHost {
+     try {
+       const report = (error: unknown) => { ctx.logger.warn('dsh-superagent: %s', String(error)) }
+       const store = opened = this.store = new Store(join(machine.stateDir, 'orchestrator.sqlite'), report)
+-      const setup = this.setup = new Setup({ context: ctx, machine, lifetime: this.lifetime, restart })
++      const setup = this.setup = new Setup({ context: ctx, machine, lifetime: this.lifetime, restart, snapshot })
+       const deployed = () => setup.configured()
+         ? environmentOf({ deployment: setup.deployment, sources: this.sources, settings: store.settings() }) : undefined
+       const feishu = () => setup.configured() && !!setup.deployment.feishu
+diff --git a/src/app/setup.ts b/src/app/setup.ts
+index a1d353f..97e3ef7 100644
+--- a/src/app/setup.ts
++++ b/src/app/setup.ts
+@@ -6,7 +6,13 @@ import { agentVariables, applyEnvironment, verifyEnvironment, withoutDirectory,
+ import type { Settings, SettingsBlock } from '../policy.ts'
+ import { SetupError, type SetupProblem } from '../setup.ts'
+ 
++/** Evaluation-only v2 explicit setup port. Never asserts GitHub account/push authorization. */
++export interface SnapshotSetupPort {
++  readonly mode: 'snapshot-local-only'
++  resolve(machine: Machine, settings: Settings): Promise<Deployment>
++}
+ export interface SetupHost {
++  readonly snapshot?: SnapshotSetupPort
+   readonly context: Context
+   readonly machine: Machine
+   readonly lifetime: AbortSignal
+@@ -75,6 +81,13 @@ export class Setup {
+   }
+   private async resolve(settings: Settings): Promise<Deployment> {
+     const { context, machine, lifetime } = this.host
++    if (this.host.snapshot) {
++      if (this.host.snapshot.mode !== 'snapshot-local-only') throw new SetupError('environmentFailed', { output: 'Invalid snapshot setup mode' })
++      if (Object.entries(settings.sources).some(([id, source]) => id !== 'snapshot' && source.enabled)) {
++        throw new SetupError('environmentFailed', { output: 'Snapshot setup refuses enabled external Source kinds' })
++      }
++      return this.host.snapshot.resolve(machine, settings)
++    }
+     const probe = this.probe()
+     const deployment = await resolveDeployment(machine, settings.sources.github?.config, probe)
+     const feishu = await resolveFeishuBot(machine, settings.sources.feishu?.config, probe).catch((error: unknown) => {

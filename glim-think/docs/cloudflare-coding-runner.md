@@ -17,6 +17,33 @@ deployment credential, repository credential or model credential enters it.
 The source arrives as a hash- and size-bound Git bundle streamed from private R2;
 the guest verifies it before checking out the exact requested commit.
 
+Two source formats have distinct manifest identities. `source.kind: "git-bundle"`
+retains the ordinary clone path; the runner never infers a shallow boundary for
+it. A deliberately depth-one export must instead use
+`source.kind: "git-shallow-bundle-v1"` and supply
+`source.boundaryCommit` equal to `repository.commit`, alongside the same pinned
+`artifactKey`, `sha256`, and `bytes` fields. The new path initializes an empty
+repository and writes that exact boundary before local unbundling. It verifies
+the checked-out commit, the single visible commit, the shallow marker, and
+`git fsck --strict --no-reflogs` before admitting the coding command. The commit
+object and current tree are preserved; unavailable ancestors are not recovered
+or claimed as complete history. No remote fetch is performed by this import.
+Changing the source format changes the full manifest hash and requires a new
+authorized task; failed historical attempts remain unchanged.
+
+The operator helper exports the pinned commit and its complete current tree
+without cloning another working copy or including untracked files:
+
+```sh
+python3 scripts/coding-source-bundle.py /path/to/repository <40-hex-commit> /private/output/source.bundle
+```
+
+Its JSON output supplies the exact `git-shallow-bundle-v1` source fields. Keep the
+bundle private, upload it under its content-addressed key, and bind those fields
+to the agenda manifest before submission. Historical parents are deliberately
+excluded. A failed export leaves a `.partial` file; it is never an admissible
+completed bundle. The helper refuses existing output paths.
+
 The initial image is the managed `cloudflare/debian-trixie` alias. This is not an
 immutable image digest. Receipts record the selected alias and observed system
 and tool versions. Online setup may install Git, Python and Bash; an offline task
