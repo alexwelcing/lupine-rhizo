@@ -1,8 +1,8 @@
 /**
- * ATLAS-Lean theorem inventory: shared-ledger access + bounded reference types.
+ * Research theorem inventory: shared-ledger access + bounded reference types.
  *
- * Per ATLAS_Lean_Integration_Review §8.4, each facet (specialist agent) depends
- * on a bounded set of formally-verified theorems from the ATLAS-Lean layer. The
+ * Each facet (specialist agent) depends on a bounded set of formally verified
+ * theorems from the Lean project. The
  * full proofs live in the Lean project; glim-think only ever holds REFERENCES
  * (theorem name + module + revision + status) so Durable Object state stays
  * bounded — never proof bodies.
@@ -10,7 +10,8 @@
  * The inventory lives in the shared D1 ledger (`env.LEDGER`) so the whole fleet
  * can query by facet. See migrations/0010_atlas_theorems.sql (base tables) and
  * migrations/0011_atlas_schema_reconciliation.sql (facet registry, statuses,
- * lifecycle states, proof revisions, hashes). Facet keys are canonical
+ * lifecycle states, proof revisions, hashes). Migration 0024 names the shared
+ * theorem store independently of its upstream dependencies. Facet keys are canonical
  * lowercase — see ./facetRegistry for the agent-class mapping and the
  * extension-approval policy that gates which rows may ground an agent.
  */
@@ -19,10 +20,10 @@ import type { Env } from "../types";
 import { isApprovedExtension, normalizeFacet } from "./facetRegistry";
 
 /** Verification lifecycle of a theorem reference within a facet. */
-export type AtlasTheoremStatus = "imported" | "verified" | "extended" | "failed";
+export type TheoremStatus = "imported" | "verified" | "extended" | "failed";
 
 /** Lifecycle state of a theorem row (migration 0011). */
-export type AtlasTheoremLifecycle = "active" | "retired" | "superseded";
+export type TheoremLifecycle = "active" | "retired" | "superseded";
 
 /**
  * Statuses allowed to ground an agent. `verified` rows ground unconditionally;
@@ -31,24 +32,24 @@ export type AtlasTheoremLifecycle = "active" | "retired" | "superseded";
  * prefix rule is not expressible in D1 SQL). `imported` and `failed` rows must
  * never ground an agent.
  */
-export const GROUNDABLE_STATUSES: ReadonlyArray<AtlasTheoremStatus> = ["verified", "extended"];
+export const GROUNDABLE_STATUSES: ReadonlyArray<TheoremStatus> = ["verified", "extended"];
 
 /** Default / hard cap for theorem-inventory reads — keeps DO state bounded (§8.4). */
 export const DEFAULT_THEOREM_LIMIT = 128;
 export const MAX_THEOREM_LIMIT = 512;
 
 /**
- * A single theorem reference as stored in the shared `atlas_theorems` table.
+ * A single theorem reference as stored in the shared `theorems` table.
  * This is a reference only — the proof itself is never carried here.
  */
-export interface AtlasTheoremRef {
+export interface TheoremRef {
   readonly id: number;
   readonly facet: string;
   readonly theorem_name: string;
   readonly module: string;
   readonly revision: string;
-  readonly status: AtlasTheoremStatus;
-  readonly lifecycle_status?: AtlasTheoremLifecycle;
+  readonly status: TheoremStatus;
+  readonly lifecycle_status?: TheoremLifecycle;
   readonly used_in_hypotheses: number;
   readonly created_at: string;
 }
@@ -58,14 +59,14 @@ export interface AtlasTheoremRef {
  * Drops the surrogate id / counters so the payload stays small (§8.4: bounded).
  */
 export interface FormalBasis {
-  /** Theorem name as it appears in the Lean source (e.g. `Atlas.Manifold.prCongr`). */
+  /** Theorem name as it appears in the Lean source (e.g. `OpenDistillationFactory.Materials.Theory.HyperRibbon.PRfin_scale_invariant`). */
   readonly theorem: string;
-  /** Lean module path the theorem is defined in (e.g. `Atlas/Manifold/Core.lean`). */
+  /** Lean module path the theorem is defined in (e.g. `OpenDistillationFactory.Materials.Theory.HyperRibbon`). */
   readonly module: string;
-  /** ATLAS revision the reference is pinned to (git sha or tag). */
+  /** Proof identity revision the reference is pinned to (git sha or tag). */
   readonly revision: string;
   /** Verification status of the reference at the time it was attached. */
-  readonly status: AtlasTheoremStatus;
+  readonly status: TheoremStatus;
   /**
    * Optional natural-language helper describing how the theorem grounds the
    * payload (e.g. "PR is invariant under basis change → manifold dims comparable").
@@ -77,7 +78,7 @@ export interface FormalBasis {
 export interface TheoremInventory {
   readonly facet: string;
   readonly total: number;
-  readonly by_status: Readonly<Record<AtlasTheoremStatus, number>>;
+  readonly by_status: Readonly<Record<TheoremStatus, number>>;
   /** References only — capped by the caller to keep the document small. */
   readonly theorems: ReadonlyArray<FormalBasis>;
   /**
@@ -88,7 +89,7 @@ export interface TheoremInventory {
   readonly load_error?: string | null;
 }
 
-const EMPTY_BY_STATUS: Record<AtlasTheoremStatus, number> = {
+const EMPTY_BY_STATUS: Record<TheoremStatus, number> = {
   imported: 0,
   verified: 0,
   extended: 0,
@@ -104,7 +105,7 @@ const EMPTY_BY_STATUS: Record<AtlasTheoremStatus, number> = {
  */
 export interface FacetTheoremLoad {
   readonly facet: string;
-  readonly rows: AtlasTheoremRef[];
+  readonly rows: TheoremRef[];
   readonly error: string | null;
 }
 
@@ -117,7 +118,7 @@ export interface FacetTheoremLoad {
  *   - retired/superseded rows never ground (when the column is present).
  */
 export function isGroundableRef(
-  ref: Pick<AtlasTheoremRef, "status" | "facet" | "module" | "lifecycle_status">,
+  ref: Pick<TheoremRef, "status" | "facet" | "module" | "lifecycle_status">,
 ): boolean {
   if (ref.lifecycle_status && ref.lifecycle_status !== "active") return false;
   if (ref.status === "verified") return true;
@@ -143,8 +144,8 @@ export async function loadFacetTheorems(
   env: Env,
   facet: string,
   opts?: {
-    statuses?: ReadonlyArray<AtlasTheoremStatus>;
-    lifecycleStatus?: AtlasTheoremLifecycle;
+    statuses?: ReadonlyArray<TheoremStatus>;
+    lifecycleStatus?: TheoremLifecycle;
     limit?: number;
   },
 ): Promise<FacetTheoremLoad> {
@@ -155,7 +156,7 @@ export async function loadFacetTheorems(
   try {
     const { results } = await env.LEDGER.prepare(
       `SELECT id, facet, theorem_name, module, revision, status, lifecycle_status, used_in_hypotheses, created_at
-         FROM atlas_theorems
+         FROM theorems
         WHERE facet = ?
           AND status IN (${statuses.map(() => "?").join(",")})
           AND lifecycle_status = ?
@@ -163,7 +164,7 @@ export async function loadFacetTheorems(
         LIMIT ?`,
     )
       .bind(canonical, ...statuses, lifecycle, limit)
-      .all<AtlasTheoremRef>();
+      .all<TheoremRef>();
     return { facet: canonical, rows: results ?? [], error: null };
   } catch (e) {
     return { facet: canonical, rows: [], error: e instanceof Error ? e.message : String(e) };
@@ -171,7 +172,7 @@ export async function loadFacetTheorems(
 }
 
 /** Project a stored theorem reference into the compact RPC/state shape. */
-export function toFormalBasis(ref: AtlasTheoremRef, helper?: string): FormalBasis {
+export function toFormalBasis(ref: TheoremRef, helper?: string): FormalBasis {
   return {
     theorem: ref.theorem_name,
     module: ref.module,
@@ -193,7 +194,7 @@ export function toFormalBasis(ref: AtlasTheoremRef, helper?: string): FormalBasi
  * grounding note; `maxRefs` bounds the payload (default 64, hard cap 256).
  */
 export function groundableFormalBasis(
-  rows: ReadonlyArray<AtlasTheoremRef>,
+  rows: ReadonlyArray<TheoremRef>,
   opts?: {
     theoremNames?: ReadonlyArray<string>;
     helpers?: Readonly<Record<string, string>>;
@@ -214,15 +215,15 @@ export function groundableFormalBasis(
  * Summarize a facet's theorem references into a bounded inventory document.
  *
  * Pure + immutable: builds a fresh summary from the input rows. `maxRefs` caps
- * the embedded reference list so the JSON stored in `atlas_facet_state` and the
+ * the embedded reference list so the JSON stored in `facet_state` and the
  * telemetry summary stays small regardless of how many theorems a facet imports.
  */
 export function summarizeInventory(
   facet: string,
-  refs: ReadonlyArray<AtlasTheoremRef>,
+  refs: ReadonlyArray<TheoremRef>,
   maxRefs = 64,
 ): TheoremInventory {
-  const by_status: Record<AtlasTheoremStatus, number> = { ...EMPTY_BY_STATUS };
+  const by_status: Record<TheoremStatus, number> = { ...EMPTY_BY_STATUS };
   for (const r of refs) {
     if (r.status in by_status) by_status[r.status] += 1;
   }
@@ -234,8 +235,8 @@ export function summarizeInventory(
   };
 }
 
-/** Per-facet ATLAS reference state row (§8.4). */
-export interface AtlasFacetState {
+/** Per-facet formal reference state row (§8.4). */
+export interface FacetState {
   readonly facet: string;
   readonly atlas_revision: string | null;
   readonly mathlib_revision: string | null;
@@ -245,14 +246,14 @@ export interface AtlasFacetState {
 }
 
 /**
- * Load the per-facet ATLAS reference state, if any. Returns null (never throws)
+ * Load the per-facet formal reference state, if any. Returns null (never throws)
  * when the table/row is absent or the inventory JSON is malformed.
  */
-export async function loadFacetState(env: Env, facet: string): Promise<AtlasFacetState | null> {
+export async function loadFacetState(env: Env, facet: string): Promise<FacetState | null> {
   try {
     const row = await env.LEDGER.prepare(
       `SELECT facet, atlas_revision, mathlib_revision, theorem_inventory, updated_at
-         FROM atlas_facet_state WHERE facet = ?`,
+         FROM facet_state WHERE facet = ?`,
     )
       .bind(facet)
       .first<{

@@ -3,12 +3,12 @@ import {
   groundableFormalBasis,
   isGroundableRef,
   loadFacetTheorems,
-  type AtlasTheoremRef,
+  type TheoremRef,
 } from "../theorems";
 import { buildStubEnv, stubLedger } from "../../testing/envStub";
 import type { Env } from "../../types";
 
-function row(overrides: Partial<AtlasTheoremRef>): AtlasTheoremRef {
+function row(overrides: Partial<TheoremRef>): TheoremRef {
   return {
     id: 1,
     facet: "experiment",
@@ -29,7 +29,7 @@ describe("loadFacetTheorems", () => {
     const env = buildStubEnv({
       LEDGER: stubLedger({
         onPrepare: (sql, bindings) => captured.push({ sql, bindings }),
-        queries: [{ match: "FROM atlas_theorems", all: [] }],
+        queries: [{ match: "FROM theorems", all: [] }],
       }),
     });
 
@@ -51,7 +51,7 @@ describe("loadFacetTheorems", () => {
     const env = buildStubEnv({
       LEDGER: stubLedger({
         onPrepare: (sql, bindings) => captured.push({ sql, bindings }),
-        queries: [{ match: "FROM atlas_theorems", all: [] }],
+        queries: [{ match: "FROM theorems", all: [] }],
       }),
     });
 
@@ -62,7 +62,7 @@ describe("loadFacetTheorems", () => {
 
   it("distinguishes an empty inventory from a failed inventory load", async () => {
     const emptyEnv = buildStubEnv({
-      LEDGER: stubLedger({ queries: [{ match: "FROM atlas_theorems", all: [] }] }),
+      LEDGER: stubLedger({ queries: [{ match: "FROM theorems", all: [] }] }),
     });
     const empty = await loadFacetTheorems(emptyEnv, "causal");
     expect(empty.rows).toEqual([]);
@@ -70,7 +70,7 @@ describe("loadFacetTheorems", () => {
 
     const failingLedger = {
       prepare: () => {
-        throw new Error("no such table: atlas_theorems");
+        throw new Error("no such table: theorems");
       },
     } as unknown as Env["LEDGER"];
     const failed = await loadFacetTheorems(buildStubEnv({ LEDGER: failingLedger }), "causal");
@@ -94,7 +94,7 @@ describe("isGroundableRef", () => {
       isGroundableRef(
         row({
           status: "extended",
-          module: "OpenDistillationFactory.Materials.DistillAtlas.Foo",
+          module: "OpenDistillationFactory.Materials.Data.EnvFieldInstances",
         }),
       ),
     ).toBe(true);
@@ -108,7 +108,7 @@ describe("isGroundableRef", () => {
         row({
           status: "extended",
           facet: "manifold",
-          module: "OpenDistillationFactory.Materials.DistillAtlas.Foo",
+          module: "OpenDistillationFactory.Materials.Data.EnvFieldInstances",
         }),
       ),
     ).toBe(false);
@@ -121,7 +121,7 @@ describe("isGroundableRef", () => {
 });
 
 describe("groundableFormalBasis", () => {
-  const mixed: AtlasTheoremRef[] = [
+  const mixed: TheoremRef[] = [
     row({ id: 1, theorem_name: "T.verified", status: "verified" }),
     row({ id: 2, theorem_name: "T.imported", status: "imported" }),
     row({ id: 3, theorem_name: "T.failed", status: "failed" }),

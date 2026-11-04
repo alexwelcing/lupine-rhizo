@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,22 +10,17 @@ const repoRoot = path.resolve(projectDir, "..");
 const wranglerBin = path.join(projectDir, "node_modules", "wrangler", "bin", "wrangler.js");
 const sourceMigrations = path.join(projectDir, "migrations");
 const tempParent = path.join(tmpdir(), "opencode");
-const tempRoot = await mkdtemp(path.join(tempParent, "glim-atlas-migration-"));
+await mkdir(tempParent, { recursive: true });
+const tempRoot = await mkdtemp(path.join(tempParent, "glim-theorem-migration-"));
 const productionConfigPath = path.join(projectDir, "wrangler.toml");
 const throughNineConfigPath = path.join(tempRoot, "wrangler-through-0009.toml");
-const allMigrationNames = [
-  "0001_hypotheses.sql",
-  "0002_critiques.sql",
-  "0003_research_questions.sql",
-  "0004_claims.sql",
-  "0005_literature_papers.sql",
-  "0006_research_hits.sql",
-  "0007_beats.sql",
-  "0008_seed_research_hypotheses.sql",
-  "0009_mlip_baseline_grid.sql",
-  "0010_atlas_theorems.sql",
-  "0011_atlas_schema_reconciliation.sql",
-];
+const beforeNamingConfigPath = path.join(tempRoot, "wrangler-before-naming.toml");
+const namingMigration = "0024_theorem_store_naming.sql";
+const allMigrationNames = (await readdir(sourceMigrations))
+  .filter((name) => /^\d{4}_.*\.sql$/.test(name))
+  .sort();
+assert.ok(allMigrationNames.includes(namingMigration));
+const beforeNamingMigrationNames = allMigrationNames.filter((name) => name < namingMigration);
 
 function runWrangler(args, { expectFailure = false } = {}) {
   const result = spawnSync(process.execPath, [wranglerBin, ...args], {
@@ -114,8 +109,8 @@ function applyMigrations(persistTo, configPath = productionConfigPath) {
 
 function assertMigrationHistory(persistTo, expected = allMigrationNames) {
   assert.deepEqual(
-    query(persistTo, "SELECT name FROM d1_migrations ORDER BY id").map((row) => row.name),
-    expected,
+    query(persistTo, "SELECT name FROM d1_migrations ORDER BY name").map((row) => row.name),
+    [...expected].sort(),
   );
 }
 
@@ -135,10 +130,79 @@ async function configureHarness() {
   assert.ok(databaseName && databaseId, "wrangler.toml must define the LEDGER D1 database");
   await writeFile(
     throughNineConfigPath,
-    `name = "glim-atlas-migration-contract"\nmain = "noop.js"\ncompatibility_date = "2026-04-25"\n\n[[d1_databases]]\nbinding = "LEDGER"\ndatabase_name = "${databaseName}"\ndatabase_id = "${databaseId}"\nmigrations_dir = "migrations-through-0009"\n`,
+    `name = "glim-theorem-migration-contract"\nmain = "noop.js"\ncompatibility_date = "2026-04-25"\n\n[[d1_databases]]\nbinding = "LEDGER"\ndatabase_name = "${databaseName}"\ndatabase_id = "${databaseId}"\nmigrations_dir = "migrations-through-0009"\n`,
+    "utf8",
+  );
+  const beforeNamingDir = path.join(tempRoot, "migrations-before-naming");
+  await mkdir(beforeNamingDir);
+  for (const name of beforeNamingMigrationNames) {
+    await copyFile(path.join(sourceMigrations, name), path.join(beforeNamingDir, name));
+  }
+  const throughNineConfig = await readFile(throughNineConfigPath, "utf8");
+  await writeFile(
+    beforeNamingConfigPath,
+    throughNineConfig.replace("migrations-through-0009", "migrations-before-naming"),
     "utf8",
   );
   await writeFile(path.join(tempRoot, "noop.js"), "export default {};\n", "utf8");
+}
+
+
+function assertCanonicalStoreObjects(persistTo) {
+  const objects = query(
+    persistTo,
+    "SELECT type, name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'",
+  );
+  const names = new Set(objects.map((row) => row.name));
+  for (const name of [
+    "theorems", "facet_registry", "facet_state",
+    "theorems_0011_canonical_snapshot", "facet_state_0011_canonical_snapshot",
+    "theorems_0011_reconciliation_applied",
+    "idx_theorems_identity", "idx_theorems_facet", "idx_theorems_status",
+    "idx_theorems_proof_revision",
+    "theorems_0011_snapshot_insert", "theorems_0011_snapshot_update",
+    "theorems_0011_snapshot_delete", "facet_state_0011_snapshot_insert",
+    "facet_state_0011_snapshot_update", "facet_state_0011_snapshot_delete",
+  ]) {
+    assert.equal(names.has(name), true, `canonical store object missing: ${name}`);
+  }
+  for (const { name, sql } of objects) {
+    assert.equal(/atlas_(?:theorems|facet|0011)/.test(name), false, `legacy object remains: ${name}`);
+    assert.equal(/atlas_(?:theorems|facet|0011)/.test(sql ?? ""), false, `legacy SQL reference in ${name}`);
+  }
+}
+
+function assertSnapshotMirroring(persistTo) {
+  execute(
+    persistTo,
+    `INSERT INTO theorems (id, facet, theorem_name, module, revision, status)
+     VALUES (53, 'causal', 'Local.snapshot', 'Local.Core', 'snapshot-r1', 'verified');
+     UPDATE theorems SET used_in_hypotheses = 7 WHERE id = 53;`,
+  );
+  assert.deepEqual(
+    query(persistTo, "SELECT * FROM theorems_0011_canonical_snapshot WHERE id = 53"),
+    query(persistTo, "SELECT * FROM theorems WHERE id = 53"),
+  );
+  execute(persistTo, "DELETE FROM theorems WHERE id = 53");
+  assert.deepEqual(
+    query(persistTo, "SELECT id FROM theorems_0011_canonical_snapshot WHERE id = 53"),
+    [],
+  );
+  execute(
+    persistTo,
+    `INSERT INTO facet_state (facet, theorem_inventory) VALUES ('causal', '{"total":0}');
+     UPDATE facet_state SET theorem_inventory = '{"total":1}' WHERE facet = 'causal';`,
+  );
+  assert.deepEqual(
+    query(persistTo, "SELECT * FROM facet_state_0011_canonical_snapshot WHERE facet = 'causal'"),
+    query(persistTo, "SELECT * FROM facet_state WHERE facet = 'causal'"),
+  );
+  execute(persistTo, "DELETE FROM facet_state WHERE facet = 'causal'");
+  assert.deepEqual(
+    query(persistTo, "SELECT facet FROM facet_state_0011_canonical_snapshot WHERE facet = 'causal'"),
+    [],
+  );
+  assertForeignKeys(persistTo);
 }
 
 function testActualLocalInitPath() {
@@ -147,9 +211,10 @@ function testActualLocalInitPath() {
   assertMigrationHistory(persistTo);
   assertForeignKeys(persistTo);
 
+  assertCanonicalStoreObjects(persistTo);
   const registry = query(
     persistTo,
-    "SELECT facet, agent_class FROM atlas_facet_registry ORDER BY facet",
+    "SELECT facet, agent_class FROM facet_registry ORDER BY facet",
   );
   assert.deepEqual(registry, [
     { facet: "causal", agent_class: "Causal" },
@@ -158,7 +223,7 @@ function testActualLocalInitPath() {
     { facet: "theorist", agent_class: "Theorist" },
   ]);
 
-  const statusColumn = query(persistTo, "PRAGMA table_info(atlas_theorems)").find(
+  const statusColumn = query(persistTo, "PRAGMA table_info(theorems)").find(
     (column) => column.name === "status",
   );
   assert.equal(statusColumn?.notnull, 1);
@@ -206,9 +271,52 @@ function testProductionShapedMigrationPath() {
         '2026-07-14 12:05:00');`,
   );
 
+  // Upgrade the permissive rows to the exact pre-0024 production schema first.
+  applyMigrations(persistTo, beforeNamingConfigPath);
+  assertMigrationHistory(persistTo, beforeNamingMigrationNames);
+  assertForeignKeys(persistTo);
+  execute(
+    persistTo,
+    `INSERT INTO atlas_theorems
+       (id, facet, theorem_name, module, revision, status)
+     VALUES
+       (51, 'theorist', 'Local.old', 'Local.Core', 'proof-r1', 'verified'),
+       (52, 'theorist', 'Local.new', 'Local.Core', 'proof-r2', 'verified');
+     UPDATE atlas_theorems
+        SET lifecycle_status = 'superseded', superseded_by_id = 52
+      WHERE id = 51;`,
+  );
+  const preserved = [
+    ["atlas_facet_registry", "facet_registry", "facet"],
+    ["atlas_theorems", "theorems", "id"],
+    ["atlas_facet_state", "facet_state", "facet"],
+    ["atlas_theorems_0011_canonical_snapshot", "theorems_0011_canonical_snapshot", "id"],
+    ["atlas_facet_state_0011_canonical_snapshot", "facet_state_0011_canonical_snapshot", "facet"],
+    ["atlas_0011_reconciliation_applied", "theorems_0011_reconciliation_applied", "id"],
+  ].map(([legacy, canonical, order]) => ({
+    legacy,
+    canonical,
+    order,
+    rows: query(persistTo, `SELECT * FROM ${legacy} ORDER BY ${order}`),
+  }));
+
   applyMigrations(persistTo);
   assertMigrationHistory(persistTo);
   assertForeignKeys(persistTo);
+  assertCanonicalStoreObjects(persistTo);
+  for (const { canonical, order, rows } of preserved) {
+    assert.deepEqual(
+      query(persistTo, `SELECT * FROM ${canonical} ORDER BY ${order}`),
+      rows,
+      `0024 must preserve all rows and columns in ${canonical}`,
+    );
+  }
+  assert.deepEqual(
+    query(persistTo, "SELECT id, superseded_by_id FROM theorems WHERE id = 51"),
+    [{ id: 51, superseded_by_id: 52 }],
+  );
+  execute(persistTo, "DELETE FROM theorems WHERE id = 52", { expectFailure: true });
+  assertSnapshotMirroring(persistTo);
 
   assert.deepEqual(
     query(
@@ -217,7 +325,7 @@ function testProductionShapedMigrationPath() {
               proof_revision, atlas_revision, mathlib_revision, statement_hash,
               source_hash, build_manifest_hash, status, lifecycle_status,
               used_in_hypotheses, created_at
-         FROM atlas_theorems
+         FROM theorems
         WHERE id = 41`,
     ),
     [
@@ -245,7 +353,7 @@ function testProductionShapedMigrationPath() {
     query(
       persistTo,
       `SELECT id, facet, proof_repository, proof_revision, atlas_revision, status
-         FROM atlas_theorems
+         FROM theorems
         WHERE id = 42`,
     ),
     [
@@ -267,7 +375,7 @@ function testProductionShapedMigrationPath() {
               mathlib_revision, state_schema_version, inventory_schema_version,
               json_extract(theorem_inventory, '$.total') AS inventory_total,
               updated_at
-         FROM atlas_facet_state`,
+         FROM facet_state`,
     ),
     [
       {
@@ -287,7 +395,7 @@ function testProductionShapedMigrationPath() {
   const hashes = { statement: "a".repeat(64), source: "b".repeat(64), manifest: "c".repeat(64) };
   execute(
     persistTo,
-    `INSERT INTO atlas_theorems
+    `INSERT INTO theorems
        (facet, theorem_name, module, revision, proof_repository, proof_revision,
         atlas_revision, mathlib_revision, statement_hash, source_hash,
         build_manifest_hash, status, lifecycle_status, used_in_hypotheses)
@@ -313,12 +421,12 @@ function testProductionShapedMigrationPath() {
   assert.deepEqual(
     query(
       persistTo,
-      `SELECT (SELECT COUNT(*) FROM atlas_theorems
+      `SELECT (SELECT COUNT(*) FROM theorems
                 WHERE facet = 'experiment'
                   AND theorem_name = 'OpenDistillationFactory.trace_is_sound') AS row_count,
               status, proof_revision, statement_hash,
               source_hash, build_manifest_hash
-         FROM atlas_theorems
+         FROM theorems
         WHERE id = 41`,
     ),
     [
@@ -335,28 +443,28 @@ function testProductionShapedMigrationPath() {
 
   execute(
     persistTo,
-    `INSERT INTO atlas_theorems
+    `INSERT INTO theorems
        (facet, theorem_name, module, revision, status)
      VALUES ('unknown', 'Bad.facet', 'Bad', 'r1', 'verified')`,
     { expectFailure: true },
   );
   execute(
     persistTo,
-    `INSERT INTO atlas_theorems
+    `INSERT INTO theorems
        (facet, theorem_name, module, revision, status)
      VALUES ('Experiment', 'Bad.case', 'Bad', 'r1', 'verified')`,
     { expectFailure: true },
   );
   execute(
     persistTo,
-    `INSERT INTO atlas_theorems
+    `INSERT INTO theorems
        (facet, theorem_name, module, revision, status)
      VALUES ('experiment', 'Bad.status', 'Bad', 'r1', 'pending')`,
     { expectFailure: true },
   );
   execute(
     persistTo,
-    `INSERT INTO atlas_facet_state (facet, theorem_inventory)
+    `INSERT INTO facet_state (facet, theorem_inventory)
      VALUES ('causal', 'not-json')`,
     { expectFailure: true },
   );
@@ -382,9 +490,9 @@ function testCanonicalSchemaBootstrap() {
     "lab_beats",
     "mlip_baseline_runs",
     "mlip_baseline_cells",
-    "atlas_facet_registry",
-    "atlas_theorems",
-    "atlas_facet_state",
+    "facet_registry",
+    "theorems",
+    "facet_state",
   ]) {
     assert.equal(tables.has(table), true, `schema.sql is missing ${table}`);
   }
@@ -423,7 +531,7 @@ try {
   testActualLocalInitPath();
   testProductionShapedMigrationPath();
   testCanonicalSchemaBootstrap();
-  console.log("ATLAS D1 migration contract passed: blank, production-shaped, and schema bootstrap");
+  console.log("Theorem D1 migration contract passed: blank, production-shaped, preserved snapshots, and schema bootstrap");
 } finally {
   if (process.env.KEEP_MIGRATION_TEST_DB !== "1") {
     await rm(tempRoot, { recursive: true, force: true });

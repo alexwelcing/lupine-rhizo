@@ -4,10 +4,11 @@ import {
   isApprovedExtension,
   isManagedFacet,
   normalizeFacet,
+  EXTENSION_POLICY,
 } from "../facetRegistry";
 
 describe("canonical facet mapping", () => {
-  it("maps each ATLAS-managed agent class to its canonical lowercase facet", () => {
+  it("maps each theorem-managed agent class to its canonical lowercase facet", () => {
     expect(canonicalFacetForAgentClass("Causal")).toBe("causal");
     expect(canonicalFacetForAgentClass("Experiment")).toBe("experiment");
     expect(canonicalFacetForAgentClass("Manifold")).toBe("manifold");
@@ -40,9 +41,27 @@ describe("canonical facet mapping", () => {
 });
 
 describe("extension approval policy", () => {
-  it("approves experiment extensions under the registry module prefixes", () => {
+  it("keeps data approval exact rather than approving the whole namespace", () => {
+    expect(EXTENSION_POLICY.modules).toEqual([
+      "OpenDistillationFactory.Materials.Data.EnvFieldInstances",
+      "OpenDistillationFactory.Materials.Data.MPtrj_DFT",
+      "OpenDistillationFactory.Materials.Data.Ni_EAM",
+    ]);
+    expect(EXTENSION_POLICY.module_prefixes).toEqual([
+      "OpenDistillationFactory.Materials.RegimeGate.",
+    ]);
+    for (const module of EXTENSION_POLICY.modules) {
+      expect(isApprovedExtension("experiment", module)).toBe(true);
+      expect(isApprovedExtension("experiment", module + ".Unreviewed")).toBe(false);
+      expect(isApprovedExtension("manifold", module)).toBe(false);
+    }
+    expect(isApprovedExtension("experiment", "OpenDistillationFactory.Materials.Data.Other")).toBe(false);
+    expect(isApprovedExtension("experiment", "OpenDistillationFactory.Materials.DistillAtlas.Foo")).toBe(false);
+  });
+
+  it("approves only the three listed data modules and the regime-gate prefix", () => {
     expect(
-      isApprovedExtension("experiment", "OpenDistillationFactory.Materials.DistillAtlas.Foo"),
+      isApprovedExtension("experiment", "OpenDistillationFactory.Materials.Data.EnvFieldInstances"),
     ).toBe(true);
     expect(
       isApprovedExtension("experiment", "OpenDistillationFactory.Materials.RegimeGate.Bar"),
@@ -60,7 +79,7 @@ describe("extension approval policy", () => {
 
   it("rejects extensions for facets the policy does not list", () => {
     expect(
-      isApprovedExtension("manifold", "OpenDistillationFactory.Materials.DistillAtlas.Foo"),
+      isApprovedExtension("manifold", "OpenDistillationFactory.Materials.Data.EnvFieldInstances"),
     ).toBe(false);
     expect(
       isApprovedExtension("theorist", "OpenDistillationFactory.Materials.RegimeGate.Bar"),
@@ -69,7 +88,7 @@ describe("extension approval policy", () => {
 
   it("normalizes the facet before checking", () => {
     expect(
-      isApprovedExtension("Experiment", "OpenDistillationFactory.Materials.DistillAtlas.Foo"),
+      isApprovedExtension("Experiment", "OpenDistillationFactory.Materials.Data.EnvFieldInstances"),
     ).toBe(true);
   });
 });
