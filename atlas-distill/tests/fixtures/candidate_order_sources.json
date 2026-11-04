@@ -1,0 +1,410 @@
+{
+  "schema": "lupine.candidate_order.source_acceptance.v1",
+  "reviewed_at": "2026-11-04T18:21:42Z",
+  "scope": "Reviewed public-source summaries for known-outcome integration acceptance, not raw corpus records, new simulations or independent materials validation.",
+  "cases": [
+    {
+      "id": "olsson-cr-control",
+      "source_url": "https://doi.org/10.1103/PhysRevB.72.214119",
+      "review_note": "Known-outcome public-table translation; fitted relaxed defect energies, not held-out validation. Independent +/-0.005 eV printing boxes are assumptions.",
+      "input": {
+        "schema": "lupine.candidate_order.input.v1",
+        "unit": "eV",
+        "context": {
+          "source_id": "olsson2005",
+          "source_sha256": null,
+          "model_id": "olsson2005-tableII-model",
+          "model_sha256": null,
+          "model_kind": "reported",
+          "material": "Paramagnetic bcc Cr",
+          "composition": "Pure Cr; one extra Cr atom in each listed self-interstitial configuration",
+          "reference_convention": "Reported relaxed self-interstitial formation energies; VASP reference",
+          "protocol": "Relaxed defects in Table II; exact configurations, model artifacts and matching physical conditions remain unverified.",
+          "fit_exposure": "Section III includes relaxed vacancy and self-interstitial energies in fitting; not held-out validation.",
+          "candidate_set_id": "olsson2005-listed-decision",
+          "candidate_set_sha256": null,
+          "candidate_set_scope": "listed_only",
+          "comparability": "declared"
+        },
+        "bounds_kind": "assumed_printing_bounds",
+        "rows": [
+          {
+            "candidate_id": "a110",
+            "label": "110 self-interstitial",
+            "anchor": "Olsson 2005, DOI 10.1103/PhysRevB.72.214119, Table II, PDF p3; 110",
+            "reference": {
+              "lower": "5.655",
+              "upper": "5.665"
+            },
+            "prediction": {
+              "lower": "5.595",
+              "upper": "5.605"
+            }
+          },
+          {
+            "candidate_id": "b111",
+            "label": "111 self-interstitial",
+            "anchor": "Olsson 2005, DOI 10.1103/PhysRevB.72.214119, Table II, PDF p3; 111",
+            "reference": {
+              "lower": "5.675",
+              "upper": "5.685"
+            },
+            "prediction": {
+              "lower": "5.615",
+              "upper": "5.625"
+            }
+          },
+          {
+            "candidate_id": "c100",
+            "label": "100 self-interstitial",
+            "anchor": "Olsson 2005, DOI 10.1103/PhysRevB.72.214119, Table II, PDF p3; 100",
+            "reference": {
+              "lower": "6.775",
+              "upper": "6.785"
+            },
+            "prediction": {
+              "lower": "6.825",
+              "upper": "6.835"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "reference_unique": "a110",
+        "prediction_unique": "a110",
+        "relation": "same_unique_minimum",
+        "pairs": [
+          {
+            "left": "a110",
+            "right": "b111",
+            "reference_gap": [
+              "1/100",
+              "3/100"
+            ],
+            "prediction_gap": [
+              "1/100",
+              "3/100"
+            ]
+          },
+          {
+            "left": "a110",
+            "right": "c100",
+            "reference_gap": [
+              "111/100",
+              "113/100"
+            ],
+            "prediction_gap": [
+              "61/50",
+              "31/25"
+            ]
+          },
+          {
+            "left": "b111",
+            "right": "c100",
+            "reference_gap": [
+              "109/100",
+              "111/100"
+            ],
+            "prediction_gap": [
+              "6/5",
+              "61/50"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ko-directional-barriers",
+      "source_url": "https://doi.org/10.1103/PhysRevB.92.134107",
+      "review_note": "Barrier ordering only; source already reports Ti-rich migration limitations. Per-defect fitting exposure unresolved. Independent +/-0.0005 eV printing boxes do not supply prefactors.",
+      "input": {
+        "schema": "lupine.candidate_order.input.v1",
+        "unit": "eV",
+        "context": {
+          "source_id": "ko2015",
+          "source_sha256": null,
+          "model_id": "ko2015-2nn-meam",
+          "model_sha256": null,
+          "model_kind": "reported",
+          "material": "Ni solute in hcp Ti",
+          "composition": "Same declared Ni-in-hcp-Ti solute composition; two migration directions",
+          "reference_convention": "Reported activation barriers relative to each direction's initial state; exact initial/path identity unresolved",
+          "protocol": "Climbing-image NEB, relaxed positions at fixed cell/volume. Unknown prefactors and network; no rate, diffusion-tensor or conductivity inference.",
+          "fit_exposure": null,
+          "candidate_set_id": "ko2015-listed-decision",
+          "candidate_set_sha256": null,
+          "candidate_set_scope": "listed_only",
+          "comparability": "unknown"
+        },
+        "bounds_kind": "assumed_printing_bounds",
+        "rows": [
+          {
+            "candidate_id": "in_basal",
+            "label": "In-basal migration barrier",
+            "anchor": "Ko 2015, DOI 10.1103/PhysRevB.92.134107, Table XI, PDF p15; in-basal",
+            "reference": {
+              "lower": "0.7115",
+              "upper": "0.7125"
+            },
+            "prediction": {
+              "lower": "2.0175",
+              "upper": "2.0185"
+            }
+          },
+          {
+            "candidate_id": "out_of_basal",
+            "label": "Out-of-basal migration barrier",
+            "anchor": "Ko 2015, DOI 10.1103/PhysRevB.92.134107, Table XI, PDF p15; out-of-basal",
+            "reference": {
+              "lower": "0.7995",
+              "upper": "0.8005"
+            },
+            "prediction": {
+              "lower": "1.8665",
+              "upper": "1.8675"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "reference_unique": "in_basal",
+        "prediction_unique": "out_of_basal",
+        "relation": "different_unique_minima",
+        "pairs": [
+          {
+            "left": "in_basal",
+            "right": "out_of_basal",
+            "reference_gap": [
+              "87/1000",
+              "89/1000"
+            ],
+            "prediction_gap": [
+              "-19/125",
+              "-3/20"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kobayashi-balanced-nn",
+      "source_url": "https://doi.org/10.1103/PhysRevMaterials.1.053604",
+      "review_note": "Three balanced alternatives, 3 Mg + 1 Si each. PBE per-atom formation energies converted to a common four-atom reaction unit. Elemental energy is zero by definition. Independent +/-0.5 meV/atom printing boxes; no finite-T/coherency/interface model.",
+      "input": {
+        "schema": "lupine.candidate_order.input.v1",
+        "unit": "eV",
+        "context": {
+          "source_id": "kobayashi2017",
+          "source_sha256": null,
+          "model_id": "kobayashi2017-nn",
+          "model_sha256": null,
+          "model_kind": "reported",
+          "material": "Mg-Si binary phase alternatives",
+          "composition": "3 Mg + 1 Si atoms in every reaction unit; total energies in eV",
+          "reference_convention": "PBE versus reported model; formation energies relative to each method's elemental cohesive energies; elemental endpoint zero",
+          "protocol": "Unconstrained static bulk mixtures; no finite-temperature entropy, coherency or interface energy. Finite listed alternatives, not a complete phase search.",
+          "fit_exposure": "Table II NN configurations are training data; this is not held-out validation.",
+          "candidate_set_id": "kobayashi2017-listed-decision",
+          "candidate_set_sha256": null,
+          "candidate_set_scope": "listed_only",
+          "comparability": "declared"
+        },
+        "bounds_kind": "assumed_printing_bounds",
+        "rows": [
+          {
+            "candidate_id": "a_compound",
+            "label": "One L12 Mg3Si formula unit",
+            "anchor": "Kobayashi 2017, DOI 10.1103/PhysRevMaterials.1.053604, Table II, printed p15; Eq11; L12 Mg3Si, 4 atoms",
+            "reference": {
+              "lower": "-0.030",
+              "upper": "-0.026"
+            },
+            "prediction": {
+              "lower": "-0.034",
+              "upper": "-0.030"
+            }
+          },
+          {
+            "candidate_id": "b_mixture",
+            "label": "One Mg atom plus one C1 Mg2Si formula unit",
+            "anchor": "Kobayashi 2017, DOI 10.1103/PhysRevMaterials.1.053604, Table II, printed p15; Eq11; C1 Mg2Si, 3 atoms + elemental Mg",
+            "reference": {
+              "lower": "-0.4095",
+              "upper": "-0.4065"
+            },
+            "prediction": {
+              "lower": "-0.4095",
+              "upper": "-0.4065"
+            }
+          },
+          {
+            "candidate_id": "c_elements",
+            "label": "Three Mg atoms plus one Si atom",
+            "anchor": "Kobayashi 2017, DOI 10.1103/PhysRevMaterials.1.053604, Table II, printed p15; Eq11; elemental formation-energy convention",
+            "reference": {
+              "lower": "0",
+              "upper": "0"
+            },
+            "prediction": {
+              "lower": "0",
+              "upper": "0"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "reference_unique": "b_mixture",
+        "prediction_unique": "b_mixture",
+        "relation": "same_unique_minimum",
+        "pairs": [
+          {
+            "left": "a_compound",
+            "right": "b_mixture",
+            "reference_gap": [
+              "-767/2000",
+              "-753/2000"
+            ],
+            "prediction_gap": [
+              "-759/2000",
+              "-149/400"
+            ]
+          },
+          {
+            "left": "a_compound",
+            "right": "c_elements",
+            "reference_gap": [
+              "13/500",
+              "3/100"
+            ],
+            "prediction_gap": [
+              "3/100",
+              "17/500"
+            ]
+          },
+          {
+            "left": "b_mixture",
+            "right": "c_elements",
+            "reference_gap": [
+              "813/2000",
+              "819/2000"
+            ],
+            "prediction_gap": [
+              "813/2000",
+              "819/2000"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kobayashi-balanced-meam",
+      "source_url": "https://doi.org/10.1103/PhysRevMaterials.1.053604",
+      "review_note": "Three balanced alternatives, 3 Mg + 1 Si each. PBE per-atom formation energies converted to a common four-atom reaction unit. Elemental energy is zero by definition. Independent +/-0.5 meV/atom printing boxes; no finite-T/coherency/interface model.",
+      "input": {
+        "schema": "lupine.candidate_order.input.v1",
+        "unit": "eV",
+        "context": {
+          "source_id": "kobayashi2017",
+          "source_sha256": null,
+          "model_id": "jelinek-meam-as-reported-kobayashi2017",
+          "model_sha256": null,
+          "model_kind": "reported",
+          "material": "Mg-Si binary phase alternatives",
+          "composition": "3 Mg + 1 Si atoms in every reaction unit; total energies in eV",
+          "reference_convention": "PBE versus reported model; formation energies relative to each method's elemental cohesive energies; elemental endpoint zero",
+          "protocol": "Unconstrained static bulk mixtures; no finite-temperature entropy, coherency or interface energy. Finite listed alternatives, not a complete phase search.",
+          "fit_exposure": null,
+          "candidate_set_id": "kobayashi2017-listed-decision",
+          "candidate_set_sha256": null,
+          "candidate_set_scope": "listed_only",
+          "comparability": "declared"
+        },
+        "bounds_kind": "assumed_printing_bounds",
+        "rows": [
+          {
+            "candidate_id": "a_compound",
+            "label": "One L12 Mg3Si formula unit",
+            "anchor": "Kobayashi 2017, DOI 10.1103/PhysRevMaterials.1.053604, Table II, printed p15; Eq11; L12 Mg3Si, 4 atoms",
+            "reference": {
+              "lower": "-0.030",
+              "upper": "-0.026"
+            },
+            "prediction": {
+              "lower": "0.094",
+              "upper": "0.098"
+            }
+          },
+          {
+            "candidate_id": "b_mixture",
+            "label": "One Mg atom plus one C1 Mg2Si formula unit",
+            "anchor": "Kobayashi 2017, DOI 10.1103/PhysRevMaterials.1.053604, Table II, printed p15; Eq11; C1 Mg2Si, 3 atoms + elemental Mg",
+            "reference": {
+              "lower": "-0.4095",
+              "upper": "-0.4065"
+            },
+            "prediction": {
+              "lower": "0.1305",
+              "upper": "0.1335"
+            }
+          },
+          {
+            "candidate_id": "c_elements",
+            "label": "Three Mg atoms plus one Si atom",
+            "anchor": "Kobayashi 2017, DOI 10.1103/PhysRevMaterials.1.053604, Table II, printed p15; Eq11; elemental formation-energy convention",
+            "reference": {
+              "lower": "0",
+              "upper": "0"
+            },
+            "prediction": {
+              "lower": "0",
+              "upper": "0"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "reference_unique": "b_mixture",
+        "prediction_unique": "c_elements",
+        "relation": "different_unique_minima",
+        "pairs": [
+          {
+            "left": "a_compound",
+            "right": "b_mixture",
+            "reference_gap": [
+              "-767/2000",
+              "-753/2000"
+            ],
+            "prediction_gap": [
+              "13/400",
+              "79/2000"
+            ]
+          },
+          {
+            "left": "a_compound",
+            "right": "c_elements",
+            "reference_gap": [
+              "13/500",
+              "3/100"
+            ],
+            "prediction_gap": [
+              "-49/500",
+              "-47/500"
+            ]
+          },
+          {
+            "left": "b_mixture",
+            "right": "c_elements",
+            "reference_gap": [
+              "813/2000",
+              "819/2000"
+            ],
+            "prediction_gap": [
+              "-267/2000",
+              "-261/2000"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

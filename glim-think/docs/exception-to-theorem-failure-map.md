@@ -151,13 +151,14 @@ Ledger correction demonstrates one content-review mechanism, but neither
 inspection tool has demonstrated an incremental decision benefit over a
 competent source-aware baseline.
 
-A bounded follow-up should use the existing Olsson control, Ko reversal and
-Kobayashi balanced-mixture cases as reviewed public-source acceptance fixtures
-through the **complete** producer and report validator. Preserve all source and
-exposure qualifiers. Evaluate exact outputs, corrupted assessments, explicit
-unknown context and retained source anchors; do not equate a passing arithmetic
-report with a physical-acceptance decision. A future comparison of user decisions
-or review effort needs its own predeclared protocol and actual observations.
+The [public-source acceptance bridge](candidate-order-source-acceptance.md)
+exercises the existing Olsson control, Ko reversal and Kobayashi balanced-mixture
+cases through the complete producer and report validator. It checks exact
+outputs, corrupted assessments, explicit unknown context and retained source
+anchors. This integration gate and its execution receipts are separate from
+physical acceptance, interactive browser behavior and added decision value.
+A future comparison of user decisions or review effort needs its own
+predeclared protocol and actual observations.
 
 Stop feature expansion if the existing tools reproduce the competent baseline
 without an identifiable workflow gap. Continue only for a demonstrated omission,

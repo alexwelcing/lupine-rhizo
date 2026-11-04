@@ -113,3 +113,7 @@ transport assumptions. This inspector does not supply those missing premises.
 
 For the completed literature cases, source limits and comparison against existing
 methods, see the [empirical failure map](exception-to-theorem-failure-map.md).
+
+The [public-source acceptance bridge](candidate-order-source-acceptance.md) passes
+actual Rust CLI output through the complete application reader. Its source and
+runtime scope are separate from interactive browser or physical acceptance.

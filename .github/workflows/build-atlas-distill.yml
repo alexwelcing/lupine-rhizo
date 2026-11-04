@@ -9,6 +9,12 @@ on:
       - 'atlas-distill/**'
       - 'lupine-ops/**'
       - '.github/workflows/build-atlas-distill.yml'
+      - 'glim-think/src/workspace/candidateOrderContracts.ts'
+      - 'glim-think/src/workspace/client/CandidateOrderReport.tsx'
+      - 'glim-think/src/workspace/client/formatExactFraction.ts'
+      - 'glim-think/scripts/testing/candidate-order-cli.test.mjs'
+      - 'glim-think/package.json'
+      - 'glim-think/package-lock.json'
   pull_request:
     branches: [main]
     paths:
@@ -17,6 +23,12 @@ on:
       - 'atlas-distill/**'
       - 'lupine-ops/**'
       - '.github/workflows/build-atlas-distill.yml'
+      - 'glim-think/src/workspace/candidateOrderContracts.ts'
+      - 'glim-think/src/workspace/client/CandidateOrderReport.tsx'
+      - 'glim-think/src/workspace/client/formatExactFraction.ts'
+      - 'glim-think/scripts/testing/candidate-order-cli.test.mjs'
+      - 'glim-think/package.json'
+      - 'glim-think/package-lock.json'
   workflow_dispatch: {}
 
 env:
@@ -58,6 +70,23 @@ jobs:
 
       - name: Run clippy
         run: cargo clippy -p atlas-distill --bin atlas-distill -- -D warnings
+
+      - name: Install Node for candidate report acceptance
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: glim-think/package-lock.json
+
+      - name: Install locked report-reader dependencies
+        working-directory: glim-think
+        timeout-minutes: 3
+        run: npm ci
+
+      - name: Check public-source CLI reports through the application reader
+        working-directory: glim-think
+        timeout-minutes: 2
+        run: ATLAS_DISTILL_BIN="$GITHUB_WORKSPACE/atlas-distill/target/release/atlas-distill" node --test scripts/testing/candidate-order-cli.test.mjs
 
       - name: Generate docs
         run: cargo doc --no-deps -p atlas-distill --bin atlas-distill
