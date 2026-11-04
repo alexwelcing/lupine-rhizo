@@ -153,6 +153,26 @@ still needs a source-bound end-to-end test and measured decision or review
 value. This is standard finite-extremum perturbation algebra, with novelty
 unestablished.
 
+
+### What would certify a search gap?
+
+A feasible selected profile supplies an upper bound on `m_F`. If a valid
+lower bound `L_F <= m_F` is also available, then
+
+    0 <= H_F(p_F) - m_F <= H_F(p_F) - L_F.
+
+The right side is an admissible `eta_F`; apply the same construction for G.
+This is the usual objective-minus-lower-bound certificate, not a new result.
+See [Boyd and Vandenberghe, Section 5.5.1](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf).
+An exhaustive finite evaluation can give the exact family minimum. A justified
+relaxation may give a weaker bound. Neither a force tolerance nor a low
+returned-profile residual establishes either certificate by itself.
+
+No physical search certificate or continuous-path coverage was obtained in
+this review. The [prior-work disposition](exception-to-theorem-failure-map.md#prior-work-disposition-dependencies-and-search-certificates)
+separates the standard mathematics from the unverified premises and proposed
+system contribution.
+
 ## Prefactors are separate inputs
 
 For positive temperature theta and positive prefactors, define

@@ -114,8 +114,8 @@ qualification fields can retain these limits; no new checker is justified.
 ## Vacancy activation: component errors and dependent references
 
 Thirteen existing rows were reviewed across Mishin and Fellinger. In the Fe
-example, the reference relation is explicitly `M = Q - F): nominal formation
-`F = 2.0 eV), activation `Q = 2.91 eV), and inferred migration `M = 0.91 eV`.
+example, the reference relation is explicitly `M = Q - F`: nominal formation
+`F = 2.0 eV`, activation `Q = 2.91 eV`, and inferred migration `M = 0.91 eV`.
 The model gives 2.13 and 0.74 eV, hence 2.87 eV in total. Summing the reference
 components recovers the original activation measurement; it supplies no new
 independent observation. Both defect properties entered fitting.
@@ -242,6 +242,59 @@ For the elastic cases, the
 and [unstressed harmonic stability criteria](https://www.coudert.name/papers/10.1103_PhysRevB.90.224104.pdf)
 are established methods. Neither a changed task loss nor a reference-domain
 check should be presented as a new physical discovery.
+
+
+## Prior-work disposition: dependencies and search certificates
+
+A bounded methods review on 4 November 2026 compared the current specification
+with primary treatments of measurement dependence and optimization certificates.
+
+[JCGM 100:2008](https://www.bipm.org/documents/20126/2071204/JCGM_100_2008_E.pdf/cb0ef43f-baa5-11cf-3f85-4dcd86f77bd6),
+Section 5.2, equations (13)–(16), includes covariance terms for correlated inputs;
+Section 5.2.4 explains how common standards or reference data introduce shared
+dependence. Preserving primitive inputs is therefore established practice.
+For our linear relation `M = Q - F`, finite-variance random variables would give
+
+    Var(M) = Var(Q) + Var(F) - 2 Cov(Q,F),
+    Cov(F,M) = Cov(F,Q) - Var(F),
+    Var(F+M) = Var(Q).
+
+These are exact covariance identities, not estimated uncertainties for the Fe
+example. Its retained reporting envelopes do not supply a joint probability
+model or numerical covariances. The deterministic analysis keeps the relation
+`F+M=Q` and does not turn the inferred component into independent evidence.
+This is an application of standard dependency handling, not a new uncertainty
+propagation method.
+
+[Boyd and Vandenberghe, *Convex Optimization*](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf),
+Section 5.5.1, printed pages 241–242, bounds a feasible point's suboptimality
+by its objective minus a valid dual lower bound. That certificate does not
+require convexity; obtaining arbitrarily small duality gaps needs additional
+conditions. Our finite-family application needs only a valid lower bound:
+if `L_F <= m_F`, then `H_F(p_F)-m_F <= H_F(p_F)-L_F`.
+No such lower bound was established for the inspected physical path searches.
+
+The [existing path-selection inequality](anchored-barrier-evidence.md)
+is ordinary order reasoning: pointwise offsets in `[a,b]` pass through the
+maximum on each profile and then the minimum over the same candidate family.
+Selected-profile gaps and the initial-energy difference enter by exact
+decomposition. This finite argument needs no convexity, and it does not
+establish coverage of continuous paths or an unknown candidate family.
+
+The reviewed claims are therefore applications and formal specifications of
+standard mathematics. No uncovered mathematical novelty was established by
+this bounded review; that is not a literature-wide absence claim. Retain the
+empirical failure map and tested evidence contracts, but require demonstrated
+decision or review value before promoting a broader contribution. A proof of
+the conditional inequality cannot supply missing source identities, shared
+configuration coverage, search certificates or physical validity.
+
+The primary PDFs were read through extracted text; screenshot tools did not
+deliver inspectable pages, so no visual PDF check is claimed. Skaf and Boyd's
+[2010 suboptimal-set paper](https://stanford.edu/~boyd/papers/expl_subopt.html)
+was read at abstract level only; its convex-set exploration does not certify
+the nonconvex physical searches considered here. No new corpus admission,
+simulation, numerical uncertainty estimate or independent review occurred.
 
 ## Implementation and acceptance evidence
 
