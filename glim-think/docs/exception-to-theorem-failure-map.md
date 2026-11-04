@@ -2,7 +2,7 @@
 
 Reviewed 4 November 2026. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover ten publications; repeated reference columns,
+literature examples below cover twelve publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -21,9 +21,10 @@ must specify those choices before applying an error bound.
 | **Ordering control — Olsson 2005**, 4 November. Table II, paramagnetic bcc Cr interstitials. | Model energies [5.60, 5.62, 6.83] eV and VASP [5.66, 5.68, 6.78] eV both select the listed 110 configuration. The nearest gap is 0.02 eV in both; assumed printing boxes give [0.01, 0.03] eV. | Retain a positive control. These relaxed defect energies enter fitting; agreement is not independent held-out validation or a global-ground-state claim. A competent source-aware comparison reaches the same decision. |
 | **Barrier ordering — Ko 2015**, 4 November. Table XI, Ni migration in hcp Ti. | Out-of-basal minus in-basal barrier is +0.088 eV for DFT and −0.151 eV for 2NN-MEAM. Assumed printing intervals [0.087, 0.089] and [−0.152, −0.150] preserve the reversal. | Preserve the direction and initial/path identities. Unknown prefactors prevent a rate-order conclusion; hop barriers alone do not determine a diffusion tensor. The source already reports Ti-rich migration limitations, so this is not a newly discovered physical failure. |
 | **Feasible alternatives — Kobayashi 2017**, 4 November. Table II, Al–Mg–Si binary compounds. | Mg3Si has negative PBE formation energy (−7 meV/atom), yet Mg + Mg2Si is lower by 95 meV/atom at the same overall composition. Restricting compounds to Si fraction ≤1/4 omits Mg2Si at 1/3 and incorrectly makes Mg3Si a vertex of that restricted hull. | Compare composition-balanced alternatives, including mixtures of phases outside the requested bulk-composition window. This deliberate restriction is our retrospective counterexample, not an allegation about the authors' procedure. A finite-hull vertex does not establish stability against omitted phases. |
-
 | **Composition holdout and estimator — Guo 2022**, 4 November review of the 2 February preprint. Supplement Table IV, LiCl–KCl eutectic. | GAP reports conductivity 0.659 W/(m K), versus RIM 0.856 and a cited experimental 0.690. The eutectic composition was excluded from GAP fitting, and the supplement reports energy/force errors on 120 independent test samples. | This is a favorable reported comparison, not a common-test energy-error ranking of the two potentials. The conductivity uses density-fluctuation extrapolation; the models use different simulated densities and the cited experimental temperature remains unaudited. Fitting exclusion alone does not establish independence from model selection. |
 | **Selection role and reference lineage — Attarian 2024 preprint**, 4 November. Sections 2.1, 3.1 and 3.2; Tables 4–5. | The authors choose Pot_2 using the results of Figures 2 and 3; Figure 3 includes the eutectic composition excluded from fitting. Separate unary ACE models give NaCl densities [1.55, 1.28, 1.45, 1.57] g/cm³ at 1200 K, against 1.49 ±0.5%. | Preserve fitting exclusion without upgrading it to selection-independent evaluation. The unary models are separately refitted to different DFT targets, with additional active learning; their Table 4 training errors are not a common-reference test. Do not attach the mixture Pot_2 holdout claim to these unary results. |
+| **Observable identity and fitting role — Mahata 2022**, 4 November. Table 6, Al-Cu alloys. | Five nominal liquidus discrepancies range from -5 to +22 K, including a marked eutectic entry. The source prioritized solidus/liquidus temperatures during fitting and initialized both phases at the alloy composition. | The inspected methods do not establish final phase compositions/fractions or a liquidus boundary at each overall composition. Preserve the reported values without treating temperature convergence as independent liquidus validation or missing evidence as proof of non-equilibration. |
+| **Sampling precision — Zhu 2021**, 4 November. Table 1, six elemental/potential pairs. | Al TOR-TILD is reported as 824 +/- 0.1 K against a cited experimental 933 K: -109 K nominal discrepancy despite a small standard error of the mean. | Separate numerical convergence, seed sampling, physical reference and fitting role. The paper demonstrates unary phases; its precision does not validate an alloy liquidus method. See the [two-study coexistence review](phase-coexistence-evidence.md). |
 
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
@@ -65,6 +66,13 @@ An existing free-text qualification can express this; no new inspector or
 automatic independence classifier has been justified.
 
 
+The coexistence review covers eleven existing rows from Mahata and Zhu. Their
+numbers were originally extracted on 7 October; the 4 November review checked
+methods, uncertainty meanings and selected source pages. No corpus observations
+or studies were added. The original eligibility exclusions remain. See the
+[two-study review](phase-coexistence-evidence.md) for the boundary calculation,
+fitting limits and the observation that would resolve the alloy claim.
+
 ## Synthetic obstructions and a product-contract correction
 
 | Contract | Checked obstruction or correction | Current evidence boundary |
@@ -92,6 +100,9 @@ information discarded by a score:
 - **A rate or transport interpretation:** temperature, prefactors and the physical
   network/population model add premises that an energy-error statistic cannot
   supply.
+- **Equilibrium observable and uncertainty:** a coexistence temperature needs phase
+  composition/boundary identity before a liquidus comparison; a standard error
+  of a numerical mean does not bound physical discrepancy.
 - **Generalization evidence:** an excluded fitting composition, an independent
   configuration set, and a benchmark used for selection have different roles.
   A small surrogate-to-DFT fitting error does not bound a downstream physical
@@ -238,6 +249,16 @@ promotion follows from this document.
   Section 3.2 and Table 4; Table 5, page 26. Retained PDF pin, derived text and
   existing Table 5 preview checked 4 November. Final-article DOI
   10.1016/j.commatsci.2024.113409 is bibliographic linkage only.
+
+- **Mahata 2022:** [accepted manuscript](https://par.nsf.gov/servlets/purl/10324339),
+  fitting/methods pages 9-10 and 17-18; Table 6, page 19.
+  DOI 10.1016/j.commatsci.2021.110902. Retained methods text and existing
+  Table 6 preview reviewed 4 November.
+- **Zhu 2021:** [published article](https://pure.tudelft.nl/ws/files/86400576/1_s2.0_S0927025620305565_main.pdf),
+  interface method PDF page 3; Table 1/Figure 8 PDF page 8 (printed page 7);
+  unary scope and sampling discussion PDF page 9.
+  DOI 10.1016/j.commatsci.2020.110065. Retained methods text and existing
+  method/table previews reviewed 4 November.
 
 The current review links previously completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
