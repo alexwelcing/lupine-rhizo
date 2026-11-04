@@ -6,7 +6,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-import atlas_theorem_sync as sync
+import theorem_sync as sync
 import pytest
 
 
@@ -65,7 +65,7 @@ def _evidence(
         "proof_revision": proof_revision,
         "lean_version": sync.LEAN_VERSION,
         "mathlib_revision": sync.MATHLIB_REVISION,
-        "atlas_revision": sync.ATLAS_REVISION,
+        "atlas_revision": sync.META_ATLAS_REVISION,
         "gates": {
             "lake_build": {
                 "passed": passed,
@@ -188,7 +188,7 @@ def test_sql_renderer_escapes_quotes_and_executes(connection: sqlite3.Connection
     assert "O''Hara" in sql
     assert "ON CONFLICT(facet, theorem_name, module, revision) DO UPDATE" in sql
     connection.executescript(sql)
-    row = connection.execute("SELECT theorem_name, status FROM atlas_theorems").fetchone()
+    row = connection.execute("SELECT theorem_name, status FROM theorems").fetchone()
     assert dict(row) == {"theorem_name": "Example.O'Hara.safe", "status": "verified"}
 
 
@@ -202,10 +202,10 @@ def test_parameterized_sync_is_idempotent_and_updates_facet_metadata(
     sync.synchronize_connection(connection, manifest)
     sync.synchronize_connection(connection, manifest)
 
-    assert connection.execute("SELECT COUNT(*) FROM atlas_theorems").fetchone()[0] == 1
+    assert connection.execute("SELECT COUNT(*) FROM theorems").fetchone()[0] == 1
     state = connection.execute(
         "SELECT proof_revision, build_manifest_hash, state_schema_version, "
-        "inventory_schema_version, theorem_inventory FROM atlas_facet_state "
+        "inventory_schema_version, theorem_inventory FROM facet_state "
         "WHERE facet = 'theorist'"
     ).fetchone()
     assert state["proof_revision"] == sync.FORMAL_PROOF_REVISION
@@ -229,7 +229,7 @@ def test_failed_row_transitions_to_verified(connection: sqlite3.Connection) -> N
         sync.build_sync_manifest(_evidence([verified]), [verified]),
     )
 
-    rows = connection.execute("SELECT status FROM atlas_theorems").fetchall()
+    rows = connection.execute("SELECT status FROM theorems").fetchall()
     assert [row["status"] for row in rows] == ["verified"]
 
 
@@ -251,7 +251,7 @@ def test_removed_shared_entry_is_retired_not_deleted(
         connection.executescript(sync.render_sync_sql(second))
 
     rows = connection.execute(
-        "SELECT theorem_name, lifecycle_status FROM atlas_theorems ORDER BY theorem_name"
+        "SELECT theorem_name, lifecycle_status FROM theorems ORDER BY theorem_name"
     ).fetchall()
     assert [dict(row) for row in rows] == [
         {"theorem_name": "Example.Core.removed", "lifecycle_status": "retired"},
@@ -277,9 +277,9 @@ def test_default_registry_covers_required_groups_and_distill_extension() -> None
     assert any("runtime_contract_is_fail_closed" in name for name in names)
 
     extension = _selection(
-        name="Lupine.DistillAtlas.Ni_EAM.distill_improves_energy",
+        name="OpenDistillationFactory.Materials.Data.Ni_EAM.distill_improves_energy",
         facet="experiment",
-        module="OpenDistillationFactory.Materials.DistillAtlas.Ni_EAM",
+        module="OpenDistillationFactory.Materials.Data.Ni_EAM",
     )
     evidence = _evidence([extension])
     manifest = sync.build_sync_manifest(
@@ -295,7 +295,7 @@ def test_default_registry_covers_required_groups_and_distill_extension() -> None
 @pytest.mark.unit
 def test_ad_hoc_generator_rows_never_claim_verified(tmp_path: Path) -> None:
     theorem = {
-        **_selection(name="Lupine.DistillAtlas.Ni.o'hara"),
+        **_selection(name="OpenDistillationFactory.Materials.Data.Ni.o'hara"),
         "statement": "theorem o'hara : 1 = 1 := rfl\n",
     }
     rows = sync.build_ad_hoc_rows(
@@ -321,13 +321,14 @@ def test_ad_hoc_generator_rows_never_claim_verified(tmp_path: Path) -> None:
 def test_proof_revision_resolution_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
     other = "b" * 40
     registry_pin = "c" * 40
+    monkeypatch.delenv("PROOF_REVISION", raising=False)
     monkeypatch.delenv("ATLAS_PROOF_REVISION", raising=False)
 
     assert sync.resolve_proof_revision() == sync.FORMAL_PROOF_REVISION
     assert sync.resolve_proof_revision(registry_pin=registry_pin) == registry_pin
     assert sync.resolve_proof_revision(other) == other
 
-    monkeypatch.setenv("ATLAS_PROOF_REVISION", other)
+    monkeypatch.setenv("PROOF_REVISION", other)
     assert sync.resolve_proof_revision() == other
     assert sync.resolve_proof_revision(registry_pin=registry_pin) == other
     assert sync.resolve_proof_revision(registry_pin) == registry_pin
@@ -335,7 +336,7 @@ def test_proof_revision_resolution_precedence(monkeypatch: pytest.MonkeyPatch) -
     with pytest.raises(sync.ManifestError):
         sync.resolve_proof_revision("not-a-commit")
     with pytest.raises(sync.ManifestError):
-        monkeypatch.setenv("ATLAS_PROOF_REVISION", "also-not-a-commit")
+        monkeypatch.setenv("PROOF_REVISION", "also-not-a-commit")
         sync.resolve_proof_revision()
 
 
@@ -343,6 +344,7 @@ def test_proof_revision_resolution_precedence(monkeypatch: pytest.MonkeyPatch) -
 def test_registry_pin_is_authoritative_and_override_must_match(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.delenv("PROOF_REVISION", raising=False)
     monkeypatch.delenv("ATLAS_PROOF_REVISION", raising=False)
     payload = json.loads(sync.DEFAULT_REGISTRY_PATH.read_text(encoding="utf-8"))
     new_pin = "d" * 40
@@ -363,3 +365,93 @@ def test_registry_pin_is_authoritative_and_override_must_match(
 
     with pytest.raises(sync.ManifestError, match="immutable formal commit"):
         sync.build_sync_manifest(evidence, [selection])
+
+
+@pytest.mark.unit
+def test_legacy_revision_alias_is_explicit_and_conflicts_are_rejected(monkeypatch) -> None:
+    monkeypatch.delenv("PROOF_REVISION", raising=False)
+    monkeypatch.setenv("ATLAS_PROOF_REVISION", "b" * 40)
+    assert sync.resolve_proof_revision() == "b" * 40
+    monkeypatch.setenv("PROOF_REVISION", "c" * 40)
+    with pytest.raises(sync.ManifestError, match="disagree"):
+        sync.resolve_proof_revision()
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("module", [
+    "OpenDistillationFactory.Materials.Data.Benchmark",
+    "OpenDistillationFactory.Materials.Data.Ni_EAM_Unreviewed",
+    "OpenDistillationFactory.Materials.Data.Ni_EAM.Unreviewed",
+])
+def test_data_extension_policy_does_not_widen(module: str) -> None:
+    policy = sync.load_registry()["extension_policy"]
+    selection = sync.TheoremSelection.from_mapping(
+        _selection(module=module, facet="experiment")
+    )
+    with pytest.raises(sync.ManifestError, match="not allowed"):
+        sync._validate_extension(selection, policy)
+
+
+@pytest.mark.unit
+def test_historical_schema_reads_do_not_rewrite_proof_identity() -> None:
+    selection = _selection()
+    evidence = _evidence([selection])
+    before = copy.deepcopy(evidence)
+    manifest = sync.build_sync_manifest(evidence, [selection])
+    assert evidence == before
+    assert manifest["schema"] == "lupine.theorem-sync.v1"
+    manifest["schema"] = sync.LEGACY_SYNC_SCHEMA
+    sync._validate_sync_manifest(manifest)
+    assert manifest["schema"] == sync.LEGACY_SYNC_SCHEMA
+    assert manifest["theorems"][0]["theorem_name"] == selection["theorem_name"]
+    evidence["modules"][0]["source_hash"] = "0" * 64
+    with pytest.raises(sync.ManifestError, match="manifest_hash"):
+        sync.build_sync_manifest(evidence, [selection])
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("mode", ["parameterized", "rendered-sql"])
+def test_retirement_recognizes_legacy_inventory_producer(connection, mode: str) -> None:
+    retained = _selection(name="Example.Core.retained")
+    removed = _selection(name="Example.Core.removed")
+    first = sync.build_sync_manifest(_evidence([retained, removed]), [retained, removed])
+    sync.synchronize_connection(connection, first)
+    state = connection.execute(
+        "SELECT theorem_inventory FROM facet_state WHERE facet = 'theorist'"
+    ).fetchone()
+    legacy = json.loads(state["theorem_inventory"])
+    legacy["schema"] = "lupine.atlas-facet-inventory.v2"
+    legacy["producer"] = sync.LEGACY_SYNC_SCHEMA
+    connection.execute(
+        "UPDATE facet_state SET theorem_inventory = ? WHERE facet = 'theorist'",
+        (json.dumps(legacy),),
+    )
+    connection.commit()
+    second = sync.build_sync_manifest(_evidence([retained]), [retained])
+    if mode == "parameterized":
+        sync.synchronize_connection(connection, second)
+    else:
+        connection.executescript(sync.render_sync_sql(second))
+    row = connection.execute(
+        "SELECT lifecycle_status FROM theorems WHERE theorem_name = 'Example.Core.removed'"
+    ).fetchone()
+    assert row["lifecycle_status"] == "retired"
+
+
+@pytest.mark.unit
+def test_legacy_registry_and_extension_inputs_are_read_without_rewriting(tmp_path: Path) -> None:
+    canonical = json.loads(sync.DEFAULT_REGISTRY_PATH.read_text(encoding="utf-8"))
+    canonical["schema"] = sync.LEGACY_REGISTRY_SCHEMA
+    registry_path = tmp_path / "legacy-registry.json"
+    registry_text = json.dumps(canonical)
+    registry_path.write_text(registry_text, encoding="utf-8")
+    loaded = sync.load_registry(registry_path)
+    assert loaded["schema"] == sync.LEGACY_REGISTRY_SCHEMA
+    assert registry_path.read_text(encoding="utf-8") == registry_text
+    extension = {"schema": sync.LEGACY_EXTENSION_SCHEMA, "schema_version": 1,
+                 "theorems": [_selection()]}
+    extension_path = tmp_path / "legacy-extension.json"
+    extension_text = json.dumps(extension)
+    extension_path.write_text(extension_text, encoding="utf-8")
+    assert sync._load_extension_paths([extension_path]) == extension["theorems"]
+    assert extension_path.read_text(encoding="utf-8") == extension_text

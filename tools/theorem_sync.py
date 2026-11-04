@@ -32,28 +32,38 @@ VERIFIED_STATUSES = {"verified", "extended"}
 
 PROOF_REPOSITORY = "lupine-science/open-distillation-factory"
 # Fallback formal authority, used only when neither the reviewed registry pin
-# (config/atlas_theorem_registry.v1.json authority.proof_revision), nor the
-# ATLAS_PROOF_REVISION environment variable, nor an explicit --proof-revision
+# (config/theorem_registry.v1.json authority.proof_revision), nor the
+# PROOF_REVISION environment variable (legacy alias accepted), nor an explicit --proof-revision
 # override supplies one. The registry pin is the single source of truth:
 # re-pinning after a rebase or squash-merge is a one-file, reviewable change.
 FORMAL_PROOF_REVISION = "96bc0d96c4f1b941ad9659e5102974ce113f2ed5"
 LEAN_VERSION = "4.29.0"
 MATHLIB_REVISION = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
-ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
+# External Meta ATLAS-Lean provenance for the retained historical authority.
+META_ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
 VISION_LEGACY_COUNT = 284
 VISION_UNIVERSAL_CORRECTION_COUNT = 164
 VISION_HONEST_ERRORS_COUNT = 49
 VISION_EPISTEMIC_GAP_COUNT = 5
 
 BUILD_EVIDENCE_SCHEMA = "lupine.lean-build-evidence.v1"
-REGISTRY_SCHEMA = "lupine.atlas-theorem-registry.v1"
-SYNC_SCHEMA = "lupine.atlas-theorem-sync.v1"
+# Canonical Rhizo contracts. Legacy identifiers are read-only compatibility boundaries.
+REGISTRY_SCHEMA = "lupine.theorem-registry.v1"
+SYNC_SCHEMA = "lupine.theorem-sync.v1"
+EXTENSION_SCHEMA = "lupine.theorem-extension.v1"
+FACET_INVENTORY_SCHEMA = "lupine.facet-inventory.v2"
+LEGACY_REGISTRY_SCHEMA = "lupine.atlas-theorem-registry.v1"
+LEGACY_SYNC_SCHEMA = "lupine.atlas-theorem-sync.v1"
+LEGACY_EXTENSION_SCHEMA = "lupine.atlas-theorem-extension.v1"
+REGISTRY_SCHEMAS = frozenset((REGISTRY_SCHEMA, LEGACY_REGISTRY_SCHEMA))
+SYNC_SCHEMAS = frozenset((SYNC_SCHEMA, LEGACY_SYNC_SCHEMA))
+EXTENSION_SCHEMAS = frozenset((EXTENSION_SCHEMA, LEGACY_EXTENSION_SCHEMA))
 GATE_MANIFEST_SCHEMA = "lupine.runtime-gate-manifest.v1"
 STATE_SCHEMA_VERSION = 2
 INVENTORY_SCHEMA_VERSION = 2
 
 _REPO = Path(__file__).resolve().parents[1]
-DEFAULT_REGISTRY_PATH = _REPO / "config" / "atlas_theorem_registry.v1.json"
+DEFAULT_REGISTRY_PATH = _REPO / "config" / "theorem_registry.v1.json"
 DEFAULT_ASSUMPTIONS_PATH = _REPO / "registry" / "assumptions.v1.json"
 DEFAULT_ASSUMPTIONS_LOCK_PATH = _REPO / "registry" / "snapshots" / "current.lock.json"
 DEFAULT_CLAIMS_PATH = _REPO / "registry" / "claims"
@@ -73,6 +83,19 @@ def _require_git_commit(value: Any, label: str) -> str:
     return value
 
 
+def _proof_revision_env() -> str | None:
+    """Read the canonical revision override, accepting the explicit legacy alias."""
+    canonical = os.environ.get("PROOF_REVISION")
+    legacy = os.environ.get("ATLAS_PROOF_REVISION")
+    if canonical and legacy and canonical != legacy:
+        raise ManifestError("PROOF_REVISION and legacy ATLAS_PROOF_REVISION disagree")
+    if canonical:
+        return _require_git_commit(canonical, "PROOF_REVISION")
+    if legacy:
+        return _require_git_commit(legacy, "legacy ATLAS_PROOF_REVISION")
+    return None
+
+
 def resolve_proof_revision(
     override: str | None = None,
     registry_pin: str | None = None,
@@ -80,7 +103,7 @@ def resolve_proof_revision(
     """Resolve the formal authority revision by precedence.
 
     1. explicit override (``--proof-revision`` / keyword argument)
-    2. ``ATLAS_PROOF_REVISION`` environment variable
+    2. ``PROOF_REVISION`` environment variable (or its legacy alias)
     3. the reviewed registry pin (``authority.proof_revision``)
     4. the module fallback constant
 
@@ -89,9 +112,9 @@ def resolve_proof_revision(
     """
     if override is not None:
         return _require_git_commit(override, "proof revision override")
-    env_value = os.environ.get("ATLAS_PROOF_REVISION")
-    if env_value:
-        return _require_git_commit(env_value, "ATLAS_PROOF_REVISION")
+    env_value = _proof_revision_env()
+    if env_value is not None:
+        return env_value
     if registry_pin is not None:
         return _require_git_commit(registry_pin, "registry proof_revision")
     return FORMAL_PROOF_REVISION
@@ -187,7 +210,7 @@ def _authority_values(proof_revision: str) -> dict[str, Any]:
         "proof_revision": proof_revision,
         "lean_version": LEAN_VERSION,
         "mathlib_revision": MATHLIB_REVISION,
-        "atlas_revision": ATLAS_REVISION,
+        "atlas_revision": META_ATLAS_REVISION,
         "vision_legacy_count": VISION_LEGACY_COUNT,
         "vision_universal_correction_count": VISION_UNIVERSAL_CORRECTION_COUNT,
         "vision_honest_errors_count": VISION_HONEST_ERRORS_COUNT,
@@ -574,7 +597,7 @@ def compile_gate_manifest(
         raise ManifestError("unsupported assumption registry or lock version")
 
     theorem_document = _load_json_object(theorem_registry_path, "theorem registry")
-    if theorem_document.get("schema") != REGISTRY_SCHEMA:
+    if theorem_document.get("schema") not in REGISTRY_SCHEMAS:
         raise ManifestError("unsupported theorem registry")
     theorem_registry: set[tuple[str, str]] = set()
     for raw in _require_sequence(theorem_document.get("theorems"), "theorem registry entries"):
@@ -590,7 +613,7 @@ def compile_gate_manifest(
     )
     authority = _require_mapping(theorem_document.get("authority"), "theorem authority")
     if (
-        theorem_evidence.get("schema") != SYNC_SCHEMA
+        theorem_evidence.get("schema") not in SYNC_SCHEMAS
         or theorem_evidence.get("build_gates_passed") is not True
         or theorem_evidence.get("proof_revision") != authority.get("proof_revision")
     ):
@@ -760,12 +783,12 @@ def load_registry(
 
     The registry's ``authority.proof_revision`` is the single source of truth
     for the formal commit. When ``expected_proof_revision`` is supplied (CLI
-    override or ``ATLAS_PROOF_REVISION``), the registry pin must match it —
+    override or ``PROOF_REVISION``), the registry pin must match it —
     re-pinning is a deliberate, reviewable edit of the registry file.
     """
 
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict) or payload.get("schema") != REGISTRY_SCHEMA:
+    if not isinstance(payload, dict) or payload.get("schema") not in REGISTRY_SCHEMAS:
         raise ManifestError(f"registry schema must be {REGISTRY_SCHEMA}")
     if payload.get("schema_version") != 1:
         raise ManifestError("unsupported registry schema_version")
@@ -799,11 +822,16 @@ def load_registry(
 
     policy = _require_mapping(payload.get("extension_policy"), "extension_policy")
     policy_facets = _require_sequence(policy.get("facets"), "extension_policy.facets")
-    prefixes = _require_sequence(policy.get("module_prefixes"), "extension_policy.module_prefixes")
+    prefixes = _require_sequence(policy.get("module_prefixes", []), "extension_policy.module_prefixes")
+    modules = _require_sequence(policy.get("modules", []), "extension_policy.modules")
     if any(facet not in FACETS for facet in policy_facets):
         raise ManifestError("extension_policy contains an invalid facet")
-    if not prefixes or any(not isinstance(prefix, str) or not prefix for prefix in prefixes):
+    if not prefixes and not modules:
+        raise ManifestError("extension_policy requires approved modules or module prefixes")
+    if any(not isinstance(prefix, str) or not prefix for prefix in prefixes):
         raise ManifestError("extension_policy module prefixes must be non-empty strings")
+    if any(not isinstance(module, str) or not module for module in modules):
+        raise ManifestError("extension_policy modules must be non-empty strings")
     return payload
 
 
@@ -823,7 +851,7 @@ def _validate_build_evidence(evidence: Mapping[str, Any]) -> dict[tuple[str, str
         "proof_repository": PROOF_REPOSITORY,
         "lean_version": LEAN_VERSION,
         "mathlib_revision": MATHLIB_REVISION,
-        "atlas_revision": ATLAS_REVISION,
+        "atlas_revision": META_ATLAS_REVISION,
     }.items():
         if evidence.get(key) != expected:
             raise ManifestError(f"build evidence {key} does not match formal authority")
@@ -902,12 +930,15 @@ def _validate_extension(
     if extension_policy is None:
         raise ManifestError("extensions require an explicit extension_policy")
     facets = extension_policy.get("facets")
-    prefixes = extension_policy.get("module_prefixes")
+    prefixes = extension_policy.get("module_prefixes", [])
+    modules = extension_policy.get("modules", [])
     if not isinstance(facets, list) or selection.facet not in facets:
         raise ManifestError(f"extension facet {selection.facet!r} is not allowed")
-    if not isinstance(prefixes, list) or not any(
+    exact_match = isinstance(modules, list) and selection.module in modules
+    prefix_match = isinstance(prefixes, list) and any(
         isinstance(prefix, str) and selection.module.startswith(prefix) for prefix in prefixes
-    ):
+    )
+    if not exact_match and not prefix_match:
         raise ManifestError(f"extension module {selection.module!r} is not allowed")
 
 
@@ -1023,7 +1054,7 @@ def _validate_sync_manifest(
     expected_proof_revision: str | None = None,
 ) -> None:
     authority_revision = resolve_proof_revision(expected_proof_revision)
-    if manifest.get("schema") != SYNC_SCHEMA or manifest.get("schema_version") != 1:
+    if manifest.get("schema") not in SYNC_SCHEMAS or manifest.get("schema_version") != 1:
         raise ManifestError(f"sync manifest must use {SYNC_SCHEMA}")
     if (
         manifest.get("state_schema_version") != STATE_SCHEMA_VERSION
@@ -1063,7 +1094,7 @@ def _facet_inventory(manifest: Mapping[str, Any], facet: str) -> dict[str, Any]:
     rows = [row for row in manifest["theorems"] if row["facet"] == facet]
     counts = Counter(row["status"] for row in rows)
     return {
-        "schema": "lupine.atlas-facet-inventory.v2",
+        "schema": FACET_INVENTORY_SCHEMA,
         "schema_version": INVENTORY_SCHEMA_VERSION,
         "producer": SYNC_SCHEMA,
         "facet": facet,
@@ -1091,7 +1122,7 @@ def _previous_inventory(value: Any) -> list[dict[str, str]]:
         payload = json.loads(value)
     except (TypeError, json.JSONDecodeError):
         return []
-    if not isinstance(payload, dict) or payload.get("producer") != SYNC_SCHEMA:
+    if not isinstance(payload, dict) or payload.get("producer") not in SYNC_SCHEMAS:
         return []
     theorems = payload.get("theorems")
     if not isinstance(theorems, list):
@@ -1100,7 +1131,7 @@ def _previous_inventory(value: Any) -> list[dict[str, str]]:
 
 
 _THEOREM_UPSERT = """
-INSERT INTO atlas_theorems (
+INSERT INTO theorems (
   facet, theorem_name, module, revision, proof_repository, proof_revision,
   atlas_revision, mathlib_revision, statement_hash, source_hash,
   build_manifest_hash, status, lifecycle_status, superseded_by_id,
@@ -1122,7 +1153,7 @@ ON CONFLICT(facet, theorem_name, module, revision) DO UPDATE SET
 """
 
 _FACET_STATE_UPSERT = """
-INSERT INTO atlas_facet_state (
+INSERT INTO facet_state (
   facet, proof_repository, proof_revision, atlas_revision, mathlib_revision,
   theorem_inventory, build_manifest_hash, state_schema_version,
   inventory_schema_version, updated_at
@@ -1175,14 +1206,14 @@ def synchronize_connection(
                 if row["facet"] == facet
             }
             state = connection.execute(
-                "SELECT theorem_inventory FROM atlas_facet_state WHERE facet = ?", (facet,)
+                "SELECT theorem_inventory FROM facet_state WHERE facet = ?", (facet,)
             ).fetchone()
             prior = _previous_inventory(state[0] if state else None)
             for item in prior:
                 identity = (item.get("theorem"), item.get("module"), item.get("revision"))
                 if identity not in current and all(isinstance(part, str) for part in identity):
                     connection.execute(
-                        "UPDATE atlas_theorems SET lifecycle_status = 'retired', "
+                        "UPDATE theorems SET lifecycle_status = 'retired', "
                         "superseded_by_id = NULL, updated_at = CURRENT_TIMESTAMP "
                         "WHERE facet = ? AND theorem_name = ? AND module = ? AND revision = ? "
                         "AND lifecycle_status = 'active'",
@@ -1232,21 +1263,21 @@ def _render_retirement(manifest: Mapping[str, Any], facet: str) -> str:
     )
     keep_clause = f"\n  AND NOT (\n    {keep}\n  )" if keep else ""
     facet_sql = _sql_literal(facet)
-    producer_sql = _sql_literal(SYNC_SCHEMA)
-    return f"""UPDATE atlas_theorems
+    producer_sql = ", ".join(_sql_literal(schema) for schema in sorted(SYNC_SCHEMAS))
+    return f"""UPDATE theorems
 SET lifecycle_status = 'retired', superseded_by_id = NULL,
     updated_at = CURRENT_TIMESTAMP
 WHERE facet = {facet_sql}
   AND lifecycle_status = 'active'
   AND EXISTS (
     SELECT 1
-    FROM atlas_facet_state AS prior_state,
+    FROM facet_state AS prior_state,
          json_each(prior_state.theorem_inventory, '$.theorems') AS prior
     WHERE prior_state.facet = {facet_sql}
-      AND json_extract(prior_state.theorem_inventory, '$.producer') = {producer_sql}
-      AND json_extract(prior.value, '$.theorem') = atlas_theorems.theorem_name
-      AND json_extract(prior.value, '$.module') = atlas_theorems.module
-      AND json_extract(prior.value, '$.revision') = atlas_theorems.revision
+      AND json_extract(prior_state.theorem_inventory, '$.producer') IN ({producer_sql})
+      AND json_extract(prior.value, '$.theorem') = theorems.theorem_name
+      AND json_extract(prior.value, '$.module') = theorems.module
+      AND json_extract(prior.value, '$.revision') = theorems.revision
   ){keep_clause};"""
 
 
@@ -1266,7 +1297,7 @@ def _render_theorem_upsert(row: Mapping[str, Any]) -> str:
         row["status"],
         row["used_in_hypotheses"],
     ]
-    return f"""INSERT INTO atlas_theorems (
+    return f"""INSERT INTO theorems (
   facet, theorem_name, module, revision, proof_repository, proof_revision,
   atlas_revision, mathlib_revision, statement_hash, source_hash,
   build_manifest_hash, status, lifecycle_status, superseded_by_id,
@@ -1325,7 +1356,7 @@ def build_ad_hoc_rows(
                 "revision": "uncommitted-generated-evidence",
                 "proof_repository": PROOF_REPOSITORY,
                 "proof_revision": None,
-                "atlas_revision": ATLAS_REVISION,
+                "atlas_revision": META_ATLAS_REVISION,
                 "mathlib_revision": MATHLIB_REVISION,
                 "statement_hash": hashlib.sha256(statement.encode("utf-8")).hexdigest(),
                 "source_hash": hashlib.sha256(source.encode("utf-8")).hexdigest(),
@@ -1372,7 +1403,7 @@ def write_extension_manifest(path: Path, rows: Iterable[Mapping[str, Any]]) -> N
             theorem["status"] = "failed"
         theorems.append(theorem)
     payload = {
-        "schema": "lupine.atlas-theorem-extension.v1",
+        "schema": EXTENSION_SCHEMA,
         "schema_version": 1,
         "theorems": theorems,
     }
@@ -1393,7 +1424,7 @@ def _render_facet_state(manifest: Mapping[str, Any], facet: str) -> str:
         STATE_SCHEMA_VERSION,
         INVENTORY_SCHEMA_VERSION,
     ]
-    return f"""INSERT INTO atlas_facet_state (
+    return f"""INSERT INTO facet_state (
   facet, proof_repository, proof_revision, atlas_revision, mathlib_revision,
   theorem_inventory, build_manifest_hash, state_schema_version,
   inventory_schema_version, updated_at
@@ -1419,7 +1450,7 @@ def render_sync_sql(
 
     _validate_sync_manifest(manifest, expected_proof_revision=expected_proof_revision)
     statements = [
-        "-- Generated by tools/atlas_theorem_sync.py; review before local ingestion.",
+        "-- Generated by tools/theorem_sync.py; review before local ingestion.",
         "-- This script does not connect to D1.",
         "BEGIN TRANSACTION;",
     ]
@@ -1454,7 +1485,7 @@ def _load_extension_paths(paths: Sequence[Path]) -> list[Mapping[str, Any]]:
     for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
         if isinstance(payload, dict) and (
-            payload.get("schema") != "lupine.atlas-theorem-extension.v1"
+            payload.get("schema") not in EXTENSION_SCHEMAS
             or payload.get("schema_version") != 1
         ):
             raise ManifestError(f"extension manifest {path} has an unsupported schema")
@@ -1486,7 +1517,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--proof-revision",
         default=None,
         help=(
-            "formal authority commit; defaults to ATLAS_PROOF_REVISION, then the "
+            "formal authority commit; defaults to PROOF_REVISION (legacy alias accepted), then the "
             "reviewed registry pin. A value that differs from the registry pin is "
             "rejected — re-pin the registry file deliberately."
         ),
@@ -1513,7 +1544,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error("the theorem sync path requires --build-manifest, --out-manifest, and --out-sql")
 
     requested_revision = None
-    if args.proof_revision is not None or os.environ.get("ATLAS_PROOF_REVISION"):
+    if args.proof_revision is not None or _proof_revision_env() is not None:
         requested_revision = resolve_proof_revision(args.proof_revision)
     registry = load_registry(args.registry, expected_proof_revision=requested_revision)
     authority_revision = (

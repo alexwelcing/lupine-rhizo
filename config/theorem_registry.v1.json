@@ -1,5 +1,5 @@
 {
-  "schema": "lupine.atlas-theorem-registry.v1",
+  "schema": "lupine.theorem-registry.v1",
   "schema_version": 1,
   "managed_facets": [
     "causal",
@@ -23,8 +23,12 @@
       "experiment"
     ],
     "module_prefixes": [
-      "OpenDistillationFactory.Materials.DistillAtlas.",
       "OpenDistillationFactory.Materials.RegimeGate."
+    ],
+    "modules": [
+      "OpenDistillationFactory.Materials.Data.EnvFieldInstances",
+      "OpenDistillationFactory.Materials.Data.MPtrj_DFT",
+      "OpenDistillationFactory.Materials.Data.Ni_EAM"
     ]
   },
   "theorems": [
@@ -323,5 +327,6 @@
       "theorem_name": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_deficit_le_lipschitz_cover",
       "module": "OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer"
     }
-  ]
+  ],
+  "build_evidence_path": "config/atlas_theorem_sync.96bc0d9.json"
 }

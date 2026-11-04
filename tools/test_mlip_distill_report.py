@@ -1,11 +1,11 @@
-"""Theorem observation integrity tests for tools/mlip_distill_atlas.py.
+"""Theorem observation integrity tests for tools/mlip_distill_report.py.
 
-The atlas_theorems seed feeds glim-think/src/atlas/theorems.ts, which projects
+The theorems seed feeds glim-think/src/research/theorems.ts, which projects
 `status` into agents' FormalBasis. A local generated module may be recorded as
 `imported`, but promotion to `verified` requires the separate immutable build
-manifest consumed by tools/atlas_theorem_sync.py.
+manifest consumed by tools/theorem_sync.py.
 
-D1 schema (glim-think/migrations/0010_atlas_theorems.sql) accepts:
+The current D1 theorem schema accepts:
     status IN ('imported','verified','extended','failed')
 
 All lean invocations are stubbed; no Lean toolchain is required.
@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import mlip_distill_atlas as atlas
+import mlip_distill_report as report
 import pytest
 
 _D1_STATUS_VOCAB = {"imported", "verified", "extended", "failed"}
@@ -46,14 +46,14 @@ def _make_material(
 
 
 @pytest.fixture()
-def atlas_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+def report_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Redirect every output path the script writes into tmp_path."""
-    monkeypatch.setattr(atlas, "_REPO", tmp_path)
-    monkeypatch.setattr(atlas, "LEAN_OUT", tmp_path / "lean_out")
-    monkeypatch.setattr(atlas, "LEAN_SPEC", tmp_path / "lean_spec")
-    monkeypatch.setattr(atlas, "SEED", tmp_path / "seed.sql")
-    monkeypatch.setattr(atlas, "EXTENSION", tmp_path / "extension.json")
-    monkeypatch.setattr(atlas, "REPORT", tmp_path / "report.md")
+    monkeypatch.setattr(report, "_REPO", tmp_path)
+    monkeypatch.setattr(report, "LEAN_OUT", tmp_path / "lean_out")
+    monkeypatch.setattr(report, "LEAN_SPEC", tmp_path / "lean_spec")
+    monkeypatch.setattr(report, "SEED", tmp_path / "seed.sql")
+    monkeypatch.setattr(report, "EXTENSION", tmp_path / "extension.json")
+    monkeypatch.setattr(report, "REPORT", tmp_path / "report.md")
     return tmp_path
 
 
@@ -70,25 +70,25 @@ def _seed_rows(tmp_path: Path) -> list[dict[str, object]]:
         for row in db.execute(
             "SELECT theorem_name, module, revision, proof_revision, atlas_revision, "
             "mathlib_revision, statement_hash, source_hash, build_manifest_hash, status "
-            "FROM atlas_theorems ORDER BY theorem_name"
+            "FROM theorems ORDER BY theorem_name"
         )
     ]
 
 
 @pytest.mark.unit
 def test_all_modules_compile_as_imported_and_exit_zero(
-    atlas_env: Path, monkeypatch: pytest.MonkeyPatch
+    report_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(atlas, "_verify_lean_module", lambda lean_file: True)
+    monkeypatch.setattr(report, "_verify_lean_module", lambda lean_file: True)
     args = [
-        _make_material(atlas_env, "MatA"),
-        _make_material(atlas_env, "MatB"),
+        _make_material(report_env, "MatA"),
+        _make_material(report_env, "MatB"),
     ]
 
-    rc = atlas.main(args)
+    rc = report.main(args)
 
     assert rc == 0
-    rows = _seed_rows(atlas_env)
+    rows = _seed_rows(report_env)
     assert len(rows) == 2  # one theorem per material
     assert {row["status"] for row in rows} == {"imported"}
     assert all(row["proof_revision"] is None for row in rows)
@@ -97,84 +97,84 @@ def test_all_modules_compile_as_imported_and_exit_zero(
 
 @pytest.mark.unit
 def test_failed_module_theorems_marked_failed_and_exit_nonzero(
-    atlas_env: Path, monkeypatch: pytest.MonkeyPatch
+    report_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # MatA compiles; MatB does not.
     monkeypatch.setattr(
-        atlas, "_verify_lean_module", lambda lean_file: "MatA" in Path(lean_file).name
+        report, "_verify_lean_module", lambda lean_file: "MatA" in Path(lean_file).name
     )
     args = [
-        _make_material(atlas_env, "MatA"),
-        _make_material(atlas_env, "MatB"),
+        _make_material(report_env, "MatA"),
+        _make_material(report_env, "MatB"),
     ]
 
-    rc = atlas.main(args)
+    rc = report.main(args)
 
     assert rc != 0
-    rows = _seed_rows(atlas_env)
+    rows = _seed_rows(report_env)
     assert len(rows) == 2
-    (mat_a,) = [row for row in rows if "Lupine.DistillAtlas.MatA" in row["theorem_name"]]
-    (mat_b,) = [row for row in rows if "Lupine.DistillAtlas.MatB" in row["theorem_name"]]
+    (mat_a,) = [row for row in rows if "OpenDistillationFactory.Materials.Data.MatA" in row["theorem_name"]]
+    (mat_b,) = [row for row in rows if "OpenDistillationFactory.Materials.Data.MatB" in row["theorem_name"]]
     assert mat_a["status"] == "imported"
     assert mat_b["status"] == "failed"
 
 
 @pytest.mark.unit
 def test_lean_missing_marks_nothing_verified_and_exits_nonzero(
-    atlas_env: Path, monkeypatch: pytest.MonkeyPatch
+    report_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Exercise the REAL _verify_lean_module error path: lean not on PATH.
     def raise_missing(*args: object, **kwargs: object) -> object:
         raise FileNotFoundError("lean not found")
 
-    monkeypatch.setattr(atlas.subprocess, "run", raise_missing)
-    args = [_make_material(atlas_env, "MatA")]
+    monkeypatch.setattr(report.subprocess, "run", raise_missing)
+    args = [_make_material(report_env, "MatA")]
 
-    rc = atlas.main(args)
+    rc = report.main(args)
 
     assert rc != 0
-    rows = _seed_rows(atlas_env)
+    rows = _seed_rows(report_env)
     assert rows, "seed must still be written so the failure is inspectable"
     assert {row["status"] for row in rows} == {"failed"}
 
 
 @pytest.mark.unit
 def test_seed_format_and_status_vocabulary(
-    atlas_env: Path, monkeypatch: pytest.MonkeyPatch
+    report_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Mixed outcome: shared full-column upserts and statuses in D1 vocabulary.
     monkeypatch.setattr(
-        atlas, "_verify_lean_module", lambda lean_file: "MatA" in Path(lean_file).name
+        report, "_verify_lean_module", lambda lean_file: "MatA" in Path(lean_file).name
     )
     args = [
-        _make_material(atlas_env, "MatA"),
-        _make_material(atlas_env, "MatB", base_err=0.004, dist_err=0.009),  # regress
+        _make_material(report_env, "MatA"),
+        _make_material(report_env, "MatB", base_err=0.004, dist_err=0.009),  # regress
     ]
 
-    atlas.main(args)
+    report.main(args)
 
-    sql = (atlas_env / "seed.sql").read_text(encoding="utf-8")
+    sql = (report_env / "seed.sql").read_text(encoding="utf-8")
     assert "INSERT OR IGNORE" not in sql
     assert "ON CONFLICT(facet, theorem_name, module, revision) DO UPDATE" in sql
     assert "proof_repository, proof_revision" in sql
     assert "statement_hash, source_hash" in sql
-    rows = _seed_rows(atlas_env)
+    rows = _seed_rows(report_env)
     assert {row["status"] for row in rows} == {"imported", "failed"}
     assert all(row["status"] in _D1_STATUS_VOCAB for row in rows)
     assert all(row["revision"] == "uncommitted-generated-evidence" for row in rows)
-    assert all(row["atlas_revision"] == atlas.ATLAS_REV for row in rows)
+    assert all(row["atlas_revision"] == report.META_ATLAS_REV for row in rows)
     assert all(row["statement_hash"] and row["source_hash"] for row in rows)
 
 
 @pytest.mark.unit
 def test_verify_lean_module_false_on_missing_binary(
-    atlas_env: Path, monkeypatch: pytest.MonkeyPatch
+    report_env: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     def raise_missing(*args: object, **kwargs: object) -> object:
         raise FileNotFoundError("lean not found")
 
-    monkeypatch.setattr(atlas.subprocess, "run", raise_missing)
-    lean_file = atlas_env / "X.lean"
+    monkeypatch.setattr(report.subprocess, "run", raise_missing)
+    lean_file = report_env / "X.lean"
     lean_file.write_text("theorem t : 1 = 1 := rfl\n", encoding="utf-8")
 
-    assert atlas._verify_lean_module(lean_file) is False
+    assert report._verify_lean_module(lean_file) is False

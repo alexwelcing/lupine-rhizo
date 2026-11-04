@@ -1,4 +1,4 @@
-"""Distill Improvement Atlas — unified synthesis of a GCP TorchSim+distill run.
+"""Distill report — unified synthesis of a GCP TorchSim+distill run.
 
 One post-processor, three faces (so the workstream cannot fragment):
 
@@ -7,13 +7,13 @@ One post-processor, three faces (so the workstream cannot fragment):
      TorchSim results", with the speed context the accelerate variant proves.
   2. RESIDUAL / REGRESSION MAP  what distill leaves uncorrected, and where it HARMS
      (wrong-regime ribbon) — the spec for the next operator + policy fix.
-  3. LEAN ATLAS  per pairing, a 0-sorry decidable theorem encoding the verdict
+  3. LEAN EVIDENCE  per pairing, a 0-sorry decidable theorem encoding the verdict
      (distill improves / regresses; accelerate faster-and-accurate) — machine-checked
-     claims about distill, authored from real GCP evidence, + an atlas_theorems seed.
+     claims about distill, authored from real GCP evidence, + an theorems seed.
 
 Input: local cell_result.json trees (pulled from gs://.../mlip-evidence/<campaign>/cells).
 Run:
-    python tools/mlip_distill_atlas.py \
+    python tools/mlip_distill_report.py \
       Ni-EAM=tmp/mlip-evidence/ni-cells  MPtrj-DFT=tmp/mlip-evidence/kr-cells
 """
 
@@ -26,8 +26,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from atlas_theorem_sync import (
-    ATLAS_REVISION,
+from theorem_sync import (
+    META_ATLAS_REVISION,
     build_ad_hoc_rows,
     render_ad_hoc_sql,
     write_extension_manifest,
@@ -35,12 +35,12 @@ from atlas_theorem_sync import (
 
 _HERE = Path(__file__).resolve()
 _REPO = _HERE.parents[1]
-LEAN_OUT = _REPO / "lean-spec" / "OpenDistillationFactory" / "Materials" / "DistillAtlas"
+LEAN_OUT = _REPO / "lean-spec" / "OpenDistillationFactory" / "Materials" / "Data"
 LEAN_SPEC = _REPO / "lean-spec"
-REPORT = _REPO / "docs" / "distill_improvement_atlas.md"
-SEED = _REPO / "tmp" / "mlip-evidence" / "distill_atlas_theorems_seed.sql"
+REPORT = _REPO / "docs" / "distill_report.md"
+SEED = _REPO / "tmp" / "mlip-evidence" / "distill_theorems_seed.sql"
 EXTENSION = SEED.with_suffix(".json")
-ATLAS_REV = ATLAS_REVISION
+META_ATLAS_REV = META_ATLAS_REVISION
 
 
 @dataclass(frozen=True)
@@ -95,7 +95,7 @@ def _verify_lean_module(lean_file: Path) -> bool:
     """Compile one generated module with `lean`; True iff it machine-checks.
 
     Any failure — nonzero exit, `sorry` in diagnostics, missing lean binary,
-    timeout — counts as NOT verified. The atlas_theorems seed must never claim
+    timeout — counts as NOT verified. The theorems seed must never claim
     'verified' for a theorem whose module did not actually compile (downstream
     glim-think projects that status into agents' FormalBasis).
     """
@@ -114,7 +114,7 @@ def _verify_lean_module(lean_file: Path) -> bool:
 
 def main(argv: list[str]) -> int:
     if not argv:
-        print("usage: mlip_distill_atlas.py LABEL=dir [LABEL=dir ...]")
+        print("usage: mlip_distill_report.py LABEL=dir [LABEL=dir ...]")
         return 2
     cells: list[Cell] = []
     for arg in argv:
@@ -161,7 +161,7 @@ def main(argv: list[str]) -> int:
             }
         )
 
-    # ---- Lean atlas: one decidable theorem per pairing (verdict) + accelerate wins ----
+    # ---- Lean evidence: one decidable theorem per pairing (verdict) + accelerate wins ----
     LEAN_OUT.mkdir(parents=True, exist_ok=True)
     theorem_inputs: list[dict[str, object]] = []
     by_mat: dict[str, list[str]] = defaultdict(list)
@@ -186,9 +186,9 @@ def main(argv: list[str]) -> int:
         theorem_inputs.append(
             {
                 "facet": "experiment",
-                "theorem_name": f"Lupine.DistillAtlas.{_safe(r['material'])}.{name}",
+                "theorem_name": f"OpenDistillationFactory.Materials.Data.{_safe(r['material'])}.{name}",
                 "module": (
-                    f"OpenDistillationFactory.Materials.DistillAtlas.{_safe(r['material'])}"
+                    f"OpenDistillationFactory.Materials.Data.{_safe(r['material'])}"
                 ),
                 "statement": thm,
                 "used_in_hypotheses": 1,
@@ -205,9 +205,9 @@ def main(argv: list[str]) -> int:
             theorem_inputs.append(
                 {
                     "facet": "experiment",
-                    "theorem_name": f"Lupine.DistillAtlas.{_safe(r['material'])}.{aname}",
+                    "theorem_name": f"OpenDistillationFactory.Materials.Data.{_safe(r['material'])}.{aname}",
                     "module": (
-                        f"OpenDistillationFactory.Materials.DistillAtlas.{_safe(r['material'])}"
+                        f"OpenDistillationFactory.Materials.Data.{_safe(r['material'])}"
                     ),
                     "statement": athm,
                     "used_in_hypotheses": 1,
@@ -218,10 +218,10 @@ def main(argv: list[str]) -> int:
     module_ok: dict[str, bool] = {}
     module_sources: dict[str, str] = {}
     for mat, thms in by_mat.items():
-        ns = f"Lupine.DistillAtlas.{_safe(mat)}"
-        module = f"OpenDistillationFactory.Materials.DistillAtlas.{_safe(mat)}"
+        ns = f"OpenDistillationFactory.Materials.Data.{_safe(mat)}"
+        module = f"OpenDistillationFactory.Materials.Data.{_safe(mat)}"
         src = (
-            f"/- AUTHORED by tools/mlip_distill_atlas.py from GCP TorchSim+distill evidence.\n"
+            f"/- AUTHORED by tools/mlip_distill_report.py from GCP TorchSim+distill evidence.\n"
             f"   Material lane: {mat}. Decidable Nat facts (error x1000) — 0 sorry. -/\n\n"
             f"namespace {ns}\n\n" + "\n".join(thms) + f"\nend {ns}\n"
         )
@@ -246,7 +246,7 @@ def main(argv: list[str]) -> int:
     write_extension_manifest(EXTENSION, theorem_rows)
 
     # ---- markdown report ----
-    lines = ["# Distill Improvement Atlas", "",
+    lines = ["# Distill report", "",
              f"Unified synthesis of a GCP TorchSim+distill run — {len(rows_out)} paired (baseline↔distill) "
              f"cells across {len({r['material'] for r in rows_out})} material lanes. "
              f"**{improves} improve, {regress} regress, {accel_wins} accelerate-wins (faster AND ≥ as accurate).**", "",
@@ -270,13 +270,13 @@ def main(argv: list[str]) -> int:
     lines.append("**Largest residuals after distill (what the next operator must target):**")
     for r in sorted([x for x in rows_out if x["dist_err"] is not None], key=lambda x: -x["dist_err"])[:6]:
         lines.append(f"- {r['material']} / {r['row']} / {r['mlip']}: residual {r['dist_err']:.4f} {r['error_unit']}")
-    lines += ["", "## 3. Lean atlas (machine-checked verdicts, 0 sorry)", "",
-              f"Authored {len(theorem_inputs)} decidable theorems under `lean-spec/.../DistillAtlas/`, "
+    lines += ["", "## 3. Lean evidence (machine-checked verdicts, 0 sorry)", "",
+              f"Authored {len(theorem_inputs)} decidable theorems under `lean-spec/.../Materials/Data/`, "
               f"{verified}/{len(by_mat)} lane modules `lean`-verified; seed → `{SEED.relative_to(_REPO)}`. "
               "Each encodes a verdict (distill improves / regresses; accelerate faster-and-accurate) as a decidable "
               "Nat fact from the GCP evidence — the neural→symbolic bridge applied to the production run.", ""]
     REPORT.write_text("\n".join(lines), encoding="utf-8")
-    print(f"\natlas: {len(rows_out)} pairings | {improves} improve / {regress} regress / {accel_wins} accel-wins")
+    print(f"\ndistill: {len(rows_out)} pairings | {improves} improve / {regress} regress / {accel_wins} accel-wins")
     print(f"report -> {REPORT.relative_to(_REPO)} | lean -> {LEAN_OUT.relative_to(_REPO)} | seed -> {SEED.relative_to(_REPO)}")
     failed_modules = sorted(m for m, ok in module_ok.items() if not ok)
     if failed_modules:
