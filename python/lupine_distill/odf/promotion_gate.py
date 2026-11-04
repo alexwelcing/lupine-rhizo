@@ -3,8 +3,8 @@
 This is the "[NEW] Formal specification check" inserted into the OperatorPack
 promotion pipeline (ATLAS_Lean_Integration_Review.md §13.2, step 4):
 
-    ODF Promotion Pipeline (with ATLAS gates):
-      1. MLIP training complete (atlas-distill)
+    ODF Promotion Pipeline (with formal gates):
+      1. MLIP training complete (Distill)
       2. TorchSim benchmark run (baseline comparison)
       3. distill_v_uplift calculation
       4. [NEW] Formal specification check   <-- THIS MODULE
@@ -19,7 +19,7 @@ The gate checks two things, given a candidate model's metadata:
           review    : 0% <= uplift <= +5%
           reject     : uplift  < 0%
   (b) the required formal-verification fields are present and non-empty:
-          ``atlas_theorem_refs`` (list) and ``formal_properties`` (list).
+          ``theorem_refs`` (list) and ``formal_properties`` (list).
 
 A missing/empty formal field downgrades an otherwise-promotable model to
 ``review`` (human-in-the-loop), and turns a borderline model into ``reject``.
@@ -38,7 +38,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Mapping
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from lupine_distill.odf.field_certificates import check_ranking_pair
 
@@ -61,7 +61,7 @@ class CandidateMetadata(BaseModel):
 
     This is the boundary schema for :func:`evaluate_promotion`. The uplift
     score mirrors ``BenchmarkResult.overall_uplift_pct`` (the ``distill_v_uplift``
-    composite); the two list fields carry the ATLAS formal contract.
+    composite); the two list fields carry the formal contract.
     """
 
     model_config = ConfigDict(frozen=True, extra="ignore")
@@ -72,9 +72,9 @@ class CandidateMetadata(BaseModel):
         default=None,
         description="distill_v_uplift composite score, percent. None == not computed.",
     )
-    atlas_theorem_refs: list[str] = Field(
+    theorem_refs: list[str] = Field(
         default_factory=list,
-        description="ATLAS/ODF theorem references the model claims to depend on.",
+        description="Lean theorem references the model claims to depend on.",
     )
     formal_properties: list[str] = Field(
         default_factory=list,
@@ -97,6 +97,20 @@ class CandidateMetadata(BaseModel):
             "promotion decision."
         ),
     )
+
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_legacy_theorem_refs(cls, value: Any) -> Any:
+        """Consume the historical metadata key without retaining it in new output."""
+        if not isinstance(value, Mapping) or "atlas_theorem_refs" not in value:
+            return value
+        normalized = dict(value)
+        legacy = normalized.pop("atlas_theorem_refs")
+        if "theorem_refs" in normalized and normalized["theorem_refs"] != legacy:
+            raise ValueError("conflicting theorem_refs and legacy atlas_theorem_refs")
+        normalized.setdefault("theorem_refs", legacy)
+        return normalized
 
 
 @dataclass(frozen=True)
@@ -146,7 +160,7 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
 
     Logic:
       1. Classify the uplift score into promote / review / reject.
-      2. Require non-empty ``atlas_theorem_refs`` and ``formal_properties``.
+      2. Require non-empty ``theorem_refs`` and ``formal_properties``.
          - If formal fields are missing and the uplift band is ``promote``,
            downgrade to ``review`` (human-in-the-loop, per §13.2 step 5).
          - If formal fields are missing and the uplift band is ``review``,
@@ -169,17 +183,17 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
     else:
         reasons.append(f"Uplift {uplift:.2f}% < {REJECT_THRESHOLD_PCT:.0f}% — regression, reject.")
 
-    has_theorems = len(candidate.atlas_theorem_refs) > 0
+    has_theorems = len(candidate.theorem_refs) > 0
     has_properties = len(candidate.formal_properties) > 0
     formal_present = has_theorems and has_properties
 
     if not has_theorems:
-        reasons.append("Formal check FAILED: atlas_theorem_refs is empty.")
+        reasons.append("Formal check FAILED: theorem_refs is empty.")
     if not has_properties:
         reasons.append("Formal check FAILED: formal_properties is empty.")
     if formal_present:
         reasons.append(
-            f"Formal check PASSED: {len(candidate.atlas_theorem_refs)} theorem ref(s), "
+            f"Formal check PASSED: {len(candidate.theorem_refs)} theorem ref(s), "
             f"{len(candidate.formal_properties)} formal property(ies)."
         )
 

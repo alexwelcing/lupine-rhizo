@@ -5,7 +5,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import lupine_distill_runtime.policy_engine as policy_engine_module
-from lupine_distill_runtime.policy_engine import AutoPolicyEngine
+import pytest
+from lupine_distill_runtime.policy_engine import AutoPolicyEngine, RustPolicyEngine, build_policy_engine
 
 
 class _PlainBiasSupport:
@@ -32,8 +33,8 @@ class _GatedSupport(_PlainBiasSupport):
 
 
 def _engine_with_fake_rust(tmp_path: Path, monkeypatch, calls: list) -> AutoPolicyEngine:
-    atlas_bin = tmp_path / "atlas-distill"
-    atlas_bin.write_text("test double", encoding="utf-8")
+    distill_bin = tmp_path / "distill"
+    distill_bin.write_text("test double", encoding="utf-8")
 
     def fake_run(argv, **_kwargs):
         calls.append(argv)
@@ -75,7 +76,7 @@ def _engine_with_fake_rust(tmp_path: Path, monkeypatch, calls: list) -> AutoPoli
         )
 
     monkeypatch.setattr(policy_engine_module.subprocess, "run", fake_run)
-    return AutoPolicyEngine(profile="accuracy", atlas_distill_bin=atlas_bin)
+    return AutoPolicyEngine(profile="accuracy", distill_bin=distill_bin)
 
 
 def test_direction_gated_support_routes_around_rust(tmp_path, monkeypatch) -> None:
@@ -106,3 +107,62 @@ def test_plain_bias_support_still_prefers_rust(tmp_path, monkeypatch) -> None:
     )
     assert len(calls) == 1, "rust remains the default for un-gated support"
     assert decisions[0].policy_engine != "python_fallback" or "route_reason" not in decisions[0].raw
+
+
+@pytest.mark.parametrize(
+    "factory",
+    [
+        pytest.param(lambda **kwargs: RustPolicyEngine(**kwargs), id="rust"),
+        pytest.param(lambda **kwargs: AutoPolicyEngine(profile="accuracy", **kwargs), id="auto"),
+        pytest.param(
+            lambda **kwargs: build_policy_engine(
+                "rust", profile="accuracy", env_field_report_path=None, **kwargs
+            ),
+            id="builder",
+        ),
+    ],
+)
+def test_binary_configuration_accepts_legacy_input_and_stores_canonical(tmp_path, factory):
+    binary = tmp_path / "distill"
+    for kwargs in (
+        {"distill_bin": binary},
+        {"atlas_distill_bin": binary},
+        {"distill_bin": binary, "atlas_distill_bin": str(binary)},
+    ):
+        engine = factory(**kwargs)
+        rust = getattr(engine, "rust", engine)
+        assert rust.distill_bin == binary
+        assert not hasattr(rust, "atlas_distill_bin")
+    with pytest.raises(ValueError, match="conflicting distill_bin"):
+        factory(distill_bin=binary, atlas_distill_bin=tmp_path / "other")
+
+
+def test_binary_environment_accepts_legacy_and_rejects_conflicts(tmp_path, monkeypatch):
+    canonical = tmp_path / "distill"
+    monkeypatch.delenv("DISTILL_BIN", raising=False)
+    monkeypatch.setenv("ATLAS_DISTILL_BIN", str(canonical))
+    assert RustPolicyEngine().distill_bin == canonical
+    monkeypatch.setenv("DISTILL_BIN", str(canonical))
+    assert RustPolicyEngine().distill_bin == canonical
+    monkeypatch.setenv("DISTILL_BIN", str(tmp_path / "other"))
+    with pytest.raises(ValueError, match="conflicting DISTILL_BIN"):
+        RustPolicyEngine()
+
+
+def test_explicit_binary_overrides_environment(tmp_path, monkeypatch):
+    monkeypatch.setenv("ATLAS_DISTILL_BIN", str(tmp_path / "legacy"))
+    monkeypatch.delenv("DISTILL_BIN", raising=False)
+    assert RustPolicyEngine(distill_bin=tmp_path / "distill").distill_bin == tmp_path / "distill"
+
+
+def test_default_binary_discovery_uses_distill(tmp_path, monkeypatch):
+    monkeypatch.delenv("DISTILL_BIN", raising=False)
+    monkeypatch.delenv("ATLAS_DISTILL_BIN", raising=False)
+    commands = []
+    monkeypatch.setattr(
+        policy_engine_module.shutil, "which", lambda command: commands.append(command)
+    )
+    engine = RustPolicyEngine()
+    assert commands == ["distill"]
+    executable = "distill.exe" if policy_engine_module.os.name == "nt" else "distill"
+    assert engine.distill_bin == policy_engine_module._repo_root() / "distill" / "target" / "debug" / executable
