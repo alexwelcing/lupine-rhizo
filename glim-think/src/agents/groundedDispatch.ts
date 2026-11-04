@@ -99,7 +99,7 @@ export function formalGroundingPreamble(basis: ReadonlyArray<FormalBasis>): stri
     return `- ${b.theorem} (${b.module} @ ${b.revision}, ${b.status})${helper}`;
   });
   return [
-    "Formal basis (ATLAS-Lean theorems underwriting this task; reason within them):",
+    "Formal basis (Lean theorems underwriting this task; reason within them):",
     ...lines,
   ].join("\n");
 }

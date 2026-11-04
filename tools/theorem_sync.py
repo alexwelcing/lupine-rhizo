@@ -1,4 +1,4 @@
-"""Validated ATLAS theorem synchronization and runtime contract compilation.
+"""Validated theorem synchronization and runtime contract compilation.
 
 The synchronizer consumes build evidence. It never treats a source filename or
 the presence of a theorem declaration as proof that Lean accepted the theorem.

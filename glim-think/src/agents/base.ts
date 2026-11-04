@@ -121,10 +121,10 @@ export abstract class GlimThinkAgent extends Think<Env> {
     return {};
   }
 
-  // ─── ATLAS-Lean formal context (§8.4) ───
+  // ─── Formal proof context (§8.4) ───
   //
   // A facet imports/verifies/extends a bounded set of theorems from the
-  // ATLAS-Lean layer. The agent keeps only REFERENCES in memory (name + module
+  // formal proof layer. The agent keeps only REFERENCES in memory (name + module
   // + revision + status) — never proof bodies — so DO state stays bounded.
 
   /**

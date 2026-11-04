@@ -54,7 +54,7 @@ describe("dispatchGroundedChild", () => {
     expect(calls.buildFormalBasis).toBe(1);
     expect(calls.chatPrompts).toHaveLength(1);
     const prompt = calls.chatPrompts[0];
-    expect(prompt).toContain("Formal basis (ATLAS-Lean theorems underwriting this task");
+    expect(prompt).toContain("Formal basis (Lean theorems underwriting this task");
     expect(prompt).toContain(VERIFIED_BASIS.theorem);
     expect(prompt).toContain(VERIFIED_BASIS.module);
     expect(prompt).toContain(VERIFIED_BASIS.revision);
