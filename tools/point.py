@@ -13,6 +13,8 @@ Commands:
     inventory           Scan subsystems and skills
     deploy <target>     Deploy to cloud target
     help                Show this message
+
+Viewer build/test/deploy commands belong to https://github.com/alexwelcing/Lupi.
 """
 
 from __future__ import annotations
@@ -92,13 +94,6 @@ def cmd_status() -> int:
     else:
         _fail("tools/ deps missing (run: cd tools && pip install -r requirements.txt)")
 
-    # Web
-    _header("WEB VIEWER")
-    if (REPO_ROOT / "atlas" / "atlas-view" / "pnpm-lock.yaml").exists():
-        _ok("atlas-view lockfile present")
-    else:
-        _warn("atlas-view lockfile missing")
-
     # Skills
     _header("POINT REGISTRY")
     print("Skills:")
@@ -113,6 +108,9 @@ def cmd_status() -> int:
 
 
 def cmd_build(subsystem: Optional[str]) -> int:
+    if subsystem == "atlas-view":
+        _fail("The Lupi viewer is maintained in https://github.com/alexwelcing/Lupi; run viewer commands from that checkout.")
+        return 1
     if not subsystem or subsystem == "all":
         _header("BUILD ALL")
         for s in ["distill", "lupine-ops", "lean-spec"]:
@@ -123,7 +121,6 @@ def cmd_build(subsystem: Optional[str]) -> int:
     mapping = {
         "distill": (REPO_ROOT / "distill", ["cargo", "build", "--release"]),
         "lupine-ops": (REPO_ROOT / "lupine-ops", ["cargo", "build", "--release"]),
-        "atlas-view": (REPO_ROOT / "atlas" / "atlas-view", ["pnpm", "install"]),
         "library-site": (REPO_ROOT / "library-site", ["npm", "install"]),
         "lean-spec": (REPO_ROOT / "lean-spec", ["lake", "build"]),
         "python": (REPO_ROOT / "python", [sys.executable, "-m", "pip", "install", "-e", "."]),
@@ -143,6 +140,9 @@ def cmd_build(subsystem: Optional[str]) -> int:
 
 
 def cmd_test(subsystem: Optional[str]) -> int:
+    if subsystem == "atlas-view":
+        _fail("The Lupi viewer is maintained in https://github.com/alexwelcing/Lupi; run viewer commands from that checkout.")
+        return 1
     if not subsystem or subsystem == "all":
         _header("TEST ALL")
         for s in ["distill", "lupine-ops", "tools"]:
@@ -219,16 +219,15 @@ def cmd_inventory() -> int:
 
 
 def cmd_deploy(target: str) -> int:
+    if target == "atlas-view":
+        _fail("The Lupi viewer is maintained in https://github.com/alexwelcing/Lupi; run viewer commands from that checkout.")
+        return 1
     if not target:
         _fail("Deploy target required")
         return 1
     _header(f"DEPLOY {target}")
     if target == "glim-think":
         res = _run(["npx.cmd", "wrangler", "deploy"], cwd=REPO_ROOT / "glim-think")
-        print(res.stdout.encode('cp1252', 'replace').decode('cp1252'))
-        return res.returncode
-    elif target == "atlas-view":
-        res = _run(["npx.cmd", "wrangler", "pages", "deploy", "apps/web/dist", "--project-name", "atlas-view", "--commit-dirty=true"], cwd=REPO_ROOT / "atlas" / "atlas-view")
         print(res.stdout.encode('cp1252', 'replace').decode('cp1252'))
         return res.returncode
     else:

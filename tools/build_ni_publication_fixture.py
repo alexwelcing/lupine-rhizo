@@ -30,6 +30,7 @@ from ase.calculators.eam import EAM
 from ase.optimize import FIRE
 
 from lupine_distill.fixture_contract import validate_manifest
+from mlip_benchmark_sources import resolve_repo_path
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -302,7 +303,9 @@ def relaxation_cases(refs: dict[str, float], calc: EAM) -> list[dict[str, Any]]:
 def build_fixture(source_packet: dict[str, Any]) -> dict[str, Any]:
     refs = source_refs(source_packet)
     mishin = primary_mishin_baseline(source_packet)
-    potential_path = ROOT / pathlib.PurePosixPath(str(mishin["potential_file"]))
+    potential_path = resolve_repo_path(ROOT, mishin["potential_file"])
+    if potential_path is None:
+        raise ValueError("reference potential_file must be a non-empty path")
     calc = EAM(potential=str(potential_path))
 
     manifest: dict[str, Any] = {

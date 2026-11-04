@@ -2,7 +2,7 @@
 
 **Mathematical discovery engine for molecular dynamics simulation data.**
 
-[![Tests](https://github.com/alexwelcing/lupine/actions/workflows/build-distill.yml/badge.svg)](https://github.com/alexwelcing/lupine/actions/workflows/build-distill.yml)
+[![Tests](https://github.com/alexwelcing/lupine-rhizo/actions/workflows/build-distill.yml/badge.svg)](https://github.com/alexwelcing/lupine-rhizo/actions/workflows/build-distill.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 `distill` is a Rust-based scientific engine for analyzing the geometric and statistical structure of interatomic potential prediction errors. It implements sloppy model theory, causal inference (Simpson's paradox detection), and random-effects meta-analysis for systematic benchmarking of classical and machine-learning potentials.
@@ -24,11 +24,11 @@
 
 ```bash
 # From crates.io (when published)
-cargo install distill
+cargo install --path distill --bin distill
 
 # From source
 git clone https://github.com/alexwelcing/lupine.git
-cd lupine/distill
+cd lupine-rhizo/distill
 cargo build --release
 ```
 

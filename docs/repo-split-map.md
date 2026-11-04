@@ -1,5 +1,7 @@
 # Lupine Repo Split Architecture Map
 
+> Historical repository-split plan. Current names and ownership are recorded in [ROOTS.md](../ROOTS.md); old paths below are retained as history.
+
 **Status:** planning map
 
 **Date:** 2026-06-17
