@@ -199,6 +199,67 @@ The existing Z1 producer explicitly records `max(energies)-min(energies)`.
 Its saved observations and range-transfer theorems are preserved. No historical
 profile is reclassified here, and no omission of initial endpoints is inferred.
 
+
+## Existing T1 producer control (reviewed 4 November 2026)
+
+A bounded check challenged whether the existing `clean` label overrides
+missing path coverage or a poor sparse selection. It did not. The current
+union producer already separates T1's evaluated-image offsets from its
+primary sparse-versus-dense same-engine decision, and uses max-minus-min
+ranges. No new runtime scope gate is justified by this check.
+
+The check used the actual frozen selector, planner and assembly functions at
+`fada72af2ed2be6bbcf108f7cb785bbd48c07a7e`, with synthetic energy inputs and
+an in-memory pool adapter. It did not execute atoms, a calculator, receipt
+import, the driver CLI or a complete visualization build. The functions'
+source bytes were checked against these Git blobs:
+
+| Source | Git blob |
+| --- | --- |
+| `gcp/mlip-cell-runner/z1_sparse_dft.py` | `31f9ecc6285cfa6f3a76c529cbf0b2c757ba8760` |
+| `gcp/sparse-dft-pilot/union_pilot.py` | `e31c07774975a14c4482aad8c66b9d498d4a34dd` |
+| `tools/analysis/t1_wander.py` | `1bda80837672561183d797316fadbb3cc9554f27` |
+| `tools/analysis/build_visualization_bundle.py` | `ad324127e3c383fd4cef52b5ca8260b35cae6228` |
+
+The seven-image reference profile is [0,0,0,1,2,1,0] eV. A guide
+[2,0,0,0,0,0,0] selects anchors [0,1,6]; the existing short-path dense
+extension makes all seven images eligible. A guide equal to the reference
+instead selects [0,3,4,5,6]. These are inputs to the existing selection
+algorithm, not manually substituted anchor sets.
+
+| Synthetic case | Evaluated images | T1 | Primary result |
+| --- | --- | --- | --- |
+| Only [0,1,6], with G=F there | 3 of 7 | clean, wander 0 | incomplete |
+| All images, G=F, first guide | 7 of 7 | clean, wander 0 | loss, 2000 meV error |
+| All images, G=F, reference-shaped guide | 7 of 7 | clean, wander 0 | self_consistency_check, zero error |
+| All images, G=0, first guide | 7 of 7 | contaminated, wander 2000 meV | self_consistency_check, zero error |
+
+The first case's observed G values and guide are compatible with both the
+second and fourth completions. Thus its same-engine sparse error cannot be
+determined from those observations alone. This is an explicit missing-data
+witness, not a new physical result. The producer's abstention agrees with a
+source-aware baseline. Conversely, T1 contamination can coexist with
+same-engine self-consistency. Neither label supplies independent physical
+validation, a global path optimum or a transport conclusion.
+
+A separate integration mismatch stopped the producer-to-converter handoff:
+the actual `build_quality_gates` function raises
+`KeyError: strong_win_mev` for all four assembled records. The producer emits
+`self_consistency_check_mev`; the converter and visualization v1 schema still
+use the older `strong_win` terminology. This is a schema/semantics migration
+requirement, not a counterexample to the wander theorem or evidence of a
+false live scientific verdict. Existing immutable bundles were not rewritten,
+and a live consumer or full bundle build was not exercised. A bounded search
+found no reference to that converter in the inspected Glim source, Rust tests
+or workflow paths; this does not establish global non-use.
+
+Keep the current producer's scoped behavior. Before claiming a working new
+visualization handoff, reconcile the current self-consistency policy with
+legacy bundle compatibility and verify the actual selected consumer. Do not
+silently relabel historical strong-win bundles or infer completed path
+coverage from T1 alone. This check does not provide end-to-end acceptance for
+the newer separately selected-path theorem, nor measured user benefit.
+
 ## Verification scope
 
 The existing pinned Lean workflow explicitly builds the barrier module, then
