@@ -110,3 +110,6 @@ For migration or reaction kinetics, energy ordering alone is insufficient.
 The [anchored-barrier contract](anchored-barrier-evidence.md) distinguishes a
 sampled range from a forward activation barrier and retains prefactor and
 transport assumptions. This inspector does not supply those missing premises.
+
+For the completed literature cases, source limits and comparison against existing
+methods, see the [empirical failure map](exception-to-theorem-failure-map.md).
