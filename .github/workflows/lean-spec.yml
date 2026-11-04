@@ -34,6 +34,7 @@ jobs:
   build:
     name: lake build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,11 +52,17 @@ jobs:
             ~/.cache/lake
           key: ${{ runner.os }}-lean-${{ hashFiles('lean-spec/lean-toolchain', 'lean-spec/lake-manifest.json') }}
 
+      - name: Hydrate pinned mathlib cache
+        working-directory: lean-spec
+        run: lake exe cache get
+
+      - name: Check vacancy loss specification
+        working-directory: lean-spec
+        run: lake build OpenDistillationFactory.Materials.Theory.VacancyReference
+
       - name: lake build
         working-directory: lean-spec
-        run: |
-          lake exe cache get
-          lake build
+        run: lake build
 
       - name: Check for sorries
         working-directory: lean-spec

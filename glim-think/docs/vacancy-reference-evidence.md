@@ -116,6 +116,30 @@ a provider run. Attaching to RUNS still requires a genuine saved run and its
 actual distinct model arms. Do not invent a run or turn species into models
 to satisfy that separate interface.
 
+## Lean specification
+
+`OpenDistillationFactory.Materials.Theory.VacancyReference` defines the species
+means, overall mean, full MSE, within-species MSE and species-mean imbalance
+directly on a finite nonempty family of nonempty site groups. Its
+`loss_decomposition` statement covers unequal species sizes with equal site
+weights. The weighted-mean premises are derived from those definitions.
+
+`centered_does_not_bound_full` states the obstruction for every real multiplier:
+a nonzero constant label error has zero within-species MSE and positive full
+MSE. It is a statement about the information discarded by a score, not a
+physical claim about an interatomic potential.
+
+The existing formal CI builds this module explicitly before the full package,
+checks the no-placeholder gate and reports the two main theorems' axiom
+dependencies. The job has a 20-minute ceiling; the pinned Lean 4.29.0 and
+mathlib/ATLAS revisions are unchanged. The maintained generator supplies the
+source declaration inventory; declaration counts alone do not prove compilation.
+
+This real-arithmetic specification does not certify Rust/TypeScript execution,
+input parsing, source premises or physical accuracy. The projector-rank and
+raw-energy identifiability statements above are still mathematical arguments,
+separate from this finite loss formalization.
+
 ## Verification and remaining work
 
 Rust and TypeScript consume the same synthetic expected-result fixture.
@@ -124,7 +148,8 @@ differences, ordering, malformed/oversized inputs, duplicate sites/fields,
 reference/task/model binding, forged arithmetic and a read-only D1 preview.
 CLI tests check JSON output and exit status.
 
-These are executable contract tests, not a Lean proof or a materials benchmark.
+The runtime checks are executable contract tests, separate from the Lean
+specification and from a materials benchmark.
 The checker and preview do not recover missing raw defect geometries, magnetic
 states, convergence evidence, reservoir alignment or independent test exposure.
 Library/knowledge-graph presentation, genuine-run acceptance and deployed UI
