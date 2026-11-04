@@ -132,7 +132,23 @@ theorem checkRuntimeContract_inconsistent_iff
       policy.ContractCompatible evidence ∧
         evidence.envelope.upper < evidence.envelope.lower := by
   unfold checkRuntimeContract FixedEnvelope.Ordered
-  split_ifs <;> simp_all
+  by_cases hcontract : policy.ContractCompatible evidence
+  · rw [if_pos hcontract]
+    by_cases hordered : evidence.envelope.lower ≤ evidence.envelope.upper
+    · rw [if_pos hordered]
+      have hnotInverted :
+          ¬ evidence.envelope.upper < evidence.envelope.lower :=
+        not_lt.mpr hordered
+      by_cases hschema :
+          policy.numeric.schemaVersion = currentNumericSchemaVersion <;>
+        by_cases hrounding : policy.numeric.rounding = .outward <;>
+        by_cases hwidth :
+          evidence.envelope.width ≤ (policy.tolerance : Int) <;>
+        simp [hcontract, hnotInverted, hschema, hrounding, hwidth]
+    · rw [if_neg hordered]
+      simp [hcontract, lt_of_not_ge hordered]
+  · rw [if_neg hcontract]
+    simp [hcontract]
 
 /-- Unsupported schema is an indeterminate result, never a scientific
 refutation. -/

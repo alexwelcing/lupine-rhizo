@@ -72,7 +72,7 @@ set_option linter.unusedSectionVars false in
 theorem correction_mem_subspace (scheme : SubspaceCorrectionScheme E ι) (c : ι)
     (raw shift target : E) :
     (scheme.subspace c).orthogonalProjectionFn (residual raw shift target) ∈ scheme.subspace c := by
-  exact Submodule.orthogonalProjectionFn_mem (residual raw shift target)
+  exact Submodule.starProjection_apply_mem (scheme.subspace c) (residual raw shift target)
 
 set_option linter.unusedSectionVars false in
 /-- The corrected residual is orthogonal to every direction in the class
@@ -97,7 +97,7 @@ theorem correct_minimizes (scheme : SubspaceCorrectionScheme E ι) (c : ι)
       ‖target - (raw + shift + y)‖ := by
   set K := scheme.subspace c
   set v := residual raw shift target
-  have hpK : K.orthogonalProjectionFn v ∈ K := Submodule.orthogonalProjectionFn_mem v
+  have hpK : K.orthogonalProjectionFn v ∈ K := Submodule.starProjection_apply_mem K v
   have hpy : K.orthogonalProjectionFn v - y ∈ K := K.sub_mem hpK hy
   have horth : inner ℝ (v - K.orthogonalProjectionFn v) (K.orthogonalProjectionFn v - y) = 0 :=
     Submodule.orthogonalProjectionFn_inner_eq_zero v (K.orthogonalProjectionFn v - y) hpy

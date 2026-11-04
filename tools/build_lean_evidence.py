@@ -8,11 +8,12 @@ lake build must exit 0 and the sorry scan must find zero tokens.
 
 Historical theorem-sync authority records retain their original dependency tuple.
 A receipt for this upgraded stack requires a separately reviewed authority update
-before it can be consumed by the existing synchronizer.
+before it can be consumed by the existing synchronizer. Do not overwrite an
+existing historical receipt.
 
 Run from the repo root:
 
-    python tools/build_lean_evidence.py --out config/lean_build_evidence.json
+    python tools/build_lean_evidence.py --out /path/to/new-revision-build-evidence.json
 """
 
 from __future__ import annotations

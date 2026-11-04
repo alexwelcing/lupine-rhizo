@@ -120,7 +120,7 @@ theorem projection_norm_nonincreasing (r v : E) :
   set K := Submodule.span ℝ {r}
   have hK_fd : FiniteDimensional ℝ K := FiniteDimensional.span_of_finite ℝ (Set.finite_singleton r)
   have hK_complete : CompleteSpace K := (Submodule.complete_of_finiteDimensional K).completeSpace_coe
-  have hproj : K.orthogonalProjectionFn v ∈ K := Submodule.orthogonalProjectionFn_mem v
+  have hproj : K.orthogonalProjectionFn v ∈ K := Submodule.starProjection_apply_mem K v
   have horth : ⟪v - K.orthogonalProjectionFn v, K.orthogonalProjectionFn v⟫ = 0 := by
     apply Submodule.orthogonalProjectionFn_inner_eq_zero v (K.orthogonalProjectionFn v) hproj
   have hsplit : ‖v‖ ^ 2 = ‖v - K.orthogonalProjectionFn v‖ ^ 2 + ‖K.orthogonalProjectionFn v‖ ^ 2 := by
@@ -168,7 +168,7 @@ theorem active_sampling_rank_bound {K : Submodule ℝ E} [FiniteDimensional ℝ 
   have hfinrank : Module.finrank ℝ V ≤ Module.finrank ℝ K := Submodule.finrank_mono hVsubK
   have hcard : observed.card ≤ Module.finrank ℝ V := by
     have h := linearIndependent_iff_card_le_finrank_span.1 hli
-    simpa using h
+    simpa [Set.finrank, V] using h
   linarith [hcard, hfinrank, hK]
 
 end RankKTermination

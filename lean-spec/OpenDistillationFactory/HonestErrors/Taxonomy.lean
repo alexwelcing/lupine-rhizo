@@ -15,7 +15,16 @@ inductive ErrorAxis where
   | multiscaleClosure
   | validationData
   | observability
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance : Fintype ErrorAxis where
+  elems := {
+    .referenceMethod, .emulatorModelForm, .domainShift,
+    .numericalSampling, .multiscaleClosure, .validationData, .observability
+  }
+  complete := by
+    intro axis
+    cases axis <;> simp
 
 inductive Metric where
   | migrationBarrierMAE
