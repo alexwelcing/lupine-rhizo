@@ -168,6 +168,15 @@ theorem active_sampling_rank_bound {K : Submodule ℝ E} [FiniteDimensional ℝ 
   have hfinrank : Module.finrank ℝ V ≤ Module.finrank ℝ K := Submodule.finrank_mono hVsubK
   have hcard : observed.card ≤ Module.finrank ℝ V := by
     have h := linearIndependent_iff_card_le_finrank_span.1 hli
+    have hrange :
+        Set.range (fun (r : observed) => (r : E)) = (observed : Set E) := by
+      ext r
+      constructor
+      · rintro ⟨s, rfl⟩
+        exact s.property
+      · intro hr
+        exact ⟨⟨r, hr⟩, rfl⟩
+    rw [hrange] at h
     simpa [Set.finrank, V] using h
   linarith [hcard, hfinrank, hK]
 

@@ -131,14 +131,16 @@ theorem checkRuntimeContract_inconsistent_iff
     checkRuntimeContract policy evidence = .refuse .inconsistentEnvelope ↔
       policy.ContractCompatible evidence ∧
         evidence.envelope.upper < evidence.envelope.lower := by
-  unfold checkRuntimeContract FixedEnvelope.Ordered
+  unfold checkRuntimeContract
   by_cases hcontract : policy.ContractCompatible evidence
   · rw [if_pos hcontract]
-    by_cases hordered : evidence.envelope.lower ≤ evidence.envelope.upper
+    by_cases hordered : evidence.envelope.Ordered
     · rw [if_pos hordered]
       have hnotInverted :
-          ¬ evidence.envelope.upper < evidence.envelope.lower :=
-        not_lt.mpr hordered
+          ¬ evidence.envelope.upper < evidence.envelope.lower := by
+        have hle := hordered
+        unfold FixedEnvelope.Ordered at hle
+        exact not_lt.mpr hle
       by_cases hschema :
           policy.numeric.schemaVersion = currentNumericSchemaVersion <;>
         by_cases hrounding : policy.numeric.rounding = .outward <;>
@@ -146,7 +148,12 @@ theorem checkRuntimeContract_inconsistent_iff
           evidence.envelope.width ≤ (policy.tolerance : Int) <;>
         simp [hcontract, hnotInverted, hschema, hrounding, hwidth]
     · rw [if_neg hordered]
-      simp [hcontract, lt_of_not_ge hordered]
+      have hinverted :
+          evidence.envelope.upper < evidence.envelope.lower := by
+        have hnotLe := hordered
+        unfold FixedEnvelope.Ordered at hnotLe
+        exact lt_of_not_ge hnotLe
+      simp [hcontract, hinverted]
   · rw [if_neg hcontract]
     simp [hcontract]
 
