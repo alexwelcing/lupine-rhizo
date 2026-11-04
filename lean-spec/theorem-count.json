@@ -4,6 +4,6 @@
   "zero_sorry": true,
   "counted_at": "2026-11-04",
   "source": "lean-spec/OpenDistillationFactory{,.lean} (vendored packages excluded)",
-  "source_sha256": "63b5e48e9a02b667232cbd89854ca73ee5dfe9238cbbda13b5a575f83064eaa8",
+  "source_sha256": "825dff586bfab47b1e0ae6135710eb7bd34498ef4991042b9dcd7f0579373c15",
   "rule": "theorem/lemma declarations after stripping nested comments and strings; supports attributes, whitespace, and declaration modifiers; every active sorry token fails; regenerate with lean-spec/scripts/generate-lean-count.mjs — never hand-edit"
 }
