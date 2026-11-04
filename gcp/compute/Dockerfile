@@ -4,7 +4,7 @@
 # build authority, mirroring the deploy-glim-eval pattern.
 #
 # conda-forge ships a LAMMPS build WITH the `lammps` python module, so
-# `from lammps import lammps` (used by atlas/scripts/generate_nist_demos.py
+# `from lammps import lammps` (used by gcp/compute/nist_helpers.py
 # run_lammps) works without compiling lammps_src.
 FROM mambaorg/micromamba:1.5-jammy
 
@@ -18,15 +18,10 @@ RUN micromamba install -y -n base -c conda-forge \
 
 WORKDIR /app
 
-# Reconstruct the repo tree the code's parents[2] path logic expects:
-#   /app/atlas/compute/{runner,property_recipes}.py   (this build context)
-#   /app/atlas/scripts/generate_nist_demos.py         (vendored at deploy)
-#   /app/atlas/nist_ipr/index/master_index.json       (vendored at deploy)
-# _vendor/ is staged by the deploy workflow from the canonical sources —
-# NOT committed (no code/data duplication in git; single source of truth).
-COPY property_recipes.py runner.py /app/atlas/compute/
-COPY _vendor/generate_nist_demos.py /app/atlas/scripts/generate_nist_demos.py
-COPY _vendor/master_index.json /app/atlas/nist_ipr/index/master_index.json
+# Reconstruct the repository layout used by the NIST helper's parents[2].
+# The canonical index is staged into _vendor by the deploy workflow.
+COPY property_recipes.py runner.py nist_helpers.py /app/gcp/compute/
+COPY _vendor/master_index.json /app/gcp/nist_ipr/index/master_index.json
 
 ENV PYTHONUNBUFFERED=1 \
     WORKER_URL=https://glim-think-v1.aw-ab5.workers.dev
@@ -34,5 +29,5 @@ ENV PYTHONUNBUFFERED=1 \
 # Default = drain the queue (the scheduled job's purpose). The workflow's
 # smoke runs `--selftest` directly on the CI runner instead (no LAMMPS
 # needed there), so a bare execution here is the real drain.
-ENTRYPOINT ["python", "/app/atlas/compute/runner.py"]
+ENTRYPOINT ["python", "/app/gcp/compute/runner.py"]
 CMD ["--limit", "10"]

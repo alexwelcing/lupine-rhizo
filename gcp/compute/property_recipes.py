@@ -23,9 +23,8 @@ LAMMPS is invoked by the runner (via the `lammps` python module), NOT
 here — this file only builds scripts + parses logs as text. Stdlib
 only (re / math / dataclasses).
 
-The pair_style->pair_coeff mapping and lattice-line handling are
-mirrored EXACTLY from atlas/scripts/generate_nist_demos.py — diverging
-would mean wrong physics.
+The pair_style->pair_coeff mapping and lattice-line handling below define
+the compute lane's LAMMPS conventions.
 """
 
 from __future__ import annotations
@@ -40,12 +39,11 @@ from typing import Callable
 BARS_TO_GPA = 1.0e-4          # LAMMPS metal pressure is in bars
 EV_A2_TO_J_M2 = 16.0218       # eV/Angstrom^2 -> J/m^2
 
-# ─── Shared LAMMPS fragment builders (mirror generate_nist_demos.py) ─────
+# ─── Shared LAMMPS fragment builders ─────────────────────────────────────
 
 
 def _lattice_line(structure: str, lattice: float) -> str:
-    """Emit the `lattice` line. Mirrors generate_nist_demos.py exactly:
-    fcc/bcc/hcp/diamond recognised; anything else falls back to fcc."""
+    """Emit the `lattice` line: recognised crystal families, otherwise fcc."""
     s = structure.lower()
     if s in ("fcc", "bcc", "hcp", "diamond"):
         return f"lattice {s} {lattice}"
@@ -59,9 +57,8 @@ def _pair_coeff_lines(
 ) -> list[str]:
     """Return the `pair_style` + `pair_coeff` lines for this potential.
 
-    This is a verbatim port of the per-family mapping in
-    generate_nist_demos.generate_lammps_input — wrong pair_coeff is
-    wrong physics, so it must NOT diverge.
+    Keep the per-family mapping explicit: an incorrect pair_coeff changes
+    the physical model.
     """
     elements = potential["elements"]
     pair_style = potential["pair_style"]

@@ -9,7 +9,7 @@ characterized potential) — without the cloudscheduler IAM grant.
 This is NOT a physics reimplementation: it constructs the same experiment
 dict the Experiment agent would enqueue, then calls the committed
 runner.process_experiment (resolve param files → property_recipes build →
-generate_nist_demos.run_lammps → /ingest/batch → /experiments/complete).
+nist_helpers.run_lammps → /ingest/batch → /experiments/complete).
 The only stand-in is the hand-built spec (the autonomous-design link).
 
 Usage:

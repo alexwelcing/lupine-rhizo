@@ -51,21 +51,15 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Optional
 
-# ─── Reuse: NIST helpers from the demo generator (read, don't modify) ──────
-# generate_nist_demos lives at atlas/scripts/; add it to the path so we can
-# reuse guess_structure / run_lammps and the NIST index/file layout exactly.
-
-_REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(_REPO_ROOT / "atlas" / "scripts"))
-
-from generate_nist_demos import (  # noqa: E402
+# ─── Shared NIST paths and runtime helpers ───────────────────────────────
+from nist_helpers import (  # noqa: E402
     INDEX_PATH,
     NIST_ROOT,
     guess_structure,
     run_lammps,
 )
 
-# Recipe registry — guaranteed to sit beside runner.py in atlas/compute/.
+# Recipe registry — guaranteed to sit beside runner.py in gcp/compute/.
 from property_recipes import RECIPES, get_recipe  # noqa: E402
 
 # ─── Config ───────────────────────────────────────────────────────────────
@@ -180,7 +174,7 @@ def _parse_json_field(value: Any, default: Any) -> Any:
 
 
 # ─── Potential parameter file resolution ──────────────────────────────────
-# Mirror generate_nist_demos: prefer the local NIST file cache; fall back to
+# Prefer the local NIST file cache; fall back to
 # downloading the artifact by URL into the workdir. The experiment row gives
 # us potential_id (the NIST index id) and potential_label.
 
@@ -210,7 +204,7 @@ def _resolve_param_files(
 ) -> tuple[Optional[Path], Optional[Path]]:
     """Return (param_file, library_file) usable by LAMMPS, downloading if needed.
 
-    Local NIST cache wins (identical to generate_nist_demos); otherwise the
+    Local NIST cache wins; otherwise the
     artifact is fetched from its `url` into work_dir.
     """
     pot_id = potential["id"]

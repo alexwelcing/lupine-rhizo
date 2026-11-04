@@ -1,0 +1,5 @@
+# Staged at deploy time from gcp/nist_ipr/index/master_index.json.
+# Keep the canonical data in one place.
+_vendor/
+__pycache__/
+*.pyc
