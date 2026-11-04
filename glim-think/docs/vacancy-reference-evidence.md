@@ -121,7 +121,11 @@ to satisfy that separate interface.
 Optional `context.reference_protocol` records parent species counts, an evaluation
 cohort digest, separate reference and prediction calibration cohorts, and a
 declared shared or unknown elemental energy-zero alignment. Missing protocol
-metadata remains unknown; existing v1 reports remain readable. Each calibration
+metadata remains unknown; existing v1 reports remain readable. Parent and
+calibration cohort digests may be null when unavailable, independently of known
+counts or weights. Their absence remains visible and cannot certify shared
+structure identity. Do not manufacture a digest to enable an arithmetic check.
+Each calibration
 records its digest, site count, per-species site counts and exact rational
 species weights. The shared synthetic protocol fixture documents the JSON shape.
 

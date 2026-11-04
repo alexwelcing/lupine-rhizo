@@ -12,7 +12,7 @@ const calibrationWeight = z.strictObject({
   denominator: z.string().regex(/^[1-9][0-9]{0,63}$/),
 });
 const calibrationCohort = z.strictObject({
-  cohort_sha256: hash, site_count: count,
+  cohort_sha256: hash.nullable(), site_count: count,
   species: z.array(z.strictObject({ species: id, sites: count, weight: calibrationWeight })).min(1).max(128),
 });
 const referenceProtocol = z.strictObject({
@@ -32,7 +32,7 @@ export const vacancyResultSchema = z.strictObject({
   arithmetic: z.literal("exact_rational_on_supplied_decimal_strings"),
   unit: z.literal("eV_per_vacancy"),
   context: z.strictObject({
-    source_id: id, source_sha256: hash, cohort_sha256: hash, parent_id: id,
+    source_id: id, source_sha256: hash, cohort_sha256: hash.nullable(), parent_id: id,
     parent_atom_count: z.number().int().min(1).max(4096),
     cohort_size: z.number().int().min(1).max(4096),
     complete_cohort: z.boolean(),
@@ -131,6 +131,7 @@ type WeightAssessment = "unknown" | "match" | "mismatch" | "not_applicable";
 function inspectReferenceProtocol(r: VacancyResult) {
   const protocol = r.context.reference_protocol;
   const issues: string[] = [];
+  if (!r.context.cohort_sha256) issues.push("Parent cohort identity is unknown");
   const withinSpeciesContrasts = r.rows - r.groups.length;
   const singletonSpecies = r.groups.filter(g => g.sites === 1).map(g => g.species);
   if (withinSpeciesContrasts === 0) issues.push("No within-species contrasts: zero centered error is uninformative");
@@ -154,6 +155,7 @@ function inspectReferenceProtocol(r: VacancyResult) {
       if (selfConsistent) issues.push(name + " calibration is unknown");
       return selfConsistent ? "unknown" : "not_applicable";
     }
+    if (!calibration.cohort_sha256) issues.push(name + " calibration cohort identity is unknown");
     const species = new Set(calibration.species.map(s => s.species));
     requireIdentity(species.size === calibration.species.length &&
       calibration.species.reduce((sum, s) => sum + s.sites, 0) === calibration.site_count &&

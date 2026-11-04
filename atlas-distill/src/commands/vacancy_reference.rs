@@ -43,7 +43,7 @@ enum ReferenceDefinition {
 struct ContextIdentity {
     source_id: String,
     source_sha256: String,
-    cohort_sha256: String,
+    cohort_sha256: Option<String>,
     parent_id: String,
     parent_atom_count: usize,
     cohort_size: usize,
@@ -73,7 +73,7 @@ struct CalibrationSpecies {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct CalibrationCohort {
-    cohort_sha256: String,
+    cohort_sha256: Option<String>,
     site_count: usize,
     species: Vec<CalibrationSpecies>,
 }
@@ -296,16 +296,18 @@ fn reference_protocol_issues(input: &Input) -> Result<Vec<&'static str>> {
     } else {
         issues.push("parent_composition_unknown");
     }
-    for (calibration, missing, mismatch) in [
+    for (calibration, missing, mismatch, unknown_identity) in [
         (
             &protocol.reference_calibration,
             "reference_calibration_unknown",
             "reference_calibration_weights_differ",
+            "reference_calibration_cohort_unknown",
         ),
         (
             &protocol.prediction_calibration,
             "prediction_calibration_unknown",
             "prediction_calibration_weights_differ",
+            "prediction_calibration_cohort_unknown",
         ),
     ] {
         let Some(calibration) = calibration else {
@@ -316,9 +318,13 @@ fn reference_protocol_issues(input: &Input) -> Result<Vec<&'static str>> {
             }
             continue;
         };
+        if let Some(hash) = &calibration.cohort_sha256 {
+            ensure!(digest(hash), "calibration cohort identity");
+        } else {
+            issues.push(unknown_identity);
+        }
         ensure!(
-            digest(&calibration.cohort_sha256)
-                && calibration.site_count > 0
+            calibration.site_count > 0
                 && calibration.site_count <= input.context.parent_atom_count
                 && !calibration.species.is_empty()
                 && calibration.species.len() <= 128,
@@ -383,6 +389,9 @@ fn reference_protocol_issues(input: &Input) -> Result<Vec<&'static str>> {
 
 fn assess(input: &Input) -> Result<(&'static str, Vec<&'static str>)> {
     let mut issues = reference_protocol_issues(input)?;
+    if input.context.cohort_sha256.is_none() {
+        issues.push("parent_cohort_identity_unknown");
+    }
     let species: BTreeSet<_> = input.rows.iter().map(|r| &r.species).collect();
     if input.rows.len() == species.len() {
         issues.push("no_within_species_contrasts");
@@ -429,7 +438,7 @@ fn calculate(bytes: &[u8]) -> Result<ResultDocument> {
             && identifier(&context.parent_id)
             && identifier(&context.prediction_id)
             && digest(&context.source_sha256)
-            && digest(&context.cohort_sha256),
+            && context.cohort_sha256.as_ref().is_none_or(|h| digest(h)),
         "identity format"
     );
     ensure!(
@@ -817,6 +826,30 @@ mod tests {
             }
             assert!(run_value(&value).is_err(), "mutation {mutation}");
         }
+    }
+
+    #[test]
+    fn known_weights_survive_unknown_cohort_identities() {
+        let mut value = fixture();
+        value["context"]["reference_protocol"] = protocol_fixture();
+        value["context"]["cohort_sha256"] = Value::Null;
+        let p = &mut value["context"]["reference_protocol"];
+        p["reference_calibration"]["cohort_sha256"] = Value::Null;
+        p["prediction_calibration"]["cohort_sha256"] = Value::Null;
+        value["score"] = json!("full");
+        let result = run_value(&value).unwrap();
+        assert!(result.issues.contains(&"parent_cohort_identity_unknown"));
+        assert!(result
+            .issues
+            .contains(&"reference_calibration_cohort_unknown"));
+        assert!(result
+            .issues
+            .contains(&"prediction_calibration_cohort_unknown"));
+        assert!(!result
+            .issues
+            .contains(&"reference_calibration_weights_differ"));
+        assert_eq!(result.components.full_mse_ev2, ratio(1, 100));
+        assert_eq!(result.task_assessment, "scope_unresolved");
     }
 
     #[test]

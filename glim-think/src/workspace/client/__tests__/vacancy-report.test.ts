@@ -17,6 +17,16 @@ const render = (input: unknown, task?: "within_species_variation" | "formation_e
 afterEach(() => vi.unstubAllGlobals());
 
 describe("local vacancy report inspection", () => {
+  it("renders unavailable cohort identities without manufacturing a digest", () => {
+    const input = report(); input.context.reference_protocol = structuredClone(protocol);
+    input.context.cohort_sha256 = null;
+    input.context.reference_protocol!.reference_calibration!.cohort_sha256 = null;
+    const html = render(input);
+    expect(html).toContain("Parent cohort identity is unknown");
+    expect(html).toContain("Reference calibration cohort identity is unknown");
+    expect(html).toContain("<code>Unknown</code>");
+    expect(html).toContain("reference match");
+  });
   it("shows older reports as unknown and identifies singleton groups", () => {
     const html = render(report());
     expect(html).toContain("Reference protocol is unknown");

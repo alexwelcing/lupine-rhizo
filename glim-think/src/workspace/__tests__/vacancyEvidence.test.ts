@@ -25,6 +25,19 @@ function calibrated() {
 const models = ["synthetic-shift", "synthetic-second"];
 
 describe("vacancy error evidence", () => {
+  it("checks known weights while preserving unavailable cohort identities", () => {
+    const r = calibrated();
+    r.context.cohort_sha256 = null;
+    r.context.reference_protocol.reference_calibration.cohort_sha256 = null;
+    r.context.reference_protocol.prediction_calibration.cohort_sha256 = null;
+    const checked = assessVacancyReference(r);
+    expect(checked.referenceWeights).toBe("match");
+    expect(checked.predictionWeights).toBe("match");
+    expect(checked.issues).toContain("Parent cohort identity is unknown");
+    expect(checked.issues).toContain("Reference calibration cohort identity is unknown");
+    expect(checked.issues).toContain("Prediction calibration cohort identity is unknown");
+  });
+
   it("keeps older reports explicitly unknown and derives the contrast dimension", () => {
     const old = assessVacancyReference(fixture);
     expect(old.referenceWeights).toBe("unknown");

@@ -96,7 +96,7 @@ export function VacancyReportView({ report: input, task: requestedTask }: { repo
           <td>{formatVacancyFraction(group.reference_mean_ev)}</td><td>{formatVacancyFraction(group.prediction_mean_ev)}</td><td>{formatVacancyFraction(group.mean_error_ev)}</td></tr>)}</tbody></table>
       <dl><dt>Source</dt><dd>{report.context.source_id}</dd><dt>Parent</dt><dd>{report.context.parent_id}</dd>
         <dt>Source SHA-256</dt><dd><code>{report.context.source_sha256}</code></dd>
-        <dt>Reference cohort SHA-256</dt><dd><code>{report.context.cohort_sha256}</code></dd>
+        <dt>Reference cohort SHA-256</dt><dd><code>{report.context.cohort_sha256 ?? "Unknown"}</code></dd>
         <dt>Reference rows SHA-256</dt><dd><code>{report.reference_rows_sha256}</code></dd>
         <dt>Declared input SHA-256</dt><dd><code>{report.input_sha256}</code></dd></dl>
       {reference.protocol && <section aria-label="Calibration provenance">
@@ -106,7 +106,7 @@ export function VacancyReportView({ report: input, task: requestedTask }: { repo
         {(["reference_calibration", "prediction_calibration"] as const).map((key, index) => {
           const calibration = reference.protocol![key];
           return <div key={key}><h5>{index === 0 ? "Reference" : "Prediction"} calibration</h5>
-            {calibration ? <><p>{calibration.site_count} declared calibration sites. Cohort SHA-256: <code>{calibration.cohort_sha256}</code></p>
+            {calibration ? <><p>{calibration.site_count} declared calibration sites. Cohort SHA-256: <code>{calibration.cohort_sha256 ?? "Unknown"}</code></p>
               <table><caption>{index === 0 ? "Reference" : "Prediction"} calibration weights</caption>
                 <thead><tr><th scope="col">Species</th><th scope="col">Calibration sites</th><th scope="col">Weight</th></tr></thead>
                 <tbody>{calibration.species.map(s => <tr key={s.species}><th scope="row">{s.species}</th><td>{s.sites}</td><td>{formatVacancyFraction(s.weight)}</td></tr>)}</tbody>
