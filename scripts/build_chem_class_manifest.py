@@ -4,6 +4,11 @@ Picks the 40 pure-element entries with at least one single-element LAMMPS record
 plus the top 60 binary-alloy pairs by record count. For each entry, emits the
 matching potential records with their LAMMPS parameter-file URLs and the local
 mirror paths they'd land at under gcp/nist_ipr/files/<pair_style>/<id>/.
+
+Run from the repository root:
+    python scripts/build_chem_class_manifest.py
+
+Writes manifest.json, manifest.csv and README.md to gcp/nist_ipr/chem_class/.
 """
 from __future__ import annotations
 
@@ -14,8 +19,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-INDEX = REPO / "atlas" / "nist_ipr" / "index" / "master_index.json"
-OUT_DIR = REPO / "atlas" / "nist_ipr" / "chem_class"
+INDEX = REPO / "gcp" / "nist_ipr" / "index" / "master_index.json"
+OUT_DIR = REPO / "gcp" / "nist_ipr" / "chem_class"
 
 N_ELEMENTS = 40
 N_BINARY = 60
@@ -207,44 +212,8 @@ def main() -> None:
     (OUT_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2))
     emit_csv(manifest, OUT_DIR / "manifest.csv")
     emit_markdown(manifest, OUT_DIR / "README.md")
-    sync_gallery_card(manifest)
     print(f"Wrote {len(manifest['entries'])} entries to {OUT_DIR}")
 
-
-def sync_gallery_card(manifest: dict) -> None:
-    """Upsert a single summary card into atlas-view's gallery-data.json."""
-    gallery = REPO / "atlas" / "atlas-view" / "packages" / "ui" / "src" / "gallery-data.json"
-    if not gallery.exists():
-        return
-    data = json.loads(gallery.read_text())
-    data = [x for x in data if x.get("id") != "nist_ipr_top100"]
-    total_records = sum(e["record_count"] for e in manifest["entries"])
-    total_files = sum(e["file_count"] for e in manifest["entries"])
-    data.append(
-        {
-            "id": "nist_ipr_top100",
-            "title": "NIST IPR Top-100 Catalog",
-            "subtitle": (
-                f"{manifest['n_elements']} pure elements + {manifest['n_binary_alloys']} "
-                f"binary alloys ranked by LAMMPS-record count. "
-                f"{total_records} potentials, {total_files} parameter files."
-            ),
-            "domain": "Methods",
-            "atoms": "—",
-            "frames": "—",
-            "file": "procedural",
-            "available": True,
-            "colors": ["#b87333", "#c0c0c0", "#ffd700"],
-            "metadata": {
-                "method": "NIST IPR mirror catalog",
-                "potential": "Various (eam/alloy, meam, tersoff, …)",
-                "manifest": "gcp/nist_ipr/chem_class/manifest.json",
-                "reference": "gcp/nist_ipr/chem_class/README.md",
-            },
-            "featured": True,
-        }
-    )
-    gallery.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
