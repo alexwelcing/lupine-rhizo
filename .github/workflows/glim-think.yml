@@ -55,6 +55,9 @@ jobs:
       - name: Check research workspace UI
         run: npm run check:workspace
 
+      - name: Bounded worker test typecheck diagnostic
+        run: node scripts/typecheck-test-diagnostic.mjs
+
       - name: Test
         run: npm test
 

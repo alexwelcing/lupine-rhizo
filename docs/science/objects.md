@@ -141,3 +141,39 @@ matched null retires the stronger extension and leaves only a descriptive result
 No new inference, simulation, source retry or corpus admission follows from this
 plan. Demonstrated value still requires a separate task-specific decision or
 held-out correction result; low PR alone supplies neither.
+
+
+## The separate HTTP manifold calculation
+
+The `POST /run` calculation was a third implementation, separate from the
+Manifold agent's tool and deterministic paths. Source inspection at
+`708404a6d31675de88bac5da0bc9c612fed316be` found a diagonal-only denominator:
+`(tr C)^2 / sum_i C_ii^2`. For a symmetric covariance, participation ratio
+instead uses `(tr C)^2 / sum_ij C_ij^2`. On the actual former route block,
+three synthetic rows with errors (-0.1,-0.1,-0.1), (0,0,0), (0.1,0.1,0.1)
+produced covariance 0.01 times the all-ones matrix and reported PR=3.
+Its eigenvalues are (0.03,0,0), so the correct PR is 1. This is an
+implementation counterexample, not a new physical observation or proof that
+a particular historical result used this path.
+
+The route now calls [runManifold.ts](../../glim-think/src/research/runManifold.ts).
+It keeps the declared C11/C12/C44 basis and uses the shared observed-matrix
+selection by element and model identity. Repeated conflicts exclude a row;
+missing columns cannot shrink the basis; the route retains its three-complete-row
+minimum. Selection counts describe rows after the explicit property, element and style
+filters, not the entire ledger. Finite signed observations remain present; this
+route does not add a stability filter. The PR calculation uses all covariance entries, with a
+common scale to avoid overflow or underflow when squaring finite entries.
+Known-spectrum, rotated-basis and scale controls test this formula.
+
+The article prompt carries complete-case counts and descriptive limits.
+The legacy power-iteration direction is only an estimate; an orthogonal seed
+returns unavailable, and no largest-eigenvalue certificate is claimed.
+No reference compatibility, artifact independence, held-out performance or
+historical-impact count follows from these corrections.
+
+The preceding `708404a` CI run passed all eight agent observation runtime cases
+but was cancelled before the worker typecheck completed. The cancelled run is
+preserved. A Linux CI diagnostic now runs that same worker test tsconfig with a
+180-second timeout and bounded trace files before the normal test suite;
+the complete typechecking requirement and 12-minute workflow limit remain.

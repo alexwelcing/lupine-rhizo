@@ -35,14 +35,19 @@ export type ObservedMatrix =
 /**
  * One row per element and supplied potential ID (label fallback is disclosed).
  * Identical repeated cells do not add samples. Conflicting cells exclude their row.
- * The property set is fixed from the input before complete-case selection.
+ * The property set is fixed before complete-case selection: supplied explicitly,
+ * or derived from all input properties when no basis is supplied.
  * This establishes an observed matrix, not artifact independence or compatibility.
  */
-export function buildObservedManifoldMatrix(records: readonly ManifoldRecord[]): ObservedMatrix {
+export function buildObservedManifoldMatrix(records: readonly ManifoldRecord[], requiredProperties?: readonly string[]): ObservedMatrix {
   if (records.some(r => !r.element || !r.potential_label || !r.property)) {
     return { ok: false, error: "missing_observation_identity" };
   }
-  const properties = [...new Set(records.map(r => r.property))].sort();
+  const properties = [...new Set(requiredProperties ?? records.map(r => r.property))].sort();
+  if (requiredProperties && (properties.length !== requiredProperties.length
+    || properties.some(p => !p) || records.some(r => !properties.includes(r.property)))) {
+    return { ok: false, error: "invalid_required_properties" };
+  }
   if (properties.length < 2 || properties.length > 5) {
     return { ok: false, error: "unsupported_property_count: require 2 to 5 for the complete spectrum" };
   }
@@ -123,4 +128,25 @@ export function buildObservedManifoldMatrix(records: readonly ManifoldRecord[]):
     return { ok: false, error: "no_observed_variation", selection };
   }
   return { ok: true, errors, included_indices, selection };
+}
+
+/**
+ * Participation ratio of a supplied covariance matrix:
+ * (tr C)^2 / tr(C^2) = (tr C)^2 / sum_ij C_ij^2 for symmetric C.
+ * Off-diagonal terms are essential. Scaling avoids squaring large/small units.
+ * This calculation does not establish that a source matrix is a valid covariance.
+ */
+export function covarianceParticipationRatio(cov: readonly (readonly number[])[]): number | null {
+  const dim = cov.length;
+  if (!dim || cov.some(row => row.length !== dim || row.some(x => !Number.isFinite(x)))) return null;
+  const scale = Math.max(...cov.flatMap(row => [...row].map(Math.abs)));
+  if (scale === 0) return null;
+  let trace = 0;
+  let frobeniusSquared = 0;
+  for (let i = 0; i < dim; i++) {
+    trace += cov[i][i] / scale;
+    for (let j = 0; j < dim; j++) frobeniusSquared += (cov[i][j] / scale) ** 2;
+  }
+  const pr = trace ** 2 / frobeniusSquared;
+  return trace > 0 && Number.isFinite(pr) && pr > 0 ? pr : null;
 }
