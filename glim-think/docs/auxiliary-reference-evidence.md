@@ -85,8 +85,23 @@ to join different material, potential, functional or workflow records.
 A source-aware baseline already makes these distinctions. We have not found
 a current accepted report that collapses them, or measured improved review
 time or decisions. No new inspector or correction formula follows from this
-review. The next system test should inspect an actual producer-to-reader
-handoff for loss of these roles before proposing another feature.
+review.
+
+The [research qualifier handoff test](../src/workspace/client/__tests__/research-qualifier-handoff.test.ts)
+checks the existing source-packet path with two fictional inputs. It connects
+local preview, the real import handler, in-memory SQLite, the saved feed,
+the client decoder and static React output. Source `supports` and `limitations`
+must remain attached to the correct source; removing a limitation must be
+rejected before storage even when the packet fingerprint is recomputed.
+
+The handler is wired in `server.ts`, and the Research Runs view is selected by
+`client/main.tsx`. This establishes a current code path, not a verified live
+deployment. The test uses the existing loopback fixture option; it does not
+test operator Access, remote D1, browser interaction or a provider execution.
+The CLI exporter was inspected but is outside this executable handoff check.
+Synthetic preservation checks do not validate the scientific content of a
+free-text qualification or demonstrate an advantage over source-aware reading.
+Execution receipts belong to the PR's head-specific CI record.
 
 ## Review boundary
 
