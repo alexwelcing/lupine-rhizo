@@ -14,6 +14,7 @@ from typing import Any
 from ase.calculators.eam import EAM
 
 from lupine_distill.fixture_contract import ROW_IDS, run_row, validate_manifest
+from mlip_benchmark_sources import resolve_repo_path
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -31,7 +32,9 @@ def load_fixture(path: pathlib.Path) -> dict[str, Any]:
 
 def reference_calculator(manifest: dict[str, Any]) -> EAM:
     ref = manifest["reference_provenance"]["eam_reference"]
-    potential_path = ROOT / pathlib.PurePosixPath(str(ref["potential_file"]))
+    potential_path = resolve_repo_path(ROOT, ref["potential_file"])
+    if potential_path is None:
+        raise ValueError("reference potential_file must be a non-empty path")
     return EAM(potential=str(potential_path))
 
 

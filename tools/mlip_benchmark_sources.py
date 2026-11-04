@@ -38,10 +38,14 @@ def _has_text(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def _repo_path(root: pathlib.Path, value: Any) -> pathlib.Path | None:
+def resolve_repo_path(root: pathlib.Path, value: Any) -> pathlib.Path | None:
+    """Resolve frozen repository paths without changing recorded provenance."""
     if not _has_text(value):
         return None
-    return root / pathlib.PurePosixPath(str(value))
+    path = pathlib.PurePosixPath(str(value))
+    if not path.is_absolute() and path.parts[:1] == ("atlas-distill",):
+        path = pathlib.PurePosixPath("distill", *path.parts[1:])
+    return root / path
 
 
 def validate_source_packet(manifest: dict[str, Any], *, root: pathlib.Path = ROOT, check_local: bool = True) -> list[str]:
@@ -128,12 +132,12 @@ def validate_source_packet(manifest: dict[str, Any], *, root: pathlib.Path = ROO
             meam_count += 1
         if check_local:
             for field in ("local_dir", "potential_file"):
-                repo_path = _repo_path(root, baseline.get(field))
+                repo_path = resolve_repo_path(root, baseline.get(field))
                 if repo_path is not None and not repo_path.exists():
                     issues.append(f"{baseline_id}.{field} does not exist: {baseline.get(field)}")
             result_value = baseline.get("result_json")
             if status in READY_STATUSES:
-                repo_path = _repo_path(root, result_value)
+                repo_path = resolve_repo_path(root, result_value)
                 if repo_path is None or not repo_path.exists():
                     issues.append(f"{baseline_id}.result_json is required for ready evidence")
     if ready_count < 3:
@@ -181,7 +185,7 @@ def ni_reference_values(manifest: dict[str, Any]) -> dict[str, float]:
 
 
 def _load_result(root: pathlib.Path, value: Any) -> dict[str, Any] | None:
-    result_path = _repo_path(root, value)
+    result_path = resolve_repo_path(root, value)
     if result_path is None or not result_path.exists():
         return None
     with result_path.open("r", encoding="utf-8") as handle:
