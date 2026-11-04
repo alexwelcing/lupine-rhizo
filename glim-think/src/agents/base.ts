@@ -17,7 +17,6 @@ import { Think, Session } from "@cloudflare/think";
 import type { TurnConfig } from "@cloudflare/think";
 import { generateText, type LanguageModel, type ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
-import type { DurableObjectState } from "@cloudflare/workers-types";
 import type { Env } from "../types";
 import { recordMiniMaxSpend, miniMaxModel, hasMiniMaxBudget, selectDeepRoute, fastModel } from "./models";
 import { getPrompt } from "../registry/promptRegistry";
