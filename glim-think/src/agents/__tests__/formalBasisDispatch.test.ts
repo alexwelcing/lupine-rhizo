@@ -12,7 +12,7 @@ import {
   resolveChildFormalBasis,
   type GroundedChild,
 } from "../groundedDispatch";
-import type { FormalBasis } from "../../atlas/theorems";
+import type { FormalBasis } from "../../research/theorems";
 
 const VERIFIED_BASIS: FormalBasis = {
   theorem: "OpenDistillationFactory.Materials.Theory.HyperRibbon.hyper_ribbon_bound_4d",

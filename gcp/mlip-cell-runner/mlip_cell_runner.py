@@ -251,7 +251,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=("auto", "python", "rust"),
     )
     parser.add_argument("--ribbon-version", default=os.environ.get("MLIP_DISTILL_RIBBON_VERSION", "hyperribbon-v1"))
-    parser.add_argument("--atlas-distill-bin", default=os.environ.get("ATLAS_DISTILL_BIN"))
+    parser.add_argument("--distill-bin", default=os.environ.get("DISTILL_BIN"))
     parser.add_argument(
         "--env-field-report",
         default=os.environ.get("MLIP_DISTILL_ENV_FIELD_REPORT", "auto"),
@@ -1003,7 +1003,7 @@ def run_cell(
             eval_manifest=manifest,
             support_manifest=support_manifest,
             policy_engine_name=args.distill_policy_engine,
-            atlas_distill_bin=args.atlas_distill_bin,
+            distill_bin=args.distill_bin,
             ribbon_version=args.ribbon_version,
             policy_limits_path=policy_limits_path,
             env_field_report_path=(

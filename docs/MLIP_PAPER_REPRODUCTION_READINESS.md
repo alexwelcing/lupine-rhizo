@@ -37,7 +37,7 @@ python tools/mlip_md_local.py --mode nve --mlip-id emt --element Al --crystal fc
 The relaxation output is already compatible with:
 
 ```powershell
-cargo run --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- `
+cargo run --manifest-path distill/Cargo.toml --bin distill -- `
   equilibrium-solve --trajectory <trajectory.json>
 ```
 

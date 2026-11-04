@@ -3,7 +3,7 @@
 Picks the 40 pure-element entries with at least one single-element LAMMPS record,
 plus the top 60 binary-alloy pairs by record count. For each entry, emits the
 matching potential records with their LAMMPS parameter-file URLs and the local
-mirror paths they'd land at under atlas/nist_ipr/files/<pair_style>/<id>/.
+mirror paths they'd land at under gcp/nist_ipr/files/<pair_style>/<id>/.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def slug(pair_style: str) -> str:
 
 
 def local_path(record: dict, filename: str) -> str:
-    return f"atlas/nist_ipr/files/{slug(record['pair_style'])}/{record['id']}/{filename}"
+    return f"gcp/nist_ipr/files/{slug(record['pair_style'])}/{record['id']}/{filename}"
 
 
 def build():
@@ -61,7 +61,7 @@ def build():
 
     manifest = {
         "generated": datetime.now(timezone.utc).isoformat(),
-        "source": "atlas/nist_ipr/index/master_index.json",
+        "source": "gcp/nist_ipr/index/master_index.json",
         "framing": "materials-chemistry: pure elements + binary alloys ranked by NIST IPR LAMMPS record count",
         "total_entries": len(entries),
         "n_elements": len(elem_rank),
@@ -150,7 +150,7 @@ def emit_markdown(manifest: dict, path: Path) -> None:
     lines.append("")
     lines.append(
         "Ranked by count of LAMMPS-implementation records in the NIST Interatomic "
-        "Potentials Repository mirror (`atlas/nist_ipr/index/master_index.json`)."
+        "Potentials Repository mirror (`gcp/nist_ipr/index/master_index.json`)."
     )
     lines.append("")
     lines.append(
@@ -190,12 +190,12 @@ def emit_markdown(manifest: dict, path: Path) -> None:
         "Each potential's parameter files are listed in `manifest.json` under "
         "`entries[*].potentials[*].artifacts[]` with both the upstream "
         "`https://www.ctcms.nist.gov/...` URL and the local mirror path "
-        "`atlas/nist_ipr/files/<pair_style>/<id>/<filename>`."
+        "`gcp/nist_ipr/files/<pair_style>/<id>/<filename>`."
     )
     lines.append("")
     lines.append(
         "To populate the local mirror, run "
-        "`python scripts/nist_ipr_mirror.py atlas/nist_ipr` from the repo root."
+        "`python scripts/nist_ipr_mirror.py gcp/nist_ipr` from the repo root."
     )
     lines.append("")
     path.write_text("\n".join(lines))
@@ -238,8 +238,8 @@ def sync_gallery_card(manifest: dict) -> None:
             "metadata": {
                 "method": "NIST IPR mirror catalog",
                 "potential": "Various (eam/alloy, meam, tersoff, …)",
-                "manifest": "atlas/nist_ipr/chem_class/manifest.json",
-                "reference": "atlas/nist_ipr/chem_class/README.md",
+                "manifest": "gcp/nist_ipr/chem_class/manifest.json",
+                "reference": "gcp/nist_ipr/chem_class/README.md",
             },
             "featured": True,
         }

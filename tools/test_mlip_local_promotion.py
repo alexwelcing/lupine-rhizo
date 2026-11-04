@@ -87,7 +87,7 @@ def test_packet_block_rolls_up_tiers_and_refs():
     assert any(ref.endswith("mkAnchoredFieldBcc") for ref in block["theorem_refs"])
     pt = next(cell for cell in block["cells"] if cell["material"] == "Pt")
     assert pt["theorem_ref"] == (
-        "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances."
+        "OpenDistillationFactory.Materials.Data.EnvFieldInstances."
         "field_refused_chgnet_Pt"
     )
     cell = block["cells"][0]
@@ -99,7 +99,7 @@ def test_packet_block_rolls_up_tiers_and_refs():
 def test_certificates_satisfy_odf_formal_gate():
     """The wired certificates ARE the formal contract: a promotable uplift
     plus the bound cells' theorem refs clears the gate without manual
-    --atlas-theorem-refs flags."""
+    --theorem-refs flags."""
     env_field = promo.load_field_certificates(REPORT, ["chgnet"])
     from lupine_distill.odf.field_certificates import merge_into_candidate_metadata
 

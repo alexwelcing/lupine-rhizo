@@ -22,15 +22,15 @@ def sample_manifest() -> dict:
             {
                 "baseline_id": "ni-mishin-1999-eam-alloy",
                 "nist_implementation_id": "1999--Mishin-Y--Ni--LAMMPS--ipr1",
-                "local_dir": "atlas-distill/lammps_runs/Ni_Mishin-1999",
-                "potential_file": "atlas-distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy",
-                "result_json": "atlas-distill/lammps_runs/Ni_Mishin-1999/result.json",
+                "local_dir": "distill/lammps_runs/Ni_Mishin-1999",
+                "potential_file": "distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy",
+                "result_json": "distill/lammps_runs/Ni_Mishin-1999/result.json",
             },
             {
                 "baseline_id": "ni-lee-2003-meam",
                 "nist_implementation_id": "2003--Lee-B-J--Ni--LAMMPS--ipr1",
-                "local_dir": "atlas-distill/lammps_runs/Ni_Lee-2003",
-                "potential_file": "atlas-distill/lammps_runs/Ni_Lee-2003/library.meam",
+                "local_dir": "distill/lammps_runs/Ni_Lee-2003",
+                "potential_file": "distill/lammps_runs/Ni_Lee-2003/library.meam",
                 "result_json": None,
             },
         ],
@@ -46,7 +46,7 @@ def test_plan_resolves_manifest_paths_and_urls(tmp_path: Path) -> None:
         "ni-lee-2003-meam",
     ]
     mishin = items[0]
-    assert mishin["target"] == tmp_path / "atlas-distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy"
+    assert mishin["target"] == tmp_path / "distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy"
     assert mishin["sha256"] is None
     assert any(
         url.endswith("potential_LAMMPS/1999--Mishin-Y--Ni--LAMMPS--ipr1/Ni99.eam.alloy")
@@ -63,7 +63,7 @@ def test_pinned_hashes_collects_nested_fixture_values(tmp_path: Path) -> None:
             {
                 "reference_provenance": {
                     "eam_reference": {
-                        "potential_file": "atlas-distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy",
+                        "potential_file": "distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy",
                         "potential_file_sha256": f"sha256:{PAYLOAD_SHA256}",
                     }
                 }
@@ -75,7 +75,7 @@ def test_pinned_hashes_collects_nested_fixture_values(tmp_path: Path) -> None:
     pins = fetch_potentials.pinned_hashes((fixture_dir,))
 
     assert pins == {
-        "atlas-distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy": PAYLOAD_SHA256,
+        "distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy": PAYLOAD_SHA256,
     }
 
 

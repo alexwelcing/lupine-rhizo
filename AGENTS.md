@@ -12,6 +12,14 @@ elsewhere.
 - Separate inherited repo noise from regressions introduced by the current work.
 - Preserve user changes and do not revert unrelated files.
 
+## Internal naming
+
+Use Rhizo for the research system, Distill for its scoring/runtime engine, and
+Lupi for the separate viewer. Do not introduce Atlas as an internal component,
+namespace, CLI or brand. Meta ATLAS-Lean names identify the external dependency;
+retained historical inputs and deployed resource IDs may preserve their exact
+legacy spellings at explicit compatibility boundaries.
+
 ## Organization
 
 - Keep marketing and launch-site code out of the tree.
@@ -145,22 +153,10 @@ When writing automation scripts, deployment orchestrators, or `justfile` configu
    The root `justfile` uses `windows-shell` for the explicit Git Bash path and
    keeps `shell` POSIX for Unix maintainers.
 
-## Lupi viewer agent surface (MCP + API keys)
+## Lupi ownership
 
-The Lupi molecular viewer (`atlas/atlas-view`, live at lupi.live) exposes an
-agent-drivable surface so Codex / Claude Code can load and inspect molecules
-without manual viewer setup.
-
-- **Auth without OAuth:** a signed-in user mints an API key (`lupi_pk_…`); the
-  agent POSTs it to `exchangeApiKey` for a Firebase custom token, signs in, and
-  then drives the viewer as that user. Full flow + endpoints:
-  `atlas/atlas-view/docs/api-keys.md`. Treat the key like a password.
-- **Federated search:** the `lupi.search_molecules` MCP tool fans out across six
-  sources (saved views, curated library, gallery, NIST, Meta OMol25, PubChem) and
-  returns ranked, loadable hits. OMol25 hits carry **real in-house DFT geometry**
-  served as GCS-hosted `.xyz` (`gs://shed-489901-omol25`), not a formula guess.
-- **Shared library:** signed-in agents can stamp molecules into the public
-  `moleculeLibrary` (Firestore) that backs the `library` source.
-- Deploys are push-to-`main`: `atlas/**` → viewer (Cloud Run); `functions/**`,
-  `firebase.json`, `firestore.rules` → Cloud Functions + Firestore rules.
-- Roadmap + milestones: `atlas/atlas-view/docs/lupi-mcp-roadmap.md`.
+The molecular viewer and its MCP/API-key surfaces live in the separate
+[`alexwelcing/Lupi`](https://github.com/alexwelcing/Lupi) repository. Read that
+repository's current setup and release instructions for viewer changes.
+Rhizo owns the science control plane, Distill engine, compute runners, proof
+specifications and evidence exports. It does not build or deploy the Lupi app.

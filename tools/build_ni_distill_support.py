@@ -241,7 +241,7 @@ def build_support_manifest(source_packet: dict[str, Any]) -> dict[str, Any]:
                 "calculator": "ase.calculators.eam.EAM",
             },
             "elastic_constants": {
-                "source": "nist_benchmark.csv / atlas-distill Ni reference table",
+                "source": "nist_benchmark.csv / distill Ni reference table",
                 "citation_keys": ["nist_ipr", "simmons1971"],
                 "C11_gpa": refs["c11"],
                 "C12_gpa": refs["c12"],

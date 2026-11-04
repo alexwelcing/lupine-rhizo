@@ -60,7 +60,7 @@ def cmd_status() -> int:
     # Rust
     _header("RUST WORKSPACES")
     rust_projects = [
-        "atlas-distill", "lupine-ops"
+        "distill", "lupine-ops"
     ]
     for proj in rust_projects:
         manifest = REPO_ROOT / proj / "Cargo.toml"
@@ -115,13 +115,13 @@ def cmd_status() -> int:
 def cmd_build(subsystem: Optional[str]) -> int:
     if not subsystem or subsystem == "all":
         _header("BUILD ALL")
-        for s in ["atlas-distill", "lupine-ops", "lean-spec"]:
+        for s in ["distill", "lupine-ops", "lean-spec"]:
             cmd_build(s)
         return 0
 
     _header(f"BUILD {subsystem}")
     mapping = {
-        "atlas-distill": (REPO_ROOT / "atlas-distill", ["cargo", "build", "--release"]),
+        "distill": (REPO_ROOT / "distill", ["cargo", "build", "--release"]),
         "lupine-ops": (REPO_ROOT / "lupine-ops", ["cargo", "build", "--release"]),
         "atlas-view": (REPO_ROOT / "atlas" / "atlas-view", ["pnpm", "install"]),
         "library-site": (REPO_ROOT / "library-site", ["npm", "install"]),
@@ -145,13 +145,13 @@ def cmd_build(subsystem: Optional[str]) -> int:
 def cmd_test(subsystem: Optional[str]) -> int:
     if not subsystem or subsystem == "all":
         _header("TEST ALL")
-        for s in ["atlas-distill", "lupine-ops", "tools"]:
+        for s in ["distill", "lupine-ops", "tools"]:
             cmd_test(s)
         return 0
 
     _header(f"TEST {subsystem}")
     mapping = {
-        "atlas-distill": (REPO_ROOT / "atlas-distill", ["cargo", "test"]),
+        "distill": (REPO_ROOT / "distill", ["cargo", "test"]),
         "lupine-ops": (REPO_ROOT / "lupine-ops", ["cargo", "test"]),
         "lean-spec": (REPO_ROOT / "lean-spec", ["lake", "build"]),
         "tools": (REPO_ROOT / "tools", [sys.executable, "-m", "pytest", "test_glim.py", "-v"]),
@@ -198,7 +198,7 @@ def cmd_inventory() -> int:
     _header("INVENTORY")
     print("Subsystems found:")
     ignore = {".git", ".github", ".pytest_cache", ".sisyphus", ".wrangler",
-              ".atlas-cache", ".claude", "_archive", "_research_archive",
+              ".distill-cache", ".claude", "_archive", "_research_archive",
               "node_modules", "target", ".lake", "dist", ".output", ".tanstack"}
     for item in sorted(REPO_ROOT.iterdir()):
         if item.is_dir() and item.name not in ignore and not item.name.startswith("."):

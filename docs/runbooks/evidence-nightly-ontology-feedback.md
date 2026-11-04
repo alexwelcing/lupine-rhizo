@@ -34,7 +34,7 @@ Missing input, broken row hashes, scope drift, or missing artifacts fail the job
    D1 cycle, so independent demonstrations remain available across fresh runners.
 2. `tools/run_nightly_cycle.py` ingests every row set through
    `ingest_campaign_results.py`, regenerates the assumption registry, and compiles
-   the runtime gate through `atlas_theorem_sync.py`. It also emits every bundle
+   the runtime gate through `theorem_sync.py`. It also emits every bundle
    hash in the restorable corpus as a D1 sync candidate, not only hashes ingested
    by the current runner.
 3. Wrangler applies D1 migrations and exports the current

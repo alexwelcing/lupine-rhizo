@@ -13,7 +13,7 @@ The paper under review makes two bold claims about interatomic potential validat
 1. **Simpson's paradox** in BCC elastic constants (pooled r = -0.435 vs within-group r = +0.147)
 2. **Hyper-ribbon manifold** dimensionality ~1.2–1.4 for FCC prediction-error vectors
 
-This formal audit embeds the exact synthetic datasets from `atlas-distill/src/validation.rs` as transparent Lean constants and computes both claims formally. The verdict is **split**:
+This formal audit embeds the exact synthetic datasets from `distill/src/validation.rs` as transparent Lean constants and computes both claims formally. The verdict is **split**:
 
 | Claim | Verdict | Evidence |
 |-------|---------|----------|

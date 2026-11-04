@@ -2,7 +2,7 @@ namespace OpenDistillationFactory.Materials.Data
 
 /--
   Empirical benchmark dataset formally injected from LAMMPS executions.
-  Generated automatically by atlas-distill.
+  Generated automatically by distill.
 -/
 def empiricalParadoxPointsRaw : List (String × Float × Float) := [
   ("Al", 108.2, 113.795813300331),

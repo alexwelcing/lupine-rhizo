@@ -9,10 +9,10 @@ layer, the evidence pipeline, or a public export contract.
 | Root | Purpose |
 | --- | --- |
 | `.github/` | Rhizo CI, proof, engine, benchmark, and control-plane deploy workflows. Public-site workflows moved to sibling repos. |
-| `atlas/compute/` | Cloud Run physics compute lane for `glim-think`; this is the only active `atlas/` slice retained in Rhizo. |
-| `atlas/nist_ipr/index/master_index.json` | Small NIST index consumed by `atlas/compute` deploy staging. |
-| `atlas/scripts/generate_nist_demos.py` | Helper vendored into the compute deploy job. |
-| `atlas-distill/` | Rust Distill scoring, policy, benchmark, and fault-line runtime. |
+| `gcp/compute/` | Cloud Run physics compute lane for `glim-think`; runtime helpers and NIST inputs are consolidated here. |
+| `gcp/nist_ipr/index/master_index.json` | Small NIST index consumed by `gcp/compute` deploy staging. |
+| `gcp/compute/nist_helpers.py` | Shared NIST structure and LAMMPS helpers beside the compute runner. |
+| `distill/` | Rust Distill scoring, policy, benchmark, and fault-line runtime. |
 | `cloudflare/` | Edge helpers and control-plane infrastructure around `glim-think`. |
 | `cocoindex/` | Local evidence-indexing experiment pipeline for exporting and querying the research corpus. |
 | `data/` | Small fixtures, manifests, and evidence payloads. Large artifacts belong in object storage with manifests. |

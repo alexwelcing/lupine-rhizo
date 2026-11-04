@@ -23,7 +23,7 @@ checkpoint of the evidence spine.
 2. **Version bump**:
    - Update the top-level version string in any manifest that changed
      (`glim-think/package.json`, `library-site/package.json`, `python/pyproject.toml`,
-     `atlas-distill/Cargo.toml`, `lean-spec/lakefile.toml`).
+     `distill/Cargo.toml`, `lean-spec/lakefile.toml`).
    - Keep versions loosely synchronized; the root does not have a single package
      version, but the CHANGELOG date is the public checkpoint.
 3. **CHANGELOG entry**:

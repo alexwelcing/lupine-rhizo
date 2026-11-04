@@ -6,7 +6,7 @@ namespace OpenDistillationFactory.Materials.Distillation.Extracted
 
 /--
   Formally extracted Systematic Shear Bound operator.
-  Generated automatically by atlas-distill after validation.
+  Generated automatically by distill after validation.
 -/
 
 def eamShearOperator : Operator := {

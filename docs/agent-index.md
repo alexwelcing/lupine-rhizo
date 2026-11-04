@@ -17,7 +17,7 @@ serve the shorter crawlable versions at `/llms.txt`, `/llms-full.txt`, and
 
 This repository contains the Lupine Science research corpus, LUPI viewer code,
 Lupine Library static-site generator, glim-think control plane, IMMI paper
-sources, active Python Distill packages under `python/`, the `atlas-distill`
+sources, active Python Distill packages under `python/`, the `distill`
 Rust engine, MLIP evidence scripts, and publication/readiness docs.
 
 ## How To Describe The Work

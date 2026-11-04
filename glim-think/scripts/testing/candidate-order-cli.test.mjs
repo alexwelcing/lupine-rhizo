@@ -10,13 +10,13 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
 const MAX_BYTES = 512 * 1024;
-const cli = process.env.ATLAS_DISTILL_BIN;
+const cli = process.env.DISTILL_BIN;
 const fixture = JSON.parse(readFileSync(new URL(
-  "../../../atlas-distill/tests/fixtures/candidate_order_sources.json", import.meta.url), "utf8"));
+  "../../../distill/tests/fixtures/candidate_order_sources.json", import.meta.url), "utf8"));
 let app;
 
 before(async () => {
-  assert.ok(cli, "ATLAS_DISTILL_BIN must name the built CLI; acceptance must not silently skip");
+  assert.ok(cli, "DISTILL_BIN must name the built CLI; acceptance must not silently skip");
   assert.equal(fixture.schema, "lupine.candidate_order.source_acceptance.v1");
   assert.equal(fixture.cases.length, 4);
   const bundle = await build({

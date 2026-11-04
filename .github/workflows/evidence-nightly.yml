@@ -435,7 +435,7 @@ jobs:
       - name: Refresh ontology statuses and literature priority
         run: |
           python tools/nightly_ontology_feedback.py \
-            --atlas registry/ontology/atlas.v2.json \
+            --ontology registry/ontology/atlas.v2.json \
             --assumptions registry/assumptions.v1.json \
             --evidence-dir evidence/v1/examples \
             --hypotheses nightly-output/hypotheses.json \

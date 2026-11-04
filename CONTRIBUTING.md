@@ -8,7 +8,7 @@ This repo is a public research program, not a product page. Contributions can be
 | --- | --- | --- |
 | Scientific claim | `docs/templates/publication.md` | Evidence, status, confounders, next test |
 | MLIP benchmark | `python/lupine_distill/` | Unit tests pass, uplift computed, regime gate applied |
-| Distill policy / geometry | `atlas-distill/src/` | `cargo test`, no clippy warnings |
+| Distill policy / geometry | `distill/src/` | `cargo test`, no clippy warnings |
 | Formal proof | `lean-spec/OpenDistillationFactory/Materials/` | `lake build` green, zero `sorry` |
 | Agent workflow | `glim-think/src/` | `just think-lint`, tests pass |
 | Public docs / Library | `docs/` or `library-site/` | Accurate, no marketing copy, no duplicate surfaces |
@@ -41,8 +41,8 @@ just live-build
 cd python && python -m pytest -m unit -q
 
 # Rust engine
-cargo test --manifest-path atlas-distill/Cargo.toml --bin atlas-distill
-cargo clippy --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- -D warnings
+cargo test --manifest-path distill/Cargo.toml --bin distill
+cargo clippy --manifest-path distill/Cargo.toml --bin distill -- -D warnings
 
 # Lean proofs
 cd lean-spec && lake build

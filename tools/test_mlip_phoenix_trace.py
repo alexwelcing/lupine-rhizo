@@ -52,7 +52,7 @@ def _packet() -> dict:
         "field_certificates": {
             "corpus_sha256_12": "0da8d5b67142",
             "lean_module": (
-                "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/"
+                "lean-spec/OpenDistillationFactory/Materials/Data/"
                 "EnvFieldInstances.lean"
             ),
             "models": ["chgnet"],

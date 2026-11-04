@@ -20,13 +20,13 @@ A shared vocabulary for reading the repo and the research corpus. Terms are defi
 | Term | Meaning |
 | --- | --- |
 | **Distill** | The umbrella for correction, uplift, and policy work: fitting a residual correction to a model's errors, measuring whether it helps, and gating promotion by provenance and formal evidence. |
-| **ODF** | Open Distillation Factory — the ATLAS-aware promotion machinery that checks whether a distilled model's uplift is backed by the right formal theorems. |
+| **ODF** | Open Distillation Factory — the theorem-aware promotion machinery that checks whether a distilled model's uplift is backed by the right formal theorems. |
 | **Regime gate** | An a-priori filter that refuses to run a distillation cell outside its declared design envelope (reference family, fit rows, calibration band). |
 | **Promotion gate** | The post-benchmark decision: `promote` (>5% uplift + formal fields), `review` (0–5% or incomplete formal), or `reject` (<0% uplift). |
 | **LUPI** | The browser-native molecular viewer for atomistic evidence: <https://lupi.live>. |
 | **Lupine Library** | The public research site generated from this repo: <https://library.lupine.science>. |
 | **glim-think** | The durable intelligence control plane: agenda, ledger, feed, evals, traces, agent workflows. |
-| **atlas-distill** | The Rust engine for Distill scoring, policy, benchmark geometry, and fault-line extraction. |
+| **distill** | The Rust engine for Distill scoring, policy, benchmark geometry, and fault-line extraction. |
 | **Phoenix / OTLP** | Observability backend and protocol used for OpenInference traces from the research loop. |
 
 ## See also

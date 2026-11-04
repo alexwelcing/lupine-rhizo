@@ -450,7 +450,7 @@ export class Causal extends GlimThinkAgent {
         const claimData = {
           analysis: "multiproperty_seed", new_property: "a0",
           candidates: rows.length, inserted, skipped, by_element: byElement,
-          note: "a0 predicted recovered from MLIP provenance; reference = experimental. E_coh/B0 still need predicted values from the atlas-distill/MLIP compute pipeline (property-agnostic /ingest/batch).",
+          note: "a0 predicted recovered from MLIP provenance; reference = experimental. E_coh/B0 still need predicted values from the distill/MLIP compute pipeline (property-agnostic /ingest/batch).",
         };
         const description = `Multi-property seed — recovered ${inserted} real a0 records (lattice constant) across ${Object.keys(byElement).length} elements from MLIP provenance; ${skipped} skipped. Joint error manifold now spans Cij + a0.`;
         const now = new Date().toISOString();

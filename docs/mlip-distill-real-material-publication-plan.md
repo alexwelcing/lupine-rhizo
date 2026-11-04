@@ -147,7 +147,7 @@ Required fields:
 - raw prediction checkpoint shared between baseline and Distill Accuracy when
   isolating accuracy effects;
 - Distill ribbon version, policy candidate id, theorem/spec registry id, and
-  Rust `atlas-distill` commit;
+  Rust `distill` commit;
 - calculator output artifacts, step trajectories, final structures, timing,
   retry count, and failure class.
 
@@ -155,7 +155,7 @@ Ownership boundaries:
 
 - Python runner: backend import, ASE/LAMMPS/calculator integration, device
   placement, model loading, and raw prediction/trajectory execution.
-- Rust `atlas-distill`: policy, scoring, fault-line extraction, refusal logic,
+- Rust `distill`: policy, scoring, fault-line extraction, refusal logic,
   theorem hooks, and hill-climb decisions.
 - Cloudflare/glim-think: durable ledger, workflow state, public reports, and
   budget/resource evidence.
@@ -287,7 +287,7 @@ results.
 - Added `tools/mlip_benchmark_sources.py` to validate the packet, inspect the
   Ni inventory, and print ready local Ni bulk evidence.
 - Confirmed the first local Ni EAM-style inventory from
-  `atlas-distill/lammps_runs`; MEAM entries are tracked as candidates needing
+  `distill/lammps_runs`; MEAM entries are tracked as candidates needing
   local LAMMPS evidence.
 - Remaining: confirm which Ni potential files are actually used in the first
   paper figure and record any additional original citations.

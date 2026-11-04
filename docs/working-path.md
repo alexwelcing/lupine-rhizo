@@ -13,16 +13,16 @@ branches, worktrees, or generated experiment folders.
 | Public repo split and migration map | [`docs/repo-split-map.md`](./repo-split-map.md) |
 | Research control plane, agenda, claims, evals, traces | `glim-think/` |
 | Formal evidence and Lean proof obligations | `lean-spec/` |
-| Distill policy/runtime scoring | `atlas-distill/` |
+| Distill policy/runtime scoring | `distill/` |
 | Python Distill packages (benchmark/uplift/regime/runtime) | `python/` |
 | Local MLIP and IMMI evidence runs | `mlip_immi/` |
-| LUPI viewer and atomistic inspection | `atlas/atlas-view/apps/web/` |
+| LUPI viewer and atomistic inspection | the separate [`alexwelcing/Lupi`](https://github.com/alexwelcing/Lupi) repository |
 | Public research/library surface | `library-site/` |
 | Root ownership decisions | `ROOTS.md` |
 
 Do not route new viewer work into `lupi-studio`, `lupi-studio-pr`, or
 `archive/lupine-start`. Those are retired or scratch surfaces; the canonical
-LUPI app is `atlas/atlas-view/apps/web/`.
+LUPI app is the separate [`alexwelcing/Lupi`](https://github.com/alexwelcing/Lupi) repository.
 
 ## Starting New Work
 

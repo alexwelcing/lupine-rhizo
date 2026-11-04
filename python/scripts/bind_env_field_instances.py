@@ -48,7 +48,7 @@ this binder:
    kernel-checked refusal certificate on the layout's decidable predicate
    (``¬ scaledAnchorsValid ...`` etc.);
 5. writes the Lean module to
-   ``lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean``
+   ``lean-spec/OpenDistillationFactory/Materials/Data/EnvFieldInstances.lean``
    and a JSON report (schema ``lupine.env_field_binding_report.v2``) to
    ``data/y_matrix_runs/env_field_binding_report.json`` for runner telemetry
    and the promotion gate (``lupine_distill.odf.field_certificates``).
@@ -77,7 +77,7 @@ _REPO_ROOT = _HERE.parents[2]
 
 REPORT_SCHEMA = "lupine.env_field_binding_report.v2"
 GENERATED_MODULE = (
-    "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean"
+    "lean-spec/OpenDistillationFactory/Materials/Data/EnvFieldInstances.lean"
 )
 
 # 1 J/m^2 in eV/A^2 (CODATA e = 1.602176634e-19 C exactly; 1 J/m^2 = 1e-20 J/A^2).
@@ -458,7 +458,7 @@ def _emit_module(cells: list[CellAnchors], corpus_sha: str) -> str:
     )
     lines.append("import OpenDistillationFactory.Materials.Theory.AnchoredField\n")
     lines.append(
-        "namespace OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances\n"
+        "namespace OpenDistillationFactory.Materials.Data.EnvFieldInstances\n"
     )
     lines.append(
         "open OpenDistillationFactory.Materials.Theory.EnvironmentField\n"
@@ -494,7 +494,7 @@ def _emit_module(cells: list[CellAnchors], corpus_sha: str) -> str:
         "  decide\n"
     )
     lines.append(
-        "end OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances\n"
+        "end OpenDistillationFactory.Materials.Data.EnvFieldInstances\n"
     )
     return "\n".join(lines)
 

@@ -28,7 +28,7 @@ from lupine_distill.odf.field_certificates import (
     merge_into_candidate_metadata,
     theorem_refs,
 )
-from lupine_distill.odf.promotion_gate import evaluate_promotion
+from lupine_distill.odf.promotion_gate import CandidateMetadata, evaluate_promotion
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _LEAN_MATERIALS = _REPO_ROOT / "lean-spec" / "OpenDistillationFactory" / "Materials"
@@ -433,8 +433,8 @@ def test_merge_enriches_without_mutation():
     }
     certs = _sample_certificates()
     enriched = merge_into_candidate_metadata(metadata, certs)
-    assert "atlas_theorem_refs" not in metadata  # input untouched
-    assert enriched["atlas_theorem_refs"] == [certs[1].theorem_ref]
+    assert "theorem_refs" not in metadata  # input untouched
+    assert enriched["theorem_refs"] == [certs[1].theorem_ref]
     assert len(enriched["formal_properties"]) == 1
     assert len(enriched["certificate_evidence"]) == 3
 
@@ -465,7 +465,7 @@ def test_refusal_witness_is_evidence_but_does_not_authorize_promotion():
         },
         [check_field_domain([8, 8, 3, 8])],
     )
-    assert enriched["atlas_theorem_refs"] == []
+    assert enriched["theorem_refs"] == []
     assert enriched["formal_properties"] == []
     assert any(
         "atom 2 (c=3)" in item["reason"]
@@ -573,7 +573,7 @@ def test_inverted_ranking_downgrades_promote_to_review():
         "model_id": "m",
         "distill_version": 1,
         "overall_uplift_pct": 7.5,
-        "atlas_theorem_refs": ["ref"],
+        "theorem_refs": ["ref"],
         "formal_properties": ["prop"],
         "reference_ranking": [0.30, 0.45],
         "model_ranking": [0.28, 0.25],
@@ -589,7 +589,7 @@ def test_consistent_ranking_leaves_promote_intact():
         "model_id": "m",
         "distill_version": 1,
         "overall_uplift_pct": 7.5,
-        "atlas_theorem_refs": ["ref"],
+        "theorem_refs": ["ref"],
         "formal_properties": ["prop"],
         "reference_ranking": [0.30, 0.45],
         "model_ranking": [0.10, 0.20],
@@ -604,7 +604,7 @@ def test_mismatched_ranking_lengths_are_rejected():
         "model_id": "m",
         "distill_version": 1,
         "overall_uplift_pct": 7.5,
-        "atlas_theorem_refs": ["ref"],
+        "theorem_refs": ["ref"],
         "formal_properties": ["prop"],
         "reference_ranking": [0.30, 0.45, 0.50],
         "model_ranking": [0.10, 0.20],
@@ -627,4 +627,49 @@ def test_every_theorem_ref_resolves_in_lean_sources():
             f"THEOREM_REFS[{key!r}] = {ref!r}: no declaration named {short!r} "
             "found in lean-spec Materials sources — Lean rename without "
             "updating the Python mirror?"
+        )
+
+
+@pytest.mark.parametrize("refs_key", ["theorem_refs", "atlas_theorem_refs"])
+def test_promotion_metadata_accepts_legacy_refs_and_emits_canonical(refs_key):
+    metadata = {
+        "model_id": "model",
+        "distill_version": 1,
+        "overall_uplift_pct": 7.5,
+        refs_key: ["reference"],
+        "formal_properties": ["property"],
+    }
+    candidate = CandidateMetadata.model_validate(metadata)
+    assert candidate.theorem_refs == ["reference"]
+    serialized = candidate.model_dump()
+    assert serialized["theorem_refs"] == ["reference"]
+    assert "atlas_theorem_refs" not in serialized
+    assert evaluate_promotion(metadata).decision.value == "promote"
+
+
+def test_promotion_metadata_matching_aliases_are_canonicalized():
+    candidate = CandidateMetadata.model_validate(
+        {
+            "model_id": "model",
+            "distill_version": 1,
+            "theorem_refs": ["reference"],
+            "atlas_theorem_refs": ["reference"],
+        }
+    )
+    assert candidate.model_dump()["theorem_refs"] == ["reference"]
+    assert "atlas_theorem_refs" not in candidate.model_dump()
+
+
+@pytest.mark.parametrize("legacy_refs", [[], ["other"]])
+def test_promotion_metadata_conflicting_aliases_fail_closed(legacy_refs):
+    with pytest.raises(ValueError, match="conflicting theorem_refs"):
+        evaluate_promotion(
+            {
+                "model_id": "model",
+                "distill_version": 1,
+                "overall_uplift_pct": 7.5,
+                "theorem_refs": ["reference"],
+                "atlas_theorem_refs": legacy_refs,
+                "formal_properties": ["property"],
+            }
         )

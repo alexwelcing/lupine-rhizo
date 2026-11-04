@@ -3,7 +3,7 @@
  *
  * Trace: docs/handoff/05_secure_live_ticker_architecture.md (producer path).
  *
- * atlas-distill (in Cloud Run or locally with a SA key) mints an OIDC JWT
+ * distill (in Cloud Run or locally with a SA key) mints an OIDC JWT
  * with audience = this Worker's URL and POSTs a single "beat" row:
  *   { beat_id, agent, summary, metrics?, ts? }
  *

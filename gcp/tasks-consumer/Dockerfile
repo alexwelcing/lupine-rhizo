@@ -1,4 +1,4 @@
-# Multi-stage build for tasks-consumer (Cloud Tasks → atlas-distill dispatcher).
+# Multi-stage build for tasks-consumer (Cloud Tasks → distill dispatcher).
 # Stage 1: build the Rust binary.
 FROM rust:1.88-slim-bookworm AS builder
 

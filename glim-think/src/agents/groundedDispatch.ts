@@ -10,7 +10,7 @@
 
 import { traceAgentCycle } from "../telemetry/rpc";
 import { trace } from "@opentelemetry/api";
-import type { FormalBasis } from "../atlas/theorems";
+import type { FormalBasis } from "../research/theorems";
 
 /**
  * The child-stub surface the orchestrator's dispatch path needs: the Think

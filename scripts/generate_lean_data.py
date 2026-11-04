@@ -1,7 +1,7 @@
 import csv
 import os
 
-csv_file = 'atlas-distill/benchmarks/paradox_input_all.csv'
+csv_file = 'distill/benchmarks/paradox_input_all.csv'
 lean_file = 'lean-spec/OpenDistillationFactory/Materials/Data/EmpiricalParadox.lean'
 
 lines = ['namespace OpenDistillationFactory.Materials.Data', '', 'def empiricalParadoxPointsRaw : List (String × Float × Float) := [']

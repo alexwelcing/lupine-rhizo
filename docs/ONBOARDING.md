@@ -34,7 +34,7 @@ start at [`hpc/README.md`](../hpc/README.md).
 | Run a benchmark and see uplift | `python/scripts/run_ni_gpu_loop.py` | [`docs/mlip-gpu-ni-distill-formal-gate.md`](./mlip-gpu-ni-distill-formal-gate.md) |
 | Test cross-material transfer | `python/scripts/run_cross_material_transfer.py` | [`docs/mlip-gpu-ni-distill-formal-gate.md`](./mlip-gpu-ni-distill-formal-gate.md) §Cross-material |
 | Understand the regime gate | `python/lupine_distill/regime/` | [`docs/regime_gate_dominance.md`](./regime_gate_dominance.md) |
-| Inspect a structure in 3D | `atlas/atlas-view/apps/web/` | <https://lupi.live> |
+| Inspect a structure in 3D | the separate [`alexwelcing/Lupi`](https://github.com/alexwelcing/Lupi) repository | <https://lupi.live> |
 | Add or refute a claim | `docs/templates/publication.md` | [`docs/conjectures/ledger.md`](./conjectures/ledger.md) |
 
 ### 3. Run the small, free proofs first
@@ -47,7 +47,7 @@ cd python
 python -m pytest -m unit -q
 
 # Rust engine compile check
-cargo check --manifest-path ../atlas-distill/Cargo.toml --bin atlas-distill
+cargo check --manifest-path ../distill/Cargo.toml --bin distill
 
 # Regime-filter CLI dry run
 python ../tools/mlip_regime_filter.py --campaign ../data/mlip_benchmarks/evidence_campaigns/mptrj_lane_b_paired_accuracy_v1.json --scope promotion-canary
@@ -116,7 +116,7 @@ On Windows, the root `justfile` routes Node/build tasks through Git Bash to avoi
 ### 4. Where to put code
 
 - New MLIP benchmark logic → `python/lupine_distill/`
-- New Distill policy / scoring → `atlas-distill/src/`
+- New Distill policy / scoring → `distill/src/`
 - New agent workflow / ledger route → `glim-think/src/`
 - New formal theorem → `lean-spec/OpenDistillationFactory/Materials/`
 - New public docs → `docs/` (use the templates)

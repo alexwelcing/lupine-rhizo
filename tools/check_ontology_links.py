@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the versioned Lupine ontology atlas and its cross-links."""
+"""Validate the versioned Lupine ontology and its cross-links."""
 
 from __future__ import annotations
 
@@ -24,11 +24,12 @@ EXPECTED_CLASS_CHAINS: dict[str, tuple[str, ...]] = {
     "MC9": ("C6", "C11"),
 }
 RELATION_NAMESPACE_ALIASES = {"any": "ontology", "CorrectionLever": "lever"}
-ATLAS_DATE = "2026-07-30"
+ONTOLOGY_DATE = "2026-07-30"
 LOCK_VERSION = 2
-ATLAS_ARTIFACT = "registry/ontology/atlas.v2.json"
-ATLAS_LOCK_PATH = "snapshots/ontology.lock.json"
-VERSIONED_ATLAS_HASHES = {
+# Legacy artifact filenames are immutable source identities, not current API names.
+ONTOLOGY_ARTIFACT = "registry/ontology/atlas.v2.json"
+ONTOLOGY_LOCK_PATH = "snapshots/ontology.lock.json"
+ONTOLOGY_VERSION_HASHES = {
     "atlas.v1.json": (
         "sha256:e75a6825f78ad4ae6c32631fa7fa8ab649a62334f8fe9b646ede936611f1c46b"
     ),
@@ -66,8 +67,8 @@ def parse_readiness(value: object) -> tuple[str, str | None]:
     return match.group("grade"), annotation
 
 
-def _records(atlas: dict[str, Any], key: str) -> list[dict[str, Any]]:
-    value = atlas.get(key)
+def _records(ontology: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = ontology.get(key)
     if not isinstance(value, list) or any(not isinstance(row, dict) for row in value):
         raise OntologyError(f"{key} must be an array of objects")
     return value
@@ -90,7 +91,7 @@ def _chain_values(value: object, material_id: str) -> tuple[str, ...]:
     raise OntologyError(f"materialClasses {material_id} has an invalid chain binding")
 
 
-def _validate_readiness_values(value: object, path: str = "atlas") -> None:
+def _validate_readiness_values(value: object, path: str = "ontology") -> None:
     if isinstance(value, dict):
         for key, child in value.items():
             child_path = f"{path}.{key}"
@@ -116,8 +117,8 @@ def _relation_namespace(domain: object) -> str:
     return namespace
 
 
-def _validate_relations(atlas: dict[str, Any]) -> None:
-    relations = _records(atlas, "relations")
+def _validate_relations(ontology: dict[str, Any]) -> None:
+    relations = _records(ontology, "relations")
     labels: set[str] = set()
     for index, relation in enumerate(relations):
         name = relation.get("name")
@@ -142,9 +143,9 @@ def _validate_relations(atlas: dict[str, Any]) -> None:
                 )
 
 
-def _source_projection_bytes(atlas: dict[str, Any]) -> bytes:
+def _source_projection_bytes(ontology: dict[str, Any]) -> bytes:
     """Reverse the declared additive transformation to reproduce source bytes."""
-    source_projection = json.loads(json.dumps(atlas, ensure_ascii=False))
+    source_projection = json.loads(json.dumps(ontology, ensure_ascii=False))
     relations = source_projection.get("relations")
     if not isinstance(relations, list):
         raise OntologyError("relations must be an array for source projection")
@@ -156,17 +157,17 @@ def _source_projection_bytes(atlas: dict[str, Any]) -> bytes:
     return json.dumps(source_projection, indent=2, ensure_ascii=False).encode()
 
 
-def validate_lock(atlas_bytes: bytes, atlas: object, lock: object) -> None:
-    """Validate the immutable atlas hash and its source/freshness provenance."""
-    if not isinstance(atlas, dict) or not isinstance(lock, dict):
-        raise OntologyError("atlas and ontology lock must be JSON objects")
-    expected_hash = "sha256:" + hashlib.sha256(atlas_bytes).hexdigest()
+def validate_lock(ontology_bytes: bytes, ontology: object, lock: object) -> None:
+    """Validate the immutable ontology hash and its source/freshness provenance."""
+    if not isinstance(ontology, dict) or not isinstance(lock, dict):
+        raise OntologyError("ontology and ontology lock must be JSON objects")
+    expected_hash = "sha256:" + hashlib.sha256(ontology_bytes).hexdigest()
     if lock.get("sha256") != expected_hash:
         raise OntologyError(f"sha256 mismatch: expected {expected_hash}")
     if lock.get("version") != LOCK_VERSION:
         raise OntologyError(f"version must be {LOCK_VERSION}")
-    if lock.get("artifact") != ATLAS_ARTIFACT:
-        raise OntologyError(f"artifact must be {ATLAS_ARTIFACT}")
+    if lock.get("artifact") != ONTOLOGY_ARTIFACT:
+        raise OntologyError(f"artifact must be {ONTOLOGY_ARTIFACT}")
     if lock.get("transformation") != TRANSFORMATION_CONTRACT:
         raise OntologyError(
             "transformation must declare the additive relation-label contract"
@@ -177,38 +178,39 @@ def validate_lock(atlas_bytes: bytes, atlas: object, lock: object) -> None:
             f"source.sha256 must match PROVENANCE.sha256 ({SOURCE_SHA256})"
         )
     projected_source_hash = "sha256:" + hashlib.sha256(
-        _source_projection_bytes(atlas)
+        _source_projection_bytes(ontology)
     ).hexdigest()
     if projected_source_hash != source.get("sha256"):
         raise OntologyError(
-            "source.sha256 does not match the atlas after reversing the declared "
+            "source.sha256 does not match the ontology after reversing the declared "
             f"transformation (got {projected_source_hash})"
         )
     if source.get("path") != "lupine-ledger/content/ontology/lupine-ontology.json":
         raise OntologyError("source.path does not identify lupine-ontology.json")
     if source.get("provenance") != "lupine-ledger/content/ontology/PROVENANCE.sha256":
         raise OntologyError("source.provenance does not identify PROVENANCE.sha256")
-    metadata = atlas.get("metadata")
+    metadata = ontology.get("metadata")
     compiled = metadata.get("compiled") if isinstance(metadata, dict) else None
-    freshness = atlas.get("freshnessLayer")
-    if lock.get("atlasDate") != ATLAS_DATE or compiled != ATLAS_DATE:
-        raise OntologyError(f"atlasDate and metadata.compiled must equal {ATLAS_DATE}")
-    if not isinstance(freshness, dict) or freshness.get("atlasDate") != ATLAS_DATE:
-        raise OntologyError(f"freshnessLayer.atlasDate must equal {ATLAS_DATE}")
+    freshness = ontology.get("freshnessLayer")
+    # Frozen source/lock documents retain the legacy atlasDate field verbatim.
+    if lock.get("atlasDate") != ONTOLOGY_DATE or compiled != ONTOLOGY_DATE:
+        raise OntologyError(f"ontology date and metadata.compiled must equal {ONTOLOGY_DATE}")
+    if not isinstance(freshness, dict) or freshness.get("atlasDate") != ONTOLOGY_DATE:
+        raise OntologyError(f"freshnessLayer date must equal {ONTOLOGY_DATE}")
     if lock.get("freshnessLayer") != freshness:
-        raise OntologyError("freshnessLayer does not match the versioned atlas")
+        raise OntologyError("freshnessLayer does not match the versioned ontology")
 
 
-def validate_atlas(atlas: object) -> None:
+def validate_ontology(ontology: object) -> None:
     """Validate ontology identifiers and all cross-section links."""
-    if not isinstance(atlas, dict):
-        raise OntologyError("atlas must be a JSON object")
-    readiness_ids = _ids(_records(atlas, "readinessGrades"), "readinessGrades")
+    if not isinstance(ontology, dict):
+        raise OntologyError("ontology must be a JSON object")
+    readiness_ids = _ids(_records(ontology, "readinessGrades"), "readinessGrades")
     if readiness_ids != {"H", "M", "L"}:
         raise OntologyError("readinessGrades must define exactly H, M, and L")
-    _validate_readiness_values(atlas)
-    _validate_relations(atlas)
-    chains = _records(atlas, "discoveryChains")
+    _validate_readiness_values(ontology)
+    _validate_relations(ontology)
+    chains = _records(ontology, "discoveryChains")
     chain_ids = _ids(chains, "discoveryChains")
     expected_chain_ids = {f"C{index}" for index in range(1, 12)}
     if chain_ids != expected_chain_ids:
@@ -216,7 +218,7 @@ def validate_atlas(atlas: object) -> None:
     for chain in chains:
         if "readiness" not in chain:
             raise OntologyError(f"discoveryChains {chain['id']} must declare readiness")
-    materials = _records(atlas, "materialClasses")
+    materials = _records(ontology, "materialClasses")
     material_ids = _ids(materials, "materialClasses")
     if material_ids != set(EXPECTED_CLASS_CHAINS):
         raise OntologyError("materialClasses ids do not preserve A1 parity (MC1–MC9)")
@@ -234,7 +236,7 @@ def validate_atlas(atlas: object) -> None:
                 f"expected {EXPECTED_CLASS_CHAINS[material_id]}, got {bound_chains}"
             )
 
-    acceptance_tests = _records(atlas, "acceptanceTests")
+    acceptance_tests = _records(ontology, "acceptanceTests")
     acceptance_ids = _ids(acceptance_tests, "acceptanceTests")
     expected_acceptance_ids = {f"Z{index}" for index in range(1, 12)}
     if acceptance_ids != expected_acceptance_ids:
@@ -264,49 +266,51 @@ def _load_json(path: Path) -> tuple[bytes, object]:
         raise OntologyError(f"cannot read {path}: {error}") from error
 
 
-def validate_versioned_atlas_inventory(registry_path: Path) -> None:
-    """Fail closed on unknown versions and mutations of historical atlases."""
-    atlas_paths = sorted(registry_path.glob("atlas.v*.json"))
-    actual_names = {path.name for path in atlas_paths}
-    expected_names = set(VERSIONED_ATLAS_HASHES)
+def validate_versioned_ontology_inventory(registry_path: Path) -> None:
+    """Fail closed on unknown versions and mutations of historical ontologies."""
+    ontology_paths = sorted(registry_path.glob("atlas.v*.json"))
+    actual_names = {path.name for path in ontology_paths}
+    expected_names = set(ONTOLOGY_VERSION_HASHES)
     if actual_names != expected_names:
         missing = sorted(expected_names - actual_names)
         unsupported = sorted(actual_names - expected_names)
         details = []
         if missing:
-            details.append(f"missing versioned ontology atlas: {', '.join(missing)}")
+            details.append(f"missing versioned ontology: {', '.join(missing)}")
         if unsupported:
-            details.append(f"unsupported ontology atlas version: {', '.join(unsupported)}")
+            details.append(f"unsupported ontology version: {', '.join(unsupported)}")
         raise OntologyError("; ".join(details))
 
-    for atlas_path in atlas_paths:
-        expected_hash = VERSIONED_ATLAS_HASHES[atlas_path.name]
+    for ontology_path in ontology_paths:
+        expected_hash = ONTOLOGY_VERSION_HASHES[ontology_path.name]
         if expected_hash is None:
             continue
         actual_hash = (
-            "sha256:" + hashlib.sha256(atlas_path.read_bytes()).hexdigest()
+            "sha256:" + hashlib.sha256(ontology_path.read_bytes()).hexdigest()
         )
         if actual_hash != expected_hash:
             raise OntologyError(
-                f"historical ontology atlas {atlas_path.name} is not immutable: "
+                f"historical ontology {ontology_path.name} is not immutable: "
                 f"expected {expected_hash}, got {actual_hash}"
             )
 
 
-def check_files(atlas_path: Path, lock_path: Path) -> None:
-    atlas_bytes, atlas = _load_json(atlas_path)
+def check_files(ontology_path: Path, lock_path: Path) -> None:
+    ontology_bytes, ontology = _load_json(ontology_path)
     _, lock = _load_json(lock_path)
-    validate_atlas(atlas)
-    validate_lock(atlas_bytes, atlas, lock)
+    validate_ontology(ontology)
+    validate_lock(ontology_bytes, ontology, lock)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--ontology", type=Path, dest="ontology")
+    # Read-only CLI compatibility for retained automation invocations.
+    source.add_argument("--atlas", type=Path, dest="ontology", help=argparse.SUPPRESS)
+    parser.set_defaults(ontology=Path(ONTOLOGY_ARTIFACT))
     parser.add_argument(
-        "--atlas", type=Path, default=Path(ATLAS_ARTIFACT)
-    )
-    parser.add_argument(
-        "--lock", type=Path, default=Path(ATLAS_LOCK_PATH)
+        "--lock", type=Path, default=Path(ONTOLOGY_LOCK_PATH)
     )
     return parser.parse_args()
 
@@ -314,9 +318,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
-        if args.atlas == Path(ATLAS_ARTIFACT) and args.lock == Path(ATLAS_LOCK_PATH):
-            validate_versioned_atlas_inventory(args.atlas.parent)
-        check_files(args.atlas, args.lock)
+        if args.ontology == Path(ONTOLOGY_ARTIFACT) and args.lock == Path(ONTOLOGY_LOCK_PATH):
+            validate_versioned_ontology_inventory(args.ontology.parent)
+        check_files(args.ontology, args.lock)
     except OntologyError as error:
         print(f"ontology link check failed: {error}", file=sys.stderr)
         return 1

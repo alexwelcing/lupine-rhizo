@@ -39,8 +39,8 @@ qualified thermodynamic model and reservoir convention.
 
 From the repository root:
 
-    cargo run --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- \
-      vacancy-reference --input atlas-distill/tests/fixtures/vacancy_uniform_bias.input.json
+    cargo run --manifest-path distill/Cargo.toml --bin distill -- \
+      vacancy-reference --input distill/tests/fixtures/vacancy_uniform_bias.input.json
 
 The fixture intentionally exits nonzero **after** emitting its descriptive JSON
 report because the selected centered score is incompatible with the requested

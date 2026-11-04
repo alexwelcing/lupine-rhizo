@@ -27,7 +27,7 @@ The current center of gravity is:
 Command run privately into `.glim-runtime/science-runs/`:
 
 ```powershell
-cargo run --release --manifest-path ..\..\atlas-distill\Cargo.toml --bin atlas-distill -- benchmark (Resolve-Path ..\..\nist_benchmark.csv) --full
+cargo run --release --manifest-path ..\..\distill\Cargo.toml --bin distill -- benchmark (Resolve-Path ..\..\nist_benchmark.csv) --full
 ```
 
 Input: `nist_benchmark.csv`

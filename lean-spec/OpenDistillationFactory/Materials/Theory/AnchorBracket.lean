@@ -32,7 +32,7 @@ mirrors follow in the later sections):
    admissibility test `p8 ≤ p9 ≤ p11 ≤ 0` (decidable in its scaled-integer
    form, `norm_num`-checkable on rational anchors). The forward direction
    upgrades every kernel-checked tier-2 refusal in
-   `DistillAtlas.EnvFieldInstances`: a refused cell is not merely "outside
+   `Data.EnvFieldInstances`: a refused cell is not merely "outside
    our constructor's precondition" — **no `ErrorField` whatsoever is
    consistent with its anchors**. Refusal is complete, not an artifact of
    the chosen interpolation scheme (`scaledAnchorsValid_iff_exists_interpolant`).
@@ -94,7 +94,7 @@ field-decomposability of the energy error, wherever a hypothesis
 `eModel = eRef + F.fieldSum cfg` appears. Empirical: the measured anchors
 are the true field's values at the anchor coordinations (the
 `Interpolates…` hypotheses; per-cell anchor numerals enter through
-`DistillAtlas.EnvFieldInstances` and its binder report). Policy: the
+`Data.EnvFieldInstances` and its binder report). Policy: the
 in-range gate (`InRange…`) and any margin thresholds chosen downstream.
 
 House rules: zero `sorry`, zero new axioms.

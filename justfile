@@ -41,7 +41,7 @@ bench-tests:
 
 # Build all Rust components
 build-rust:
-    cargo build --workspace --manifest-path atlas-distill/Cargo.toml
+    cargo build --workspace --manifest-path distill/Cargo.toml
 
 # --- DEPLOYMENT ---
 
@@ -103,10 +103,10 @@ think-lint-app:
 think-lint-profile:
     npm --prefix glim-think run lint:profile
 
-# Rust engine regression check used by the current atlas-distill path
+# Rust engine regression check used by the current distill path
 engine-test:
-    cargo test --workspace --manifest-path atlas-distill/Cargo.toml
-    cargo clippy --workspace --manifest-path atlas-distill/Cargo.toml -- -D warnings
+    cargo test --workspace --manifest-path distill/Cargo.toml
+    cargo clippy --workspace --manifest-path distill/Cargo.toml -- -D warnings
 
 # Build the local live/worker-facing TypeScript surface without a deploy
 live-build:
@@ -141,9 +141,9 @@ mono-check:
 mono-check-full:
     python scripts/monorepo.py check --all
 
-# Run the atlas-distill Docker build in Cloud Build
-smoke-atlas-distill:
-    gcloud builds submit --config cloudbuild.atlas-distill-smoke.yaml .
+# Run the distill Docker build in Cloud Build
+smoke-distill:
+    gcloud builds submit --config cloudbuild.distill-smoke.yaml .
 
 # --- MLIP FLYWHEEL TELEMETRY ---
 
@@ -254,7 +254,7 @@ verify-light:
     cd python && python -m pytest -m unit -q
     cd ..
     echo "==> Rust check"
-    cargo check --workspace --manifest-path atlas-distill/Cargo.toml
+    cargo check --workspace --manifest-path distill/Cargo.toml
     echo "==> Diff hygiene"
     git diff --check
 
@@ -266,7 +266,7 @@ verify:
     cd python && python -m pytest -m unit -q
     cd ..
     echo "==> Rust engine"
-    cargo test --workspace --manifest-path atlas-distill/Cargo.toml
+    cargo test --workspace --manifest-path distill/Cargo.toml
     echo "==> Tools smoke tests"
     python -m pytest tools/test_mlip_regime_filter.py gcp/mlip-cell-runner/test_distill_runtime.py gcp/mlip-cell-runner/test_openinference_patcher.py gcp/mlip-cell-runner/test_runner_observability.py -q
     echo "==> Diff hygiene"
@@ -284,8 +284,8 @@ verify-heavy:
     cd python && python -m pytest tests/neural_symbolic -q
     cd ..
     echo "==> Rust engine (check/test/clippy)"
-    cargo test --workspace --manifest-path atlas-distill/Cargo.toml
-    cargo clippy --workspace --manifest-path atlas-distill/Cargo.toml -- -D warnings
+    cargo test --workspace --manifest-path distill/Cargo.toml
+    cargo clippy --workspace --manifest-path distill/Cargo.toml -- -D warnings
     echo "==> Tools smoke tests"
     python -m pytest tools/test_mlip_regime_filter.py gcp/mlip-cell-runner/test_distill_runtime.py gcp/mlip-cell-runner/test_openinference_patcher.py gcp/mlip-cell-runner/test_runner_observability.py -q
     echo "==> glim-think tests"

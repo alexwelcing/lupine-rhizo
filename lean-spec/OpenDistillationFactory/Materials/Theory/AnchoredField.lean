@@ -46,7 +46,7 @@ silently wrong field — the noise-floor and out-of-domain cells the platform
 must refuse to correct.
 
 Generated per-cell instances live in
-`DistillAtlas.EnvFieldInstances` (emitter:
+`Data.EnvFieldInstances` (emitter:
 `python/scripts/bind_env_field_instances.py`).
 
 House rules: zero `sorry`, zero new axioms.

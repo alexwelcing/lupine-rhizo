@@ -14,7 +14,7 @@ evidence ledger.
 | **Promotion / filtering** | `mlip_local_promotion.py`, `mlip_regime_filter.py`, `regime_gate_flywheel.py`, `evaluate_ni_fixture_reference.py`, `build_ni_publication_fixture.py` |
 | **Telemetry / traces** | `mlip_phoenix_trace.py`, `mlip_subspace_diagnostics.py` |
 | **Long-demo registry** | `mlip_long_demo_registry.py`, `mlip_long_demo_ribbon_prep.py` — ribbon prep and demo registry management. |
-| **MLIP/model analysis** | `mlip_sim_matrix.py`, `mlip_deep_accuracy_campaign.py`, `mlip_distill_atlas.py`, `mlip_kimi_evidence.py` |
+| **MLIP/model analysis** | `mlip_sim_matrix.py`, `mlip_deep_accuracy_campaign.py`, `mlip_distill_report.py`, `mlip_kimi_evidence.py` |
 | **Build support** | `build_mlip_first_day_viewer.py`, `build_ni_distill_support.py` |
 | **Tests** | `test_*.py` for most tool modules. |
 | **Python deps** | `requirements.txt`, `requirements-telemetry.txt` |

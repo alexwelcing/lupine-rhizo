@@ -269,7 +269,7 @@ CREATE INDEX IF NOT EXISTS idx_mlip_baseline_cells_grid
   ON mlip_baseline_cells(run_id, row_id, mlip_id);
 
 -- Canonical ATLAS/Lean theorem registry (migration 0011).
-CREATE TABLE IF NOT EXISTS atlas_facet_registry (
+CREATE TABLE IF NOT EXISTS facet_registry (
   facet TEXT COLLATE NOCASE PRIMARY KEY,
   agent_class TEXT COLLATE NOCASE NOT NULL UNIQUE,
   lifecycle_status TEXT NOT NULL DEFAULT 'active'
@@ -279,16 +279,16 @@ CREATE TABLE IF NOT EXISTS atlas_facet_registry (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CHECK(facet <> '' AND facet COLLATE BINARY = lower(trim(facet)))
 );
-INSERT OR IGNORE INTO atlas_facet_registry (facet, agent_class) VALUES
+INSERT OR IGNORE INTO facet_registry (facet, agent_class) VALUES
   ('causal', 'Causal'),
   ('experiment', 'Experiment'),
   ('manifold', 'Manifold'),
   ('theorist', 'Theorist');
 
-CREATE TABLE IF NOT EXISTS atlas_theorems (
+CREATE TABLE IF NOT EXISTS theorems (
   id INTEGER PRIMARY KEY,
   facet TEXT COLLATE NOCASE NOT NULL
-    REFERENCES atlas_facet_registry(facet) ON UPDATE CASCADE ON DELETE RESTRICT,
+    REFERENCES facet_registry(facet) ON UPDATE CASCADE ON DELETE RESTRICT,
   theorem_name TEXT NOT NULL CHECK(trim(theorem_name) <> ''),
   module TEXT NOT NULL CHECK(trim(module) <> ''),
   revision TEXT NOT NULL CHECK(trim(revision) <> ''),
@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS atlas_theorems (
     CHECK(status IN ('imported','verified','extended','failed')),
   lifecycle_status TEXT NOT NULL DEFAULT 'active'
     CHECK(lifecycle_status IN ('active','retired','superseded')),
-  superseded_by_id INTEGER REFERENCES atlas_theorems(id) ON DELETE RESTRICT,
+  superseded_by_id INTEGER REFERENCES theorems(id) ON DELETE RESTRICT,
   used_in_hypotheses INTEGER NOT NULL DEFAULT 0 CHECK(used_in_hypotheses >= 0),
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -329,18 +329,18 @@ CREATE TABLE IF NOT EXISTS atlas_theorems (
     (lifecycle_status IN ('active','retired') AND superseded_by_id IS NULL)
   )
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_atlas_theorems_identity
-  ON atlas_theorems(facet, theorem_name, module, revision);
-CREATE INDEX IF NOT EXISTS idx_atlas_theorems_facet
-  ON atlas_theorems(facet, lifecycle_status, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_atlas_theorems_status
-  ON atlas_theorems(status, lifecycle_status);
-CREATE INDEX IF NOT EXISTS idx_atlas_theorems_proof_revision
-  ON atlas_theorems(proof_repository, proof_revision);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_theorems_identity
+  ON theorems(facet, theorem_name, module, revision);
+CREATE INDEX IF NOT EXISTS idx_theorems_facet
+  ON theorems(facet, lifecycle_status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_theorems_status
+  ON theorems(status, lifecycle_status);
+CREATE INDEX IF NOT EXISTS idx_theorems_proof_revision
+  ON theorems(proof_repository, proof_revision);
 
-CREATE TABLE IF NOT EXISTS atlas_facet_state (
+CREATE TABLE IF NOT EXISTS facet_state (
   facet TEXT COLLATE NOCASE PRIMARY KEY
-    REFERENCES atlas_facet_registry(facet) ON UPDATE CASCADE ON DELETE RESTRICT,
+    REFERENCES facet_registry(facet) ON UPDATE CASCADE ON DELETE RESTRICT,
   proof_repository TEXT,
   proof_revision TEXT,
   atlas_revision TEXT,

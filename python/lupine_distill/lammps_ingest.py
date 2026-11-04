@@ -4,7 +4,7 @@ Entry point for external LAMMPS users: they bring the log files their campaigns
 already produce (the ``examples/ELASTIC`` driver output, plain thermo logs) and
 this module turns them into schema-validated ``lupine.mlip.lammps_evidence.v1``
 payloads and machine-checked Lean 4 modules in the exact style authored by
-``tools/mlip_distill_atlas.py`` (the production path into ``lean-spec/``).
+``tools/mlip_distill_report.py`` (the production path into ``lean-spec/``).
 
 Three layers, usable independently:
 
@@ -374,7 +374,7 @@ def emit_lean_module(
 ) -> pathlib.Path:
     """Write a Lean 4 module of decidable theorems from evidence payloads.
 
-    Style mirrors ``tools/mlip_distill_atlas.py``: a machine-generated header
+    Style mirrors ``tools/mlip_distill_report.py``: a machine-generated header
     naming the source tool and input hashes, one namespace, and one decidable
     Nat-inequality theorem per reference-annotated property (abs error and
     tolerance both x1000-scaled). A property inside its tolerance — explicit

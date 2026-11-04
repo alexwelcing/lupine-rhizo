@@ -37,7 +37,7 @@ import OpenDistillationFactory.Materials.Theory.SorptionStability
 import OpenDistillationFactory.Materials.Theory.AnchoredField
 import OpenDistillationFactory.Materials.Theory.AnchorBracket
 import OpenDistillationFactory.Materials.Theory.UniversalCorrection
-import OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
+import OpenDistillationFactory.Materials.Data.EnvFieldInstances
 import OpenDistillationFactory.Materials.Validation.Experiment
 import OpenDistillationFactory.Materials.Validation.Audit
 import OpenDistillationFactory.Materials.Validation.ClimateSeries
@@ -75,7 +75,7 @@ open OpenDistillationFactory.Materials.Theory.SorptionStability
 open OpenDistillationFactory.Materials.Theory.AnchoredField
 open OpenDistillationFactory.Materials.Theory.AnchorBracket
 open OpenDistillationFactory.Materials.Theory.UniversalCorrection
-open OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances
+open OpenDistillationFactory.Materials.Data.EnvFieldInstances
 open OpenDistillationFactory.Materials.Validation
 open OpenDistillationFactory.Materials.Validation.Audit
 open OpenDistillationFactory.Materials.Validation.ClimateSeries
@@ -380,7 +380,7 @@ def nistCount := nistScaffoldAlSample.length
 #check mkAnchoredFieldDiamond_toMeasuredField
 #check scaledAnchorDiamondValid_example
 
-/- The bound Y-matrix corpus (generated: DistillAtlas.EnvFieldInstances):
+/- The bound Y-matrix corpus (generated: Data.EnvFieldInstances):
     68 measured fields (36 fcc + 28 bcc + 4 diamond); 19 anchored softening
     instances (8 fcc + 7 bcc + 4 diamond) + 49 kernel-checked tier-2
     refusals (28 fcc + 21 bcc + 0 diamond). Representative instances

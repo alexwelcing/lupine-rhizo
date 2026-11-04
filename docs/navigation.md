@@ -91,10 +91,10 @@ trusting any of it.**
 - [`docs/FAQ.md`](./FAQ.md) — common questions
 - [`ROOTS.md`](../ROOTS.md) — authoritative root-ownership ledger
 [`archive/`](../archive/) holds retired surfaces (currently `lupine-start/`).
-`glim-think/` is the control plane; `atlas-distill/` the Rust engine; `python/`
+`glim-think/` is the control plane; `distill/` the Rust engine; `python/`
 the active Python Distill packages; `mlip_immi/` the real-data lane; `lean-spec/`
 the formal layer; `paper/` the manuscript; `library-site/` the public site;
-`atlas/atlas-view/` the LUPI viewer app. Retired roots live in `archive/`.
+the separate Lupi repository the LUPI viewer app. Retired roots live in `archive/`.
 
 For the machinery (control plane, distill engine, MLIP campaigns, cloud compute,
 the M3 upgrade), see the **engineering index**:
@@ -113,7 +113,7 @@ arrangement: [`docs/decisions/0002-documentation-architecture.md`](./decisions/0
 - [`docs/distill_kart_race_live_win.md`](./distill_kart_race_live_win.md) is **stale /
   superseded** by the corrected 2026-06-02 MPtrj live campaign; the "5–7× faster"
   headline overstates the accelerate tier.
-- [`docs/distill_improvement_atlas.md`](./distill_improvement_atlas.md) is a **stale
+- [`archive/research/distill-improvements.md`](./distill-improvements.md) is a **stale
   campaign snapshot**: its "6 accelerate-wins" claim was nullified and its Ni-EAM
   regressions are the v0 ungated harms now caught by the regime gate.
 - The three `docs/EXTRACTION_*.md` files and [`docs/KEY_FINDINGS_SUMMARY.md`](./KEY_FINDINGS_SUMMARY.md)

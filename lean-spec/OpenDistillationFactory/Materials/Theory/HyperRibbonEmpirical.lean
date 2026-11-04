@@ -4,7 +4,7 @@ namespace OpenDistillationFactory.Materials.Theory.HyperRibbonEmpirical
 
 /--
   Empirical verification of the Hyper-Ribbon Claim across all potentials.
-  Computed by atlas-distill PCA manifold analysis.
+  Computed by distill PCA manifold analysis.
 -/
 def maxEmpiricalFractionalDimensionality : Float := 0.3981388474988096
 

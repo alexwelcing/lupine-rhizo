@@ -71,9 +71,9 @@ def manifest(structure_id: str, offset: float = 0.0):
     }
 
 
-def atlas_distill_bin() -> pathlib.Path:
-    exe = "atlas-distill.exe" if sys.platform.startswith("win") else "atlas-distill"
-    return pathlib.Path(__file__).resolve().parents[2] / "atlas-distill" / "target" / "debug" / exe
+def distill_bin() -> pathlib.Path:
+    exe = "distill.exe" if sys.platform.startswith("win") else "distill"
+    return pathlib.Path(__file__).resolve().parents[2] / "distill" / "target" / "debug" / exe
 
 
 def test_leakage_guard_rejects_structural_overlap():
@@ -288,9 +288,9 @@ def test_support_model_emits_per_prediction_ribbon_distance():
 
 
 def test_distill_session_can_delegate_policy_to_rust():
-    atlas_distill = atlas_distill_bin()
-    if not atlas_distill.exists():
-        pytest.skip("atlas-distill binary has not been built")
+    distill = distill_bin()
+    if not distill.exists():
+        pytest.skip("distill binary has not been built")
     session = DistillSession(
         profile="accuracy",
         run_id="run",
@@ -298,7 +298,7 @@ def test_distill_session_can_delegate_policy_to_rust():
         row_id="energy_volume",
         mlip_id="chgnet",
         policy_engine_name="rust",
-        atlas_distill_bin=str(atlas_distill),
+        distill_bin=str(distill),
         ribbon_version="hyperribbon-v1",
     )
     session.support_model = DistillSupportModel(
@@ -318,9 +318,9 @@ def test_distill_session_can_delegate_policy_to_rust():
 
 
 def test_distill_session_forwards_selected_policy_limits_to_rust(tmp_path):
-    atlas_distill = atlas_distill_bin()
-    if not atlas_distill.exists():
-        pytest.skip("atlas-distill binary has not been built")
+    distill = distill_bin()
+    if not distill.exists():
+        pytest.skip("distill binary has not been built")
     limits_path = tmp_path / "policy_limits.json"
     limits_path.write_text(json.dumps({
         "max_energy_bias_ev_per_atom": 2.0,
@@ -336,7 +336,7 @@ def test_distill_session_forwards_selected_policy_limits_to_rust(tmp_path):
         row_id="energy_volume",
         mlip_id="chgnet",
         policy_engine_name="rust",
-        atlas_distill_bin=str(atlas_distill),
+        distill_bin=str(distill),
         ribbon_version="hyperribbon-v2-local",
         policy_limits_path=str(limits_path),
     )
@@ -355,10 +355,10 @@ def test_distill_session_forwards_selected_policy_limits_to_rust(tmp_path):
 
 
 def test_rust_policy_engine_batches_decisions():
-    atlas_distill = atlas_distill_bin()
-    if not atlas_distill.exists():
-        pytest.skip("atlas-distill binary has not been built")
-    engine = RustPolicyEngine(atlas_distill_bin=str(atlas_distill), ribbon_version="hyperribbon-v1")
+    distill = distill_bin()
+    if not distill.exists():
+        pytest.skip("distill binary has not been built")
+    engine = RustPolicyEngine(distill_bin=str(distill), ribbon_version="hyperribbon-v1")
     model = DistillSupportModel(
         row_id="energy_volume",
         correction={"energy_bias_ev_per_atom": -0.1},
@@ -382,10 +382,10 @@ def test_rust_policy_engine_batches_decisions():
 
 
 def test_rust_policy_bridge_does_not_apply_ungated_candidate_correction():
-    atlas_distill = atlas_distill_bin()
-    if not atlas_distill.exists():
-        pytest.skip("atlas-distill binary has not been built")
-    engine = RustPolicyEngine(atlas_distill_bin=str(atlas_distill), ribbon_version="hyperribbon-v1")
+    distill = distill_bin()
+    if not distill.exists():
+        pytest.skip("distill binary has not been built")
+    engine = RustPolicyEngine(distill_bin=str(distill), ribbon_version="hyperribbon-v1")
     model = DistillSupportModel(
         row_id="forces",
         correction={},

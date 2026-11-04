@@ -7,7 +7,7 @@ The fixture is intentionally honest about reference ownership:
   NIST Mishin-1999 Ni EAM potential, making Lane A a classical-home-turf
   competition surface;
 - elastic constants are anchored to the existing Ni literature/NIST table
-  values used by atlas-distill.
+  values used by distill.
 
 This is not the hard-lane DFT fixture. It is the fair classical baseline lane.
 """
@@ -336,7 +336,7 @@ def build_fixture(source_packet: dict[str, Any]) -> dict[str, Any]:
                 "calculator": "ase.calculators.eam.EAM",
             },
             "elastic_constants": {
-                "source": "nist_benchmark.csv / atlas-distill Ni reference table",
+                "source": "nist_benchmark.csv / distill Ni reference table",
                 "citation_keys": ["nist_ipr", "simmons1971"],
                 "C11_gpa": refs["c11"],
                 "C12_gpa": refs["c12"],

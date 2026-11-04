@@ -14,7 +14,7 @@ TOOLS = Path(__file__).resolve().parent
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-from atlas_theorem_sync import compile_gate_manifest  # noqa: E402
+from theorem_sync import compile_gate_manifest  # noqa: E402
 from generate_assumptions import materialize, rendered  # noqa: E402
 from ingest_campaign_results import ingest  # noqa: E402
 
@@ -52,10 +52,18 @@ def run_cycle(
         )
     if not materialize(root, root, check=False):
         raise ValueError("assumption registry materialization failed")
-    theorem_registry_path = root / "config" / "atlas_theorem_registry.v1.json"
+    theorem_registry_path = root / "config" / "theorem_registry.v1.json"
     theorem_registry = json.loads(theorem_registry_path.read_text(encoding="utf-8"))
     proof_revision = theorem_registry["authority"]["proof_revision"]
-    theorem_evidence_path = root / "config" / f"atlas_theorem_sync.{proof_revision[:7]}.json"
+    evidence_ref = theorem_registry.get(
+        "build_evidence_path", f"config/theorem_sync.{proof_revision[:7]}.json"
+    )
+    if not isinstance(evidence_ref, str):
+        raise ValueError("theorem build evidence path must be a string")
+    evidence_path = Path(evidence_ref)
+    if evidence_path.is_absolute() or ".." in evidence_path.parts:
+        raise ValueError("theorem build evidence path must stay inside the repository")
+    theorem_evidence_path = root / evidence_path
     if not theorem_evidence_path.is_file():
         raise ValueError("missing theorem build evidence for the reviewed registry authority")
     gates = compile_gate_manifest(

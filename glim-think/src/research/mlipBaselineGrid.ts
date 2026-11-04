@@ -4,7 +4,7 @@ import { insertEval } from "../evals/store";
 import { registerResource } from "../resource-fabric";
 import { traceHypothesisStage } from "../telemetry/hypothesisTrace";
 import type { Env } from "../types";
-import { dispatchAtlasJob, type TaskPayload } from "./dispatch";
+import { dispatchDistillJob, type TaskPayload } from "./dispatch";
 import {
   DEFAULT_ACCURACY_ROWS,
   DEFAULT_MLIP_COLUMNS,
@@ -786,7 +786,7 @@ export async function dispatchQueuedMlipBaselineCells(
         },
       },
       async (span) => {
-        const result = await dispatchAtlasJob(env, payload);
+        const result = await dispatchDistillJob(env, payload);
         const ctx = span.spanContext();
         await env.LEDGER.prepare(
           `UPDATE mlip_baseline_cells

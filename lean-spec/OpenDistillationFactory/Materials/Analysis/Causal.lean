@@ -77,7 +77,7 @@ structure ParadoxResult where
   deriving Repr
 
 /-- Detect Simpson's paradox in grouped bivariate data.
-    Matches the algorithm in atlas-distill/src/causal.rs. -/
+    Matches the algorithm in distill/src/causal.rs. -/
 def detectParadox (points : List GroupedPoint) : ParadoxResult :=
   if points.length < 4 then
     { nGroups := 0, nTotal := 0, pooledR := 0.0, pooledDirection := "unknown",

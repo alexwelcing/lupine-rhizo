@@ -8,7 +8,7 @@ namespace OpenDistillationFactory.Materials.Mechanics.HallPetch
   Formally extracted Hall-Petch grain size strengthening equation.
   σ_y = σ_0 + k * d^{-1/2}
 
-  Derived automatically from atlas-distill literature distillation.
+  Derived automatically from distill literature distillation.
 -/
 noncomputable def yield_stress (sigma_0 k d : ℝ) : ℝ :=
   sigma_0 + k / Real.sqrt d

@@ -140,7 +140,7 @@ describe("createLeanProofCampaign — workflow-to-agenda wiring", () => {
     expect(backref?.bindings).toEqual([unitId, `lean-proof:${unitId}`]);
   });
 
-  it("rejects facets outside the ATLAS-managed set", async () => {
+  it("rejects facets outside the proof-managed set", async () => {
     const env = buildStubEnv({ LEDGER: stubLedger() });
     await expect(
       createLeanProofCampaign(env, {
@@ -148,7 +148,7 @@ describe("createLeanProofCampaign — workflow-to-agenda wiring", () => {
         proof_revision: COMMIT,
         units: [{ theorem_name: THEOREM }],
       }),
-    ).rejects.toThrow(/not an ATLAS-managed facet/);
+    ).rejects.toThrow(/not an proof-managed facet/);
   });
 });
 
@@ -190,7 +190,7 @@ describe("evaluateLeanProofUnit", () => {
         onPrepare,
         queries: [
           { match: "FROM lean_proof_units", first: unitRow() },
-          { match: "FROM atlas_theorems", first: theoremRow },
+          { match: "FROM theorems", first: theoremRow },
         ],
       }),
     });

@@ -804,7 +804,7 @@ def _chain_state(
 
 def build_feedback_plan(
     *,
-    atlas: dict[str, Any],
+    ontology: dict[str, Any],
     assumptions: dict[str, Any],
     evidence_by_id: dict[str, dict[str, Any]],
     hypotheses: list[dict[str, Any]],
@@ -813,11 +813,11 @@ def build_feedback_plan(
 ) -> dict[str, Any]:
     """Plan monotonic readiness/status transitions and the priority-ordered queue."""
     cycle_date = _iso_date(as_of)
-    chains = atlas.get("discoveryChains")
-    acceptance = atlas.get("acceptanceTests")
+    chains = ontology.get("discoveryChains")
+    acceptance = ontology.get("acceptanceTests")
     assumption_rows = assumptions.get("assumptions")
     if not isinstance(chains, list) or not isinstance(acceptance, list) or not isinstance(assumption_rows, list):
-        raise ValueError("atlas and assumptions have invalid collections")
+        raise ValueError("ontology and assumptions have invalid collections")
     priority = {row["id"]: index for index, row in enumerate(chains, 1)}
     acceptance_to_chain = {row["id"]: row["chain"] for row in acceptance}
     missing_new_bundles = sorted(new_bundle_ids - evidence_by_id.keys())
@@ -1105,7 +1105,10 @@ def _sync_candidate_bundle_ids(payload: Any) -> set[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--atlas", type=Path, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--ontology", type=Path, dest="ontology")
+    # Legacy option is accepted only at this CLI boundary.
+    source.add_argument("--atlas", type=Path, dest="ontology", help=argparse.SUPPRESS)
     parser.add_argument("--assumptions", type=Path, required=True)
     parser.add_argument("--evidence-dir", type=Path, required=True)
     parser.add_argument("--hypotheses", type=Path, required=True)
@@ -1130,7 +1133,7 @@ def main() -> int:
     sync_candidate_ids = _sync_candidate_bundle_ids(_load(args.new_bundle_ids))
     new_ids = sync_candidate_ids - _known_bundle_ids(_load(args.known_bundle_ids))
     plan = build_feedback_plan(
-        atlas=_load(args.atlas),
+        ontology=_load(args.ontology),
         assumptions=_load(args.assumptions),
         evidence_by_id=evidence,
         hypotheses=_hypothesis_rows(_load(args.hypotheses)),

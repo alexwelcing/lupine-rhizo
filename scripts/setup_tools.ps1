@@ -1,5 +1,5 @@
 # DEV Setup Script for GLIM (Windows)
-# Installs the dev tools used by the justfile, atlas-distill builds,
+# Installs the dev tools used by the justfile, distill builds,
 # the glim-think Cloudflare worker, and the Python research scripts.
 
 function Install-CargoTool($name, $crate, $extraArgs = @()) {
@@ -30,7 +30,7 @@ Install-CargoTool "rg"        "ripgrep"
 Install-CargoTool "tokei"     "tokei"
 Install-CargoTool "dust"      "du-dust"
 
-# --- Rust dev loop for atlas-distill ---
+# --- Rust dev loop for distill ---
 Install-CargoTool "cargo-nextest" "cargo-nextest" @("--locked")  # faster + structured tests
 Install-CargoTool "cargo-watch"   "cargo-watch"                   # rebuild on save
 Install-CargoTool "bacon"         "bacon"                         # background build runner / TUI
