@@ -2,7 +2,7 @@
 
 Reviewed 4 November 2026. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover twelve publications; repeated reference columns,
+literature examples below cover thirteen publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -25,6 +25,7 @@ must specify those choices before applying an error bound.
 | **Selection role and reference lineage — Attarian 2024 preprint**, 4 November. Sections 2.1, 3.1 and 3.2; Tables 4–5. | The authors choose Pot_2 using the results of Figures 2 and 3; Figure 3 includes the eutectic composition excluded from fitting. Separate unary ACE models give NaCl densities [1.55, 1.28, 1.45, 1.57] g/cm³ at 1200 K, against 1.49 ±0.5%. | Preserve fitting exclusion without upgrading it to selection-independent evaluation. The unary models are separately refitted to different DFT targets, with additional active learning; their Table 4 training errors are not a common-reference test. Do not attach the mixture Pot_2 holdout claim to these unary results. |
 | **Observable identity and fitting role — Mahata 2022**, 4 November. Table 6, Al-Cu alloys. | Five nominal liquidus discrepancies range from -5 to +22 K, including a marked eutectic entry. The source prioritized solidus/liquidus temperatures during fitting and initialized both phases at the alloy composition. | The inspected methods do not establish final phase compositions/fractions or a liquidus boundary at each overall composition. Preserve the reported values without treating temperature convergence as independent liquidus validation or missing evidence as proof of non-equilibration. |
 | **Sampling precision — Zhu 2021**, 4 November. Table 1, six elemental/potential pairs. | Al TOR-TILD is reported as 824 +/- 0.1 K against a cited experimental 933 K: -109 K nominal discrepancy despite a small standard error of the mean. | Separate numerical convergence, seed sampling, physical reference and fitting role. The paper demonstrates unary phases; its precision does not validate an alloy liquidus method. See the [two-study coexistence review](phase-coexistence-evidence.md). |
+| **Auxiliary-reference role — Zhu 2017**, 4 November. Cu TOR-TILD. | The [linked review](auxiliary-reference-evidence.md) separates a reference's standalone prediction from the corrected target. | Preserve target identity and both phase corrections; target evaluation is separate from physical validation. |
 
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
@@ -103,6 +104,9 @@ information discarded by a score:
 - **Equilibrium observable and uncertainty:** a coexistence temperature needs phase
   composition/boundary identity before a liquidus comparison; a standard error
   of a numerical mean does not bound physical discrepancy.
+- **Auxiliary-reference role:** an exact reference-to-target correction cancels
+  the reference convention, but numerical convergence and target-model accuracy
+  remain separate obligations. See the [linked Cu review](auxiliary-reference-evidence.md).
 - **Generalization evidence:** an excluded fitting composition, an independent
   configuration set, and a benchmark used for selection have different roles.
   A small surrogate-to-DFT fitting error does not bound a downstream physical
@@ -260,7 +264,12 @@ promotion follows from this document.
   DOI 10.1016/j.commatsci.2020.110065. Retained methods text and existing
   method/table previews reviewed 4 November.
 
-The current review links previously completed evidence; it does not refresh
+- **Zhu 2017:** [Phys. Rev. B 96, 224202](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.96.224202),
+  Section III A and Table V, PDF pages 6 and 8. Primary text reviewed
+  4 November; page rendering was not completed and potential files were not pinned.
+  This is one additional reviewed publication, not a corpus admission.
+
+The current review links completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
 and implementation references are included. Private campaign packets, raw
 corpus archives, local paths and model/controller state are excluded.

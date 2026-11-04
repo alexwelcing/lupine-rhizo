@@ -137,6 +137,11 @@ missing phase/observable identity. This strengthens the
 [failure map](exception-to-theorem-failure-map.md) without claiming new physical
 failure, novelty or measured user benefit.
 
+A separate [auxiliary-reference review](auxiliary-reference-evidence.md) keeps
+standalone prediction, correction efficiency, target evaluation and physical
+accuracy as distinct roles. It does not supply corrected counterparts for the
+Al/Ni observations above or change their qualifications.
+
 ## Verification and limits
 
 Both retained PDF SHA256 pins matched:
