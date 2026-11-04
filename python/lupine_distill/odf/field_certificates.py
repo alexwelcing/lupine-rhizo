@@ -1048,6 +1048,13 @@ def merge_into_candidate_metadata(
     fields. Refusals and indeterminate/non-applicable results therefore cannot
     satisfy the formal gate merely by existing. The input is not mutated."""
     enriched = dict(metadata)
+    # Normalize legacy input before appending certificates. Leaving both keys
+    # would manufacture a conflict when the promotion boundary validates them.
+    if "atlas_theorem_refs" in enriched:
+        legacy = enriched.pop("atlas_theorem_refs")
+        if "theorem_refs" in enriched and enriched["theorem_refs"] != legacy:
+            raise ValueError("conflicting theorem_refs and legacy atlas_theorem_refs")
+        enriched.setdefault("theorem_refs", legacy)
     refs = list(enriched.get("theorem_refs", []) or [])
     props = list(enriched.get("formal_properties", []) or [])
     evidence = list(enriched.get("certificate_evidence", []) or [])
