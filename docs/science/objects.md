@@ -60,6 +60,41 @@ These are properties of this code path. No affected historical row count or new
 scientific significance level was established by the inspection. Other archived
 generators must be inspected separately before assigning their results this contract.
 
+## Glim's distinct joint-property path
+
+The separate [Glim Manifold agent](../../glim-think/src/agents/manifold.ts) uses
+relative errors, not the raw-error Rust path above. Its inspected pre-fix revision
+`3c3f6bffab815481e084b67978f2df8e25e85784` inserted zero whenever an observable was
+missing or its reference was zero. This treated an unknown measurement as a
+perfect prediction. It also merged matching labels without retaining element or
+supplied model identity in the row key.
+
+A synthetic reproduction executed the actual class with I/O doubles: three labels,
+two properties, but only one complete row yielded PR 1.6, `hyper_ribbon=true` and
+a claim write. This demonstrates a consumer defect, not an observed historical
+scientific result or evidence that any particular published PR used those records.
+
+The current
+[observed-matrix contract](../../glim-think/src/research/observedManifoldMatrix.ts)
+is shared by the tool and deterministic entry points. It keeps the input property
+set fixed, retains only complete finite rows with nonzero references, rejects
+conflicting repeated cells, and separates elements and supplied potential IDs.
+Label fallback is disclosed; it does not verify model-artifact equivalence.
+True measured zero residuals remain zero. Missing values are never filled.
+
+Both paths expose sample selection, relative-error scaling and the centered-rank
+ceiling. Insufficient complete observations, no observed variation or more than
+five properties cause abstention; the existing eigenvalue routine must not report
+full-spectrum PR after computing only five components. Only included records
+become claim evidence. Legacy caches do not acquire the new contract by relabeling
+a scalar PR; explicit recomputation is required. Regression checks exercise the
+actual tool and deterministic paths with synthetic inputs and I/O doubles.
+
+This fixes fabricated observations and row-key collisions. It does not eliminate
+complete-case selection bias, establish compatible reference states, verify
+independent model artifacts, certify the approximate eigensolver, or calibrate
+the retained confidence heuristic. Results remain descriptive.
+
 ## Existing controls and outstanding interpretation
 
 The [MEAM matched-sample comparison](../conjectures/meam-intrinsic-2d.md) already
@@ -69,6 +104,13 @@ keeps the old MLIP transfer count frozen. The
 [A6 pilot](../glim-m3-upgrade/runs/a6-alignment-results.md) remains provisional;
 its recorded signal does not establish a universal configuration-space core.
 These are retained reports, not newly checked raw-data reproductions.
+
+The [retained ribbon-sprint report](../ribbon-sprint/00-preregistration.md)
+already records a negative joint-property control: its four-property, 42-row panel
+has reported PR 2.16 versus null 2.24, p=0.30. The named raw result/input files were
+not located by the bounded workspace filename search in this review. Treat this
+as a reported control, not a newly reproduced result, and do not equate its cohort
+with the older 45-record seed or rerun it merely because the summary was missed.
 
 Adding a derived coordinate also needs care: cubic `B = (C11 + 2*C12)/3`,
 when calculated from the same constants, adds no independent measurement.
