@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+// @ts-expect-error Test-only Node 22 SQLite; Worker tsconfig intentionally excludes Node types.
 import { DatabaseSync } from "node:sqlite";
 import { analyzeRunManifold } from "../runManifold";
 
