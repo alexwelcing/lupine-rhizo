@@ -9,12 +9,42 @@ import { validateVacancyResult } from "../../vacancyEvidenceContracts";
 
 const fixture = JSON.parse(readFileSync(new URL(
   "../../../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", import.meta.url), "utf8"));
+const protocol = JSON.parse(readFileSync(new URL(
+  "../../../../../atlas-distill/tests/fixtures/vacancy_calibration.protocol.json", import.meta.url), "utf8"));
 const report = () => validateVacancyResult(structuredClone(fixture));
 const render = (input: unknown, task?: "within_species_variation" | "formation_energy" | "vacancy_concentration") =>
   renderToStaticMarkup(React.createElement(VacancyReportView, { report: input, task }));
 afterEach(() => vi.unstubAllGlobals());
 
 describe("local vacancy report inspection", () => {
+  it("shows older reports as unknown and identifies singleton groups", () => {
+    const html = render(report());
+    expect(html).toContain("Reference protocol is unknown");
+    expect(html).toContain("Species with only one supplied site: Ni");
+    const input = report();
+    input.context.complete_cohort = false; input.rows = 2; input.groups[0].sites = 1;
+    expect(render(input, "within_species_variation")).toContain("zero centered error is uninformative");
+  });
+  it("renders distinct calibration and evaluation identities with declared weights", () => {
+    const input = report(); input.context.reference_protocol = structuredClone(protocol);
+    const html = render(input);
+    for (const text of ["Calibration and evaluation cohorts", "Cr: 2, Ni: 1",
+      "reference match", "prediction match", "declared shared, not independently verified",
+      "2/3", "1/3", "d".repeat(64), "e".repeat(64), "f".repeat(64)])
+      expect(html).toContain(text);
+    expect(html).toContain("not a physical reservoir");
+  });
+  it("recomputes a weight mismatch despite a producer claiming no issues", () => {
+    const input = report(); input.context.reference_protocol = structuredClone(protocol);
+    for (const s of input.context.reference_protocol!.reference_calibration!.species)
+      s.weight = { numerator: "1", denominator: "2" };
+    input.issues = []; input.task_assessment = "descriptive_components_only";
+    const html = render(input);
+    expect(html).toContain("Reference calibration weights differ from parent composition");
+    expect(html).toContain("reference mismatch");
+    expect(html).toContain("prediction match");
+  });
+
   it("opens one report locally without a provider run, network request or persistence", async () => {
     const fetcher = vi.fn(); const save = vi.fn();
     vi.stubGlobal("fetch", fetcher); vi.stubGlobal("localStorage", { setItem: save });

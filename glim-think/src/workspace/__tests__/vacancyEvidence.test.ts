@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error Test-only fixture access, excluded from Worker types.
 import { readFileSync } from "node:fs";
-import { assessVacancyEvidence, validateVacancyResult } from "../vacancyEvidenceContracts";
+import { assessVacancyEvidence, assessVacancyReference, validateVacancyResult } from "../vacancyEvidenceContracts";
 
 const base = (import.meta as ImportMeta & { url: string }).url;
 const fixture = JSON.parse(readFileSync(new URL(
@@ -15,9 +15,81 @@ function evidence() {
     }),
   };
 }
+const protocol = JSON.parse(readFileSync(new URL(
+  "../../../../atlas-distill/tests/fixtures/vacancy_calibration.protocol.json", base), "utf8"));
+function calibrated() {
+  const r = structuredClone(fixture);
+  r.context.reference_protocol = structuredClone(protocol);
+  return r;
+}
 const models = ["synthetic-shift", "synthetic-second"];
 
 describe("vacancy error evidence", () => {
+  it("keeps older reports explicitly unknown and derives the contrast dimension", () => {
+    const old = assessVacancyReference(fixture);
+    expect(old.referenceWeights).toBe("unknown");
+    expect(old.issues).toContain("Reference protocol is unknown");
+    expect(old.withinSpeciesContrasts).toBe(1);
+    expect(old.singletonSpecies).toEqual(["Ni"]);
+    const singleton = structuredClone(fixture);
+    singleton.context.complete_cohort = false; singleton.rows = 2; singleton.groups[0].sites = 1;
+    const checked = assessVacancyReference(singleton);
+    expect(checked.withinSpeciesContrasts).toBe(0);
+    expect(checked.issues.join(" ")).toContain("zero centered error is uninformative");
+  });
+  it("uses the shared Rust calibration fixture and preserves separate cohort identities", () => {
+    const r = calibrated();
+    const checked = assessVacancyReference(r);
+    expect(checked.referenceWeights).toBe("match");
+    expect(checked.predictionWeights).toBe("match");
+    expect(checked.issues).toEqual([]);
+    expect(checked.protocol!.evaluation_cohort_sha256).not.toBe(checked.protocol!.reference_calibration!.cohort_sha256);
+    for (const c of [r.context.reference_protocol.reference_calibration, r.context.reference_protocol.prediction_calibration])
+      for (const s of c.species) s.weight = { numerator: "1", denominator: "2" };
+    r.issues = []; r.task_assessment = "descriptive_components_only";
+    const mismatch = assessVacancyReference(r);
+    expect(mismatch.referenceWeights).toBe("mismatch");
+    expect(mismatch.predictionWeights).toBe("mismatch");
+    expect(mismatch.issues.join(" ")).toContain("elemental energy-zero convention");
+    expect(validateVacancyResult(r).components).toEqual(fixture.components);
+  });
+  it("rejects malformed declared composition, calibration counts, weights and identities", () => {
+    for (const mutate of [
+      (p: any) => { p.parent_species[0].atoms = 3; },
+      (p: any) => { p.parent_species[1].species = "Cr"; },
+      (p: any) => { p.reference_calibration.site_count = 3; },
+      (p: any) => { p.reference_calibration.species[0].species = "X"; },
+      (p: any) => { p.reference_calibration.species[0].weight.numerator = "1"; },
+      (p: any) => { p.reference_calibration.species[0].weight.denominator = "0"; },
+      (p: any) => { p.reference_calibration.species[0].weight.numerator = "-1"; },
+      (p: any) => { p.evaluation_cohort_sha256 = "unknown-hash"; },
+      (p: any) => { p.reference_calibration.species[1].species = "Cr"; },
+    ]) {
+      const r = calibrated(); mutate(r.context.reference_protocol);
+      expect(() => validateVacancyResult(r)).toThrow();
+    }
+  });
+  it("binds reference calibration across model arms but permits separately declared prediction calibration", () => {
+    const e = evidence();
+    for (const item of e.results) item.result.context.reference_protocol = structuredClone(protocol);
+    e.results[1].result.context.reference_protocol.prediction_calibration.cohort_sha256 = "1".repeat(64);
+    expect(() => assessVacancyEvidence(e, models)).not.toThrow();
+    e.results[1].result.context.reference_protocol.reference_calibration.species.reverse();
+    expect(() => assessVacancyEvidence(e, models)).not.toThrow();
+    e.results[1].result.context.reference_protocol.reference_calibration.cohort_sha256 = "2".repeat(64);
+    expect(() => assessVacancyEvidence(e, models)).toThrow(/reference binding/);
+  });
+  it("preserves unknown metadata and does not apply the self-consistent weight test to an external reservoir", () => {
+    const r = calibrated();
+    r.context.reference_protocol.parent_species = null;
+    r.context.reference_protocol.evaluation_cohort_sha256 = null;
+    r.context.reference_protocol.energy_zero_alignment = "unknown";
+    expect(assessVacancyReference(r).referenceWeights).toBe("unknown");
+    expect(assessVacancyReference(r).issues.join(" ")).toContain("alignment is unknown");
+    r.context.reference_definition = "external_reservoir";
+    expect(assessVacancyReference(r).referenceWeights).toBe("not_applicable");
+  });
+
   it("reads the same exact result fixture checked by Rust and exposes the centered blind spot", () => {
     const result = validateVacancyResult(fixture);
     expect(result.components.full_mse_ev2).toEqual({ numerator: "1", denominator: "100" });

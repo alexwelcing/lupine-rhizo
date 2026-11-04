@@ -6,6 +6,23 @@ const rational = z.strictObject({
   numerator: z.string().regex(/^(0|-?[1-9][0-9]{0,511})$/),
   denominator: z.string().regex(/^[1-9][0-9]{0,511}$/),
 });
+const count = z.number().int().min(1).max(4096);
+const calibrationWeight = z.strictObject({
+  numerator: z.string().regex(/^(0|[1-9][0-9]{0,63})$/),
+  denominator: z.string().regex(/^[1-9][0-9]{0,63}$/),
+});
+const calibrationCohort = z.strictObject({
+  cohort_sha256: hash, site_count: count,
+  species: z.array(z.strictObject({ species: id, sites: count, weight: calibrationWeight })).min(1).max(128),
+});
+const referenceProtocol = z.strictObject({
+  parent_species: z.array(z.strictObject({ species: id, atoms: count })).min(1).max(128).nullable(),
+  evaluation_cohort_sha256: hash.nullable(),
+  reference_calibration: calibrationCohort.nullable(),
+  prediction_calibration: calibrationCohort.nullable(),
+  energy_zero_alignment: z.enum(["declared_shared", "unknown"]),
+});
+
 export const vacancyTaskSchema = z.enum(["within_species_variation", "formation_energy", "vacancy_concentration"]);
 
 /** Descriptive checker output, never an attestation of its input sources. */
@@ -21,6 +38,7 @@ export const vacancyResultSchema = z.strictObject({
     complete_cohort: z.boolean(),
     reference_definition: z.enum(["self_consistent_species_average", "external_reservoir", "unknown"]),
     prediction_id: id, prediction_kind: z.enum(["model", "reported", "synthetic"]),
+    reference_protocol: referenceProtocol.nullable().optional(),
   }),
   rows: z.number().int().min(1).max(4096),
   groups: z.array(z.strictObject({
@@ -104,7 +122,82 @@ export function validateVacancyResult(input: unknown): VacancyResult {
     r.groups.every(g => eq(q(g.reference_mean_ev), q(r.groups[0].reference_mean_ev))), "reference means");
   requireIdentity(r.prediction_species_means_equal_exactly ===
     r.groups.every(g => eq(q(g.prediction_mean_ev), q(r.groups[0].prediction_mean_ev))), "prediction means");
+  inspectReferenceProtocol(r);
   return r;
+}
+
+type WeightAssessment = "unknown" | "match" | "mismatch" | "not_applicable";
+function inspectReferenceProtocol(r: VacancyResult) {
+  const protocol = r.context.reference_protocol;
+  const issues: string[] = [];
+  const withinSpeciesContrasts = r.rows - r.groups.length;
+  const singletonSpecies = r.groups.filter(g => g.sites === 1).map(g => g.species);
+  if (withinSpeciesContrasts === 0) issues.push("No within-species contrasts: zero centered error is uninformative");
+  let referenceWeights: WeightAssessment = "unknown";
+  let predictionWeights: WeightAssessment = "unknown";
+  if (!protocol) {
+    issues.push("Reference protocol is unknown");
+    return { protocol: null, issues, referenceWeights, predictionWeights, withinSpeciesContrasts, singletonSpecies };
+  }
+  if (!protocol.evaluation_cohort_sha256) issues.push("Evaluation cohort identity is unknown");
+  if (protocol.energy_zero_alignment === "unknown") issues.push("Model/reference energy-zero alignment is unknown");
+  const parent = protocol.parent_species && new Map(protocol.parent_species.map(p => [p.species, p.atoms]));
+  if (parent) {
+    requireIdentity(parent.size === protocol.parent_species!.length &&
+      [...parent.values()].reduce((sum, n) => sum + n, 0) === r.context.parent_atom_count, "parent composition");
+    requireIdentity(r.groups.every(g => parent.has(g.species) && g.sites <= parent.get(g.species)!), "evaluation species membership");
+  } else issues.push("Parent composition is unknown");
+  function assess(calibration: z.infer<typeof calibrationCohort> | null, name: string): WeightAssessment {
+    const selfConsistent = r.context.reference_definition === "self_consistent_species_average";
+    if (!calibration) {
+      if (selfConsistent) issues.push(name + " calibration is unknown");
+      return selfConsistent ? "unknown" : "not_applicable";
+    }
+    const species = new Set(calibration.species.map(s => s.species));
+    requireIdentity(species.size === calibration.species.length &&
+      calibration.species.reduce((sum, s) => sum + s.sites, 0) === calibration.site_count &&
+      calibration.site_count <= r.context.parent_atom_count, "calibration counts");
+    let weights = zero();
+    let match = true;
+    for (const s of calibration.species) {
+      weights = add(weights, q(s.weight));
+      if (parent) {
+        requireIdentity(parent.has(s.species) && s.sites <= parent.get(s.species)!, "calibration species membership");
+        match = match && eq(q(s.weight), [BigInt(parent.get(s.species)!), BigInt(r.context.parent_atom_count)]);
+      }
+    }
+    requireIdentity(eq(weights, [1n, 1n]), "calibration weights must sum to one");
+    if (!selfConsistent) return "not_applicable";
+    requireIdentity(r.groups.every(g => species.has(g.species)), "evaluation species lacks calibration");
+    if (!parent) return "unknown";
+    if (!match || species.size !== parent.size) {
+      issues.push(name + " calibration weights differ from parent composition; absolute labels depend on elemental energy-zero convention");
+      return "mismatch";
+    }
+    return "match";
+  }
+  referenceWeights = assess(protocol.reference_calibration, "Reference");
+  predictionWeights = assess(protocol.prediction_calibration, "Prediction");
+  return { protocol, issues, referenceWeights, predictionWeights, withinSpeciesContrasts, singletonSpecies };
+}
+
+/** Recomputes the declared reference contract, independent of producer issue/status strings. */
+export function assessVacancyReference(input: unknown) {
+  return inspectReferenceProtocol(validateVacancyResult(input));
+}
+
+function referenceProtocolBinding(r: VacancyResult): string {
+  const p = r.context.reference_protocol;
+  if (!p) return "unknown";
+  const c = p.reference_calibration;
+  return JSON.stringify({
+    parent: p.parent_species?.map(s => [s.species, s.atoms]).sort() ?? null,
+    evaluation: p.evaluation_cohort_sha256,
+    calibration: c && {
+      hash: c.cohort_sha256, sites: c.site_count,
+      species: c.species.map(s => [s.species, s.sites, ...q(s.weight).map(String)]).sort(),
+    },
+  });
 }
 
 export function assessVacancyEvidence(input: unknown, modelIds: string[]) {
@@ -123,7 +216,12 @@ export function assessVacancyEvidence(input: unknown, modelIds: string[]) {
       r.context.source_sha256 === first.context.source_sha256 &&
       r.context.cohort_sha256 === first.context.cohort_sha256 &&
       r.context.parent_id === first.context.parent_id &&
-      r.context.reference_definition === first.context.reference_definition, "reference binding");
+      r.context.reference_definition === first.context.reference_definition &&
+      r.context.parent_atom_count === first.context.parent_atom_count &&
+      r.context.cohort_size === first.context.cohort_size &&
+      r.context.complete_cohort === first.context.complete_cohort &&
+      referenceProtocolBinding(r) === referenceProtocolBinding(first), "reference binding");
+    issues.push(...inspectReferenceProtocol(r).issues.map(issue => issue + ": " + item.modelId));
     if (r.selected_score === "within_species_centered" && evidence.task !== "within_species_variation")
       issues.push("Centered-only vacancy score cannot support " + evidence.task + ": " + item.modelId);
     if (r.context.reference_definition === "unknown") issues.push("Unknown vacancy reference: " + item.modelId);

@@ -31,7 +31,8 @@ fn full_score_is_descriptive_and_invalid_input_emits_no_report() {
     let output = invoke(&serde_json::to_vec(&input).unwrap());
     assert!(output.status.success());
     let result: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    assert_eq!(result["task_assessment"], "descriptive_components_only");
+    assert_eq!(result["task_assessment"], "scope_unresolved");
+    assert!(result["issues"].as_array().unwrap().contains(&serde_json::json!("reference_protocol_unknown")));
     assert_eq!(result["scientific_validation"], "not_established");
     input["rows"][0]["prediction"] = serde_json::json!("NaN");
     let invalid = invoke(&serde_json::to_vec(&input).unwrap());

@@ -80,6 +80,7 @@
   "intended_task": "formation_energy",
   "task_assessment": "incompatible_score_for_task",
   "issues": [
+    "reference_protocol_unknown",
     "centered_score_discards_formation_energy_level"
   ],
   "decomposition_identity_exact": true,

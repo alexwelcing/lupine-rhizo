@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { validateVacancyResult, vacancyTaskSchema, type VacancyResult } from "../vacancyEvidenceContracts";
+import { assessVacancyReference, validateVacancyResult, vacancyTaskSchema, type VacancyResult } from "../vacancyEvidenceContracts";
 
 export const VACANCY_REPORT_MAX_BYTES = 512 * 1024;
 type VacancyTask = VacancyResult["intended_task"];
@@ -52,6 +52,7 @@ export function vacancyDecision(report: VacancyResult, task: VacancyTask): strin
 export function VacancyReportView({ report: input, task: requestedTask }: { report: unknown; task?: VacancyTask }) {
   const report = validateVacancyResult(input);
   const task = requestedTask ?? report.intended_task;
+  const reference = assessVacancyReference(report);
   const c = report.components;
   const rows: [string, Fraction][] = [
     ["Full error", c.full_mse_ev2],
@@ -76,6 +77,14 @@ export function VacancyReportView({ report: input, task: requestedTask }: { repo
       {" "}{report.context.cohort_size} parent sites. Source membership has not been checked.</p>
     {!report.context.complete_cohort && <p>The subset retains the original reference cohort; it does not redefine chemical potentials.</p>}
     <p>Reference: {REFERENCES[report.context.reference_definition]}.</p>
+    <p>Within-species contrast dimension: {reference.withinSpeciesContrasts}.
+      {reference.singletonSpecies.length > 0 && <> Species with only one supplied site: {reference.singletonSpecies.join(", ")}. Their within-species variation cannot be assessed.</>}</p>
+    {reference.issues.length > 0 && <ul aria-label="Reference and sampling limits">{reference.issues.map(issue => <li key={issue}>{issue}.</li>)}</ul>}
+    {reference.protocol && <p>Calibration weights against declared parent composition:
+      {" "}reference {reference.referenceWeights === "not_applicable" ? "not assessed for this reference construction" : reference.referenceWeights};
+      {" "}prediction {reference.predictionWeights === "not_applicable" ? "not assessed for this reference construction" : reference.predictionWeights}.
+      {" "}Energy-zero alignment: {reference.protocol.energy_zero_alignment === "declared_shared" ? "declared shared, not independently verified" : "unknown"}.
+      {" "}Matching weights checks the stated arithmetic condition, not a physical reservoir.</p>}
     {report.context.reference_definition === "self_consistent_species_average" &&
       (!report.reference_species_means_equal_exactly || !report.prediction_species_means_equal_exactly) &&
       <p>The printed species means are not exactly equal. Their differences remain in the reported components.</p>}
@@ -90,6 +99,21 @@ export function VacancyReportView({ report: input, task: requestedTask }: { repo
         <dt>Reference cohort SHA-256</dt><dd><code>{report.context.cohort_sha256}</code></dd>
         <dt>Reference rows SHA-256</dt><dd><code>{report.reference_rows_sha256}</code></dd>
         <dt>Declared input SHA-256</dt><dd><code>{report.input_sha256}</code></dd></dl>
+      {reference.protocol && <section aria-label="Calibration provenance">
+        <h4>Calibration and evaluation cohorts</h4>
+        <dl><dt>Evaluation cohort SHA-256</dt><dd><code>{reference.protocol.evaluation_cohort_sha256 ?? "Unknown"}</code></dd>
+          <dt>Parent composition</dt><dd>{reference.protocol.parent_species?.map(s => s.species + ": " + s.atoms).join(", ") ?? "Unknown"}</dd></dl>
+        {(["reference_calibration", "prediction_calibration"] as const).map((key, index) => {
+          const calibration = reference.protocol![key];
+          return <div key={key}><h5>{index === 0 ? "Reference" : "Prediction"} calibration</h5>
+            {calibration ? <><p>{calibration.site_count} declared calibration sites. Cohort SHA-256: <code>{calibration.cohort_sha256}</code></p>
+              <table><caption>{index === 0 ? "Reference" : "Prediction"} calibration weights</caption>
+                <thead><tr><th scope="col">Species</th><th scope="col">Calibration sites</th><th scope="col">Weight</th></tr></thead>
+                <tbody>{calibration.species.map(s => <tr key={s.species}><th scope="row">{s.species}</th><td>{s.sites}</td><td>{formatVacancyFraction(s.weight)}</td></tr>)}</tbody>
+              </table></> : <p>Unknown calibration cohort.</p>}
+          </div>;
+        })}
+      </section>}
       <p>These identifiers are declarations in the report, not independent verification of the underlying files.</p>
       <ul>{report.limitations.map((text, index) => <li key={index}>{text}</li>)}</ul>
     </details>

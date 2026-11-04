@@ -116,6 +116,48 @@ a provider run. Attaching to RUNS still requires a genuine saved run and its
 actual distinct model arms. Do not invent a run or turn species into models
 to satisfy that separate interface.
 
+## Calibration and evaluation provenance
+
+Optional `context.reference_protocol` records parent species counts, an evaluation
+cohort digest, separate reference and prediction calibration cohorts, and a
+declared shared or unknown elemental energy-zero alignment. Missing protocol
+metadata remains unknown; existing v1 reports remain readable. Each calibration
+records its digest, site count, per-species site counts and exact rational
+species weights. The shared synthetic protocol fixture documents the JSON shape.
+
+The checker validates unique species, count totals and parent membership when
+known, normalized nonnegative weights, and calibration coverage of evaluated
+species for a self-consistent reference. Exact weight parsing is bounded to
+64 digits per numerator/denominator and 4096 digits per intermediate. Hashes
+bind declarations; they do not authenticate structures or prove disjointness.
+Separate prediction calibration is allowed; a multi-model attachment must
+share the same declared reference calibration and evaluated reference cohort.
+
+For the printed construction
+`F_s = E_test,s - mean_cal,s(E_defect) + sum_t w_t mean_cal,t(E_defect)
+       - (N-1)/N E_parent`,
+adding an arbitrary elemental energy zero `a_s` to every atom of species `s`
+changes every formation label by
+`sum_s (n_s/N - w_s) a_s`.
+Thus invariance to every elemental shift is equivalent to
+`w_s = n_s/N` for all parent species. This condition concerns the weights in
+the calibration mean, not the number of rows displayed in an evaluation table.
+The checker reports mismatches without projecting labels, changing weights
+or recomputing chemical potentials. Matching declared weights is an algebraic
+check, not physical reservoir validation.
+
+A common elemental shift applied to both compared methods cancels in their
+residuals. Independent model/reference energy-zero choices require the stated
+alignment convention. An external reservoir needs its own qualification;
+this self-consistent weight test does not certify it. This calibration
+argument is separate from the existing Lean finite loss proof.
+
+The inspector reports the within-species contrast dimension `rows - groups`
+and identifies singleton species. If all groups are singletons, within-species
+MSE is identically zero and provides no test of within-species variation.
+This is a deterministic dimension count, not a count of statistically
+independent measurements.
+
 ## Lean specification
 
 `OpenDistillationFactory.Materials.Theory.VacancyReference` defines the species
