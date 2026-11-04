@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build:workspace": "node scripts/build-workspace.mjs",
-    "check:workspace": "npm run build:workspace && tsc -p tsconfig.workspace-client.json --noEmit && vitest run src/workspace/__tests__/workspace.test.ts --typecheck.enabled=false",
+    "check:workspace": "npm run build:workspace && tsc -p tsconfig.workspace-client.json --noEmit && vitest run --config vitest.workspace-smoke.config.ts",
     "preview:workspace": "node scripts/testing/run-workspace-preview.mjs"
   },
   "dependencies": {
