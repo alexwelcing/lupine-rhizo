@@ -141,12 +141,7 @@ theorem checkRuntimeContract_inconsistent_iff
         have hle := hordered
         unfold FixedEnvelope.Ordered at hle
         exact not_lt.mpr hle
-      by_cases hschema :
-          policy.numeric.schemaVersion = currentNumericSchemaVersion <;>
-        by_cases hrounding : policy.numeric.rounding = .outward <;>
-        by_cases hwidth :
-          evidence.envelope.width ≤ (policy.tolerance : Int) <;>
-        simp [hcontract, hnotInverted, hschema, hrounding, hwidth]
+      split_ifs <;> simp [hcontract, hnotInverted]
     · rw [if_neg hordered]
       have hinverted :
           evidence.envelope.upper < evidence.envelope.lower := by
