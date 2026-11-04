@@ -55,6 +55,13 @@ touches a theorem proven here.
   certificate and exposes the separation rule as
   `check_bracket_separation`.
 
+The current dependency stack is Lean 4.35.0, Mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679`,
+and the upstream `atlas` package at `a60759060b5616df0d5775b42da4d337719feb32`.
+Existing build receipts and theorem-sync authority records retain the versions
+under which they were produced. Updating the toolchain does not promote those
+records or attest to all inventoried source modules; renewed coverage and
+service-authority evidence must be established separately after the build.
+
 See [`AGENTS.md`](../AGENTS.md) §"Formal verification" for the operating rules
 governing this root.
 
@@ -71,7 +78,7 @@ governing this root.
 | `OpenDistillationFactory/Materials/DistillAtlas/` | Formalized MPtrj-DFT and Ni-EAM evidence maps. |
 | `OpenDistillationFactory/Materials/NeuralSymbolic/` | Neural-symbolic shear-bound theorems for CHGNet and MACE-MP-0. |
 | `lakefile.toml` | Lake package manifest; pins Mathlib and ATLAS-Lean revisions. |
-| `lean-toolchain` | Pinned Lean `v4.29.0` (matches ATLAS-Lean). |
+| `lean-toolchain` | Pinned Lean `v4.35.0` (matches ATLAS-Lean). |
 
 ## Install
 
@@ -81,7 +88,7 @@ hydrate the Mathlib cache. Full setup is in [`docs/ONBOARDING.md`](../docs/ONBOA
 ## Build
 
 ```bash
-# Run from INSIDE lean-spec/ so elan selects the pinned v4.29.0 toolchain.
+# Run from INSIDE lean-spec/ so elan selects the pinned v4.35.0 toolchain.
 cd lean-spec
 lake exe cache get
 lake build
@@ -114,9 +121,9 @@ node scripts/generate-lean-count.mjs
 
 - Always run `lake` from inside `lean-spec/`; running from the repo root selects
   the global toolchain and silently refuses the ATLAS-Lean cache.
-- Do **not** import whole ATLAS-Lean subjects (e.g. `Atlas.RealAnalysis`). Import
-  only the proved leaf modules you need; whole-subject imports are ~80 min and
-  can OOM a dev box.
+- Do **not** import whole ATLAS-Lean subjects (e.g. a complete `MathlibExt` subject). Import
+  only proved `MathlibExt`, `CSLibExt`, or `PhyslibExt` leaf modules when needed;
+  never import `WantedExt` or build the upstream package's default targets.
 
 ## Related
 
