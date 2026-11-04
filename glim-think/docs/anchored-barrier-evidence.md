@@ -45,6 +45,114 @@ These are finite real-arithmetic statements. They do not establish continuous
 path coverage, the true saddle, matching physical configurations, free-energy
 barriers, numerical execution or physical accuracy.
 
+## Separately optimized paths need a search and initial-state budget
+
+A read-only review on 4 November 2026 inspected the paper-linked
+[mlearn NEB calculator at its archived commit](https://github.com/materialyzeai/mlearn/blob/10c427a5480c6281c15c64efaf869b03be04818f/mlearn/potentials/lammps/calcs.py#L481)
+and the [20 May 2019 version](https://github.com/materialyzeai/mlearn/blob/01a9f653ffcdfae078b84eeac53d8efca88157d1/mlearn/potentials/lammps/calcs.py).
+Both use the supplied potential for lattice relaxation, vacancy endpoint
+relaxation and the NEB calculation. This is a recipe observation, not proof
+that this exact revision or these paths generated Zuo's reported barriers.
+The current [LAMMPS NEB documentation](https://docs.lammps.org/stable/neb.html)
+describes optimization of image positions and warns that an unsuitable
+initial path can give bad results. It does not certify a global optimum.
+
+Thus a common training/test sample does not establish common migration
+configurations. The fixed-sample theorem above remains valid. Applying it to
+two separately selected paths requires additional evidence.
+
+Let C be a common, nonempty finite family of candidate profiles, each with a
+nonempty set of configurations S_p. The two energy functions F and G must be
+defined on every configuration in the family. Define profile heights
+
+    H_F(p) = max_(x in S_p) F(x)
+    m_F = min_(p in C) H_F(p),
+
+and analogously for G. Suppose the reported paths are p_F and p_G, and that
+their certified additive search gaps satisfy
+
+    0 <= H_F(p_F) - m_F <= eta_F,
+    0 <= H_G(p_G) - m_G <= eta_G.
+
+These are bounds relative to the declared finite family. They say nothing
+about an omitted physical path. For model-specific initial configurations
+i in S_pF and j in S_pG, retain the actual initial-energy difference
+
+    delta_0 = G(j) - F(i).
+
+If a <= G(x)-F(x) <= b on every candidate configuration, the selected forward
+barrier difference D obeys
+
+    a - delta_0 - eta_F <= D <= b - delta_0 + eta_G,
+    D = [H_G(p_G)-G(j)] - [H_F(p_F)-F(i)].
+
+Proof: every profile's maximum changes by a value in [a,b], so the minimum
+of those maxima does too. The exact identity is
+
+    H_G(p_G)-H_F(p_F)
+      = (m_G-m_F)
+        + [H_G(p_G)-m_G] - [H_F(p_F)-m_F].
+
+Subtract delta_0 and use the certified gap bounds. The Lean statements
+`selected_path_score_sub_decomposition`,
+`selected_path_score_sub_bounds` and
+`selected_forwardBarrier_sub_bounds` express these steps.
+
+If i=j as a physical configuration, a <= delta_0 <= b and this yields
+
+    -(b-a)-eta_F <= D <= (b-a)+eta_G.
+
+`selected_forwardBarrier_sub_bounds_same_initial` proves this corollary.
+Zero gaps recover the wander bound for optimal choices within the common
+family. A solver success status, force tolerance or named NEB method does
+not establish eta=0. A bound measured only on one returned path does not
+establish the required bound over the full candidate family.
+
+Two exact synthetic obstructions make the extra terms necessary:
+
+- **Search:** identical energy functions give energies [0,1,3] at three
+  configurations. Candidate profiles are [0,1] and [0,2], both anchored at
+  configuration 0. Selecting the first for F and the second for G yields
+  barriers 1 and 3, despite zero residual everywhere. The G search gap is 2.
+  Swapping the selections attains the lower-side gap term.
+- **Initial state:** identical functions give [0,5,6]. Profiles [0,2] and
+  [1,2], anchored at 0 and 1 respectively, both have height 6 and zero
+  height-search gap in this family. Their barriers are 6 and 1.
+  The difference -5 equals minus the initial-energy difference; zero
+  residual does not remove it.
+
+These are arbitrary finite configurations, not claimed continuous paths,
+stationary saddles or observed defects in a publication. They distinguish
+logical premises without asserting that the source authors violated them.
+One in-memory scaled-integer check covered 78,732 energy/profile/anchor/shift
+cases, including 26,244 shared-initial cases. The interval and the exact
+decomposition agreed in all cases. This was a same-agent check, not an
+independent review or a reproduction.
+
+### Next-version evidence requirement
+
+A future barrier report must separate three quantities: energy disagreement
+on shared configurations, path-search error within a declared family, and
+initial-state relaxation. Retain the candidate-family identity, both selected
+path identities, configuration/cell correspondence, both initial identities,
+cross-evaluation coverage, offset bounds and their provenance, and certified
+search-gap bounds or explicit unknowns. Changing the family changes the
+minimum against which the gaps are measured.
+
+A reviewed finite set can supply exact finite-family gaps when every height
+is evaluated. It cannot certify global physical search completeness. Different
+cells or different endpoint basins require an explicit physical comparison
+contract before the algebra is interpreted as a barrier comparison. Missing
+cross-evaluations or search certificates must leave the bound unavailable;
+they must not become zero error.
+
+No additional inspector or simulation dispatch is introduced here. The
+existing candidate-order inspector can compare supplied comparable scores,
+but does not authenticate these path premises. The stronger specification
+still needs a source-bound end-to-end test and measured decision or review
+value. This is standard finite-extremum perturbation algebra, with novelty
+unestablished.
+
 ## Prefactors are separate inputs
 
 For positive temperature theta and positive prefactors, define
