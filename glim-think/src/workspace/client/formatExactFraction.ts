@@ -11,4 +11,3 @@ export function formatExactFraction(value: { numerator: string; denominator: str
   }
   return value.numerator + "/" + value.denominator;
 }
-

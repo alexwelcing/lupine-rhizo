@@ -21,8 +21,14 @@ fn conflicting_order_is_a_descriptive_report_not_execution_failure() {
     let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     let input: serde_json::Value = serde_json::from_slice(bytes).unwrap();
     assert_eq!(report["input"], input);
-    assert_eq!(report["assessment"]["choice_relation"], "different_unique_minima");
-    assert_eq!(report["assessment"]["scientific_validation"], "not_established");
+    assert_eq!(
+        report["assessment"]["choice_relation"],
+        "different_unique_minima"
+    );
+    assert_eq!(
+        report["assessment"]["scientific_validation"],
+        "not_established"
+    );
     assert!(output.stdout.len() <= 524_288);
 }
 

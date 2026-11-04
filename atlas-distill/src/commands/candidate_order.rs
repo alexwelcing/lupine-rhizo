@@ -169,13 +169,25 @@ fn minima(ids: &[String], values: &[Interval]) -> Minima {
     let mut guaranteed = Vec::new();
     let mut unique = None;
     for (i, value) in values.iter().enumerate() {
-        if values.iter().enumerate().all(|(j, other)| i == j || value.0 <= other.1) {
+        if values
+            .iter()
+            .enumerate()
+            .all(|(j, other)| i == j || value.0 <= other.1)
+        {
             possible.push(ids[i].clone());
         }
-        if values.iter().enumerate().all(|(j, other)| i == j || value.1 <= other.0) {
+        if values
+            .iter()
+            .enumerate()
+            .all(|(j, other)| i == j || value.1 <= other.0)
+        {
             guaranteed.push(ids[i].clone());
         }
-        if values.iter().enumerate().all(|(j, other)| i == j || value.1 < other.0) {
+        if values
+            .iter()
+            .enumerate()
+            .all(|(j, other)| i == j || value.1 < other.0)
+        {
             unique = Some(ids[i].clone());
         }
     }
@@ -191,8 +203,12 @@ fn assess(input: &Input) -> Result<Assessment> {
     ensure!(input.unit == "eV", "unit");
     ensure!((2..=32).contains(&input.rows.len()), "candidate count");
     ensure!(
-        ["exact_values", "assumed_printing_bounds", "declared_deterministic_bounds"]
-            .contains(&input.bounds_kind.as_str()),
+        [
+            "exact_values",
+            "assumed_printing_bounds",
+            "declared_deterministic_bounds"
+        ]
+        .contains(&input.bounds_kind.as_str()),
         "bounds kind"
     );
     let c = &input.context;
@@ -209,12 +225,18 @@ fn assess(input: &Input) -> Result<Assessment> {
     for value in [&c.reference_convention, &c.protocol, &c.fit_exposure] {
         ensure!(value.as_ref().is_none_or(|s| bounded_text(s)), "scope text");
     }
-    ensure!(["model", "reported", "synthetic"].contains(&c.model_kind.as_str()), "model kind");
+    ensure!(
+        ["model", "reported", "synthetic"].contains(&c.model_kind.as_str()),
+        "model kind"
+    );
     ensure!(
         ["listed_only", "declared_exhaustive"].contains(&c.candidate_set_scope.as_str()),
         "candidate scope"
     );
-    ensure!(["declared", "unknown"].contains(&c.comparability.as_str()), "comparability");
+    ensure!(
+        ["declared", "unknown"].contains(&c.comparability.as_str()),
+        "comparability"
+    );
     let mut rows = input.rows.iter().collect::<Vec<_>>();
     rows.sort_by(|a, b| a.candidate_id.cmp(&b.candidate_id));
     let mut seen = BTreeSet::new();
@@ -223,8 +245,10 @@ fn assess(input: &Input) -> Result<Assessment> {
     let mut prediction = Vec::new();
     for row in rows {
         ensure!(
-            identifier(&row.candidate_id) && seen.insert(&row.candidate_id)
-                && bounded_text(&row.label) && bounded_text(&row.anchor),
+            identifier(&row.candidate_id)
+                && seen.insert(&row.candidate_id)
+                && bounded_text(&row.label)
+                && bounded_text(&row.anchor),
             "candidate identity"
         );
         let r = interval(&row.reference)?;
@@ -251,8 +275,12 @@ fn assess(input: &Input) -> Result<Assessment> {
             let ro = order(&r);
             let po = order(&p);
             let agreement = match (ro, po) {
-                ("left_lower", "left_lower") | ("right_lower", "right_lower") => "same_strict_order",
-                ("left_lower", "right_lower") | ("right_lower", "left_lower") => "opposite_strict_order",
+                ("left_lower", "left_lower") | ("right_lower", "right_lower") => {
+                    "same_strict_order"
+                }
+                ("left_lower", "right_lower") | ("right_lower", "left_lower") => {
+                    "opposite_strict_order"
+                }
                 ("exact_tie", "exact_tie") => "exact_tie_both",
                 _ => "unresolved",
             };
@@ -320,7 +348,10 @@ fn calculate(bytes: &[u8]) -> Result<Report> {
         input,
         assessment,
     };
-    ensure!(serde_json::to_vec(&report)?.len() < MAX_BYTES, "report exceeds byte bound");
+    ensure!(
+        serde_json::to_vec(&report)?.len() < MAX_BYTES,
+        "report exceeds byte bound"
+    );
     Ok(report)
 }
 
@@ -341,17 +372,25 @@ mod tests {
     use serde_json::{json, Value};
 
     fn fixture() -> Value {
-        serde_json::from_slice(include_bytes!("../../tests/fixtures/candidate_order.input.json")).unwrap()
+        serde_json::from_slice(include_bytes!(
+            "../../tests/fixtures/candidate_order.input.json"
+        ))
+        .unwrap()
     }
 
     fn report(value: &Value) -> Result<Value> {
-        Ok(serde_json::to_value(calculate(&serde_json::to_vec(value)?)?)?)
+        Ok(serde_json::to_value(calculate(&serde_json::to_vec(
+            value,
+        )?)?)?)
     }
 
     #[test]
     fn shared_fixture_matches_exact_assessment() {
         let actual = report(&fixture()).unwrap();
-        let expected: Value = serde_json::from_slice(include_bytes!("../../tests/fixtures/candidate_order.assessment.json")).unwrap();
+        let expected: Value = serde_json::from_slice(include_bytes!(
+            "../../tests/fixtures/candidate_order.assessment.json"
+        ))
+        .unwrap();
         assert_eq!(actual["assessment"], expected);
     }
 
@@ -360,22 +399,50 @@ mod tests {
         let choices = [(0, 0), (0, 1), (1, 1), (1, 2)];
         let ids = vec!["a".into(), "b".into(), "c".into()];
         for code in 0..64 {
-            let values: Vec<_> = (0..3).map(|i| {
-                let (l, u) = choices[(code >> (2 * i)) & 3];
-                (BigRational::from_integer(l.into()), BigRational::from_integer(u.into()))
-            }).collect();
+            let values: Vec<_> = (0..3)
+                .map(|i| {
+                    let (l, u) = choices[(code >> (2 * i)) & 3];
+                    (
+                        BigRational::from_integer(l.into()),
+                        BigRational::from_integer(u.into()),
+                    )
+                })
+                .collect();
             let got = minima(&ids, &values);
             let mut possible = BTreeSet::new();
             let mut guaranteed: BTreeSet<_> = ids.iter().cloned().collect();
             let mut unique = None;
             for mask in 0..8 {
-                let point: Vec<_> = values.iter().enumerate().map(|(i, v)| if mask & (1 << i) == 0 { v.0.clone() } else { v.1.clone() }).collect();
+                let point: Vec<_> = values
+                    .iter()
+                    .enumerate()
+                    .map(|(i, v)| {
+                        if mask & (1 << i) == 0 {
+                            v.0.clone()
+                        } else {
+                            v.1.clone()
+                        }
+                    })
+                    .collect();
                 let best = point.iter().min().unwrap();
-                let winners: BTreeSet<_> = point.iter().enumerate().filter(|(_, v)| *v == best).map(|(i, _)| ids[i].clone()).collect();
+                let winners: BTreeSet<_> = point
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, v)| *v == best)
+                    .map(|(i, _)| ids[i].clone())
+                    .collect();
                 possible.extend(winners.iter().cloned());
                 guaranteed = guaranteed.intersection(&winners).cloned().collect();
-                let winner = if winners.len() == 1 { winners.first().cloned() } else { None };
-                if mask == 0 { unique = winner; } else if unique != winner { unique = None; }
+                let winner = if winners.len() == 1 {
+                    winners.first().cloned()
+                } else {
+                    None
+                };
+                if mask == 0 {
+                    unique = winner;
+                } else if unique != winner {
+                    unique = None;
+                }
             }
             assert_eq!(got.possible, possible.into_iter().collect::<Vec<_>>());
             assert_eq!(got.guaranteed, guaranteed.into_iter().collect::<Vec<_>>());
@@ -407,18 +474,31 @@ mod tests {
         input["bounds_kind"] = json!("declared_deterministic_bounds");
         let got = report(&input).unwrap();
         assert!(got["assessment"]["reference_minima"]["unique"].is_null());
-        assert_eq!(got["assessment"]["reference_minima"]["guaranteed"], json!(["a"]));
-        assert_eq!(got["assessment"]["reference_minima"]["possible"], json!(["a", "b"]));
+        assert_eq!(
+            got["assessment"]["reference_minima"]["guaranteed"],
+            json!(["a"])
+        );
+        assert_eq!(
+            got["assessment"]["reference_minima"]["possible"],
+            json!(["a", "b"])
+        );
     }
 
     #[test]
     fn tiny_signed_gaps_survive_without_float_rounding() {
         let mut input = fixture();
         input["rows"][0]["reference"] = json!({"lower":"0", "upper":"0"});
-        input["rows"][1]["reference"] = json!({"lower":"0.00000000000000000001", "upper":"0.00000000000000000001"});
+        input["rows"][1]["reference"] =
+            json!({"lower":"0.00000000000000000001", "upper":"0.00000000000000000001"});
         let got = report(&input).unwrap();
-        assert_eq!(got["assessment"]["pairs"][0]["reference_order"], "left_lower");
-        assert_eq!(got["assessment"]["pairs"][0]["reference_gap_ev"]["lower"]["denominator"], "100000000000000000000");
+        assert_eq!(
+            got["assessment"]["pairs"][0]["reference_order"],
+            "left_lower"
+        );
+        assert_eq!(
+            got["assessment"]["pairs"][0]["reference_gap_ev"]["lower"]["denominator"],
+            "100000000000000000000"
+        );
     }
 
     #[test]
