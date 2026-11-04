@@ -60,6 +60,10 @@ jobs:
         working-directory: lean-spec
         run: lake build OpenDistillationFactory.Materials.Theory.VacancyReference
 
+      - name: Check anchored barrier specification
+        working-directory: lean-spec
+        run: lake build OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer
+
       - name: lake build
         working-directory: lean-spec
         run: lake build

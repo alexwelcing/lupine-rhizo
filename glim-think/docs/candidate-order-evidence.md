@@ -105,3 +105,8 @@ permutation/constant-shift invariance, forged assessments, and exhaustive corner
 checks for 64 three-candidate boxes. Client checks cover rendered markup, local
 file bounds and absence of network/persistence. They are not interactive browser
 QA, independent scientific review, a materials benchmark or deployed acceptance.
+
+For migration or reaction kinetics, energy ordering alone is insufficient.
+The [anchored-barrier contract](anchored-barrier-evidence.md) distinguishes a
+sampled range from a forward activation barrier and retains prefactor and
+transport assumptions. This inspector does not supply those missing premises.

@@ -6,19 +6,17 @@ import OpenDistillationFactory.Materials.Theory.EnvironmentField
 /-!
 # Barrier softening under the Arrhenius law: exponential error amplification
 
-The kinetic properties that decide whether a climate-critical material works —
-Li⁺ hopping in halide solid electrolytes, transition-metal migration in
-cobalt-free LMR cathodes, vacancy-mediated oxidation in tin perovskites — obey
-the Arrhenius/Boltzmann law: rate ∝ exp(−Ea / kB T). A *linear* error in the
-barrier is an *exponential* error in the rate. This module proves that chain
-end to end:
+For a declared Arrhenius scalar-rate model, rate = ν exp(−Ea / kB T).
+At fixed positive temperature and prefactor, a linear barrier error gives an
+exponential rate factor. This module proves the corresponding algebra and
+conditional field-model statements:
 
 1. `boltzmann_error_factor` / `hopRate_error_factor` — the amplification
    identity: underestimating a barrier by δ multiplies the predicted rate by
    exactly exp(δ / kT).
 2. `boltzmann_antitone` — monotonicity: lower barrier, faster rate. Combined
-   with the environment error field, softening *always overestimates*
-   mobility.
+   with the environment error field, softening overestimates the scalar
+   hop rate when the same positive prefactor and temperature are used.
 3. `softened_barrier_underestimates` — the mechanism theorem: when the
    transition state is under-coordinated relative to the initial basin
    (pointwise, under a matching) and the model error is field-decomposable,
@@ -28,16 +26,22 @@ end to end:
 5. `exp_ge_two_pow` and the numeric locks: at room temperature
    (kB·300 K = 25.85 meV = 517/20 meV),
    * `barrier_error_100meV_amplifies_32x` and `…_at_most_64x` — a 100 meV
-     barrier error changes a hopping rate by a factor strictly bracketed in
+     barrier error changes the same-prefactor hopping rate by a factor bracketed in
      (32, 64): the "roughly 50×" of the proof pack, now with proved bounds;
    * `halide_barrier_error_three_orders` — the 60 % underestimation of a
-     300 meV Li⁺ barrier reported for uMLIPs (δ = 180 meV) overstates
-     conductivity by more than 1000×: fast-ion conductors and insulators
-     become indistinguishable without correction.
+     300 meV barrier (δ = 180 meV) gives an exponential factor above 1000.
+     This numeric statement does not establish material-specific conductivity.
 6. `softening_never_hides_conductor` / `false_positive_iff` — softening
    errors are one-sided: a true fast-ion conductor is never misread as an
    insulator; the failure mode of raw screening is the false positive, and it
    occurs exactly when the error crosses the classification threshold.
+
+Scope: these are conditional scalar-rate and barrier-threshold statements.
+They do not establish physical activation barriers, equal prefactors, defect
+populations, jump networks, correlation factors, diffusivity or conductivity.
+Those physical premises must be supplied separately. Existing declaration
+names are preserved; a barrier-threshold classification is a declared proxy.
+`hopRate_ratio_eq` and `hopRate_ratio_bounds` expose unequal prefactors.
 
 House rules: zero `sorry`, zero new axioms. Numeric bounds use the
 Mathlib-verified decimal bounds on log 2; nothing is asserted about exp
@@ -93,13 +97,50 @@ theorem boltzmann_error_factor (E δ kT : ℝ) :
     Real.exp_add]
 
 /-- **The amplification identity (rate form).** A barrier error δ multiplies
-the predicted hop rate — hence ionic conductivity via Nernst–Einstein — by
-exactly `exp(δ / kT)`. -/
+the predicted scalar hop rate by exactly `exp(δ / kT)` when both use the
+same prefactor. This identity alone does not determine conductivity. -/
 theorem hopRate_error_factor (ν Ea δ kT : ℝ) :
     hopRate ν (Ea - δ) kT = Real.exp (δ / kT) * hopRate ν Ea kT := by
   unfold hopRate
   rw [boltzmann_error_factor]
   ring
+
+
+/-- Exact separation of prefactor and activation-energy contributions to a
+scalar rate ratio. Physical use requires positive temperature and prefactors;
+the algebra uses Lean's total division convention. -/
+theorem hopRate_ratio_eq (νf νg Ef Eg kT : ℝ) :
+    hopRate νg Eg kT / hopRate νf Ef kT =
+      (νg / νf) * Real.exp ((Ef - Eg) / kT) := by
+  unfold hopRate boltzmann
+  rw [mul_div_mul_comm, ← Real.exp_sub]
+  congr 2
+  ring
+
+/-- A barrier-error bound becomes a rate-ratio interval only together with
+explicit bounds on the positive prefactor ratio. This is a scalar rate
+statement, not a diffusivity or conductivity theorem. -/
+theorem hopRate_ratio_bounds {νf νg Ef Eg kT w l u : ℝ}
+    (hνf : 0 < νf) (hνg : 0 < νg) (hkT : 0 < kT)
+    (hE : |Eg - Ef| ≤ w) (hl : l ≤ νg / νf) (hu : νg / νf ≤ u) :
+    l * Real.exp (-w / kT) ≤ hopRate νg Eg kT / hopRate νf Ef kT ∧
+      hopRate νg Eg kT / hopRate νf Ef kT ≤ u * Real.exp (w / kT) := by
+  simp only [hopRate_ratio_eq]
+  have hgap : -w ≤ Ef - Eg ∧ Ef - Eg ≤ w := by
+    obtain ⟨hlo, hhi⟩ := abs_le.mp hE
+    constructor <;> linarith
+  have hlow : Real.exp (-w / kT) ≤ Real.exp ((Ef - Eg) / kT) := by
+    apply Real.exp_le_exp.mpr
+    simp only [div_eq_mul_inv]
+    exact mul_le_mul_of_nonneg_right hgap.1 (inv_nonneg.mpr hkT.le)
+  have hhigh : Real.exp ((Ef - Eg) / kT) ≤ Real.exp (w / kT) := by
+    apply Real.exp_le_exp.mpr
+    simp only [div_eq_mul_inv]
+    exact mul_le_mul_of_nonneg_right hgap.2 (inv_nonneg.mpr hkT.le)
+  have hratio : 0 ≤ νg / νf := (div_pos hνg hνf).le
+  constructor
+  · exact mul_le_mul hl hlow (Real.exp_pos _).le hratio
+  · exact mul_le_mul hu hhigh (Real.exp_pos _).le (le_trans hratio hu)
 
 /-! ## The mechanism: softening ⇒ barrier underestimation ⇒ rate overestimation -/
 
@@ -130,10 +171,9 @@ theorem corrected_barrier_exact {cBulk : ℕ} (F : ErrorField cBulk)
   rw [F.corrected_exact eModelTS eRefTS cfgTS hTS,
     F.corrected_exact eModelInit eRefInit cfgInit hInit]
 
-/-- **Softening overestimates mobility.** The raw model's predicted hop rate is
-at least the reference rate whenever the transition state is under-coordinated
-relative to the initial basin: softened screening inflates every candidate's
-kinetics. -/
+/-- Under the stated field-decomposition and coordination hypotheses, the model
+hop rate is at least the reference rate when both use the same positive
+prefactor and temperature. This does not determine macroscopic transport. -/
 theorem softened_rate_overestimates {cBulk : ℕ} (F : ErrorField cBulk)
     (ν kT eModelInit eModelTS eRefInit eRefTS : ℝ) (cfgInit cfgTS : Config)
     (hν : 0 < ν) (hkT : 0 < kT)
@@ -195,12 +235,10 @@ theorem barrier_error_100meV_amplifies_at_most_64x :
   calc Real.exp ((100 : ℝ) / (517 / 20)) ≤ 2 ^ (6 : ℕ) := exp_le_two_pow 6 _ h
     _ = 64 := by norm_num
 
-/-- **The halide-electrolyte false-classification lock.** uMLIPs underestimate
-Li⁺ migration barriers by 60 %+ (Deng et al. 2025); on a typical 300 meV
-halide barrier that is δ = 180 meV, and exp(180 / 25.85) > 2¹⁰ = 1024 > 10³:
-the predicted room-temperature conductivity is wrong by more than three orders
-of magnitude. Screening by raw uMLIP kinetics cannot distinguish a superionic
-conductor from an ordinary ion conductor at this error level. -/
+/-- Numeric exponential lock: a 180 meV energy difference at the declared
+25.85 meV thermal energy gives a factor at least 1000. The historical name is
+retained; the statement does not assert a measured barrier, prefactor ratio,
+material classification or conductivity. -/
 theorem halide_barrier_error_three_orders :
     (1000 : ℝ) ≤ Real.exp ((180 : ℝ) / (517 / 20)) := by
   have hlog := Real.log_two_lt_d9
@@ -212,23 +250,19 @@ theorem halide_barrier_error_three_orders :
 
 /-! ## Classification: softening errors are one-sided -/
 
-/-- A candidate is classified as a (fast-ion) conductor at threshold `EaStar`
-when its migration barrier does not exceed the threshold. -/
+/-- A declared barrier-threshold proxy. The historical name is retained;
+this definition does not establish that a material is a conductor. -/
 def ConductorAt (Ea EaStar : ℝ) : Prop := Ea ≤ EaStar
 
-/-- **Softening never hides a conductor.** If the model barrier underestimates
-the true barrier (the softening direction), every true conductor is still
-classified as a conductor by the model. Raw softened screening has no false
-negatives on conductivity — its failure mode is the false positive. -/
+/-- Underestimation has no false negatives for the declared barrier-threshold
+proxy. This is an order statement, not a conductivity guarantee. -/
 theorem softening_never_hides_conductor {eModel eTrue EaStar : ℝ}
     (h : eModel ≤ eTrue) (hc : ConductorAt eTrue EaStar) :
     ConductorAt eModel EaStar :=
   le_trans h hc
 
-/-- **False positives are exactly threshold crossings.** The model calls a
-candidate a conductor while the reference calls it an insulator iff the pair
-of barriers straddles the classification threshold. The wasted-synthesis
-failure mode is a provable, checkable event — not a vague uncertainty. -/
+/-- False positives for the declared proxy are exactly barrier-threshold
+crossings. Physical classification needs separate transport evidence. -/
 theorem false_positive_iff (eModel eTrue EaStar : ℝ) :
     (ConductorAt eModel EaStar ∧ ¬ ConductorAt eTrue EaStar) ↔
       (eModel ≤ EaStar ∧ EaStar < eTrue) := by
