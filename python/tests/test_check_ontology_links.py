@@ -1,4 +1,4 @@
-"""Tests for the versioned ontology atlas link checker."""
+"""Tests for the versioned ontology link checker."""
 
 from __future__ import annotations
 
@@ -13,9 +13,10 @@ from pathlib import Path
 from tools.check_ontology_links import (
     OntologyError,
     parse_readiness,
-    validate_atlas,
+    parse_args,
+    validate_ontology,
     validate_lock,
-    validate_versioned_atlas_inventory,
+    validate_versioned_ontology_inventory,
 )
 
 CLASS_CHAINS = {
@@ -31,11 +32,11 @@ CLASS_CHAINS = {
 }
 ROOT = Path(__file__).resolve().parents[2]
 CHECKER = ROOT / "tools" / "check_ontology_links.py"
-ATLAS_PATH = ROOT / "registry" / "ontology" / "atlas.v2.json"
+ONTOLOGY_PATH = ROOT / "registry" / "ontology" / "atlas.v2.json"
 LOCK_PATH = ROOT / "snapshots" / "ontology.lock.json"
 
 
-def valid_atlas() -> dict:
+def valid_ontology() -> dict:
     return {
         "metadata": {"compiled": "2026-07-30"},
         "materialClasses": [
@@ -73,9 +74,9 @@ def valid_atlas() -> dict:
     }
 
 
-def repository_atlas() -> tuple[bytes, dict, dict]:
-    atlas_bytes = ATLAS_PATH.read_bytes()
-    return atlas_bytes, json.loads(atlas_bytes), json.loads(LOCK_PATH.read_bytes())
+def repository_ontology() -> tuple[bytes, dict, dict]:
+    ontology_bytes = ONTOLOGY_PATH.read_bytes()
+    return ontology_bytes, json.loads(ontology_bytes), json.loads(LOCK_PATH.read_bytes())
 
 
 class ReadinessParsingTests(unittest.TestCase):
@@ -94,10 +95,10 @@ class ReadinessParsingTests(unittest.TestCase):
 
 class OntologyLinkTests(unittest.TestCase):
     def test_formal_proof_inventory_matches_the_current_lean_snapshot(self) -> None:
-        _, atlas, _ = repository_atlas()
+        _, ontology, _ = repository_ontology()
 
         self.assertEqual(
-            atlas["formalProof"],
+            ontology["formalProof"],
             {
                 "system": "Lean 4 + Mathlib",
                 "inventoryAsOf": "2026-08-01",
@@ -124,56 +125,56 @@ class OntologyLinkTests(unittest.TestCase):
         )
 
     def test_material_class_chains_resolve_with_a1_identifier_parity(self) -> None:
-        validate_atlas(valid_atlas())
+        validate_ontology(valid_ontology())
 
-        atlas = valid_atlas()
-        atlas["materialClasses"][0]["chain"] = "C404"
+        ontology = valid_ontology()
+        ontology["materialClasses"][0]["chain"] = "C404"
         with self.assertRaisesRegex(OntologyError, "materialClasses.*MC1.*C404"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
-        atlas = valid_atlas()
-        atlas["materialClasses"][0]["chain"] = "C1"
+        ontology = valid_ontology()
+        ontology["materialClasses"][0]["chain"] = "C1"
         with self.assertRaisesRegex(OntologyError, "A1 mapping"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
     def test_acceptance_tests_are_one_to_one_with_discovery_chains(self) -> None:
-        atlas = valid_atlas()
-        atlas["acceptanceTests"][10]["chain"] = "C10"
+        ontology = valid_ontology()
+        ontology["acceptanceTests"][10]["chain"] = "C10"
         with self.assertRaisesRegex(OntologyError, "one-to-one"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
-        atlas = valid_atlas()
-        atlas["acceptanceTests"][0]["id"] = "Z404"
+        ontology = valid_ontology()
+        ontology["acceptanceTests"][0]["id"] = "Z404"
         with self.assertRaisesRegex(OntologyError, "Z1–Z11"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
     def test_all_readiness_values_parse_including_boundary_annotations(self) -> None:
-        atlas = valid_atlas()
-        atlas["discoveryChains"][0]["readiness"] = "M (L→M boundary)"
-        atlas["scoreboard"] = [{"row": 1, "readiness": "M (upgraded from draft L)"}]
-        validate_atlas(atlas)
+        ontology = valid_ontology()
+        ontology["discoveryChains"][0]["readiness"] = "M (L→M boundary)"
+        ontology["scoreboard"] = [{"row": 1, "readiness": "M (upgraded from draft L)"}]
+        validate_ontology(ontology)
 
-        atlas["scoreboard"][0]["readiness"] = "medium"
+        ontology["scoreboard"][0]["readiness"] = "medium"
         with self.assertRaisesRegex(OntologyError, "scoreboard.*readiness"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
-        atlas = valid_atlas()
-        del atlas["discoveryChains"][0]["readiness"]
+        ontology = valid_ontology()
+        del ontology["discoveryChains"][0]["readiness"]
         with self.assertRaisesRegex(OntologyError, "C1.*readiness"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
     def test_relation_labels_are_namespaced_by_relation_owner(self) -> None:
-        validate_atlas(valid_atlas())
+        validate_ontology(valid_ontology())
 
-        atlas = valid_atlas()
-        del atlas["relations"][0]["label"]
+        ontology = valid_ontology()
+        del ontology["relations"][0]["label"]
         with self.assertRaisesRegex(OntologyError, "claim.correctedBy"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
-        atlas = valid_atlas()
-        atlas["relations"][1]["inverseLabel"] = "claim.correctedBy"
+        ontology = valid_ontology()
+        ontology["relations"][1]["inverseLabel"] = "claim.correctedBy"
         with self.assertRaisesRegex(OntologyError, "lever.correctedBy"):
-            validate_atlas(atlas)
+            validate_ontology(ontology)
 
 
 class OntologyLockTests(unittest.TestCase):
@@ -186,23 +187,23 @@ class OntologyLockTests(unittest.TestCase):
                 source = ROOT / "registry" / "ontology" / f"atlas.v{version}.json"
                 (registry / source.name).write_bytes(source.read_bytes())
 
-            validate_versioned_atlas_inventory(registry)
+            validate_versioned_ontology_inventory(registry)
 
             v1_path = registry / "atlas.v1.json"
             v1_path.write_bytes(v1_path.read_bytes() + b"\n")
             with self.assertRaisesRegex(OntologyError, "v1.*not immutable"):
-                validate_versioned_atlas_inventory(registry)
+                validate_versioned_ontology_inventory(registry)
 
             v1_path.write_bytes(
                 (ROOT / "registry" / "ontology" / "atlas.v1.json").read_bytes()
             )
             (registry / "atlas.v3.json").write_text("{}")
             with self.assertRaisesRegex(OntologyError, "unsupported.*atlas.v3"):
-                validate_versioned_atlas_inventory(registry)
+                validate_versioned_ontology_inventory(registry)
 
     def test_lock_binds_artifact_source_date_and_freshness_layer(self) -> None:
-        atlas_bytes, atlas, lock = repository_atlas()
-        validate_lock(atlas_bytes, atlas, lock)
+        ontology_bytes, ontology, lock = repository_ontology()
+        validate_lock(ontology_bytes, ontology, lock)
 
         for field, bad_value in (
             ("version", 1),
@@ -215,8 +216,9 @@ class OntologyLockTests(unittest.TestCase):
             with self.subTest(field=field):
                 broken = dict(lock)
                 broken[field] = bad_value
-                with self.assertRaisesRegex(OntologyError, field):
-                    validate_lock(atlas_bytes, atlas, broken)
+                error_label = "ontology date" if field == "atlasDate" else field
+                with self.assertRaisesRegex(OntologyError, error_label):
+                    validate_lock(ontology_bytes, ontology, broken)
 
         mutated_lock = dict(lock)
         mutated_lock["source"] = {
@@ -224,39 +226,39 @@ class OntologyLockTests(unittest.TestCase):
             "sha256": "sha256:" + "0" * 64,
         }
         with self.assertRaisesRegex(OntologyError, "source.sha256"):
-            validate_lock(atlas_bytes, atlas, mutated_lock)
+            validate_lock(ontology_bytes, ontology, mutated_lock)
 
-        mutated_atlas = json.loads(atlas_bytes)
-        mutated_atlas["metadata"]["title"] += " tampered"
+        mutated_ontology = json.loads(ontology_bytes)
+        mutated_ontology["metadata"]["title"] += " tampered"
         mutated_bytes = (
-            json.dumps(mutated_atlas, indent=2, ensure_ascii=False) + "\n"
+            json.dumps(mutated_ontology, indent=2, ensure_ascii=False) + "\n"
         ).encode()
         rehashed_lock = dict(lock)
         rehashed_lock["sha256"] = "sha256:" + hashlib.sha256(mutated_bytes).hexdigest()
         with self.assertRaisesRegex(OntologyError, "reversing the declared transformation"):
-            validate_lock(mutated_bytes, mutated_atlas, rehashed_lock)
+            validate_lock(mutated_bytes, mutated_ontology, rehashed_lock)
 
     def test_cli_validates_files_and_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            atlas_path = root / "atlas.json"
+            ontology_path = root / "ontology.json"
             lock_path = root / "lock.json"
-            atlas_bytes, atlas, lock = repository_atlas()
-            atlas_path.write_bytes(atlas_bytes)
+            ontology_bytes, ontology, lock = repository_ontology()
+            ontology_path.write_bytes(ontology_bytes)
             lock_path.write_text(json.dumps(lock))
             command = [
                 sys.executable,
                 str(CHECKER),
-                "--atlas",
-                str(atlas_path),
+                "--ontology",
+                str(ontology_path),
                 "--lock",
                 str(lock_path),
             ]
 
             accepted = subprocess.run(command, capture_output=True, text=True)
-            del atlas["relations"][0]["label"]
-            broken_bytes = (json.dumps(atlas, indent=2, ensure_ascii=False) + "\n").encode()
-            atlas_path.write_bytes(broken_bytes)
+            del ontology["relations"][0]["label"]
+            broken_bytes = (json.dumps(ontology, indent=2, ensure_ascii=False) + "\n").encode()
+            ontology_path.write_bytes(broken_bytes)
             lock["sha256"] = "sha256:" + hashlib.sha256(broken_bytes).hexdigest()
             lock_path.write_text(json.dumps(lock))
             rejected = subprocess.run(command, capture_output=True, text=True)
@@ -265,6 +267,20 @@ class OntologyLockTests(unittest.TestCase):
         self.assertIn("ontology link check passed", accepted.stdout)
         self.assertNotEqual(rejected.returncode, 0)
         self.assertIn("ontology link check failed", rejected.stderr)
+
+
+    def test_ontology_cli_option_and_legacy_alias_share_one_boundary(self) -> None:
+        from unittest.mock import patch
+
+        for option in ("--ontology", "--atlas"):
+            with self.subTest(option=option), patch.object(
+                sys, "argv", [str(CHECKER), option, "retained.json"]
+            ):
+                self.assertEqual(parse_args().ontology, Path("retained.json"))
+        with patch.object(
+            sys, "argv", [str(CHECKER), "--ontology", "a.json", "--atlas", "b.json"]
+        ), self.assertRaises(SystemExit):
+            parse_args()
 
 
 if __name__ == "__main__":
