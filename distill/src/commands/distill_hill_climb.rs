@@ -389,10 +389,7 @@ fn evaluate_candidate(
     for case in cases {
         let mut context = case.context.clone().unwrap_or_else(|| json!({}));
         if let Some(object) = context.as_object_mut() {
-            object.insert(
-                "source".to_string(),
-                json!("distill distill-hill-climb"),
-            );
+            object.insert("source".to_string(), json!("distill distill-hill-climb"));
             object.insert("case_id".to_string(), json!(case.case_id));
         }
         let request = PolicyRequest {

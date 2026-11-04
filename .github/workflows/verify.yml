@@ -62,6 +62,9 @@ jobs:
       - name: Run unit tests
         run: python -m pytest -m unit -q
 
+      - name: Test D1 migration contracts
+        run: python -m pytest tests/test_d1_migrations.py -q
+
       - name: Compile all Python files
         run: find . -name '*.py' -print0 | xargs -0 python -m py_compile
 

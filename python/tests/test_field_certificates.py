@@ -439,6 +439,69 @@ def test_merge_enriches_without_mutation():
     assert len(enriched["certificate_evidence"]) == 3
 
 
+@pytest.mark.parametrize("with_certificates", [False, True])
+def test_legacy_metadata_normalizes_before_certificate_enrichment(with_certificates):
+    import copy
+
+    certificates = _sample_certificates() if with_certificates else []
+    metadata = {
+        "model_id": "legacy-distill",
+        "distill_version": 3,
+        "overall_uplift_pct": 7.5,
+        "atlas_theorem_refs": ["retained.historical.proof"],
+        "formal_properties": ["retained formal property"],
+    }
+    before = copy.deepcopy(metadata)
+    enriched = merge_into_candidate_metadata(metadata, certificates)
+    expected = ["retained.historical.proof"]
+    if with_certificates:
+        expected.append(certificates[1].theorem_ref)
+
+    assert metadata == before
+    assert "atlas_theorem_refs" not in enriched
+    assert enriched["theorem_refs"] == expected
+    candidate = CandidateMetadata.model_validate(enriched)
+    assert candidate.theorem_refs == expected
+    assert "atlas_theorem_refs" not in candidate.model_dump()
+    assert evaluate_promotion(enriched).decision.value == "promote"
+
+
+def test_matching_legacy_and_canonical_refs_merge_without_mutation_or_duplicates():
+    import copy
+
+    certificates = _sample_certificates()
+    refs = ["retained.historical.proof", certificates[1].theorem_ref]
+    metadata = {
+        "model_id": "legacy-distill", "distill_version": 3,
+        "overall_uplift_pct": 7.5,
+        "atlas_theorem_refs": list(refs), "theorem_refs": list(refs),
+    }
+    before = copy.deepcopy(metadata)
+    enriched = merge_into_candidate_metadata(metadata, certificates)
+    assert metadata == before
+    assert enriched["theorem_refs"] == refs
+    assert "atlas_theorem_refs" not in enriched
+    assert CandidateMetadata.model_validate(enriched).theorem_refs == refs
+    assert evaluate_promotion(enriched).decision.value == "promote"
+
+
+def test_conflicting_legacy_refs_are_rejected_before_enrichment_without_mutation():
+    import copy
+
+    metadata = {
+        "model_id": "legacy-distill", "distill_version": 3,
+        "overall_uplift_pct": 7.5,
+        "atlas_theorem_refs": ["retained.historical.proof"],
+        "theorem_refs": ["different.proof"],
+    }
+    before = copy.deepcopy(metadata)
+    with pytest.raises(ValueError, match="conflicting theorem_refs"):
+        merge_into_candidate_metadata(metadata, _sample_certificates())
+    assert metadata == before
+    with pytest.raises(ValueError, match="conflicting theorem_refs"):
+        CandidateMetadata.model_validate(metadata)
+
+
 def test_certificates_flow_through_promotion_gate():
     """Certificates satisfy the gate's formal-field requirement, and their
     witnesses ride the reasons/telemetry path."""

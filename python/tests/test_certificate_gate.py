@@ -92,7 +92,7 @@ def test_refused_cell_is_excluded_from_correction():
     skip = [a for a in decision.actions if a.get("action") == "skip_correction"]
     assert len(skip) == 1
     assert skip[0]["theorem_ref"] == (
-        "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances."
+        "OpenDistillationFactory.Materials.Data.EnvFieldInstances."
         "field_refused_chgnet_Pt"
     )
     assert skip[0]["lean_name"] == "chgnet_Pt"

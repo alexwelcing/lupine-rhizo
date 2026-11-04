@@ -127,12 +127,12 @@ def check_sync_drift() -> list[str]:
     for site_root in ("exports/library-content",):
         brand_json = ROOT / site_root / "brand.json"
         if brand_json.exists() and brand_json.read_text(encoding="utf-8") != expected_brand:
-            errors.append(f"{site_root}/brand.json is stale - run: python scripts/sync_brand_agent_text.py")
+            errors.append(f"{site_root}/brand.json is stale - run: python scripts/sync_brand_agent_text.py --site-root {site_root}")
         for name in ("llms.txt", "llms-full.txt"):
             dst = ROOT / site_root / name
             src = src_dir / name
             if src.exists() and dst.exists() and dst.read_text(encoding="utf-8") != src.read_text(encoding="utf-8"):
-                errors.append(f"{site_root}/{name} is stale - run: python scripts/sync_brand_agent_text.py")
+                errors.append(f"{site_root}/{name} is stale - run: python scripts/sync_brand_agent_text.py --site-root {site_root}")
     return errors
 
 

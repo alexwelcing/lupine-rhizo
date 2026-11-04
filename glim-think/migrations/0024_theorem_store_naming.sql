@@ -97,4 +97,3 @@ AFTER DELETE ON facet_state
 BEGIN
   DELETE FROM facet_state_0011_canonical_snapshot WHERE facet = OLD.facet;
 END;
-
