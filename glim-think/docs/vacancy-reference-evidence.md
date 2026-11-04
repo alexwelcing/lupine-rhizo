@@ -200,3 +200,7 @@ The checker and preview do not recover missing raw defect geometries, magnetic
 states, convergence evidence, reservoir alignment or independent test exposure.
 Library/knowledge-graph presentation, genuine-run acceptance and deployed UI
 behavior remain separate work; this change does not publish a research result.
+
+For ordering among a fixed list of structures, use the separate
+[candidate-order report](candidate-order-evidence.md). It preserves signed gaps
+and endpoint ties without requiring interstitials to be labeled as vacancies.

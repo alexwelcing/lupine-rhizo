@@ -1,3 +1,5 @@
+import { formatExactFraction as formatVacancyFraction } from "./formatExactFraction";
+export { formatVacancyFraction };
 import React, { useEffect, useId, useRef, useState } from "react";
 import { assessVacancyReference, validateVacancyResult, vacancyTaskSchema, type VacancyResult } from "../vacancyEvidenceContracts";
 
@@ -14,20 +16,6 @@ const REFERENCES = {
   external_reservoir: "External reservoir",
   unknown: "Unknown reference construction",
 };
-
-/** Exact short decimals when possible; a nonzero fraction is never rounded to zero. */
-export function formatVacancyFraction(value: Fraction): string {
-  let n = BigInt(value.numerator); const d = BigInt(value.denominator);
-  if (d <= 0n) throw new Error("Invalid denominator");
-  const sign = n < 0n ? "-" : ""; if (n < 0n) n = -n;
-  let scale = 1n;
-  for (let places = 0; places <= 6; places++, scale *= 10n) {
-    if (n * scale % d !== 0n) continue;
-    const digits = (n * scale / d).toString().padStart(places + 1, "0");
-    return sign + (places ? digits.slice(0, -places) + "." + digits.slice(-places) : digits);
-  }
-  return value.numerator + "/" + value.denominator;
-}
 
 /** File selection is local inspection only: no upload, persistence or inference. */
 export async function readVacancyReportFile(file: Pick<File, "size" | "text">): Promise<VacancyResult> {

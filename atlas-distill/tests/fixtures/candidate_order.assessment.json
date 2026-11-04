@@ -1,0 +1,70 @@
+{
+  "arithmetic": "exact_rational_closed_cartesian_bounds",
+  "reference_minima": {
+    "possible": [
+      "a"
+    ],
+    "guaranteed": [
+      "a"
+    ],
+    "unique": "a"
+  },
+  "prediction_minima": {
+    "possible": [
+      "b"
+    ],
+    "guaranteed": [
+      "b"
+    ],
+    "unique": "b"
+  },
+  "choice_relation": "different_unique_minima",
+  "pairs": [
+    {
+      "left": "a",
+      "right": "b",
+      "reference_gap_ev": {
+        "lower": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "upper": {
+          "numerator": "2",
+          "denominator": "1"
+        }
+      },
+      "prediction_gap_ev": {
+        "lower": {
+          "numerator": "-2",
+          "denominator": "1"
+        },
+        "upper": {
+          "numerator": "-2",
+          "denominator": "1"
+        }
+      },
+      "gap_error_ev": {
+        "lower": {
+          "numerator": "-4",
+          "denominator": "1"
+        },
+        "upper": {
+          "numerator": "-4",
+          "denominator": "1"
+        }
+      },
+      "reference_order": "left_lower",
+      "prediction_order": "right_lower",
+      "agreement": "opposite_strict_order"
+    }
+  ],
+  "issues": [
+    "source_and_physical_scope_unverified",
+    "artifact_identity_unknown",
+    "candidate_search_not_exhaustive"
+  ],
+  "source_verification": "not_performed",
+  "scientific_validation": "not_established",
+  "global_minimum_claim": "not_established",
+  "uniform_shift_changes_order": false
+}

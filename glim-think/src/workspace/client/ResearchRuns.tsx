@@ -1,3 +1,4 @@
+import { InspectCandidateOrderReport } from "./CandidateOrderReport";
 import { InspectVacancyReport } from "./VacancyReport";
 import { draftComparisonContract } from "../comparisonContracts";
 import React, { useEffect, useRef, useState } from "react";
@@ -298,6 +299,7 @@ export function ResearchRuns() {
       {feed?.runs.map(run => <ResearchRunCard run={run} key={run.id} />)}
       {feed?.truncated && <p className="feed-truncated">Showing the most recent saved runs.</p>}
       <InspectVacancyReport />
+      <InspectCandidateOrderReport />
       <ImportResearchRun onImported={() => void refresh()} />
     </section>
   </main>;
