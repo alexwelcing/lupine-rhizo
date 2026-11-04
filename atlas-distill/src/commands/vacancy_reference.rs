@@ -150,9 +150,9 @@ fn decimal(text: &str) -> Result<BigRational> {
     let parts: Vec<_> = unsigned.split('.').collect();
     ensure!(
         parts.len() <= 2
-            && parts.iter().all(|part| {
-                !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit())
-            }),
+            && parts
+                .iter()
+                .all(|part| { !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit()) }),
         "expected a bounded decimal string without exponent"
     );
     let fractional = parts.get(1).map_or(0, |part| part.len());
@@ -219,7 +219,10 @@ fn assess(input: &Input) -> (&'static str, Vec<&'static str>) {
 fn calculate(bytes: &[u8]) -> Result<ResultDocument> {
     ensure!(bytes.len() <= MAX_BYTES, "input exceeds byte bound");
     let input: Input = serde_json::from_slice(bytes).context("invalid vacancy input")?;
-    ensure!(input.schema == "lupine.vacancy_reference.input.v1", "schema");
+    ensure!(
+        input.schema == "lupine.vacancy_reference.input.v1",
+        "schema"
+    );
     ensure!(input.unit == "eV_per_vacancy", "unit");
     ensure!(
         !input.rows.is_empty() && input.rows.len() <= MAX_ROWS,
@@ -250,10 +253,10 @@ fn calculate(bytes: &[u8]) -> Result<ResultDocument> {
             "site/species identity"
         );
         ensure!(sites.insert(&row.site_id), "duplicate site identity");
-        grouped.entry(row.species.clone()).or_default().push((
-            decimal(&row.prediction)?,
-            decimal(&row.reference)?,
-        ));
+        grouped
+            .entry(row.species.clone())
+            .or_default()
+            .push((decimal(&row.prediction)?, decimal(&row.reference)?));
     }
     ensure!(grouped.len() <= 128, "species bound");
     let mut reference_rows: Vec<_> = input
@@ -262,10 +265,8 @@ fn calculate(bytes: &[u8]) -> Result<ResultDocument> {
         .map(|row| (&row.site_id, &row.species, &row.reference))
         .collect();
     reference_rows.sort();
-    let reference_rows_sha256 = format!(
-        "{:x}",
-        Sha256::digest(serde_json::to_vec(&reference_rows)?)
-    );
+    let reference_rows_sha256 =
+        format!("{:x}", Sha256::digest(serde_json::to_vec(&reference_rows)?));
     let errors: Vec<_> = grouped
         .values()
         .flatten()
@@ -353,7 +354,9 @@ fn calculate(bytes: &[u8]) -> Result<ResultDocument> {
 
 fn read_bounded(reader: impl Read) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
-    reader.take((MAX_BYTES + 1) as u64).read_to_end(&mut bytes)?;
+    reader
+        .take((MAX_BYTES + 1) as u64)
+        .read_to_end(&mut bytes)?;
     ensure!(bytes.len() <= MAX_BYTES, "input exceeds byte bound");
     Ok(bytes)
 }
@@ -424,7 +427,10 @@ mod tests {
         let result = run_value(&value).unwrap();
         assert_eq!(result.components.full_mse_ev2, ratio(2, 1));
         assert_eq!(result.components.overall_bias_squared_ev2, ratio(0, 1));
-        assert_eq!(result.components.species_mean_imbalance_mse_ev2, ratio(2, 1));
+        assert_eq!(
+            result.components.species_mean_imbalance_mse_ev2,
+            ratio(2, 1)
+        );
     }
 
     #[test]
@@ -446,7 +452,10 @@ mod tests {
         value["rows"][2]["reference"] = json!("1.50000000000000001");
         let result = run_value(&value).unwrap();
         assert!(!result.reference_species_means_equal_exactly);
-        assert_ne!(result.components.species_mean_imbalance_mse_ev2, ratio(0, 1));
+        assert_ne!(
+            result.components.species_mean_imbalance_mse_ev2,
+            ratio(0, 1)
+        );
     }
 
     #[test]
@@ -491,7 +500,10 @@ mod tests {
         value["rows"][1]["site_id"] = json!("a");
         assert!(run_value(&value).is_err());
         value = fixture();
-        value["rows"][0].as_object_mut().unwrap().remove("reference");
+        value["rows"][0]
+            .as_object_mut()
+            .unwrap()
+            .remove("reference");
         assert!(run_value(&value).is_err());
         value = fixture();
         value["pretend_verified"] = json!(true);
@@ -532,5 +544,4 @@ mod tests {
         .unwrap();
         assert_eq!(serde_json::to_value(result).unwrap(), expected);
     }
-
 }
