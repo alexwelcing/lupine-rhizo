@@ -2,7 +2,7 @@
 
 Reviewed 4 November 2026. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover eight publications; repeated reference columns,
+literature examples below cover ten publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -22,6 +22,9 @@ must specify those choices before applying an error bound.
 | **Barrier ordering — Ko 2015**, 4 November. Table XI, Ni migration in hcp Ti. | Out-of-basal minus in-basal barrier is +0.088 eV for DFT and −0.151 eV for 2NN-MEAM. Assumed printing intervals [0.087, 0.089] and [−0.152, −0.150] preserve the reversal. | Preserve the direction and initial/path identities. Unknown prefactors prevent a rate-order conclusion; hop barriers alone do not determine a diffusion tensor. The source already reports Ti-rich migration limitations, so this is not a newly discovered physical failure. |
 | **Feasible alternatives — Kobayashi 2017**, 4 November. Table II, Al–Mg–Si binary compounds. | Mg3Si has negative PBE formation energy (−7 meV/atom), yet Mg + Mg2Si is lower by 95 meV/atom at the same overall composition. Restricting compounds to Si fraction ≤1/4 omits Mg2Si at 1/3 and incorrectly makes Mg3Si a vertex of that restricted hull. | Compare composition-balanced alternatives, including mixtures of phases outside the requested bulk-composition window. This deliberate restriction is our retrospective counterexample, not an allegation about the authors' procedure. A finite-hull vertex does not establish stability against omitted phases. |
 
+| **Composition holdout and estimator — Guo 2022**, 4 November review of the 2 February preprint. Supplement Table IV, LiCl–KCl eutectic. | GAP reports conductivity 0.659 W/(m K), versus RIM 0.856 and a cited experimental 0.690. The eutectic composition was excluded from GAP fitting, and the supplement reports energy/force errors on 120 independent test samples. | This is a favorable reported comparison, not a common-test energy-error ranking of the two potentials. The conductivity uses density-fluctuation extrapolation; the models use different simulated densities and the cited experimental temperature remains unaudited. Fitting exclusion alone does not establish independence from model selection. |
+| **Selection role and reference lineage — Attarian 2024 preprint**, 4 November. Sections 2.1, 3.1 and 3.2; Tables 4–5. | The authors choose Pot_2 using the results of Figures 2 and 3; Figure 3 includes the eutectic composition excluded from fitting. Separate unary ACE models give NaCl densities [1.55, 1.28, 1.45, 1.57] g/cm³ at 1200 K, against 1.49 ±0.5%. | Preserve fitting exclusion without upgrading it to selection-independent evaluation. The unary models are separately refitted to different DFT targets, with additional active learning; their Table 4 training errors are not a common-reference test. Do not attach the mixture Pot_2 holdout claim to these unary results. |
+
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
 Printing boxes are independent closed nearest-rounding assumptions, not reported
@@ -31,6 +34,36 @@ protocols and row-level fitting exposure remain unresolved where stated.
 The Olsson and Ko plans preceded numerical inspection on 4 November. The
 Kobayashi selection is retrospective: numerical source lines were visible before
 its analysis plan. None is an independent replication or a new model execution.
+
+The molten-salt selection used metadata before this review's numerical reads.
+The papers were already in the historical corpus, so this is not independent
+blinding. Six existing comparison rows were reviewed: two conductivities and
+four NaCl densities. No observations or studies were added to the corpus.
+The Guo numerical check used retained primary-source text; its earlier failed
+PDF/screenshot routes were not retried. Attarian Table 5 was checked against an
+existing page preview. Both retained versions are preprints; equivalence to
+their final journal articles and the original experimental references remains
+unverified.
+
+For Guo, the nominal model-minus-reference discrepancies are −0.031 and
++0.166 W/(m K). This calculation does not isolate potential error from state,
+reference or estimator effects. For Attarian, the nominal density discrepancies
+are +0.06, −0.21, −0.04 and +0.08 g/cm³. Expanding the reported experimental
+percentage gives [1.48255, 1.49745] g/cm³; all four printed predictions lie outside
+that interval. No confidence level is inferred. The source's reported maximum
+MD density uncertainty, 0.0003 g/cm³, is a sampling statement, not a bound on
+DFT-method or surrogate bias. This review does not assign the discrepancies
+causally or establish a universally best DFT method.
+
+The selection wording is evidence about the authors' stated decision rationale,
+not an allegation of invalid fitting or proof of undocumented optimization.
+The source explicitly attributes the Pot_2 choice to Figures 2 and 3. The fitting
+exclusion remains true; independence from that selection step is not established.
+A later evaluator must retain the model branch, reference method, split unit
+(configuration or composition), and fitting/selection/evaluation roles together.
+An existing free-text qualification can express this; no new inspector or
+automatic independence classifier has been justified.
+
 
 ## Synthetic obstructions and a product-contract correction
 
@@ -59,6 +92,11 @@ information discarded by a score:
 - **A rate or transport interpretation:** temperature, prefactors and the physical
   network/population model add premises that an energy-error statistic cannot
   supply.
+- **Generalization evidence:** an excluded fitting composition, an independent
+  configuration set, and a benchmark used for selection have different roles.
+  A small surrogate-to-DFT fitting error does not bound a downstream physical
+  property without a sensitivity argument and a suitable physical reference.
+  These are standard validation distinctions, not a new theorem.
 
 This is a synthesis of standard linear algebra, interval reasoning, finite
 extrema and convex-mixture thermodynamics. It is not a universal correction
@@ -189,6 +227,17 @@ promotion follows from this document.
 - **Kobayashi 2017:** [accepted manuscript](https://link.aps.org/accepted/10.1103/PhysRevMaterials.1.053604),
   Equation 11, printed page 12; Table II, physical PDF page 16 / printed page 15.
   Retained text review and analysis 4 November, 17:53–18:04 UTC; no new PDF-page review.
+
+- **Guo 2022:** [2 February 2022 ChemRxiv preprint](https://www.cambridge.org/engage/api-gateway/coe/assets/orp/resource/item/61fb07df32e10e139bd27770/original/a-composition-transferable-machine-learning-potential-for-li-cl-k-cl-molten-salts-validated-by-hexrd.pdf),
+  main-text fitting exclusion; supplement Sections A, F and G and Table IV,
+  physical PDF pages 8 and 11–12. Final-article DOI
+  10.1103/PhysRevB.106.014209 is bibliographic linkage, not version equivalence.
+  Retained primary text reviewed 4 November; no new visual PDF review.
+- **Attarian 2024:** [arXiv:2409.17869v1](https://arxiv.org/pdf/2409.17869v1),
+  fitting/model lineage page 8; selection statement page 16 and Figure 3;
+  Section 3.2 and Table 4; Table 5, page 26. Retained PDF pin, derived text and
+  existing Table 5 preview checked 4 November. Final-article DOI
+  10.1016/j.commatsci.2024.113409 is bibliographic linkage only.
 
 The current review links previously completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
