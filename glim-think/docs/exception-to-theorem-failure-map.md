@@ -2,7 +2,7 @@
 
 Reviewed 4 November 2026. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover fourteen publications; repeated reference columns,
+literature examples below cover sixteen publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -27,6 +27,8 @@ must specify those choices before applying an error bound.
 | **Sampling precision — Zhu 2021**, 4 November. Table 1, six elemental/potential pairs. | Al TOR-TILD is reported as 824 +/- 0.1 K against a cited experimental 933 K: -109 K nominal discrepancy despite a small standard error of the mean. | Separate numerical convergence, seed sampling, physical reference and fitting role. The paper demonstrates unary phases; its precision does not validate an alloy liquidus method. See the [two-study coexistence review](phase-coexistence-evidence.md). |
 | **Auxiliary-reference role — Zhu 2017**, 4 November. Cu TOR-TILD. | The [linked review](auxiliary-reference-evidence.md) separates a reference's standalone prediction from the corrected target. | Preserve target identity and both phase corrections; target evaluation is separate from physical validation. |
 | **Representation versus fitting — Bartók 2018**, 4 November. Table III, silicon stable stacking fault. | GAP reports 0.002 J/m² against DFT/PW91 0.047 J/m². The authors state that GAP can distinguish the relevant environments and suggest extending its database. They separately attribute exact-zero results from several shorter-range potentials to limited range. | A small or printed-zero prediction does not establish identical model inputs. Preserve the stated explanation as an author report; an independently demonstrated representation obstruction needs the exact model, configurations and representation. |
+| **Dependent reference and task — Mishin 2005**, 4 November. Tables 4–5, Fe and Ni vacancies. | Fe has nominal formation/migration discrepancies +0.13/−0.17 eV, summing to −0.04 eV. However, the 0.91 eV migration reference was derived from the reported activation and formation values. Ni component discrepancies reinforce: ADP +0.03/+0.04 eV; EAM −0.03/−0.11 eV. | Preserve the reference dependency and fitted-property status. Agreement in a summed activation estimate does not separately validate vacancy population or jump kinetics. The Fe component signs are not certified by the reported uncertainty envelopes. |
+| **Reference choice control — Fellinger 2010**, 4 November. Table IV, Nb vacancies. | EAM-minus-same-work-DFT discrepancies are +0.38 eV for formation and +0.22 eV for migration, summing to +0.60 eV. They reinforce rather than cancel; all three predictions nevertheless fall within the separately reported experimental literature ranges. | Keep DFT and experimental comparisons separate. These ranges have unresolved joint provenance and confidence meaning; membership does not isolate potential error or independently validate diffusion. The activation row is a sum of the components, not a third independent calculation. |
 
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
@@ -108,6 +110,52 @@ target for these eight IDs; original pooled-analysis exclusions remain in
 force. Observations retain their 7 October extraction time. No rows, studies,
 model executions or independent validations were added. The existing source
 qualification fields can retain these limits; no new checker is justified.
+
+## Vacancy activation: component errors and dependent references
+
+Thirteen existing rows were reviewed across Mishin and Fellinger. In the Fe
+example, the reference relation is explicitly `M = Q - F): nominal formation
+`F = 2.0 eV), activation `Q = 2.91 eV), and inferred migration `M = 0.91 eV`.
+The model gives 2.13 and 0.74 eV, hence 2.87 eV in total. Summing the reference
+components recovers the original activation measurement; it supplies no new
+independent observation. Both defect properties entered fitting.
+
+The reported envelopes `F = 2.0 +/- 0.2 eV` and `Q = 2.91 +/- 0.04 eV`
+imply the deterministic outer range `M in [0.67, 1.15] eV`, preserving
+`M = Q - F`. With assumed nearest-rounding half-last-digit boxes for the
+two-decimal model values, component-discrepancy ranges are
+`[-0.075, 0.335]` and `[-0.415, 0.075] eV`; their dependent sum is
+`[-0.09, 0.01] eV`. No statistical independence or confidence level is
+assigned. Nominal cancellation therefore does not establish oppositely signed
+physical errors. The alternative 0.55 eV migration reference remains separate.
+
+For the Ni controls, corresponding printing-box sum-discrepancy ranges are
+`[0.05, 0.09] eV` for ADP and `[-0.16, -0.12] eV` for EAM. The tabulated
+reference components sum to 2.90 eV; the text separately cites an activation
+measurement of 2.88 eV. Those distinct reference chains must not be silently
+interchanged. For Nb against same-work DFT, the sum-discrepancy range is
+`[0.58, 0.62] eV`. The source uses different EAM and DFT supercell sizes
+(8,191 and 249 atoms), and its fitting database includes a vacancy configuration;
+these comparisons do not isolate physical error or establish held-out exposure.
+
+Under a stated dilute-vacancy, common-prefactor model, equilibrium self-diffusion
+contains both a vacancy-population factor and a jump-rate factor. An externally
+fixed vacancy population removes formation energy from the jump-rate exponent.
+Thus preserving `F + M` alone cannot certify both tasks. Actual diffusivity
+also needs temperature, free-energy/entropy terms, prefactors and correlation
+assumptions; none was invented or evaluated here. This is a standard conditional
+distinction, not a new transport theorem.
+
+Both PDF pins, the base/manifest and all four qualification pins matched.
+Existing previews of Mishin pages 8–9 and Fellinger page 9 were visually checked;
+additional method passages were read as retained text. Four exact nominal
+decompositions and 64 endpoint checks passed, with a separate Number arithmetic
+cross-check. These are same-agent calculations. No explicit qualification target
+matched the selected IDs, but all original pooled-analysis exclusions remain.
+No new corpus rows, studies, simulations or independent validations were added.
+Existing source qualifications can express these dependencies; this review
+does not justify a new inspector or demonstrate an improvement over the
+source-aware baseline.
 
 ## Synthetic obstructions and a product-contract correction
 
@@ -310,6 +358,17 @@ promotion follows from this document.
   PDF pin, eight existing rows and page 22 preview checked 4 November.
   The paper-linked archive is an artifact-discovery lead, not verified
   executable identity or configuration provenance.
+
+- **Mishin 2005:** [Acta Materialia 53, 4029–4041](https://doi.org/10.1016/j.actamat.2005.05.001),
+  fitting Section 4.2, PDF page 7; Table 4, footnote h and activation discussion,
+  page 8; Table 5 and separate activation reference, page 9. Existing page 8–9
+  previews and retained PDF pin checked 4 November. Original experimental
+  references were not independently reviewed.
+- **Fellinger 2010:** [arXiv:1003.2210v2](https://arxiv.org/abs/1003.2210v2),
+  Table I and fitting discussion; Section III B, PDF page 8; Table IV, page 9.
+  Retained preprint PDF pin and existing page 9 preview checked 4 November;
+  DOI 10.1103/PhysRevB.81.144119 identifies the linked journal article, not a
+  separately verified final-version comparison.
 
 The current review links completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
