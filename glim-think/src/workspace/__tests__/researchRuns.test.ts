@@ -270,3 +270,50 @@ it("prepares an editable source-audit draft without inventing source verificatio
  expect(preview.blockers).toContain(`Missing source hash: ${draft.findings[0].sourceId}`);
  expect(preview.blockers.length).toBeGreaterThan(5);
 });
+
+
+it("binds exact vacancy components to a private preview and blocks the centered-only absolute claim", async () => {
+  const h = harness(); const imported = await snapshot();
+  await importResearchRun(h.env, JSON.stringify(imported));
+  const run = await decodeResearchRun(imported);
+  const contract = chandranContract(imported);
+  contract.evaluation.observable = "vacancy_formation_energy";
+  contract.evaluation.unit = "eV_per_vacancy";
+  contract.evaluation.referenceId = "synthetic-reference";
+  contract.findings = [{ sourceId: "synthetic-reference", sourceSha256: "a".repeat(64),
+    anchor: "Synthetic regression only", rowIds: ["a", "b", "c"] }];
+  contract.arms.forEach((arm, i) => {
+    arm.modelId = i ? "synthetic-second" : "synthetic-shift";
+    arm.referenceId = "synthetic-reference";
+  });
+  const fixture = JSON.parse(readFileSync(new URL(
+    "../../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", base), "utf8"));
+  const evidence = { schemaVersion: 1,
+    comparisonContractSha256: await sha256(canonicalComparisonJSON(contract)),
+    task: "formation_energy",
+    results: contract.arms.map(arm => {
+      const result = structuredClone(fixture); result.context.prediction_id = arm.modelId;
+      return { modelId: arm.modelId, result };
+    }) };
+  const before = h.db.prepare("SELECT payload FROM workspace_research_runs").get();
+  h.hooks.beforeRun = () => { throw new Error("Preview attempted a write"); };
+  const call = (value: unknown) => researchRunsResponse(new Request(
+    "http://localhost/workspace/research-runs/verification-preview", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ runId: run.id, contract, vacancyEvidence: value }),
+    }), h.env, true);
+  const response = await call(evidence);
+  expect(response!.status).toBe(200);
+  const result = await response!.json() as any;
+  expect(result.status).toBe("needs_clarification");
+  expect(result.blockers).toContain("Centered-only vacancy score cannot support formation_energy: synthetic-shift");
+  expect(result.vacancyEvidence.arithmeticConsistency).toBe("checked_on_declared_components");
+  expect(result.vacancyEvidence.scientificSupport).toBe("not_asserted");
+  expect(result.taskPreview.payload.vacancyEvidence.attachmentSha256).toBe(result.vacancyEvidence.attachmentSha256);
+  expect(h.db.prepare("SELECT payload FROM workspace_research_runs").get()).toEqual(before);
+  const changed = structuredClone(evidence); changed.comparisonContractSha256 = "f".repeat(64);
+  expect((await call(changed))!.status).toBe(400);
+  changed.comparisonContractSha256 = evidence.comparisonContractSha256;
+  changed.results[0].result.context.source_id = "wrong-source";
+  expect((await call(changed))!.status).toBe(400);
+});

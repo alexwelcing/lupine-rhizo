@@ -1,0 +1,111 @@
+# Vacancy-label error components
+
+A centered vacancy-energy score can be zero even when every formation label
+has a uniform error. The synthetic shared fixture adds 0.1 eV to three labels:
+centered MSE is exactly 0, while full MSE is exactly 1/100 eV².
+
+## Exact specification
+
+For a nonempty set of sites partitioned into nonempty species groups, let
+S replace each value by its species mean and J by the overall site mean.
+With equal site weights, H = I - S. For any label-error vector d,
+
+    ||d||²/n = ||Hd||²/n + mean(d)² + ||Sd - Jd||²/n.
+
+S and J are symmetric idempotents with SJ = JS = J. Therefore H, J and S-J
+have mutually orthogonal ranges, proving the decomposition. The components
+measure within-species variation, overall bias and species-mean imbalance.
+Unequal species counts retain site weights; this is not equal weighting of
+species or structures. Printed values are never rounded or projected.
+
+For the explicitly chosen self-consistent reference construction,
+
+    F(x,E0) = (I-S+J)x - ((n-1)/n) E0 1,
+
+where x contains every single-vacancy total energy for an n-atom pristine
+cell, I-S+J is a rank n-k+1 projector. Its kernel consists of species-constant
+vectors with zero overall mean. Consistent elemental energy-zero shifts
+cancel; they are legitimate gauge freedom, not physical model errors.
+For known E0, cᵀx is identifiable precisely when the species averages of c
+coincide. With unknown E0 and n>1, each species sum of c must be zero.
+This is standard linear algebra, not a novelty or physical-validity claim.
+
+Centering labels also discards the overall formation-energy level. A
+within-species score cannot certify absolute formation-energy accuracy or
+vacancy concentrations. A concentration decision additionally requires a
+qualified thermodynamic model and reservoir convention.
+
+## Rust checker
+
+From the repository root:
+
+    cargo run --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- \
+      vacancy-reference --input atlas-distill/tests/fixtures/vacancy_uniform_bias.input.json
+
+The fixture intentionally exits nonzero **after** emitting its descriptive JSON
+report because the selected centered score is incompatible with the requested
+formation-energy task. With a full score or a within-species task, successful
+arithmetic remains descriptive; it never grants physical acceptance.
+
+The command accepts at most 512 KiB, 4096 unique sites and 128 species.
+Values are bounded decimal strings (at most 64 characters; no exponent,
+NaN or infinity), evaluated with exact BigRational arithmetic. Numeric JSON
+values are rejected to avoid silently importing binary floating-point values.
+MSEs and signed mean bias are reduced numerator/denominator strings; irrational
+square roots are not mislabeled as exact RMSEs.
+
+The result fingerprints the exact input bytes and, separately, the sorted
+(site ID, species, reference lexeme) tuples. It retains declared source,
+parent, complete cohort and prediction identities. Partial subsets remain
+marked as subsets and never redefine chemical potentials. A complete cohort
+declaration checks counts, not independently verified source membership.
+
+No network, provider, simulator, database mutation or output-file creation
+occurs in this command. Stdout may contain private identifiers; publish only
+material authorized for its destination. Tests use synthetic inputs only.
+
+## Existing RUNS preview
+
+The existing private verification-preview request accepts an optional sibling
+`vacancyEvidence` beside `runId` and `contract`. It contains:
+
+- `schemaVersion: 1` and the exact `comparisonContractSha256`;
+- `task`: within_species_variation, formation_energy or vacancy_concentration;
+- one `{ modelId, result }` entry per existing comparison arm.
+
+The typed observable must respectively be `within_species_vacancy_variation`,
+`vacancy_formation_energy` or `vacancy_concentration`; input label units remain
+`eV_per_vacancy`. A concentration request assesses applicability of energy
+evidence; it does not compute a concentration or assert its units.
+
+The preview binds model names, reference rows, source/cohort/parent identities,
+task, source finding and contract hash. It independently checks the supplied
+component arithmetic, group weighting and selected score with bounded BigInt
+fractions. It recomputes applicability instead of trusting a producer's status.
+The attachment hash includes its contract binding and all supplied results.
+
+This verifies consistency of the supplied report, **not execution of its input
+artifact**, model identity, training independence or source authenticity.
+Every attachment keeps scientific support unasserted. Centered-only absolute
+claims are blockers. Existing Access, same-origin, saved-discovery and
+distinct-model requirements remain in effect; the preview does not write,
+schedule, import or publish.
+
+The checker can describe one model or a source-only synthetic example without
+a provider run. Attaching to RUNS still requires a genuine saved run and its
+actual distinct model arms. Do not invent a run or turn species into models
+to satisfy that separate interface.
+
+## Verification and remaining work
+
+Rust and TypeScript consume the same synthetic expected-result fixture.
+Tests cover the uniform-bias counterexample, unequal counts, exact small
+differences, ordering, malformed/oversized inputs, duplicate sites/fields,
+reference/task/model binding, forged arithmetic and a read-only D1 preview.
+CLI tests check JSON output and exit status.
+
+These are executable contract tests, not a Lean proof or a materials benchmark.
+The checker and preview do not recover missing raw defect geometries, magnetic
+states, convergence evidence, reservoir alignment or independent test exposure.
+Library/knowledge-graph presentation, genuine-run acceptance and deployed UI
+behavior remain separate work; this change does not publish a research result.
