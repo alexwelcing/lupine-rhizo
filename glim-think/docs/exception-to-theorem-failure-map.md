@@ -2,7 +2,7 @@
 
 Reviewed 4 November 2026. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover thirteen publications; repeated reference columns,
+literature examples below cover fourteen publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -26,6 +26,7 @@ must specify those choices before applying an error bound.
 | **Observable identity and fitting role — Mahata 2022**, 4 November. Table 6, Al-Cu alloys. | Five nominal liquidus discrepancies range from -5 to +22 K, including a marked eutectic entry. The source prioritized solidus/liquidus temperatures during fitting and initialized both phases at the alloy composition. | The inspected methods do not establish final phase compositions/fractions or a liquidus boundary at each overall composition. Preserve the reported values without treating temperature convergence as independent liquidus validation or missing evidence as proof of non-equilibration. |
 | **Sampling precision — Zhu 2021**, 4 November. Table 1, six elemental/potential pairs. | Al TOR-TILD is reported as 824 +/- 0.1 K against a cited experimental 933 K: -109 K nominal discrepancy despite a small standard error of the mean. | Separate numerical convergence, seed sampling, physical reference and fitting role. The paper demonstrates unary phases; its precision does not validate an alloy liquidus method. See the [two-study coexistence review](phase-coexistence-evidence.md). |
 | **Auxiliary-reference role — Zhu 2017**, 4 November. Cu TOR-TILD. | The [linked review](auxiliary-reference-evidence.md) separates a reference's standalone prediction from the corrected target. | Preserve target identity and both phase corrections; target evaluation is separate from physical validation. |
+| **Representation versus fitting — Bartók 2018**, 4 November. Table III, silicon stable stacking fault. | GAP reports 0.002 J/m² against DFT/PW91 0.047 J/m². The authors state that GAP can distinguish the relevant environments and suggest extending its database. They separately attribute exact-zero results from several shorter-range potentials to limited range. | A small or printed-zero prediction does not establish identical model inputs. Preserve the stated explanation as an author report; an independently demonstrated representation obstruction needs the exact model, configurations and representation. |
 
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
@@ -73,6 +74,40 @@ methods, uncertainty meanings and selected source pages. No corpus observations
 or studies were added. The original eligibility exclusions remain. See the
 [two-study review](phase-coexistence-evidence.md) for the boundary calculation,
 fitting limits and the observation that would resolve the alloy claim.
+
+## Silicon: a representation hypothesis not established
+
+Eight existing stable-fault observations were reviewed against Table III and
+the surrounding discussion on PDF page 22. The source describes a diamond
+silicon (111) glide-plane fault, using an 18-atom, nine-bilayer cell and relaxation
+along the surface normal. The inspected paths do not establish a globally
+minimal physical pathway. These configurations were excluded from GAP training;
+the other models' task-specific fitting exposure remains unresolved.
+
+The authors identify second-neighbor environments differing from diamond and
+state that GAP has enough range and flexibility to distinguish them. Their
+suggestion that more training configurations could improve the result is not
+an executed retraining result or proof of a unique cause. Their per-atom error
+estimate is not a calibrated confidence bound. The limited-range explanation
+for other potentials remains a separate source claim, not evidence that GAP
+has the same limitation.
+
+This review therefore does not support classifying GAP's small positive
+prediction as an unavoidable representation error. Conversely, it does not
+independently verify representation adequacy: exact potential files, fault and
+reference coordinates, and evaluated representations were not established.
+A model-specific collision or cutoff argument must be demonstrated before
+using it to certify an irreducible error. A reported numerical discrepancy
+alone cannot supply that premise.
+
+The retained PDF matched its prior SHA-256 pin, and the existing page 22 preview
+was visually checked. Methods on page 21 and representation/locality discussion
+on pages 7 and 11 were checked as retained text, without a new visual review.
+All four qualification files matched their pins and contained no explicit
+target for these eight IDs; original pooled-analysis exclusions remain in
+force. Observations retain their 7 October extraction time. No rows, studies,
+model executions or independent validations were added. The existing source
+qualification fields can retain these limits; no new checker is justified.
 
 ## Synthetic obstructions and a product-contract correction
 
@@ -268,6 +303,13 @@ promotion follows from this document.
   Section III A and Table V, PDF pages 6 and 8. Primary text reviewed
   4 November; page rendering was not completed and potential files were not pinned.
   This is one additional reviewed publication, not a corpus admission.
+
+- **Bartók 2018:** [Phys. Rev. X 8, 041048](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.8.041048),
+  Table III and fault-environment discussion, PDF page 22; protocol page 21;
+  representation and locality discussion pages 7 and 11. Retained published
+  PDF pin, eight existing rows and page 22 preview checked 4 November.
+  The paper-linked archive is an artifact-discovery lead, not verified
+  executable identity or configuration provenance.
 
 The current review links completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
