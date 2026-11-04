@@ -19,11 +19,13 @@ Physical Review B 96, 224202 (2017), link these Cu calculations in Section III A
 | LDA | 1274 | 1494 +/- 5 | -84 | +136 |
 
 Final uncertainties are standard deviations from propagating MD statistical
-errors, not functional-bias bounds. The 1358 K experiment is a cited reference.
+errors, not functional-bias bounds. The 1358 K experiment is a cited reference;
+ref1 temperature uncertainty was not established in this review.
 
 Solid-fitted ref1 anchors coexistence; liquid-fitted ref2 supports integration.
-Figure 5 (liquid LDA, 1600 K) reports ref2 about three times faster than ref1.
-This is author-reported efficiency.
+Figure 5 (liquid LDA, 1600 K, reduced DFT convergence settings) reports ref2
+about three times faster than ref1. This is author-reported efficiency of that
+integration test, not an end-to-end workflow speedup.
 
 ## What follows, and what does not
 
