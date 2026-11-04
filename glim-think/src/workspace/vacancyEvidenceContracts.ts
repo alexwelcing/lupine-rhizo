@@ -122,6 +122,7 @@ export function validateVacancyResult(input: unknown): VacancyResult {
     r.groups.every(g => eq(q(g.reference_mean_ev), q(r.groups[0].reference_mean_ev))), "reference means");
   requireIdentity(r.prediction_species_means_equal_exactly ===
     r.groups.every(g => eq(q(g.prediction_mean_ev), q(r.groups[0].prediction_mean_ev))), "prediction means");
+  requireIdentity(r.rows !== r.groups.length || eq(q(c.within_species_mse_ev2), zero()), "singleton groups cannot have within-species variance");
   inspectReferenceProtocol(r);
   return r;
 }

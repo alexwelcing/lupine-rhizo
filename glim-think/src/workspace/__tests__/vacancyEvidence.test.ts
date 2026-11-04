@@ -36,6 +36,10 @@ describe("vacancy error evidence", () => {
     const checked = assessVacancyReference(singleton);
     expect(checked.withinSpeciesContrasts).toBe(0);
     expect(checked.issues.join(" ")).toContain("zero centered error is uninformative");
+    singleton.components.within_species_mse_ev2 = { numerator: "1", denominator: "100" };
+    singleton.components.full_mse_ev2 = { numerator: "1", denominator: "50" };
+    singleton.selected_mse_ev2 = { numerator: "1", denominator: "100" };
+    expect(() => validateVacancyResult(singleton)).toThrow(/singleton groups/);
   });
   it("uses the shared Rust calibration fixture and preserves separate cohort identities", () => {
     const r = calibrated();

@@ -55,7 +55,6 @@ struct ContextIdentity {
     reference_protocol: Option<ReferenceProtocol>,
 }
 
-
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct ParentSpecies {
@@ -234,7 +233,6 @@ fn square(value: &BigRational) -> BigRational {
     value * value
 }
 
-
 fn calibration_weight(value: &Rational) -> Result<BigRational> {
     for digits in [&value.numerator, &value.denominator] {
         ensure!(
@@ -267,13 +265,19 @@ fn reference_protocol_issues(input: &Input) -> Result<Vec<&'static str>> {
     }
     let mut parent = BTreeMap::new();
     if let Some(species) = &protocol.parent_species {
-        ensure!(!species.is_empty() && species.len() <= 128, "parent species bound");
+        ensure!(
+            !species.is_empty() && species.len() <= 128,
+            "parent species bound"
+        );
         for item in species {
             ensure!(
                 identifier(&item.species) && item.atoms > 0 && item.atoms <= MAX_ROWS,
                 "parent species counts"
             );
-            ensure!(parent.insert(item.species.as_str(), item.atoms).is_none(), "duplicate parent species");
+            ensure!(
+                parent.insert(item.species.as_str(), item.atoms).is_none(),
+                "duplicate parent species"
+            );
         }
         ensure!(
             parent.values().sum::<usize>() == input.context.parent_atom_count,
@@ -284,17 +288,30 @@ fn reference_protocol_issues(input: &Input) -> Result<Vec<&'static str>> {
             *evaluated.entry(row.species.as_str()).or_insert(0usize) += 1;
         }
         for (species, sites) in evaluated {
-            ensure!(parent.get(species).is_some_and(|n| sites <= *n), "evaluation species membership");
+            ensure!(
+                parent.get(species).is_some_and(|n| sites <= *n),
+                "evaluation species membership"
+            );
         }
     } else {
         issues.push("parent_composition_unknown");
     }
     for (calibration, missing, mismatch) in [
-        (&protocol.reference_calibration, "reference_calibration_unknown", "reference_calibration_weights_differ"),
-        (&protocol.prediction_calibration, "prediction_calibration_unknown", "prediction_calibration_weights_differ"),
+        (
+            &protocol.reference_calibration,
+            "reference_calibration_unknown",
+            "reference_calibration_weights_differ",
+        ),
+        (
+            &protocol.prediction_calibration,
+            "prediction_calibration_unknown",
+            "prediction_calibration_weights_differ",
+        ),
     ] {
         let Some(calibration) = calibration else {
-            if input.context.reference_definition == ReferenceDefinition::SelfConsistentSpeciesAverage {
+            if input.context.reference_definition
+                == ReferenceDefinition::SelfConsistentSpeciesAverage
+            {
                 issues.push(missing);
             }
             continue;
@@ -316,26 +333,46 @@ fn reference_protocol_issues(input: &Input) -> Result<Vec<&'static str>> {
                 identifier(&item.species) && item.sites > 0 && item.sites <= MAX_ROWS,
                 "calibration species counts"
             );
-            ensure!(seen.insert(item.species.as_str()), "duplicate calibration species");
+            ensure!(
+                seen.insert(item.species.as_str()),
+                "duplicate calibration species"
+            );
             total_sites += item.sites;
             let weight = calibration_weight(&item.weight)?;
-            let numerator = total_weight.numer() * weight.denom() + weight.numer() * total_weight.denom();
+            let numerator =
+                total_weight.numer() * weight.denom() + weight.numer() * total_weight.denom();
             let denominator = total_weight.denom() * weight.denom();
             ensure!(
-                numerator.to_str_radix(10).len() <= 4096 && denominator.to_str_radix(10).len() <= 4096,
+                numerator.to_str_radix(10).len() <= 4096
+                    && denominator.to_str_radix(10).len() <= 4096,
                 "calibration arithmetic exceeds intermediate bound"
             );
             total_weight = BigRational::new(numerator, denominator);
             if !parent.is_empty() {
-                let atoms = parent.get(item.species.as_str()).context("calibration species membership")?;
-                ensure!(item.sites <= *atoms, "calibration site count exceeds parent species");
-                weights_match &= weight == BigRational::new((*atoms).into(), input.context.parent_atom_count.into());
+                let atoms = parent
+                    .get(item.species.as_str())
+                    .context("calibration species membership")?;
+                ensure!(
+                    item.sites <= *atoms,
+                    "calibration site count exceeds parent species"
+                );
+                weights_match &= weight
+                    == BigRational::new((*atoms).into(), input.context.parent_atom_count.into());
             }
         }
-        ensure!(total_sites == calibration.site_count, "calibration count total");
-        ensure!(total_weight == BigRational::from_integer(1.into()), "calibration weights must sum to one");
+        ensure!(
+            total_sites == calibration.site_count,
+            "calibration count total"
+        );
+        ensure!(
+            total_weight == BigRational::from_integer(1.into()),
+            "calibration weights must sum to one"
+        );
         if input.context.reference_definition == ReferenceDefinition::SelfConsistentSpeciesAverage {
-            ensure!(input.rows.iter().all(|r| seen.contains(r.species.as_str())), "evaluation species lacks calibration");
+            ensure!(
+                input.rows.iter().all(|r| seen.contains(r.species.as_str())),
+                "evaluation species lacks calibration"
+            );
             if !parent.is_empty() && (!weights_match || seen.len() != parent.len()) {
                 issues.push(mismatch);
             }
@@ -714,10 +751,17 @@ mod tests {
             }
         }
         let mismatch = run_value(&value).unwrap();
-        assert!(mismatch.issues.contains(&"reference_calibration_weights_differ"));
-        assert!(mismatch.issues.contains(&"prediction_calibration_weights_differ"));
+        assert!(mismatch
+            .issues
+            .contains(&"reference_calibration_weights_differ"));
+        assert!(mismatch
+            .issues
+            .contains(&"prediction_calibration_weights_differ"));
         assert_eq!(mismatch.task_assessment, "scope_unresolved");
-        assert_eq!(mismatch.components.full_mse_ev2, good.components.full_mse_ev2);
+        assert_eq!(
+            mismatch.components.full_mse_ev2,
+            good.components.full_mse_ev2
+        );
         assert_eq!(mismatch.reference_rows_sha256, good.reference_rows_sha256);
         assert_ne!(mismatch.input_sha256, good.input_sha256);
     }
@@ -732,8 +776,10 @@ mod tests {
         });
         let result = run_value(&value).unwrap();
         for issue in [
-            "parent_composition_unknown", "evaluation_cohort_unknown",
-            "reference_calibration_unknown", "prediction_calibration_unknown",
+            "parent_composition_unknown",
+            "evaluation_cohort_unknown",
+            "reference_calibration_unknown",
+            "prediction_calibration_unknown",
             "energy_zero_alignment_unknown",
         ] {
             assert!(result.issues.contains(&issue));
