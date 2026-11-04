@@ -64,6 +64,26 @@ No network, provider, simulator, database mutation or output-file creation
 occurs in this command. Stdout may contain private identifiers; publish only
 material authorized for its destination. Tests use synthetic inputs only.
 
+## Private report inspection
+
+The private RUNS page includes **Inspect a vacancy error report**, available even
+when no run snapshots have been saved. Select one checker result JSON file of
+at most 512 KiB. The page validates its declared arithmetic in memory and shows
+full MSE, within-species MSE, overall bias squared, species-mean imbalance and
+signed mean error. Exact short decimals are displayed when possible; other
+values remain fractions, so a tiny nonzero component cannot appear as zero.
+
+The inspection-task selector keeps the original report's intended task visible
+and recomputes the score warning for the chosen decision. Synthetic/reported
+input, incomplete cohorts, unknown references and unverified source membership
+remain explicit. A full score never grants physical or concentration acceptance.
+
+The file is read locally and is not uploaded, persisted, attached to a run or
+published. Clearing it or choosing another file invalidates any pending read.
+The inspector neither executes the original checker input nor verifies source
+authenticity. The separate server preview still requires genuine saved-run and
+model-arm bindings.
+
 ## Existing RUNS preview
 
 The existing private verification-preview request accepts an optional sibling

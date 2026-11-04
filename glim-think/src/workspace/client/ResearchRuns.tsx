@@ -1,3 +1,4 @@
+import { InspectVacancyReport } from "./VacancyReport";
 import { draftComparisonContract } from "../comparisonContracts";
 import React, { useEffect, useRef, useState } from "react";
 import { safeEvidenceHref } from "../contracts";
@@ -296,6 +297,7 @@ export function ResearchRuns() {
       {!loading && !error && feed?.runs.length === 0 && <div className="feed-placeholder"><h2>No saved research runs yet.</h2><p>A run appears here after its verified snapshot is imported. Existing report analyses remain in Progress.</p></div>}
       {feed?.runs.map(run => <ResearchRunCard run={run} key={run.id} />)}
       {feed?.truncated && <p className="feed-truncated">Showing the most recent saved runs.</p>}
+      <InspectVacancyReport />
       <ImportResearchRun onImported={() => void refresh()} />
     </section>
   </main>;
