@@ -36,4 +36,3 @@ export async function requestVerificationPreview(runId: string, text: string, va
   return { blockers: result.blockers as string[], contractSha256,
     ...(attachmentSha256 ? { vacancyAttachmentSha256: attachmentSha256 } : {}) };
 }
-

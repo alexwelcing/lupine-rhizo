@@ -561,8 +561,14 @@ integration question is whether the current, fully checked client-to-route path
 can bind a justified comparison to an existing genuine saved proposal without
 changing immutable receipts or source limits. Current native tests use synthetic
 receipt-valid snapshots; their passing does not answer that provenance question.
-Existing retained evidence may be assessed read-only if it supplies an exact
-versioned binding. If it does not, acceptance must await the actual operator
+A subsequent bounded read-only assessment of three retained integration,
+build and release receipts (59,584 bytes, all supplied pins matched) confirms
+that those receipts explicitly left genuine-proposal and authenticated preview
+acceptance open. The existing local PI ledger contains one completed cycle;
+its inspected proposal concerns archived force-error decomposition. It is
+not a vacancy-formation proposal and was not relabeled for this attachment.
+This local check does not establish the live workspace inventory. The
+assessment is closed without replay, import or a new provider call. If it does not, acceptance must await the actual operator
 session/client dependency; no repeated sign-in or code requests follow.
 
 The identified client gap is repaired by exposing the existing optional
