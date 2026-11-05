@@ -88,7 +88,7 @@ def expandFccTable
 /-- Full FCC synthetic dataset: 8 metals × 3 potentials × 3 properties = 72 entries.
     EVERY entry is tagged with synthetic provenance. -/
 def syntheticFccData : List BenchmarkEntry :=
-  let prov := syntheticProvenance "Hardcoded in atlas-distill/src/validation.rs"
+  let prov := syntheticProvenance "Hardcoded in distill/src/validation.rs"
   expandFccTable "EAM" fccReferenceTable fccEamPredictionTable prov ++
   expandFccTable "LJ"  fccReferenceTable fccLjPredictionTable  prov ++
   expandFccTable "SW"  fccReferenceTable fccSwPredictionTable  prov
@@ -140,7 +140,7 @@ def expandBccTable
 /-- Full BCC synthetic dataset: 7 metals × 2 potentials × 3 properties = 42 entries.
     EVERY entry is tagged with synthetic provenance. -/
 def syntheticBccData : List BenchmarkEntry :=
-  let prov := syntheticProvenance "Hardcoded in atlas-distill/src/validation.rs"
+  let prov := syntheticProvenance "Hardcoded in distill/src/validation.rs"
   expandBccTable "EAM" bccReferenceTable bccEamPredictionTable prov ++
   expandBccTable "LJ"  bccReferenceTable bccLjPredictionTable  prov
 

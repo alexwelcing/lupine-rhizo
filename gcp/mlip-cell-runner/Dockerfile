@@ -1,12 +1,12 @@
 ARG CUDA_IMAGE=nvidia/cuda:12.6.3-runtime-ubuntu22.04
-FROM rust:1-bullseye AS atlas_distill_builder
+FROM rust:1-bullseye AS distill_builder
 
 WORKDIR /build
 
-COPY atlas-distill/Cargo.toml atlas-distill/Cargo.lock ./atlas-distill/
-COPY atlas-distill/src ./atlas-distill/src
+COPY distill/Cargo.toml distill/Cargo.lock ./distill/
+COPY distill/src ./distill/src
 
-RUN cargo build --release --manifest-path atlas-distill/Cargo.toml --bin atlas-distill
+RUN cargo build --release --manifest-path distill/Cargo.toml --bin distill
 
 FROM ${CUDA_IMAGE}
 
@@ -14,7 +14,7 @@ ARG BACKEND=chgnet
 ENV PYTHONUNBUFFERED=1
 ENV MLIP_BACKEND=${BACKEND}
 ENV MATGL_BACKEND=DGL
-ENV ATLAS_DISTILL_BIN=/usr/local/bin/atlas-distill
+ENV DISTILL_BIN=/usr/local/bin/distill
 ENV MLIP_DISTILL_POLICY_ENGINE=auto
 ENV MLIP_DISTILL_RIBBON_VERSION=hyperribbon-v1
 
@@ -51,9 +51,9 @@ COPY data/candidates/z1_nebdft2k_barriers.lock.json ./data/candidates/z1_nebdft2
 # gate is silently absent in production.
 COPY data/y_matrix_runs/env_field_binding_report.json ./data/y_matrix_runs/env_field_binding_report.json
 ENV MLIP_DISTILL_ENV_FIELD_REPORT=/app/data/y_matrix_runs/env_field_binding_report.json
-COPY --from=atlas_distill_builder /build/atlas-distill/target/release/atlas-distill /usr/local/bin/atlas-distill
+COPY --from=distill_builder /build/distill/target/release/distill /usr/local/bin/distill
 
-RUN /usr/local/bin/atlas-distill distill-policy --help >/dev/null \
+RUN /usr/local/bin/distill distill-policy --help >/dev/null \
     && python3 /app/mlip_cell_runner.py --help >/dev/null
 
 RUN useradd -m -u 1000 mlip

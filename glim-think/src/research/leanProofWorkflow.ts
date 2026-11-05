@@ -2,7 +2,7 @@
  * lean-proof-promotion research workflow.
  *
  * Tracks a proof revision's theorems from the Lean build through inventory
- * sync (tools/atlas_theorem_sync.py) and into facet grounding. Each workflow
+ * sync (tools/theorem_sync.py) and into facet grounding. Each workflow
  * unit is one theorem promotion and carries:
  *
  *   - theorem name + module (Lean identity),
@@ -19,7 +19,7 @@
  * when a unit's verdict lands, the agenda task is completed (promote) or
  * blocked (reject) and the `formalizes` edge to the claim/verification task
  * it discharges is written. The synchronizer remains the single writer of
- * `atlas_theorems` — this workflow only records reported sync results and
+ * `theorems` — this workflow only records reported sync results and
  * reads the inventory back to gate promotion.
  */
 
@@ -30,7 +30,7 @@ import {
   ensureAgendaSchema,
   updateAgendaTaskStatus,
 } from "../agenda";
-import { isApprovedExtension, isManagedFacet, normalizeFacet } from "../atlas/facetRegistry";
+import { isApprovedExtension, isManagedFacet, normalizeFacet } from "../research/facetRegistry";
 import {
   inspectLeanProofCampaign,
   LEAN_PROOF_PROMOTION_DESCRIPTOR,
@@ -187,7 +187,7 @@ export function verdictForTheoremRow(
   unit: Pick<LeanProofUnitRecord, "facet" | "module" | "build_manifest_hash">,
 ): { verdict: LeanProofVerdict; explanation: string } {
   if (!row) {
-    return { verdict: "reject", explanation: "theorem is absent from the atlas_theorems inventory — sync has not landed" };
+    return { verdict: "reject", explanation: "theorem is absent from the theorems inventory — sync has not landed" };
   }
   if (row.lifecycle_status && row.lifecycle_status !== "active") {
     return { verdict: "review", explanation: `inventory row is ${row.lifecycle_status}, not active` };
@@ -256,7 +256,7 @@ export async function createLeanProofCampaign(
   if (!input || typeof input !== "object") throw new Error("body must be an object");
   const facet = normalizeFacet(String(input.facet ?? ""));
   if (!isManagedFacet(facet)) {
-    throw new Error(`facet '${input.facet}' is not an ATLAS-managed facet (${["causal", "experiment", "manifold", "theorist"].join(", ")})`);
+    throw new Error(`facet '${input.facet}' is not an proof-managed facet (${["causal", "experiment", "manifold", "theorist"].join(", ")})`);
   }
   if (typeof input.proof_revision !== "string" || !input.proof_revision.trim()) {
     throw new Error("proof_revision (source commit) is required");
@@ -442,7 +442,7 @@ export async function recordLeanProofUnitResult(
 
 /**
  * Evaluate a unit against the synced inventory: read the theorem's current
- * `atlas_theorems` row, apply the promotion gate, persist the verdict, and
+ * `theorems` row, apply the promotion gate, persist the verdict, and
  * drive the agenda edge. The gate never re-runs the proof — it classifies
  * the synchronizer's recorded status.
  */
@@ -460,7 +460,7 @@ export async function evaluateLeanProofUnit(
   if (!unit) throw new Error(`Unit '${unitId}' not found in campaign '${campaignId}'`);
   const row = await env.LEDGER.prepare(
     `SELECT status, lifecycle_status, build_manifest_hash
-       FROM atlas_theorems
+       FROM theorems
       WHERE facet = ? AND theorem_name = ? AND module = ?
       ORDER BY created_at DESC
       LIMIT 1`,
@@ -484,7 +484,7 @@ export async function evaluateLeanProofUnit(
 
 /**
  * Transition queued units to `enqueued`. The Lean build itself runs in the
- * lean-spec toolchain lane (`lake build` + tools/atlas_theorem_sync.py);
+ * lean-spec toolchain lane (`lake build` + tools/theorem_sync.py);
  * this workflow records the dispatch and awaits results via /result.
  */
 export async function enqueueLeanProofUnits(
@@ -511,7 +511,7 @@ export async function enqueueLeanProofUnits(
 
 export const leanProofPromotionAdapter: ResearchWorkflowAdapter = {
   workflow_id: LEAN_PROOF_WORKFLOW_ID,
-  label: "Lean proof promotion into the ATLAS theorem inventory",
+  label: "Lean proof promotion into the theorem inventory",
 
   describe() {
     return LEAN_PROOF_PROMOTION_DESCRIPTOR;

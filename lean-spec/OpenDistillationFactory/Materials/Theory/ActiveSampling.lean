@@ -12,7 +12,7 @@ import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 /-! # Active sampling acquisition contract
 
 This module formalises the two guarantees that justify the greedy residual-max
-acquisition rule used by `atlas-distill/src/active_sampling.rs`.
+acquisition rule used by `distill/src/active_sampling.rs`.
 
 1. **One-step optimality.** If the next selected point is removed from the pool
    of candidates (because it is observed and corrected), picking the candidate

@@ -76,7 +76,7 @@ python tools\mlip_distill_growth_loop.py `
   --beam-width 8 `
   --report-top-k 24 `
   --weight-mode high-error `
-  --atlas-distill-bin atlas-distill\target\release\atlas-distill.exe `
+  --distill-bin distill\target\release\distill.exe `
   --out-dir tmp\mlip-distill-growth\mptrj-v3-local-theory-lane
 ```
 

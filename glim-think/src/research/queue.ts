@@ -35,7 +35,7 @@ import { generateAndStoreAudio } from "../agents/tts";
 import { accumulateCost } from "../telemetry/pipeline";
 import { insertEval } from "../evals/store";
 import { traceHypothesisStage } from "../telemetry/hypothesisTrace";
-import { dispatchAtlasJob, type TaskPayload as AtlasTaskPayload } from "./dispatch";
+import { dispatchDistillJob, type TaskPayload as DistillTaskPayload } from "./dispatch";
 
 export type ResearchTaskKind =
   | "round"
@@ -406,10 +406,10 @@ function workerBeatEmitUrl(env: Env): string {
     : `${base.replace(/\/+$/, "")}/feed/beats`;
 }
 
-export function buildModelGeometryAtlasPayload(
+export function buildModelGeometryPayload(
   task: ModelGeometryDistillTask,
   beatEmitUrl: string,
-): AtlasTaskPayload {
+): DistillTaskPayload {
   const mode = task.mode ?? "auto";
   const qualityGate = task.quality_gate ?? "accuracy";
   const topK = Math.max(1, Math.trunc(task.top_k ?? 5));
@@ -534,7 +534,7 @@ export function buildMlipCellRunPayload(
   env: Env,
   task: MlipCellRunTask,
   beatEmitUrl: string,
-): AtlasTaskPayload {
+): DistillTaskPayload {
   const targetJob = MLIP_CELL_TARGET_JOBS[task.mlip_id];
   if (!targetJob) throw new Error(`unsupported MLIP runner target for ${task.mlip_id}`);
   const rowId = normalizeMlipRunnerAxisId(task.row_id);
@@ -636,7 +636,7 @@ async function recordModelGeometryDispatchEval(
   await insertEval(env, {
     trace_id: ctx.traceId,
     span_id: ctx.spanId,
-    agent_class: "atlas-distill",
+    agent_class: "distill",
     task_kind: task.kind,
     evaluator_name: "model_geometry.dispatch_contract",
     score: label === "pass" ? 1 : 0,
@@ -711,7 +711,7 @@ async function runTaskInner(env: Env, task: ResearchTask & { job_id?: string }):
 
   if (task.kind === "model_geometry_distill") {
     const beatEmitUrl = workerBeatEmitUrl(env);
-    const payload = buildModelGeometryAtlasPayload(task, beatEmitUrl);
+    const payload = buildModelGeometryPayload(task, beatEmitUrl);
     await traceHypothesisStage(
       {
         hypothesisId: task.hypothesis_id,
@@ -719,7 +719,7 @@ async function runTaskInner(env: Env, task: ResearchTask & { job_id?: string }):
         status: "testing",
         attributes: {
           "experiment.kind": task.kind,
-          "experiment.engine": "atlas-distill model-geometry",
+          "experiment.engine": "distill model-geometry",
           "experiment.fixture_url": task.fixture_url,
           "experiment.mode": task.mode ?? "auto",
           "experiment.quality_gate": task.quality_gate ?? "accuracy",
@@ -736,7 +736,7 @@ async function runTaskInner(env: Env, task: ResearchTask & { job_id?: string }):
       },
       async (span) => {
         try {
-          const result = await dispatchAtlasJob(env, payload);
+          const result = await dispatchDistillJob(env, payload);
           span.setAttribute("compute.dispatch.task_name", result.task_name);
           span.setAttribute("compute.dispatch.dev_mode", result.dev_mode);
           span.setAttribute("compute.dispatch.command", payload.command);
@@ -745,7 +745,7 @@ async function runTaskInner(env: Env, task: ResearchTask & { job_id?: string }):
             span,
             task,
             "pass",
-            "Accepted by atlas-distill dispatcher; model-geometry evidence beat is expected on completion.",
+            "Accepted by distill dispatcher; model-geometry evidence beat is expected on completion.",
           );
         } catch (e) {
           await recordModelGeometryDispatchEval(
@@ -787,7 +787,7 @@ async function runTaskInner(env: Env, task: ResearchTask & { job_id?: string }):
       },
       async (span) => {
         try {
-          const result = await dispatchAtlasJob(env, payload);
+          const result = await dispatchDistillJob(env, payload);
           span.setAttribute("compute.dispatch.task_name", result.task_name);
           span.setAttribute("compute.dispatch.dev_mode", result.dev_mode);
           span.setAttribute("compute.dispatch.command", payload.command);

@@ -10,7 +10,7 @@
 
 import { traceAgentCycle } from "../telemetry/rpc";
 import { trace } from "@opentelemetry/api";
-import type { FormalBasis } from "../atlas/theorems";
+import type { FormalBasis } from "../research/theorems";
 
 /**
  * The child-stub surface the orchestrator's dispatch path needs: the Think
@@ -99,7 +99,7 @@ export function formalGroundingPreamble(basis: ReadonlyArray<FormalBasis>): stri
     return `- ${b.theorem} (${b.module} @ ${b.revision}, ${b.status})${helper}`;
   });
   return [
-    "Formal basis (ATLAS-Lean theorems underwriting this task; reason within them):",
+    "Formal basis (Lean theorems underwriting this task; reason within them):",
     ...lines,
   ].join("\n");
 }

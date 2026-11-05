@@ -29,18 +29,18 @@
 #   to the air-gapped cluster; running the .sif needs no network.
 # ---------------------------------------------------------------------------
 
-# --- Stage 1: build the atlas-distill policy engine (Rust). -----------------
+# --- Stage 1: build the distill policy engine (Rust). -----------------
 Bootstrap: docker
 From: rust:1-bullseye
-Stage: atlas_distill_builder
+Stage: distill_builder
 
 %files
-    atlas-distill/Cargo.toml /build/atlas-distill/Cargo.toml
-    atlas-distill/Cargo.lock /build/atlas-distill/Cargo.lock
-    atlas-distill/src /build/atlas-distill/src
+    distill/Cargo.toml /build/distill/Cargo.toml
+    distill/Cargo.lock /build/distill/Cargo.lock
+    distill/src /build/distill/src
 
 %post
-    cargo build --release --manifest-path /build/atlas-distill/Cargo.toml --bin atlas-distill
+    cargo build --release --manifest-path /build/distill/Cargo.toml --bin distill
 
 # --- Stage 2: the CUDA runtime image. ----------------------------------------
 Bootstrap: docker
@@ -61,8 +61,8 @@ Stage: runtime
     gcp/mlip-cell-runner/mlip_cell_runner.py /app/mlip_cell_runner.py
     gcp/mlip-cell-runner/src /app/src
 
-%files from atlas_distill_builder
-    /build/atlas-distill/target/release/atlas-distill /usr/local/bin/atlas-distill
+%files from distill_builder
+    /build/distill/target/release/distill /usr/local/bin/distill
 
 %post
     set -eu
@@ -94,7 +94,7 @@ Stage: runtime
 
     # Fail closed at build time: the policy engine and runner must both answer
     # --help, otherwise the image is broken and we want to know now, not at run.
-    /usr/local/bin/atlas-distill distill-policy --help >/dev/null
+    /usr/local/bin/distill distill-policy --help >/dev/null
     python3 /app/mlip_cell_runner.py --help >/dev/null
 
 %environment
@@ -102,7 +102,7 @@ Stage: runtime
     export MLIP_BACKEND={{ BACKEND }}
     export PYTHONUNBUFFERED=1
     export MATGL_BACKEND=DGL
-    export ATLAS_DISTILL_BIN=/usr/local/bin/atlas-distill
+    export DISTILL_BIN=/usr/local/bin/distill
     export MLIP_DISTILL_POLICY_ENGINE=auto
     export MLIP_DISTILL_RIBBON_VERSION=hyperribbon-v1
     # Telemetry is opt-in. Left unset, the patcher/connector run as logged no-ops.
@@ -113,7 +113,7 @@ Stage: runtime
 
 %test
     python3 /app/mlip_cell_runner.py --help >/dev/null
-    /usr/local/bin/atlas-distill distill-policy --help >/dev/null
+    /usr/local/bin/distill distill-policy --help >/dev/null
 
 %labels
     org.lupine.image mlip-cell-runner

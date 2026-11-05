@@ -70,7 +70,7 @@ Promotion requires replay and then cloud evidence:
 
 ## Boundary
 
-Lean owns structural proof obligations. `atlas-distill` owns runtime scoring,
+Lean owns structural proof obligations. `distill` owns runtime scoring,
 fault-line extraction, and policy search. MLIP runners own backend execution and
 measured evidence. A runtime heuristic can motivate a theorem lane, but it is
 not the theorem.

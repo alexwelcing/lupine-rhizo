@@ -25,17 +25,17 @@ const WORKFLOW_ID = "lean-proof-promotion";
 
 export const LEAN_PROOF_PROMOTION_DESCRIPTOR: ResearchWorkflowDescriptor = {
   workflow_id: WORKFLOW_ID,
-  label: "Lean proof promotion into the ATLAS theorem inventory",
+  label: "Lean proof promotion into the theorem inventory",
   unit_kind: "lean_proof_unit",
   version: 1,
   purpose:
-    "Track a proof revision's theorems from the Lean build through atlas_theorems inventory sync and into facet grounding, gated on verified or registry-approved extended status.",
+    "Track a proof revision's theorems from the Lean build through theorems inventory sync and into facet grounding, gated on verified or registry-approved extended status.",
   git: {
     owners: [
       "glim-think/src/research",
       "glim-think/src/agenda.ts",
-      "glim-think/src/atlas",
-      "tools/atlas_theorem_sync.py",
+      "glim-think/src/research",
+      "tools/theorem_sync.py",
       "lean-spec",
     ],
     files: [
@@ -43,15 +43,15 @@ export const LEAN_PROOF_PROMOTION_DESCRIPTOR: ResearchWorkflowDescriptor = {
       "glim-think/src/research/leanProofWorkflowOps.ts",
       "glim-think/src/research/workflowRegistry.ts",
       "glim-think/src/agenda.ts",
-      "glim-think/src/atlas/theorems.ts",
-      "glim-think/src/atlas/facetRegistry.ts",
-      "tools/atlas_theorem_sync.py",
+      "glim-think/src/research/theorems.ts",
+      "glim-think/src/research/facetRegistry.ts",
+      "tools/theorem_sync.py",
     ],
     checks: [
       "just think-lint",
       "npm --prefix glim-think run test -- src/research/__tests__/leanProofWorkflow.test.ts",
       "lake build (lean-spec)",
-      "python tools/test_atlas_theorem_sync.py",
+      "python tools/test_theorem_sync.py",
     ],
   },
   cloudflare: {

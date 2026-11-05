@@ -13,11 +13,11 @@ moved (the public site and the worker read fixed `docs/` paths).
 - [`docs/resource-fabric.md`](../resource-fabric.md) — the compute/resource fabric.
 
 ## Distill engine + ribbon policies
-- [`atlas-distill/`](../../atlas-distill/) — the Rust Distill scoring / policy / ribbon engine.
+- [`distill/`](../../distill/) — the Rust Distill scoring / policy / ribbon engine.
 - [`python/`](../../python/) — the active Python Distill packages (benchmark, uplift, regime gate,
   instrumented runtime, ODF promotion contracts).
 - [`archive/lupine-distill-rust/`](../../archive/lupine-distill-rust/) — retired Rust crate provenance.
-- [`docs/distill_improvement_atlas.md`](../distill_improvement_atlas.md) ·
+- [`archive/research/distill-improvements.md`](../distill-improvements.md) ·
   [`docs/distill_kart_race_live_win.md`](../distill_kart_race_live_win.md) — **stale**
   distill campaign snapshots; see the corrected
   [`docs/glim-m3-upgrade/runs/live-campaign-results.md`](../glim-m3-upgrade/runs/live-campaign-results.md).

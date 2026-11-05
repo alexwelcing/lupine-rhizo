@@ -77,7 +77,7 @@ exports/
 Add generation commands that can run locally and in CI:
 
 ```powershell
-python scripts/sync_brand_agent_text.py
+python scripts/sync_brand_agent_text.py --site-root <selected-site-root>
 python scripts/export_public_contracts.py
 ```
 

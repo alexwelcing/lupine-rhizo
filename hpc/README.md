@@ -47,7 +47,7 @@ lake build gate — your result becomes a standing, machine-checked claim
 
 You never need to run Lean. The generated module plus its input hash is the
 handoff artifact; admission into `lean-spec/` is our review step (the
-production path is `tools/mlip_distill_atlas.py`).
+production path is `tools/mlip_distill_report.py`).
 
 ## Quickstart (minutes, CPU only)
 

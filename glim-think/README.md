@@ -59,9 +59,9 @@ avoid PowerShell process-tree hangs.
                                    └─────────────────────┘
 ```
 
-## Mapping to atlas-distill
+## Mapping to distill
 
-| atlas-distill (Rust) | glim-think (Project Think) | Primitive Used |
+| distill (Rust) | glim-think (Project Think) | Primitive Used |
 |---|---|---|
 | `ManifoldAgent` | `ManifoldFacet` | `runFiber()` + `stash()` |
 | `CausalAgent` | `CausalFacet` | SQLite dedup (survives eviction) |
@@ -105,9 +105,9 @@ durable hypothesis loop:
    model dump.
 2. `glim-think` enqueues `model_geometry_distill`, records a Phoenix
    `hypothesis.compute_dispatch` span, and writes a dispatch evaluator row.
-3. The task dispatches `atlas-distill model-geometry` through the same
+3. The task dispatches `distill model-geometry` through the same
    Cloud Tasks/tasks-consumer path as other heavy work.
-4. `atlas-distill` emits a `/feed/beats` packet with the evidence JSON,
+4. `distill` emits a `/feed/beats` packet with the evidence JSON,
    rank guard, accuracy gate, and pairwise verdicts.
 
 Example:
@@ -148,7 +148,7 @@ curl -X POST "$WORKER_URL/research/workflows/mlip-5x5x3/campaigns/mlip-5x5x3-YYY
 ```
 
 Each result cell records `accuracy_score` and `speed_score`. Beats emitted by
-`atlas-distill model-geometry` automatically project back into the campaign
+`distill model-geometry` automatically project back into the campaign
 when they carry `campaign_id` and `cell_id`.
 
 Phoenix evaluation cadence runs by triplet: one observable row, one MLIP
@@ -257,8 +257,8 @@ npx wrangler deploy
 
 - `gcp/mlip-cell-runner/` and `gcp/tasks-consumer/` execute cells dispatched by
   `glim-think` workflows.
-- `atlas-distill/` supplies the Rust policy engine; `glim-think` can dispatch
-  `atlas-distill model-geometry` and `distill-policy` tasks.
+- `distill/` supplies the Rust policy engine; `glim-think` can dispatch
+  `distill model-geometry` and `distill-policy` tasks.
 - `python/lupine_distill/` provides benchmark schemas, uplift, and regime gates
   consumed by campaign evaluators.
 - `lean-spec/` holds the theorems referenced by promotion gates and hypotheses.
@@ -274,7 +274,7 @@ npx wrangler deploy
 
 ## Next Steps
 
-1. **WASM bridge**: Compile `atlas-distill` core (SVD, manifold, causal) to
+1. **WASM bridge**: Compile `distill` core (SVD, manifold, causal) to
    WASM and load it into Tier-1 Dynamic Workers for zero-latency analysis.
 2. **Self-authored extensions**: Let the TheoristFacet write new analysis
    tools at runtime and register them via `ExtensionManager`.

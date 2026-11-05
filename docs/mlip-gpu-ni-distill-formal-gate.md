@@ -6,7 +6,7 @@ torch_sim 0.6.0 (eager), MACE-MP-0 medium (cached) · **Runner:**
 
 First end-to-end run of the full closed compute loop **on real GPU hardware** in this repo:
 a real MLIP benchmark via TorchSim, a support-fitted distillation correction, the
-`distill_v_uplift` composite, and the ATLAS formal promotion gate — grounded in
+`distill_v_uplift` composite, and the formal promotion gate — grounded in
 machine-checked Lean theorems. No mocks, no network (cached weights + sealed fixtures).
 
 ## Why
@@ -125,7 +125,7 @@ the positive-but-unproven cases for human review rather than auto-promoting them
    variant (CHGNet near-DFT overshoot) once weights are downloaded.
 2. Open the curvature lane: phonon/Hessian sentinel — the C44 shear weakness above suggests the
    second-derivative signal is where MACE-MP-0 diverges most.
-3. Seed `glim-think.atlas_theorems` from these theorem refs and emit `lupine.proof.status`
+3. Seed `glim-think.theorems` from these theorem refs and emit `lupine.proof.status`
    spans so this gate decision flows into Phoenix (Thrust 1).
 
 ## Artifacts

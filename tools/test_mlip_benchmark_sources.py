@@ -48,3 +48,23 @@ def test_validation_rejects_missing_citation_key(tmp_path: Path) -> None:
     issues = mlip_benchmark_sources.validate_source_packet(loaded, check_local=False)
 
     assert any("citation_keys" in issue for issue in issues)
+
+
+def test_repo_path_normalizes_only_the_leading_legacy_directory(tmp_path: Path) -> None:
+    resolve = mlip_benchmark_sources.resolve_repo_path
+    assert resolve(tmp_path, "atlas-distill/lammps_runs/Ni/potential") == (
+        tmp_path / "distill/lammps_runs/Ni/potential"
+    )
+    assert resolve(tmp_path, "distill/lammps_runs/Ni/potential") == (
+        tmp_path / "distill/lammps_runs/Ni/potential"
+    )
+    assert resolve(tmp_path, "nested/atlas-distill/potential") == (
+        tmp_path / "nested/atlas-distill/potential"
+    )
+    assert resolve(tmp_path, "atlas-distill-other/potential") == (
+        tmp_path / "atlas-distill-other/potential"
+    )
+    absolute = (tmp_path / "atlas-distill/potential").as_posix()
+    assert resolve(Path("/unused-root"), absolute) == Path(absolute)
+    assert resolve(tmp_path, None) is None
+    assert resolve(tmp_path, " ") is None

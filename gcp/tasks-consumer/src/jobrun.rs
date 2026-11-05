@@ -168,7 +168,7 @@ mod tests {
         let req = JobRunRequest {
             project_id: "p".into(),
             region: "us-central1".into(),
-            job_name: "atlas-distill".into(),
+            job_name: "distill".into(),
             container_args: vec!["auto-research".into(), "--element".into(), "Al".into()],
             container_env: Vec::new(),
         };

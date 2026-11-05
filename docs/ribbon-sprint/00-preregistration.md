@@ -1,7 +1,7 @@
 # Pre-registration — Operation Ribbon-or-Bust
 
 > ⚠️ **Data-source correction (2026-06-02).** This pre-registration named
-> `nist_benchmark.csv` (and later `atlas-distill/benchmarks/*.csv`) as "the corpus."
+> `nist_benchmark.csv` (and later `distill/benchmarks/*.csv`) as "the corpus."
 > **That was the central mistake of the session:** those are **stale exports**. The
 > live corpus is the **Cloudflare D1 ledger `glim-ledger`** (`records` ≈ 1269 / 177
 > potentials / 5 properties, written continuously by a running orchestrator) plus the

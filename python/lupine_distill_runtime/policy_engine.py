@@ -55,12 +55,36 @@ def _repo_root() -> pathlib.Path:
     return pathlib.Path(__file__).resolve().parents[2]
 
 
-def _default_atlas_distill_bin() -> pathlib.Path:
-    exe = "atlas-distill.exe" if os.name == "nt" else "atlas-distill"
-    found = shutil.which("atlas-distill")
+def _default_distill_bin() -> pathlib.Path:
+    exe = "distill.exe" if os.name == "nt" else "distill"
+    found = shutil.which("distill")
     if found:
         return pathlib.Path(found)
-    return _repo_root() / "atlas-distill" / "target" / "debug" / exe
+    return _repo_root() / "distill" / "target" / "debug" / exe
+
+
+def _resolve_distill_bin(
+    distill_bin: str | os.PathLike[str] | None = None,
+    *,
+    atlas_distill_bin: str | os.PathLike[str] | None = None,
+) -> pathlib.Path:
+    """Accept legacy binary configuration only at this input boundary."""
+    if (
+        distill_bin is not None
+        and atlas_distill_bin is not None
+        and pathlib.Path(distill_bin) != pathlib.Path(atlas_distill_bin)
+    ):
+        raise ValueError("conflicting distill_bin and legacy atlas_distill_bin")
+    explicit = distill_bin if distill_bin is not None else atlas_distill_bin
+    if explicit is not None:
+        return pathlib.Path(explicit)
+
+    configured = os.environ.get("DISTILL_BIN") or None
+    legacy = os.environ.get("ATLAS_DISTILL_BIN") or None
+    if configured is not None and legacy is not None and pathlib.Path(configured) != pathlib.Path(legacy):
+        raise ValueError("conflicting DISTILL_BIN and legacy ATLAS_DISTILL_BIN")
+    configured = configured if configured is not None else legacy
+    return pathlib.Path(configured) if configured is not None else _default_distill_bin()
 
 
 #: Default env-field binding report (emitted by
@@ -223,20 +247,22 @@ class RustPolicyEngine:
     def __init__(
         self,
         *,
+        distill_bin: str | os.PathLike[str] | None = None,
         atlas_distill_bin: str | os.PathLike[str] | None = None,
         ribbon_version: str = "hyperribbon-v1",
         policy_limits_path: str | os.PathLike[str] | None = None,
         timeout_s: int = 30,
     ) -> None:
-        configured = atlas_distill_bin or os.environ.get("ATLAS_DISTILL_BIN")
-        self.atlas_distill_bin = pathlib.Path(configured) if configured else _default_atlas_distill_bin()
+        self.distill_bin = _resolve_distill_bin(
+            distill_bin, atlas_distill_bin=atlas_distill_bin
+        )
         self.ribbon_version = ribbon_version
         self.policy_limits_path = pathlib.Path(policy_limits_path) if policy_limits_path else None
         self.timeout_s = timeout_s
 
     @property
     def available(self) -> bool:
-        return self.atlas_distill_bin.exists()
+        return self.distill_bin.exists()
 
     def _policy_limits_args(self) -> list[str]:
         if not self.policy_limits_path:
@@ -253,7 +279,7 @@ class RustPolicyEngine:
         context: dict[str, Any] | None = None,
     ) -> DistillDecision:
         if not self.available:
-            raise FileNotFoundError(f"atlas-distill binary not found: {self.atlas_distill_bin}")
+            raise FileNotFoundError(f"distill binary not found: {self.distill_bin}")
         domain_action = _domain_action(prediction, context)
         request = self._request(
             row_id=row_id,
@@ -267,7 +293,7 @@ class RustPolicyEngine:
             request_path.write_text(json.dumps(request, sort_keys=True), encoding="utf-8")
             proc = subprocess.run(
                 [
-                    str(self.atlas_distill_bin),
+                    str(self.distill_bin),
                     "distill-policy",
                     "--request",
                     str(request_path),
@@ -282,7 +308,7 @@ class RustPolicyEngine:
             )
         if proc.returncode != 0:
             raise RuntimeError(
-                "atlas-distill distill-policy failed "
+                "distill distill-policy failed "
                 f"(exit {proc.returncode}): {(proc.stderr or proc.stdout).strip()}"
             )
         decision = _decision_from_payload(json.loads(proc.stdout), policy_engine=self.name)
@@ -300,7 +326,7 @@ class RustPolicyEngine:
         if not predictions:
             return []
         if not self.available:
-            raise FileNotFoundError(f"atlas-distill binary not found: {self.atlas_distill_bin}")
+            raise FileNotFoundError(f"distill binary not found: {self.distill_bin}")
         contexts = contexts or [{} for _ in predictions]
         domain_actions = [
             _domain_action(prediction, contexts[idx] if idx < len(contexts) else {})
@@ -326,7 +352,7 @@ class RustPolicyEngine:
             )
             proc = subprocess.run(
                 [
-                    str(self.atlas_distill_bin),
+                    str(self.distill_bin),
                     "distill-policy",
                     "--request-jsonl",
                     str(request_path),
@@ -344,7 +370,7 @@ class RustPolicyEngine:
             output_text = output_path.read_text(encoding="utf-8") if output_path.exists() else proc.stdout
         if proc.returncode != 0:
             raise RuntimeError(
-                "atlas-distill distill-policy batch failed "
+                "distill distill-policy batch failed "
                 f"(exit {proc.returncode}): {(proc.stderr or proc.stdout).strip()}"
             )
         decisions = [
@@ -609,11 +635,13 @@ class AutoPolicyEngine:
         self,
         *,
         profile: str,
+        distill_bin: str | os.PathLike[str] | None = None,
         atlas_distill_bin: str | os.PathLike[str] | None = None,
         ribbon_version: str = "hyperribbon-v1",
         policy_limits_path: str | os.PathLike[str] | None = None,
     ) -> None:
         self.rust = RustPolicyEngine(
+            distill_bin=distill_bin,
             atlas_distill_bin=atlas_distill_bin,
             ribbon_version=ribbon_version,
             policy_limits_path=policy_limits_path,
@@ -672,6 +700,7 @@ def build_policy_engine(
     name: str,
     *,
     profile: str,
+    distill_bin: str | os.PathLike[str] | None = None,
     atlas_distill_bin: str | os.PathLike[str] | None = None,
     ribbon_version: str = "hyperribbon-v1",
     policy_limits_path: str | os.PathLike[str] | None = None,
@@ -684,19 +713,22 @@ def build_policy_engine(
     an explicit path requires that report, and ``None`` is the only way to
     disable the gate.
     """
+    configured_bin = _resolve_distill_bin(
+        distill_bin, atlas_distill_bin=atlas_distill_bin
+    )
     engine: DistillPolicyEngine
     if name == "python":
         engine = PythonPolicyEngine(profile)
     elif name == "rust":
         engine = RustPolicyEngine(
-            atlas_distill_bin=atlas_distill_bin,
+            distill_bin=configured_bin,
             ribbon_version=ribbon_version,
             policy_limits_path=policy_limits_path,
         )
     elif name == "auto":
         engine = AutoPolicyEngine(
             profile=profile,
-            atlas_distill_bin=atlas_distill_bin,
+            distill_bin=configured_bin,
             ribbon_version=ribbon_version,
             policy_limits_path=policy_limits_path,
         )

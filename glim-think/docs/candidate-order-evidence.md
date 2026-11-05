@@ -11,8 +11,8 @@ energies.
 
 From the repository root:
 
-    cargo run --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- \
-      candidate-order --input atlas-distill/tests/fixtures/candidate_order.input.json
+    cargo run --manifest-path distill/Cargo.toml --bin distill -- \
+      candidate-order --input distill/tests/fixtures/candidate_order.input.json
 
 The synthetic fixture intentionally has different reference and prediction
 minima. A valid descriptive report exits successfully even when ordering

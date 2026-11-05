@@ -7,7 +7,7 @@ import { CandidateOrderReportView, InspectCandidateOrderReport, readCandidateOrd
 import { ResearchRuns } from "../ResearchRuns";
 
 const fixture = JSON.parse(readFileSync(new URL(
-  "../../../../../atlas-distill/tests/fixtures/candidate_order.input.json", import.meta.url), "utf8"));
+  "../../../../../distill/tests/fixtures/candidate_order.input.json", import.meta.url), "utf8"));
 const report = () => ({ schema: "lupine.candidate_order.report.v1", input_sha256: "b".repeat(64),
   input: structuredClone(fixture), assessment: assessCandidateOrder(fixture) });
 const render = (r: unknown) => renderToStaticMarkup(React.createElement(CandidateOrderReportView, { report: r }));

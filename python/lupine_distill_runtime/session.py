@@ -5,7 +5,7 @@ import hashlib
 import json
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from typing import Any
 
 import numpy as np
@@ -20,7 +20,7 @@ from .events import RuntimeEventLog
 from .instrumented import InstrumentedCalculator
 from .leakage import LeakageGuard
 from .policy import RuntimePolicy
-from .policy_engine import CertificateGatedPolicyEngine, build_policy_engine
+from .policy_engine import CertificateGatedPolicyEngine, _resolve_distill_bin, build_policy_engine
 
 PredictRow = Callable[[str, dict[str, Any], Any], dict[str, Any]]
 
@@ -960,7 +960,9 @@ class DistillSession:
     eval_manifest: dict[str, Any] | None = None
     support_manifest: dict[str, Any] | None = None
     policy_engine_name: str = "python"
-    atlas_distill_bin: str | None = None
+    distill_bin: str | None = None
+    #: Legacy constructor input; excluded from persisted dataclass fields.
+    atlas_distill_bin: InitVar[str | None] = field(default=None, kw_only=True)
     ribbon_version: str = "hyperribbon-v1"
     policy_limits_path: str | None = None
     #: Cap version for the runtime direction gate ("round4-v2" default;
@@ -983,12 +985,15 @@ class DistillSession:
         default_factory=lambda: {"support_fit_s": 0.0, "correction_s": 0.0, "guards_s": 0.0}
     )
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, atlas_distill_bin: str | None) -> None:
+        self.distill_bin = str(
+            _resolve_distill_bin(self.distill_bin, atlas_distill_bin=atlas_distill_bin)
+        )
         self.policy = RuntimePolicy(self.profile)
         self.policy_engine = build_policy_engine(
             self.policy_engine_name,
             profile=self.profile,
-            atlas_distill_bin=self.atlas_distill_bin,
+            distill_bin=self.distill_bin,
             ribbon_version=self.ribbon_version,
             policy_limits_path=self.policy_limits_path,
             env_field_report_path=self.env_field_report_path,

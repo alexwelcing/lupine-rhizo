@@ -81,7 +81,7 @@ docker build .
   `tasks-consumer/`.
 - `tasks-consumer/` starts jobs defined in `mlip-cell-runner/`.
 - `mlip-cell-runner/` imports `python/lupine_distill_runtime` for instrumented
-  cells and may invoke `atlas-distill/` for Distill policy decisions.
+  cells and may invoke `distill/` for Distill policy decisions.
 - Results are posted back to `glim-think` as authenticated beats and stored in
   `data/mlip_benchmarks/` manifests.
 - The system map is in [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md).

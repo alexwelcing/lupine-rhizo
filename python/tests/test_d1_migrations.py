@@ -9,7 +9,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATIONS = ROOT / "glim-think" / "migrations"
+THEOREM_STORE_MIGRATION = "0024_theorem_store_naming.sql"
 EXPECTED_TABLES = {
+    "theorems",
+    "facet_registry",
+    "facet_state",
+    "theorems_0011_canonical_snapshot",
+    "facet_state_0011_canonical_snapshot",
+    "theorems_0011_reconciliation_applied",
     "campaign",
     "campaign_hypothesis",
     "measurement",
@@ -31,8 +38,8 @@ EXPECTED_TABLES = {
 }
 
 
-def apply_migrations(connection: sqlite3.Connection) -> None:
-    paths = sorted(MIGRATIONS.glob("*.sql"))
+def apply_migrations(connection: sqlite3.Connection, *, before: str | None = None) -> None:
+    paths = sorted(path for path in MIGRATIONS.glob("*.sql") if before is None or path.name < before)
     if not paths:
         raise AssertionError("no D1 migrations found")
     connection.execute("PRAGMA foreign_keys = ON")
@@ -104,9 +111,10 @@ class D1MigrationContractTests(unittest.TestCase):
             connection.execute("SELECT status FROM claims").fetchone(), ("verified",)
         )
 
-    def test_atlas_reconciliation_reapplication_preserves_canonical_state(self) -> None:
+    def test_0011_reconciliation_reapplication_preserves_its_canonical_state(self) -> None:
+        # Historical 0011 reapplication is defined on its original pre-0024 schema.
         connection = self.connect()
-        apply_migrations(connection)
+        apply_migrations(connection, before=THEOREM_STORE_MIGRATION)
         connection.execute(
             """
             INSERT INTO atlas_theorems (
@@ -172,6 +180,162 @@ class D1MigrationContractTests(unittest.TestCase):
                 "SELECT * FROM atlas_facet_state ORDER BY facet"
             ).fetchall(),
             facet_state_before,
+        )
+        self.assertEqual(connection.execute("PRAGMA foreign_key_check").fetchall(), [])
+
+
+    def test_theorem_store_naming_preserves_rows_edges_snapshots_and_objects(self) -> None:
+        connection = self.connect()
+        apply_migrations(connection, before=THEOREM_STORE_MIGRATION)
+        connection.executescript(
+            """
+            INSERT INTO atlas_theorems (
+              id, facet, theorem_name, module, revision, proof_repository,
+              proof_revision, atlas_revision, mathlib_revision, statement_hash,
+              source_hash, build_manifest_hash, status, used_in_hypotheses,
+              created_at, updated_at
+            ) VALUES (
+              202, 'experiment', 'Local.replacement', 'Local.Core', 'identity-r2',
+              'example/proofs', 'proof-r2', 'external-atlas-r2', 'mathlib-r2',
+              'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+              'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+              'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+              'verified', 7, '2026-07-17T01:02:03Z', '2026-07-18T04:05:06Z'
+            );
+            INSERT INTO atlas_theorems (
+              id, facet, theorem_name, module, revision, status,
+              lifecycle_status, superseded_by_id
+            ) VALUES (
+              201, 'experiment', 'Local.original', 'Local.Core', 'identity-r1',
+              'extended', 'superseded', 202
+            );
+            INSERT INTO atlas_facet_state (
+              facet, proof_repository, proof_revision, atlas_revision,
+              mathlib_revision, theorem_inventory, build_manifest_hash,
+              state_schema_version, inventory_schema_version, updated_at
+            ) VALUES (
+              'experiment', 'example/proofs', 'proof-r2', 'external-atlas-r2',
+              'mathlib-r2', '{"theorems":["Local.original","Local.replacement"]}',
+              'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+              4, 5, '2026-07-18T06:07:08Z'
+            );
+            """
+        )
+        preserved = [
+            ("atlas_facet_registry", "facet_registry", "facet"),
+            ("atlas_theorems", "theorems", "id"),
+            ("atlas_facet_state", "facet_state", "facet"),
+            ("atlas_theorems_0011_canonical_snapshot", "theorems_0011_canonical_snapshot", "id"),
+            ("atlas_facet_state_0011_canonical_snapshot", "facet_state_0011_canonical_snapshot", "facet"),
+            ("atlas_0011_reconciliation_applied", "theorems_0011_reconciliation_applied", "id"),
+        ]
+        snapshots = {
+            canonical: connection.execute(
+                f"SELECT * FROM {legacy} ORDER BY {order}"
+            ).fetchall()
+            for legacy, canonical, order in preserved
+        }
+        migration = MIGRATIONS / THEOREM_STORE_MIGRATION
+        connection.executescript(migration.read_text(encoding="utf-8"))
+        for _, canonical, order in preserved:
+            self.assertEqual(
+                connection.execute(f"SELECT * FROM {canonical} ORDER BY {order}").fetchall(),
+                snapshots[canonical],
+                canonical,
+            )
+        self.assertEqual(
+            connection.execute("SELECT superseded_by_id FROM theorems WHERE id = 201").fetchone(),
+            (202,),
+        )
+        objects = {
+            row[0]: row[1]
+            for row in connection.execute("SELECT name, sql FROM sqlite_master")
+        }
+        for name in (
+            "idx_theorems_identity", "idx_theorems_facet",
+            "idx_theorems_status", "idx_theorems_proof_revision",
+            "theorems_0011_snapshot_insert", "theorems_0011_snapshot_update",
+            "theorems_0011_snapshot_delete", "facet_state_0011_snapshot_insert",
+            "facet_state_0011_snapshot_update", "facet_state_0011_snapshot_delete",
+        ):
+            self.assertIn(name, objects)
+        for name, sql in objects.items():
+            self.assertNotIn("atlas_", name)
+            for legacy in ("atlas_theorems", "atlas_facet_", "atlas_0011_"):
+                self.assertNotIn(legacy, sql or "")
+        references = connection.execute("PRAGMA foreign_key_list(theorems)").fetchall()
+        self.assertEqual({row[2] for row in references}, {"theorems", "facet_registry"})
+        self.assertEqual(connection.execute("PRAGMA foreign_key_check").fetchall(), [])
+        self.assertEqual(connection.execute("PRAGMA foreign_keys").fetchone(), (1,))
+        with self.assertRaises(sqlite3.IntegrityError):
+            connection.execute("DELETE FROM theorems WHERE id = 202")
+        with self.assertRaises(sqlite3.IntegrityError):
+            connection.execute(
+                "INSERT INTO theorems (facet, theorem_name, module, revision, status) "
+                "VALUES ('unknown', 'Bad.facet', 'Local.Core', 'r1', 'verified')"
+            )
+        with self.assertRaises(sqlite3.IntegrityError):
+            connection.execute(
+                "INSERT INTO theorems (facet, theorem_name, module, revision, status) "
+                "VALUES ('experiment', 'Bad.status', 'Local.Core', 'r1', 'pending')"
+            )
+        with self.assertRaises(sqlite3.IntegrityError):
+            connection.execute(
+                "INSERT INTO theorems (facet, theorem_name, module, revision, status) "
+                "VALUES ('experiment', 'Local.replacement', 'Local.Core', 'identity-r2', 'verified')"
+            )
+
+        connection.execute("UPDATE theorems SET used_in_hypotheses = 8 WHERE id = 202")
+        self.assertEqual(
+            connection.execute("SELECT * FROM theorems WHERE id = 202").fetchall(),
+            connection.execute(
+                "SELECT * FROM theorems_0011_canonical_snapshot WHERE id = 202"
+            ).fetchall(),
+        )
+        connection.executescript(
+            """
+            INSERT INTO theorems (id, facet, theorem_name, module, revision, status)
+            VALUES (203, 'causal', 'Local.transient', 'Local.Core', 'r1', 'verified');
+            """
+        )
+        self.assertEqual(
+            connection.execute("SELECT * FROM theorems WHERE id = 203").fetchall(),
+            connection.execute(
+                "SELECT * FROM theorems_0011_canonical_snapshot WHERE id = 203"
+            ).fetchall(),
+        )
+        connection.execute("DELETE FROM theorems WHERE id = 203")
+        self.assertEqual(
+            connection.execute(
+                "SELECT id FROM theorems_0011_canonical_snapshot WHERE id = 203"
+            ).fetchall(),
+            [],
+        )
+        connection.execute(
+            """UPDATE facet_state SET theorem_inventory = '{"theorems":[]}'
+                 WHERE facet = 'experiment'"""
+        )
+        self.assertEqual(
+            connection.execute("SELECT * FROM facet_state WHERE facet = 'experiment'").fetchall(),
+            connection.execute(
+                "SELECT * FROM facet_state_0011_canonical_snapshot WHERE facet = 'experiment'"
+            ).fetchall(),
+        )
+        connection.execute(
+            """INSERT INTO facet_state (facet, theorem_inventory) VALUES ('causal', '{"total":0}')"""
+        )
+        self.assertEqual(
+            connection.execute("SELECT * FROM facet_state WHERE facet = 'causal'").fetchall(),
+            connection.execute(
+                "SELECT * FROM facet_state_0011_canonical_snapshot WHERE facet = 'causal'"
+            ).fetchall(),
+        )
+        connection.execute("DELETE FROM facet_state WHERE facet = 'causal'")
+        self.assertEqual(
+            connection.execute(
+                "SELECT facet FROM facet_state_0011_canonical_snapshot WHERE facet = 'causal'"
+            ).fetchall(),
+            [],
         )
         self.assertEqual(connection.execute("PRAGMA foreign_key_check").fetchall(), [])
 

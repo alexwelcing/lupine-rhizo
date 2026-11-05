@@ -25,7 +25,7 @@ The architecture is intentionally split:
   cells, Cloud Batch or Spot GPU VMs for larger/checkpoint-heavy sweeps, GCS for
   immutable raw artifacts, Artifact Registry for images, Secret Manager for
   model tokens, and Cloud Logging/Monitoring for low-level diagnostics.
-- Rust `atlas-distill` is the canonical policy core: versioned hyperribbon
+- Rust `distill` is the canonical policy core: versioned hyperribbon
   decisions, hill-climb/search, refusal logic, fault-line extraction, theorem
   hooks, and promotion gates.
 - Python runners are interoperability shells: ASE, MLIP imports, device
@@ -130,7 +130,7 @@ flowchart LR
 
   subgraph Core["Runtime Core"]
     Py["Python MLIP runner"]
-    Rust["atlas-distill Rust policy engine"]
+    Rust["distill Rust policy engine"]
     MLIP["MACE / CHGNet / ORB / SevenNet / M3GNet / UMA"]
   end
 
@@ -169,7 +169,7 @@ Purpose: develop new ribbons cheaply and fast.
 Execution:
 
 - local Python runner or isolated `uv` backend env;
-- local `atlas-distill` binary;
+- local `distill` binary;
 - local JSONL artifacts in `tmp/mlip-local` and `tmp/mlip-benchmarks`;
 - optional Phoenix dry-run or relay trace.
 
@@ -232,7 +232,7 @@ This is how the system avoids becoming "our cloud only."
 ```mermaid
 sequenceDiagram
   participant H as Hypothesis in glim-think
-  participant R as atlas-distill ribbon search
+  participant R as distill ribbon search
   participant L as Local runner
   participant G as GCP runner
   participant P as Phoenix
@@ -424,7 +424,7 @@ L2 campaign checkpoint
 
 L3 ribbon search checkpoint
   candidate beam, objective values, fault lines
-  enables resuming atlas-distill search
+  enables resuming distill search
 ```
 
 ### Write Policy
@@ -724,7 +724,7 @@ Runner service account cannot:
 ### Phase 2: Cloud Run L4 Production Lane
 
 - Ensure each MLIP job has image digest, package versions, CUDA facts, and Rust
-  `atlas-distill` binary.
+  `distill` binary.
 - Promote `ni-fcc-eam-home-turf-v1` as the first real Lane A fixture.
 - Run paired MACE/CHGNet/ORB/SevenNet cells where backend auth/imports are
   healthy.

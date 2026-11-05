@@ -14,7 +14,7 @@ The persistent subsystems are already deployed by CI. Nothing to start unless so
 
 - `glim-think-v1` Worker — auto-deployed via Cloudflare on push to `main`.
 - `library-site` Cloud Run service — auto-deployed via Cloud Build on push to `main`.
-- `atlas-distill` Cloud Run Job — triggered on schedule + on demand.
+- `distill` Cloud Run Job — triggered on schedule + on demand.
 
 To launch a research round manually:
 
@@ -32,8 +32,8 @@ curl -X POST https://glim-think-v1.<account>.workers.dev/admin/iterate
 | Symptom | First place to check |
 |---------|----------------------|
 | `/live` is silent | `pnpm wrangler tail glim-think-v1` |
-| Cloud Run Job stuck | `gcloud run jobs executions list --job atlas-distill --region us-central1` |
-| Paradox alert in Slack | `cargo run -p atlas-distill --bin atlas-distill -- detect-paradox --bcc` |
+| Cloud Run Job stuck | `gcloud run jobs executions list --job distill --region us-central1` |
+| Paradox alert in Slack | `cargo run -p lupine-distill --bin distill -- detect-paradox --bcc` |
 | Worker 5xx | Cloudflare dashboard → Workers → `glim-think-v1` → Logs |
 | Container build failed | Cloud Build history in the GCP console |
 
@@ -41,7 +41,7 @@ curl -X POST https://glim-think-v1.<account>.workers.dev/admin/iterate
 
 ## 2. Architecture at a glance
 
-Five subsystems form a research loop: `glim-think-v1` (Cloudflare Worker) orchestrates agents and writes literature hits; `atlas-distill` (Cloud Run Job, Rust) runs heavy benchmarks and paradox detection; `library-site` (Cloud Run service, static site) serves the public research library and live lab views; `kimi --yolo` (local supervisor) drives the autonomous outer loop; `tasks-consumer` (Cloud Run service) drains the Cloud Tasks queue back into `glim-think-v1` and `atlas-distill`. State of record: D1 + KV in Cloudflare for short-lived rounds; GCS for long-lived artifacts; Vectorize for retrieval.
+Five subsystems form a research loop: `glim-think-v1` (Cloudflare Worker) orchestrates agents and writes literature hits; `distill` (Cloud Run Job, Rust) runs heavy benchmarks and paradox detection; `library-site` (Cloud Run service, static site) serves the public research library and live lab views; `kimi --yolo` (local supervisor) drives the autonomous outer loop; `tasks-consumer` (Cloud Run service) drains the Cloud Tasks queue back into `glim-think-v1` and `distill`. State of record: D1 + KV in Cloudflare for short-lived rounds; GCS for long-lived artifacts; Vectorize for retrieval.
 
 Deep dives, in order of usefulness:
 
@@ -81,18 +81,18 @@ The build config is `library-site/cloudbuild.yaml`. The service deploys to `us-c
 
 Verify by opening the Library and the MLIP flywheel route in a browser.
 
-### `atlas-distill` — Cloud Run Job
+### `distill` — Cloud Run Job
 
 Build and update the job image via Cloud Build:
 
 ```
-gcloud builds submit --config=atlas-distill/cloudbuild.yaml .
+gcloud builds submit --config=distill/cloudbuild.yaml .
 ```
 
 Trigger an execution and wait for it:
 
 ```
-gcloud run jobs execute atlas-distill --region us-central1 --wait
+gcloud run jobs execute distill --region us-central1 --wait
 ```
 
 The job runs as service account `atlas-distill-runner@<project>.iam.gserviceaccount.com`.
@@ -164,7 +164,7 @@ Run all four before starting any new work:
 
    ```
    gcloud run services list --region us-central1
-   gcloud run jobs executions list --job atlas-distill --region us-central1 --limit 5
+   gcloud run jobs executions list --job distill --region us-central1 --limit 5
    ```
 
 2. Open the Library live lab and the `glim-think` feed, confirm beats are arriving (timestamps within the last few minutes).
@@ -209,7 +209,7 @@ Recovery:
    gcloud run services update library-site --region us-central1 --min-instances 1
    ```
 
-### Paradox alert from `atlas-distill`
+### Paradox alert from `distill`
 
 Symptom: a beat on `/live` flags Simpson's paradox in the latest BCC round.
 
@@ -218,10 +218,10 @@ Recovery:
 1. Reproduce locally:
 
    ```
-   cargo run -p atlas-distill --bin atlas-distill -- detect-paradox --bcc
+   cargo run -p lupine-distill --bin distill -- detect-paradox --bcc
    ```
 
-   The output structure is documented in `atlas-distill/README.md`. A `flipped: true` group on any aggregate observable means the round-level conclusion contradicts the stratum-level conclusions.
+   The output structure is documented in `distill/README.md`. A `flipped: true` group on any aggregate observable means the round-level conclusion contradicts the stratum-level conclusions.
 
 2. If `flipped: true` is reported, halt the supervisor (Section 4, graceful) before the next iteration writes downstream artifacts.
 
@@ -275,7 +275,7 @@ Recovery:
 |-----------|----------------|--------------|
 | `glim-think-v1` Worker | Cloudflare dashboard | `pnpm wrangler tail glim-think-v1` |
 | `library-site` Cloud Run service | GCP Cloud Logging | `gcloud run services logs read library-site --region us-central1 --limit 100` |
-| `atlas-distill` Cloud Run Job | GCP Cloud Logging | `gcloud run jobs executions logs read <execution-id> --region us-central1` |
+| `distill` Cloud Run Job | GCP Cloud Logging | `gcloud run jobs executions logs read <execution-id> --region us-central1` |
 | `tasks-consumer` Cloud Run service | GCP Cloud Logging | (after Unit 8 lands) |
 | `kimi --yolo` supervisor | Local stdout | tail the file specified in the supervisor config (Unit 5) |
 
@@ -290,7 +290,7 @@ The list below is what must be verified **before the autonomous switch is flippe
 - [ ] All five `../handoff/*.md` documents exist and were reviewed end-to-end.
 - [ ] All `docs/runbooks/*.md` exist and were dry-run by a second operator.
 - [ ] `lupine-ops/target/release/monitor_cloud_run --once` exits 0 against production (**RED until Unit 3 lands**).
-- [ ] `cargo run -p atlas-distill --bin atlas-distill -- detect-paradox --bcc` reports no `flipped: true` on the latest manifold.
+- [ ] `cargo run -p lupine-distill --bin distill -- detect-paradox --bcc` reports no `flipped: true` on the latest manifold.
 - [ ] `pnpm wrangler tail glim-think-v1` shows no `ERROR` lines in a 15-minute window.
 - [ ] `/live` is reachable and beats arrive within 60 s of a manual `/admin/iterate` POST.
 - [ ] Cloud Tasks queue depth is 0 and the queue is unpaused.

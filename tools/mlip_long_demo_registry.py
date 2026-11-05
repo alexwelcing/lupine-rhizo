@@ -3,7 +3,7 @@
 
 The registry is intentionally a no-mock bridge between two lanes:
 
-* scientific Distill artifacts, owned by the runner / atlas-distill stack
+* scientific Distill artifacts, owned by the runner / distill stack
 * viewer artifacts, owned by the Live Lab / viewer stack
 
 Planned demos are allowed, but they must remain explicit non-claims until real

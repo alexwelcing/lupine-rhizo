@@ -27,7 +27,7 @@ EVAL_MANIFEST = RUNNER_DIR / "fixtures" / "canonical_structures_v2_mptrj.json"
 SUPPORT_MANIFEST = RUNNER_DIR / "fixtures" / "canonical_distill_support_mptrj_train_plus_elastic_v1.json"
 LOCAL_ROOT = ROOT / "tmp" / "mlip-local"
 RUNTIME_ROOT = ROOT / "tmp" / "mlip-runtimes"
-ATLAS_DISTILL_BIN = ROOT / "atlas-distill" / "target" / "debug" / ("atlas-distill.exe" if os.name == "nt" else "atlas-distill")
+DISTILL_BIN = ROOT / "distill" / "target" / "debug" / ("distill.exe" if os.name == "nt" else "distill")
 
 
 def load_backend_catalog() -> list[dict[str, object]]:
@@ -308,8 +308,8 @@ def cell_command(run_id: str, cell: Cell, python: pathlib.Path, run_dir: pathlib
         policy_url = policy_url_for_cell(cell, args)
         if policy_url:
             cmd.extend(["--distill-policy-url", policy_url])
-        if args.atlas_distill_bin:
-            cmd.extend(["--atlas-distill-bin", str(args.atlas_distill_bin)])
+        if args.distill_bin:
+            cmd.extend(["--distill-bin", str(args.distill_bin)])
     return cmd
 
 
@@ -395,7 +395,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--distill-policy-registry", default=None)
     parser.add_argument("--support-manifest-url", default=None)
     parser.add_argument("--ribbon-version", default="hyperribbon-v1")
-    parser.add_argument("--atlas-distill-bin", default=str(ATLAS_DISTILL_BIN) if ATLAS_DISTILL_BIN.exists() else None)
+    parser.add_argument("--distill-bin", default=str(DISTILL_BIN) if DISTILL_BIN.exists() else None)
     args = parser.parse_args(list(argv) if argv is not None else None)
     args._distill_policy_registry = load_policy_registry(args.distill_policy_registry)
     if args.list_backends:
@@ -429,7 +429,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "distill_policy_registry": args.distill_policy_registry,
         "variant_scope": args.variant_scope,
         "ribbon_version": args.ribbon_version,
-        "atlas_distill_bin": args.atlas_distill_bin,
+        "distill_bin": args.distill_bin,
         "runtime_root": str(RUNTIME_ROOT),
     }
     (run_dir / "plan.json").write_text(json.dumps(plan, indent=2, sort_keys=True), encoding="utf-8")

@@ -88,6 +88,12 @@ jobs:
         working-directory: lean-spec
         run: lake build
 
+      - name: Check renamed data evidence modules
+        working-directory: lean-spec
+        run: |
+          # Targeted rename verification; these remain outside the default roots.
+          lake build OpenDistillationFactory.Materials.Data.Ni_EAM OpenDistillationFactory.Materials.Data.MPtrj_DFT
+
       - name: Check for sorries
         working-directory: lean-spec
         run: sh scripts/check_no_sorry.sh OpenDistillationFactory

@@ -5,7 +5,7 @@ import { assessVacancyEvidence, assessVacancyReference, validateVacancyResult } 
 
 const base = (import.meta as ImportMeta & { url: string }).url;
 const fixture = JSON.parse(readFileSync(new URL(
-  "../../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", base), "utf8"));
+  "../../../../distill/tests/fixtures/vacancy_uniform_bias.expected.json", base), "utf8"));
 function evidence() {
   return {
     schemaVersion: 1, comparisonContractSha256: "c".repeat(64), task: "formation_energy",
@@ -16,7 +16,7 @@ function evidence() {
   };
 }
 const protocol = JSON.parse(readFileSync(new URL(
-  "../../../../atlas-distill/tests/fixtures/vacancy_calibration.protocol.json", base), "utf8"));
+  "../../../../distill/tests/fixtures/vacancy_calibration.protocol.json", base), "utf8"));
 function calibrated() {
   const r = structuredClone(fixture);
   r.context.reference_protocol = structuredClone(protocol);

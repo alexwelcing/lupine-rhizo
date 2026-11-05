@@ -1,20 +1,20 @@
 /**
- * Cloud Tasks dispatcher → atlas-distill heavy compute.
+ * Cloud Tasks dispatcher → distill heavy compute.
  *
  * Mints an OAuth access token from `GCP_SA_KEY` (a JSON-encoded GCP service
  * account key stored as a wrangler secret), then enqueues a Cloud Tasks task
  * targeting the `tasks-consumer` Cloud Run Service. The consumer (Rust, see
  * `gcp/tasks-consumer/`) validates the OIDC header Cloud Tasks attaches and
- * invokes the `atlas-distill` Cloud Run Job.
+ * invokes the `distill` Cloud Run Job.
  *
  * Architecture (Unit 8 of the handoff plan):
  *   server.ts  POST /research/dispatch
- *     ↓ dispatchAtlasJob
+ *     ↓ dispatchDistillJob
  *   Cloud Tasks queue `atlas-distill-jobs` (us-central1)
  *     ↓ HTTP target with OIDC
  *   tasks-consumer Cloud Run Service
  *     ↓ jobs.run
- *   atlas-distill Cloud Run Job
+ *   distill Cloud Run Job
  *     ↓ beat emit (--beat-emit-url) when done
  *   glim-think /beats/ingest (Unit 1, separate)
  */
@@ -237,9 +237,9 @@ function validatePayload(payload: TaskPayload): void {
 
 /**
  * Publish a Cloud Tasks task that will invoke `tasks-consumer`. The consumer
- * forwards to the `atlas-distill` Cloud Run Job.
+ * forwards to the `distill` Cloud Run Job.
  */
-export async function dispatchAtlasJob(
+export async function dispatchDistillJob(
   env: DispatchEnv,
   payload: TaskPayload,
 ): Promise<DispatchResult> {
@@ -273,7 +273,7 @@ export async function dispatchAtlasJob(
     `${TASKS_API_BASE}/projects/${project}/locations/${location}/queues/${queue}/tasks`;
 
   if (isDevMode(env)) {
-    console.log("[dispatchAtlasJob dev-mode]", { url, taskBody });
+    console.log("[dispatchDistillJob dev-mode]", { url, taskBody });
     const synthetic = `projects/${project}/locations/${location}/queues/${queue}/tasks/dev-${Date.now()}`;
     return { task_name: synthetic, dev_mode: true };
   }
@@ -345,7 +345,7 @@ function buildTaskBody(env: DispatchEnv, payload: TaskPayload): Record<string, u
  * quota. Per-item failures don't abort the batch — they're collected in
  * `errors[]` so the caller can retry the failed slice.
  */
-export async function dispatchAtlasJobBatch(
+export async function dispatchDistillJobBatch(
   env: DispatchEnv,
   items: BatchDispatchItem[],
   concurrency = 10,

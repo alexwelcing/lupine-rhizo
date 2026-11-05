@@ -29,7 +29,7 @@ Split toward four repos:
 | `lupine.science` | Public program/start site. |
 | `lupi.live` | Browser-native molecular viewer, auth, search, saved views, and agent viewer surface. |
 | `library.lupine.site` | Public research reader and Library experience. |
-| science/control-plane repo | `glim-think`, `lean-spec`, `atlas-distill`, Python Distill packages, MLIP runners, evidence, docs, papers, and experiment tooling. |
+| science/control-plane repo | `glim-think`, `lean-spec`, `distill`, Python Distill packages, MLIP runners, evidence, docs, papers, and experiment tooling. |
 
 The science/control-plane repo remains the source of truth for contracts,
 claims, proofs, experiments, and generated public artifacts. Public repos should

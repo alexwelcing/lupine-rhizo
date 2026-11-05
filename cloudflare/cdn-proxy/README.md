@@ -1,5 +1,7 @@
 # cdn-proxy
 
+Existing bucket and URL names are retained resource identities, independent of Rhizo's current component names.
+
 A Cloudflare Worker that proxies `https://cdn.lupine.dev/*` to
 `https://storage.googleapis.com/shed-489901-atlas-artifacts/*` so that
 egress travels the Cloudflare/GCS Bandwidth Alliance path.

@@ -21,8 +21,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-DEFAULT_CASES = ROOT / "atlas-distill" / "tests" / "fixtures" / "distill_hill_climb_cases.jsonl"
-DEFAULT_BIN = ROOT / "atlas-distill" / "target" / "debug" / ("atlas-distill.exe" if os.name == "nt" else "atlas-distill")
+DEFAULT_CASES = ROOT / "distill" / "tests" / "fixtures" / "distill_hill_climb_cases.jsonl"
+DEFAULT_BIN = ROOT / "distill" / "target" / "debug" / ("distill.exe" if os.name == "nt" else "distill")
 DEFAULT_OUT = ROOT / "tmp" / "mlip-distill-growth"
 GCLOUD = shutil.which("gcloud.cmd") or shutil.which("gcloud") or "C:/gcloud/google-cloud-sdk/bin/gcloud.cmd"
 
@@ -271,7 +271,7 @@ def case_summary(cases_path: pathlib.Path) -> dict[str, Any]:
 
 def run_hill_climb(
     *,
-    atlas_distill: pathlib.Path,
+    distill: pathlib.Path,
     cases: pathlib.Path,
     out_dir: pathlib.Path,
     objective: str,
@@ -282,7 +282,7 @@ def run_hill_climb(
     report_path = out_dir / f"{objective}_report.json"
     limits_path = out_dir / f"policy_limits_{objective}.json"
     cmd = [
-        str(atlas_distill),
+        str(distill),
         "distill-hill-climb",
         "--cases",
         str(cases),
@@ -302,7 +302,7 @@ def run_hill_climb(
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=False)
     if proc.returncode != 0:
         raise RuntimeError(
-            "atlas-distill distill-hill-climb failed "
+            "distill distill-hill-climb failed "
             f"(exit {proc.returncode}): {(proc.stderr or proc.stdout).strip()}"
         )
     report = load_json(report_path)
@@ -358,7 +358,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--scope", choices=sorted(campaign_tools.VALID_SCOPES), default="promotion-canary")
     parser.add_argument("--cases", type=pathlib.Path, default=None)
     parser.add_argument("--out-dir", type=pathlib.Path, default=None)
-    parser.add_argument("--atlas-distill-bin", type=pathlib.Path, default=DEFAULT_BIN)
+    parser.add_argument("--distill-bin", type=pathlib.Path, default=DEFAULT_BIN)
     parser.add_argument(
         "--weight-mode",
         choices=["uniform", "baseline-error", "high-error"],
@@ -381,8 +381,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--phoenix-project", default=None, help="Phoenix project name; defaults to glim-think")
     args = parser.parse_args(list(argv) if argv is not None else None)
 
-    if not args.atlas_distill_bin.exists():
-        raise SystemExit(f"atlas-distill binary not found: {args.atlas_distill_bin}")
+    if not args.distill_bin.exists():
+        raise SystemExit(f"distill binary not found: {args.distill_bin}")
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     out_dir = args.out_dir or DEFAULT_OUT / f"growth-{stamp}"
@@ -413,7 +413,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     objectives = ["accuracy", "accuracy_accelerate"] if args.objective == "both" else [args.objective]
     results = [
         run_hill_climb(
-            atlas_distill=args.atlas_distill_bin,
+            distill=args.distill_bin,
             cases=cases_path,
             out_dir=out_dir,
             objective=objective,
@@ -429,7 +429,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "case_source": case_source,
         "cases_path": str(cases_path),
         "case_summary": case_summary(cases_path),
-        "atlas_distill_bin": str(args.atlas_distill_bin),
+        "distill_bin": str(args.distill_bin),
         "search": {
             "rounds": args.rounds,
             "beam_width": args.beam_width,

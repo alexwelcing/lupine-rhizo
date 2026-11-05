@@ -5,6 +5,9 @@ The artifact is intentionally conservative: measured cells are read from local
 MLIP runner `cell_result.json` files, while the rest of the 75-cell cube is
 marked planned. This lets the viewer show the full campaign shape without
 turning missing data into fake data.
+
+Provide the viewer destination explicitly:
+    python tools/build_mlip_first_day_viewer.py --output /path/to/viewer/public/mlip/first_day_5x5x3.json
 """
 
 from __future__ import annotations
@@ -18,7 +21,6 @@ from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEFAULT_LOCAL_ROOT = ROOT / "tmp" / "mlip-local"
-DEFAULT_OUTPUT = ROOT / "atlas" / "atlas-view" / "apps" / "web" / "public" / "mlip" / "first_day_5x5x3.json"
 
 ROWS = [
     {"id": "elastic_constants", "label": "Elastic constants"},
@@ -329,7 +331,7 @@ def build_artifact(local_root: pathlib.Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--local-root", type=pathlib.Path, default=DEFAULT_LOCAL_ROOT)
-    parser.add_argument("--output", type=pathlib.Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--output", type=pathlib.Path, required=True, help="Destination viewer JSON artifact.")
     args = parser.parse_args()
     artifact = build_artifact(args.local_root)
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -74,7 +74,7 @@ def swarm_dispatch(fixture_url: str, command: str) -> dict:
 
     Args:
         fixture_url: GCS path, e.g. "gs://bucket/fixture.csv"
-        command: Command for atlas-distill, e.g. "auto-research"
+        command: Command for distill, e.g. "auto-research"
     """
     # Note: hive-wire.py does not yet expose dispatch directly;
     # this routes through swarm_run for now.

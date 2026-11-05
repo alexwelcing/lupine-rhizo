@@ -400,7 +400,7 @@ describe("mlip baseline grid workflow", () => {
       JSON.stringify({ limit: 1 }),
     );
     const body = await response?.json() as { dispatched: Array<{ target_job: string }> };
-    const logCall = logSpy.mock.calls.find((call) => call[0] === "[dispatchAtlasJob dev-mode]");
+    const logCall = logSpy.mock.calls.find((call) => call[0] === "[dispatchDistillJob dev-mode]");
     logSpy.mockRestore();
 
     expect(response?.status).toBe(200);

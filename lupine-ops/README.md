@@ -4,10 +4,10 @@ Operational tooling for the Lupine Science fleet — manifest,
 ledger, MLIP deployment shape, plus a periodic Cloud Run health/cost
 reporter binary.
 
-> **Status: keep.** This crate is an active dependency of `atlas-distill`
+> **Status: keep.** This crate is an active dependency of `distill`
 > (the Rust agents import `lupine_ops::ledger`, `lupine_ops::elastic`,
 > `lupine_ops::statics`, and `lupine_ops::mlip_ops`). Do not archive or
-> move without updating `atlas-distill/Cargo.toml` and the agent imports.
+> move without updating `distill/Cargo.toml` and the agent imports.
 
 ## `monitor_cloud_run`
 
@@ -78,4 +78,4 @@ monitor_cloud_run [--project shed-489901] [--region us-central1]
 Human-readable summary lands on stdout; the same payload — shaped as
 `PollSummary` — is POSTed to `--report-url` if provided. The CF Worker
 consumer can match on `services[].short_name` (`lupine-site`,
-`atlas-distill`, etc.) and `flags[]` for alerting.
+`distill`, etc.) and `flags[]` for alerting.

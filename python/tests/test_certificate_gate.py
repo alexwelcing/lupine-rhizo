@@ -92,7 +92,7 @@ def test_refused_cell_is_excluded_from_correction():
     skip = [a for a in decision.actions if a.get("action") == "skip_correction"]
     assert len(skip) == 1
     assert skip[0]["theorem_ref"] == (
-        "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances."
+        "OpenDistillationFactory.Materials.Data.EnvFieldInstances."
         "field_refused_chgnet_Pt"
     )
     assert skip[0]["lean_name"] == "chgnet_Pt"
@@ -226,8 +226,8 @@ def test_in_domain_coordination_allows_correction():
 
 
 def test_rust_and_auto_engines_apply_the_same_domain_gate(monkeypatch, tmp_path):
-    atlas_bin = tmp_path / "atlas-distill"
-    atlas_bin.write_text("test double", encoding="utf-8")
+    distill_bin = tmp_path / "distill"
+    distill_bin.write_text("test double", encoding="utf-8")
 
     def fake_run(argv, **_kwargs):
         request_path = Path(argv[argv.index("--request") + 1])
@@ -248,8 +248,8 @@ def test_rust_and_auto_engines_apply_the_same_domain_gate(monkeypatch, tmp_path)
 
     monkeypatch.setattr(policy_engine_module.subprocess, "run", fake_run)
     engines = [
-        RustPolicyEngine(atlas_distill_bin=atlas_bin),
-        AutoPolicyEngine(profile="accuracy", atlas_distill_bin=atlas_bin),
+        RustPolicyEngine(distill_bin=distill_bin),
+        AutoPolicyEngine(profile="accuracy", distill_bin=distill_bin),
     ]
     for engine in engines:
         decision = engine.decide(
@@ -283,3 +283,38 @@ def test_session_summary_carries_gate_provenance():
     assert gate_summary is not None
     assert gate_summary["refusal_cells"] > 0
     assert gate_summary["corpus_sha256_12"]
+
+
+@pytest.mark.parametrize("binary_key", ["distill_bin", "atlas_distill_bin"])
+def test_session_binary_legacy_input_serializes_canonical(tmp_path, monkeypatch, binary_key):
+    from dataclasses import asdict
+
+    monkeypatch.delenv("DISTILL_BIN", raising=False)
+    monkeypatch.delenv("ATLAS_DISTILL_BIN", raising=False)
+    binary = str(tmp_path / "distill")
+    session = DistillSession(
+        profile="accuracy",
+        run_id="run",
+        cell_id="cell",
+        row_id="row",
+        mlip_id="model",
+        env_field_report_path=None,
+        **{binary_key: binary},
+    )
+    serialized = asdict(session)
+    assert serialized["distill_bin"] == binary
+    assert "atlas_distill_bin" not in serialized
+
+
+def test_session_conflicting_binary_inputs_fail_closed(tmp_path):
+    with pytest.raises(ValueError, match="conflicting distill_bin"):
+        DistillSession(
+            profile="accuracy",
+            run_id="run",
+            cell_id="cell",
+            row_id="row",
+            mlip_id="model",
+            distill_bin=str(tmp_path / "distill"),
+            atlas_distill_bin=str(tmp_path / "other"),
+            env_field_report_path=None,
+        )

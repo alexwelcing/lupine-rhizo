@@ -630,10 +630,10 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--distill-version", type=int, default=0, help="distill version for the ODF promotion gate")
     parser.add_argument("--overall-uplift-pct", type=float, default=None, help="distill_v_uplift composite (percent) for the ODF gate")
     parser.add_argument(
-        "--atlas-theorem-refs",
+        "--theorem-refs",
         nargs="*",
         default=None,
-        help="ATLAS theorem refs required for auto-promote (repeatable)",
+        help="theorem refs required for auto-promote (repeatable)",
     )
     parser.add_argument(
         "--formal-properties",
@@ -702,7 +702,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             "model_id": model_id,
             "distill_version": args.distill_version,
             "overall_uplift_pct": args.overall_uplift_pct,
-            "atlas_theorem_refs": args.atlas_theorem_refs or [],
+            "theorem_refs": args.theorem_refs or [],
             "formal_properties": args.formal_properties or [],
         }
         if env_field and env_field["entries"]:

@@ -23,6 +23,7 @@ from ase import Atoms
 from ase.calculators.eam import EAM
 
 import build_ni_publication_fixture as ni_fixture
+from mlip_benchmark_sources import resolve_repo_path
 
 DEFAULT_OUTPUT = (
     ni_fixture.ROOT
@@ -200,7 +201,9 @@ def relaxation_support_cases(refs: dict[str, float], calc: EAM) -> list[dict[str
 def build_support_manifest(source_packet: dict[str, Any]) -> dict[str, Any]:
     refs = ni_fixture.source_refs(source_packet)
     mishin = ni_fixture.primary_mishin_baseline(source_packet)
-    potential_path = ni_fixture.ROOT / pathlib.PurePosixPath(str(mishin["potential_file"]))
+    potential_path = resolve_repo_path(ni_fixture.ROOT, mishin["potential_file"])
+    if potential_path is None:
+        raise ValueError("reference potential_file must be a non-empty path")
     calc = EAM(potential=str(potential_path))
 
     row_fixtures = {
@@ -241,7 +244,7 @@ def build_support_manifest(source_packet: dict[str, Any]) -> dict[str, Any]:
                 "calculator": "ase.calculators.eam.EAM",
             },
             "elastic_constants": {
-                "source": "nist_benchmark.csv / atlas-distill Ni reference table",
+                "source": "nist_benchmark.csv / distill Ni reference table",
                 "citation_keys": ["nist_ipr", "simmons1971"],
                 "C11_gpa": refs["c11"],
                 "C12_gpa": refs["c12"],

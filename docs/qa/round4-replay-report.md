@@ -8,7 +8,7 @@
 | Leg | Evidence | Result |
 |---|---|---|
 | D1 contract schema | `t_30e4047e` (completed): 12 fresh migrations + 24-command reconciliation reapplication on real Wrangler 4.103.0/D1; canonical bytes identical before/after, FK check empty, supersession survived | **PASS** (by reference) |
-| Runtime gate manifest | `tools/atlas_theorem_sync.py --compile-gates` → 3 gates: `correction_gate → deny (contradicting_evidence)` ×2, `apply_frozen_rule → allow (scope_matched_same_class_a0)` | **PASS** |
+| Runtime gate manifest | `tools/theorem_sync.py --compile-gates` → 3 gates: `correction_gate → deny (contradicting_evidence)` ×2, `apply_frozen_rule → allow (scope_matched_same_class_a0)` | **PASS** |
 | Lean formal layer | `lake build` (3760 jobs) with `z1_gate_refuted`, `z3_gate_refuted`, `AcceptanceGateRefuted`, `z2AbstentionRecord` (PR #49) | **PASS** |
 | Publication linter | `tools/check_publication_claims.py` → "publication ClaimContract check passed" | **PASS** |
 
@@ -30,14 +30,14 @@
 ## Recorded limitations / follow-ups
 
 1. **D1 leg by reference, not fresh execution**: the local Cloudflare MCP token (`~/.cloudflare/api-token`) lacks D1 resource permissions (API code 10000 on `d1/database/glim-ledger`). The D1 contract leg is therefore cited from `t_30e4047e`'s completed real-Wrangler validation rather than re-executed. Follow-up: widen the MCP token with D1 read scope (or use the CI-held deploy token in a dispatched replay workflow) so the next replay runs all four legs fresh.
-2. **Lean evidence pin**: `config/atlas_theorem_registry.v1.json` pins revision `bad604c…` (pre-HonestErrors module inventory); a full re-pin belongs to the documented post-merge one-file re-pin flow (Codex round-2 finding, partially repaired in PR #38).
+2. **Lean evidence pin**: `config/theorem_registry.v1.json` pins revision `bad604c…` (pre-HonestErrors module inventory); a full re-pin belongs to the documented post-merge one-file re-pin flow (Codex round-2 finding, partially repaired in PR #38).
 3. **Z2 supersession path**: `t_052adac7` (spin-capable runner + honest panel + ClaimContract) is the only route that may replace the abstention record with measurement rows.
 
 ## Replay procedure (for the next executor)
 
 ```bash
 # 1. Runtime gate manifest from the locked registry
-python tools/atlas_theorem_sync.py --compile-gates --out-gates /tmp/runtime-gate-manifest.round4.json
+python tools/theorem_sync.py --compile-gates --out-gates /tmp/runtime-gate-manifest.round4.json
 # 2. Lean layer
 cd lean-spec && lake build   # expect 3760+ jobs, zero errors
 # 3. Publication linter

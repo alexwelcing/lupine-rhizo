@@ -23,7 +23,7 @@ What else did you consider, and why did you reject it?
 Where would the result live?
 
 - [ ] `python/lupine_distill/` — MLIP benchmark or analysis
-- [ ] `atlas-distill/src/` — Rust engine / policy
+- [ ] `distill/src/` — Rust engine / policy
 - [ ] `glim-think/src/` — control-plane workflow
 - [ ] `lean-spec/OpenDistillationFactory/` — formal theorem
 - [ ] `docs/` or `exports/` — public documentation or exported contract

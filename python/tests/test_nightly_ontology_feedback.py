@@ -148,7 +148,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             self.assertGreater(len(regenerated["assumptions"]), 0)
 
     def test_full_staging_cycle_supersedes_refuted_hypothesis_and_prioritizes_gap(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [
                 {"id": "C1", "readiness": "L"},
                 {"id": "C2", "readiness": "L"},
@@ -174,7 +174,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         evidence = {BUNDLE_A: bundle(BUNDLE_A, outcome="fail", campaign="c1", status="negative")}
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id=evidence,
             hypotheses=hypotheses,
@@ -191,7 +191,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertIn("hyp.gap", plan["digest_markdown"])
 
     def test_dated_untyped_negative_bundle_supersedes_refuted_hypothesis(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -215,7 +215,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         del negative["measurements"]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: negative},
             hypotheses=[
@@ -233,7 +233,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"][0]["evidence_bundle_id"], BUNDLE_A)
 
     def test_fresh_bundle_is_synced_to_d1_even_without_a_hypothesis_transition(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -258,7 +258,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         }
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id=evidence,
             hypotheses=[
@@ -278,7 +278,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         )
 
     def test_readiness_requires_dated_defined_new_evidence_and_two_independent_demonstrations_for_h(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -303,7 +303,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         ]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id=evidence,
             hypotheses=hypotheses,
@@ -316,7 +316,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["queue"], [])
 
     def test_readiness_rejects_an_asserted_outcome_that_disagrees_with_the_measurement(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -341,7 +341,7 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "asserted acceptance outcome"):
             build_feedback_plan(
-                atlas=atlas,
+                ontology=ontology,
                 assumptions=assumptions,
                 evidence_by_id={BUNDLE_A: inconsistent},
                 hypotheses=[
@@ -355,7 +355,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
 
     def test_sign_skew_bundle_yields_typed_outcomes_without_promoting_barrier_predicate(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -409,7 +409,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         ]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: skew},
             hypotheses=[
@@ -427,7 +427,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
 
     def test_sign_skew_bundle_rejects_an_asserted_outcome_that_disagrees(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -460,7 +460,7 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "asserted acceptance outcome"):
             build_feedback_plan(
-                atlas=atlas,
+                ontology=ontology,
                 assumptions=assumptions,
                 evidence_by_id={BUNDLE_A: skew},
                 hypotheses=[
@@ -474,7 +474,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
 
     def test_negative_barrier_receipt_does_not_supersede_the_sign_skew_hypothesis(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -493,7 +493,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         del negative["measurements"]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: negative},
             hypotheses=[
@@ -555,7 +555,7 @@ class NightlyFeedbackTests(unittest.TestCase):
                 }
             )
         )
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -730,7 +730,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_one, "art-one.json", 500.0, manifest_one, manifest_one_hash),
         }
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id=same_dataset,
             hypotheses=[hypothesis_row],
@@ -755,7 +755,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             ]
         }
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=single_bundle_assumptions,
             evidence_by_id={BUNDLE_A: two_refs_one_bundle},
             hypotheses=[hypothesis_row],
@@ -785,7 +785,7 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         fabricated = skew(BUNDLE_A, "campaign-one", "sha256:" + "a" * 64, "art-one.json", 500.0, manifest_one, manifest_one_hash)
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=single_bundle_assumptions,
             evidence_by_id={BUNDLE_A: fabricated},
             hypotheses=[hypothesis_row],
@@ -799,7 +799,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             BUNDLE_B: skew(BUNDLE_B, "campaign-two", fingerprint_two, "art-two.json", 520.0, manifest_two, manifest_two_hash),
         }
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id=distinct_datasets,
             hypotheses=[hypothesis_row],
@@ -810,7 +810,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"][0]["to_readiness"], "H")
 
     def test_mislabeled_negative_receipt_with_passing_suite_does_not_supersede(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -864,7 +864,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         ]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: mislabeled},
             hypotheses=[
@@ -885,7 +885,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
 
     def test_negative_sign_skew_receipt_supersedes_the_sign_skew_hypothesis(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -905,7 +905,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         del negative["measurements"]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: negative},
             hypotheses=[
@@ -928,7 +928,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"][0]["evidence_bundle_id"], BUNDLE_A)
 
     def test_permissive_auxiliary_median_thresholds_are_rejected(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -972,7 +972,7 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "outside the frozen acceptance suite"):
             build_feedback_plan(
-                atlas=atlas,
+                ontology=ontology,
                 assumptions=assumptions,
                 evidence_by_id={BUNDLE_A: skew},
                 hypotheses=[
@@ -991,7 +991,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
 
     def test_incomplete_acceptance_suite_is_rejected(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -1035,7 +1035,7 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "incomplete acceptance suite"):
             build_feedback_plan(
-                atlas=atlas,
+                ontology=ontology,
                 assumptions=assumptions,
                 evidence_by_id={BUNDLE_A: skew},
                 hypotheses=[
@@ -1176,7 +1176,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
         )
         fingerprint = feedback_module._artifact_fingerprint(artifact_root / "data" / "staging.json")
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -1238,7 +1238,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         ]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: skew},
             hypotheses=[
@@ -1263,7 +1263,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(update["evidence_bundle_id"], BUNDLE_A)
 
     def test_sign_skew_receipt_with_out_of_band_median_does_not_promote(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -1317,7 +1317,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         ]
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: skew},
             hypotheses=[
@@ -1338,7 +1338,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["updates"], [])
 
     def test_readiness_rejects_a_threshold_that_disagrees_with_the_bound_predicate(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -1364,7 +1364,7 @@ class NightlyFeedbackTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "acceptance threshold"):
             build_feedback_plan(
-                atlas=atlas,
+                ontology=ontology,
                 assumptions=assumptions,
                 evidence_by_id={BUNDLE_A: inconsistent},
                 hypotheses=[
@@ -1378,7 +1378,7 @@ class NightlyFeedbackTests(unittest.TestCase):
             )
 
     def test_readiness_requires_every_acceptance_measurement_to_pass(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -1405,7 +1405,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         partial["measurements"].append(failing_measurement)
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: partial},
             hypotheses=[
@@ -1422,7 +1422,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self.assertEqual(plan["queue"][0]["evidence_gap"]["current_readiness"], "L")
 
     def test_readiness_requires_hypothesis_bound_acceptance_predicate(self) -> None:
-        atlas = {
+        ontology = {
             "discoveryChains": [{"id": "C1", "readiness": "L"}],
             "acceptanceTests": [{"id": "Z1", "chain": "C1"}],
         }
@@ -1448,7 +1448,7 @@ class NightlyFeedbackTests(unittest.TestCase):
         self_authorized["measurements"][0]["acceptance_test"]["threshold"] = 999
 
         plan = build_feedback_plan(
-            atlas=atlas,
+            ontology=ontology,
             assumptions=assumptions,
             evidence_by_id={BUNDLE_A: self_authorized},
             hypotheses=[
@@ -1884,6 +1884,37 @@ class NightlyFeedbackTests(unittest.TestCase):
             self.assertEqual(saved["cycle_date"], "2026-09-09")
         finally:
             shutil.rmtree(staging, ignore_errors=True)
+
+
+    def test_cli_uses_ontology_keyword_and_limits_legacy_option_to_parsing(self) -> None:
+        import sys
+        from unittest.mock import patch
+        from tools import nightly_ontology_feedback as feedback
+
+        required = [
+            "--assumptions", "unused-assumptions.json",
+            "--evidence-dir", "unused-evidence-directory",
+            "--hypotheses", "unused-hypotheses.json",
+            "--new-bundle-ids", "unused-new.json",
+            "--known-bundle-ids", "unused-known.json",
+            "--as-of", "2026-11-04",
+            "--out-sql", "unused.sql", "--out-queue", "unused-queue.json",
+            "--out-digest", "unused-digest.md", "--out-card", "unused-card.json",
+        ]
+        for option in ("--ontology", "--atlas"):
+            with self.subTest(option=option), patch.object(
+                sys, "argv", ["feedback", option, "retained.json", *required]
+            ), patch.object(feedback, "_load", return_value=[]), patch.object(
+                feedback, "build_feedback_plan", side_effect=RuntimeError("stop before writes")
+            ) as build:
+                with self.assertRaisesRegex(RuntimeError, "stop before writes"):
+                    feedback.main()
+                self.assertIn("ontology", build.call_args.kwargs)
+                self.assertNotIn("atlas", build.call_args.kwargs)
+        with patch.object(
+            sys, "argv", ["feedback", "--ontology", "a.json", "--atlas", "b.json", *required]
+        ), self.assertRaises(SystemExit):
+            feedback.main()
 
 
 if __name__ == "__main__":

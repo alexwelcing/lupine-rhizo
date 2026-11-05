@@ -69,7 +69,7 @@ python -m pytest -m unit -q
 Write-Host ""
 Write-Host "Checking Rust engine..." -ForegroundColor Cyan
 cd "$PSScriptRoot\.."
-cargo check --manifest-path atlas-distill/Cargo.toml --bin atlas-distill
+cargo check --manifest-path distill/Cargo.toml --bin distill
 
 Write-Host ""
 Write-Host "Bootstrap complete. Read docs/ONBOARDING.md for next steps." -ForegroundColor Green

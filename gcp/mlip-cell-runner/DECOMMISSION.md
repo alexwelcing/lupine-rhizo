@@ -15,10 +15,10 @@ new file replaces.
 | New (managed) file | Replaces (legacy files) | Notes |
 |---|---|---|
 | `pyproject.toml` | `requirements-common.txt`, `requirements-mace.txt`, `requirements-chgnet.txt`, `requirements-m3gnet.txt`, `requirements-orb.txt`, `requirements-sevennet.txt`, `requirements-uma.txt` | Single source of truth for deps. Core deps in `[project.dependencies]`; each backend is an extra in `[project.optional-dependencies]` (`mace`, `chgnet`, `matgl` for M3GNet, `orb`, `sevennet`, `uma`). |
-| `Dockerfile.unified` | `Dockerfile` | One CUDA-devel image; backend chosen by the `BACKEND` ARG, which selects the matching pyproject extra. Keeps the proven atlas-distill Rust builder stage and the fail-closed `--help` self-check. |
+| `Dockerfile.unified` | `Dockerfile` | One CUDA-devel image; backend chosen by the `BACKEND` ARG, which selects the matching pyproject extra. Keeps the proven distill Rust builder stage and the fail-closed `--help` self-check. |
 | `cloudbuild.unified.yaml` | `cloudbuild.yaml`, `cloudbuild.single.yaml`, `cloudbuild-m3gnet.yaml`, `cloudbuild-orb-m3gnet.yaml` | One matrix-driven config keyed on the `_BACKEND` substitution (default `mace`) with `dynamic_substitutions: true`. Builds + pushes `gcr.io/$PROJECT_ID/mlip-runner:$_BACKEND`. Invoke once per backend instead of maintaining bespoke step lists. |
 | `iac/deploy-mlip-runner.yml` | (new capability — no legacy equivalent) | GitHub Actions workflow that submits `cloudbuild.unified.yaml` across a backend matrix via Workload Identity Federation. |
-| `policies/nightly-baseline.yml`, `policies/weekly-sweep.yml`, `policies/on-proof-complete.yml`, `policies/distill-validation.yml`, `policies/atlas-import-check.yml` | (new capability — no legacy equivalent) | Scheduled-run policies (when/what to run). **Distinct** from the existing `policies/*.json` PolicyLimits files, which tune the distill ribbon and are NOT decommissioned. |
+| `policies/nightly-baseline.yml`, `policies/weekly-sweep.yml`, `policies/on-proof-complete.yml`, `policies/distill-validation.yml`, `policies/proof-import-check.yml` | (new capability — no legacy equivalent) | Scheduled-run policies (when/what to run). **Distinct** from the existing `policies/*.json` PolicyLimits files, which tune the distill ribbon and are NOT decommissioned. |
 | `src/openinference_patcher.py` | (new capability) | Opt-in OpenInference TOOL-span emission for benchmark cells. |
 | `src/loop_connector.py` | (new capability) | Opt-in async push of results to the glim-think `ExperimentFacet` RPC. |
 

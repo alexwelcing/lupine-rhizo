@@ -1,4 +1,4 @@
-# ADR 0003: Consolidate Distill ownership into `atlas-distill/` + `python/`
+# ADR 0003: Consolidate Distill ownership into `distill/` + `python/`
 
 **Status:** Accepted · **Date:** 2026-06-12
 
@@ -10,13 +10,13 @@ The repo had three top-level Distill roots that overlapped in purpose:
   knowledge base of reports and model cards.
 - `lupine-distill/` — A Rust crate with a small Python runtime
   (`runtime/python/lupine_distill`, `runtime/python/lupine_distill_runtime`).
-- `atlas-distill/` — The mature Rust scoring/policy/benchmark engine used by
+- `distill/` — The mature Rust scoring/policy/benchmark engine used by
   GCP runners and `glim-think`.
 
 This violated the repo rule that a root should represent one deployable/working
 unit with one clear owner. It also forced callers to guess which root supplied a
 given contract, and it left stale Rust code (`lupine-distill/`) beside the
-active engine (`atlas-distill/`).
+active engine (`distill/`).
 
 ## Decision
 
@@ -24,7 +24,7 @@ Consolidate by runtime/language:
 
 | Runtime / language | Canonical root | What lives there |
 | --- | --- | --- |
-| Rust engine | `atlas-distill/` | The single active Rust Distill runtime, policy engine, and CLI. |
+| Rust engine | `distill/` | The single active Rust Distill runtime, policy engine, and CLI. |
 | Python packages | `python/` | `lupine_distill` (benchmark, uplift, regime, ODF contracts) and `lupine_distill_runtime` (instrumented session/runtime). |
 | Retired material | `archive/` | `distiller-kb/`, `lupine-distill-rust/`, and other retired Distill artifacts. |
 
@@ -35,7 +35,7 @@ Specifically:
 3. `lupine-distill/runtime/python/` → `python/`.
 4. `lupine-distill/` Rust crate → `archive/lupine-distill-rust/`.
 5. `lupine-dspy/` → `archive/lupine-dspy/` (only referenced by the archived Rust crate).
-6. `atlas-distill/` stays the active Rust engine and gains Distill ownership.
+6. `distill/` stays the active Rust engine and gains Distill ownership.
 
 ## Consequences
 
@@ -43,7 +43,7 @@ Specifically:
 
 - One import path for Python Distill code: `python/` on `sys.path`, or an
   editable install of `python/pyproject.toml`.
-- One Rust engine: `atlas-distill/`.
+- One Rust engine: `distill/`.
 - Archived roots preserve provenance without cluttering the active surface.
 - `schema_bridge.py` can import directly from `lupine_distill.schemas` instead
   of mirroring the contract.
