@@ -8,6 +8,19 @@ The evaluated implementation is Rhizo
 application reader. No implementation tuning after outcomes is allowed in this
 evaluation. Any discovered defect gets a separate repair/regression receipt.
 
+## Discovery amendment before any numerical outcomes
+
+The two original year-qualified queries returned no results on 5 November 2026.
+No title, numerical panel or model outcome was observed, and no primary-source
+request failed. Preserve the original protocol at commit
+`8d5c4abf69ed264f832aae9ad39200a2ccd2f445`; this is not a source retry or a
+change to physical/table eligibility. Publication year is not part of the
+finite-candidate contract. The replacement discovery pass therefore removes
+that irrelevant restriction and uses the two queries below. All other
+eligibility rules, four-title/two-document limits, comparator, frozen
+implementation and outcome criteria remain unchanged. No additional discovery
+pass is authorized by this amendment.
+
 ## Question and comparison
 
 For previously unused, source-reported point-defect energy panels, does the
@@ -33,10 +46,10 @@ does not make the underlying models or experiments independently validated.
 ## Selection and stopping rules
 
 1. Run only these two discovery queries, restricted to primary arXiv sources:
-   - `"self-interstitial" "formation energies" "potential" "2025"`
-   - `"self-interstitial" "formation energies" "potential" "2026"`
+   - `"self-interstitial" "formation energies" "machine learning"`
+   - `"self-interstitial" "formation energies" "molybdenum"`
 2. Inspect at most four distinct titles from these results, in returned order
-   within the 2025 query followed by the 2026 query. Deduplicate DOI/arXiv
+   within the machine-learning query followed by the molybdenum query. Deduplicate DOI/arXiv
    versions. Retain exclusions, including failures; do not rank by effect size.
    Exclude publications already in the pinned corpus/source-review history or
    used to design the current map/checker. Screen identities before table review.
