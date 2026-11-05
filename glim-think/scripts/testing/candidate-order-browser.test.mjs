@@ -1,4 +1,4 @@
-// Real Chrome file-input acceptance of the isolated RUNS reader.
+// Real Chrome acceptance of the isolated RUNS reader and verification-preview controls.
 // Public/synthetic evidence only. This does not authenticate sources or a deployment.
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -109,7 +109,13 @@ test("actual Chrome local-file interaction and evidence boundaries", { timeout: 
     stdin: {
       contents: 'import React from "react"; import { createRoot } from "react-dom/client";' +
         'import { InspectCandidateOrderReport } from "./workspace/client/CandidateOrderReport";' +
-        'createRoot(document.getElementById("root")).render(React.createElement(InspectCandidateOrderReport));',
+        'import { VerificationPreview } from "./workspace/client/ResearchRuns";' +
+        'import { canonicalComparisonJSON } from "./workspace/comparisonContracts";' +
+        'import { sha256 } from "./workspace/researchRunContracts";' +
+        'const root = createRoot(document.getElementById("root"));' +
+        'window.__showVerification = run => root.render(React.createElement(VerificationPreview,{run}));' +
+        'window.__comparisonHash = value => sha256(canonicalComparisonJSON(value));' +
+        'root.render(React.createElement(InspectCandidateOrderReport));',
       resolveDir: fileURLToPath(new URL("../../src", import.meta.url)),
       loader: "ts", sourcefile: "candidate-order-browser-entry.ts",
     },
@@ -315,4 +321,94 @@ test("actual Chrome local-file interaction and evidence boundaries", { timeout: 
     assert.deepEqual(requests, [origin + "/", origin + "/app.js"]);
     assert.deepEqual(exceptions, []);
   });
+  // The existing reader remains network-free above. Preview transport below is a
+  // declared response double; the native route test separately uses real SQLite.
+  const proposal = JSON.parse(await readFile(new URL(
+    "../../../tools/scientific-pi/tests/fixtures/proposal.json", import.meta.url), "utf8"));
+  const previewRun = { id: "synthetic-preview", stages: [{
+    result: proposal, receipt: { resultSha256: "a".repeat(64) },
+  }] }; // Minimal component props, not a genuine or imported research run.
+  const vacancy = JSON.parse(await readFile(new URL(
+    "../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", import.meta.url), "utf8"));
+  await evaluate("window.__showVerification(" + JSON.stringify(previewRun) + ")");
+  await until("!!document.querySelector('.research-verification')");
+  await click(".research-verification > summary");
+  await click(".research-verification > button:first-of-type");
+  const contractInput = ".research-verification > label > textarea";
+  const attachmentInput = ".research-verification > details textarea";
+  await until("document.querySelector(" + JSON.stringify(contractInput) + ").value.length > 0");
+  const contract = await evaluate("JSON.parse(document.querySelector(" + JSON.stringify(contractInput) + ").value)");
+  Object.assign(contract.evaluation, { observable: "vacancy_formation_energy", unit: "eV_per_vacancy",
+    referenceId: "synthetic-reference" });
+  contract.findings = [{ sourceId: "synthetic-reference", sourceSha256: "a".repeat(64),
+    anchor: "Synthetic browser control", rowIds: ["a", "b", "c"] }];
+  contract.arms.forEach((arm, i) => Object.assign(arm, { modelId: i ? "synthetic-second" : "synthetic-shift",
+    referenceId: "synthetic-reference" }));
+  const contractHash = await evaluate("window.__comparisonHash(" + JSON.stringify(contract) + ")");
+  const evidence = { schemaVersion: 1, comparisonContractSha256: contractHash, task: "formation_energy",
+    results: contract.arms.map(arm => {
+      const result = structuredClone(vacancy); result.context.prediction_id = arm.modelId;
+      return { modelId: arm.modelId, result };
+    }) };
+  const attachmentHash = await evaluate("window.__comparisonHash(" + JSON.stringify(evidence) + ")");
+  async function enter(selector, value) {
+    await evaluate("(() => { const el=document.querySelector(" + JSON.stringify(selector) + ");" +
+      "Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(el," + JSON.stringify(value) + ");" +
+      "el.dispatchEvent(new Event('input',{bubbles:true})); })()");
+    await evaluate("new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))");
+  }
+  await click(".research-verification > details > summary");
+  await enter(contractInput, JSON.stringify(contract));
+  await enter(attachmentInput, JSON.stringify(evidence));
+  await evaluate(`window.__previewRequests=[]; window.__previewPending=[];
+    window.fetch = (url, init) => new Promise(resolve => {
+      window.__previewRequests.push({url,init}); window.__previewPending.push(resolve);
+    });`);
+  const reply = { blockers: ["Centered-only vacancy score cannot support formation_energy: synthetic-shift"],
+    contractSha256: contractHash, execution: "not_started", scheduled: false, publication: "held",
+    visibility: "private", sourceVerification: "not_performed",
+    vacancyEvidence: { attachmentSha256: attachmentHash, arithmeticConsistency: "checked_on_declared_components",
+      inputArtifactExecution: "not_verified", sourceVerification: "not_performed", scientificSupport: "not_asserted" } };
+  async function submit() {
+    await click(".research-verification > button:last-of-type");
+    await until("window.__previewPending.length === 1");
+  }
+  async function finish(value, status = 200) {
+    await evaluate("window.__previewPending.shift()(new Response(" + JSON.stringify(JSON.stringify(value)) +
+      ",{status:" + status + "}))");
+    await evaluate("new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))");
+  }
+  await check("attachment editing invalidates a pending preview without sending on edit", async () => {
+    assert.equal(await evaluate("window.__previewRequests.length"), 0);
+    await submit();
+    const request = await evaluate("window.__previewRequests[0]");
+    assert.equal(request.url, "/workspace/research-runs/verification-preview");
+    assert.equal(request.init.credentials, "same-origin");
+    assert.deepEqual(JSON.parse(request.init.body), { runId: previewRun.id, contract, vacancyEvidence: evidence });
+    await enter(attachmentInput, "");
+    assert.equal(await evaluate("window.__previewRequests.length"), 1);
+    await finish(reply);
+    assert.equal(await evaluate("document.querySelector('[role=status]') === null"), true);
+  });
+  await check("current attachment acknowledgement remains qualified and draft replacement clears it", async () => {
+    await enter(attachmentInput, JSON.stringify(evidence)); await submit(); await finish(reply);
+    await until("!!document.querySelector('[role=status]')");
+    const visible = await evaluate("document.querySelector('[role=status]').innerText");
+    for (const text of [attachmentHash, contractHash, "Centered-only", "remain unverified",
+      "No experiment was executed", "Publication remains held"]) assert.ok(visible.includes(text), text);
+    await click(".research-verification > button:first-of-type");
+    assert.equal(await evaluate("document.querySelector(" + JSON.stringify(attachmentInput) + ").value"), "");
+    assert.equal(await evaluate("document.querySelector('[role=status]') === null"), true);
+  });
+  await check("server rejection clears the preview and does not retry", async () => {
+    await enter(contractInput, JSON.stringify(contract)); await enter(attachmentInput, JSON.stringify(evidence));
+    await submit(); await finish({ error: "Invalid comparison" }, 400);
+    await until("!!document.querySelector('[role=alert]')");
+    assert.equal(await evaluate("document.querySelector('[role=status]') === null"), true);
+    assert.equal(await evaluate("window.__previewRequests.length"), 3);
+    assert.deepEqual(served, ["GET /", "GET /app.js"]);
+    assert.deepEqual(requests, [origin + "/", origin + "/app.js"]);
+    assert.deepEqual(exceptions, []);
+  });
+
 });

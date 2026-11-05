@@ -93,6 +93,23 @@ The existing private verification-preview request accepts an optional sibling
 - `task`: within_species_variation, formation_energy or vacancy_concentration;
 - one `{ modelId, result }` entry per existing comparison arm.
 
+In the existing **Preview a verification task** control, prepare and review a
+comparison from a saved proposal, then open **Optional vacancy evidence attachment**
+and paste the attachment JSON. A blank field sends no attachment. The complete
+request is bounded by the existing 192 KiB route limit; the contract retains its
+96 KiB client limit. Each attachment must cover the comparison's actual model
+arms and bind its canonical contract fingerprint. Do not use a single standalone
+report or invent another model to fill this interface.
+
+The client checks the supplied component arithmetic and model/contract binding
+before sending. The server independently repeats the attachment checks against
+the saved run and source contract. The client accepts only the corresponding
+contract and attachment fingerprints with unexecuted, unpublished and unverified
+scientific states. Editing either input, choosing another proposal or preparing
+a replacement draft invalidates the previous preview; replacing the proposal or
+draft clears the attachment. Pasting does not send anything. Only the explicit
+preview click makes the existing same-origin request.
+
 The typed observable must respectively be `within_species_vacancy_variation`,
 `vacancy_formation_energy` or `vacancy_concentration`; input label units remain
 `eV_per_vacancy`. A concentration request assesses applicability of energy
@@ -198,8 +215,13 @@ The runtime checks are executable contract tests, separate from the Lean
 specification and from a materials benchmark.
 The checker and preview do not recover missing raw defect geometries, magnetic
 states, convergence evidence, reservoir alignment or independent test exposure.
-Library/knowledge-graph presentation, genuine-run acceptance and deployed UI
-behavior remain separate work; this change does not publish a research result.
+The client-to-route test imports a synthetic receipt-validated run into in-memory
+SQLite, sends the actual client request through the actual preview route, checks
+the centered-score blocker and attachment fingerprint, and prohibits preview
+writes. Separate Chrome controls use the actual preview component with a stated
+response double to check attachment transport, invalidation and rejection.
+These are application integration checks, not acceptance of a genuine operator
+run, authenticated production behavior or publication of a research result.
 
 For ordering among a fixed list of structures, use the separate
 [candidate-order report](candidate-order-evidence.md). It preserves signed gaps

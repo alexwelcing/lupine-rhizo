@@ -29,10 +29,8 @@ must specify those choices before applying an error bound.
 | **Representation versus fitting — Bartók 2018**, 4 November. Table III, silicon stable stacking fault. | GAP reports 0.002 J/m² against DFT/PW91 0.047 J/m². The authors state that GAP can distinguish the relevant environments and suggest extending its database. They separately attribute exact-zero results from several shorter-range potentials to limited range. | A small or printed-zero prediction does not establish identical model inputs. Preserve the stated explanation as an author report; an independently demonstrated representation obstruction needs the exact model, configurations and representation. |
 | **Dependent reference and task — Mishin 2005**, 4 November. Tables 4–5, Fe and Ni vacancies. | Fe has nominal formation/migration discrepancies +0.13/−0.17 eV, summing to −0.04 eV. However, the 0.91 eV migration reference was derived from the reported activation and formation values. Ni component discrepancies reinforce: ADP +0.03/+0.04 eV; EAM −0.03/−0.11 eV. | Preserve the reference dependency and fitted-property status. Agreement in a summed activation estimate does not separately validate vacancy population or jump kinetics. The Fe component signs are not certified by the reported uncertainty envelopes. |
 | **Reference choice control — Fellinger 2010**, 4 November. Table IV, Nb vacancies. | EAM-minus-same-work-DFT discrepancies are +0.38 eV for formation and +0.22 eV for migration, summing to +0.60 eV. They reinforce rather than cancel; all three predictions nevertheless fall within the separately reported experimental literature ranges. | Keep DFT and experimental comparisons separate. These ranges have unresolved joint provenance and confidence meaning; membership does not isolate potential error or independently validate diffusion. The activation row is a sum of the components, not a third independent calculation. |
-
 | **Preparation path and crystallization — Mendelev 2019**, 5 November. Tables I-III and Sections 4, 7-9. | FS1 has smaller nominal density and mixing-enthalpy errors at Cu64.5Zr35.5, yet the authors report Laves nucleation/growth after slower cooling and reheating; FS2 passes that bounded test. Correct static phase ordering alone does not explain the contrast. | Preserve liquid-crystal driving forces, kinetics, fitting exposure and preparation history. A finite absence of nucleation is not experimental glass-forming validation. The competent source-aware baseline already reaches this conclusion. |
 | **Protocol-dependent agreement — Paduraru 2007**, 5 November. Tables 3-4 and glass-preparation methods. | EMT gives a 620 K glass transition versus cited 670 K after cooling at 0.54 K/ps; Table 3 contains an acknowledged L11 formation-energy discrepancy of -0.3795 eV/atom. | Retain the cooling protocol and state/reference limits. The L11 discrepancy does not establish failure in the later Mendelev test; potential artifacts and compositions differ. No new classifier or cross-paper ranking follows. |
-
 | **Estimator mapping — Suárez-Recio 2025**, 5 November. Table 1; Section 2.6, Eq.2. | DFT and MLIP-W select the same listed 111 tungsten interstitial; assumed printing bounds preserve the choice. The source explicitly normalizes defect-count changes over a fixed 100 ps window, resolving the simple count-versus-rate objection. | An average sink/removal flux still requires a population, time-window and mechanism mapping before applying a microscopic barrier bound. Retain training exposure and unknown artifacts. See the [frozen task review](tungsten-task-review.md). |
 
 These are purposively selected reported-table cases. Original corpus eligibility
@@ -539,41 +537,49 @@ and deployed behavior must remain separately reported.
 
 ## Program completion audit, 5 November 2026
 
-This audit keeps the three-stage objective intact. The pinned historical program
-`program-v2.json` (SHA-256
-`afd333a4e3d85febcb060c0bcd9efd7892f65f978b844bfe2650181fd0ace1b5`)
-requires a traceable empirical atlas, a useful checked specification, and
-versioned Library/graph/RUNS integration with task evaluation. Its prospective
-evaluation requirement is not satisfied by rechecking a known-outcome example.
-The latest objective permits demonstrated **system or simulation** value; a new
-physical campaign is not automatically required for a system contribution.
+This audit re-read the original program (`090f33b…`, 6,168 bytes) and its
+v2 revision (`afd333a…`, 5,155 bytes), the current PR158 source tree and
+Ledger PR39. It preserves the empirical, mathematical and system/simulation
+requirements. The latest objective permits demonstrated **system or simulation**
+value; it does not require a new physical campaign, paper, merge or deployment
+without the corresponding authority.
 
-| Requirement | Authoritative evidence inspected | Disposition |
+| Requirement | Inspected evidence and scope | Disposition |
 | --- | --- | --- |
-| Broad, source-grounded failures and competing explanations | This 19-publication map, its source anchors and linked evidence notes; the benchmark-method case is separate | A scoped empirical synthesis exists. No prevalence, complete coverage or independent physical validation is claimed. |
-| Useful mathematical revision, proof, adversarial checks and closest work | Vacancy-reference and initial-anchored/path-selection Lean modules; exact Rust checkers; linked proof and prior-work notes | Conditional specifications and implementation checks exist. Standard mathematics, real-number assumptions and unverified physical premises remain explicit. |
-| Library integration and review value | Ledger PR39 at `027c552aa8720800ae6a6d2da5019ffe6cfdb15c`: status-preserving search/card path and its checked known-outcome controls | The previous status-loss defect is corrected in a draft. No retrieval superiority or measured human decision benefit is established. |
-| Knowledge-graph integration | Current Rhizo graph snapshot and inline panel; actual Manifold producer and claim SQL | A new qualification-loss defect was reproduced and repaired below. Historical private graph receipts are separate evidence, not proof that their uncommitted files are present in this PR. |
-| RUNS integration | Complete Rust-to-validator public-source acceptance and real Chrome inspector cases in the linked acceptance note | Producer, validation and bounded interactive inspection are checked. No authenticated production acceptance or automatic saved-run/physical certificate is implied. |
-| Demonstrated end-to-end task value | Manifold missingness/covariance defects, Library status loss and this graph handoff; source-aware decision controls | Concrete system defects exist and their fixes have bounded checks. The source-aware comparator matched our known-outcome scientific decisions. A frozen prospective task evaluation on disjoint evidence, or its explicit negative outcome, remains unverified. |
-| Release and ongoing private acceptance | PR158 and PR39 are draft/open/unmerged; private pilot has a separate unresolved operator session | No merge, deployment, primary-read switch or private transfer is claimed. Existing authorization boundaries remain in force. |
+| Broad empirical failures, controls and competing explanations | Nineteen-publication map with material/state, task, source anchors, fitting/selection exposure and exclusions; benchmark-method case separate | Scoped empirical synthesis established. No population prevalence or independent physical validation. |
+| A useful revision with proof and adversarial checks | Current finite vacancy-loss and initial-anchored/selected-path Lean statements; exact Rust checkers, counterexamples and native regression checks | Conditional mathematical specification established. The earlier proposed `RobustLossChange.lean` is absent from this tree and is not credited as a completed module; current statements and their limits are the evidence. |
+| Closest work and contribution boundary | Kelvin/Born methods, JCGM dependency propagation, finite extrema/interval reasoning and optimization-certificate review | The checked mathematics is standard; mathematical novelty remains unestablished. No paper promise or universal physical correction claim follows. |
+| Library integration | PR39 `027c552…`, actual search/card path, source labels and lifecycle controls | Draft implementation corrects documented status loss. Familiar retrieval comparison tied its competent baselines; no general retrieval superiority. |
+| Knowledge-graph integration | Actual Manifold producer, claim SQL, snapshot and panel; qualification-loss control below | Recorded qualifications and matrix coverage survive the tested path. SQLite/runtime tests and panel/transport doubles are distinguished from production behavior. |
+| RUNS integration | Current source-packet presentation, saved-proposal preview, vacancy assessor and standalone reader; actual client request examined | Server binding and standalone inspection existed, but the preview control did not send the optional attachment. This audit identified and addresses that missing client connection; it does not credit the standalone viewer as a bound proposal. |
+| Frozen task evaluation | Protocol `180f135…` before tungsten full text; scientific code fixed at `0475e1…`; source table, exact baseline, real CLI/validator/reader and Chrome at `e3f7f2…` | One listed-choice evaluation completed. Both methods select 111 under assumed printing bounds: no added decision accuracy over the exact baseline on this case. Abstract exposure, same-agent transcription and training-family exposure prevent a blind or physical-holdout claim. |
+| Genuine saved-proposal acceptance | Source and tests distinguish receipt-validated synthetic runs from operator records | Not yet established for the current attachment path. A fabricated run, a stubbed Access session or importing a public fixture cannot fill this gap. |
+| Release and private persistence | Both PRs remain draft/open/unmerged; private pilot operator session remains unresolved | Separate unverified gates. No new release, authentication change, data transfer or primary-read switch is implied. |
 
-The existing tests are meaningful evidence for their stated paths, not a proof
-of whole-program completion. Another optional benchmark is not a new completion
-condition. The remaining task is to finish and evaluate the required system
-bindings, identify a bounded disjoint task evaluation without recycling known
-outcomes as holdout evidence, and distinguish a reviewable implementation from
-an authorized release.
+The complete program is **not yet proved complete**. The finite remaining
+integration question is whether the current, fully checked client-to-route path
+can bind a justified comparison to an existing genuine saved proposal without
+changing immutable receipts or source limits. Current native tests use synthetic
+receipt-valid snapshots; their passing does not answer that provenance question.
+Existing retained evidence may be assessed read-only if it supplies an exact
+versioned binding. If it does not, acceptance must await the actual operator
+session/client dependency; no repeated sign-in or code requests follow.
 
-A subsequent [bounded retained-evaluation audit and frozen task-selection attempt](candidate-order-task-evaluation.md#recorded-outcome-selection-incomplete)
-did not close this requirement. The inspected pass67 result is a complete
-coverage tie (13 required items/eight complete bundles for all three methods)
-on explicitly familiar tasks. The pass66 protocol also disclaims prospective
-evaluation; its outcome was not read. The pass41 protocol describes twelve
-evaluator-withheld implementation-acceptance cases, but its outcome did not
-fit the unchanged remaining read allowance and remains unassessed. Four prospectively specified discovery
-queries returned no candidates. No numerical task comparison occurred, so
-this is an incomplete selection rather than a negative decision-value result.
+The identified client gap is repaired by exposing the existing optional
+attachment in the current preview editor, preserving the complete-request size
+bound, checking contract/attachment acknowledgement identities, and invalidating
+results after edits. Its validation is recorded separately after execution;
+this text does not predeclare a passing check. It creates no import, saved run,
+execution, publication or new persistence route. See the
+[vacancy attachment contract](vacancy-reference-evidence.md).
+
+Historical trials retain their original outcomes. Pass67 is a familiar-task
+coverage tie; pass66's protocol disclaims prospective evaluation. The separate
+pass41 lineage review observed a reported 12/12 withheld result but stopped when
+the frozen implementation hash differed from the current local file. It is not
+current acceptance. The original four-query/two-paper discovery attempt remains
+incomplete; the distinct tungsten review does not rewrite that stop or impose a
+permanent two-paper quota. See the [retained evaluation receipt](candidate-order-task-evaluation.md).
 
 ### Graph handoff: a reproduced qualification loss
 
@@ -615,11 +621,10 @@ persistent local write or cloud data mutation occurred.
 
 ## What would justify the next investment
 
-The next unresolved claim is whether exposing these contracts prevents an
-otherwise accepted wrong inference in a complete evidence workflow. The
-Ledger correction demonstrates one content-review mechanism, but neither
-inspection tool has demonstrated an incremental decision benefit over a
-competent source-aware baseline.
+The bounded tungsten task matched the competent source-aware baseline. It does
+not justify another ranking feature or a claim of increased decision accuracy.
+The remaining integration gap is the genuine saved-proposal binding identified
+in the completion audit above, not another numerical panel.
 
 The [public-source acceptance bridge](candidate-order-source-acceptance.md)
 exercises the existing Olsson control, Ko reversal and Kobayashi balanced-mixture
