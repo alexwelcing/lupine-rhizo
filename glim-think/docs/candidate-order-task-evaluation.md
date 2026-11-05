@@ -206,3 +206,27 @@ and bounds forced termination before deleting the test-owned profile. It
 performs no deletion retry and preserves the profile if closure is unobserved.
 This changes test teardown only, not the frozen checker/reader or scientific
 outcomes. The failed run remains immutable and is not replayed.
+
+
+## Subsequent targeted historical-lineage assessment
+
+A separate 128 KiB/four-file assessment followed the protocol's specifically
+withheld-oracle claim; it did not rerun an evaluation or retry a failed source.
+It read three files totaling 47,116 bytes and stopped at an implementation-pin
+mismatch. The pass41 result SHA-256
+`54e5b6d926f037f1af5387255dc6e70210df48bfec5a46cce223e83d6782f9e9`
+reports 12/12 passes and binds the inspected input/oracle/database pins.
+Freeze receipt `395fc9d5a65737b40b1129e08e4c367bb7d2ca21423c2731fa96ac31add5a7d2`
+names calculator SHA-256
+`f0005c70d969bab6f0662c0c2292834a8165a229623c4023b0de7fc456e722f1`.
+The current local calculator instead hashes to
+`dc0d4e956ab640ebb21a4da5816310315ecfc083e7283c54308ff66dea64dbf0`.
+Historical reported acceptance therefore remains distinct from current-version
+acceptance. No claim of superiority over its exact manual baseline follows.
+
+Both available search interfaces subsequently returned results for a known-site
+control; no general search outage was established. A separately declared
+one-query/four-title feasibility screen identified an accessible primary source.
+The [tungsten review](tungsten-task-review.md) freezes its own applicability
+questions before full-text inspection, records abstract-level outcome exposure,
+and does not replace this closed, incomplete two-paper selection trial.

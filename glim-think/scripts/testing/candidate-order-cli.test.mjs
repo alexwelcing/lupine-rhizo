@@ -1,5 +1,5 @@
 // Public literature fixtures through the actual Rust CLI and application reader.
-// This is known-outcome integration acceptance, not physical or browser validation.
+// Exposure differs by case; consult fixture review notes. No physical-validation claim.
 import assert from "node:assert/strict";
 import { before, test } from "node:test";
 import { readFileSync } from "node:fs";
@@ -18,7 +18,7 @@ let app;
 before(async () => {
   assert.ok(cli, "ATLAS_DISTILL_BIN must name the built CLI; acceptance must not silently skip");
   assert.equal(fixture.schema, "lupine.candidate_order.source_acceptance.v1");
-  assert.equal(fixture.cases.length, 4);
+  assert.equal(fixture.cases.length, 5);
   const bundle = await build({
     stdin: {
       contents: `

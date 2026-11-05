@@ -2,7 +2,7 @@
 
 Updated 5 November 2026 UTC; original review dates are retained. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover eighteen publications; repeated reference columns,
+literature examples below cover nineteen publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -32,6 +32,8 @@ must specify those choices before applying an error bound.
 
 | **Preparation path and crystallization — Mendelev 2019**, 5 November. Tables I-III and Sections 4, 7-9. | FS1 has smaller nominal density and mixing-enthalpy errors at Cu64.5Zr35.5, yet the authors report Laves nucleation/growth after slower cooling and reheating; FS2 passes that bounded test. Correct static phase ordering alone does not explain the contrast. | Preserve liquid-crystal driving forces, kinetics, fitting exposure and preparation history. A finite absence of nucleation is not experimental glass-forming validation. The competent source-aware baseline already reaches this conclusion. |
 | **Protocol-dependent agreement — Paduraru 2007**, 5 November. Tables 3-4 and glass-preparation methods. | EMT gives a 620 K glass transition versus cited 670 K after cooling at 0.54 K/ps; Table 3 contains an acknowledged L11 formation-energy discrepancy of -0.3795 eV/atom. | Retain the cooling protocol and state/reference limits. The L11 discrepancy does not establish failure in the later Mendelev test; potential artifacts and compositions differ. No new classifier or cross-paper ranking follows. |
+
+| **Estimator mapping — Suárez-Recio 2025**, 5 November. Table 1; Section 2.6, Eq.2. | DFT and MLIP-W select the same listed 111 tungsten interstitial; assumed printing bounds preserve the choice. The source explicitly normalizes defect-count changes over a fixed 100 ps window, resolving the simple count-versus-rate objection. | An average sink/removal flux still requires a population, time-window and mechanism mapping before applying a microscopic barrier bound. Retain training exposure and unknown artifacts. See the [frozen task review](tungsten-task-review.md). |
 
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
@@ -548,7 +550,7 @@ physical campaign is not automatically required for a system contribution.
 
 | Requirement | Authoritative evidence inspected | Disposition |
 | --- | --- | --- |
-| Broad, source-grounded failures and competing explanations | This 18-publication map, its source anchors and linked evidence notes; the benchmark-method case is separate | A scoped empirical synthesis exists. No prevalence, complete coverage or independent physical validation is claimed. |
+| Broad, source-grounded failures and competing explanations | This 19-publication map, its source anchors and linked evidence notes; the benchmark-method case is separate | A scoped empirical synthesis exists. No prevalence, complete coverage or independent physical validation is claimed. |
 | Useful mathematical revision, proof, adversarial checks and closest work | Vacancy-reference and initial-anchored/path-selection Lean modules; exact Rust checkers; linked proof and prior-work notes | Conditional specifications and implementation checks exist. Standard mathematics, real-number assumptions and unverified physical premises remain explicit. |
 | Library integration and review value | Ledger PR39 at `027c552aa8720800ae6a6d2da5019ffe6cfdb15c`: status-preserving search/card path and its checked known-outcome controls | The previous status-loss defect is corrected in a draft. No retrieval superiority or measured human decision benefit is established. |
 | Knowledge-graph integration | Current Rhizo graph snapshot and inline panel; actual Manifold producer and claim SQL | A new qualification-loss defect was reproduced and repaired below. Historical private graph receipts are separate evidence, not proof that their uncommitted files are present in this PR. |
@@ -719,3 +721,5 @@ The current review links completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
 and implementation references are included. Private campaign packets, raw
 corpus archives, local paths and model/controller state are excluded.
+
+New source anchor: [Suárez-Recio et al., arXiv:2505.13744v2](https://arxiv.org/html/2505.13744v2), Table 1, Sections 2.1, 2.6 (Eq.2), 4.1–4.3 and Data Availability; reviewed 5 November 2026 through primary HTML. No visual PDF, supplementary-data or model-artifact verification occurred.

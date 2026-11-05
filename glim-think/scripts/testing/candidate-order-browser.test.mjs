@@ -71,7 +71,7 @@ test("actual Chrome local-file interaction and evidence boundaries", { timeout: 
   const fixture = JSON.parse(await readFile(new URL(
     "../../../atlas-distill/tests/fixtures/candidate_order_sources.json", import.meta.url), "utf8"));
   assert.equal(fixture.schema, "lupine.candidate_order.source_acceptance.v1");
-  assert.equal(fixture.cases.length, 4);
+  assert.equal(fixture.cases.length, 5);
   const scratch = await mkdtemp(join(tmpdir(), "candidate-order-browser-"));
   let server, chrome, chromeClosed, cdp;
   t.after(async () => {
