@@ -1,7 +1,7 @@
 {
   "schema": "lupine.candidate_order.source_acceptance.v1",
-  "reviewed_at": "2026-11-04T18:21:42Z",
-  "scope": "Reviewed public-source summaries for known-outcome integration acceptance, not raw corpus records, new simulations or independent materials validation.",
+  "reviewed_at": "2026-11-05T01:51:06Z",
+  "scope": "Reviewed public-source summaries for bounded integration acceptance. The first four cases were known outcomes during implementation; the tungsten case follows protocol 180f13528f4461bc8b5db82106225e9fa009f0f6 frozen against unchanged checker/reader code before full-text table inspection. Same-agent transcription; not blind physical validation, raw corpus records or new simulations.",
   "cases": [
     {
       "id": "olsson-cr-control",
@@ -401,6 +401,116 @@
             "prediction_gap": [
               "-267/2000",
               "-261/2000"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "suarez-recio-w-interstitials",
+      "source_url": "https://arxiv.org/html/2505.13744v2",
+      "review_note": "First eligible Table 1 SIA panel and first model after DFT, selected by protocol 180f13528f4461bc8b5db82106225e9fa009f0f6 before table inspection. The abstract's qualitative superiority and fitted migration-energy claims were already exposed. Independent +/-0.005 eV printing intervals are assumptions; source/model bytes and row-level training overlap remain unverified.",
+      "input": {
+        "schema": "lupine.candidate_order.input.v1",
+        "unit": "eV",
+        "context": {
+          "source_id": "arxiv:2505.13744v2",
+          "source_sha256": null,
+          "model_id": "suarez-recio2025-MLIP-W-table1",
+          "model_sha256": null,
+          "model_kind": "reported",
+          "material": "bcc tungsten self-interstitial configurations",
+          "composition": "Pure W; one additional W atom for each listed self-interstitial",
+          "reference_convention": "Table 1 formation energies in eV; same-work PBE DFT versus MLIP-W, within-method common composition and bulk reference",
+          "protocol": "Table 1 and Section 4.3 state the same DFT/MD cell for defect formation energies. Listed static configurations only; no migration-rate or global-minimum inference. Exact configurations remain unverified.",
+          "fit_exposure": "Sections 2.1/4.1 include bulk, grain-boundary and point-defect families in training. Exact Table 1 row overlap and model artifact identity are unknown; not an independent physical holdout.",
+          "candidate_set_id": "suarez-recio2025-table1-three-sia",
+          "candidate_set_sha256": null,
+          "candidate_set_scope": "listed_only",
+          "comparability": "declared"
+        },
+        "bounds_kind": "assumed_printing_bounds",
+        "rows": [
+          {
+            "candidate_id": "a110",
+            "label": "110 dumbbell",
+            "anchor": "Suarez-Recio et al., arXiv:2505.13744v2, Table 1: E_f,db110",
+            "reference": {
+              "lower": "11.035",
+              "upper": "11.045"
+            },
+            "prediction": {
+              "lower": "10.965",
+              "upper": "10.975"
+            }
+          },
+          {
+            "candidate_id": "b111",
+            "label": "111 dumbbell",
+            "anchor": "Suarez-Recio et al., arXiv:2505.13744v2, Table 1: E_f,db111",
+            "reference": {
+              "lower": "10.755",
+              "upper": "10.765"
+            },
+            "prediction": {
+              "lower": "10.855",
+              "upper": "10.865"
+            }
+          },
+          {
+            "candidate_id": "c_octa",
+            "label": "Octahedral interstitial",
+            "anchor": "Suarez-Recio et al., arXiv:2505.13744v2, Table 1: E_f,octa",
+            "reference": {
+              "lower": "13.105",
+              "upper": "13.115"
+            },
+            "prediction": {
+              "lower": "12.795",
+              "upper": "12.805"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "reference_unique": "b111",
+        "prediction_unique": "b111",
+        "relation": "same_unique_minimum",
+        "pairs": [
+          {
+            "left": "a110",
+            "right": "b111",
+            "reference_gap": [
+              "-29/100",
+              "-27/100"
+            ],
+            "prediction_gap": [
+              "-3/25",
+              "-1/10"
+            ]
+          },
+          {
+            "left": "a110",
+            "right": "c_octa",
+            "reference_gap": [
+              "103/50",
+              "52/25"
+            ],
+            "prediction_gap": [
+              "91/50",
+              "46/25"
+            ]
+          },
+          {
+            "left": "b111",
+            "right": "c_octa",
+            "reference_gap": [
+              "117/50",
+              "59/25"
+            ],
+            "prediction_gap": [
+              "193/100",
+              "39/20"
             ]
           }
         ]

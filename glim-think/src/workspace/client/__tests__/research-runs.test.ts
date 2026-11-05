@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { requestVerificationPreview, decodeResearchRuns, ImportResearchRun, loadResearchRuns, previewResearchImport, readResearchSnapshotFile, ResearchRunCard, saveResearchImport } from "../ResearchRuns";
+import { canonicalComparisonJSON, draftComparisonContract } from "../../comparisonContracts";
 import { sha256, type ResearchRun, type ResearchRunImport, type ResearchRunStage, type ScientificPacket } from "../../researchRunContracts";
 
 const date = "2026-10-06T05:00:00.000Z";
@@ -151,12 +152,33 @@ describe("private research run interface", () => {
   });
 });
 
- it("requests only a private, unexecuted verification preview and rejects false execution", async () => {
-  const mock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ blockers: ["Unknown protocol"], contractSha256: "a".repeat(64), execution: "not_started", scheduled: false, visibility: "private" })));
+it("requests a bound private preview and rejects stale or promoted acknowledgements", async () => {
+  const { run } = await fixture();
+  const contract = draftComparisonContract(run, "hypothesis-one");
+  const contractSha256 = await sha256(canonicalComparisonJSON(contract));
+  const acknowledgement = { blockers: ["Unknown protocol"], contractSha256, execution: "not_started", scheduled: false,
+    visibility: "private", publication: "held", sourceVerification: "not_performed" };
+  const mock = vi.fn().mockResolvedValue(new Response(JSON.stringify(acknowledgement)));
   vi.stubGlobal("fetch", mock);
-  expect((await requestVerificationPreview("fixture", "{} ")).blockers).toEqual(["Unknown protocol"]);
+  expect((await requestVerificationPreview(run.id, JSON.stringify(contract))).blockers).toEqual(["Unknown protocol"]);
   expect(mock.mock.calls[0][0]).toBe("/workspace/research-runs/verification-preview");
-  expect(JSON.parse(mock.mock.calls[0][1].body)).toEqual({runId:"fixture",contract:{}});
-  mock.mockResolvedValue(new Response(JSON.stringify({blockers:[],contractSha256:"a".repeat(64),execution:"completed",scheduled:false,visibility:"private"})));
-  await expect(requestVerificationPreview("fixture", "{}")).rejects.toThrow();
- });
+  expect(JSON.parse(mock.mock.calls[0][1].body)).toEqual({ runId: run.id, contract });
+  for (const change of [{ execution: "completed" }, { publication: "published" },
+    { contractSha256: "f".repeat(64) }, { sourceVerification: "verified" }, { vacancyEvidence: {} }]) {
+    mock.mockResolvedValue(new Response(JSON.stringify({ ...acknowledgement, ...change })));
+    await expect(requestVerificationPreview(run.id, JSON.stringify(contract))).rejects.toThrow();
+  }
+});
+
+it("rejects invalid and oversized attachments before transport", async () => {
+  const { run } = await fixture();
+  const text = JSON.stringify(draftComparisonContract(run, "hypothesis-one"));
+  const mock = vi.fn(); vi.stubGlobal("fetch", mock);
+  for (const value of ["{", "null", "{}", "é".repeat(98_305)])
+    await expect(requestVerificationPreview(run.id, text, value)).rejects.toThrow();
+  expect(mock).not.toHaveBeenCalled();
+  const html = renderToStaticMarkup(React.createElement(ResearchRunCard, { run }));
+  expect(html).toContain("Optional vacancy evidence attachment");
+  expect(html).toContain("Vacancy evidence attachment JSON");
+  expect(html).toContain("only when you click Preview comparison");
+});

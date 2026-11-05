@@ -2,7 +2,7 @@
 
 This bridge tests the actual `distill candidate-order` executable's JSON
 through the application validator, bounded local-file reader and static React
-view. It uses reviewed public-table summaries from three publications. It does
+view. It uses reviewed public-table summaries from four publications. It does
 not introduce a new ranking method or infer physical validity from report
 acceptance.
 
@@ -10,7 +10,7 @@ acceptance.
 
 The fixture is
 `distill/tests/fixtures/candidate_order_sources.json`.
-Four reports contain eleven listed alternatives, not eleven new corpus
+Five reports contain fourteen listed alternatives, not fourteen new corpus
 observations or independent studies.
 
 | Fixture | Decision among supplied alternatives | Exposure and scope |
@@ -19,6 +19,7 @@ observations or independent studies.
 | Ko 2015 Ni in hcp Ti | DFT selects the lower in-basal barrier; 2NN-MEAM selects the lower out-of-basal barrier. | Barrier ordering only. Exact initial/path identities, prefactors and per-defect fitting exposure remain unresolved. Assumed ±0.0005 eV printing bounds. |
 | Kobayashi 2017 NN | PBE and NN choose Mg + Mg2Si over Mg3Si and the elements. | Each alternative contains 3 Mg + 1 Si. NN configurations enter training; static unconstrained mixtures; finite list. |
 | Kobayashi 2017 reported Jelinek MEAM | PBE chooses Mg + Mg2Si; MEAM chooses the elements. | Same balanced alternatives. Exact MEAM row-level fitting exposure and model artifact remain unknown. |
+| Suárez-Recio 2025 W | DFT and MLIP-W choose the listed 111 dumbbell. | Protocol and scientific implementation frozen before full-text inspection; abstract exposed; same-agent extraction; defect-family training exposure; assumed ±0.005 eV printing bounds. |
 
 Kobayashi's printed per-atom values are converted to total eV in a common
 four-atom reaction unit. The Mg3Si term has printing radius 0.002 eV; Mg2Si plus
@@ -31,9 +32,11 @@ declared convention.
 Source IDs, table/page anchors, protocol limits and explicit null artifact
 identities are included in the producer input. A fixture digest does not
 identify a physical candidate structure, and none is manufactured for that
-purpose. Each case links the primary publication. These are manually reviewed,
-known-outcome acceptance fixtures; no blind benchmark, new source acquisition,
-private corpus packet or research-team artifact is included.
+purpose. Each case links the primary publication. The first four are manually reviewed,
+known-outcome acceptance fixtures. The fifth follows the separately frozen
+[tungsten protocol](tungsten-task-review.md), with abstract exposure and
+same-agent transcription disclosed. None is an independently validated physical
+holdout. No private corpus packet or research-team artifact is included.
 
 The [failure map](exception-to-theorem-failure-map.md) preserves the original
 analysis dates, sources, scientific qualifications and competent-baseline
@@ -42,7 +45,7 @@ not a new independent validation.
 
 ## Full-path checks
 
-The existing atlas CI test job first builds its release executable. A bounded
+The existing Distill CI test job first builds its release executable. A bounded
 step then uses the existing locked Node dependencies and runs:
 
     DISTILL_BIN=/absolute/path/to/distill \
@@ -109,3 +112,49 @@ system-value comparison must identify an actual mistaken inference, stale
 dependency, missed qualifier or measurable review cost under an explicit
 protocol. Existing finite-list limitations must stay visible even when every
 arithmetic check passes.
+
+
+## Browser interaction acceptance
+
+The same Distill CI acceptance step also runs
+`scripts/testing/candidate-order-browser.test.mjs` against the runner's installed
+Chrome. It bundles the actual `InspectCandidateOrderReport` component in memory,
+serves it only on loopback, and selects temporary public/synthetic JSON files using
+Chrome's file-input API. No browser package or binary is downloaded.
+
+Twelve reader browser cases cover the five public fixture reports and their visible
+limits/provenance, clear and same-file reselection, corrupt arithmetic replacing a
+valid result, malformed/empty/oversized files, explicit unknowns, clearing during a
+pending read, a newer selection superseding an older read, and application
+network/storage boundaries. The race cases deliberately delay native
+`File.text()`; the normal file, validator and React rendering paths remain real.
+Mouse events operate the summary and clear controls. The test stops at its first
+failed case. It has a 90-second ceiling within the existing two-minute acceptance
+step; individual CLI calls remain bounded to ten seconds and 512 KiB.
+
+The harness checks page requests and instruments application transport/storage
+APIs; it does not claim to audit all browser-process network activity. It uses an
+ephemeral browser profile and removes its temporary reports/profile afterward.
+The installed browser version is recorded in the test output. GitHub's
+[runner image inventory](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)
+documents the preinstalled browser; the test fails if it is unavailable.
+
+This is isolated-component browser acceptance, not an operating-system file-dialog
+test, full RUNS feed or authenticated/deployed acceptance, source authentication,
+scientific validation, or evidence of improved simulation decisions. The first four
+known-outcome reports remain acceptance fixtures; the fifth has the separately
+recorded frozen-code evaluation boundary. New pending-read timing
+controls are test harness code, not product behavior. Hosted results must be
+reported separately from this test's preparation.
+
+## Existing verification-preview controls
+
+The browser harness also mounts the actual verification-preview control using
+explicitly synthetic proposal props. Three separate controls check optional
+vacancy-attachment transport, invalidation after editing or draft replacement,
+and server rejection without retry. Their response transport is a declared double;
+no authenticated request is made. The native research-runs integration test
+separately sends the actual client request through the actual route and assessor
+against a receipt-validated synthetic run in SQLite. These controls do not turn
+a candidate report into a vacancy attachment or a set of configurations into
+model arms. Genuine-run and deployed acceptance remain separate.

@@ -34,6 +34,7 @@ import { withPipelineSpan } from "./telemetry/pipeline";
 import { Orchestrator as OrchestratorDO } from "./agents/orchestrator";
 import { phoenixConfig } from "./telemetry/phoenix";
 import { Manifold as ManifoldDO } from "./agents/manifold";
+import { analyzeRunManifold } from "./research/runManifold";
 import { Causal as CausalDO } from "./agents/causal";
 import { Theorist as TheoristDO } from "./agents/theorist";
 import { Experiment as ExperimentDO } from "./agents/experiment";
@@ -823,75 +824,7 @@ const baseHandler = {
 
         // Manifold analysis: compute error vectors and eigenvalue spectra
         if (analysisTypes.includes("manifold")) {
-          const conditions: string[] = ["reference != 0", "property IN ('C11','C12','C44')"];
-          if (element) conditions.push(`element = '${element}'`);
-          if (excludeStyles.length > 0) conditions.push(`pair_style NOT IN (${excludeStyles.map(s => `'${s}'`).join(',')})`);
-          if (onlyStyles.length > 0) conditions.push(`pair_style IN (${onlyStyles.map(s => `'${s}'`).join(',')})`);
-          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : "";
-          const errorRows = await env.LEDGER.prepare(
-            `SELECT potential_id, property,
-                    (predicted - reference) / CASE WHEN reference != 0 THEN reference ELSE 1.0 END as rel_error
-             FROM records ${whereClause}
-             ORDER BY potential_id, property`
-          ).all();
-
-          // Group by potential into error vectors [C11_err, C12_err, C44_err, ...]
-          const properties = ["C11", "C12", "C44"];
-          const potentialVectors: Record<string, number[]> = {};
-          for (const row of errorRows.results as Array<{ potential_id: string; property: string; rel_error: number }>) {
-            const idx = properties.indexOf(row.property);
-            if (idx < 0) continue;
-            if (!potentialVectors[row.potential_id]) potentialVectors[row.potential_id] = new Array(properties.length).fill(NaN);
-            potentialVectors[row.potential_id][idx] = row.rel_error;
-          }
-
-          // Filter to complete vectors only
-          const vectors = Object.entries(potentialVectors)
-            .filter(([, v]) => v.every(x => !isNaN(x)))
-            .map(([id, v]) => ({ id, v }));
-
-          if (vectors.length >= 3) {
-            // Compute covariance matrix
-            const n = vectors.length;
-            const dim = properties.length;
-            const means = new Array(dim).fill(0);
-            for (const { v } of vectors) for (let j = 0; j < dim; j++) means[j] += v[j] / n;
-            const cov: number[][] = Array.from({ length: dim }, () => new Array(dim).fill(0));
-            for (const { v } of vectors) {
-              for (let i = 0; i < dim; i++) for (let j = 0; j < dim; j++) {
-                cov[i][j] += (v[i] - means[i]) * (v[j] - means[j]) / (n - 1);
-              }
-            }
-
-            // Power iteration for top eigenvalue
-            let ev = new Array(dim).fill(1);
-            for (let iter = 0; iter < 100; iter++) {
-              const next = new Array(dim).fill(0);
-              for (let i = 0; i < dim; i++) for (let j = 0; j < dim; j++) next[i] += cov[i][j] * ev[j];
-              const norm = Math.sqrt(next.reduce((s, x) => s + x * x, 0));
-              if (norm === 0) break;
-              ev = next.map(x => x / norm);
-            }
-            const Av = new Array(dim).fill(0);
-            for (let i = 0; i < dim; i++) for (let j = 0; j < dim; j++) Av[i] += cov[i][j] * ev[j];
-            const lambda1 = Av.reduce((s, x, i) => s + x * ev[i], 0);
-            const traceC = cov.reduce((s, row, i) => s + row[i], 0);
-            const PR = traceC > 0 ? (traceC * traceC) / cov.reduce((s, row, i) => s + row[i] * row[i], 0) : 0;
-
-            results.manifold = {
-              vectorCount: vectors.length,
-              properties,
-              means: means.map(m => +m.toFixed(6)),
-              covarianceMatrix: cov.map(row => row.map(x => +x.toFixed(6))),
-              topEigenvalue: +lambda1.toFixed(6),
-              traceCovariance: +traceC.toFixed(6),
-              participationRatio: +PR.toFixed(4),
-              hyperRibbon: PR < 2.0,
-              principalDirection: ev.map(x => +x.toFixed(4)),
-            };
-          } else {
-            results.manifold = { error: "Insufficient complete vectors", vectorCount: vectors.length };
-          }
+          results.manifold = await analyzeRunManifold(env.LEDGER, { element, excludeStyles, onlyStyles });
         }
 
         // Causal analysis: screen for Simpson's Paradox
@@ -3968,9 +3901,14 @@ function buildAnalysisArticlePrompt(results: Record<string, any>): string {
     lines += `- Vectors Analyzed: ${m.vectorCount}\n`;
     lines += `- Properties Space: ${m.properties.join(", ")}\n`;
     lines += `- Participation Ratio (PR): ${m.participationRatio}\n`;
-    lines += `- Is Hyper-ribbon (PR < 2.0)? ${m.hyperRibbon ? "Yes" : "No"}\n`;
-    lines += `- Principal Direction (1st EV): [${m.principalDirection.join(", ")}]\n`;
+    lines += `- Descriptive PR < 2.0 flag: ${m.hyperRibbon ? "Yes" : "No"}\n`;
+    lines += Array.isArray(m.principalDirection)
+      ? `- Legacy power-iteration direction estimate: [${m.principalDirection.join(", ")}]\n`
+      : "- Legacy power-iteration direction estimate: unavailable\n";
     lines += `- Mean Relative Errors: [${m.means.join(", ")}]\n\n`;
+    if (m.matrix) lines += `- Complete element/model rows: ${m.matrix.complete_row_count}/${m.matrix.input_row_count}; excluded ${m.matrix.excluded_row_count}; missing cells ${m.matrix.missing_cell_count}\n`;
+    lines += "This is sample covariance concentration, not evidence of physical universality or correction efficacy. Complete-case selection and unresolved model/reference compatibility limit interpretation.\n\n";
+
   }
 
   if (results.causal && !results.causal.error) {

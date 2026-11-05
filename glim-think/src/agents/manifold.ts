@@ -12,6 +12,7 @@ import { z } from "zod";
 import type { ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import type { Claim } from "../types";
+import { buildObservedManifoldMatrix, MANIFOLD_MATRIX_CONTRACT, type ManifoldRecord, type ManifoldSelection } from "../research/observedManifoldMatrix";
 import { compactEvidenceIds, recordEvidenceId } from "../research/evidenceIds";
 import { cleanRecordSqlPredicate } from "../research/recordValidation";
 import {
@@ -29,14 +30,14 @@ Your specialty: Principal Component Analysis of interatomic potential prediction
 Core mission:
 1. Query the D1 ledger for benchmark records by element and potential family
 2. Compute eigenvalue spectra and participation ratios (PR)
-3. Detect "hyper-ribbon" geometry (PR < 2.0 indicates low-dimensional error structure)
-4. Detect universal alignment across potential families (cosine similarity of principal axes)
-5. Emit structured claims with confidence scores
+3. Describe sample covariance concentration; PR < 2.0 is a numerical flag, not universality
+4. Keep missingness, sample size, model/reference identity and scale limits explicit
+5. Emit descriptive claims; legacy confidence scores are not calibrated probabilities
 
 When analyzing, always report:
-- The participation ratio (PR) and its physical interpretation
-- Log-spacing R² (geometric eigenvalue decay)
-- Whether the manifold confirms or rejects the hyper-ribbon hypothesis
+- The participation ratio (PR), relative-error scaling and complete-case selection
+- Log-spacing R² and centered sample-rank ceiling
+- Unresolved compatibility and identity limits; no physical or correction claim from PR alone
 
 Be quantitative. Cite specific numbers.`;
   }
@@ -65,7 +66,7 @@ Be quantitative. Cite specific numbers.`;
         }),
         execute: async ({ element, family }) => {
           return this.queryLedger(
-            `SELECT potential_label, property, reference, predicted FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2`,
+            `SELECT element, potential_id, potential_label, property, reference, predicted, unit FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2`,
             element, family
           );
         },
@@ -75,35 +76,20 @@ Be quantitative. Cite specific numbers.`;
         description: "Compute PCA eigenvalue spectrum and participation ratio for a set of error vectors. Returns eigenvalues, PR, and log-spacing R².",
         inputSchema: z.object({
           records: z.array(z.object({
-            potential_label: z.string(),
-            property: z.string(),
+            element: z.string().min(1),
+            potential_id: z.string().nullable().optional(),
+            potential_label: z.string().min(1),
+            property: z.string().min(1),
+            unit: z.string().optional(),
             reference: z.number(),
             predicted: z.number(),
           })).describe("Benchmark records to analyze"),
         }),
         execute: async ({ records }) => {
-          // Build error matrix: rows = potentials, cols = properties
-          const potentials = [...new Set(records.map((r) => r.potential_label))];
-          const properties = [...new Set(records.map((r) => r.property))];
-
-          if (potentials.length < 2 || properties.length < 2) {
-            return { error: "Insufficient data: need at least 2 potentials and 2 properties" };
-          }
-
-          // Compute relative error matrix
-          const errorMatrix: number[][] = [];
-          for (const pot of potentials) {
-            const row: number[] = [];
-            for (const prop of properties) {
-              const rec = records.find((r) => r.potential_label === pot && r.property === prop);
-              if (rec && rec.reference !== 0) {
-                row.push((rec.predicted - rec.reference) / rec.reference);
-              } else {
-                row.push(0);
-              }
-            }
-            errorMatrix.push(row);
-          }
+          const observed = buildObservedManifoldMatrix(records);
+          if (!observed.ok) return { error: observed.error, matrix: observed.selection };
+          const errorMatrix = observed.errors;
+          const properties = observed.selection.properties;
 
           // Compute covariance matrix
           const n = errorMatrix.length;
@@ -128,7 +114,10 @@ Be quantitative. Cite specific numbers.`;
           // Participation ratio
           const sumSq = eigenvalues.reduce((s, v) => s + v * v, 0);
           const sumLin = eigenvalues.reduce((s, v) => s + v, 0);
-          const pr = sumSq > 0 ? (sumLin * sumLin) / sumSq : 0;
+          if (!Number.isFinite(sumSq) || !Number.isFinite(sumLin) || sumSq <= 0 || sumLin <= 0) {
+            return { error: "invalid_observed_spectrum", matrix: observed.selection };
+          }
+          const pr = (sumLin * sumLin) / sumSq;
 
           // Log-spacing R² (geometric decay test)
           const logEigs = eigenvalues.filter((v) => v > 0).map((v) => Math.log(v));
@@ -138,7 +127,9 @@ Be quantitative. Cite specific numbers.`;
             eigenvalues: eigenvalues.map((v) => Math.round(v * 1e6) / 1e6),
             participationRatio: Math.round(pr * 1000) / 1000,
             logSpacingR2: Math.round(logSpacingR2 * 1000) / 1000,
-            potentialCount: potentials.length,
+            potentialCount: n,
+            matrix: observed.selection,
+            descriptiveOnly: true,
             propertyCount: properties.length,
             hyperRibbon: pr < 2.0,
           };
@@ -156,7 +147,7 @@ Be quantitative. Cite specific numbers.`;
             SELECT claim_id, pr FROM manifold_runs WHERE family = ${family} AND element = ${element}
           `;
           if (rows.length > 0) {
-            return { cached: true, claimId: rows[0].claim_id, pr: rows[0].pr };
+            return { cached: true, claimId: rows[0].claim_id, pr: rows[0].pr, matrixContractVerified: false };
           }
           return { cached: false };
         },
@@ -219,6 +210,8 @@ Be quantitative. Cite specific numbers.`;
     hyper_ribbon?: boolean;
     potential_count?: number;
     property_count?: number;
+    matrix?: ManifoldSelection;
+    descriptive_only?: boolean;
     error?: string;
   }> {
     const tracer = trace.getTracer("glim-think.agent");
@@ -273,6 +266,8 @@ Be quantitative. Cite specific numbers.`;
     hyper_ribbon?: boolean;
     potential_count?: number;
     property_count?: number;
+    matrix?: ManifoldSelection;
+    descriptive_only?: boolean;
     error?: string;
   }> {
     await this.onStart(); // ensure schema
@@ -301,10 +296,16 @@ Be quantitative. Cite specific numbers.`;
             .first<{ claim_data?: string }>();
           if (row?.claim_data) {
             const cd = JSON.parse(row.claim_data) as Record<string, unknown>;
+            const matrix = cd.matrix as ManifoldSelection | undefined;
+            if (matrix?.contract !== MANIFOLD_MATRIX_CONTRACT) {
+              return { ok: false, cached: true, claim_id: claimId, error: "legacy_matrix_contract: explicit force required" };
+            }
             return {
               ok: true,
               cached: true,
               claim_id: claimId,
+              matrix,
+              descriptive_only: true,
               pr: Number(cd.pr ?? cached[0].pr ?? 0),
               log_spacing_r2: typeof cd.log_spacing_r2 === "number" ? cd.log_spacing_r2 : undefined,
               eigenvalues: Array.isArray(cd.eigenvalues) ? (cd.eigenvalues as number[]) : undefined,
@@ -316,12 +317,12 @@ Be quantitative. Cite specific numbers.`;
         } catch (e) {
           console.error("Manifold.runAnalysis: cache rehydrate failed:", e);
         }
-        // Fallback: claim missing/corrupt — stripped result (still valid).
+        // A scalar cache entry cannot establish the observation contract.
         return {
-          ok: true,
+          ok: false,
           cached: true,
           claim_id: claimId,
-          pr: Number(cached[0].pr ?? 0),
+          error: "unverifiable_cached_analysis: explicit force required",
         };
       }
     }
@@ -334,32 +335,17 @@ Be quantitative. Cite specific numbers.`;
     // (ΔH_f, stacking-fault energy, B0′) must stay in the matrix.
     const CLEAN = cleanRecordSqlPredicate();
     const sql = family === "all"
-      ? `SELECT record_id, potential_label, property, reference, predicted, pair_style, timestamp FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
-      : `SELECT record_id, potential_label, property, reference, predicted, pair_style, timestamp FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;
+      ? `SELECT record_id, element, potential_id, potential_label, property, reference, predicted, unit, pair_style, timestamp FROM records WHERE (element = ?1 OR ?1 = 'all') AND ${CLEAN}`
+      : `SELECT record_id, element, potential_id, potential_label, property, reference, predicted, unit, pair_style, timestamp FROM records WHERE (element = ?1 OR ?1 = 'all') AND pair_style = ?2 AND ${CLEAN}`;
     const records = family === "all"
-      ? await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string; timestamp: string | null }>(sql, opts.element)
-      : await this.queryLedger<{ record_id: string; potential_label: string; property: string; reference: number; predicted: number; pair_style: string; timestamp: string | null }>(sql, opts.element, family);
+      ? await this.queryLedger<ManifoldRecord & { record_id: string; pair_style: string; timestamp: string | null }>(sql, opts.element)
+      : await this.queryLedger<ManifoldRecord & { record_id: string; pair_style: string; timestamp: string | null }>(sql, opts.element, family);
 
-    const potentials = [...new Set(records.map(r => r.potential_label))];
-    const properties = [...new Set(records.map(r => r.property))];
-    if (potentials.length < 2 || properties.length < 2) {
-      return { ok: false, error: `insufficient data (potentials=${potentials.length}, properties=${properties.length})` };
-    }
-
-    // Build relative-error matrix [n potentials × m properties].
-    const errorMatrix: number[][] = [];
-    for (const pot of potentials) {
-      const row: number[] = [];
-      for (const prop of properties) {
-        const rec = records.find(r => r.potential_label === pot && r.property === prop);
-        if (rec && rec.reference !== 0) {
-          row.push((rec.predicted - rec.reference) / rec.reference);
-        } else {
-          row.push(0);
-        }
-      }
-      errorMatrix.push(row);
-    }
+    const observed = buildObservedManifoldMatrix(records);
+    if (!observed.ok) return { ok: false, error: observed.error, matrix: observed.selection };
+    const errorMatrix = observed.errors;
+    const properties = observed.selection.properties;
+    const includedRecords = observed.included_indices.map(index => records[index]);
 
     const n = errorMatrix.length;
     const d = properties.length;
@@ -379,7 +365,10 @@ Be quantitative. Cite specific numbers.`;
     const eigenvalues = await this.powerIterationEigenvalues(cov, Math.min(d, 5));
     const sumSq = eigenvalues.reduce((s, v) => s + v * v, 0);
     const sumLin = eigenvalues.reduce((s, v) => s + v, 0);
-    const pr = sumSq > 0 ? (sumLin * sumLin) / sumSq : 0;
+    if (!Number.isFinite(sumSq) || !Number.isFinite(sumLin) || sumSq <= 0 || sumLin <= 0) {
+      return { ok: false, error: "invalid_observed_spectrum", matrix: observed.selection };
+    }
+    const pr = (sumLin * sumLin) / sumSq;
     const logEigs = eigenvalues.filter(v => v > 0).map(v => Math.log(v));
     const logSpacingR2 = logEigs.length > 2 ? this.computeR2(logEigs) : 0;
     const hyperRibbon = pr < 2.0;
@@ -393,17 +382,20 @@ Be quantitative. Cite specific numbers.`;
       pr: Math.round(pr * 1000) / 1000,
       log_spacing_r2: Math.round(logSpacingR2 * 1000) / 1000,
       eigenvalues: eigenvalues.map(v => Math.round(v * 1e6) / 1e6),
-      potential_count: potentials.length,
+      potential_count: n,
       property_count: properties.length,
-      evidence_record_count: records.length,
+      evidence_record_count: includedRecords.length,
+      matrix: observed.selection,
+      descriptive_only: true,
+      confidence_basis: "legacy heuristic, not a calibrated probability",
       hyper_ribbon: hyperRibbon,
     };
     const evidenceIds = compactEvidenceIds(
-      records.map((record) => recordEvidenceId(record.record_id)),
+      includedRecords.map((record) => recordEvidenceId(record.record_id)),
       240,
       `manifold:${opts.element}:${family}`,
     );
-    const description = `Manifold analysis ${opts.element}/${family}: PR=${claimData.pr}, ribbon=${hyperRibbon ? "yes" : "no"}, n=${potentials.length}p×${properties.length}d`;
+    const description = `Sample relative-error covariance ${opts.element}/${family}: PR=${claimData.pr}, PR<2=${hyperRibbon}, n=${n} complete element/model rows × ${properties.length} properties; descriptive only`;
     const now = new Date().toISOString();
 
     try {
@@ -415,7 +407,7 @@ Be quantitative. Cite specific numbers.`;
         evidenceIds,
         confidence: hyperRibbon ? 0.85 : 0.6,
         description,
-        evidenceRecordTimestamp: latestEvidenceRecordTimestamp(records.map((record) => record.timestamp)),
+        evidenceRecordTimestamp: latestEvidenceRecordTimestamp(includedRecords.map((record) => record.timestamp)),
         recomputedAt: now,
       });
     } catch (e) {
@@ -432,11 +424,13 @@ Be quantitative. Cite specific numbers.`;
       ok: true,
       cached: false,
       claim_id: claimId,
+      matrix: observed.selection,
+      descriptive_only: true,
       pr: Math.round(pr * 1000) / 1000,
       log_spacing_r2: Math.round(logSpacingR2 * 1000) / 1000,
       eigenvalues: eigenvalues.map(v => Math.round(v * 1e6) / 1e6),
       hyper_ribbon: hyperRibbon,
-      potential_count: potentials.length,
+      potential_count: n,
       property_count: properties.length,
     };
   }

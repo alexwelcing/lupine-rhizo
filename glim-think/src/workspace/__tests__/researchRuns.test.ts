@@ -1,5 +1,6 @@
 import { canonicalComparisonJSON, draftComparisonContract, previewVerificationTask } from "../comparisonContracts";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { requestVerificationPreview } from "../client/verificationPreviewClient";
 // @ts-expect-error Test-only SQLite, excluded from Worker types.
 import { DatabaseSync } from "node:sqlite";
 // @ts-expect-error Test-only fixtures, excluded from Worker types.
@@ -12,7 +13,7 @@ const base = (import.meta as ImportMeta & { url: string }).url;
 const migration = readFileSync(new URL("../../../migrations/0020_workspace_research_runs.sql", base), "utf8");
 const proposal = JSON.parse(readFileSync(new URL("../../../../tools/scientific-pi/tests/fixtures/proposal.json", base), "utf8"));
 const databases: InstanceType<typeof DatabaseSync>[] = [];
-afterEach(() => { for (const db of databases.splice(0)) db.close(); });
+afterEach(() => { vi.unstubAllGlobals(); for (const db of databases.splice(0)) db.close(); });
 function harness() {
   const db = new DatabaseSync(":memory:"); databases.push(db); db.exec(migration);
   const hooks: { beforeRun?: () => void } = {};
@@ -310,6 +311,26 @@ it("binds exact vacancy components to a private preview and blocks the centered-
   expect(result.vacancyEvidence.arithmeticConsistency).toBe("checked_on_declared_components");
   expect(result.vacancyEvidence.scientificSupport).toBe("not_asserted");
   expect(result.taskPreview.payload.vacancyEvidence.attachmentSha256).toBe(result.vacancyEvidence.attachmentSha256);
+  // Actual client request -> route -> saved fixture -> assessor; only fetch and D1 transport are doubled.
+  const fetcher = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) =>
+    (await researchRunsResponse(new Request(new URL(String(url), "http://localhost"), init), h.env, true))!);
+  vi.stubGlobal("fetch", fetcher);
+  const clientResult = await requestVerificationPreview(run.id, JSON.stringify(contract), JSON.stringify(evidence));
+  expect(clientResult.vacancyAttachmentSha256).toBe(result.vacancyEvidence.attachmentSha256);
+  expect(clientResult.blockers).toContain("Centered-only vacancy score cannot support formation_energy: synthetic-shift");
+  expect(JSON.parse(fetcher.mock.calls[0][1]!.body as string).vacancyEvidence).toEqual(evidence);
+  const stale = structuredClone(evidence); stale.comparisonContractSha256 = "f".repeat(64);
+  await expect(requestVerificationPreview(run.id, JSON.stringify(contract), JSON.stringify(stale))).rejects.toThrow("another contract");
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  for (const acknowledgement of [
+    { ...result, vacancyEvidence: undefined },
+    { ...result, vacancyEvidence: { ...result.vacancyEvidence, attachmentSha256: "f".repeat(64) } },
+    { ...result, vacancyEvidence: { ...result.vacancyEvidence, scientificSupport: "verified" } },
+  ]) {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(acknowledgement))));
+    await expect(requestVerificationPreview(run.id, JSON.stringify(contract), JSON.stringify(evidence))).rejects.toThrow("acknowledgement");
+  }
+
   expect(h.db.prepare("SELECT payload FROM workspace_research_runs").get()).toEqual(before);
   const changed = structuredClone(evidence); changed.comparisonContractSha256 = "f".repeat(64);
   expect((await call(changed))!.status).toBe(400);

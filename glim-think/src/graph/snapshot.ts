@@ -73,6 +73,21 @@ export interface GraphNode {
   id: string;
   type: GraphNodeKind;
   label: string;
+  // Recorded claim qualifications; graph projection is not source verification.
+  description?: string | null;
+  analysis_scope?: "descriptive only" | "not recorded";
+  confidence_basis?: string;
+  matrix_contract?: string;
+  row_unit?: string;
+  scaling?: string;
+  matrix_properties?: string;
+  complete_row_count?: number | "not recorded";
+  excluded_row_count?: number | "not recorded";
+  missing_cell_count?: number | "not recorded";
+  invalid_cell_count?: number | "not recorded";
+  conflicting_cell_count?: number | "not recorded";
+  duplicate_record_count?: number | "not recorded";
+  centered_rank_ceiling?: number | "not recorded";
   // type-specific scalars (optional — present only when meaningful for that type)
   status?: string | null;
   confidence?: number | null;
@@ -243,6 +258,48 @@ function parseJsonArray(raw: string | null | undefined): string[] {
   }
 }
 
+/**
+ * Carry only the Manifold producer's display qualifications into the graph.
+ * Absence/malformed legacy data is unknown, never a current-contract claim.
+ * Do not expose arbitrary claim_data or treat a stored flag as validation.
+ */
+function manifoldQualifications(claim: ClaimRow): Partial<GraphNode> {
+  if (claim.claim_type !== "ManifoldAnalysis") return {};
+  let data: Record<string, unknown> = {};
+  try {
+    const parsed: unknown = JSON.parse(claim.claim_data ?? "null");
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      data = parsed as Record<string, unknown>;
+    }
+  } catch { /* Keep missing qualifications explicit. */ }
+  const matrix = data.matrix && typeof data.matrix === "object" && !Array.isArray(data.matrix)
+    ? data.matrix as Record<string, unknown> : {};
+  const text = (value: unknown): string =>
+    typeof value === "string" && value.trim().length > 0 && value.length <= 512
+      ? value : "not recorded";
+  const count = (value: unknown): number | "not recorded" =>
+    typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+      ? value : "not recorded";
+  const properties = matrix.properties;
+  return {
+    analysis_scope: data.descriptive_only === true ? "descriptive only" : "not recorded",
+    confidence_basis: text(data.confidence_basis),
+    matrix_contract: text(matrix.contract),
+    row_unit: text(matrix.row_unit),
+    scaling: text(matrix.scaling),
+    matrix_properties: Array.isArray(properties) && properties.length > 0 && properties.length <= 5
+      && properties.every(p => typeof p === "string" && p.trim().length > 0 && p.length <= 128)
+      ? properties.join(", ") : "not recorded",
+    complete_row_count: count(matrix.complete_row_count),
+    excluded_row_count: count(matrix.excluded_row_count),
+    missing_cell_count: count(matrix.missing_cell_count),
+    invalid_cell_count: count(matrix.invalid_cell_count),
+    conflicting_cell_count: count(matrix.conflicting_cell_count),
+    duplicate_record_count: count(matrix.duplicate_record_count),
+    centered_rank_ceiling: count(matrix.centered_rank_ceiling),
+  };
+}
+
 export async function buildGraphSnapshot(env: Env): Promise<GraphSnapshot> {
   // Single round of queries, no N+1. Each table is independently best-effort:
   // a missing schema (e.g. a fresh deploy where one DDL hasn't run) returns []
@@ -370,10 +427,16 @@ export async function buildGraphSnapshot(env: Env): Promise<GraphSnapshot> {
     });
   }
   for (const c of claims) {
+    const qualifications = manifoldQualifications(c);
+    const scopeLabel = c.claim_type === "ManifoldAnalysis"
+      ? qualifications.analysis_scope === "descriptive only" ? "Descriptive: " : "Scope unknown: "
+      : "";
     nodes.push({
       id: c.claim_id,
       type: "claim",
-      label: (c.description ?? c.claim_type ?? c.claim_id).slice(0, 80),
+      label: (scopeLabel + (c.description ?? c.claim_type ?? c.claim_id)).slice(0, 80),
+      description: c.description,
+      ...qualifications,
       claim_type: c.claim_type,
       confidence: c.confidence,
       status: c.status,

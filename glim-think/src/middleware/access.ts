@@ -42,7 +42,7 @@ interface CachedJwks {
 const JWKS_TTL_MS = 60 * 60 * 1000;
 const jwksCache = new Map<string, CachedJwks>();
 
-function base64UrlDecode(input: string): Uint8Array {
+function base64UrlDecode(input: string): Uint8Array<ArrayBuffer> {
   const padded = input.replace(/-/g, "+").replace(/_/g, "/");
   const pad = padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
   const bin = atob(padded + pad);

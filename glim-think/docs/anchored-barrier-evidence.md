@@ -45,6 +45,134 @@ These are finite real-arithmetic statements. They do not establish continuous
 path coverage, the true saddle, matching physical configurations, free-energy
 barriers, numerical execution or physical accuracy.
 
+## Separately optimized paths need a search and initial-state budget
+
+A read-only review on 4 November 2026 inspected the paper-linked
+[mlearn NEB calculator at its archived commit](https://github.com/materialyzeai/mlearn/blob/10c427a5480c6281c15c64efaf869b03be04818f/mlearn/potentials/lammps/calcs.py#L481)
+and the [20 May 2019 version](https://github.com/materialyzeai/mlearn/blob/01a9f653ffcdfae078b84eeac53d8efca88157d1/mlearn/potentials/lammps/calcs.py).
+Both use the supplied potential for lattice relaxation, vacancy endpoint
+relaxation and the NEB calculation. This is a recipe observation, not proof
+that this exact revision or these paths generated Zuo's reported barriers.
+The current [LAMMPS NEB documentation](https://docs.lammps.org/stable/neb.html)
+describes optimization of image positions and warns that an unsuitable
+initial path can give bad results. It does not certify a global optimum.
+
+Thus a common training/test sample does not establish common migration
+configurations. The fixed-sample theorem above remains valid. Applying it to
+two separately selected paths requires additional evidence.
+
+Let C be a common, nonempty finite family of candidate profiles, each with a
+nonempty set of configurations S_p. The two energy functions F and G must be
+defined on every configuration in the family. Define profile heights
+
+    H_F(p) = max_(x in S_p) F(x)
+    m_F = min_(p in C) H_F(p),
+
+and analogously for G. Suppose the reported paths are p_F and p_G, and that
+their certified additive search gaps satisfy
+
+    0 <= H_F(p_F) - m_F <= eta_F,
+    0 <= H_G(p_G) - m_G <= eta_G.
+
+These are bounds relative to the declared finite family. They say nothing
+about an omitted physical path. For model-specific initial configurations
+i in S_pF and j in S_pG, retain the actual initial-energy difference
+
+    delta_0 = G(j) - F(i).
+
+If a <= G(x)-F(x) <= b on every candidate configuration, the selected forward
+barrier difference D obeys
+
+    a - delta_0 - eta_F <= D <= b - delta_0 + eta_G,
+    D = [H_G(p_G)-G(j)] - [H_F(p_F)-F(i)].
+
+Proof: every profile's maximum changes by a value in [a,b], so the minimum
+of those maxima does too. The exact identity is
+
+    H_G(p_G)-H_F(p_F)
+      = (m_G-m_F)
+        + [H_G(p_G)-m_G] - [H_F(p_F)-m_F].
+
+Subtract delta_0 and use the certified gap bounds. The Lean statements
+`selected_path_score_sub_decomposition`,
+`selected_path_score_sub_bounds` and
+`selected_forwardBarrier_sub_bounds` express these steps.
+
+If i=j as a physical configuration, a <= delta_0 <= b and this yields
+
+    -(b-a)-eta_F <= D <= (b-a)+eta_G.
+
+`selected_forwardBarrier_sub_bounds_same_initial` proves this corollary.
+Zero gaps recover the wander bound for optimal choices within the common
+family. A solver success status, force tolerance or named NEB method does
+not establish eta=0. A bound measured only on one returned path does not
+establish the required bound over the full candidate family.
+
+Two exact synthetic obstructions make the extra terms necessary:
+
+- **Search:** identical energy functions give energies [0,1,3] at three
+  configurations. Candidate profiles are [0,1] and [0,2], both anchored at
+  configuration 0. Selecting the first for F and the second for G yields
+  barriers 1 and 3, despite zero residual everywhere. The G search gap is 2.
+  Swapping the selections attains the lower-side gap term.
+- **Initial state:** identical functions give [0,5,6]. Profiles [0,2] and
+  [1,2], anchored at 0 and 1 respectively, both have height 6 and zero
+  height-search gap in this family. Their barriers are 6 and 1.
+  The difference -5 equals minus the initial-energy difference; zero
+  residual does not remove it.
+
+These are arbitrary finite configurations, not claimed continuous paths,
+stationary saddles or observed defects in a publication. They distinguish
+logical premises without asserting that the source authors violated them.
+One in-memory scaled-integer check covered 78,732 energy/profile/anchor/shift
+cases, including 26,244 shared-initial cases. The interval and the exact
+decomposition agreed in all cases. This was a same-agent check, not an
+independent review or a reproduction.
+
+### Next-version evidence requirement
+
+A future barrier report must separate three quantities: energy disagreement
+on shared configurations, path-search error within a declared family, and
+initial-state relaxation. Retain the candidate-family identity, both selected
+path identities, configuration/cell correspondence, both initial identities,
+cross-evaluation coverage, offset bounds and their provenance, and certified
+search-gap bounds or explicit unknowns. Changing the family changes the
+minimum against which the gaps are measured.
+
+A reviewed finite set can supply exact finite-family gaps when every height
+is evaluated. It cannot certify global physical search completeness. Different
+cells or different endpoint basins require an explicit physical comparison
+contract before the algebra is interpreted as a barrier comparison. Missing
+cross-evaluations or search certificates must leave the bound unavailable;
+they must not become zero error.
+
+No additional inspector or simulation dispatch is introduced here. The
+existing candidate-order inspector can compare supplied comparable scores,
+but does not authenticate these path premises. The stronger specification
+still needs a source-bound end-to-end test and measured decision or review
+value. This is standard finite-extremum perturbation algebra, with novelty
+unestablished.
+
+
+### What would certify a search gap?
+
+A feasible selected profile supplies an upper bound on `m_F`. If a valid
+lower bound `L_F <= m_F` is also available, then
+
+    0 <= H_F(p_F) - m_F <= H_F(p_F) - L_F.
+
+The right side is an admissible `eta_F`; apply the same construction for G.
+This is the usual objective-minus-lower-bound certificate, not a new result.
+See [Boyd and Vandenberghe, Section 5.5.1](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf).
+An exhaustive finite evaluation can give the exact family minimum. A justified
+relaxation may give a weaker bound. Neither a force tolerance nor a low
+returned-profile residual establishes either certificate by itself.
+
+No physical search certificate or continuous-path coverage was obtained in
+this review. The [prior-work disposition](exception-to-theorem-failure-map.md#prior-work-disposition-dependencies-and-search-certificates)
+separates the standard mathematics from the unverified premises and proposed
+system contribution.
+
 ## Prefactors are separate inputs
 
 For positive temperature theta and positive prefactors, define
@@ -90,6 +218,67 @@ introduced by this formalization.
 The existing Z1 producer explicitly records `max(energies)-min(energies)`.
 Its saved observations and range-transfer theorems are preserved. No historical
 profile is reclassified here, and no omission of initial endpoints is inferred.
+
+
+## Existing T1 producer control (reviewed 4 November 2026)
+
+A bounded check challenged whether the existing `clean` label overrides
+missing path coverage or a poor sparse selection. It did not. The current
+union producer already separates T1's evaluated-image offsets from its
+primary sparse-versus-dense same-engine decision, and uses max-minus-min
+ranges. No new runtime scope gate is justified by this check.
+
+The check used the actual frozen selector, planner and assembly functions at
+`fada72af2ed2be6bbcf108f7cb785bbd48c07a7e`, with synthetic energy inputs and
+an in-memory pool adapter. It did not execute atoms, a calculator, receipt
+import, the driver CLI or a complete visualization build. The functions'
+source bytes were checked against these Git blobs:
+
+| Source | Git blob |
+| --- | --- |
+| `gcp/mlip-cell-runner/z1_sparse_dft.py` | `31f9ecc6285cfa6f3a76c529cbf0b2c757ba8760` |
+| `gcp/sparse-dft-pilot/union_pilot.py` | `e31c07774975a14c4482aad8c66b9d498d4a34dd` |
+| `tools/analysis/t1_wander.py` | `1bda80837672561183d797316fadbb3cc9554f27` |
+| `tools/analysis/build_visualization_bundle.py` | `ad324127e3c383fd4cef52b5ca8260b35cae6228` |
+
+The seven-image reference profile is [0,0,0,1,2,1,0] eV. A guide
+[2,0,0,0,0,0,0] selects anchors [0,1,6]; the existing short-path dense
+extension makes all seven images eligible. A guide equal to the reference
+instead selects [0,3,4,5,6]. These are inputs to the existing selection
+algorithm, not manually substituted anchor sets.
+
+| Synthetic case | Evaluated images | T1 | Primary result |
+| --- | --- | --- | --- |
+| Only [0,1,6], with G=F there | 3 of 7 | clean, wander 0 | incomplete |
+| All images, G=F, first guide | 7 of 7 | clean, wander 0 | loss, 2000 meV error |
+| All images, G=F, reference-shaped guide | 7 of 7 | clean, wander 0 | self_consistency_check, zero error |
+| All images, G=0, first guide | 7 of 7 | contaminated, wander 2000 meV | self_consistency_check, zero error |
+
+The first case's observed G values and guide are compatible with both the
+second and fourth completions. Thus its same-engine sparse error cannot be
+determined from those observations alone. This is an explicit missing-data
+witness, not a new physical result. The producer's abstention agrees with a
+source-aware baseline. Conversely, T1 contamination can coexist with
+same-engine self-consistency. Neither label supplies independent physical
+validation, a global path optimum or a transport conclusion.
+
+A separate integration mismatch stopped the producer-to-converter handoff:
+the actual `build_quality_gates` function raises
+`KeyError: strong_win_mev` for all four assembled records. The producer emits
+`self_consistency_check_mev`; the converter and visualization v1 schema still
+use the older `strong_win` terminology. This is a schema/semantics migration
+requirement, not a counterexample to the wander theorem or evidence of a
+false live scientific verdict. Existing immutable bundles were not rewritten,
+and a live consumer or full bundle build was not exercised. A bounded search
+found no reference to that converter in the inspected Glim source, Rust tests
+or workflow paths; this does not establish global non-use.
+
+Keep the current producer's scoped behavior. Before claiming a working new
+visualization handoff, reconcile the current self-consistency policy with
+legacy bundle compatibility and verify the actual selected consumer. Do not
+silently relabel historical strong-win bundles or infer completed path
+coverage from T1 alone. This check does not provide end-to-end acceptance for
+the newer separately selected-path theorem, nor measured user benefit.
 
 ## Verification scope
 

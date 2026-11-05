@@ -14,9 +14,9 @@
  */
 
 import { Think, Session } from "@cloudflare/think";
+import type { TurnConfig } from "@cloudflare/think";
 import { generateText, type LanguageModel, type ToolSet } from "ai";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
-import type { DurableObjectState } from "@cloudflare/workers-types";
 import type { Env } from "../types";
 import { recordMiniMaxSpend, miniMaxModel, hasMiniMaxBudget, selectDeepRoute, fastModel } from "./models";
 import { getPrompt } from "../registry/promptRegistry";
@@ -45,7 +45,7 @@ export abstract class GlimThinkAgent extends Think<Env> {
    * Default model: the configured Workers AI fast tier.
    * Subclasses override for specific model requirements.
    */
-  getModel() {
+  getModel(): LanguageModel {
     return fastModel(this.env);
   }
 
@@ -56,7 +56,7 @@ export abstract class GlimThinkAgent extends Think<Env> {
    */
   protected deepTier = false;
 
-  override async beforeTurn() {
+  override async beforeTurn(): Promise<TurnConfig | void> {
     if (!this.deepTier) return;
     const route = await selectDeepRoute(this.env);
     return { model: route.model };
@@ -73,7 +73,7 @@ export abstract class GlimThinkAgent extends Think<Env> {
    * Session configuration: persistent memory + search.
    * All GLIM agents share the same context block structure.
    */
-  configureSession(session: Session) {
+  configureSession(session: Session): Session {
     return session
       .withContext("soul", {
         provider: {

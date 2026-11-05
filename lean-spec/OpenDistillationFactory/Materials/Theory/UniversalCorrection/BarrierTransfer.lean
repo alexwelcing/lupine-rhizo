@@ -392,8 +392,109 @@ theorem forward_hopRate_ratio_bounds {s : Finset ι} {i : ι} (hi : i ∈ s)
   BarrierArrhenius.hopRate_ratio_bounds hνf hνg hkT
     (abs_forwardBarrier_sub_le_wander hi ha hb) hl hu
 
+/-! ## Separately selected paths and model-specific initial states
+
+A pointwise error bound controls each *shared* candidate profile, not arbitrary
+outputs of two path searches. The following finite-family bounds retain each
+search's certified suboptimality and the initial-energy difference. A finite
+profile family is not a proof of coverage of all continuous physical paths. -/
+
+/-- Selected scores differ by optimum transfer plus the difference between
+their actual optimization gaps. The same finite candidate family is required. -/
+theorem selected_path_score_sub_decomposition {κ : Type*}
+    {s : Finset κ} (hs : s.Nonempty) (f g : κ → ℝ) (p q : κ) :
+    g q - f p = (s.inf' hs g - s.inf' hs f) +
+      (g q - s.inf' hs g) - (f p - s.inf' hs f) := by
+  ring
+
+/-- Transfer for separately selected candidates with certified additive search
+gaps. A minimizer assumption is the special case of zero gaps, never a
+consequence of an optimizer terminating or a force tolerance being reached. -/
+theorem selected_path_score_sub_bounds {κ : Type*}
+    {s : Finset κ} {hs : s.Nonempty} {f g : κ → ℝ} {p q : κ}
+    {a b ηf ηg : ℝ} (hp : p ∈ s) (hq : q ∈ s)
+    (ha : ∀ x ∈ s, a ≤ g x - f x)
+    (hb : ∀ x ∈ s, g x - f x ≤ b)
+    (hf : f p ≤ s.inf' hs f + ηf)
+    (hg : g q ≤ s.inf' hs g + ηg) :
+    a - ηf ≤ g q - f p ∧ g q - f p ≤ b + ηg := by
+  have hlo : s.inf' hs f - s.inf' hs g ≤ -a :=
+    inf_sub_inf_le (f := f) (g := g) ha
+  have hhi : s.inf' hs g - s.inf' hs f ≤ -(-b) :=
+    inf_sub_inf_le (f := g) (g := f) (a := -b)
+      (fun x hx => by have h := hb x hx; linarith)
+  have hpf : s.inf' hs f ≤ f p := Finset.inf'_le (f := f) hp
+  have hqg : s.inf' hs g ≤ g q := Finset.inf'_le (f := g) hq
+  constructor <;> linarith
+
+/-- Two selected sampled forward barriers may use different initial states.
+Pointwise energy offsets bound the shift in every candidate profile's maximum;
+the actual initial-energy difference and certified search gaps remain explicit.
+The declared finite family must be common to both energies. It is not asserted
+to contain every physical path, and no NEB convergence theorem is supplied. -/
+theorem selected_forwardBarrier_sub_bounds {κ : Type*}
+    {paths : Finset κ} {hpaths : paths.Nonempty}
+    (samples : κ → Finset ι) (hne : ∀ k, (samples k).Nonempty)
+    {f g : ι → ℝ} {p q : κ} {i j : ι} {a b ηf ηg : ℝ}
+    (hp : p ∈ paths) (hq : q ∈ paths)
+    (hi : i ∈ samples p) (hj : j ∈ samples q)
+    (ha : ∀ k ∈ paths, ∀ x ∈ samples k, a ≤ g x - f x)
+    (hb : ∀ k ∈ paths, ∀ x ∈ samples k, g x - f x ≤ b)
+    (hf : (samples p).sup' (hne p) f ≤
+      paths.inf' hpaths (fun k => (samples k).sup' (hne k) f) + ηf)
+    (hg : (samples q).sup' (hne q) g ≤
+      paths.inf' hpaths (fun k => (samples k).sup' (hne k) g) + ηg) :
+    a - (g j - f i) - ηf ≤
+        forwardBarrier (samples q) j hj g - forwardBarrier (samples p) i hi f ∧
+      forwardBarrier (samples q) j hj g - forwardBarrier (samples p) i hi f ≤
+        b - (g j - f i) + ηg := by
+  have hlow : ∀ k ∈ paths,
+      a ≤ (samples k).sup' (hne k) g - (samples k).sup' (hne k) f := by
+    intro k hk
+    have hrev : (samples k).sup' (hne k) f -
+        (samples k).sup' (hne k) g ≤ -a :=
+      sup_sub_sup_le (f := g) (g := f) (b := -a)
+        (fun x hx => by have h := ha k hk x hx; linarith)
+    linarith
+  have hhigh : ∀ k ∈ paths,
+      (samples k).sup' (hne k) g - (samples k).sup' (hne k) f ≤ b := by
+    intro k hk
+    exact sup_sub_sup_le (f := f) (g := g) (hb k hk)
+  obtain ⟨hl, hu⟩ := selected_path_score_sub_bounds
+    (hs := hpaths) hp hq hlow hhigh hf hg
+  unfold forwardBarrier
+  constructor <;> linarith
+
+/-- When the selected profiles share the actual initial configuration, offset
+wander suffices for optimum transfer, but each selected path's search gap
+remains. Zero search gaps require certificates, not a solver success flag. -/
+theorem selected_forwardBarrier_sub_bounds_same_initial {κ : Type*}
+    {paths : Finset κ} {hpaths : paths.Nonempty}
+    (samples : κ → Finset ι) (hne : ∀ k, (samples k).Nonempty)
+    {f g : ι → ℝ} {p q : κ} {i : ι} {a b ηf ηg : ℝ}
+    (hp : p ∈ paths) (hq : q ∈ paths)
+    (hi : i ∈ samples p) (hj : i ∈ samples q)
+    (ha : ∀ k ∈ paths, ∀ x ∈ samples k, a ≤ g x - f x)
+    (hb : ∀ k ∈ paths, ∀ x ∈ samples k, g x - f x ≤ b)
+    (hf : (samples p).sup' (hne p) f ≤
+      paths.inf' hpaths (fun k => (samples k).sup' (hne k) f) + ηf)
+    (hg : (samples q).sup' (hne q) g ≤
+      paths.inf' hpaths (fun k => (samples k).sup' (hne k) g) + ηg) :
+    -(b - a) - ηf ≤
+        forwardBarrier (samples q) i hj g - forwardBarrier (samples p) i hi f ∧
+      forwardBarrier (samples q) i hj g - forwardBarrier (samples p) i hi f ≤
+        (b - a) + ηg := by
+  obtain ⟨hl, hu⟩ := selected_forwardBarrier_sub_bounds samples hne hp hq hi hj ha hb hf hg
+  have hia := ha p hp i hi
+  have hib := hb p hp i hi
+  constructor <;> linarith
+
 end OpenDistillationFactory.Materials.Theory.UniversalCorrection
 
 #print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_forwardBarrier_iff
 #print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.abs_forwardBarrier_sub_le_wander
 #print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.forward_hopRate_ratio_bounds
+
+#print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.selected_path_score_sub_bounds
+#print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.selected_forwardBarrier_sub_bounds
+#print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.selected_forwardBarrier_sub_bounds_same_initial

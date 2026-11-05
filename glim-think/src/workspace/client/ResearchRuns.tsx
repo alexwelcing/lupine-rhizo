@@ -1,6 +1,8 @@
 import { InspectCandidateOrderReport } from "./CandidateOrderReport";
 import { InspectVacancyReport } from "./VacancyReport";
 import { draftComparisonContract } from "../comparisonContracts";
+import { requestVerificationPreview } from "./verificationPreviewClient";
+export { requestVerificationPreview } from "./verificationPreviewClient";
 import React, { useEffect, useRef, useState } from "react";
 import { safeEvidenceHref } from "../contracts";
 import { decodeResearchRun, researchRunSchema, RESEARCH_RUN_MAX_BYTES, type ResearchRun,
@@ -120,44 +122,39 @@ function StageReceipt({ stage }: { stage: ResearchRunStage }) {
   </dl></details>;
 }
 
-/** Preview sends only an explicitly supplied contract to the private workspace. */
-export async function requestVerificationPreview(runId: string, text: string): Promise<{ blockers: string[]; contractSha256: string }> {
-  if (new TextEncoder().encode(text).length > RESEARCH_RUN_MAX_BYTES / 2) throw new Error("Comparison is too large");
-  const response = await fetch("/workspace/research-runs/verification-preview", { method: "POST", credentials: "same-origin",
-    headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId, contract: JSON.parse(text) }) });
-  if (!response.ok) throw new Error("Comparison preview unavailable");
-  const result = await response.json() as Record<string, unknown>;
-  if (result.execution !== "not_started" || result.scheduled !== false || result.visibility !== "private" ||
-      !Array.isArray(result.blockers) || result.blockers.some(item => typeof item !== "string") ||
-      typeof result.contractSha256 !== "string" || !/^[a-f0-9]{64}$/.test(result.contractSha256)) throw new Error("Invalid preview");
-  return { blockers: result.blockers as string[], contractSha256: result.contractSha256 };
-}
-
-function VerificationPreview({ run }: { run: ResearchRun }) {
+export function VerificationPreview({ run }: { run: ResearchRun }) {
   const packet = run.stages[0].result;
   const proposals = packet?.role === "proposer" ? packet.proposals : [];
   const [proposalId, setProposalId] = useState(proposals[0]?.id ?? "");
   const [text, setText] = useState("");
+  const [vacancyText, setVacancyText] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Awaited<ReturnType<typeof requestVerificationPreview>> | null>(null);
   const [error, setError] = useState("");
   const revision = useRef(0);
+  function invalidate() { ++revision.current; setResult(null); setError(""); setBusy(false); }
   async function preview() {
     const current = ++revision.current; setBusy(true); setError(""); setResult(null);
-    try { const value = await requestVerificationPreview(run.id, text); if (current === revision.current) setResult(value); }
-    catch { if (current === revision.current) setError("The comparison could not be previewed. Check its contract and saved proposal reference."); }
+    try { const value = await requestVerificationPreview(run.id, text, vacancyText); if (current === revision.current) setResult(value); }
+    catch { if (current === revision.current) setError("The comparison could not be previewed. Check its contract, attachment and saved proposal reference."); }
     finally { if (current === revision.current) setBusy(false); }
   }
   return <details className="research-verification"><summary>Preview a verification task</summary>
     <p>Start from a saved proposal, then review the comparison and its unresolved conditions. Execution and publication require separate gates.</p>
-    <label>Saved proposal<select value={proposalId} onChange={event => setProposalId(event.target.value)}>{proposals.map(proposal => <option key={proposal.id} value={proposal.id}>{proposal.hypothesis}</option>)}</select></label>
-    <button disabled={busy || !proposalId} onClick={() => { ++revision.current; setText(JSON.stringify(draftComparisonContract(run, proposalId), null, 2)); setResult(null); setError(""); }}>Prepare editable draft</button>
+    <label>Saved proposal<select value={proposalId} onChange={event => { invalidate(); setProposalId(event.target.value); setText(""); setVacancyText(""); }}>{proposals.map(proposal => <option key={proposal.id} value={proposal.id}>{proposal.hypothesis}</option>)}</select></label>
+    <button disabled={busy || !proposalId} onClick={() => { invalidate(); setText(JSON.stringify(draftComparisonContract(run, proposalId), null, 2)); setVacancyText(""); }}>Prepare editable draft</button>
     <label>Comparison contract JSON<textarea value={text} maxLength={RESEARCH_RUN_MAX_BYTES / 2} rows={6}
-      onChange={event => { ++revision.current; setText(event.target.value); setResult(null); setError(""); setBusy(false); }} /></label>
+      onChange={event => { invalidate(); setText(event.target.value); }} /></label>
+    <details><summary>Optional vacancy evidence attachment</summary>
+      <p>Paste an attachment for every model in this comparison, bound to its contract fingerprint. It is sent to this private workspace only when you click Preview comparison. Supplied components are checked; sources and model execution are not verified.</p>
+      <label>Vacancy evidence attachment JSON<textarea value={vacancyText} maxLength={RESEARCH_RUN_MAX_BYTES} rows={6}
+        onChange={event => { invalidate(); setVacancyText(event.target.value); }} /></label>
+    </details>
     <button disabled={busy || !text.trim()} onClick={() => void preview()}>{busy ? "Checking…" : "Preview comparison"}</button>
     {error && <p role="alert">{error}</p>}
     {result && <div role="status"><p>{result.blockers.length ? "Conditions to resolve" : "Contract specified; execution is not authorized"}</p>
       <ul>{result.blockers.map((item, index) => <li key={index}>{item}</li>)}</ul><p>Contract fingerprint: <code>{result.contractSha256}</code></p>
+      {result.vacancyAttachmentSha256 && <p>Vacancy attachment fingerprint: <code>{result.vacancyAttachmentSha256}</code>. Supplied components checked; source applicability and model execution remain unverified.</p>}
       <p>No task was scheduled. No experiment was executed. Publication remains held.</p></div>}
   </details>;
 }
