@@ -261,6 +261,105 @@ These are same-agent checks, not independent extraction or physical validation.
 The bounded source/container read consumed 19,323,325 bytes under 32 MiB.
 No corpus rows/studies, model executions or compatibility promotions were added.
 
+## Benchmark residuals: shared targets and outcome-conditioned selection
+
+A metadata-first check on 5 November considered Matbench Discovery and OpenKIM
+before acquiring prediction values. This is a benchmark-method case, separate from
+the eighteen-publication numerical synthesis. It adds no corpus observations,
+PCA result, model ranking, independent validation or physical execution.
+
+Matbench Discovery is the more concrete candidate for a **retrospective relaxed
+energy/stability task**: the pinned repository joins model prediction files on
+`material_id`, declares corrected formation energy in eV/atom, and documents
+formula, substitution step and initial/relaxed prototype fields. That does not
+make every model's final relaxed configuration identical or establish a physical
+ground truth. The [WBM documentation][mbd-wbm] also records dependence of released
+MP2020 corrections on the historical pymatgen implementation. The fixed MP
+reference hull is distinct from a hull rebuilt with all newly considered phases.
+
+Three legacy model cards were selected by identity; score blocks were excluded
+from this review. They identify [M3GNet v2022.9.20][mbd-m3gnet] (MPF), [CHGNet v0.3.0][mbd-chgnet]
+(MPtrj), and [MACE-MP-0 v0.3.5][mbd-mace] (MPtrj), all with the IS2RE-SR task. The cards declare a FIRE
+optimizer and force threshold 0.05, but different cell filters and target
+correction conventions. Current dependency lists are not execution receipts for
+the dated prediction files. Checkpoint URLs and declared MD5 values are metadata,
+not SHA-256 authentication of the original model or prediction bytes.
+
+The [pinned loader][mbd-loader] provides two consequential selection choices:
+
+- By default it replaces a prediction with missingness when its absolute error
+  against the DFT formation-energy target exceeds **5 eV/atom**. This condition
+  uses the reference label. It is not automatically available in prospective
+  screening. No prediction count or effect size of this filtering was measured.
+- The optional unique-prototype subset uses DFT-relaxed prototypes and retains
+  the lowest-energy structure within each surviving prototype. This is a
+  documented benchmark selection, not an outcome-independent random sample.
+  Chemical-system or initial-prototype grouping for a later correction holdout
+  must be fixed separately and must not be called the original models' training
+  holdout.
+
+The [prediction helper][mbd-preds] rounds to three decimal places before forming
+residuals. The [hull conversion][mbd-hull] uses a shared fixed DFT hull. For a
+reference formation energy $f_i$, reference hull distance $h_i$, and model
+formation prediction $p_{im}$, its real-arithmetic contract is
+
+$
+\widehat h_{im}=p_{im}+h_i-f_i,\qquad
+\widehat h_{im}-h_i=p_{im}-f_i.
+$
+
+Thus formation-energy residual and hull-distance residual are the **same
+algebraic observable**, not independent dimensions of model error. If a nonconstant
+residual vector is duplicated as two analysis columns, their centered covariance
+has rank one by construction. That low rank would not demonstrate a physical
+error mechanism. Finite-precision operation order can create tiny numerical
+differences; those are not an additional physical observable either. The source
+explicitly preserves operation order near the stability threshold. This
+identity is established algebra, not a new theorem or an estimate of the
+benchmark's covariance.
+
+For row residual vectors across $M$ models, separating the row-wise common component
+from model disagreement is also useful: with $e_i=p_i-f_i\mathbf1^\top$ and
+$H=I-\mathbf1\mathbf1^\top/M$, $e_iH=p_iH$. This removes the shared reference
+algebraically, but also removes any common model bias. Disagreement geometry
+therefore cannot by itself measure accuracy. Keep both components and their
+different interpretations visible; do not treat this identity as an empirical
+finding of low dimensionality.
+
+**Next-version requirement:** retain observable derivation/dependency identities,
+reference and correction versions, selection predicates, raw-versus-rounded
+values and reasons for missingness before any geometry computation. Count the
+formation/hull residual once. A candidate discovery decision must report a fixed
+stability threshold, missing predictions and reference-hull scope; lower
+reconstruction error alone is insufficient. Compare any eventual correction
+with the identity baseline on groups fixed before outcomes. No new product
+feature or performance claim follows from this feasibility check.
+
+Metadata lists the three prediction files as 1,320,744 / 1,320,974 / 1,322,814
+compressed bytes, with named dates and declared MD5 values. None was downloaded;
+the WBM summary's current size and all file bytes remain unverified.
+A Figshare metadata read failed as inaccessible, and three OpenKIM documentation
+reads returned 444; these stops were retained without retries. OpenKIM's
+successfully read [query documentation](https://query.openkim.org/) supports
+versioned model/test/property identities and bounded projected queries, but this
+visit did not establish a matched reference panel. It is not evidence that such
+data are absent. The Matbench paper's correction page also failed to load;
+the correction's contents remain unreviewed.
+
+The useful result is a conditional data path and two concrete confounds to
+preserve, not a cleared data-admission gate. The prior 386-row NIST snapshot
+remains ineligible under its frozen protocol; this distinct feasibility check
+does not rescue or replace that analysis.
+
+[mbd-wbm]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/data/wbm/readme.md
+[mbd-loader]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/matbench_discovery/data.py
+[mbd-preds]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/matbench_discovery/preds/__init__.py
+[mbd-hull]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/matbench_discovery/metrics/discovery.py
+
+[mbd-m3gnet]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/models/m3gnet/m3gnet.yml
+[mbd-chgnet]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/models/chgnet/chgnet-0.3.0.yml
+[mbd-mace]: https://github.com/janosh/matbench-discovery/blob/c70947f7fd176b8914b72c4ec9a974adfa3b4d50/models/mace/mace-mp-0.yml
+
 ## Synthetic obstructions and a product-contract correction
 
 | Contract | Checked obstruction or correction | Current evidence boundary |
