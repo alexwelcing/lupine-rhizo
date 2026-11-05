@@ -37,6 +37,7 @@ import OpenDistillationFactory.Materials.Theory.UniversalityBridge
 import OpenDistillationFactory.Materials.Theory.ProjectedRibbon
 import OpenDistillationFactory.Materials.Theory.ErrorGeometry
 import OpenDistillationFactory.Materials.Theory.ProjectionLaw
+import OpenDistillationFactory.Materials.Theory.VacancyReference
 import OpenDistillationFactory.Materials.Theory.SpectrumBridge
 import OpenDistillationFactory.Materials.Theory.ConvexProjection
 import OpenDistillationFactory.Materials.Theory.WeakAcceleration

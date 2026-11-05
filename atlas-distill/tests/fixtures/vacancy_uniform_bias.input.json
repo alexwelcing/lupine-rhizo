@@ -1,0 +1,38 @@
+{
+  "schema": "lupine.vacancy_reference.input.v1",
+  "unit": "eV_per_vacancy",
+  "context": {
+    "source_id": "synthetic-reference",
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "cohort_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "parent_id": "synthetic-parent",
+    "parent_atom_count": 3,
+    "cohort_size": 3,
+    "complete_cohort": true,
+    "reference_definition": "self_consistent_species_average",
+    "prediction_id": "synthetic-shift",
+    "prediction_kind": "synthetic"
+  },
+  "score": "within_species_centered",
+  "task": "formation_energy",
+  "rows": [
+    {
+      "site_id": "a",
+      "species": "Cr",
+      "prediction": "1.1",
+      "reference": "1.0"
+    },
+    {
+      "site_id": "b",
+      "species": "Cr",
+      "prediction": "2.1",
+      "reference": "2.0"
+    },
+    {
+      "site_id": "c",
+      "species": "Ni",
+      "prediction": "1.6",
+      "reference": "1.5"
+    }
+  ]
+}

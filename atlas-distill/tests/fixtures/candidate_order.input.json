@@ -1,0 +1,49 @@
+{
+  "schema": "lupine.candidate_order.input.v1",
+  "unit": "eV",
+  "context": {
+    "source_id": "synthetic-source",
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "model_id": "synthetic-model",
+    "model_sha256": null,
+    "model_kind": "synthetic",
+    "material": "Synthetic material",
+    "composition": "One declared composition",
+    "reference_convention": "Shared synthetic formation reference",
+    "protocol": "Synthetic fixed candidate list",
+    "fit_exposure": "Synthetic fixture; no training",
+    "candidate_set_id": "synthetic-pair",
+    "candidate_set_sha256": null,
+    "candidate_set_scope": "listed_only",
+    "comparability": "declared"
+  },
+  "bounds_kind": "exact_values",
+  "rows": [
+    {
+      "candidate_id": "a",
+      "label": "Candidate A",
+      "anchor": "Synthetic row A",
+      "reference": {
+        "lower": "1",
+        "upper": "1"
+      },
+      "prediction": {
+        "lower": "4",
+        "upper": "4"
+      }
+    },
+    {
+      "candidate_id": "b",
+      "label": "Candidate B",
+      "anchor": "Synthetic row B",
+      "reference": {
+        "lower": "3",
+        "upper": "3"
+      },
+      "prediction": {
+        "lower": "2",
+        "upper": "2"
+      }
+    }
+  ]
+}

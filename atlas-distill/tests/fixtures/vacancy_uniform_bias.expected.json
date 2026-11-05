@@ -1,0 +1,99 @@
+{
+  "schema": "lupine.vacancy_reference.result.v1",
+  "input_sha256": "760e1d438a383add858822c06a3ab280fe140f11f6928dc42914edf5bb772ce5",
+  "arithmetic": "exact_rational_on_supplied_decimal_strings",
+  "unit": "eV_per_vacancy",
+  "context": {
+    "source_id": "synthetic-reference",
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "cohort_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "parent_id": "synthetic-parent",
+    "parent_atom_count": 3,
+    "cohort_size": 3,
+    "complete_cohort": true,
+    "reference_definition": "self_consistent_species_average",
+    "prediction_id": "synthetic-shift",
+    "prediction_kind": "synthetic"
+  },
+  "rows": 3,
+  "groups": [
+    {
+      "species": "Cr",
+      "sites": 2,
+      "mean_error_ev": {
+        "numerator": "1",
+        "denominator": "10"
+      },
+      "reference_mean_ev": {
+        "numerator": "3",
+        "denominator": "2"
+      },
+      "prediction_mean_ev": {
+        "numerator": "8",
+        "denominator": "5"
+      }
+    },
+    {
+      "species": "Ni",
+      "sites": 1,
+      "mean_error_ev": {
+        "numerator": "1",
+        "denominator": "10"
+      },
+      "reference_mean_ev": {
+        "numerator": "3",
+        "denominator": "2"
+      },
+      "prediction_mean_ev": {
+        "numerator": "8",
+        "denominator": "5"
+      }
+    }
+  ],
+  "components": {
+    "full_mse_ev2": {
+      "numerator": "1",
+      "denominator": "100"
+    },
+    "within_species_mse_ev2": {
+      "numerator": "0",
+      "denominator": "1"
+    },
+    "overall_mean_error_ev": {
+      "numerator": "1",
+      "denominator": "10"
+    },
+    "overall_bias_squared_ev2": {
+      "numerator": "1",
+      "denominator": "100"
+    },
+    "species_mean_imbalance_mse_ev2": {
+      "numerator": "0",
+      "denominator": "1"
+    }
+  },
+  "selected_score": "within_species_centered",
+  "selected_mse_ev2": {
+    "numerator": "0",
+    "denominator": "1"
+  },
+  "intended_task": "formation_energy",
+  "task_assessment": "incompatible_score_for_task",
+  "issues": [
+    "reference_protocol_unknown",
+    "centered_score_discards_formation_energy_level"
+  ],
+  "decomposition_identity_exact": true,
+  "reference_species_means_equal_exactly": true,
+  "prediction_species_means_equal_exactly": true,
+  "source_verification": "not_performed",
+  "scientific_validation": "not_established",
+  "limitations": [
+    "Equal site weights within the supplied subset; not equal structure weights.",
+    "No chemical potentials are recomputed and no printed values are projected.",
+    "Hashes bind supplied bytes/declarations, not source or model authenticity.",
+    "Raw total energies, external reservoirs and formation labels are different observables.",
+    "No physical acceptance threshold, independence claim, simulation or publication."
+  ],
+  "reference_rows_sha256": "a909eef25088112ff4f0bbf3d665b8901c82874859f8c952b0e16173d4b28534"
+}

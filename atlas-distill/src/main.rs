@@ -141,6 +141,10 @@ enum Commands {
     EquilibriumSolve(commands::equilibrium_solve::EquilibriumSolveArgs),
     /// Build viewer-ready NIST equilibrium targets from benchmark rows.
     NistEquilibriumCatalog(commands::nist_equilibrium_catalog::NistEquilibriumCatalogArgs),
+    /// Compare energies among a fixed set of candidates with exact interval gaps.
+    CandidateOrder(commands::candidate_order::CandidateOrderArgs),
+    /// Decompose vacancy-label errors exactly and assess the declared task scope.
+    VacancyReference(commands::vacancy_reference::VacancyReferenceArgs),
     /// Evaluate the raw structural fixed-point envelope gate and emit JSON.
     ValidateEnvelope(commands::validate_envelope::ValidateEnvelopeArgs),
     /// Validate the complete structural scope/numeric runtime contract.
@@ -230,6 +234,8 @@ fn main() -> Result<()> {
         Commands::DistillHillClimb(args) => commands::distill_hill_climb::run(args),
         Commands::EquilibriumSolve(args) => commands::equilibrium_solve::run(args),
         Commands::NistEquilibriumCatalog(args) => commands::nist_equilibrium_catalog::run(args),
+        Commands::CandidateOrder(args) => commands::candidate_order::run(args),
+        Commands::VacancyReference(args) => commands::vacancy_reference::run(args),
         Commands::ValidateEnvelope(args) => commands::validate_envelope::run(args),
         Commands::ValidateRuntimeContract(args) => commands::validate_runtime_contract::run(args),
     }

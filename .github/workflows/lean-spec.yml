@@ -34,28 +34,59 @@ jobs:
   build:
     name: lake build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check build storage reserve
+        shell: bash
+        run: |
+          free_kib=$(df -Pk . | awk 'NR == 2 { print $4 }')
+          # 20 GiB reserve plus a bounded 20 GiB toolchain/cache/build budget.
+          test "$free_kib" -ge 41943040 || {
+            echo "Insufficient build storage: need 40 GiB free before setup."
+            exit 1
+          }
 
       - name: Install elan
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-      - name: Cache Lake build
-        uses: actions/cache@v4
+      - name: Restore Lake build
+        id: lean-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             lean-spec/.lake
             ~/.cache/lake
           key: ${{ runner.os }}-lean-${{ hashFiles('lean-spec/lean-toolchain', 'lean-spec/lake-manifest.json') }}
 
-      - name: lake build
+      - name: Hydrate pinned mathlib cache
+        working-directory: lean-spec
+        run: lake exe cache get
+
+      - name: Check pinned dependency resolution
         working-directory: lean-spec
         run: |
-          lake exe cache get
-          lake build
+          lake env lean --version
+          lake --version
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = "56a005855ea17e0b0958f73ec801ae140b0a1679"
+          test "$(git -C .lake/packages/atlas rev-parse HEAD)" = "a60759060b5616df0d5775b42da4d337719feb32"
+          git diff --exit-code -- lean-toolchain lakefile.toml lake-manifest.json
+
+      - name: Check vacancy loss specification
+        working-directory: lean-spec
+        run: lake build OpenDistillationFactory.Materials.Theory.VacancyReference
+
+      - name: Check anchored barrier specification
+        working-directory: lean-spec
+        run: lake build OpenDistillationFactory.Materials.Theory.UniversalCorrection.BarrierTransfer
+
+      - name: lake build
+        working-directory: lean-spec
+        run: lake build
 
       - name: Check for sorries
         working-directory: lean-spec
@@ -64,3 +95,12 @@ jobs:
       - name: Evidence manifest gate
         working-directory: lean-spec
         run: sh scripts/check_evidence_manifest.sh
+
+      - name: Save reusable dependency and build cache
+        if: ${{ !cancelled() && steps.lean-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            lean-spec/.lake
+            ~/.cache/lake
+          key: ${{ runner.os }}-lean-${{ hashFiles('lean-spec/lean-toolchain', 'lean-spec/lake-manifest.json') }}

@@ -134,11 +134,11 @@ export async function researchRunsResponse(request: Request, env: Env, localFixt
       let input: unknown;
       try { input = JSON.parse(await readBounded(request)); }
       catch (e) { return json({ error: "Invalid comparison body" }, e instanceof RangeError ? 413 : 400); }
-      const parsed = z.strictObject({ runId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$/), contract: z.unknown() }).safeParse(input);
+      const parsed = z.strictObject({ runId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$/), contract: z.unknown(), vacancyEvidence: z.unknown().optional() }).safeParse(input);
       if (!parsed.success) return json({ error: "Invalid comparison request" }, 400);
       const run = await getResearchRun(env, parsed.data.runId);
       if (!run) return json({ error: "Research run not found" }, 404);
-      try { return json(await previewVerificationTask(run, parsed.data.contract)); }
+      try { return json(await previewVerificationTask(run, parsed.data.contract, parsed.data.vacancyEvidence)); }
       catch { return json({ error: "Comparison contract or saved proposal binding is invalid", code: "invalid_comparison_contract" }, 400); }
     }
     if (request.method === "POST" && url.pathname === "/workspace/research-runs/import") {

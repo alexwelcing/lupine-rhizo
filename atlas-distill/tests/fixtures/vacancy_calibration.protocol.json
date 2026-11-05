@@ -1,0 +1,58 @@
+{
+  "parent_species": [
+    {
+      "species": "Cr",
+      "atoms": 2
+    },
+    {
+      "species": "Ni",
+      "atoms": 1
+    }
+  ],
+  "evaluation_cohort_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "reference_calibration": {
+    "cohort_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "site_count": 2,
+    "species": [
+      {
+        "species": "Cr",
+        "sites": 1,
+        "weight": {
+          "numerator": "2",
+          "denominator": "3"
+        }
+      },
+      {
+        "species": "Ni",
+        "sites": 1,
+        "weight": {
+          "numerator": "1",
+          "denominator": "3"
+        }
+      }
+    ]
+  },
+  "prediction_calibration": {
+    "cohort_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "site_count": 2,
+    "species": [
+      {
+        "species": "Cr",
+        "sites": 1,
+        "weight": {
+          "numerator": "2",
+          "denominator": "3"
+        }
+      },
+      {
+        "species": "Ni",
+        "sites": 1,
+        "weight": {
+          "numerator": "1",
+          "denominator": "3"
+        }
+      }
+    ]
+  },
+  "energy_zero_alignment": "declared_shared"
+}

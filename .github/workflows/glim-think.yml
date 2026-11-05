@@ -8,11 +8,15 @@ on:
     branches: [main]
     paths:
       - 'glim-think/**'
+      - 'atlas-distill/tests/fixtures/vacancy_*'
+      - 'atlas-distill/tests/fixtures/candidate_order.*'
       - '.github/workflows/glim-think.yml'
   pull_request:
     branches: [main]
     paths:
       - 'glim-think/**'
+      - 'atlas-distill/tests/fixtures/vacancy_*'
+      - 'atlas-distill/tests/fixtures/candidate_order.*'
       - '.github/workflows/glim-think.yml'
   workflow_dispatch:
 

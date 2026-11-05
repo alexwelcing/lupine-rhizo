@@ -13,12 +13,25 @@ open HonestErrors
 inductive ChainId where
   | chain1 | chain2 | chain3 | chain4 | chain5 | chain6
   | chain7 | chain8 | chain9 | chain10 | chain11
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance instFintypeChainId : Fintype ChainId where
+  elems := {.chain1, .chain2, .chain3, .chain4, .chain5, .chain6,
+    .chain7, .chain8, .chain9, .chain10, .chain11}
+  complete := by
+    intro x
+    cases x <;> simp
 
 /-- Stable ontology identifiers for the nine rows of the material-class matrix. -/
 inductive MaterialClassId where
   | MC1 | MC2 | MC3 | MC4 | MC5 | MC6 | MC7 | MC8 | MC9
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance instFintypeMaterialClassId : Fintype MaterialClassId where
+  elems := {.MC1, .MC2, .MC3, .MC4, .MC5, .MC6, .MC7, .MC8, .MC9}
+  complete := by
+    intro x
+    cases x <;> simp
 
 /-- Bind each discovery chain to its material-class ontology identifier.
 Chain 10 is the class-independent stability meta-chain; MC9 intentionally owns
@@ -60,7 +73,14 @@ def chainsBelongTo (chains : List Nat) (materialClass : MaterialClassId) : Bool 
 
 inductive AcceptanceTestId where
   | z1 | z2 | z3 | z4 | z5 | z6 | z7 | z8 | z9 | z10 | z11
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance instFintypeAcceptanceTestId : Fintype AcceptanceTestId where
+  elems := {.z1, .z2, .z3, .z4, .z5, .z6,
+    .z7, .z8, .z9, .z10, .z11}
+  complete := by
+    intro x
+    cases x <;> simp
 
 def acceptanceFor : ChainId → AcceptanceTestId
   | .chain1 => .z1

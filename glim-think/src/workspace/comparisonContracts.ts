@@ -1,3 +1,4 @@
+import { assessVacancyEvidence } from "./vacancyEvidenceContracts";
 import { z } from "zod";
 import { researchRunSchema, sha256, type ResearchRun } from "./researchRunContracts";
 
@@ -30,7 +31,7 @@ export function canonicalComparisonJSON(value: unknown): string {
 
 /** Caller supplies a run already receipt-validated by getResearchRun/decodeResearchRun.
  * This pure preview has no environment, storage, provider or scheduling capability. */
-export async function previewVerificationTask(savedRun: ResearchRun, input: unknown) {
+export async function previewVerificationTask(savedRun: ResearchRun, input: unknown, vacancyEvidenceInput?: unknown) {
   const run = researchRunSchema.parse(savedRun);
   const contract = comparisonContractSchema.parse(input);
   const discovery = run.stages[0];
@@ -57,12 +58,32 @@ export async function previewVerificationTask(savedRun: ResearchRun, input: unkn
   if (decision?.role !== "adjudicator" || decision.selected_proposal_id !== contract.proposalId || decision.recommendation !== "investigate")
     blockers.push("No PI investigate recommendation for this proposal");
   const contractSha256 = await sha256(canonicalComparisonJSON(contract));
+  let vacancyEvidence;
+  if (vacancyEvidenceInput !== undefined) {
+    const assessed = assessVacancyEvidence(vacancyEvidenceInput, contract.arms.map(arm => arm.modelId));
+    const supplied = assessed.evidence;
+    if (supplied.comparisonContractSha256 !== contractSha256) throw new Error("Vacancy attachment binds another contract");
+    const observable = { within_species_variation: "within_species_vacancy_variation",
+      formation_energy: "vacancy_formation_energy", vacancy_concentration: "vacancy_concentration" }[supplied.task];
+    if (contract.evaluation.observable !== observable || contract.evaluation.unit !== "eV_per_vacancy")
+      throw new Error("Vacancy observable/unit binding mismatch");
+    for (const { result } of supplied.results) {
+      if (contract.evaluation.referenceId !== result.context.source_id ||
+          !contract.findings.some(finding => finding.sourceId === result.context.source_id &&
+            finding.sourceSha256 === result.context.source_sha256))
+        throw new Error("Vacancy source binding mismatch");
+    }
+    vacancyEvidence = { ...assessed, attachmentSha256: await sha256(canonicalComparisonJSON(supplied)) };
+    blockers.push(...assessed.issues, "Vacancy source and model applicability remain unverified");
+  }
   return {
     schemaVersion: 1 as const, contract, contractSha256,
+    ...(vacancyEvidence ? { vacancyEvidence } : {}),
     status: blockers.length ? "needs_clarification" as const : "specified" as const,
     blockers: [...new Set(blockers)],
     taskPreview: { title: `Verify ${contract.evaluation.material}: ${contract.evaluation.observable}`,
       payload: { runId: run.id, proposalId: contract.proposalId, comparisonContractId: contract.id, comparisonContractSha256: contractSha256, comparisonContract: contract,
+        ...(vacancyEvidence ? { vacancyEvidence } : {}),
         executionKind: contract.executionKind, decisionRule: contract.decisionRule, falsifier: contract.falsifier,
         stoppingRule: contract.stoppingRule, excludedScope: contract.excludedScope } },
     execution: "not_started" as const, publication: "held" as const, visibility: "private" as const,

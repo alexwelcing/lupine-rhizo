@@ -12,7 +12,13 @@ reference) and between two settings (frozen vs loosened). A barrier is an
 energy *difference between different structures*, so a constant offset between
 two energy functions cancels — only the *wander* of the offset across the
 profile reaches the barrier. This module proves exactly that, unconditionally,
-for any finite sampled profile:
+for any finite sampled profile. Here the historical `barrier` means sampled
+maximum minus sampled minimum; `forwardBarrier` below instead uses a designated
+initial image. The two agree exactly when that image is a sampled minimizer.
+Neither sampled definition establishes continuous-path coverage or physical
+activation-energy validity.
+
+The proved range statements are:
 
 * `barrier_sub_le_wander` / `abs_barrier_sub_le_wander` — if the offset
   `g − f` stays in `[a, b]` over the sampled images, the barrier difference
@@ -39,8 +45,10 @@ for any finite sampled profile:
 * `hopRate_le_exp_wander_mul` / `hopRate_ratio_le_exp_wander` — the kinetic
   T1 corollary: under an offset-wander bound, Vineyard hop rates at the two
   barriers differ by at most `exp(wander / kT)`. Convention wander becomes a
-  *bounded* kinetic amplification, priced in units of conductivity
-  (composed with `Theory.BarrierArrhenius`).
+  *bounded* rate amplification for the declared range observable and the same
+  prefactor (composed with `Theory.BarrierArrhenius`). A physical forward-rate
+  interpretation needs the initial-state condition or the anchored theorem
+  below. Conductivity and diffusivity need additional transport premises.
 
 * `barrier_deficit_le_lipschitz_cover` — the sparse-window coverage bound:
   for an `L`-Lipschitz profile with every dense image within `d` of the
@@ -248,8 +256,9 @@ theorem barrier_deficit_le_lipschitz_cover {s t : Finset ι} {hs : s.Nonempty} {
 /-- **The kinetic T1 corollary.** Under the same offset-wander bound, the
 Vineyard hop rate at the `g`-predicted barrier overestimates the rate at the
 `f`-predicted barrier by at most `exp(wander / kT)` — the convention wander
-becomes a *bounded* kinetic amplification, not an unknown one. This is the
-theorem that prices a T1-contaminated path in units of conductivity. -/
+bounds a scalar hop-rate amplification with the same prefactor. The arguments
+here are sampled ranges; interpreting them as forward activation barriers
+requires the initial-state condition. Conductivity is not proved here. -/
 theorem hopRate_le_exp_wander_mul {s : Finset ι} {hs : s.Nonempty} {f g : ι → ℝ}
     {a b ν kT : ℝ} (hν : 0 < ν) (hkT : 0 < kT)
     (ha : ∀ x ∈ s, a ≤ g x - f x) (hb : ∀ x ∈ s, g x - f x ≤ b) :
@@ -288,4 +297,103 @@ theorem hopRate_ratio_le_exp_wander {s : Finset ι} {hs : s.Nonempty} {f g : ι 
   rw [div_le_iff₀ hpos]
   exact hmul
 
+/-! ## Forward barriers anchored to a designated initial image
+
+The historical `barrier` definition above is the sampled energy range. A
+forward activation barrier instead subtracts the energy of the designated
+initial image. Membership is part of this definition; callers must align the
+same initial configuration across the two profiles. Neither definition proves
+that the sample contains the continuous-path saddle. -/
+
+/-- Sampled forward barrier relative to a designated initial image in the sample. -/
+noncomputable def forwardBarrier (s : Finset ι) (i : ι) (hi : i ∈ s)
+    (E : ι → ℝ) : ℝ :=
+  s.sup' ⟨i, hi⟩ E - E i
+
+theorem forwardBarrier_nonneg {s : Finset ι} {i : ι} (hi : i ∈ s) (E : ι → ℝ) :
+    0 ≤ forwardBarrier s i hi E := by
+  have h : E i ≤ s.sup' ⟨i, hi⟩ E := Finset.le_sup' (f := E) hi
+  unfold forwardBarrier
+  linarith
+
+/-- The range exceeds the forward barrier by the initial image's elevation
+above the sampled minimum. The historical range values are not redefined. -/
+theorem barrier_sub_forwardBarrier {s : Finset ι} {hs : s.Nonempty} {i : ι}
+    (hi : i ∈ s) (E : ι → ℝ) :
+    barrier s hs E - forwardBarrier s i hi E = E i - s.inf' hs E := by
+  unfold barrier forwardBarrier
+  ring
+
+theorem forwardBarrier_le_barrier {s : Finset ι} {hs : s.Nonempty} {i : ι}
+    (hi : i ∈ s) (E : ι → ℝ) :
+    forwardBarrier s i hi E ≤ barrier s hs E := by
+  have hgap := barrier_sub_forwardBarrier (hs := hs) hi E
+  have hmin : s.inf' hs E ≤ E i := Finset.inf'_le (f := E) hi
+  linarith
+
+/-- Range and forward barrier coincide exactly when the designated initial
+image is a sampled minimizer, including ties. -/
+theorem barrier_eq_forwardBarrier_iff {s : Finset ι} {hs : s.Nonempty} {i : ι}
+    (hi : i ∈ s) (E : ι → ℝ) :
+    barrier s hs E = forwardBarrier s i hi E ↔ ∀ x ∈ s, E i ≤ E x := by
+  have hgap := barrier_sub_forwardBarrier (hs := hs) hi E
+  constructor
+  · intro heq x hx
+    have hmin : s.inf' hs E ≤ E x := Finset.inf'_le (f := E) hx
+    linarith
+  · intro hmin
+    have hlo : E i ≤ s.inf' hs E := Finset.le_inf' (s := s) hs E hmin
+    have hhi : s.inf' hs E ≤ E i := Finset.inf'_le (f := E) hi
+    linarith
+
+/-- Forward-barrier transfer uses the same designated initial image. No common
+maximum or minimum, and no initial-minimizer premise, is required. -/
+theorem abs_forwardBarrier_sub_le_wander {s : Finset ι} {i : ι} (hi : i ∈ s)
+    {f g : ι → ℝ} {a b : ℝ}
+    (ha : ∀ x ∈ s, a ≤ g x - f x) (hb : ∀ x ∈ s, g x - f x ≤ b) :
+    |forwardBarrier s i hi g - forwardBarrier s i hi f| ≤ b - a := by
+  have hsup : s.sup' ⟨i, hi⟩ g - s.sup' ⟨i, hi⟩ f ≤ b :=
+    sup_sub_sup_le (f := f) (g := g) hb
+  have hrev : s.sup' ⟨i, hi⟩ f - s.sup' ⟨i, hi⟩ g ≤ -a :=
+    sup_sub_sup_le (f := g) (g := f)
+      (fun x hx => by have h := ha x hx; linarith)
+  have hia := ha i hi
+  have hib := hb i hi
+  unfold forwardBarrier
+  rw [abs_le]
+  constructor <;> linarith
+
+/-- Sparse forward barriers underestimate the dense sampled barrier when both
+retain the same initial image. Re-selecting a minimum as the initial image is
+a different observable and is not covered by this statement. -/
+theorem forwardBarrier_mono_subset {s t : Finset ι} {i : ι}
+    (hi : i ∈ t) (hst : t ⊆ s) (E : ι → ℝ) :
+    forwardBarrier t i hi E ≤ forwardBarrier s i (hst hi) E := by
+  have hsup : t.sup' ⟨i, hi⟩ E ≤ s.sup' ⟨i, hst hi⟩ E :=
+    Finset.sup'_le (s := t) ⟨i, hi⟩ E
+      (fun x hx => Finset.le_sup' (f := E) (hst hx))
+  unfold forwardBarrier
+  linarith
+
+/-- Conditional rate transfer for anchored barriers with an explicitly bounded
+prefactor ratio. Equal prefactors are the special case `l = u = 1`; no
+diffusivity, occupancy, network or conductivity model is supplied here. -/
+theorem forward_hopRate_ratio_bounds {s : Finset ι} {i : ι} (hi : i ∈ s)
+    {f g : ι → ℝ} {a b νf νg kT l u : ℝ}
+    (hνf : 0 < νf) (hνg : 0 < νg) (hkT : 0 < kT)
+    (ha : ∀ x ∈ s, a ≤ g x - f x) (hb : ∀ x ∈ s, g x - f x ≤ b)
+    (hl : l ≤ νg / νf) (hu : νg / νf ≤ u) :
+    l * Real.exp (-(b - a) / kT) ≤
+        BarrierArrhenius.hopRate νg (forwardBarrier s i hi g) kT /
+          BarrierArrhenius.hopRate νf (forwardBarrier s i hi f) kT ∧
+      BarrierArrhenius.hopRate νg (forwardBarrier s i hi g) kT /
+          BarrierArrhenius.hopRate νf (forwardBarrier s i hi f) kT ≤
+        u * Real.exp ((b - a) / kT) :=
+  BarrierArrhenius.hopRate_ratio_bounds hνf hνg hkT
+    (abs_forwardBarrier_sub_le_wander hi ha hb) hl hu
+
 end OpenDistillationFactory.Materials.Theory.UniversalCorrection
+
+#print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.barrier_eq_forwardBarrier_iff
+#print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.abs_forwardBarrier_sub_le_wander
+#print axioms OpenDistillationFactory.Materials.Theory.UniversalCorrection.forward_hopRate_ratio_bounds

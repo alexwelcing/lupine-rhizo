@@ -6,11 +6,14 @@
 //! binary into async.
 
 pub mod auto_research;
+pub mod candidate_order;
 pub mod distill_hill_climb;
 pub mod distill_policy;
 pub mod emit_beat;
 pub mod equilibrium_solve;
+mod exact_input;
 pub mod model_geometry;
 pub mod nist_equilibrium_catalog;
+pub mod vacancy_reference;
 pub mod validate_envelope;
 pub mod validate_runtime_contract;
