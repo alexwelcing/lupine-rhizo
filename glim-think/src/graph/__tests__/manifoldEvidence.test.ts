@@ -93,6 +93,8 @@ describe("Manifold evidence through the knowledge graph", () => {
     insertRows();
     await expect(agent().runAnalysis({ element: "Cu", force: true })).resolves.toMatchObject({ ok: true, pr: 2 });
     const saved = sqlite.prepare("SELECT * FROM claims").get();
+    // The legacy producer uses a floating-point PR threshold. This handoff test
+    // must preserve its stored value, not select a side of that numerical boundary.
     const stored = JSON.parse(saved.claim_data);
     expect(stored.descriptive_only).toBe(true);
     expect(JSON.parse(saved.evidence_ids)).toHaveLength(8);
@@ -102,7 +104,7 @@ describe("Manifold evidence through the knowledge graph", () => {
     const graph = await snapshot();
     const node = graph.nodes.find(n => n.id === saved.claim_id)!;
     expect(node).toMatchObject({
-      type: "claim", status: "proposed", confidence: 0.6,
+      type: "claim", status: "proposed", confidence: saved.confidence,
       description: saved.description, analysis_scope: "descriptive only",
       confidence_basis: "legacy heuristic, not a calibrated probability",
       matrix_contract: "observed-complete-cases-v1",
@@ -121,7 +123,7 @@ describe("Manifold evidence through the knowledge graph", () => {
     expect(panel).toContain("<dt>complete_row_count</dt><dd>4</dd>");
     expect(panel).toContain("<dt>excluded_row_count</dt><dd>1</dd>");
     expect(panel).toContain("<dt>invalid_cell_count</dt><dd>0</dd>");
-    expect(panel).toContain("<dt>confidence</dt><dd>0.6</dd>");
+    expect(panel).toContain("<dt>confidence</dt><dd>" + saved.confidence + "</dd>");
     expect(panel).toContain("/claims/" + encodeURIComponent(saved.claim_id));
     expect(node).not.toHaveProperty("claim_data");
     expect(node).not.toHaveProperty("scientific_validation");

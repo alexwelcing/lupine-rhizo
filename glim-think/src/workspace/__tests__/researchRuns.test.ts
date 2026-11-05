@@ -1,6 +1,6 @@
 import { canonicalComparisonJSON, draftComparisonContract, previewVerificationTask } from "../comparisonContracts";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { requestVerificationPreview } from "../client/ResearchRuns";
+import { requestVerificationPreview } from "../client/verificationPreviewClient";
 // @ts-expect-error Test-only SQLite, excluded from Worker types.
 import { DatabaseSync } from "node:sqlite";
 // @ts-expect-error Test-only fixtures, excluded from Worker types.
