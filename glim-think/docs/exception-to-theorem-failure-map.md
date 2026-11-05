@@ -535,6 +535,72 @@ and atlas checks, with deployment skipped. Source-bound component calculations,
 formal specification checks, synthetic runtime tests, full report acceptance
 and deployed behavior must remain separately reported.
 
+## Program completion audit, 5 November 2026
+
+This audit keeps the three-stage objective intact. The pinned historical program
+`program-v2.json` (SHA-256
+`afd333a4e3d85febcb060c0bcd9efd7892f65f978b844bfe2650181fd0ace1b5`)
+requires a traceable empirical atlas, a useful checked specification, and
+versioned Library/graph/RUNS integration with task evaluation. Its prospective
+evaluation requirement is not satisfied by rechecking a known-outcome example.
+The latest objective permits demonstrated **system or simulation** value; a new
+physical campaign is not automatically required for a system contribution.
+
+| Requirement | Authoritative evidence inspected | Disposition |
+| --- | --- | --- |
+| Broad, source-grounded failures and competing explanations | This 18-publication map, its source anchors and linked evidence notes; the benchmark-method case is separate | A scoped empirical synthesis exists. No prevalence, complete coverage or independent physical validation is claimed. |
+| Useful mathematical revision, proof, adversarial checks and closest work | Vacancy-reference and initial-anchored/path-selection Lean modules; exact Rust checkers; linked proof and prior-work notes | Conditional specifications and implementation checks exist. Standard mathematics, real-number assumptions and unverified physical premises remain explicit. |
+| Library integration and review value | Ledger PR39 at `027c552aa8720800ae6a6d2da5019ffe6cfdb15c`: status-preserving search/card path and its checked known-outcome controls | The previous status-loss defect is corrected in a draft. No retrieval superiority or measured human decision benefit is established. |
+| Knowledge-graph integration | Current Rhizo graph snapshot and inline panel; actual Manifold producer and claim SQL | A new qualification-loss defect was reproduced and repaired below. Historical private graph receipts are separate evidence, not proof that their uncommitted files are present in this PR. |
+| RUNS integration | Complete Rust-to-validator public-source acceptance and real Chrome inspector cases in the linked acceptance note | Producer, validation and bounded interactive inspection are checked. No authenticated production acceptance or automatic saved-run/physical certificate is implied. |
+| Demonstrated end-to-end task value | Manifold missingness/covariance defects, Library status loss and this graph handoff; source-aware decision controls | Concrete system defects exist and their fixes have bounded checks. The source-aware comparator matched our known-outcome scientific decisions. A frozen prospective task evaluation on disjoint evidence, or its explicit negative outcome, remains unverified. |
+| Release and ongoing private acceptance | PR158 and PR39 are draft/open/unmerged; private pilot has a separate unresolved operator session | No merge, deployment, primary-read switch or private transfer is claimed. Existing authorization boundaries remain in force. |
+
+The existing tests are meaningful evidence for their stated paths, not a proof
+of whole-program completion. Another optional benchmark is not a new completion
+condition. The remaining task is to finish and evaluate the required system
+bindings, identify a bounded disjoint task evaluation without recycling known
+outcomes as holdout evidence, and distinguish a reviewable implementation from
+an authorized release.
+
+### Graph handoff: a reproduced qualification loss
+
+At Rhizo revision `f7927ec46d45659fe08ef5ead18f3a0b9dd0503e`, the actual
+Manifold producer stored a synthetic descriptive covariance result with four
+complete element/model rows, one excluded row, two properties and eight used
+evidence IDs. Its claim recorded `descriptive_only=true` and
+`confidence_basis="legacy heuristic, not a calibrated probability"`.
+
+The actual `buildGraphSnapshot` kept confidence `0.6`, dropped the matrix and
+qualification fields, and truncated the description to 80 characters before
+“descriptive only.” Thus the graph's node and detail panel could not preserve
+the interpretation recorded by the corrected producer. This is an observed
+synthetic handoff defect, not an estimate of affected production claims.
+
+The graph now prefixes a recorded descriptive Manifold node accordingly,
+preserves the complete claim description, and projects only the scope,
+confidence basis and bounded matrix display fields. Missing or malformed
+legacy qualifications display “not recorded”; they do not inherit the current
+contract. The original confidence, status and graph relations are unchanged.
+Arbitrary `claim_data` is not exposed. A stored qualification remains a
+declaration, not source authentication or scientific validation.
+
+The focused native integration checks exercise the actual producer query,
+recurring-claim SQL upsert, graph snapshot, JSON transport and the existing
+inline panel renderer with SQLite in memory. They cover the complete/excluded
+row case, producer abstention, legacy/malformed unknowns, escaped display text,
+an allowlist against arbitrary payload exposure, and an unrelated-claim control.
+The Durable Object cache and panel DOM are transport doubles. The panel check
+executes the application's function bodies; it is not a browser visual or live
+API check.
+
+A preliminary in-memory execution used native TypeScript erasure and adapted
+module bindings. Its first harness invocation lacked the trace shim and stopped
+before any claim write; the corrected harness reproduced the loss and checked
+the repaired projection on the same stored claim. This local harness is separate
+from the native hosted runtime/typecheck results. No provider call, simulation,
+persistent local write or cloud data mutation occurred.
+
 ## What would justify the next investment
 
 The next unresolved claim is whether exposing these contracts prevents an
