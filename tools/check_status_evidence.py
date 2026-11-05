@@ -92,7 +92,7 @@ def _ontology_states(
     document: Any, source: str
 ) -> tuple[dict[str, dict[str, Any]], dict[str, set[str]]]:
     if not isinstance(document, (dict, list)):
-        raise CheckError(f"{source}: ontology atlas must be a JSON object or array")
+        raise CheckError(f"{source}: ontology must be a JSON object or array")
     statuses: dict[str, dict[str, Any]] = {}
     owners: dict[str, set[str]] = {}
 
@@ -113,7 +113,7 @@ def _ontology_states(
             for index, child in enumerate(value):
                 walk(child, f"{path}{_ontology_path_component(child, index)}")
 
-    walk(document, "$atlas")
+    walk(document, "$ontology")
     return statuses, owners
 
 
@@ -242,6 +242,7 @@ def _locked_ontology(root: Path, revision: str) -> tuple[str | None, Any | None]
         return None, None
     if not isinstance(lock, dict):
         raise CheckError(f"{lock_path} at {revision} must be a JSON object")
+    # Legacy filenames are retained lock identities and must not be rebranded.
     artifact = lock.get("artifact")
     if not isinstance(artifact, str) or re.fullmatch(
         r"registry/ontology/atlas\.v[1-9][0-9]*\.json", artifact

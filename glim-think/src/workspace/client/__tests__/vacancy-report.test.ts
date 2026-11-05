@@ -8,9 +8,9 @@ import { ResearchRuns } from "../ResearchRuns";
 import { validateVacancyResult } from "../../vacancyEvidenceContracts";
 
 const fixture = JSON.parse(readFileSync(new URL(
-  "../../../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", import.meta.url), "utf8"));
+  "../../../../../distill/tests/fixtures/vacancy_uniform_bias.expected.json", import.meta.url), "utf8"));
 const protocol = JSON.parse(readFileSync(new URL(
-  "../../../../../atlas-distill/tests/fixtures/vacancy_calibration.protocol.json", import.meta.url), "utf8"));
+  "../../../../../distill/tests/fixtures/vacancy_calibration.protocol.json", import.meta.url), "utf8"));
 const report = () => validateVacancyResult(structuredClone(fixture));
 const render = (input: unknown, task?: "within_species_variation" | "formation_energy" | "vacancy_concentration") =>
   renderToStaticMarkup(React.createElement(VacancyReportView, { report: input, task }));

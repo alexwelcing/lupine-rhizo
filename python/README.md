@@ -45,11 +45,11 @@ python/
 │   ├── backends/           # torchsim, ASE, mock backends
 │   ├── uplift/             # distill_v_uplift and promotion recommendation
 │   ├── regime/             # a-priori regime gate
-│   └── odf/                # ODF / ATLAS promotion gate and model cards
+│   └── odf/                # ODF / formal promotion gate and model cards
 ├── lupine_distill_runtime/
 │   ├── session.py          # DistillSession / DistillSupportModel
 │   ├── leakage.py          # LeakageGuard
-│   ├── policy_engine.py    # Rust atlas-distill bridge
+│   ├── policy_engine.py    # Rust distill bridge
 │   └── events.py           # OpenInference / OTLP event log
 └── scripts/
     ├── run_ni_gpu_loop.py              # end-to-end Ni FCC benchmark
@@ -77,14 +77,14 @@ gate_result = evaluate_promotion({
     "model_id": "mace-mp-0",
     "distill_version": 1,
     "overall_uplift_pct": uplift.overall_uplift_pct,
-    "atlas_theorem_refs": ["OpenDistillationFactory.Materials.Theory.ContextSpecificProof"],
+    "theorem_refs": ["OpenDistillationFactory.Materials.Theory.ContextSpecificProof"],
     "formal_properties": {"scope_invariant": True},
 })
 ```
 
 ## How it connects to the rest of the repo
 
-- `atlas-distill/` supplies the Rust policy engine invoked by `lupine_distill_runtime/policy_engine.py`.
+- `distill/` supplies the Rust policy engine invoked by `lupine_distill_runtime/policy_engine.py`.
 - `gcp/mlip-cell-runner/` imports `lupine_distill_runtime` for instrumented cells.
 - `tools/mlip_regime_filter.py` and `tools/regime_gate_flywheel.py` import `lupine_distill.regime`.
 - `lean-spec/` holds the theorems referenced by `lupine_distill.odf.promotion_gate`.

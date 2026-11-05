@@ -104,7 +104,8 @@ noncomputable def tangentProjection {m d : ℕ}
   let ATA_lin := ATA.toLinearMap
   have h_inj : Function.Injective ATA_lin := by
     intro x y h
-    have h' : ATA x = ATA y := by simpa using h
+    have h' : ATA x = ATA y := by
+      simpa only [ATA_lin, ContinuousLinearMap.coe_coe] using h
     have hATA : ATA (x - y) = 0 := by
       rw [map_sub]
       rw [h']
@@ -178,7 +179,8 @@ lemma tangentProjection_C1 {m d : ℕ}
       let ATA_lin := ATA.toLinearMap
       have h_inj : Function.Injective ATA_lin := by
         intro x y h
-        have h' : ATA x = ATA y := by simpa using h
+        have h' : ATA x = ATA y := by
+          simpa only [ATA_lin, ContinuousLinearMap.coe_coe] using h
         have hATA : ATA (x - y) = 0 := by
           rw [map_sub]
           rw [h']

@@ -93,11 +93,11 @@ Lupine, the open MLIP-distillation research platform, has completed a five-front
 - `lean-spec/OpenDistillationFactory/Materials/Distillation/SubspaceCorrectionScheme.lean`
 - `lean-spec/OpenDistillationFactory/Materials/Theory/AlloyResidualTransfer.lean`
 - `lean-spec/OpenDistillationFactory/Materials/Theory/ActiveSampling.lean`
-- `atlas-distill/src/commands/mlip_correct.rs`
-- `atlas-distill/src/commands/mlip_optimize.rs`
-- `atlas-distill/src/active_sampling.rs`
-- `atlas-distill/src/manifold.rs`
-- `atlas-distill/src/validation.rs`
+- `distill/src/commands/mlip_correct.rs`
+- `distill/src/commands/mlip_optimize.rs`
+- `distill/src/active_sampling.rs`
+- `distill/src/manifold.rs`
+- `distill/src/validation.rs`
 
 All changes are live in `main` and mirrored to `lupine-rhizo` and `lupine-ledger`.
 

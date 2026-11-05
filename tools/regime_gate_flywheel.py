@@ -1,6 +1,6 @@
-"""Regime-gate flywheel — turn the atlas into proof the harm is now prevented.
+"""Regime-gate flywheel — turn the report into proof the harm is now prevented.
 
-The atlas (tools/mlip_distill_atlas.py) is a *labeled* benchmark: it knows which
+The report (tools/mlip_distill_report.py) is a *labeled* benchmark: it knows which
 of the 45 paired cells the ribbon helped and which it harmed. This flywheel
 replays the a-priori :func:`lupine_distill.regime.regime_gate` over those same
 cells and asks the one question that makes the diagnose -> fix -> re-prove loop
@@ -15,9 +15,9 @@ It writes three things, all from the same scoring so they cannot drift:
   2. lean-spec/.../RegimeGate/Dominance.lean   a certificate that COMPILES ONLY
                                           IF the gate dominates (0 sorry) — a
                                           regression alarm baked into the kernel
-  3. tmp/mlip-evidence/regime_gate_theorems_seed.sql   atlas_theorems seed
+  3. tmp/mlip-evidence/regime_gate_theorems_seed.sql   theorems seed
 
-Run (same labels as the atlas):
+Run (same labels as the report):
     python tools/regime_gate_flywheel.py \
       Ni-EAM=tmp/mlip-evidence/ni-cells  MPtrj-DFT=tmp/mlip-evidence/kr-cells
 """
@@ -30,7 +30,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from atlas_theorem_sync import build_ad_hoc_rows, render_ad_hoc_sql, write_extension_manifest
+from theorem_sync import build_ad_hoc_rows, render_ad_hoc_sql, write_extension_manifest
 
 _HERE = Path(__file__).resolve()
 _REPO = _HERE.parents[1]
@@ -52,7 +52,7 @@ SEED = _REPO / "tmp" / "mlip-evidence" / "regime_gate_theorems_seed.sql"
 EXTENSION = SEED.with_suffix(".json")
 
 # The v1 ribbon's DECLARED design envelope. Reference family + the rows it
-# demonstrably corrects (per the atlas: distill helped energy_volume and
+# demonstrably corrects (per the report: distill helped energy_volume and
 # relaxation_stability on the home regime, was neutral on forces/stress/elastic).
 RIBBON_ID = "lupine-ribbon-v1-mptrj-dft"
 FIT_ROWS = frozenset({"energy_volume", "relaxation_stability"})
@@ -148,7 +148,7 @@ def main(argv: list[str]) -> int:
     ]
     ns = "Lupine.RegimeGate.Dominance"
     src = (
-        "/- AUTHORED by tools/regime_gate_flywheel.py from atlas dominance scoring.\n"
+        "/- AUTHORED by tools/regime_gate_flywheel.py from report dominance scoring.\n"
         f"   Ribbon: {RIBBON_ID}. Decidable Nat facts — 0 sorry. -/\n\n"
         f"namespace {ns}\n\n" + "\n".join(thms) + f"\n\nend {ns}\n"
     )
@@ -205,7 +205,7 @@ def main(argv: list[str]) -> int:
     applied_gains = [c for c in scored if c.is_gain and c.applied]
     lines = [
         "# Regime-Gate Dominance — the systematic harm, prevented a-priori", "",
-        f"The atlas measured the v0 (ungated) policy shipping **{ungated} systematic regression(s)** "
+        f"The report measured the v0 (ungated) policy shipping **{ungated} systematic regression(s)** "
         f"to production. The a-priori regime gate — provenance only, **no oracle** — replays over "
         f"the same {report.n_cells} paired cells and **admits {gated}**, while preserving "
         f"**{preserved}/{total}** of the wins. "

@@ -22,7 +22,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import {
-  buildModelGeometryAtlasPayload,
+  buildModelGeometryPayload,
   enqueueTask,
   type ResearchTask,
 } from "../queue";
@@ -149,8 +149,8 @@ describe("enqueueTask — research sync lane", () => {
     expect(cleanupCalls).toBe(1);
   });
 
-  it("builds the atlas-distill model-geometry task payload without duplicating transport args", () => {
-    const payload = buildModelGeometryAtlasPayload(
+  it("builds the distill model-geometry task payload without duplicating transport args", () => {
+    const payload = buildModelGeometryPayload(
       {
         kind: "model_geometry_distill",
         dedup_key: "model-geometry:h1:fixture",

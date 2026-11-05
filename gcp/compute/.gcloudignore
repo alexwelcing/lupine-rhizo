@@ -1,0 +1,7 @@
+# gcloud uses THIS (not .dockerignore) for the Cloud Build upload context.
+# Keep _vendor: the Dockerfile copies the staged canonical NIST index.
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.gitignore

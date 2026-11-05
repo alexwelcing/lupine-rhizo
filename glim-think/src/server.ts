@@ -63,10 +63,10 @@ import { PhoenixApi } from "./phoenix/api";
 import { searchLiterature, isLiteratureSource, rowToPaper } from "./literature";
 import { enqueueTask, consumeBatch, type ResearchTask } from "./research/queue";
 import {
-  dispatchAtlasJob,
-  dispatchAtlasJobBatch,
-  type TaskPayload as AtlasTaskPayload,
-  type BatchDispatchItem as AtlasBatchItem,
+  dispatchDistillJob,
+  dispatchDistillJobBatch,
+  type TaskPayload as DistillTaskPayload,
+  type BatchDispatchItem as DistillBatchItem,
 } from "./research/dispatch";
 import { handleResearchWorkflowRoute } from "./research/workflows";
 import { MLIP_PHOENIX_DATASET_NAME } from "./research/mlipPhoenix";
@@ -2268,19 +2268,19 @@ ${narrative}
         }
 
         // === Unit 8: dispatch to GCP heavy compute ===
-        // Publishes a Cloud Tasks task that fans out to the atlas-distill
+        // Publishes a Cloud Tasks task that fans out to the distill
         // Cloud Run Job via the tasks-consumer service. Auth posture matches
         // the rest of /research/* (open in dev; production gating tracked
         // separately — see PR notes for unit 08).
         if (url.pathname === "/research/dispatch" && request.method === "POST") {
-          let body: AtlasTaskPayload;
+          let body: DistillTaskPayload;
           try {
-            body = JSON.parse(bodyText || "{}") as AtlasTaskPayload;
+            body = JSON.parse(bodyText || "{}") as DistillTaskPayload;
           } catch (e) {
             return jsonError(`invalid JSON: ${e instanceof Error ? e.message : String(e)}`, 400);
           }
           try {
-            const result = await dispatchAtlasJob(env, body);
+            const result = await dispatchDistillJob(env, body);
             return Response.json(result, { headers: JSON_CORS_HEADERS });
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
@@ -2757,7 +2757,7 @@ ${narrative}
         return Response.json(result, { headers: JSON_CORS_HEADERS });
       }
 
-      // === Batch fan-out: enqueue one atlas-distill Cloud Run Job per
+      // === Batch fan-out: enqueue one distill Cloud Run Job per
       // hypothesis in a single Worker call. Designed for 100+ research-loop
       // bursts where the hourly orchestrator tick is too narrow. CF Access
       // gates /admin/* upstream of here.
@@ -2798,7 +2798,7 @@ ${narrative}
 
         const beatUrl = body.beat_emit_url ?? `${url.origin}/feed/beats`;
         const baseArgs = Array.isArray(body.args) ? body.args : [];
-        const items: AtlasBatchItem[] = hypothesisIds.map((hid) => ({
+        const items: DistillBatchItem[] = hypothesisIds.map((hid) => ({
           hypothesis_id: hid,
           payload: {
             fixture_url: body.fixture_url!,
@@ -2809,7 +2809,7 @@ ${narrative}
         }));
 
         try {
-          const result = await dispatchAtlasJobBatch(env, items, body.concurrency ?? 10);
+          const result = await dispatchDistillJobBatch(env, items, body.concurrency ?? 10);
           return Response.json(
             { ...result, requested: hypothesisIds.length },
             { headers: JSON_CORS_HEADERS },

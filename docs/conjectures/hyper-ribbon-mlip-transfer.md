@@ -40,7 +40,7 @@ and forcing a joint $C_{ij}+a_0$ manifold, the ribbon **survives** (participatio
 ratio 1.05–2.05). This is a historical reported result, not a demonstrated exclusion
 of an observable-selection or scale artifact. Its exact generator, normalization,
 complete-case sample and model/reference dependence must be recovered before
-that interpretation is used. The maintained atlas-distill raw-error PCA path
+that interpretation is used. The maintained Distill raw-error PCA path
 must not be assumed to be the generator of this separate result.
 
 ## Why it matters

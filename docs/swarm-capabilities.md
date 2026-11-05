@@ -7,7 +7,7 @@ Status: live configuration as of 2026-09-09. Companion demo evidence: `docs/swar
 | Layer | What runs there | Strength it exploits |
 |---|---|---|
 | Cloud control plane | glim-think worker (Cloudflare: Durable Objects, D1, Queues, Vectorize, cron) | Durability, scheduling, provenance, public surfaces; scorecard-routed model calls; zero local dependency |
-| Cloud burst compute | GCP Cloud Tasks → tasks-consumer → atlas-distill runners | Reproducible GPU cells, paid campaigns only |
+| Cloud burst compute | GCP Cloud Tasks → tasks-consumer → distill runners | Reproducible GPU cells, paid campaigns only |
 | Local agent runtime | herdr 0.9.0 (pane/worktree management, agent state detection) on each machine | Many parallel agents on local GPUs/CPUs, survives disconnects |
 | Cloud→local link | herdr-bridge daemon (systemd, one per machine) | Outbound-only: polls `/bridge/jobs`, drives herdr agents, posts beats back |
 | Local agent harness | hermes (profiles, kanban, cron, skills) | Deep tool use, delegation, long-horizon work with the fallback chain |

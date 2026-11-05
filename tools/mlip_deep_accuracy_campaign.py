@@ -150,8 +150,8 @@ def mkdir_gcs_prefix(gs_url: str) -> None:
 def elastic_reference_table() -> list[dict[str, Any]]:
     refs: dict[tuple[str, str], dict[str, Any]] = {}
     for path, crystal in [
-        (ROOT / "atlas-distill" / "benchmarks" / "fcc_elastic_constants.csv", "fcc"),
-        (ROOT / "atlas-distill" / "benchmarks" / "bcc_elastic_constants.csv", "bcc"),
+        (ROOT / "distill" / "benchmarks" / "fcc_elastic_constants.csv", "fcc"),
+        (ROOT / "distill" / "benchmarks" / "bcc_elastic_constants.csv", "bcc"),
     ]:
         with path.open(newline="", encoding="utf-8") as handle:
             for row in csv.DictReader(handle):
@@ -204,7 +204,7 @@ def elastic_cases_for_ref(ref: dict[str, Any], shard_index: int) -> list[dict[st
                 "pbc": [True, True, True],
                 "strain_voigt": strain_voigt.tolist(),
                 "metadata": {
-                    "source": "atlas-distill NIST-derived elastic benchmark table",
+                    "source": "distill NIST-derived elastic benchmark table",
                     "elastic_reference_kind": "nist_cubic_small_strain",
                     "deep_shard_index": shard_index,
                 },
@@ -325,7 +325,7 @@ def build_deep_manifests(
                     "via": "Hugging Face Dataset Viewer rows API",
                 },
                 "nist_elastic": {
-                    "source": "atlas-distill/benchmarks fcc/bcc elastic constants",
+                    "source": "distill/benchmarks fcc/bcc elastic constants",
                     "material": elastic_ref["material"],
                     "crystal": elastic_ref["crystal"],
                 },

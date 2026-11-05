@@ -55,10 +55,10 @@ from typing import Any
 _THEORY = "OpenDistillationFactory.Materials.Theory"
 _BINDING_REPORT_SCHEMA = "lupine.env_field_binding_report.v2"
 _BINDING_LEAN_MODULE = (
-    "lean-spec/OpenDistillationFactory/Materials/DistillAtlas/EnvFieldInstances.lean"
+    "lean-spec/OpenDistillationFactory/Materials/Data/EnvFieldInstances.lean"
 )
 _BINDING_NAMESPACE = (
-    "OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances"
+    "OpenDistillationFactory.Materials.Data.EnvFieldInstances"
 )
 _BINDING_TARGET_FILES = (
     "surface_energies.json",
@@ -1048,7 +1048,14 @@ def merge_into_candidate_metadata(
     fields. Refusals and indeterminate/non-applicable results therefore cannot
     satisfy the formal gate merely by existing. The input is not mutated."""
     enriched = dict(metadata)
-    refs = list(enriched.get("atlas_theorem_refs", []) or [])
+    # Normalize legacy input before appending certificates. Leaving both keys
+    # would manufacture a conflict when the promotion boundary validates them.
+    if "atlas_theorem_refs" in enriched:
+        legacy = enriched.pop("atlas_theorem_refs")
+        if "theorem_refs" in enriched and enriched["theorem_refs"] != legacy:
+            raise ValueError("conflicting theorem_refs and legacy atlas_theorem_refs")
+        enriched.setdefault("theorem_refs", legacy)
+    refs = list(enriched.get("theorem_refs", []) or [])
     props = list(enriched.get("formal_properties", []) or [])
     evidence = list(enriched.get("certificate_evidence", []) or [])
     for cert in certificates:
@@ -1070,7 +1077,7 @@ def merge_into_candidate_metadata(
         stamp = f"{payload['kind']}: {cert.reason}"
         if stamp not in props:
             props.append(stamp)
-    enriched["atlas_theorem_refs"] = refs
+    enriched["theorem_refs"] = refs
     enriched["formal_properties"] = props
     enriched["certificate_evidence"] = evidence
     return enriched

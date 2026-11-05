@@ -4,7 +4,7 @@ Instrumented runtime for MLIP cells.
 
 ## Purpose
 
-This package wraps an MLIP execution cell with sessions, support/eval leakage guards, a policy-engine adapter (Python or Rust `atlas-distill`), and structured runtime events. It is the in-run companion to the offline benchmark/uplift code in `lupine_distill`.
+This package wraps an MLIP execution cell with sessions, support/eval leakage guards, a policy-engine adapter (Python or Rust `distill`), and structured runtime events. It is the in-run companion to the offline benchmark/uplift code in `lupine_distill`.
 
 ## Key modules
 

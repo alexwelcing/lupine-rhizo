@@ -1,5 +1,7 @@
 # CDN — Cloudflare in front of GCS (Bandwidth Alliance)
 
+> Viewer implementation now belongs to [Lupi](https://github.com/alexwelcing/Lupi). Old source paths below are historical; existing asset URLs retain their exact object keys.
+
 > Companion to [`docs/decisions/0001-r2-over-bandwidth-alliance.md`](../decisions/0001-r2-over-bandwidth-alliance.md).
 > Worker source lives at [`cloudflare/cdn-proxy/`](../../cloudflare/cdn-proxy).
 

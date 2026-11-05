@@ -3,11 +3,11 @@
   "note": "Derived numbers are recomputed from committed source rows; quoted numbers are copied from frozen reports named in 'source'. Live-ledger 352-row snapshot NOT recovered as of build: its exact numbers are omitted per the sprint contract.",
   "sources": {
     "kim_tensors": {
-      "path": "lupine/atlas-distill/benchmarks/kim_elastic_results_all.csv",
+      "path": "lupine/distill/benchmarks/kim_elastic_results_all.csv",
       "sha256": "927be85f4dc02571866db0e01f4becb44ef16406041bbb6da962867693d77da6"
     },
     "nist_rows": {
-      "path": "lupine/atlas-distill/benchmarks/nist_populated_all.csv",
+      "path": "lupine/distill/benchmarks/nist_populated_all.csv",
       "sha256": "527f72ef488aef3f830cc023182506a04a56573d55197382f28e0365828c1156"
     },
     "geometry_42": {

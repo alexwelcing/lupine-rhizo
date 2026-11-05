@@ -5,9 +5,9 @@ import { assessCandidateOrder, candidateOrderInputSchema, validateCandidateOrder
 
 const base = (import.meta as ImportMeta & { url: string }).url;
 const fixture = JSON.parse(readFileSync(new URL(
-  "../../../../atlas-distill/tests/fixtures/candidate_order.input.json", base), "utf8"));
+  "../../../../distill/tests/fixtures/candidate_order.input.json", base), "utf8"));
 const expected = JSON.parse(readFileSync(new URL(
-  "../../../../atlas-distill/tests/fixtures/candidate_order.assessment.json", base), "utf8"));
+  "../../../../distill/tests/fixtures/candidate_order.assessment.json", base), "utf8"));
 const input = () => candidateOrderInputSchema.parse(structuredClone(fixture));
 const report = () => ({ schema: "lupine.candidate_order.report.v1", input_sha256: "b".repeat(64),
   input: input(), assessment: structuredClone(expected) });

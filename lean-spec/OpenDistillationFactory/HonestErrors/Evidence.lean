@@ -17,7 +17,13 @@ inductive EpistemicMark where
 inductive EvidenceGrade where
   | medium
   | high
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance : Fintype EvidenceGrade where
+  elems := { .medium, .high }
+  complete := by
+    intro grade
+    cases grade <;> simp
 
 inductive Readiness where
   | low

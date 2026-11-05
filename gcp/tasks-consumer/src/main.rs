@@ -1,9 +1,9 @@
-//! Cloud Tasks → atlas-distill Cloud Run Job dispatcher.
+//! Cloud Tasks → distill Cloud Run Job dispatcher.
 //!
 //! The queue `atlas-distill-jobs` (us-central1) targets this service. We:
 //!   1. validate the Cloud Tasks OIDC `Authorization` bearer token
 //!   2. parse the task envelope
-//!   3. invoke `projects.locations.jobs.run` for the `atlas-distill` Cloud Run Job
+//!   3. invoke `projects.locations.jobs.run` for the `distill` Cloud Run Job
 //!      with container overrides carrying `command` + `args` + `--beat-emit-url`
 //!   4. return 200 once the Job RUN is accepted (we don't wait for completion)
 //!
@@ -33,7 +33,7 @@ use auth::{verify_oidc, OidcVerifier};
 use jobrun::{run_job, JobRunner, RealJobRunner};
 
 #[derive(Parser, Debug, Clone)]
-#[command(version, about = "Cloud Tasks consumer for atlas-distill")]
+#[command(version, about = "Cloud Tasks consumer for distill")]
 struct Cli {
     /// Port to bind. Cloud Run injects $PORT.
     #[arg(long, env = "PORT", default_value_t = 8080)]

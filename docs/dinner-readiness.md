@@ -4,7 +4,7 @@ Private local status for the five-item push.
 
 ## 1. Causal audit matrix
 
-`atlas-distill benchmark <file> --causal-audit` now emits `benchmark_causal_audit.json`.
+`distill benchmark <file> --causal-audit` now emits `benchmark_causal_audit.json`.
 
 The NIST benchmark run produced 9 audit rows across material, potential, and
 property groupings crossed with predicted value, signed error, and absolute
@@ -54,7 +54,7 @@ inventory is now 52.
 
 Current local gates:
 
-- `cargo test --release --manifest-path atlas-distill/Cargo.toml`: 106 passed
+- `cargo test --release --manifest-path distill/Cargo.toml`: 106 passed
 - `lake build OpenDistillationFactory.Materials.Vision`: passed
 - `just verify`: passed
 

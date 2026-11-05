@@ -30,14 +30,8 @@ SURFACES_STRICT = [
     "gcp/lupine-site-router/public/llms.txt",
     "library-site/src/i18n.js",
     "library-site/src/app.js",
-    "atlas/lupine-vc/deck.html",
-    "atlas/lupine-vc/index.html",
-    "atlas/lupine-vc/one-pager.html",
-    "atlas/manifesto/index.html",
     "library-site/src/llms.txt",
     "library-site/src/llms-full.txt",
-    "atlas/atlas-view/apps/web/public/llms.txt",
-    "atlas/atlas-view/apps/web/public/llms-full.txt",
     "deck/public/index.html",
     "deck/public/access.html",
     "deck/public/one-pager.html",
@@ -55,7 +49,7 @@ SURFACES_CLAIM_ONLY = [
     "CHANGELOG.md",
     "docs/research_evolution_2026_05_05.md",
     "paper/README.md",
-    "atlas-distill/README.md",
+    "distill/README.md",
 ]
 
 CLAIM_PHRASES = [
@@ -130,15 +124,15 @@ def check_sync_drift() -> list[str]:
     brand = json.loads((ROOT / "brand.config.json").read_text(encoding="utf-8"))
     expected_brand = json.dumps(brand, indent=2, ensure_ascii=False) + "\n"
     src_dir = ROOT / "docs" / "brand" / "agent"
-    for site_root in ("library-site/src", "atlas/atlas-view/apps/web/public"):
+    for site_root in ("exports/library-content",):
         brand_json = ROOT / site_root / "brand.json"
         if brand_json.exists() and brand_json.read_text(encoding="utf-8") != expected_brand:
-            errors.append(f"{site_root}/brand.json is stale - run: python scripts/sync_brand_agent_text.py")
+            errors.append(f"{site_root}/brand.json is stale - run: python scripts/sync_brand_agent_text.py --site-root {site_root}")
         for name in ("llms.txt", "llms-full.txt"):
             dst = ROOT / site_root / name
             src = src_dir / name
             if src.exists() and dst.exists() and dst.read_text(encoding="utf-8") != src.read_text(encoding="utf-8"):
-                errors.append(f"{site_root}/{name} is stale - run: python scripts/sync_brand_agent_text.py")
+                errors.append(f"{site_root}/{name} is stale - run: python scripts/sync_brand_agent_text.py --site-root {site_root}")
     return errors
 
 

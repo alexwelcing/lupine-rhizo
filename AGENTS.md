@@ -12,6 +12,14 @@ elsewhere.
 - Separate inherited repo noise from regressions introduced by the current work.
 - Preserve user changes and do not revert unrelated files.
 
+## Internal naming
+
+Use Rhizo for the research system, Distill for its scoring/runtime engine, and
+Lupi for the separate viewer. Do not introduce Atlas as an internal component,
+namespace, CLI or brand. Meta ATLAS-Lean names identify the external dependency;
+retained historical inputs and deployed resource IDs may preserve their exact
+legacy spellings at explicit compatibility boundaries.
+
 ## Organization
 
 - Keep marketing and launch-site code out of the tree.
@@ -73,7 +81,7 @@ deps or config degrade to a logged no-op.
 
 ## Formal verification (`lean-spec` + ATLAS-Lean)
 
-`lean-spec/` (Lake package `OpenDistillationFactory`, Lean `v4.29.0` — pinned
+`lean-spec/` (Lake package `OpenDistillationFactory`, Lean `v4.35.0` — pinned
 to ATLAS's toolchain) is the evidence layer: it holds the proven theorems behind
 the materials-science claims. Treat a green `lake build` with zero `sorry`
 proofs as the gate — a broken or `sorry`-bearing proof is a regression, not
@@ -86,21 +94,23 @@ totals into narrative files.
   describe a separate mathlib-free conjecture project.
 - ATLAS-Lean (`facebookresearch/atlas-lean`) is consumed as a pinned Lake
   dependency, not vendored. Keep strict namespace discipline: imported math
-  lives under `Atlas.*`, our formalization stays under
+  lives under `MathlibExt.*`, `CSLibExt.*`, or `PhyslibExt.*`; our formalization stays under
   `OpenDistillationFactory.*`.
-- Import only the proved `Atlas` target. Do **not** pull in the `Unproved`
-  target — it carries `sorry` statements that would poison the gate.
-- `lean-spec` is pinned to ATLAS's exact toolchain (`v4.29.0`) and Mathlib rev
-  (`8a178386…`) so the whole graph resolves to ONE reproducible Mathlib; ATLAS is
-  pinned at `c5a10f1a…`. `lake exe cache get` then hydrates Mathlib from cache
+- The current upstream package is named `atlas`. Import only individual proved
+  `MathlibExt.*`, `CSLibExt.*`, or `PhyslibExt.*` modules when needed. Never
+  import `WantedExt` or build upstream default targets: deferred results must
+  not enter the checked local graph.
+- `lean-spec` is pinned to ATLAS's exact toolchain (`v4.35.0`) and Mathlib rev
+  (`56a00585…`) so the whole graph resolves to ONE reproducible Mathlib; ATLAS is
+  pinned at `a6075906…`. `lake exe cache get` then hydrates Mathlib from cache
   instead of compiling it. Run lake **from inside `lean-spec/`** so elan selects
-  v4.29.0 — running from the repo root picks the global toolchain and silently
+  v4.35.0 — running from the repo root picks the global toolchain and silently
   refuses the cache (`lake version … does not match toolchain`), forcing a
   from-source Mathlib build that fails on API drift.
 - COST WARNING (hard-won): ATLAS's autoformalized modules elaborate in ~7–9 min
-  EACH; importing a whole subject (e.g. `Atlas.RealAnalysis`, ~85 modules) is
+  EACH; importing a whole subject (e.g. a complete upstream subject, ~85 modules) is
   ~80 min and will OOM a dev box. Build theorems on the shared cached Mathlib
-  that ATLAS pins to, and reserve direct `Atlas.*` imports for selective single
+  that ATLAS pins to, and reserve direct upstream imports for selective single
   leaf modules behind an offline/opt-in target — never a whole subject in the
   hot build path.
 - Extend proofs incrementally, module by module (Analysis.Manifold,
@@ -143,22 +153,10 @@ When writing automation scripts, deployment orchestrators, or `justfile` configu
    The root `justfile` uses `windows-shell` for the explicit Git Bash path and
    keeps `shell` POSIX for Unix maintainers.
 
-## Lupi viewer agent surface (MCP + API keys)
+## Lupi ownership
 
-The Lupi molecular viewer (`atlas/atlas-view`, live at lupi.live) exposes an
-agent-drivable surface so Codex / Claude Code can load and inspect molecules
-without manual viewer setup.
-
-- **Auth without OAuth:** a signed-in user mints an API key (`lupi_pk_…`); the
-  agent POSTs it to `exchangeApiKey` for a Firebase custom token, signs in, and
-  then drives the viewer as that user. Full flow + endpoints:
-  `atlas/atlas-view/docs/api-keys.md`. Treat the key like a password.
-- **Federated search:** the `lupi.search_molecules` MCP tool fans out across six
-  sources (saved views, curated library, gallery, NIST, Meta OMol25, PubChem) and
-  returns ranked, loadable hits. OMol25 hits carry **real in-house DFT geometry**
-  served as GCS-hosted `.xyz` (`gs://shed-489901-omol25`), not a formula guess.
-- **Shared library:** signed-in agents can stamp molecules into the public
-  `moleculeLibrary` (Firestore) that backs the `library` source.
-- Deploys are push-to-`main`: `atlas/**` → viewer (Cloud Run); `functions/**`,
-  `firebase.json`, `firestore.rules` → Cloud Functions + Firestore rules.
-- Roadmap + milestones: `atlas/atlas-view/docs/lupi-mcp-roadmap.md`.
+The molecular viewer and its MCP/API-key surfaces live in the separate
+[`alexwelcing/Lupi`](https://github.com/alexwelcing/Lupi) repository. Read that
+repository's current setup and release instructions for viewer changes.
+Rhizo owns the science control plane, Distill engine, compute runners, proof
+specifications and evidence exports. It does not build or deploy the Lupi app.

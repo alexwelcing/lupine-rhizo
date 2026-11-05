@@ -35,24 +35,21 @@ archive/distiller-kb/runs/*/run_latest.log
 archive/distiller-kb/runs/pipeline_report.json
 
 # NIST IPR local mirror (large binary parameter files)
-atlas/nist_ipr/files/
-atlas/nist_ipr/mirror.log
+gcp/nist_ipr/files/
+gcp/nist_ipr/mirror.log
 
 # LAMMPS validation run artifacts (generated work directories with trailing-whitespace logs)
 data/lammps_validation/**/work/
 
 # Machine-local LAMMPS potential/result payloads (fetch via tools/fetch_potentials.py).
 # Already-tracked files stay tracked; a top-level README may still be committed.
-atlas-distill/lammps_runs/*
-!atlas-distill/lammps_runs/README.md
+distill/lammps_runs/*
+!distill/lammps_runs/README.md
 
 # OpenKIM API cache
-.atlas-cache/
+.distill-cache/
 
-# atlas-view verify-viewer screenshot artifacts
 .verify-artifacts/
-atlas/atlas-view/.verify-artifacts/
-atlas/atlas-view/tools/lupi-motion-cache/
 
 # Astro / Playwright build + test outputs (lupine-site)
 lupine-site/.astro/
@@ -86,10 +83,9 @@ mlip_immi/phonon_sentinel_pet_mad_1.5.json
 
 # Additional directories and files (2026-05-15)
 lupine-media/
-atlas/atlas-view/archive/
 archive/distiller-kb/agents/profiles/.archive/
 *.glimbin
-atlas-distill/*.json
+distill/*.json
 .vscode/
 
 # Tools data
@@ -102,8 +98,6 @@ tools/hermes-hive/data/
 *.tar.zst
 
 # Authored Lupi environment-pack videos are deployable app assets, not scratch media.
-!atlas/atlas-view/apps/web/public/backgrounds/*.mp4
-!atlas/atlas-view/apps/web/public/backgrounds/*.webm
 
 # AI Agent workspaces
 .claude/

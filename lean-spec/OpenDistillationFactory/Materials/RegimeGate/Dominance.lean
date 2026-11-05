@@ -1,4 +1,4 @@
-/- AUTHORED by tools/regime_gate_flywheel.py from atlas dominance scoring.
+/- AUTHORED by tools/regime_gate_flywheel.py from report dominance scoring.
    Ribbon: lupine-ribbon-v1-mptrj-dft. Decidable Nat facts — 0 sorry. -/
 
 namespace Lupine.RegimeGate.Dominance

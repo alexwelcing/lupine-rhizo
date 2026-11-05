@@ -311,9 +311,9 @@ class AntiLaunderingTests(unittest.TestCase):
     def test_cli_compares_ontology_statuses_between_git_revisions(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            atlas_path = root / "registry" / "ontology" / "atlas.v2.json"
+            ontology_path = root / "registry" / "ontology" / "atlas.v2.json"
             lock_path = root / "snapshots" / "ontology.lock.json"
-            atlas_path.parent.mkdir(parents=True)
+            ontology_path.parent.mkdir(parents=True)
             lock_path.parent.mkdir(parents=True)
             subprocess.run(["git", "init", "-q", str(root)], check=True)
             subprocess.run(
@@ -323,7 +323,7 @@ class AntiLaunderingTests(unittest.TestCase):
             subprocess.run(
                 ["git", "-C", str(root), "config", "user.name", "CI"], check=True
             )
-            atlas_path.write_text(json.dumps(ontology("proposed", [OLD_HASH])))
+            ontology_path.write_text(json.dumps(ontology("proposed", [OLD_HASH])))
             lock_path.write_text(json.dumps({"artifact": "registry/ontology/atlas.v2.json"}))
             subprocess.run(["git", "-C", str(root), "add", "."], check=True)
             subprocess.run(
@@ -335,7 +335,7 @@ class AntiLaunderingTests(unittest.TestCase):
                 capture_output=True,
                 text=True,
             ).stdout.strip()
-            atlas_path.write_text(json.dumps(ontology("active", [OLD_HASH])))
+            ontology_path.write_text(json.dumps(ontology("active", [OLD_HASH])))
             subprocess.run(["git", "-C", str(root), "add", "."], check=True)
             subprocess.run(
                 ["git", "-C", str(root), "commit", "-qm", "head"], check=True

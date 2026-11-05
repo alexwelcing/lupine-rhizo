@@ -1219,11 +1219,11 @@ export const CATALOG = {
       "id": "reproduce",
       "source": "docs/reproduce.md",
       "title": "Reproduce Our Results",
-      "subtitle": "The atlas-distill + Lean commands that regenerate every ledger claim and verdict.",
+      "subtitle": "The distill + Lean commands that regenerate every ledger claim and verdict.",
       "category": "operations",
       "tags": [
         "reproducibility",
-        "atlas-distill",
+        "distill",
         "lean"
       ]
     },

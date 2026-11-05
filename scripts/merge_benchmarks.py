@@ -8,7 +8,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-BENCHMARKS_DIR = Path("atlas-distill/benchmarks")
+BENCHMARKS_DIR = Path("distill/benchmarks")
 
 def merge_csvs(output_name: str, *input_files: str):
     """Merge multiple CSVs with the same header into one."""

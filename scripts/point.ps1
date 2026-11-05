@@ -86,7 +86,7 @@ function Invoke-Status {
 
     Write-Header "RUST WORKSPACES"
     $rustProjects = @(
-        "atlas-distill",
+        "distill",
         "lupine-distill",
         "distill-cli",
         "lupine-ops",
@@ -139,7 +139,7 @@ function Invoke-Build {
     param([string]$Subsystem)
     if (-not $Subsystem -or $Subsystem -eq "all") {
         Write-Header "BUILD ALL"
-        $subsystems = @("atlas-distill","lupine-distill","distill-cli","lupine-ops","atlas-view-native","atlas-tui","lean-spec")
+        $subsystems = @("distill","lupine-distill","distill-cli","lupine-ops","atlas-view-native","atlas-tui","lean-spec")
         foreach ($s in $subsystems) {
             Invoke-Build -Subsystem $s
         }
@@ -148,7 +148,7 @@ function Invoke-Build {
 
     Write-Header "BUILD $Subsystem"
     switch ($Subsystem) {
-        "atlas-distill" { Push-Location "$RepoRoot\atlas-distill"; cargo build --release; Pop-Location }
+        "distill" { Push-Location "$RepoRoot\distill"; cargo build --release; Pop-Location }
         "lupine-distill" { Push-Location "$RepoRoot\lupine-distill"; cargo build --release; Pop-Location }
         "distill-cli" { Push-Location "$RepoRoot\distill-cli"; cargo build --release; Pop-Location }
         "lupine-ops" { Push-Location "$RepoRoot\lupine-ops"; cargo build --release; Pop-Location }
@@ -170,7 +170,7 @@ function Invoke-Test {
     param([string]$Subsystem)
     if (-not $Subsystem -or $Subsystem -eq "all") {
         Write-Header "TEST ALL"
-        $subsystems = @("atlas-distill","lupine-distill","distill-cli","lupine-ops","atlas-view-native","atlas-tui","tools")
+        $subsystems = @("distill","lupine-distill","distill-cli","lupine-ops","atlas-view-native","atlas-tui","tools")
         foreach ($s in $subsystems) {
             Invoke-Test -Subsystem $s
         }
@@ -179,7 +179,7 @@ function Invoke-Test {
 
     Write-Header "TEST $Subsystem"
     switch ($Subsystem) {
-        "atlas-distill" { Push-Location "$RepoRoot\atlas-distill"; cargo test; Pop-Location }
+        "distill" { Push-Location "$RepoRoot\distill"; cargo test; Pop-Location }
         "lupine-distill" { Push-Location "$RepoRoot\lupine-distill"; cargo test; Pop-Location }
         "distill-cli" { Push-Location "$RepoRoot\distill-cli"; cargo test; Pop-Location }
         "lupine-ops" { Push-Location "$RepoRoot\lupine-ops"; cargo test; Pop-Location }
@@ -265,7 +265,7 @@ Commands:
 
 Examples:
   point status
-  point build atlas-distill
+  point build distill
   point test all
   point research "Why does Cu LJ overestimate C44?"
   point deploy glim-think

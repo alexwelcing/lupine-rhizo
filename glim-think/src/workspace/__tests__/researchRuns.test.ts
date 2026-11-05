@@ -288,7 +288,7 @@ it("binds exact vacancy components to a private preview and blocks the centered-
     arm.referenceId = "synthetic-reference";
   });
   const fixture = JSON.parse(readFileSync(new URL(
-    "../../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", base), "utf8"));
+    "../../../../distill/tests/fixtures/vacancy_uniform_bias.expected.json", base), "utf8"));
   const evidence = { schemaVersion: 1,
     comparisonContractSha256: await sha256(canonicalComparisonJSON(contract)),
     task: "formation_energy",

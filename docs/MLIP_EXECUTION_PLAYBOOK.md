@@ -230,7 +230,7 @@ where we prove that the same move is reproducible.
 2. Search a candidate ribbon policy from local Distill artifacts:
 
    ```powershell
-   cargo build --manifest-path atlas-distill/Cargo.toml --bin atlas-distill
+   cargo build --manifest-path distill/Cargo.toml --bin distill
 
    python tools/mlip_distill_growth_loop.py `
      --run-dir tmp/mlip-local/mace-forces-local-v1 `
@@ -357,7 +357,7 @@ python tools/mlip_md_local.py `
   --steps 50 `
   --output tmp/mlip-md-local/al-emt-relax.json
 
-cargo run --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- `
+cargo run --manifest-path distill/Cargo.toml --bin distill -- `
   equilibrium-solve `
   --trajectory tmp/mlip-md-local/al-emt-relax.json `
   --output tmp/mlip-md-local/al-emt-relax-score.json
@@ -391,7 +391,7 @@ physically fine, and EMT observables are not the literature reference for
 CHGNet/MACE/M3GNet. Use `--score-positions` or
 `--include-emt-reference-observables` only when that is the intended benchmark.
 
-`atlas-distill equilibrium-solve` treats a normalized distance of `0.5` as the
+`distill equilibrium-solve` treats a normalized distance of `0.5` as the
 default solved threshold, meaning the final state is on average within half of
 the configured physical tolerances.
 

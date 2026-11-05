@@ -24,7 +24,7 @@ flowchart TB
 
     subgraph Compute["Compute / evidence plane"]
         PY[python/<br/>lupine_distill + lupine_distill_runtime]
-        AD[atlas-distill/<br/>Rust policy + scoring engine]
+        AD[distill/<br/>Rust policy + scoring engine]
         GCP[gcp/<br/>Cloud Run cell runners]
     end
 
@@ -50,7 +50,7 @@ flowchart TB
 | Plane | Roots | Purpose |
 | --- | --- | --- |
 | **Control** | `glim-think/` | Durable intelligence: agenda, ledger, feed, evals, hypotheses, agent workflows. |
-| **Compute** | `python/`, `atlas-distill/`, `gcp/`, `mlip_immi/` | Run benchmarks, compute uplift, enforce regime gates, apply Distill policy. |
+| **Compute** | `python/`, `distill/`, `gcp/`, `mlip_immi/` | Run benchmarks, compute uplift, enforce regime gates, apply Distill policy. |
 | **Evidence** | `lean-spec/`, `data/`, traces in Phoenix | Formal specifications, shared fixtures, and reproducible telemetry. |
 
 ## Active roots in one sentence each
@@ -58,14 +58,14 @@ flowchart TB
 | Root | One-sentence purpose | Primary audience |
 | --- | --- | --- |
 | `glim-think/` | Durable research control plane that owns the agenda, ledger, and feed. | Agent/systems engineers |
-| `atlas-distill/` | Rust engine for Distill scoring, policy, benchmark geometry, and fault-line extraction. | Rust engineers, MLIP methodologists |
+| `distill/` | Rust engine for Distill scoring, policy, benchmark geometry, and fault-line extraction. | Rust engineers, MLIP methodologists |
 | `python/` | Active Python packages for MLIP benchmarking, uplift, regime gating, and instrumented runtime. | Python engineers, research scientists |
 | `lean-spec/` | Lean 4 formal specifications and proofs for materials-science claims. | Formal-methods contributors |
 | `data/` | Shared benchmark fixtures and evidence manifests (kept small; large artifacts live in GCS/R2). | Everyone |
 | `mlip_immi/` | Local real-data MLIP/IMMI analysis lane. | Research scientists |
 | `hpc/` | Vendor-neutral offline execution lane (Apptainer + SLURM) and the LAMMPS→Lean evidence bridge for external labs. | External HPC teams, research scientists |
 | `library-site/` | Public Lupine Library site generator. | Frontend/communications |
-| `atlas/` | LUPI molecular viewer and atomistic evidence surfaces. | Frontend engineers, scientists |
+| `gcp/compute/` | Physics compute runner and shared NIST helpers. | Scientific-computing engineers |
 | `archive/` | Retired roots kept for provenance. | Historians, maintainers |
 
 ## Typical evidence flow
@@ -73,7 +73,7 @@ flowchart TB
 1. **Campaign launch** — `glim-think` creates a campaign and queues cells.
 2. **Cell execution** — `gcp/mlip-cell-runner` runs an MLIP on a fixture.
 3. **Python measurement** — `python/lupine_distill` computes metrics, uplift, and regime status.
-4. **Rust policy** — `atlas-distill` evaluates the Distill policy decision.
+4. **Rust policy** — `distill` evaluates the Distill policy decision.
 5. **Formal gate** — `python/lupine_distill/odf/promotion_gate.py` applies the uplift + theorem check.
 6. **Beat back to control plane** — results, traces, and claim updates land in `glim-think`.
 7. **Proof obligation** — `lean-spec` holds the machine-checked theorems behind the claims.
@@ -83,17 +83,17 @@ flowchart TB
 | I want to... | Start here |
 | --- | --- |
 | Add a new MLIP benchmark | `python/lupine_distill/benchmark.py` + `python/scripts/run_ni_gpu_loop.py` |
-| Add a new Distill policy rule | `atlas-distill/src/commands/distill_policy.rs` |
+| Add a new Distill policy rule | `distill/src/commands/distill_policy.rs` |
 | Add a formal proof obligation | `lean-spec/OpenDistillationFactory/Materials/` |
 | Run cells on my own cluster / ingest LAMMPS output | `hpc/README.md` |
 | Add a claim to the ledger | `docs/templates/publication.md` → `glim-think` feed |
 | Build the public Library | `library-site/README.md` |
-| Inspect a molecule | `atlas/atlas-view/apps/web/` → `lupi.live` |
+| Inspect a molecule | the separate [`alexwelcing/Lupi`](https://github.com/alexwelcing/Lupi) repository → `lupi.live` |
 
 ## What is *not* in this repo
 
 - Marketing/start sites — retired to `archive/lupine-start/`.
-- Duplicate Rust engines — the old `lupine-distill/` crate is archived; `atlas-distill/` is the single active engine.
+- Duplicate Rust engines — the old `lupine-distill/` crate is archived; `distill/` is the single active engine.
 - Standalone ODF KB — the old `distiller/` root is archived; active ODF contracts live in `python/lupine_distill/odf/`.
 
 ## Feedback loop: from formal scheme to operational component

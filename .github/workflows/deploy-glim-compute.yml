@@ -50,10 +50,9 @@ jobs:
       - name: Stage vendored sources (single source of truth — not committed)
         run: |
           set -euo pipefail
-          mkdir -p atlas/compute/_vendor
-          cp atlas/scripts/generate_nist_demos.py atlas/compute/_vendor/generate_nist_demos.py
-          cp atlas/nist_ipr/index/master_index.json atlas/compute/_vendor/master_index.json
-          ls -la atlas/compute/_vendor
+          mkdir -p gcp/compute/_vendor
+          cp gcp/nist_ipr/index/master_index.json gcp/compute/_vendor/master_index.json
+          ls -la gcp/compute/_vendor
 
       # INTERNAL_TASK_TOKEN is shared infra: created + version-managed by
       # deploy-glim-eval.yml's Secret Manager upsert, and the default
@@ -70,7 +69,7 @@ jobs:
         run: |
           set -euo pipefail
           gcloud run jobs deploy "$JOB_NAME" \
-            --source atlas/compute \
+            --source gcp/compute \
             --project="$PROJECT" --region="$REGION" \
             --tasks=1 --max-retries=1 --task-timeout=3600 --memory=4Gi --cpu=2 \
             --set-secrets=INTERNAL_TASK_TOKEN=INTERNAL_TASK_TOKEN:latest \
@@ -115,7 +114,6 @@ jobs:
           INTERNAL_TASK_TOKEN: ${{ secrets.INTERNAL_TASK_TOKEN }}
         run: |
           set -euo pipefail
-          mkdir -p atlas/scripts # already present; defensive
-          cd atlas/compute
+          cd gcp/compute
           python runner.py --selftest
           echo "selftest passed; Cloud Build image + deployed job are the container authority."

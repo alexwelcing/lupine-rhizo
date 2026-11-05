@@ -1,6 +1,6 @@
 # Cloud Build configuration for tasks-consumer.
 # Builds the Rust binary, packages it into a Docker image, and deploys as a
-# Cloud Run SERVICE (atlas-distill is a Cloud Run JOB; the consumer that
+# Cloud Run SERVICE (distill is a Cloud Run JOB; the consumer that
 # dispatches to it is the service).
 
 steps:

@@ -9,22 +9,23 @@ defaultTargets = ["OpenDistillationFactory", "LupineEvidence"]
 # resolves to a SINGLE, reproducible mathlib. ATLAS (facebookresearch/atlas-lean)
 # requires this same rev; matching it lets Lake dedupe mathlib and lets
 # `lake exe cache get` pull prebuilt oleans instead of compiling from source.
-# Toolchain is likewise aligned to ATLAS's v4.29.0 (see lean-toolchain).
+# Toolchain is likewise aligned to ATLAS's v4.35.0 (see lean-toolchain).
 # Ref: ATLAS_Lean_Integration_Review.md §4 (Integration Architecture), §7 (Risks).
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
-rev = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
+rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
 
-# ATLAS-Lean (Meta) — autoformalized textbook mathematics.
-# We depend on the proved `Atlas` target ONLY. The `Unproved` target carries
-# `sorry`-bearing statements and must never enter our build (would poison the
-# zero-sorry gate). Selective `import Atlas.<Subject>.<Subject>` keeps build
-# cost bounded — Lake only compiles the modules we actually import.
+# ATLAS-Lean (Meta), pinned to its current package layout.
+# The upstream package is now named `atlas`. Its proved libraries are
+# MathlibExt, CSLibExt, and PhyslibExt; WantedExt contains deferred results
+# and must never enter our proof graph. Our default targets remain the two
+# local libraries. Import only individual proved leaf modules when needed;
+# never build the upstream default targets or whole subjects here.
 [[require]]
-name = "Atlas"
+name = "atlas"
 git = "https://github.com/facebookresearch/atlas-lean"
-rev = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
+rev = "a60759060b5616df0d5775b42da4d337719feb32"
 
 [[lean_lib]]
 name = "OpenDistillationFactory"

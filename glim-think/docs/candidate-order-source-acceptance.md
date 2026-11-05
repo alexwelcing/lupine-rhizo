@@ -1,6 +1,6 @@
 # Public-source candidate-report acceptance
 
-This bridge tests the actual `atlas-distill candidate-order` executable's JSON
+This bridge tests the actual `distill candidate-order` executable's JSON
 through the application validator, bounded local-file reader and static React
 view. It uses reviewed public-table summaries from four publications. It does
 not introduce a new ranking method or infer physical validity from report
@@ -9,7 +9,7 @@ acceptance.
 ## Cases and expected decisions
 
 The fixture is
-`atlas-distill/tests/fixtures/candidate_order_sources.json`.
+`distill/tests/fixtures/candidate_order_sources.json`.
 Five reports contain fourteen listed alternatives, not fourteen new corpus
 observations or independent studies.
 
@@ -45,10 +45,10 @@ not a new independent validation.
 
 ## Full-path checks
 
-The existing atlas CI test job first builds its release executable. A bounded
+The existing Distill CI test job first builds its release executable. A bounded
 step then uses the existing locked Node dependencies and runs:
 
-    ATLAS_DISTILL_BIN=/absolute/path/to/atlas-distill \
+    DISTILL_BIN=/absolute/path/to/distill \
       node --test scripts/testing/candidate-order-cli.test.mjs
 
 Run from `glim-think`. A missing binary is a failure, never a silently skipped
@@ -116,7 +116,7 @@ arithmetic check passes.
 
 ## Browser interaction acceptance
 
-The same atlas CI acceptance step also runs
+The same Distill CI acceptance step also runs
 `scripts/testing/candidate-order-browser.test.mjs` against the runner's installed
 Chrome. It bundles the actual `InspectCandidateOrderReport` component in memory,
 serves it only on loopback, and selects temporary public/synthetic JSON files using

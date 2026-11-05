@@ -84,8 +84,8 @@ If the bound holds, it becomes a **theorem**. If it fails, the counterexample re
 ## 5. Immediate Implementation Plan
 
 ### Phase 1: LAMMPS Runner (Rust)
-- Create `atlas-distill/src/runner.rs` — invoke LAMMPS for single-element potentials
-- Template input generation from `atlas/nist_ipr/files/` examples
+- Create `distill/src/runner.rs` — invoke LAMMPS for single-element potentials
+- Template input generation from `gcp/nist_ipr/files/` examples
 - Elastic constant extraction via LAMMPS `elastic` command or stress/strain
 - Trace generation with SHA-256 hashes of inputs + outputs
 

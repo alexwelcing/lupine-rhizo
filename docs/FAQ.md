@@ -34,7 +34,7 @@ The repo is organized by deployable unit and runtime. See [`docs/ARCHITECTURE.md
 
 ### Which root owns Distill?
 
-- `atlas-distill/` — the Rust engine.
+- `distill/` — the Rust engine.
 - `python/` — the active Python packages.
 - `archive/lupine-distill-rust/` and `archive/distiller-kb/` — retired provenance.
 
@@ -57,7 +57,7 @@ Don't. If you think you need one, write an ADR in `docs/decisions/` and update `
 ```bash
 git diff --check
 just think-lint        # if you touched glim-think
-just engine-test       # if you touched atlas-distill or python
+just engine-test       # if you touched distill or python
 cd lean-spec && lake build   # if you touched proofs
 ```
 

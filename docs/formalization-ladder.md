@@ -57,7 +57,7 @@ publication-bound claims.
 - Proving physics (DFT correctness, BM3 fitting theory) — out of scope; the
   kernel checks data-analysis arithmetic, not quantum mechanics.
 - Replacing the ledger — D1 remains the operational corpus; Lean is the
-  verification layer. The two must reference each other (atlas_theorems
+  verification layer. The two must reference each other (theorems
   revision fix, audit finding).
 
 ## Ratchet rule

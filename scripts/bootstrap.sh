@@ -47,7 +47,7 @@ python -m pytest -m unit -q
 echo ""
 echo "Checking Rust engine..."
 cd "$REPO_ROOT"
-cargo check --manifest-path atlas-distill/Cargo.toml --bin atlas-distill
+cargo check --manifest-path distill/Cargo.toml --bin distill
 
 echo ""
 echo "Bootstrap complete. Read docs/ONBOARDING.md for next steps."

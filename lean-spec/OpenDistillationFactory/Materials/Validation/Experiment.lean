@@ -34,9 +34,9 @@ def nistBackedCausalGeometryExperiment : ExperimentDesign :=
 /-- The ACTUAL experiment that was run (as evidenced by validation.rs).
     Note: dataSource is synthetic, not NIST-backed. -/
 def actualExperimentRun : ExperimentDesign :=
-  { name := "Atlas-Distill Synthetic Benchmark"
+  { name := "Distill Synthetic Benchmark"
     hypothesis := "Prediction errors from hand-typed synthetic potentials live on low-dimensional manifolds, and hand-typed BCC data produces correlation reversals."
-    dataSource := Data.DataSource.synthetic "Hardcoded in atlas-distill/src/validation.rs; no LAMMPS runs, no NIST IPR computations"
+    dataSource := Data.DataSource.synthetic "Hardcoded in distill/src/validation.rs; no LAMMPS runs, no NIST IPR computations"
     analysisPlan := "1. Type reference values into a Rust HashMap. 2. Type prediction values into another HashMap with small offsets. 3. Run PCA on the resulting error vectors. 4. Compute correlations."
     passCriteria := "Hyper-ribbon: PR/3 < 0.9 AND log R² > 0.8. Paradox: pooled_r < 0 while within-group r > 0."
     preRegistered := false

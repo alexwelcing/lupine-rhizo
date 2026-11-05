@@ -8,7 +8,7 @@ import fs from "fs";
 import readline from "readline";
 
 const BATCH_SIZE = 50;
-const INPUT_PATH = process.argv[2] || "../atlas-distill/atlas-distill/discovery_ledger/records.jsonl";
+const INPUT_PATH = process.argv[2] || "../distill/distill/discovery_ledger/records.jsonl";
 
 async function main() {
   const records = [];

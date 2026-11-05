@@ -378,7 +378,7 @@ noncomputable def scatterMatrix {N m : Nat}
 theorem scatterMatrix_isHermitian {N m : Nat}
     (samples : Fin m → EuclideanSpace ℝ (Fin N)) :
     (scatterMatrix samples).IsHermitian := by
-  rw [Matrix.isHermitian_iff_isSymmetric]
+  apply Matrix.isSymmetric_toEuclideanLin_iff.mp
   simpa [scatterMatrix] using scatterOperator_isSymmetric samples
 
 /-- Matrix rank agrees exactly with the finrank of the scatter operator range. -/

@@ -115,6 +115,6 @@ def test_binder_certificates_match_report(tmp_path: Path):
 def test_binder_lean_module_is_generated(tmp_path: Path):
     lean_out, _ = _run_binder(tmp_path)
     lean_text = lean_out.read_text(encoding="utf-8")
-    assert "namespace OpenDistillationFactory.Materials.DistillAtlas.EnvFieldInstances" in lean_text
+    assert "namespace OpenDistillationFactory.Materials.Data.EnvFieldInstances" in lean_text
     assert "cells_accounted" in lean_text
     assert "0 sorry" in lean_text

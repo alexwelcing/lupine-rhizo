@@ -36,7 +36,7 @@ export function agendaTaskId(domain: string, element: string, horizon: string): 
 
 /**
  * The theorem/module identity behind each lean-formalization gate, mirrored
- * from config/atlas_theorem_registry.v1.json. Agenda tasks for the
+ * from config/theorem_registry.v1.json. Agenda tasks for the
  * lean-formalization domain carry these so the task is anchored to a concrete
  * theorem + module + owning facet — not a generic "prepare Lean" reminder.
  */
@@ -161,7 +161,7 @@ const TASK_TEMPLATES: AgendaTaskTemplate[] = [
     payload: (element, horizon) => ({
       element,
       horizon,
-      engine: "atlas-distill model-geometry",
+      engine: "distill model-geometry",
       inputs: ["benchmark_prediction_dump", "model_version_metadata", "reference_targets"],
       outputs: ["residual_svd_packet", "effective_rank_guard", "accuracy_gated_alignment"],
       rule: "model_to_model_geometry_must_be_separated_from_reference_grounded_accuracy",

@@ -39,8 +39,8 @@ qualified thermodynamic model and reservoir convention.
 
 From the repository root:
 
-    cargo run --manifest-path atlas-distill/Cargo.toml --bin atlas-distill -- \
-      vacancy-reference --input atlas-distill/tests/fixtures/vacancy_uniform_bias.input.json
+    cargo run --manifest-path distill/Cargo.toml --bin distill -- \
+      vacancy-reference --input distill/tests/fixtures/vacancy_uniform_bias.input.json
 
 The fixture intentionally exits nonzero **after** emitting its descriptive JSON
 report because the selected centered score is incompatible with the requested
@@ -194,9 +194,11 @@ physical claim about an interatomic potential.
 
 The existing formal CI builds this module explicitly before the full package,
 checks the no-placeholder gate and reports the two main theorems' axiom
-dependencies. The job has a 20-minute ceiling; the pinned Lean 4.29.0 and
-mathlib/ATLAS revisions are unchanged. The maintained generator supplies the
-source declaration inventory; declaration counts alone do not prove compilation.
+dependencies. The job has a 20-minute ceiling. The original PR #158 receipts
+used Lean 4.29.0; the current package uses Lean 4.35.0 with dependency pins in
+lean-spec/lean-toolchain and lean-spec/lake-manifest.json. The combined branch
+requires its own build receipt. The maintained generator supplies the source
+declaration inventory; declaration counts alone do not prove compilation.
 
 This real-arithmetic specification does not certify Rust/TypeScript execution,
 input parsing, source premises or physical accuracy. The projector-rank and

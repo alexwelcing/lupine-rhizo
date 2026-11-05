@@ -1,14 +1,19 @@
-"""Emit `lupine.lean-build-evidence.v1` for the ATLAS theorem synchronizer.
+"""Emit `lupine.lean-build-evidence.v1` for the theorem synchronizer.
 
-The evidence is the fail-closed input to `tools/atlas_theorem_sync.py`: it
+The evidence is the fail-closed input to `tools/theorem_sync.py`: it
 records the lake build gate, the zero-sorry gate, the Vision theorem counts
 (themselves locked by `#guard` in the build), and a per-module inventory of
 theorem declarations with content hashes. Nothing here trusts a filename: the
 lake build must exit 0 and the sorry scan must find zero tokens.
 
+Historical theorem-sync authority records retain their original dependency tuple.
+A receipt for this upgraded stack requires a separately reviewed authority update
+before it can be consumed by the existing synchronizer. Do not overwrite an
+existing historical receipt.
+
 Run from the repo root:
 
-    python tools/build_lean_evidence.py --out config/lean_build_evidence.json
+    python tools/build_lean_evidence.py --out /path/to/new-revision-build-evidence.json
 """
 
 from __future__ import annotations
@@ -24,8 +29,8 @@ from typing import Any
 
 EVIDENCE_SCHEMA = "lupine.lean-build-evidence.v1"
 PROOF_REPOSITORY = "lupine-science/open-distillation-factory"
-MATHLIB_REVISION = "8a178386ffc0f5fef0b77738bb5449d50efeea95"
-ATLAS_REVISION = "c5a10f1a95de31e5476484c8bb3856ee7f164ea0"
+MATHLIB_REVISION = "56a005855ea17e0b0958f73ec801ae140b0a1679"
+META_ATLAS_REVISION = "a60759060b5616df0d5775b42da4d337719feb32"
 EXPECTED_VISION = {
     "legacy_theorems": 295,
     "universal_correction_theorems": 164,
@@ -271,7 +276,7 @@ def build_evidence(*, skip_build: bool) -> dict[str, Any]:
         "proof_revision": _git_head(),
         "lean_version": _toolchain_version(),
         "mathlib_revision": MATHLIB_REVISION,
-        "atlas_revision": ATLAS_REVISION,
+        "atlas_revision": META_ATLAS_REVISION,
         "gates": {
             "lake_build": lake_gate,
             "zero_sorry": {"passed": sorry_count == 0, "sorry_count": sorry_count},

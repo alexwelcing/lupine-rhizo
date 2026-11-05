@@ -8,7 +8,7 @@ A working, end-to-end bridge that fuses empirical GPU physics directly into the 
 formal-verification engine. An MLIP's measured failure (a curvature prediction that
 diverges from ground truth) is captured on the GPU, relayed as an OpenInference span,
 and **authored into a machine-checked Lean theorem** — turning the "hallucination" into a
-formally verified negative constraint that seeds `atlas_theorems`.
+formally verified negative constraint that seeds `theorems`.
 
 Run the whole loop in one command:
 ```
@@ -21,7 +21,7 @@ C:/Users/alexw/mlip-gpu/Scripts/python.exe \
 ```
 Node 1  GPU curvature thrust         Node 2  Worker→Phoenix relay      Node 3  Lean synthesis
 MACE-MP-0 vs CHGNet, C44 shear   →   T3-REJECT breach → OpenInference  →  native-`decide` theorem
-sweep on the A4500                    span (OTLP live / local artifact)   (0 sorry) + atlas_theorems seed
+sweep on the A4500                    span (OTLP live / local artifact)   (0 sorry) + theorems seed
         │  CurvatureBoundaryPayload (payload.py) — the single immutable schema all three speak │
 ```
 
@@ -77,9 +77,9 @@ end Lupine.NeuralSymbolic.mace_mp_0
 ```
 
 **Independently verified:** a fresh `lean` compile returns rc 0 — machine-checked, **0
-sorry**. Both models' modules verified (4 theorems total), and a 4-row `atlas_theorems`
+sorry**. Both models' modules verified (4 theorems total), and a 4-row `theorems`
 seed (`status='verified'`) is emitted for glim-think to ingest:
-`tmp/neural_symbolic/atlas_theorems_seed.sql`.
+`tmp/neural_symbolic/theorems_seed.sql`.
 
 ## Node 4 — the widening: full curvature (phonon Hessian) [`node4_hessian.py`]
 
@@ -107,7 +107,7 @@ The program's thesis is "proof or reproducible trace." This loop closes that at 
 tightest possible coupling: a number measured on the GPU this second becomes a theorem the
 Lean kernel checks the next. MLIP failure modes stop being soft observations and become
 **hard, machine-verified negative constraints** in the formal corpus — exactly the
-`atlas_theorems` seeding that Thrust 1 called for, now arriving *from the physics*.
+`theorems` seeding that Thrust 1 called for, now arriving *from the physics*.
 
 ## Caveats (honest scope)
 
@@ -128,6 +128,6 @@ Lean kernel checks the next. MLIP failure modes stop being soft observations and
 1. Stand up the GCP OTLP relay so Node 2 streams live to Phoenix (then the loop is fully
    continuous: GPU → Phoenix → Lean, re-firing per measurement).
 2. Widen Node 1 to the full phonon Hessian (force constants) — the true curvature frontier.
-3. Apply the `atlas_theorems` seed to the live `glim-ledger` D1 and surface the verified
+3. Apply the `theorems` seed to the live `glim-ledger` D1 and surface the verified
    negative constraints in the glim-think Experiment facet.
 ```

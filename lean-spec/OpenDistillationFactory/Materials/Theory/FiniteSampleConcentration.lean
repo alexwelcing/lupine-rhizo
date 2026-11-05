@@ -197,7 +197,7 @@ theorem empiricalSecondMoment_entrywise_concentration (μ : Measure Ω) [IsProba
     let c1 : NNReal := ⟨B ^ 4, by positivity⟩
     have h_eq : c0 = c1 := by
       have h0 : (c0 : ℝ) = B ^ 4 := hrange
-      have h1 : (c1 : ℝ) = B ^ 4 := by simp [c1]
+      have h1 : (c1 : ℝ) = B ^ 4 := rfl
       exact_mod_cast h0.trans h1.symm
     rw [show ((‖(B ^ 2 - secondMoment X μ i j) - (-B ^ 2 - secondMoment X μ i j)‖₊ / 2) ^ 2 : NNReal) = c0 by rfl] at hZ_subG
     rw [h_eq] at hZ_subG
@@ -209,6 +209,7 @@ theorem empiricalSecondMoment_entrywise_concentration (μ : Measure Ω) [IsProba
       rw [this]
       exact (Measurable.mul (measurable_pi_apply i) (measurable_pi_apply j)).sub measurable_const
     convert iIndepFun.comp h_indep g hg using 1
+    rfl
   have h_set : {ω | |empiricalSecondMoment samples ω i j - secondMoment X μ i j| ≥ ε}
       = {ω | |(1 / n : ℝ) * ∑ k : Fin n, Z k ω| ≥ ε} := by
     ext ω
@@ -243,7 +244,7 @@ theorem empiricalSecondMoment_entrywise_concentration (μ : Measure Ω) [IsProba
     apply h2.trans
     have h_exp : -(↑n * ε) ^ 2 / (2 * ↑(∑ i : Fin n, c)) = -↑n * ε ^ 2 / (2 * B ^ 4) := by
       have hsum : ↑(∑ i : Fin n, c) = n * B ^ 4 := by
-        have hc : (c : ℝ) = B ^ 4 := by simp [c]
+        have hc : (c : ℝ) = B ^ 4 := rfl
         rw [NNReal.coe_sum]
         simp_rw [hc]
         simp [Finset.sum_const, Finset.card_univ, Fintype.card_fin]
@@ -276,12 +277,13 @@ theorem empiricalSecondMoment_entrywise_concentration (μ : Measure Ω) [IsProba
         rw [this]
         exact measurable_neg
       convert iIndepFun.comp hZ_indep g hg using 1
+      rfl
     have h2 := measure_sum_ge_le_of_iIndepFun (s := Finset.univ) hZ_neg_indep
       (fun k _ => hZ_neg_subG k) (show 0 ≤ n * ε by positivity)
     apply h2.trans
     have h_exp : -(↑n * ε) ^ 2 / (2 * ↑(∑ i : Fin n, c)) = -↑n * ε ^ 2 / (2 * B ^ 4) := by
       have hsum : ↑(∑ i : Fin n, c) = n * B ^ 4 := by
-        have hc : (c : ℝ) = B ^ 4 := by simp [c]
+        have hc : (c : ℝ) = B ^ 4 := rfl
         rw [NNReal.coe_sum]
         simp_rw [hc]
         simp [Finset.sum_const, Finset.card_univ, Fintype.card_fin]

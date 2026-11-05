@@ -24,7 +24,7 @@ Check the current health and queue status of the swarm.
 - Returns: Fleet status, pending experiments, record counts
 
 ### `swarm_dispatch`
-Dispatch a heavy compute job to Cloud Tasks (atlas-distill).
+Dispatch a heavy compute job to Cloud Tasks (distill).
 - `fixture_url` (str): GCS path to input fixture
 - `command` (str): Command to run, e.g. "auto-research"
 - `args` (list[str], optional): Additional arguments

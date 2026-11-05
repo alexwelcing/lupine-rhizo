@@ -30,7 +30,7 @@ This is source inspection at Rhizo revision
 `8965bc990803a0c87485e6682378a62dbd320c4d`, not a new execution or a reconstruction
 of every historical result.
 
-- [`build_error_vectors`](../../atlas-distill/src/manifold.rs) groups records by
+- [`build_error_vectors`](https://github.com/alexwelcing/lupine-rhizo/blob/8965bc990803a0c87485e6682378a62dbd320c4d/atlas-distill/src/manifold.rs) groups records by
   material and potential label, takes `predicted - reference`, selects the first
   matching record for each requested property, and excludes incomplete/nonfinite
   vectors. It does not itself resolve duplicate model artifacts, repeated
@@ -39,7 +39,7 @@ of every historical result.
   columns are properties, with at least three complete rows. This differs from
   an analysis of many potentials at a fixed material. Do not interchange those
   sampling units or assume a family label identifies one model artifact.
-- [`stats::pca`](../../atlas-distill/src/stats.rs) centers columns and uses squared
+- [`stats::pca`](https://github.com/alexwelcing/lupine-rhizo/blob/8965bc990803a0c87485e6682378a62dbd320c4d/atlas-distill/src/stats.rs) centers columns and uses squared
   singular values divided by `n - 1`. This path does not standardize columns or
   apply a dimensionless physical scale. A common scalar scale leaves PR unchanged;
   separate column scales generally do not. Mixed property families require an
@@ -50,7 +50,7 @@ of every historical result.
   monotonicity of an already descending spectrum. Strictly descending eigenvalues
   automatically have negative rank-trend statistic; that condition is not
   independent evidence for a physical mechanism.
-- [`NullModelAgent`](../../atlas-distill/src/agents/null_model_agent.rs) matches
+- [`NullModelAgent`](https://github.com/alexwelcing/lupine-rhizo/blob/8965bc990803a0c87485e6682378a62dbd320c4d/atlas-distill/src/agents/null_model_agent.rs) matches
   the number of rows and columns, but draws independent **uniform** values at one
   common scale (despite a comment saying normal). It does not preserve the
   observed column variances, model/reference dependence or physical constraints.

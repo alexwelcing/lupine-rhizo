@@ -131,8 +131,26 @@ theorem checkRuntimeContract_inconsistent_iff
     checkRuntimeContract policy evidence = .refuse .inconsistentEnvelope ↔
       policy.ContractCompatible evidence ∧
         evidence.envelope.upper < evidence.envelope.lower := by
-  unfold checkRuntimeContract FixedEnvelope.Ordered
-  split_ifs <;> simp_all
+  unfold checkRuntimeContract
+  by_cases hcontract : policy.ContractCompatible evidence
+  · rw [if_pos hcontract]
+    by_cases hordered : evidence.envelope.Ordered
+    · rw [if_pos hordered]
+      have hnotInverted :
+          ¬ evidence.envelope.upper < evidence.envelope.lower := by
+        have hle := hordered
+        unfold FixedEnvelope.Ordered at hle
+        exact not_lt.mpr hle
+      split_ifs <;> simp [hcontract, hnotInverted]
+    · rw [if_neg hordered]
+      have hinverted :
+          evidence.envelope.upper < evidence.envelope.lower := by
+        have hnotLe := hordered
+        unfold FixedEnvelope.Ordered at hnotLe
+        exact lt_of_not_ge hnotLe
+      simp [hcontract, hinverted]
+  · rw [if_neg hcontract]
+    simp [hcontract]
 
 /-- Unsupported schema is an indeterminate result, never a scientific
 refutation. -/

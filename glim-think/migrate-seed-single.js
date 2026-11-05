@@ -5,7 +5,7 @@
 import fs from "fs";
 import readline from "readline";
 
-const INPUT_PATH = process.argv[2] || "../atlas-distill/atlas-distill/discovery_ledger/records.jsonl";
+const INPUT_PATH = process.argv[2] || "../distill/distill/discovery_ledger/records.jsonl";
 const OUTPUT_PATH = "migrate-all.sql";
 
 async function main() {

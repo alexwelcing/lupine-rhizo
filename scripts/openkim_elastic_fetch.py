@@ -9,17 +9,17 @@ Strategy:
   1. For each benchmark element+crystal, fetch all available KIM models
   2. Query elastic constants for each model
   3. Fuzzy-match KIM model IDs → NIST potid (by author name + year)
-  4. Output populated benchmark CSV ready for atlas-distill analysis
+  4. Output populated benchmark CSV ready for distill analysis
 
 Usage:
     python openkim_elastic_fetch.py [options]
 
 Options:
     --elements <csv>         Elements to query (default: all 15 benchmark metals)
-    --output <path>          Output CSV path (default: atlas-distill/benchmarks/nist_populated.csv)
+    --output <path>          Output CSV path (default: distill/benchmarks/nist_populated.csv)
     --kim-only <path>        Also write a KIM-native results file (all results, no NIST matching)
     --rate-limit <ms>        Delay between API calls in ms (default: 200)
-    --cache-dir <path>       Cache directory for API responses (default: .atlas-cache/openkim)
+    --cache-dir <path>       Cache directory for API responses (default: .distill-cache/openkim)
     --dry-run                Print what would be fetched, don't call API
 """
 
@@ -450,7 +450,7 @@ def run_campaign(
         log.info(f"\n  * KIM results -> {kim_only_path} ({len(all_results)} entries)")
 
     # ---------------------------------------------------------------------------
-    # Output: Write atlas-distill benchmark CSV (NIST-matched + unmatched)
+    # Output: Write distill benchmark CSV (NIST-matched + unmatched)
     # ---------------------------------------------------------------------------
     output_path.parent.mkdir(parents=True, exist_ok=True)
     benchmark_rows = 0
@@ -529,22 +529,22 @@ def main():
     )
     parser.add_argument(
         "--output", type=Path,
-        default=Path("atlas-distill/benchmarks/nist_populated.csv"),
+        default=Path("distill/benchmarks/nist_populated.csv"),
         help="Output benchmark CSV path"
     )
     parser.add_argument(
         "--kim-only", type=Path,
-        default=Path("atlas-distill/benchmarks/kim_elastic_results.csv"),
+        default=Path("distill/benchmarks/kim_elastic_results.csv"),
         help="Also write a KIM-native results file"
     )
     parser.add_argument(
         "--nist-index", type=Path,
-        default=Path("atlas/nist_ipr/index/master_index.json"),
+        default=Path("gcp/nist_ipr/index/master_index.json"),
         help="Path to NIST master_index.json"
     )
     parser.add_argument(
         "--cache-dir", type=Path,
-        default=Path(".atlas-cache/openkim"),
+        default=Path(".distill-cache/openkim"),
         help="Cache directory for API responses"
     )
     parser.add_argument(

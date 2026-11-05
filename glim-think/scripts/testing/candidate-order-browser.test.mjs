@@ -14,10 +14,10 @@ const MAX_BYTES = 512 * 1024;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function produce(input) {
-  assert.ok(process.env.ATLAS_DISTILL_BIN, "A built CLI is required; never silently skip");
+  assert.ok(process.env.DISTILL_BIN, "A built CLI is required; never silently skip");
   const bytes = Buffer.from(JSON.stringify(input));
   assert.ok(bytes.length <= MAX_BYTES);
-  const result = spawnSync(process.env.ATLAS_DISTILL_BIN, ["candidate-order", "--input", "-"], {
+  const result = spawnSync(process.env.DISTILL_BIN, ["candidate-order", "--input", "-"], {
     input: bytes, encoding: "utf8", timeout: 10_000, maxBuffer: MAX_BYTES,
   });
   assert.ifError(result.error);
@@ -69,7 +69,7 @@ async function connect(endpoint) {
 
 test("actual Chrome local-file interaction and evidence boundaries", { timeout: 90_000 }, async t => {
   const fixture = JSON.parse(await readFile(new URL(
-    "../../../atlas-distill/tests/fixtures/candidate_order_sources.json", import.meta.url), "utf8"));
+    "../../../distill/tests/fixtures/candidate_order_sources.json", import.meta.url), "utf8"));
   assert.equal(fixture.schema, "lupine.candidate_order.source_acceptance.v1");
   assert.equal(fixture.cases.length, 5);
   const scratch = await mkdtemp(join(tmpdir(), "candidate-order-browser-"));
@@ -329,7 +329,7 @@ test("actual Chrome local-file interaction and evidence boundaries", { timeout: 
     result: proposal, receipt: { resultSha256: "a".repeat(64) },
   }] }; // Minimal component props, not a genuine or imported research run.
   const vacancy = JSON.parse(await readFile(new URL(
-    "../../../atlas-distill/tests/fixtures/vacancy_uniform_bias.expected.json", import.meta.url), "utf8"));
+    "../../../distill/tests/fixtures/vacancy_uniform_bias.expected.json", import.meta.url), "utf8"));
   await evaluate("window.__showVerification(" + JSON.stringify(previewRun) + ")");
   await until("!!document.querySelector('.research-verification')");
   await click(".research-verification > summary");

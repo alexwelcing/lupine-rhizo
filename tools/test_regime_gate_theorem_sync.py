@@ -68,5 +68,5 @@ def test_regime_gate_uses_shared_status_and_upsert_serialization(
     db = sqlite3.connect(":memory:")
     db.executescript((_REPO / "glim-think" / "schema.sql").read_text(encoding="utf-8"))
     db.executescript(sql)
-    rows = db.execute("SELECT module, status FROM atlas_theorems").fetchall()
+    rows = db.execute("SELECT module, status FROM theorems").fetchall()
     assert rows == [("OpenDistillationFactory.Materials.RegimeGate.Dominance", expected_status)] * 5

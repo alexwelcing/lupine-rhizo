@@ -34,7 +34,7 @@ export const MLIP_WORKFLOW_DESCRIPTOR: ResearchWorkflowDescriptor = {
   git: {
     owners: [
       "glim-think/src/research",
-      "atlas-distill/src/commands/model_geometry.rs",
+      "distill/src/commands/model_geometry.rs",
     ],
     files: [
       "glim-think/src/research/workflowTypes.ts",
@@ -49,7 +49,7 @@ export const MLIP_WORKFLOW_DESCRIPTOR: ResearchWorkflowDescriptor = {
       "glim-think/src/feed/beats.ts",
       "gcp/mlip-cell-runner/mlip_cell_runner.py",
       "python/lupine_distill_runtime",
-      "atlas-distill/src/commands/model_geometry.rs",
+      "distill/src/commands/model_geometry.rs",
     ],
     checks: [
       "just think-lint",

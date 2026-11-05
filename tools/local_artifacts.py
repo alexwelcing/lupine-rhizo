@@ -9,7 +9,7 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCE_MANIFEST = ROOT / "data" / "mlip_benchmarks" / "manifest_sources.json"
-MISHIN_POTENTIAL = "atlas-distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy"
+MISHIN_POTENTIAL = "distill/lammps_runs/Ni_Mishin-1999/Ni99.eam.alloy"
 
 
 def manifest_local_paths(

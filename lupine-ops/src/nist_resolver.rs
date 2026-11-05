@@ -1,11 +1,11 @@
 //! NIST potential file resolver.
 //!
 //! Maps NIST catalog entries to actual parameter file paths on disk
-//! from the local NIST IPR mirror (`atlas/nist_ipr/files/`).
+//! from the local NIST IPR mirror (`gcp/nist_ipr/files/`).
 //!
 //! The mirror layout is:
 //! ```text
-//! atlas/nist_ipr/files/
+//! gcp/nist_ipr/files/
 //! └── meam/
 //!     └── 2012--Kim-Y-M--Ni-Al--LAMMPS--ipr1/
 //!         ├── metadata.json
@@ -59,7 +59,7 @@ fn pair_style_to_backend(pair_style: &str) -> Option<MlipBackend> {
 /// the parameter files on disk and constructs the appropriate deployment.
 ///
 /// # Arguments
-/// * `mirror_base` - Path to `atlas/nist_ipr/files/`
+/// * `mirror_base` - Path to `gcp/nist_ipr/files/`
 /// * `nist_id` - Full implementation ID, e.g. "1999--Mishin-Y--Al--LAMMPS--ipr1"
 /// * `pair_style` - LAMMPS pair_style, e.g. "eam/alloy"
 /// * `elements` - Elements this potential covers

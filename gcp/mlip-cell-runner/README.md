@@ -126,17 +126,17 @@ Use the Rust canonical ribbon engine when available:
 ```bash
 --distill-policy-engine rust \
   --ribbon-version hyperribbon-v1 \
-  --atlas-distill-bin atlas-distill/target/debug/atlas-distill
+  --distill-bin distill/target/debug/distill
 ```
 
 `--distill-policy-engine auto` uses Rust when the binary is present and records
 `python_fallback` otherwise. Baseline cells never invoke Distill.
 
 For Distill variants, the runner batches all prediction decisions in the cell
-through one `atlas-distill distill-policy --request-jsonl` call. That keeps the
+through one `distill distill-policy --request-jsonl` call. That keeps the
 MLIP adapter generic while avoiding one Rust process spawn per structure. GCP
-runner images bake `/usr/local/bin/atlas-distill` into the image and set
-`ATLAS_DISTILL_BIN`, so `auto` resolves to the canonical Rust ribbon path in
+runner images bake `/usr/local/bin/distill` into the image and set
+`DISTILL_BIN`, so `auto` resolves to the canonical Rust ribbon path in
 Lab runs.
 
 The repo-level harness runs local baseline or full 5x5x3 campaigns without
