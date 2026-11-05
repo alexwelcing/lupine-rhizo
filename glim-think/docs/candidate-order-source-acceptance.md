@@ -109,3 +109,36 @@ system-value comparison must identify an actual mistaken inference, stale
 dependency, missed qualifier or measurable review cost under an explicit
 protocol. Existing finite-list limitations must stay visible even when every
 arithmetic check passes.
+
+
+## Browser interaction acceptance
+
+The same atlas CI acceptance step also runs
+`scripts/testing/candidate-order-browser.test.mjs` against the runner's installed
+Chrome. It bundles the actual `InspectCandidateOrderReport` component in memory,
+serves it only on loopback, and selects temporary public/synthetic JSON files using
+Chrome's file-input API. No browser package or binary is downloaded.
+
+Eleven browser cases cover the four public fixture reports and their visible
+limits/provenance, clear and same-file reselection, corrupt arithmetic replacing a
+valid result, malformed/empty/oversized files, explicit unknowns, clearing during a
+pending read, a newer selection superseding an older read, and application
+network/storage boundaries. The race cases deliberately delay native
+`File.text()`; the normal file, validator and React rendering paths remain real.
+Mouse events operate the summary and clear controls. The test stops at its first
+failed case. It has a 90-second ceiling within the existing two-minute acceptance
+step; individual CLI calls remain bounded to ten seconds and 512 KiB.
+
+The harness checks page requests and instruments application transport/storage
+APIs; it does not claim to audit all browser-process network activity. It uses an
+ephemeral browser profile and removes its temporary reports/profile afterward.
+The installed browser version is recorded in the test output. GitHub's
+[runner image inventory](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)
+documents the preinstalled browser; the test fails if it is unavailable.
+
+This is isolated-component browser acceptance, not an operating-system file-dialog
+test, full RUNS feed or authenticated/deployed acceptance, source authentication,
+scientific validation, or evidence of improved simulation decisions. The four
+known-outcome sources remain the same acceptance fixtures. New pending-read timing
+controls are test harness code, not product behavior. Hosted results must be
+reported separately from this test's preparation.
