@@ -1,8 +1,8 @@
 # Failure map: from an error score to a materials decision
 
-Reviewed 4 November 2026. This is a scoped synthesis of completed analyses,
+Updated 5 November 2026 UTC; original review dates are retained. This is a scoped synthesis of completed analyses,
 not a new simulation, a corpus-wide audit or a prevalence estimate. The
-literature examples below cover sixteen publications; repeated reference columns,
+literature examples below cover eighteen publications; repeated reference columns,
 model panels and rounding corners are not independent studies. Synthetic
 obstructions and product-contract findings are listed separately.
 
@@ -29,6 +29,9 @@ must specify those choices before applying an error bound.
 | **Representation versus fitting — Bartók 2018**, 4 November. Table III, silicon stable stacking fault. | GAP reports 0.002 J/m² against DFT/PW91 0.047 J/m². The authors state that GAP can distinguish the relevant environments and suggest extending its database. They separately attribute exact-zero results from several shorter-range potentials to limited range. | A small or printed-zero prediction does not establish identical model inputs. Preserve the stated explanation as an author report; an independently demonstrated representation obstruction needs the exact model, configurations and representation. |
 | **Dependent reference and task — Mishin 2005**, 4 November. Tables 4–5, Fe and Ni vacancies. | Fe has nominal formation/migration discrepancies +0.13/−0.17 eV, summing to −0.04 eV. However, the 0.91 eV migration reference was derived from the reported activation and formation values. Ni component discrepancies reinforce: ADP +0.03/+0.04 eV; EAM −0.03/−0.11 eV. | Preserve the reference dependency and fitted-property status. Agreement in a summed activation estimate does not separately validate vacancy population or jump kinetics. The Fe component signs are not certified by the reported uncertainty envelopes. |
 | **Reference choice control — Fellinger 2010**, 4 November. Table IV, Nb vacancies. | EAM-minus-same-work-DFT discrepancies are +0.38 eV for formation and +0.22 eV for migration, summing to +0.60 eV. They reinforce rather than cancel; all three predictions nevertheless fall within the separately reported experimental literature ranges. | Keep DFT and experimental comparisons separate. These ranges have unresolved joint provenance and confidence meaning; membership does not isolate potential error or independently validate diffusion. The activation row is a sum of the components, not a third independent calculation. |
+
+| **Preparation path and crystallization — Mendelev 2019**, 5 November. Tables I-III and Sections 4, 7-9. | FS1 has smaller nominal density and mixing-enthalpy errors at Cu64.5Zr35.5, yet the authors report Laves nucleation/growth after slower cooling and reheating; FS2 passes that bounded test. Correct static phase ordering alone does not explain the contrast. | Preserve liquid-crystal driving forces, kinetics, fitting exposure and preparation history. A finite absence of nucleation is not experimental glass-forming validation. The competent source-aware baseline already reaches this conclusion. |
+| **Protocol-dependent agreement — Paduraru 2007**, 5 November. Tables 3-4 and glass-preparation methods. | EMT gives a 620 K glass transition versus cited 670 K after cooling at 0.54 K/ps; Table 3 contains an acknowledged L11 formation-energy discrepancy of -0.3795 eV/atom. | Retain the cooling protocol and state/reference limits. The L11 discrepancy does not establish failure in the later Mendelev test; potential artifacts and compositions differ. No new classifier or cross-paper ranking follows. |
 
 These are purposively selected reported-table cases. Original corpus eligibility
 exclusions remain in force; no pooled physical-error dataset is created here.
@@ -156,6 +159,107 @@ No new corpus rows, studies, simulations or independent validations were added.
 Existing source qualifications can express these dependencies; this review
 does not justify a new inspector or demonstrate an improvement over the
 source-aware baseline.
+
+## Cu-Zr vitrification: phase ordering is not a kinetic decision
+
+Reviewed 5 November 2026 UTC. The selection protocol was frozen at 00:07:21 UTC
+before this visit's numerical inspection: all 14 retained Mendelev 2019 rows
+and all 24 Paduraru 2007 rows. Selection used study/material/observable metadata;
+these historical sources are not blinded or independent. The task was whether
+reported liquid/glass agreement supports choosing a potential for vitrification.
+The comparator was competent reading of the same tables and methods, including
+fitting exposure and preparation history.
+
+### Mendelev: an observed decision contrast, with a limited explanation
+
+At Cu64.5Zr35.5 and 1573 K, Table II gives FS1/FS2 density discrepancies of
+-0.1/-0.6 atom/nm³ against 59.2 +/- 0.3, and mixing-enthalpy discrepancies of
++0.032/-0.034 eV/atom against -0.185. FS1 has the smaller nominal absolute
+discrepancy on both listed properties. The density's reported plus/minus has
+not been given an assumed confidence interpretation; the close enthalpy
+ordering is a nominal printed-value comparison, not a certified preference.
+FS1 used this composition in development, whereas FS2 used Cu46Zr54.
+At that latter composition, Table III gives density discrepancies +0.1/-0.6
+atom/nm³ against AIMD at 1000 K, and mixing-enthalpy discrepancies +0.057/-0.004
+eV/atom against experiment at 1573 K. These distinct temperatures, observables
+and fitting roles cannot be combined into a single validation score.
+
+Sections 4 and 7 report similar liquid structure and viscosity for the two
+potentials. Nevertheless, the authors' 5,000-atom periodic-cell simulations
+found Laves nuclei in FS1 after cooling from 1300 to 300 K at 10^9 K/s, and
+growth after reheating to 900 K; FS2 did not show the corresponding growth.
+Directly cooling the FS1 liquid to 900 K did not show growth either. Thus both
+the competing crystal and preparation path matter. These are author-reported
+executions, not simulations or curve measurements performed by this review.
+
+A static-hull explanation is insufficient. Table I's MgZn2-prototype
+formation-energy errors are -0.034 eV/atom for FS1 and -0.050 for FS2.
+Section 3 reports that FS2 nevertheless makes the Laves phases metastable
+relative to other compounds. Section 8 explicitly cautions that metastability
+does not prevent nucleation: the stable competing compounds require
+partitioning. The authors instead examine liquid-crystal free-energy
+differences and interface kinetics. Their nucleation-rate estimate uses
+approximations, including a Turnbull relation whose limitations they discuss;
+this review does not promote it into a certified rate or cooling threshold.
+The three retained Cu2Zr prototypes alone do not reconstruct a full hull.
+
+Absence of observed nucleation in a finite simulation is not experimental
+glass-forming validation. Section 4 states that its test alone cannot establish
+that FS2 describes a good glass former. Section 9's broader composition result
+also retains cooling-rate limits, and Section 8 cautions about rates below
+10^9 K/s. The source supports a bounded preference for its reported simulation
+task, not universal suitability.
+
+### Paduraru: preparation-dependent agreement, not a second failed potential
+
+The EMT study provides a contrasting evidence pattern. Its reported Cu50Zr50
+glass transition is 620 K versus a cited experimental 670 K. Preparation used
+25 K cooling steps averaging 0.54 K/ps, with Langevin thermalization followed
+by NPT dynamics, and 2,048- and 42,600-atom cells. The experimental cooling
+protocol is unresolved here. This is a protocol-dependent transition
+comparison, not a matched equilibrium melting point.
+
+For Table 4, nearest-neighbor distance discrepancies are
+[-0.01, -0.09, -0.06] Å against EXAFS and [-0.12, -0.05, -0.03] Å against XRD.
+Coordination discrepancies are [+0.34, +0.84, +0.19] and
+[-0.16, +1.44, -0.21], respectively. These repeat the same predicted quantities
+against two measurement methods. The zero-temperature modulus discrepancies
+are +7.49 GPa (bulk) and -2.05 GPa (shear); the experimental state is not fully
+audited. No uncertainty is invented for unreported values.
+
+Table 3's L11 formation-energy discrepancy is -0.3795 eV/atom. The authors
+acknowledge this exception and judge the layered structure unlikely to matter
+for their glass application. That judgment is not a demonstrated
+representation obstruction or evidence that this EMT potential fails the later
+Mendelev cooling/annealing test. The papers use different potentials and
+compositions; no artifact equivalence or cross-paper simulation ranking is
+established. B2 fitting data remain distinguished from the stated glass tests.
+
+### Disposition and verification
+
+The hypothesis that liquid/glass agreement is sufficient for the vitrification
+decision is not supported. The Mendelev source directly supplies a contrary
+reported example, and Paduraru's agreement does not establish the missing
+nucleation/path evidence. A competent source-aware baseline reaches this
+conclusion without another metric or inspector. No incremental user-decision
+accuracy, review-time benefit or novel mechanism has been demonstrated here.
+
+The practical requirement is to preserve preparation history, competing-phase
+scope, observation duration and the difference between reported non-observation
+and verified glass-forming behavior when these sources enter a decision.
+A downstream consumer that drops those qualifiers would justify a targeted
+repair; this review has not yet observed such a product defect. Do not expand
+the candidate-order checker into a glass-forming classifier.
+
+The pinned base, manifest, both primary PDFs and all four qualification files
+were checked. No qualification explicitly targeted these 38 IDs; all original
+pooled-analysis exclusions remain. Exact decimal subtraction for all 38 rows
+agreed with their retained discrepancies. Existing previews covered Mendelev
+Tables I-III and Paduraru Tables 3-4/moduli; the glass-transition value and
+methods were checked in retained text only. No previews were regenerated.
+These are same-agent checks, not independent extraction or physical validation.
+The bounded source/container read consumed 19,323,325 bytes under 32 MiB.
+No corpus rows/studies, model executions or compatibility promotions were added.
 
 ## Synthetic obstructions and a product-contract correction
 
@@ -422,6 +526,19 @@ promotion follows from this document.
   Retained preprint PDF pin and existing page 9 preview checked 4 November;
   DOI 10.1103/PhysRevB.81.144119 identifies the linked journal article, not a
   separately verified final-version comparison.
+
+- **Mendelev 2019:** [retained author manuscript](https://www.osti.gov/servlets/purl/1580710),
+  DOI 10.1063/1.5131500. Tables I-III, PDF page 21; fitting Sections 2-3,
+  pages 4-8; cooling/annealing Section 4, pages 8-10; interpretation and
+  limits Sections 7-9, pages 12-17. Retained primary PDF pin, text and existing
+  page 21 preview checked 5 November UTC. Original model files and numerical
+  curves were not acquired or authenticated.
+- **Paduraru 2007:** [author-hosted primary PDF](https://dcwww.fysik.dtu.dk/~schiotz/papers/AdvEngMater_9_505.pdf),
+  DOI 10.1002/adem.200700047. Table 3, PDF page 2; preparation and glass
+  transition, page 3; Table 4 and modulus comparison, page 4.
+  Retained PDF pin and existing pages 2 and 4 previews checked 5 November UTC;
+  page 3 was text-checked only. Original experimental references were not
+  independently reviewed.
 
 The current review links completed evidence; it does not refresh
 original observation times. Only this reviewed literature/methods synthesis
