@@ -406,11 +406,13 @@ jobs:
           db.commit()
           PY
 
-      - name: Migrate and export production D1 hypotheses
+      # Schema changes are a coordinated release action. Scheduled feedback
+      # must keep using the deployed schema: applying every pending migration
+      # here could rename theorem tables before the Worker is updated.
+      - name: Export production D1 hypotheses
         if: ${{ steps.cf_token.outputs.present == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.staging_fixture) }}
         working-directory: glim-think
         run: |
-          npx wrangler d1 migrations apply glim-ledger --remote
           python - <<'PY'
           import json
           from pathlib import Path
