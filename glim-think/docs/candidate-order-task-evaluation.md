@@ -107,3 +107,73 @@ checker comparison alone; those have separate versioned evidence.
 The purpose is to close a task-evaluation gap, not manufacture a paper or force
 positive improvement. Preserve a complete negative result. An eligibility or
 source-access failure leaves the task evaluation unresolved.
+
+## Recorded outcome: selection incomplete
+
+The initial two year-qualified queries and the two amended queries each
+returned an empty search result through the available web search tool. No
+titles were selected, no full primary-source document was requested, and no
+numerical table or checker output was inspected. This is a discovery outcome,
+not evidence that suitable publications do not exist, and not a negative
+decision-value result. The amended discovery pass is closed; do not repeat it
+or substitute another route silently. No source HTTP/access failure occurred
+in these four queries. Inspecting the metadata of an available second search
+interface did not make another search request.
+
+The original protocol commit
+`8d5c4abf69ed264f832aae9ad39200a2ccd2f445` and pre-outcome amendment
+`dd6b14a022a1cdeb6566249ad1471b8a373cef71` remain immutable. The branch's
+checker implementation remains unchanged from `e2c1e956b701fece4b924eeb1598a9dbba3fb8e3`.
+
+The source-identity exclusion screen verified 90 retained base/delta files plus
+the manifest, reading 15,752,232 bytes under its 32 MiB ceiling. It collected
+518 identifier/citation/title strings in memory without presenting numerical
+outcomes. These are identity strings, not new studies or an independence audit.
+No private files were uploaded. The manifest remains SHA-256
+`6dc5596e771de4448bedc0ad5240769fdc8d41424f7b85f2cb277ab6eb5eba73`.
+
+## Retained evaluation audit
+
+Before this protocol, a separate bounded read-only audit selected the two
+latest graph-context retrieval evaluations and an explicitly withheld-task
+evaluation by their roles/names, without selecting on results. Its 512 KiB
+aggregate read ceiling admitted only three files (507,671 bytes) and stopped
+before the next file. The unexamined pass66 outcome and pass41 protocol/outcome
+remain unassessed here; their names are not evidence of a qualifying holdout.
+The ceiling was not enlarged or bypassed.
+
+- Pass67 protocol, frozen 18 October 2026 11:42:39 UTC, SHA-256
+  `149b3260ffbe249fd60779ef727c0dff6779efc653c5e95690fa417ed18e5944`,
+  explicitly describes eight familiar tasks across six earlier studies.
+  Requirements were frozen before the new retrieval outputs, but source facts
+  were already known. It expressly disclaims independence, blindness and
+  measurement of human/model decision mistakes.
+- Its retained evaluation SHA-256
+  `357d5e955ba5387598490c523aee5df0e7b3f8171b6acd540c8489948765be01`
+  binds that protocol and reports an unchanged graph. Lexical retrieval,
+  breadth-first expansion and balanced qualification traversal each return
+  all 13 required context items and all eight complete premise bundles.
+  This is a complete tie on the declared coverage measures, not improved
+  decision accuracy. The exporter pin is
+  `d464acb77ff780a45abb3a57900c6f0fcb3287cf68358adb089fceb3e7ee7fb6`.
+- Pass66 protocol SHA-256
+  `3807f53a5539da60806d619356f313cc0d4c5ca018ba3aea0f82ecfc3eb87792`
+  explicitly calls its six cases familiar and non-prospective. It measures
+  required-context coverage and cap diagnostics, not answer correctness.
+  Its outcome was not read in this bounded audit.
+
+These results justify retaining the coverage evidence at its actual level;
+they do not close the current prospective task-value requirement. The earlier
+graph context exporter is a separate historical implementation, not the current
+runtime claim-graph fix. Neither this audit nor the empty discovery pass adds
+corpus rows, an independent validation, a simulation or a positive scientific
+finding.
+
+The next evaluation needs a concretely identified, accessible case set before
+committing to a new acquisition protocol, while fixing its task rule and
+implementation before inspecting outcomes. Current source-aware arithmetic
+and the exact checker implement the same interval decision contract; equal
+answers would be expected and cannot alone establish reduced review effort or
+new physical accuracy. Any proposed value claim must name an actual workflow
+failure or measurable task consequence. Keep the full program active; neither
+a coverage tie nor an incomplete selection is completion.

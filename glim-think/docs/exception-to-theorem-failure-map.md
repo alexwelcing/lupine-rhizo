@@ -563,6 +563,15 @@ bindings, identify a bounded disjoint task evaluation without recycling known
 outcomes as holdout evidence, and distinguish a reviewable implementation from
 an authorized release.
 
+A subsequent [bounded retained-evaluation audit and frozen task-selection attempt](candidate-order-task-evaluation.md#recorded-outcome-selection-incomplete)
+did not close this requirement. The inspected pass67 result is a complete
+coverage tie (13 required items/eight complete bundles for all three methods)
+on explicitly familiar tasks. The pass66 protocol also disclaims prospective
+evaluation; its outcome and the selected pass41 evidence were not read after
+the audit reached its byte ceiling. Four prospectively specified discovery
+queries returned no candidates. No numerical task comparison occurred, so
+this is an incomplete selection rather than a negative decision-value result.
+
 ### Graph handoff: a reproduced qualification loss
 
 At Rhizo revision `f7927ec46d45659fe08ef5ead18f3a0b9dd0503e`, the actual
