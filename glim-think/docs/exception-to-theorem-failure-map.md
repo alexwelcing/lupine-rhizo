@@ -567,8 +567,9 @@ A subsequent [bounded retained-evaluation audit and frozen task-selection attemp
 did not close this requirement. The inspected pass67 result is a complete
 coverage tie (13 required items/eight complete bundles for all three methods)
 on explicitly familiar tasks. The pass66 protocol also disclaims prospective
-evaluation; its outcome and the selected pass41 evidence were not read after
-the audit reached its byte ceiling. Four prospectively specified discovery
+evaluation; its outcome was not read. The pass41 protocol describes twelve
+evaluator-withheld implementation-acceptance cases, but its outcome did not
+fit the unchanged remaining read allowance and remains unassessed. Four prospectively specified discovery
 queries returned no candidates. No numerical task comparison occurred, so
 this is an incomplete selection rather than a negative decision-value result.
 

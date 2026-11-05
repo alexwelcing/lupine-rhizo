@@ -137,10 +137,12 @@ No private files were uploaded. The manifest remains SHA-256
 Before this protocol, a separate bounded read-only audit selected the two
 latest graph-context retrieval evaluations and an explicitly withheld-task
 evaluation by their roles/names, without selecting on results. Its 512 KiB
-aggregate read ceiling admitted only three files (507,671 bytes) and stopped
-before the next file. The unexamined pass66 outcome and pass41 protocol/outcome
-remain unassessed here; their names are not evidence of a qualifying holdout.
-The ceiling was not enlarged or bypassed.
+aggregate read ceiling initially admitted three files (507,671 bytes), then
+stopped before the 205,630-byte pass66 outcome. A stat-only check established
+that the selected pass41 protocol fit the same remaining allowance; reading
+its 5,765 bytes brought the final total to 513,436 bytes across four files.
+The 25,469-byte pass41 outcome did not fit and was not read. Neither result
+file was retried, and the ceiling was not enlarged or bypassed.
 
 - Pass67 protocol, frozen 18 October 2026 11:42:39 UTC, SHA-256
   `149b3260ffbe249fd60779ef727c0dff6779efc653c5e95690fa417ed18e5944`,
@@ -162,6 +164,17 @@ The ceiling was not enlarged or bypassed.
   required-context coverage and cap diagnostics, not answer correctness.
   Its outcome was not read in this bounded audit.
 
+- Pass41 protocol SHA-256
+  `8fd1da489f75a0caeeed8175a4ca474aa14cd59421e30225aa3a2f40e814b636`,
+  frozen 18 October 2026 05:40:58 UTC, specifies twelve evaluator-withheld
+  implementation-acceptance cases across three retained studies. It records
+  that the evaluator had not inspected the implementation and had not disclosed
+  the oracle to the implementer. Its comparator is exact task-aware Fraction
+  arithmetic; superiority over correct manual arithmetic and blind physical
+  validation are explicitly disclaimed. This is a meaningful historical
+  acceptance lead, but the protocol alone does not establish observed results,
+  current-version integration or a prospective physical holdout.
+
 These results justify retaining the coverage evidence at its actual level;
 they do not close the current prospective task-value requirement. The earlier
 graph context exporter is a separate historical implementation, not the current
@@ -177,3 +190,19 @@ answers would be expected and cannot alone establish reduced review effort or
 new physical accuracy. Any proposed value claim must name an actual workflow
 failure or measurable task consequence. Keep the full program active; neither
 a coverage tie nor an incomplete selection is completion.
+
+
+## Separate acceptance-harness failure
+
+Documentation head `1d02e88a3657643d8ca67f6abb36dfff349acb77`
+passed Verify, glim-think and Lean. Atlas run `41948690407` passed all 141
+Rust tests and all 23 individual CLI/browser checks, but its browser suite's
+after-hook failed with `ENOTEMPTY` while removing Chrome's temporary profile.
+The overall run therefore failed; deployment job `126987905987` was skipped.
+The earlier cleanup signalled Chrome, waited for its main-process exit, and
+could delete the profile while browser writers were still shutting down. The
+repair requests graceful `Browser.close`, observes the child close event,
+and bounds forced termination before deleting the test-owned profile. It
+performs no deletion retry and preserves the profile if closure is unobserved.
+This changes test teardown only, not the frozen checker/reader or scientific
+outcomes. The failed run remains immutable and is not replayed.

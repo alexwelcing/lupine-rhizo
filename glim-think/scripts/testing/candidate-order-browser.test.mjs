@@ -73,15 +73,28 @@ test("actual Chrome local-file interaction and evidence boundaries", { timeout: 
   assert.equal(fixture.schema, "lupine.candidate_order.source_acceptance.v1");
   assert.equal(fixture.cases.length, 4);
   const scratch = await mkdtemp(join(tmpdir(), "candidate-order-browser-"));
-  let server, chrome, cdp;
+  let server, chrome, chromeClosed, cdp;
   t.after(async () => {
-    cdp?.close();
-    if (chrome && chrome.exitCode === null) {
-      chrome.kill("SIGTERM");
-      await Promise.race([new Promise(resolve => chrome.once("exit", resolve)), delay(1_000)]);
-      if (chrome.exitCode === null) chrome.kill("SIGKILL");
+    let closed = !chrome;
+    try {
+      if (chrome) {
+        // Browser.close shuts down profile writers before the main process exits.
+        // A signal exit leaves exitCode null, so it is not a liveness test.
+        if (cdp) await cdp.call("Browser.close").catch(error => {
+          t.diagnostic("Browser shutdown transport: " + error.message);
+        });
+        else if (chrome.exitCode === null && chrome.signalCode === null) chrome.kill("SIGTERM");
+        closed = await Promise.race([chromeClosed.then(() => true), delay(1_000).then(() => false)]);
+        if (!closed) {
+          chrome.kill("SIGKILL");
+          closed = await Promise.race([chromeClosed.then(() => true), delay(1_000).then(() => false)]);
+        }
+      }
+    } finally {
+      cdp?.close();
+      if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
     }
-    if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
+    assert.ok(closed, "Chrome did not close; preserve its profile instead of deleting under a writer");
     await rm(scratch, { recursive: true, force: true });
   });
 
@@ -129,6 +142,7 @@ test("actual Chrome local-file interaction and evidence boundaries", { timeout: 
     "--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0",
     "--user-data-dir=" + join(scratch, "profile"), "about:blank",
   ], { stdio: ["ignore", "ignore", "pipe"], env: { PATH: process.env.PATH, LANG: "C.UTF-8" } });
+  chromeClosed = new Promise(resolve => chrome.once("close", resolve));
   const endpoint = await new Promise((resolve, reject) => {
     let stderr = "";
     const timer = setTimeout(() => reject(new Error("Chrome startup timeout")), 10_000);
