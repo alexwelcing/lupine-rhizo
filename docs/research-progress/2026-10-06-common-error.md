@@ -34,7 +34,7 @@ The `y > v` condition already implies a positive *average* pairwise dot product;
 
 An independent implementation parsed the saved decimal force values as exact rational numbers, reconstructed every residual and mask from raw inputs, and verified both algebraic identities for all **7,236 atoms**. It preserved all **800 configurations and 100 original groups**, compared all 7,236 masks exactly, and passed **292,766 numeric comparisons** against the separately calculated binary64 result, including configuration and group fractions, pooled totals and threshold counts. No mask or decision discrepancy and no zero-total-error configuration was found. Both exact panel means exceed one half.
 
-The primary result was preserved in its original pending-verification state; a separate verification and PI adjudication record establish final acceptance. Source hashes matched the recovered archives. Exact arithmetic checks the saved values and implementation; it does not validate the physical references or historical model identities.
+The primary result was preserved in its original pending-verification state; a separate verification record and a model-adjudication record (the model review stage, not a human investigator) establish final acceptance. Source hashes matched the recovered archives. Exact arithmetic checks the saved values and implementation; it does not validate the physical references or historical model identities.
 
 ## Interpretation and limits
 

@@ -31,7 +31,7 @@ The saved reference and each predictor's mean force vector are retained separate
 
 A separate implementation reconstructed the calculation from the raw saved decimal force arrays using exact rational arithmetic. It retained all **800 configurations, 7,236 atoms and 100 original groups**, proved the energy decomposition and zero sum of the internal component for every configuration, and passed **60,344 numeric comparisons** against the primary binary64 calculation. Vectors, energies, fractions, group means, distributions and pooled values agree within the documented numerical comparison tolerance; primary decisions agree exactly. No zero denominator or decision discrepancy was found.
 
-Both exact panel means are strictly below one half. The primary artifact retains its original pending-verification state; separate verification and PI adjudication record final acceptance. Exact arithmetic validates the saved numbers and calculation, not their physical provenance.
+Both exact panel means are strictly below one half. The primary artifact retains its original pending-verification state; separate verification and model-adjudication record final acceptance. Exact arithmetic validates the saved numbers and calculation, not their physical provenance.
 
 ## What this closes and what remains open
 

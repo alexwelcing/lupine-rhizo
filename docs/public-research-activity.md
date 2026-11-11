@@ -22,7 +22,7 @@ is null exactly when `coverage.complete` is true. Never advance using evidence
 dates: late/backdated imports and corrections appear in the next refresh,
 starting at the previous completed snapshot with `snapshot` omitted. Clients
 must not skip an unfinished snapshot when refreshing. One request returns at
-most50 records; there is no automatic full-archive crawl.
+most 50 records; there is no automatic full-archive crawl.
 
 The envelope contains `records`, `cursor:{after,snapshot,nextAfter}`,
 `coverage:{complete,returned}`, and `hashes:[{id,sha256}]`. Response hashes cover
@@ -30,11 +30,11 @@ UTF-8 `JSON.stringify(record)` after validation, distinct from the stored-payloa
 integrity hash when stored JSON whitespace/order differs. The whole selected
 page, including lookahead, is validated against stored hashes and public-record
 metadata before responding. Invalid cursors, duplicated/unknown query fields,
-limits outside1–50, unsafe integers, `after>snapshot`, or a snapshot beyond the
-current maximum return400. Missing migration0023 or malformed selected data
-returns generic503; clients retain the existing feed/snapshot as partial coverage.
+limits outside 1–50, unsafe integers, `after>snapshot`, or a snapshot beyond the
+current maximum return 400. Missing migration 0023 or malformed selected data
+returns generic 503; clients retain the existing feed/snapshot as partial coverage.
 
-Migration0023 backfills existing records deterministically by `(imported_at,id)`,
+Migration 0023 backfills existing records deterministically by `(imported_at,id)`,
 appends a sequence for each new immutable public record, and refuses sequence
 updates/deletes. Duplicate imports do not append. Reapplying the migration is
 safe. Ingestion sequence is a pagination clock, not an evidence timestamp or a
