@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-11-11T05:02:15.691Z",
+  "generatedAt": "2026-11-11T05:10:42.339Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "1a05e74662b91d957e9767f0d4e97b6ac8efb1a9",
+    "commit": "2c606854e394e6c3da61ad8029b74ac5353aecd9",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1403,8 +1403,8 @@
     {
       "source": "docs/data-provenance.md",
       "bundleSource": "articles/docs/data-provenance.md",
-      "bytes": 2759,
-      "sha256": "29ee3f4da1afd5a6d61a0ea6ec498cd50cb8e0058228123899bd37a182333573"
+      "bytes": 2786,
+      "sha256": "217dbdc1aa43f9c6aff90a9b8f8d22cbac39a1d0588169a4375c8cdf4b1424d3"
     },
     {
       "source": "docs/PUBLIC.md",
@@ -1607,8 +1607,8 @@
     {
       "source": "docs/formal-vision.md",
       "bundleSource": "articles/docs/formal-vision.md",
-      "bytes": 6737,
-      "sha256": "2bf85d9703404a7df9211b3340565bf82d6fb04840078a987d304e8d2ef0820d"
+      "bytes": 6207,
+      "sha256": "69fe9f1abcb6834f01604b7b0f4dfa3da69fe60283c20d3a785e412f6a0e1d3e"
     },
     {
       "source": "docs/formal-methodology.md",
@@ -1625,8 +1625,8 @@
     {
       "source": "docs/formal-hypotheses.md",
       "bundleSource": "articles/docs/formal-hypotheses.md",
-      "bytes": 6556,
-      "sha256": "fe169b164eacc299809bf8d1a05d8884dd2f4ae53338ae3c42809c8be39b69fc"
+      "bytes": 6614,
+      "sha256": "bec337558ad4aa1795d32cf14d29dc9b6d4599c44253e642e4630f8e5acda801"
     },
     {
       "source": "docs/formal-proof-ledger.md",
