@@ -9,11 +9,13 @@
 > **H1 and H2a failed** (kill conditions triggered: 3d/4d functional-clustering
 > effect −0.14, permutation p = 0.13); **H2b** was not killed but its cosine was
 > 0.53 against the registered 0.8; **H4** passed on MAE/MSE but conformal coverage
-> was 86.7% against the registered 90%; **H3** is pending. Four of seven registered
-> predictions across the two Projection Law experiments failed. As the
-> certification note in §3 says, the operator numbers on this page are
-> empirical/oracle aggregates, not a validated deployable correction. QET and
-> TensorNet resolve to the same checkpoint. Current status:
+> was 86.7% against the registered 90%; **H3** is pending. Separately, in the two
+> earlier June experiments (MatPES factorial and ACWF), four of seven registered
+> predictions failed. As the certification note in §3 says, the operator numbers
+> on this page are empirical/oracle aggregates, not a validated deployable
+> correction. QET and TensorNet resolved to the same checkpoint in this draft's
+> runs (§6.5); in the later 3×3×3 benchmark they returned different predictions.
+> Current status:
 > [conjecture ledger](conjectures/ledger.md).
 
 <details open>
