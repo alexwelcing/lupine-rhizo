@@ -1,6 +1,6 @@
 // Curated catalog. Order here = order on the shelf.
 // Restructured 2026-06-26 per docs/plans/library-restructure-2026-06-26.md
-// 8 categories, 67 entries, journeys, featured roles, and group ribbons.
+// 8 categories, 70 entries, journeys, featured roles, and group ribbons.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -32,8 +32,8 @@ export const CATALOG = {
         "zh": "支持"
       },
       "gloss": {
-        "en": "Evidence-backed but not formally proven.",
-        "zh": "有证据支持但尚未形式化证明。"
+        "en": "Survives the strongest test applied so far, within its stated scope.",
+        "zh": "在其声明的范围内，经受住了迄今最严格的检验。"
       },
       "color": "#22c55e"
     },
@@ -43,10 +43,32 @@ export const CATALOG = {
         "zh": "待定"
       },
       "gloss": {
-        "en": "Under active investigation; could go either way.",
-        "zh": "正在积极调查中；结果尚不确定。"
+        "en": "Evidence is partial, mixed, descriptive or same-engine only.",
+        "zh": "证据不完整、混合、仅为描述性或仅同一引擎内自洽。"
       },
       "color": "#3b82f6"
+    },
+    "failed": {
+      "label": {
+        "en": "Failed",
+        "zh": "未通过"
+      },
+      "gloss": {
+        "en": "A gate written in advance was not met.",
+        "zh": "预先设定的通过线未达到。"
+      },
+      "color": "#dc2626"
+    },
+    "abstained": {
+      "label": {
+        "en": "Abstained",
+        "zh": "弃权"
+      },
+      "gloss": {
+        "en": "The registered rule declined to issue a verdict (for example, no model had the required physics).",
+        "zh": "登记的规则拒绝给出结论（例如没有模型具备所需的物理）。"
+      },
+      "color": "#64748b"
     },
     "refuted": {
       "label": {
@@ -70,27 +92,16 @@ export const CATALOG = {
       },
       "color": "#f59e0b"
     },
-    "proven": {
+    "withdrawn": {
       "label": {
-        "en": "Proven (Lean)",
-        "zh": "已证明"
+        "en": "Withdrawn",
+        "zh": "已撤回"
       },
       "gloss": {
-        "en": "Backed by a machine-checked Lean proof.",
-        "zh": "由机器检查的 Lean 证明支持。"
+        "en": "We stopped claiming it, or relabelled it as not evidence.",
+        "zh": "我们不再主张此结论，或已将其重新标记为非证据。"
       },
-      "color": "#14b8a6"
-    },
-    "live": {
-      "label": {
-        "en": "Live evidence",
-        "zh": "Live evidence"
-      },
-      "gloss": {
-        "en": "Continuously refreshed evidence (live-lab canary).",
-        "zh": "持续刷新的证据（实时实验室金丝雀）。"
-      },
-      "color": "#06b6d4"
+      "color": "#a16207"
     }
   },
   "categories": [
@@ -101,7 +112,7 @@ export const CATALOG = {
         "zh": "基础与愿景"
       },
       "blurb": {
-        "en": "Orientation, shared vocabulary, data provenance, and the research agenda. Start here if you are new.",
+        "en": "Orientation, shared vocabulary, data provenance, and how we work with AI agents. Start here if you are new.",
         "zh": "方向、共享词汇、数据来源与研究议程。如果你是新来的，从这里开始。"
       }
     },
@@ -123,7 +134,7 @@ export const CATALOG = {
         "zh": "方法与理论"
       },
       "blurb": {
-        "en": "How we measure, bound, and reason about potential error — from sloppy-model geometry to Bayesian active learning.",
+        "en": "How we measure, bound, and reason about potential error.",
         "zh": "我们如何测量、界定和推理势函数误差 — 从 sloppy-model 几何到贝叶斯主动学习。"
       }
     },
@@ -134,7 +145,7 @@ export const CATALOG = {
         "zh": "验证与证据"
       },
       "blurb": {
-        "en": "Benchmarks, live-lab results, and the MLIP flywheel evidence chain.",
+        "en": "Benchmarks and registered campaigns, failures included, with the evidence behind each verdict.",
         "zh": "基准测试、实时实验室结果以及 MLIP 飞轮证据链。"
       }
     },
@@ -145,7 +156,7 @@ export const CATALOG = {
         "zh": "形式化"
       },
       "blurb": {
-        "en": "Lean-backed theorem proofs, build-locking contracts, and the formal proof ledger.",
+        "en": "Lean checks of the arithmetic and inequalities behind published numbers, and what each check covers.",
         "zh": "Lean 支持的定理证明、构建锁定契约以及形式化证明台账。"
       }
     },
@@ -167,7 +178,7 @@ export const CATALOG = {
         "zh": "评议与参考文献"
       },
       "blurb": {
-        "en": "The literature we build on, the funding context, and the adversarial reviews our claims passed before going public.",
+        "en": "The literature we build on and the internal reviews of our claims.",
         "zh": "我们所依据的文献、资金背景以及我们的声明在公开前通过的对抗性评议。"
       }
     },
@@ -178,7 +189,7 @@ export const CATALOG = {
         "zh": "构建与运营"
       },
       "blurb": {
-        "en": "How this library was built and how to reproduce every result. Extraction logs, ADRs, and operational fabric.",
+        "en": "How to reproduce results from this repository.",
         "zh": "该图书馆是如何构建的，以及如何复现每个结果。提取日志、架构决策记录和运营结构。"
       }
     }
@@ -226,7 +237,6 @@ export const CATALOG = {
       },
       "path": [
         "what-is-an-interatomic-potential",
-        "readme",
         "glossary",
         "error-geometry-objects",
         "conjecture-ledger",
@@ -247,7 +257,6 @@ export const CATALOG = {
       },
       "path": [
         "data-provenance",
-        "sloppy-models",
         "error-geometry-objects",
         "hyp-hyper-ribbon-universality",
         "hyp-cross-mlip-orthogonal-errors",
@@ -274,8 +283,6 @@ export const CATALOG = {
         "mlip-mptrj-broad-dft-canary",
         "projection-law-round2-preregistration",
         "projection-law-round2-results",
-        "bayesian-active-learning",
-        "gnn-error-prediction",
         "reproduce"
       ]
     },
@@ -286,32 +293,21 @@ export const CATALOG = {
         "zh": "这是否严谨？"
       },
       "description": {
-        "en": "Assess epistemic discipline and formal backing.",
-        "zh": "评估认识论纪律和形式化支持。"
+        "en": "Check how we test claims, what failed, and what the Lean checks cover.",
+        "zh": "查看我们如何检验结论、哪些未通过，以及 Lean 检查涵盖的范围。"
       },
       "path": [
         "methodology",
         "conjecture-ledger",
+        "ai-and-data",
         "hyp-dband-correlation",
         "hyp-bccfcc-causal-shield",
         "formal-proof-ledger",
-        "formal-audit",
-        "funding-landscape",
-        "phoenix-observability"
+        "formal-audit"
       ]
     }
   ],
   "entries": [
-    {
-      "id": "readme",
-      "source": "README.md",
-      "title": "Lupine — Project README",
-      "subtitle": "The error-geometry program: what is established vs. conjectured, and where to start.",
-      "category": "foundations",
-      "tags": [
-        "overview"
-      ]
-    },
     {
       "id": "glossary",
       "source": "GLOSSARY.md",
@@ -337,21 +333,23 @@ export const CATALOG = {
       ]
     },
     {
-      "id": "navigation",
-      "source": "docs/navigation.md",
-      "title": "Repo Navigation Guide",
-      "subtitle": "Quick-search codemap for finding things fast across the workspace.",
+      "id": "ai-and-data",
+      "source": "docs/ai-and-data.md",
+      "title": "How We Use AI Agents and Handle Data",
+      "subtitle": "Which rules live in code, what each one covers, where data goes, and our rule for amendments made after results.",
       "category": "foundations",
       "tags": [
-        "navigation",
-        "reference"
+        "governance",
+        "ai",
+        "data",
+        "trust"
       ]
     },
     {
       "id": "data-provenance",
       "source": "docs/data-provenance.md",
       "title": "Data & Provenance",
-      "subtitle": "Where every number comes from: OpenKIM, NIST IPR, 559 potentials, the integrity gates.",
+      "subtitle": "Where every number comes from: OpenKIM, NIST IPR, the retained model–element tensors, and the integrity gates.",
       "category": "foundations",
       "tags": [
         "provenance",
@@ -382,20 +380,22 @@ export const CATALOG = {
         "index",
         "overview"
       ],
-      "group": "hypotheses"
+      "group": "hypotheses",
+      "featured": true,
+      "featuredRole": "anchor"
     },
     {
       "id": "hyp-hyper-ribbon-universality",
       "source": "docs/conjectures/hyper-ribbon-universality.md",
       "title": "Hyper-Ribbon Universality",
-      "subtitle": "Error vectors occupy a low-dimensional manifold (PR 1.05–1.86). Lean-grounded.",
+      "subtitle": "Descriptive only: historical spectra show concentrated elastic errors; counts not re-verified; universality and correction value unproven.",
       "category": "conjectures",
       "tags": [
         "hyper-ribbon",
         "sloppy-models"
       ],
       "group": "hypotheses",
-      "status": "supported"
+      "status": "open"
     },
     {
       "id": "hyp-hyper-ribbon-mlip-transfer",
@@ -509,38 +509,6 @@ export const CATALOG = {
       ]
     },
     {
-      "id": "sloppy-models",
-      "source": "docs/sloppy_models_report.md",
-      "title": "Sloppy Models & Potential Transferability",
-      "subtitle": "Fisher Information eigenvalue analysis — stiff vs. sloppy directions.",
-      "category": "methods",
-      "tags": [
-        "sloppy",
-        "fim"
-      ]
-    },
-    {
-      "id": "rg-coarsegraining",
-      "source": "docs/rg_coarsegraining_report.md",
-      "title": "Renormalization Group Coarse-Graining",
-      "subtitle": "Systematically deriving effective potentials via partition-function matching.",
-      "category": "methods",
-      "tags": [
-        "rg",
-        "coarse-graining"
-      ]
-    },
-    {
-      "id": "info-theoretic",
-      "source": "docs/info_theoretic_report.md",
-      "title": "Information-Theoretic Bounds on Model Error",
-      "subtitle": "Kolmogorov complexity, rate-distortion, and Shannon entropy for model selection.",
-      "category": "methods",
-      "tags": [
-        "information-theory"
-      ]
-    },
-    {
       "id": "methodology",
       "source": "docs/methodology.md",
       "title": "Methodology — How We Know, and How We Catch Ourselves",
@@ -553,88 +521,10 @@ export const CATALOG = {
       ]
     },
     {
-      "id": "glimmer-multifidelity-uq",
-      "source": "docs/multi_fidelity_uq_glimMER_report.md",
-      "title": "Multi-Fidelity UQ & the glimMER Paradigm",
-      "subtitle": "Cross-potential meta-analysis and PCA-based error correction operators.",
-      "category": "methods",
-      "tags": [
-        "uq",
-        "multi-fidelity",
-        "glimMER"
-      ]
-    },
-    {
-      "id": "bayesian-active-learning",
-      "source": "docs/bayesian_active_learning_report.md",
-      "title": "Bayesian Active Learning for Potential Selection",
-      "subtitle": "Gaussian Process surrogates across 23 potentials × 12,000 materials.",
-      "category": "methods",
-      "tags": [
-        "bayesian",
-        "active-learning"
-      ]
-    },
-    {
-      "id": "weather-climate-ensembles",
-      "source": "docs/weather_climate_ensembles_report.md",
-      "title": "Ensemble Methods from Climate Science",
-      "subtitle": "Transferring weighting strategies from weather to atomistic simulation.",
-      "category": "methods",
-      "tags": [
-        "ensembles",
-        "climate"
-      ]
-    },
-    {
-      "id": "gnn-error-prediction",
-      "source": "docs/gnn_error_prediction_report.md",
-      "title": "GNNs for Predicting Potential Errors",
-      "subtitle": "Predicting where a potential will fail from crystal-structure topology.",
-      "category": "methods",
-      "tags": [
-        "gnn",
-        "error-prediction"
-      ]
-    },
-    {
-      "id": "tda-error-landscapes",
-      "source": "docs/tda_error_landscapes_report.md",
-      "title": "Topological Data Analysis of Error Landscapes",
-      "subtitle": "Persistent homology for high-dimensional error surfaces.",
-      "category": "methods",
-      "tags": [
-        "tda",
-        "topology"
-      ]
-    },
-    {
-      "id": "phonon-benchmarking",
-      "source": "docs/phonon_benchmarking_report.md",
-      "title": "Phonon Frequency Benchmarking",
-      "subtitle": "Second-derivative tests as the gold standard for potential validation.",
-      "category": "validation",
-      "tags": [
-        "phonon",
-        "benchmark"
-      ]
-    },
-    {
-      "id": "key-findings",
-      "source": "docs/KEY_FINDINGS_SUMMARY.md",
-      "title": "Phonon Benchmarking — Key Findings",
-      "subtitle": "Executive summary of the most consequential phonon findings for Lupine.",
-      "category": "validation",
-      "tags": [
-        "summary",
-        "phonon"
-      ]
-    },
-    {
       "id": "z1-barrier-campaign-round4",
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
       "title": "Z1 Barrier-Accurate MLIP Campaign — Round-4 Results (Two Precision Chains)",
-      "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; signed-error imbalance is model-dependent, not universal.",
+      "subtitle": "Failed on both precision chains — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; signed-error imbalance is model-dependent, not universal.",
       "category": "validation",
       "tags": [
         "z1",
@@ -645,13 +535,13 @@ export const CATALOG = {
         "featured"
       ],
       "group": "mlip-flywheel",
-      "status": "refuted"
+      "status": "failed"
     },
     {
       "id": "z3-adsorption-delta-campaign-round4",
       "source": "docs/validation/z3-adsorption-delta-campaign-round4-results.md",
       "title": "Z3 Δ-Learned Adsorption Accuracy — Round-4 Results",
-      "subtitle": "Refuted — 128/128 baseline measurements; every validation-selected correction worsened the holdout (2.27–5.91 eV vs the 0.1 eV gate).",
+      "subtitle": "Failed — 128/128 baseline measurements; every validation-selected correction worsened the holdout (2.27–5.91 eV vs the 0.1 eV gate).",
       "category": "validation",
       "tags": [
         "z3",
@@ -662,7 +552,7 @@ export const CATALOG = {
         "featured"
       ],
       "group": "mlip-flywheel",
-      "status": "refuted"
+      "status": "failed"
     },
     {
       "id": "z2-abstention-audit-round4",
@@ -677,7 +567,7 @@ export const CATALOG = {
         "round-4"
       ],
       "group": "mlip-flywheel",
-      "status": "proposed"
+      "status": "abstained"
     },
     {
       "id": "round4-elastic-correction-results-amendment",
@@ -692,7 +582,7 @@ export const CATALOG = {
         "amendment"
       ],
       "group": "mlip-flywheel",
-      "status": "refuted"
+      "status": "failed"
     },
     {
       "id": "mlip-cloud-baseline-distill",
@@ -713,8 +603,8 @@ export const CATALOG = {
     {
       "id": "mlip-ni-paired-accuracy-live",
       "source": "docs/mlip-ni-paired-accuracy-live-report.md",
-      "title": "Ni Paired Accuracy Live Report",
-      "subtitle": "Live baseline-versus-Distill Accuracy evidence for the Ni fcc EAM-home-turf campaign.",
+      "title": "Ni Paired Accuracy Report",
+      "subtitle": "Baseline-versus-Distill accuracy evidence for the Ni fcc EAM-home-turf campaign.",
       "category": "validation",
       "tags": [
         "mlip",
@@ -724,7 +614,7 @@ export const CATALOG = {
         "live-lab"
       ],
       "group": "mlip-flywheel",
-      "status": "live"
+      "status": "open"
     },
     {
       "id": "mlip-ni-zero-point-policy-replay",
@@ -772,14 +662,13 @@ export const CATALOG = {
         "preregistration",
         "projection-law"
       ],
-      "group": "mlip-flywheel",
-      "status": "supported"
+      "group": "mlip-flywheel"
     },
     {
       "id": "projection-law-round2-results",
       "source": "docs/projection-law-round2-results.md",
       "title": "Round 2 Results — MatPES MLIP Elastic Constants across 16 Cubic Elements",
-      "subtitle": "1×1×1 vs 3×3×3 supercell convergence, per-model MAE, and the Lupine correction operator on MatPES PBE and r2SCAN.",
+      "subtitle": "Working draft. Its registered hypotheses were later evaluated: H1/H2a kills triggered, H2b and H4 coverage missed their thresholds. Read the status banner first.",
       "category": "validation",
       "tags": [
         "mlip",
@@ -789,22 +678,27 @@ export const CATALOG = {
         "projection-law",
         "live-lab"
       ],
-      "featured": true,
-      "featuredRole": "anchor",
       "group": "mlip-flywheel",
-      "status": "live"
+      "status": "failed"
     },
     {
       "id": "environment-error-field-paper",
       "source": "paper/environment-error-field-2026-07-02.md",
       "title": "The Environment Error Field — Manuscript",
-      "subtitle": "uMLIP property errors as projections of a smooth coordination field: blind r=0.906, run-time correction, machine-verified claims incl. the nulls.",
+      "subtitle": "Nine fcc metals: a field fitted to three observables predicted the never-fitted (110) surface-energy error at r = 0.906 across 36 cells (null centred near 0.44; significant for three of four models).",
       "category": "validation",
-      "tags": ["mlip", "y-matrix", "environment-field", "isotonic", "lean", "live-lab"],
+      "tags": [
+        "mlip",
+        "y-matrix",
+        "environment-field",
+        "isotonic",
+        "lean",
+        "live-lab"
+      ],
       "featured": true,
       "featuredRole": "anchor",
       "group": "mlip-flywheel",
-      "status": "live"
+      "status": "open"
     },
     {
       "id": "y-matrix-preregistration",
@@ -812,9 +706,13 @@ export const CATALOG = {
       "title": "Y-Matrix Cross-Property Pre-Registration",
       "subtitle": "Registered hypotheses, coupling-aware nulls, kill conditions — with preserved amendments including a same-day falsified Fe hypothesis.",
       "category": "methods",
-      "tags": ["preregistration", "y-matrix", "nulls", "mlip"],
-      "group": "mlip-flywheel",
-      "status": "live"
+      "tags": [
+        "preregistration",
+        "y-matrix",
+        "nulls",
+        "mlip"
+      ],
+      "group": "mlip-flywheel"
     },
     {
       "id": "y-matrix-confirmatory-results",
@@ -822,9 +720,14 @@ export const CATALOG = {
       "title": "Y-Matrix Confirmatory Results — Rounds 1–2",
       "subtitle": "Linear cross-property structure absent under honest nulls; defect/bulk split 15–60×; OMat retraining removes bias, not variance.",
       "category": "validation",
-      "tags": ["mlip", "y-matrix", "confirmatory", "softening"],
+      "tags": [
+        "mlip",
+        "y-matrix",
+        "confirmatory",
+        "softening"
+      ],
       "group": "mlip-flywheel",
-      "status": "live"
+      "status": "open"
     },
     {
       "id": "mrh-monotone-reparameterization",
@@ -832,9 +735,14 @@ export const CATALOG = {
       "title": "The Monotone Reparameterization Hypothesis",
       "subtitle": "Order right, size wrong: the family-owned warp of foundation-model error, its confirmed predictions, and its registered kill conditions.",
       "category": "conjectures",
-      "tags": ["mrh", "error-geometry", "mlip", "ordinal"],
+      "tags": [
+        "mrh",
+        "error-geometry",
+        "mlip",
+        "ordinal"
+      ],
       "group": "mlip-flywheel",
-      "status": "live"
+      "status": "open"
     },
     {
       "id": "formalization-ladder",
@@ -842,9 +750,12 @@ export const CATALOG = {
       "title": "The Formalization Ladder",
       "subtitle": "L0 receipts to L3 verified routing: making the proof kernel part of the research loop, with typed claim-shapes replacing threshold theater.",
       "category": "formalization",
-      "tags": ["lean", "verification", "methodology"],
-      "group": "mlip-flywheel",
-      "status": "live"
+      "tags": [
+        "lean",
+        "verification",
+        "methodology"
+      ],
+      "group": "mlip-flywheel"
     },
     {
       "id": "layer2-supercell-evaluation",
@@ -929,7 +840,7 @@ export const CATALOG = {
       "id": "lupine-layer2-3x3x3-final-paper",
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "title": "Layer-2: A Sub-Core-Hour 3×3×3 Elastic-Constant Reference Benchmark for MatPES MLIPs",
-      "subtitle": "16 cubic metals, 4 foundation MLIPs, 2 functionals, 128 cases; raw 17.84 GPa MAE drops to 9.92 GPa after the Lupine 1-D correction with zero no-harm violations.",
+      "subtitle": "16 cubic metals, four MatPES MLIP labels, 128 cases (r2SCAN targets approximate): raw 17.84 GPa; 10.36 GPa as an oracle ceiling. Not a deployable correction.",
       "category": "validation",
       "tags": [
         "mlip",
@@ -940,30 +851,14 @@ export const CATALOG = {
         "projection-law"
       ],
       "group": "mlip-flywheel",
-      "status": "supported",
+      "status": "open",
       "featured": false
-    },
-    {
-      "id": "lupine-refinement-sprint-announcement",
-      "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
-      "title": "Lupine Refinement Sprint Announcement",
-      "subtitle": "Five theorems, one benchmark, zero sorry — PR-ready summary of the latest formalization sprint.",
-      "category": "validation",
-      "tags": [
-        "announcement",
-        "formalization",
-        "press",
-        "mlip",
-        "benchmark"
-      ],
-      "group": "mlip-flywheel",
-      "status": "live"
     },
     {
       "id": "formal-vision",
       "source": "docs/formal-vision.md",
       "title": "The Open Distillation Factory — Executable Vision",
-      "subtitle": `Current status: ${LEAN_INVENTORY.count} machine-inventoried Lean theorem/lemma declarations, zero active sorry, and a build-locking epistemic contract.`,
+      "subtitle": `Lean 4 checks the arithmetic and stated inequalities behind published numbers; it does not check the physics, the reference data or the pipeline. Generated inventory: ${LEAN_INVENTORY.count} declarations, zero active sorry (counted ${LEAN_INVENTORY.counted_at}).`,
       "category": "formalization",
       "tags": [
         "lean",
@@ -987,7 +882,7 @@ export const CATALOG = {
       "id": "formal-audit",
       "source": "docs/formal-audit.md",
       "title": "Formal Audit Report",
-      "subtitle": "Split verdict: Simpson's paradox fabricated, hyper-ribbon consistent but ungrounded.",
+      "subtitle": "What the Lean statements establish: a fixed-constant comparison and checks on defined graphs, not physical universality or a real causal graph.",
       "category": "formalization",
       "tags": [
         "lean",
@@ -1011,15 +906,14 @@ export const CATALOG = {
       "id": "formal-proof-ledger",
       "source": "docs/formal-proof-ledger.md",
       "title": "Formal Proof Ledger",
-      "subtitle": "Which claims a Lean theorem backs — proven, fabricated, or deliberately not formalized.",
+      "subtitle": "What each Lean statement checks, and why none of them alone supports an empirical claim.",
       "category": "formalization",
       "tags": [
         "lean",
         "proof-ledger",
         "audit"
       ],
-      "group": "hypotheses",
-      "status": "proven"
+      "group": "hypotheses"
     },
     {
       "id": "changelog",
@@ -1061,37 +955,10 @@ export const CATALOG = {
       ]
     },
     {
-      "id": "phoenix-observability",
-      "source": "docs/phoenix-observability.md",
-      "title": "Phoenix: Making the Research Loop Observable",
-      "subtitle": "Why we wired Phoenix, the Cloudflare edge limit we proved, and how to get more value from it.",
-      "category": "changelog",
-      "tags": [
-        "phoenix",
-        "observability",
-        "evals",
-        "featured"
-      ]
-    },
-    {
-      "id": "mlip-flywheel-readiness",
-      "source": "docs/mlip-flywheel-readiness.md",
-      "title": "MLIP Flywheel Readiness",
-      "subtitle": "Cloudflare is deployed, gated, and ready for scientist review before the next expensive Distill campaign.",
-      "category": "changelog",
-      "tags": [
-        "mlip",
-        "flywheel",
-        "cloudflare",
-        "phoenix"
-      ],
-      "status": "open"
-    },
-    {
       "id": "born-screening-re-audit",
       "source": "docs/born-screening-re-audit.md",
       "title": "What Survived the Born-Screening Re-Audit?",
-      "subtitle": "A public correction: the old MLIP 14/15 count is frozen; screened directional structure survives as the live claim.",
+      "subtitle": "A public correction: the old MLIP 14/15 count is frozen; screened directional structure survives as the current claim.",
       "category": "changelog",
       "tags": [
         "mlip",
@@ -1103,20 +970,6 @@ export const CATALOG = {
       "featured": true,
       "featuredRole": "counter",
       "status": "self-corrected"
-    },
-    {
-      "id": "foundation-model-trust-layers",
-      "source": "docs/foundation-model-trust-layers.md",
-      "title": "Foundation Materials Models Need Trust Layers",
-      "subtitle": "A ranked next-round target memo: batteries, MPtrj, Ni defects, Fe magnetism, Au surfaces, and phonons as evidence-carrying canaries.",
-      "category": "changelog",
-      "tags": [
-        "mlip",
-        "materials-discovery",
-        "trust-layer",
-        "batteries",
-        "featured"
-      ]
     },
     {
       "id": "references",
@@ -1147,7 +1000,7 @@ export const CATALOG = {
       "id": "academic-review-projection-law",
       "source": "docs/reviews/academic-review-projection-law-2026-06-16.md",
       "title": "Academic Review — Projection Law / IMMI Paper Suite",
-      "subtitle": "Independent adversarial review: strengths, six MUST-FIX items, and recommended gates before submission.",
+      "subtitle": "Internal AI-assisted review (not independent): strengths, six MUST-FIX items, and recommended gates before submission.",
       "category": "references",
       "tags": [
         "review",
@@ -1160,7 +1013,7 @@ export const CATALOG = {
       "id": "adversarial-review-projection-law",
       "source": "docs/reviews/adversarial-review-projection-law-2026-06-16.md",
       "title": "Adversarial Review — Projection Law / IMMI Paper Suite",
-      "subtitle": "Second-pass review of the first-pass fixes: checklist, new issues, and consistency verification.",
+      "subtitle": "Internal AI-assisted second-pass review of the first-pass fixes: checklist, new issues, and consistency verification.",
       "category": "references",
       "tags": [
         "review",
@@ -1168,39 +1021,6 @@ export const CATALOG = {
         "submission-gate"
       ],
       "status": "open"
-    },
-    {
-      "id": "funding-landscape",
-      "source": "docs/funding_landscape_report.md",
-      "title": "Federal Funding Landscape (2025–2026)",
-      "subtitle": "NSF DMREF, DOE BES, DARPA SURGE/PRIME, and MGI strategic priorities.",
-      "category": "references",
-      "tags": [
-        "funding",
-        "policy"
-      ]
-    },
-    {
-      "id": "operating-system",
-      "source": "docs/operating-system.md",
-      "title": "Lupine Operating System",
-      "subtitle": "How the research loop fits together: agenda, ledger, evidence, and correction.",
-      "category": "operations",
-      "tags": [
-        "meta",
-        "system"
-      ]
-    },
-    {
-      "id": "resource-fabric",
-      "source": "docs/resource-fabric.md",
-      "title": "Infrastructure Fabric",
-      "subtitle": "The compute and storage fabric that reproduces every Lupine result.",
-      "category": "operations",
-      "tags": [
-        "meta",
-        "infrastructure"
-      ]
     },
     {
       "id": "reproduce",
@@ -1212,54 +1032,6 @@ export const CATALOG = {
         "reproducibility",
         "distill",
         "lean"
-      ]
-    },
-    {
-      "id": "extraction-complete",
-      "source": "docs/EXTRACTION_COMPLETE.md",
-      "title": "Extraction — Complete",
-      "subtitle": "How the PDFs/DOCX were turned into this library.",
-      "category": "operations",
-      "tags": [
-        "meta",
-        "build"
-      ],
-      "group": "extraction"
-    },
-    {
-      "id": "extraction-report",
-      "source": "docs/EXTRACTION_REPORT.md",
-      "title": "Extraction — Report",
-      "subtitle": "Conversion statistics and fidelity notes.",
-      "category": "operations",
-      "tags": [
-        "meta",
-        "build"
-      ],
-      "group": "extraction"
-    },
-    {
-      "id": "extraction-notes",
-      "source": "docs/EXTRACTION_NOTES.md",
-      "title": "Extraction — Notes",
-      "subtitle": "Edge cases encountered and how they were handled.",
-      "category": "operations",
-      "tags": [
-        "meta",
-        "build"
-      ],
-      "group": "extraction"
-    },
-    {
-      "id": "adr-0001-storage",
-      "source": "docs/decisions/0001-r2-over-bandwidth-alliance.md",
-      "title": "ADR-0001 — Hybrid GCS + R2 Storage",
-      "subtitle": "Why hybrid object storage, and why we deferred Cloudflare-fronted GCS.",
-      "category": "operations",
-      "tags": [
-        "adr",
-        "infrastructure",
-        "storage"
       ]
     },
     {
@@ -1278,7 +1050,7 @@ export const CATALOG = {
       "id": "projection-law-in-plain-language",
       "source": "docs/projection-law-in-plain-language.md",
       "title": "The Projection Law in Plain Language",
-      "subtitle": "A 300-word explanation of what the Lupine correction operator does for a materials scientist.",
+      "subtitle": "A plain-language explainer of the correction hypothesis, with its 2026-11-11 correction: so far an oracle ceiling, not a working correction.",
       "category": "validation",
       "tags": [
         "primer",
@@ -1440,7 +1212,7 @@ export const CATALOG = {
       "id": "z1-union-anchor-economics",
       "source": "docs/analysis/z1-union-anchor-economics.md",
       "title": "Z1 Sparse-DFT Pilot — Union-Anchor Economics",
-      "subtitle": "Cross-model cost analysis from recorded campaign artifacts: 558 naive vs 154 union anchors (72.4% fewer evaluations, 3.62×); union cost scales 139.5→154 from one to four models.",
+      "subtitle": "Projected accounting, no new DFT: 154 instead of 558 projected DFT evaluations on 29 analyzable paths (72.4% fewer). The baseline is four separate runs; paths have 5–7 images, so the union covers 154 of 167 images.",
       "category": "validation",
       "tags": [
         "savings-stack",
@@ -1479,7 +1251,7 @@ export const CATALOG = {
         "verdict"
       ],
       "group": "mlip-flywheel",
-      "status": "supported"
+      "status": "open"
     },
     {
       "id": "z1-union-cost-ledger",
@@ -1495,7 +1267,7 @@ export const CATALOG = {
         "cost-ledger"
       ],
       "group": "mlip-flywheel",
-      "status": "supported"
+      "status": "open"
     },
     {
       "id": "t1-niggli-audit",
