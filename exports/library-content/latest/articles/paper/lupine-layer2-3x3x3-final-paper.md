@@ -195,7 +195,7 @@ The LOO operator uses the held-out target to set the projection magnitude. A dep
 - **`scalar-bulk`** — use the scalar PBE-to-r2SCAN bulk-modulus shift as a proxy for the residual magnitude. On a 16-element TensorNet/PBE benchmark it achieved 14.13 GPa against the approximate r2SCAN target only; it did not beat the raw model on the PBE target.
 - **`feedback-projection`** — fit the projection coefficient on a calibration set and apply the direction to new cases. It improved over `scalar-bulk` in 1×1×1 tests.
 
-The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. The gap between 10.4 GPa and the 14.1 GPa of `scalar-bulk` is the cost of not knowing the exact residual magnitude. Closing that gap is the next engineering step.
+The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. These numbers are not directly comparable: 10.4 GPa is the four-model oracle ceiling on both targets, while `scalar-bulk`’s 14.13 GPa is one model (TensorNet/PBE, 1×1×1) against the approximate r2SCAN target only. The best no-target estimator tested on the full 128-case matrix (consensus) reached 14.41 GPa and harmed 50 of 128 cases. Closing the gap to the ceiling without seeing the reference is still open.
 
 ### 4.3 The remaining frontier
 
@@ -220,7 +220,7 @@ This benchmark was the Layer-2 test bed for the Projection Law hypothesis [1]. T
 
 ## 6. Conclusion
 
-We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIP labels (three architectures, since QET and TensorNet resolve to the same checkpoint), against PBE and approximate r2SCAN targets. One bias direction per functional transfers out of sample. When the held-out reference sets how far to correct, the benchmark mean MAE falls from 17.8 GPa to 10.4 GPa: an oracle ceiling, not a deployable correction. A correction that works without seeing the answer is still open; the best no-target estimator tested so far improved the mean but harmed 50 of 128 cases. The remaining error is concentrated in magnetic and refractory BCC metals. The useful product today is the cheap reference matrix and the error map, not a corrected calculator.
+We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIP labels (QET and TensorNet are closely related TensorNet-family models; see §2.1), against PBE and approximate r2SCAN targets. One bias direction per functional transfers out of sample. When the held-out reference sets how far to correct, the benchmark mean MAE falls from 17.8 GPa to 10.4 GPa: an oracle ceiling, not a deployable correction. A correction that works without seeing the answer is still open; the best no-target estimator tested so far improved the mean but harmed 50 of 128 cases. The remaining error is concentrated in magnetic and refractory BCC metals. The useful product today is the cheap reference matrix and the error map, not a corrected calculator.
 
 ---
 

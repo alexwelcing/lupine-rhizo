@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-11-11T03:34:59.889Z",
+  "generatedAt": "2026-11-11T05:02:15.691Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "90c322313f06de7af0e4c2f8f58dde69bb688e7f",
+    "commit": "1a05e74662b91d957e9767f0d4e97b6ac8efb1a9",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1397,8 +1397,8 @@
     {
       "source": "docs/ai-and-data.md",
       "bundleSource": "articles/docs/ai-and-data.md",
-      "bytes": 7722,
-      "sha256": "3f54b87d92bfecdf8c637c84e1a07a9468e8aa805a647c92e666565e62c80fb6"
+      "bytes": 9092,
+      "sha256": "ffa588555b0c533143d2541818f8d25834bccfa25354106e9d2e49e545d129ce"
     },
     {
       "source": "docs/data-provenance.md",
@@ -1415,8 +1415,8 @@
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 12419,
-      "sha256": "dc4cd2ec0ba4dc606f0a3b406eea90fd4fddea796289bf9c608f64c500e83c53"
+      "bytes": 13192,
+      "sha256": "1f1be14a334d4c85aa2708043ef8765333543e9b609f7fdbb7676cfbde42a847"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
@@ -1475,8 +1475,8 @@
     {
       "source": "docs/methodology.md",
       "bundleSource": "articles/docs/methodology.md",
-      "bytes": 3569,
-      "sha256": "455b2bd96d1937eec194d876c10f8f70ecdd2b652a4718129b3836fc42045147"
+      "bytes": 3691,
+      "sha256": "89a1f333b053c625cb35362e34b5b0f2e56a99ff810791137ea5f7ad0bca2162"
     },
     {
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
@@ -1535,8 +1535,8 @@
     {
       "source": "docs/projection-law-round2-results.md",
       "bundleSource": "articles/docs/projection-law-round2-results.md",
-      "bytes": 32227,
-      "sha256": "95eb2ce358d7504915a48d0a759157dce9bbbfa7d8d9d19f85952aaa8c56d04a"
+      "bytes": 32364,
+      "sha256": "8953e76270ae67d3499d92e2873dc79f2a9b0249174698a3279da341bb756bba"
     },
     {
       "source": "paper/environment-error-field-2026-07-02.md",
@@ -1601,8 +1601,8 @@
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
-      "bytes": 18869,
-      "sha256": "6675d563c637bd4b1438f1badf6bc9ccb676b40f66baceceb12aa87602330e7f"
+      "bytes": 19118,
+      "sha256": "810d1fce933254e707cda0ed21ef81db6d43d0e5662783df0adcf5603ea04dcc"
     },
     {
       "source": "docs/formal-vision.md",
