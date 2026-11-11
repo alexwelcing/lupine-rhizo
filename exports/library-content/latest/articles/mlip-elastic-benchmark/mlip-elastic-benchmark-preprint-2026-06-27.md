@@ -191,7 +191,7 @@ The following limitations must accompany any use of these numbers:
 
 ## 6. Data availability
 
-The benchmark results are serialized in `mlip_elastic_benchmark_results.json` (schema `lupine.mlip_elastic_benchmark.v1`). The schema contains per-arm aggregates, per-element records, cost ratios, provenance metadata, and the caveat flags required for downstream interpretation. The raw per-case outputs, the aggregation driver, the Apptainer recipe, and a smoke-test verifier are packaged in the HPC artifact repository at `/home/alex/Dev/lupine/lupine-mlip-benchmark/`. The 16-element 3×3×3 grid and target provenance are available in the parent Lupine data store at `lupine/data/layer2_outputs_3x3x3_16elem/` and `lupine/data/targets_0K.json`.
+The benchmark results are serialized in `mlip_elastic_benchmark_results.json` (schema `lupine.mlip_elastic_benchmark.v1`). The schema contains per-arm aggregates, per-element records, cost ratios, provenance metadata, and the caveat flags required for downstream interpretation. The raw per-case outputs, the aggregation driver, the Apptainer recipe, and a smoke-test verifier are packaged in a separate HPC artifact repository (`lupine-mlip-benchmark`, not part of this repository). The 16-element 3×3×3 grid and target provenance are available in the parent Lupine data store at `lupine/data/layer2_outputs_3x3x3_16elem/` and `lupine/data/targets_0K.json`.
 
 ---
 

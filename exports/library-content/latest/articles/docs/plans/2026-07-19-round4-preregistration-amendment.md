@@ -99,7 +99,7 @@ Rocksalt elastic constants are unaffected and remain confirmatory.
 **Follow-up:** task `round4-elastic-relaxed-recompute` — re-evaluate
 perovskite elastic constants at each model's own relaxed equilibrium volume
 with internal relaxation enabled before any confirmatory use of these
-properties (tracked in `RESEARCH_COMMAND_CENTER.md`).
+properties (tracked as an operator task).
 
 ## 5. Effect on the registered outcomes
 

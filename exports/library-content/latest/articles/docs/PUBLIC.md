@@ -1,7 +1,7 @@
 # Public Corpus & Documentation Approach
 
 How Lupine maintains a research corpus *in public* — hypotheses, conjectures, proofs,
-partnerships, and a working changelog — in one place: the
+and a working changelog — in one place: the
 [Lupine Library](https://library.lupine.science), generated from this repository.
 
 ## Principle
@@ -23,7 +23,7 @@ Library a reasoning surface we add two more axes (Phase 2):
 | Axis | Purpose | Examples |
 |------|---------|----------|
 | `category` | The shelf (broad domain) | Foundations, Uncertainty & Error, Theory, Formalization |
-| `group` | A pivot *within or across* shelves | research round, element, property family, partnership |
+| `group` | A pivot *within or across* shelves | research round, element, property family |
 | `status` | Epistemic / lifecycle state | `proposed`, `supported`, `refuted`, `self-corrected`, `landed`, `planned` |
 | `tags` | Free-text retrieval | `simpson`, `hyper-ribbon`, `phonon` |
 
@@ -44,8 +44,6 @@ Added in Phase 2:
 - **Conjectures & Proofs** — one entry per hypothesis, `status`-tagged, with evidence IDs and
   links into `lean-spec/` formal proofs. Generated from the hypothesis records, not
   hand-maintained.
-- **Partnerships** — pilot mappings (e.g. MIIT-67 ↔ Lupine thesis) under a visibility
-  convention: public thesis and methodology; gated commercial terms.
 
 ## Roadmap
 
@@ -58,7 +56,7 @@ Added in Phase 2:
   `cloudbuild.yaml`) that replaces the frozen image on the existing `library-site` Cloud Run
   service. Restoring `library.lupine.science` is now a merge-to-`main`, not a hand-run deploy.
 - **Phase 2 (the ambition).** Add `status`/`group` to catalog + build manifest + reader
-  facets. Generate the Conjectures & Proofs and Partnerships shelves from the corpus and the
+  facets. Generate the Conjectures & Proofs shelf from the corpus and the
   hypothesis records so the Library updates as research lands. A `make publish` step keeps
   the site in lock-step with the corpus.
 - **Phase 3 (door left open).** Many-language support on the EN-fallback-safe i18n base.

@@ -46,5 +46,5 @@ property basis. The ledger marks every such boundary explicitly.
 
 ## Reproducibility
 
-Every figure is regenerable from these sources via the open `atlas-distill` engine —
+Every figure is regenerable from these sources via the open `distill` engine —
 see [Reproduce Our Results](reproduce.md).

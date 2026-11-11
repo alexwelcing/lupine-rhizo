@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-10-06T02:06:56.996Z",
+  "generatedAt": "2026-11-11T03:28:50.267Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "ea92ee63c895ea2d46a579790c98b963c2aa4284",
+    "commit": "7806b63f1dd0da1a72494c642a517005cca64b0a",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -26,8 +26,8 @@
           "zh": "支持"
         },
         "gloss": {
-          "en": "Evidence-backed but not formally proven.",
-          "zh": "有证据支持但尚未形式化证明。"
+          "en": "Survives the strongest test applied so far, within its stated scope.",
+          "zh": "在其声明的范围内，经受住了迄今最严格的检验。"
         },
         "color": "#22c55e"
       },
@@ -37,10 +37,32 @@
           "zh": "待定"
         },
         "gloss": {
-          "en": "Under active investigation; could go either way.",
-          "zh": "正在积极调查中；结果尚不确定。"
+          "en": "Evidence is partial, mixed, descriptive or same-engine only.",
+          "zh": "证据不完整、混合、仅为描述性或仅同一引擎内自洽。"
         },
         "color": "#3b82f6"
+      },
+      "failed": {
+        "label": {
+          "en": "Failed",
+          "zh": "未通过"
+        },
+        "gloss": {
+          "en": "A gate written in advance was not met.",
+          "zh": "预先设定的通过线未达到。"
+        },
+        "color": "#dc2626"
+      },
+      "abstained": {
+        "label": {
+          "en": "Abstained",
+          "zh": "弃权"
+        },
+        "gloss": {
+          "en": "The registered rule declined to issue a verdict (for example, no model had the required physics).",
+          "zh": "登记的规则拒绝给出结论（例如没有模型具备所需的物理）。"
+        },
+        "color": "#64748b"
       },
       "refuted": {
         "label": {
@@ -64,27 +86,16 @@
         },
         "color": "#f59e0b"
       },
-      "proven": {
+      "withdrawn": {
         "label": {
-          "en": "Proven (Lean)",
-          "zh": "已证明"
+          "en": "Withdrawn",
+          "zh": "已撤回"
         },
         "gloss": {
-          "en": "Backed by a machine-checked Lean proof.",
-          "zh": "由机器检查的 Lean 证明支持。"
+          "en": "We stopped claiming it, or relabelled it as not evidence.",
+          "zh": "我们不再主张此结论，或已将其重新标记为非证据。"
         },
-        "color": "#14b8a6"
-      },
-      "live": {
-        "label": {
-          "en": "Live evidence",
-          "zh": "Live evidence"
-        },
-        "gloss": {
-          "en": "Continuously refreshed evidence (live-lab canary).",
-          "zh": "持续刷新的证据（实时实验室金丝雀）。"
-        },
-        "color": "#06b6d4"
+        "color": "#a16207"
       }
     },
     "categories": [
@@ -95,7 +106,7 @@
           "zh": "基础与愿景"
         },
         "blurb": {
-          "en": "Orientation, shared vocabulary, data provenance, and the research agenda. Start here if you are new.",
+          "en": "Orientation, shared vocabulary, data provenance, and how we work with AI agents. Start here if you are new.",
           "zh": "方向、共享词汇、数据来源与研究议程。如果你是新来的，从这里开始。"
         }
       },
@@ -117,7 +128,7 @@
           "zh": "方法与理论"
         },
         "blurb": {
-          "en": "How we measure, bound, and reason about potential error — from sloppy-model geometry to Bayesian active learning.",
+          "en": "How we measure, bound, and reason about potential error.",
           "zh": "我们如何测量、界定和推理势函数误差 — 从 sloppy-model 几何到贝叶斯主动学习。"
         }
       },
@@ -128,7 +139,7 @@
           "zh": "验证与证据"
         },
         "blurb": {
-          "en": "Benchmarks, live-lab results, and the MLIP flywheel evidence chain.",
+          "en": "Benchmarks and registered campaigns, failures included, with the evidence behind each verdict.",
           "zh": "基准测试、实时实验室结果以及 MLIP 飞轮证据链。"
         }
       },
@@ -139,7 +150,7 @@
           "zh": "形式化"
         },
         "blurb": {
-          "en": "Lean-backed theorem proofs, build-locking contracts, and the formal proof ledger.",
+          "en": "Lean checks of the arithmetic and inequalities behind published numbers, and what each check covers.",
           "zh": "Lean 支持的定理证明、构建锁定契约以及形式化证明台账。"
         }
       },
@@ -161,7 +172,7 @@
           "zh": "评议与参考文献"
         },
         "blurb": {
-          "en": "The literature we build on, the funding context, and the adversarial reviews our claims passed before going public.",
+          "en": "The literature we build on and the internal reviews of our claims.",
           "zh": "我们所依据的文献、资金背景以及我们的声明在公开前通过的对抗性评议。"
         }
       },
@@ -172,7 +183,7 @@
           "zh": "构建与运营"
         },
         "blurb": {
-          "en": "How this library was built and how to reproduce every result. Extraction logs, ADRs, and operational fabric.",
+          "en": "How to reproduce results from this repository.",
           "zh": "该图书馆是如何构建的，以及如何复现每个结果。提取日志、架构决策记录和运营结构。"
         }
       }
@@ -210,7 +221,6 @@
         },
         "path": [
           "what-is-an-interatomic-potential",
-          "readme",
           "glossary",
           "error-geometry-objects",
           "conjecture-ledger",
@@ -231,7 +241,6 @@
         },
         "path": [
           "data-provenance",
-          "sloppy-models",
           "error-geometry-objects",
           "hyp-hyper-ribbon-universality",
           "hyp-cross-mlip-orthogonal-errors",
@@ -258,8 +267,6 @@
           "mlip-mptrj-broad-dft-canary",
           "projection-law-round2-preregistration",
           "projection-law-round2-results",
-          "bayesian-active-learning",
-          "gnn-error-prediction",
           "reproduce"
         ]
       },
@@ -270,34 +277,21 @@
           "zh": "这是否严谨？"
         },
         "description": {
-          "en": "Assess epistemic discipline and formal backing.",
-          "zh": "评估认识论纪律和形式化支持。"
+          "en": "Check how we test claims, what failed, and what the Lean checks cover.",
+          "zh": "查看我们如何检验结论、哪些未通过，以及 Lean 检查涵盖的范围。"
         },
         "path": [
-          "internal-science-program",
           "methodology",
           "conjecture-ledger",
+          "ai-and-data",
           "hyp-dband-correlation",
           "hyp-bccfcc-causal-shield",
           "formal-proof-ledger",
-          "formal-audit",
-          "funding-landscape",
-          "phoenix-observability"
+          "formal-audit"
         ]
       }
     ],
     "entries": [
-      {
-        "id": "readme",
-        "source": "articles/README.md",
-        "title": "Lupine — Project README",
-        "subtitle": "The error-geometry program: what is established vs. conjectured, and where to start.",
-        "category": "foundations",
-        "tags": [
-          "overview"
-        ],
-        "originalSource": "README.md"
-      },
       {
         "id": "glossary",
         "source": "articles/GLOSSARY.md",
@@ -325,22 +319,24 @@
         "originalSource": "docs/research-index.md"
       },
       {
-        "id": "navigation",
-        "source": "articles/docs/navigation.md",
-        "title": "Repo Navigation Guide",
-        "subtitle": "Quick-search codemap for finding things fast across the workspace.",
+        "id": "ai-and-data",
+        "source": "articles/docs/ai-and-data.md",
+        "title": "How We Use AI Agents and Handle Data",
+        "subtitle": "Which rules live in code, what each one covers, where data goes, and our rule for amendments made after results.",
         "category": "foundations",
         "tags": [
-          "navigation",
-          "reference"
+          "governance",
+          "ai",
+          "data",
+          "trust"
         ],
-        "originalSource": "docs/navigation.md"
+        "originalSource": "docs/ai-and-data.md"
       },
       {
         "id": "data-provenance",
         "source": "articles/docs/data-provenance.md",
         "title": "Data & Provenance",
-        "subtitle": "Where every number comes from: OpenKIM, NIST IPR, 559 potentials, the integrity gates.",
+        "subtitle": "Where every number comes from: OpenKIM, NIST IPR, the retained model–element tensors, and the integrity gates.",
         "category": "foundations",
         "tags": [
           "provenance",
@@ -348,19 +344,6 @@
           "trust"
         ],
         "originalSource": "docs/data-provenance.md"
-      },
-      {
-        "id": "internal-science-program",
-        "source": "articles/docs/internal-science-program.md",
-        "title": "Internal Science Program",
-        "subtitle": "The research agenda: what we are trying to learn and how the loop pursues it.",
-        "category": "foundations",
-        "tags": [
-          "program",
-          "agenda",
-          "vision"
-        ],
-        "originalSource": "docs/internal-science-program.md"
       },
       {
         "id": "public-approach",
@@ -387,20 +370,22 @@
           "overview"
         ],
         "group": "hypotheses",
+        "featured": true,
+        "featuredRole": "anchor",
         "originalSource": "docs/conjectures/ledger.md"
       },
       {
         "id": "hyp-hyper-ribbon-universality",
         "source": "articles/docs/conjectures/hyper-ribbon-universality.md",
         "title": "Hyper-Ribbon Universality",
-        "subtitle": "Error vectors occupy a low-dimensional manifold (PR 1.05–1.86). Lean-grounded.",
+        "subtitle": "Descriptive only: historical spectra show concentrated elastic errors; counts not re-verified; universality and correction value unproven.",
         "category": "conjectures",
         "tags": [
           "hyper-ribbon",
           "sloppy-models"
         ],
         "group": "hypotheses",
-        "status": "supported",
+        "status": "open",
         "originalSource": "docs/conjectures/hyper-ribbon-universality.md"
       },
       {
@@ -523,41 +508,6 @@
         "originalSource": "docs/science/objects.md"
       },
       {
-        "id": "sloppy-models",
-        "source": "articles/docs/sloppy_models_report.md",
-        "title": "Sloppy Models & Potential Transferability",
-        "subtitle": "Fisher Information eigenvalue analysis — stiff vs. sloppy directions.",
-        "category": "methods",
-        "tags": [
-          "sloppy",
-          "fim"
-        ],
-        "originalSource": "docs/sloppy_models_report.md"
-      },
-      {
-        "id": "rg-coarsegraining",
-        "source": "articles/docs/rg_coarsegraining_report.md",
-        "title": "Renormalization Group Coarse-Graining",
-        "subtitle": "Systematically deriving effective potentials via partition-function matching.",
-        "category": "methods",
-        "tags": [
-          "rg",
-          "coarse-graining"
-        ],
-        "originalSource": "docs/rg_coarsegraining_report.md"
-      },
-      {
-        "id": "info-theoretic",
-        "source": "articles/docs/info_theoretic_report.md",
-        "title": "Information-Theoretic Bounds on Model Error",
-        "subtitle": "Kolmogorov complexity, rate-distortion, and Shannon entropy for model selection.",
-        "category": "methods",
-        "tags": [
-          "information-theory"
-        ],
-        "originalSource": "docs/info_theoretic_report.md"
-      },
-      {
         "id": "methodology",
         "source": "articles/docs/methodology.md",
         "title": "Methodology — How We Know, and How We Catch Ourselves",
@@ -571,95 +521,10 @@
         "originalSource": "docs/methodology.md"
       },
       {
-        "id": "glimmer-multifidelity-uq",
-        "source": "articles/docs/multi_fidelity_uq_glimMER_report.md",
-        "title": "Multi-Fidelity UQ & the glimMER Paradigm",
-        "subtitle": "Cross-potential meta-analysis and PCA-based error correction operators.",
-        "category": "methods",
-        "tags": [
-          "uq",
-          "multi-fidelity",
-          "glimMER"
-        ],
-        "originalSource": "docs/multi_fidelity_uq_glimMER_report.md"
-      },
-      {
-        "id": "bayesian-active-learning",
-        "source": "articles/docs/bayesian_active_learning_report.md",
-        "title": "Bayesian Active Learning for Potential Selection",
-        "subtitle": "Gaussian Process surrogates across 23 potentials × 12,000 materials.",
-        "category": "methods",
-        "tags": [
-          "bayesian",
-          "active-learning"
-        ],
-        "originalSource": "docs/bayesian_active_learning_report.md"
-      },
-      {
-        "id": "weather-climate-ensembles",
-        "source": "articles/docs/weather_climate_ensembles_report.md",
-        "title": "Ensemble Methods from Climate Science",
-        "subtitle": "Transferring weighting strategies from weather to atomistic simulation.",
-        "category": "methods",
-        "tags": [
-          "ensembles",
-          "climate"
-        ],
-        "originalSource": "docs/weather_climate_ensembles_report.md"
-      },
-      {
-        "id": "gnn-error-prediction",
-        "source": "articles/docs/gnn_error_prediction_report.md",
-        "title": "GNNs for Predicting Potential Errors",
-        "subtitle": "Predicting where a potential will fail from crystal-structure topology.",
-        "category": "methods",
-        "tags": [
-          "gnn",
-          "error-prediction"
-        ],
-        "originalSource": "docs/gnn_error_prediction_report.md"
-      },
-      {
-        "id": "tda-error-landscapes",
-        "source": "articles/docs/tda_error_landscapes_report.md",
-        "title": "Topological Data Analysis of Error Landscapes",
-        "subtitle": "Persistent homology for high-dimensional error surfaces.",
-        "category": "methods",
-        "tags": [
-          "tda",
-          "topology"
-        ],
-        "originalSource": "docs/tda_error_landscapes_report.md"
-      },
-      {
-        "id": "phonon-benchmarking",
-        "source": "articles/docs/phonon_benchmarking_report.md",
-        "title": "Phonon Frequency Benchmarking",
-        "subtitle": "Second-derivative tests as the gold standard for potential validation.",
-        "category": "validation",
-        "tags": [
-          "phonon",
-          "benchmark"
-        ],
-        "originalSource": "docs/phonon_benchmarking_report.md"
-      },
-      {
-        "id": "key-findings",
-        "source": "articles/docs/KEY_FINDINGS_SUMMARY.md",
-        "title": "Phonon Benchmarking — Key Findings",
-        "subtitle": "Executive summary of the most consequential phonon findings for Lupine.",
-        "category": "validation",
-        "tags": [
-          "summary",
-          "phonon"
-        ],
-        "originalSource": "docs/KEY_FINDINGS_SUMMARY.md"
-      },
-      {
         "id": "z1-barrier-campaign-round4",
         "source": "articles/docs/validation/z1-barrier-campaign-round4-results.md",
         "title": "Z1 Barrier-Accurate MLIP Campaign — Round-4 Results (Two Precision Chains)",
-        "subtitle": "Refuted twice — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; signed-error imbalance is model-dependent, not universal.",
+        "subtitle": "Failed on both precision chains — all four models miss the 40 meV gate (135–243 meV) identically under float32 and float64; signed-error imbalance is model-dependent, not universal.",
         "category": "validation",
         "tags": [
           "z1",
@@ -670,14 +535,14 @@
           "featured"
         ],
         "group": "mlip-flywheel",
-        "status": "refuted",
+        "status": "failed",
         "originalSource": "docs/validation/z1-barrier-campaign-round4-results.md"
       },
       {
         "id": "z3-adsorption-delta-campaign-round4",
         "source": "articles/docs/validation/z3-adsorption-delta-campaign-round4-results.md",
         "title": "Z3 Δ-Learned Adsorption Accuracy — Round-4 Results",
-        "subtitle": "Refuted — 128/128 baseline measurements; every validation-selected correction worsened the holdout (2.27–5.91 eV vs the 0.1 eV gate).",
+        "subtitle": "Failed — 128/128 baseline measurements; every validation-selected correction worsened the holdout (2.27–5.91 eV vs the 0.1 eV gate).",
         "category": "validation",
         "tags": [
           "z3",
@@ -688,7 +553,7 @@
           "featured"
         ],
         "group": "mlip-flywheel",
-        "status": "refuted",
+        "status": "failed",
         "originalSource": "docs/validation/z3-adsorption-delta-campaign-round4-results.md"
       },
       {
@@ -704,7 +569,7 @@
           "round-4"
         ],
         "group": "mlip-flywheel",
-        "status": "proposed",
+        "status": "abstained",
         "originalSource": "docs/campaigns/z2-abstention-audit.md"
       },
       {
@@ -720,7 +585,7 @@
           "amendment"
         ],
         "group": "mlip-flywheel",
-        "status": "refuted",
+        "status": "failed",
         "originalSource": "docs/plans/2026-07-19-round4-preregistration-amendment.md"
       },
       {
@@ -743,8 +608,8 @@
       {
         "id": "mlip-ni-paired-accuracy-live",
         "source": "articles/docs/mlip-ni-paired-accuracy-live-report.md",
-        "title": "Ni Paired Accuracy Live Report",
-        "subtitle": "Live baseline-versus-Distill Accuracy evidence for the Ni fcc EAM-home-turf campaign.",
+        "title": "Ni Paired Accuracy Report",
+        "subtitle": "Baseline-versus-Distill accuracy evidence for the Ni fcc EAM-home-turf campaign.",
         "category": "validation",
         "tags": [
           "mlip",
@@ -754,7 +619,7 @@
           "live-lab"
         ],
         "group": "mlip-flywheel",
-        "status": "live",
+        "status": "open",
         "originalSource": "docs/mlip-ni-paired-accuracy-live-report.md"
       },
       {
@@ -806,14 +671,13 @@
           "projection-law"
         ],
         "group": "mlip-flywheel",
-        "status": "supported",
         "originalSource": "docs/projection-law-round2-preregistration.md"
       },
       {
         "id": "projection-law-round2-results",
         "source": "articles/docs/projection-law-round2-results.md",
         "title": "Round 2 Results — MatPES MLIP Elastic Constants across 16 Cubic Elements",
-        "subtitle": "1×1×1 vs 3×3×3 supercell convergence, per-model MAE, and the Lupine correction operator on MatPES PBE and r2SCAN.",
+        "subtitle": "Working draft. Its registered hypotheses were later evaluated: H1/H2a kills triggered, H2b and H4 coverage missed their thresholds. Read the status banner first.",
         "category": "validation",
         "tags": [
           "mlip",
@@ -823,17 +687,15 @@
           "projection-law",
           "live-lab"
         ],
-        "featured": true,
-        "featuredRole": "anchor",
         "group": "mlip-flywheel",
-        "status": "live",
+        "status": "failed",
         "originalSource": "docs/projection-law-round2-results.md"
       },
       {
         "id": "environment-error-field-paper",
         "source": "articles/paper/environment-error-field-2026-07-02.md",
         "title": "The Environment Error Field — Manuscript",
-        "subtitle": "uMLIP property errors as projections of a smooth coordination field: blind r=0.906, run-time correction, machine-verified claims incl. the nulls.",
+        "subtitle": "Nine fcc metals: a field fitted to three observables predicted the never-fitted (110) surface-energy error at r = 0.906 across 36 cells (null centred near 0.44; significant for three of four models).",
         "category": "validation",
         "tags": [
           "mlip",
@@ -846,7 +708,7 @@
         "featured": true,
         "featuredRole": "anchor",
         "group": "mlip-flywheel",
-        "status": "live",
+        "status": "open",
         "originalSource": "paper/environment-error-field-2026-07-02.md"
       },
       {
@@ -862,7 +724,6 @@
           "mlip"
         ],
         "group": "mlip-flywheel",
-        "status": "live",
         "originalSource": "docs/plans/y-matrix-cross-property-preregistration-2026-07-01.md"
       },
       {
@@ -878,7 +739,7 @@
           "softening"
         ],
         "group": "mlip-flywheel",
-        "status": "live",
+        "status": "open",
         "originalSource": "docs/plans/y-matrix-confirmatory-results-2026-07-01.md"
       },
       {
@@ -894,7 +755,7 @@
           "ordinal"
         ],
         "group": "mlip-flywheel",
-        "status": "live",
+        "status": "open",
         "originalSource": "docs/mrh-monotone-reparameterization.md"
       },
       {
@@ -909,7 +770,6 @@
           "methodology"
         ],
         "group": "mlip-flywheel",
-        "status": "live",
         "originalSource": "docs/formalization-ladder.md"
       },
       {
@@ -1000,7 +860,7 @@
         "id": "lupine-layer2-3x3x3-final-paper",
         "source": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
         "title": "Layer-2: A Sub-Core-Hour 3×3×3 Elastic-Constant Reference Benchmark for MatPES MLIPs",
-        "subtitle": "16 cubic metals, 4 foundation MLIPs, 2 functionals, 128 cases; raw 17.84 GPa MAE drops to 9.92 GPa after the Lupine 1-D correction with zero no-harm violations.",
+        "subtitle": "16 cubic metals, four MatPES MLIP labels, 128 cases (r2SCAN targets approximate): raw 17.84 GPa; 10.36 GPa as an oracle ceiling. Not a deployable correction.",
         "category": "validation",
         "tags": [
           "mlip",
@@ -1011,32 +871,15 @@
           "projection-law"
         ],
         "group": "mlip-flywheel",
-        "status": "supported",
+        "status": "open",
         "featured": false,
         "originalSource": "paper/lupine-layer2-3x3x3-final-paper.md"
-      },
-      {
-        "id": "lupine-refinement-sprint-announcement",
-        "source": "articles/docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
-        "title": "Lupine Refinement Sprint Announcement",
-        "subtitle": "Five theorems, one benchmark, zero sorry — PR-ready summary of the latest formalization sprint.",
-        "category": "validation",
-        "tags": [
-          "announcement",
-          "formalization",
-          "press",
-          "mlip",
-          "benchmark"
-        ],
-        "group": "mlip-flywheel",
-        "status": "live",
-        "originalSource": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md"
       },
       {
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
-        "subtitle": "Current status: 899 machine-inventoried Lean theorem/lemma declarations, zero active sorry, and a build-locking epistemic contract.",
+        "subtitle": "Lean 4 checks the arithmetic and stated inequalities behind published numbers; it does not check the physics, the reference data or the pipeline. Generated inventory: 927 declarations, zero active sorry (counted 2026-11-05).",
         "category": "formalization",
         "tags": [
           "lean",
@@ -1062,7 +905,7 @@
         "id": "formal-audit",
         "source": "articles/docs/formal-audit.md",
         "title": "Formal Audit Report",
-        "subtitle": "Split verdict: Simpson's paradox fabricated, hyper-ribbon consistent but ungrounded.",
+        "subtitle": "What the Lean statements establish: a fixed-constant comparison and checks on defined graphs, not physical universality or a real causal graph.",
         "category": "formalization",
         "tags": [
           "lean",
@@ -1088,7 +931,7 @@
         "id": "formal-proof-ledger",
         "source": "articles/docs/formal-proof-ledger.md",
         "title": "Formal Proof Ledger",
-        "subtitle": "Which claims a Lean theorem backs — proven, fabricated, or deliberately not formalized.",
+        "subtitle": "What each Lean statement checks, and why none of them alone supports an empirical claim.",
         "category": "formalization",
         "tags": [
           "lean",
@@ -1096,7 +939,6 @@
           "audit"
         ],
         "group": "hypotheses",
-        "status": "proven",
         "originalSource": "docs/formal-proof-ledger.md"
       },
       {
@@ -1142,39 +984,10 @@
         "originalSource": "docs/research_evolution_2026_05_05.md"
       },
       {
-        "id": "phoenix-observability",
-        "source": "articles/docs/phoenix-observability.md",
-        "title": "Phoenix: Making the Research Loop Observable",
-        "subtitle": "Why we wired Phoenix, the Cloudflare edge limit we proved, and how to get more value from it.",
-        "category": "changelog",
-        "tags": [
-          "phoenix",
-          "observability",
-          "evals",
-          "featured"
-        ],
-        "originalSource": "docs/phoenix-observability.md"
-      },
-      {
-        "id": "mlip-flywheel-readiness",
-        "source": "articles/docs/mlip-flywheel-readiness.md",
-        "title": "MLIP Flywheel Readiness",
-        "subtitle": "Cloudflare is deployed, gated, and ready for scientist review before the next expensive Distill campaign.",
-        "category": "changelog",
-        "tags": [
-          "mlip",
-          "flywheel",
-          "cloudflare",
-          "phoenix"
-        ],
-        "status": "open",
-        "originalSource": "docs/mlip-flywheel-readiness.md"
-      },
-      {
         "id": "born-screening-re-audit",
         "source": "articles/docs/born-screening-re-audit.md",
         "title": "What Survived the Born-Screening Re-Audit?",
-        "subtitle": "A public correction: the old MLIP 14/15 count is frozen; screened directional structure survives as the live claim.",
+        "subtitle": "A public correction: the old MLIP 14/15 count is frozen; screened directional structure survives as the current claim.",
         "category": "changelog",
         "tags": [
           "mlip",
@@ -1187,21 +1000,6 @@
         "featuredRole": "counter",
         "status": "self-corrected",
         "originalSource": "docs/born-screening-re-audit.md"
-      },
-      {
-        "id": "foundation-model-trust-layers",
-        "source": "articles/docs/foundation-model-trust-layers.md",
-        "title": "Foundation Materials Models Need Trust Layers",
-        "subtitle": "A ranked next-round target memo: batteries, MPtrj, Ni defects, Fe magnetism, Au surfaces, and phonons as evidence-carrying canaries.",
-        "category": "changelog",
-        "tags": [
-          "mlip",
-          "materials-discovery",
-          "trust-layer",
-          "batteries",
-          "featured"
-        ],
-        "originalSource": "docs/foundation-model-trust-layers.md"
       },
       {
         "id": "references",
@@ -1234,7 +1032,7 @@
         "id": "academic-review-projection-law",
         "source": "articles/docs/reviews/academic-review-projection-law-2026-06-16.md",
         "title": "Academic Review — Projection Law / IMMI Paper Suite",
-        "subtitle": "Independent adversarial review: strengths, six MUST-FIX items, and recommended gates before submission.",
+        "subtitle": "Internal AI-assisted review (not independent): strengths, six MUST-FIX items, and recommended gates before submission.",
         "category": "references",
         "tags": [
           "review",
@@ -1248,7 +1046,7 @@
         "id": "adversarial-review-projection-law",
         "source": "articles/docs/reviews/adversarial-review-projection-law-2026-06-16.md",
         "title": "Adversarial Review — Projection Law / IMMI Paper Suite",
-        "subtitle": "Second-pass review of the first-pass fixes: checklist, new issues, and consistency verification.",
+        "subtitle": "Internal AI-assisted second-pass review of the first-pass fixes: checklist, new issues, and consistency verification.",
         "category": "references",
         "tags": [
           "review",
@@ -1259,118 +1057,17 @@
         "originalSource": "docs/reviews/adversarial-review-projection-law-2026-06-16.md"
       },
       {
-        "id": "funding-landscape",
-        "source": "articles/docs/funding_landscape_report.md",
-        "title": "Federal Funding Landscape (2025–2026)",
-        "subtitle": "NSF DMREF, DOE BES, DARPA SURGE/PRIME, and MGI strategic priorities.",
-        "category": "references",
-        "tags": [
-          "funding",
-          "policy"
-        ],
-        "originalSource": "docs/funding_landscape_report.md"
-      },
-      {
-        "id": "operating-system",
-        "source": "articles/docs/operating-system.md",
-        "title": "Lupine Operating System",
-        "subtitle": "How the research loop fits together: agenda, ledger, evidence, and correction.",
-        "category": "operations",
-        "tags": [
-          "meta",
-          "system"
-        ],
-        "originalSource": "docs/operating-system.md"
-      },
-      {
-        "id": "resource-fabric",
-        "source": "articles/docs/resource-fabric.md",
-        "title": "Infrastructure Fabric",
-        "subtitle": "The compute and storage fabric that reproduces every Lupine result.",
-        "category": "operations",
-        "tags": [
-          "meta",
-          "infrastructure"
-        ],
-        "originalSource": "docs/resource-fabric.md"
-      },
-      {
         "id": "reproduce",
         "source": "articles/docs/reproduce.md",
         "title": "Reproduce Our Results",
-        "subtitle": "The atlas-distill + Lean commands that regenerate every ledger claim and verdict.",
+        "subtitle": "The distill + Lean commands that regenerate every ledger claim and verdict.",
         "category": "operations",
         "tags": [
           "reproducibility",
-          "atlas-distill",
+          "distill",
           "lean"
         ],
         "originalSource": "docs/reproduce.md"
-      },
-      {
-        "id": "extraction-complete",
-        "source": "articles/docs/EXTRACTION_COMPLETE.md",
-        "title": "Extraction — Complete",
-        "subtitle": "How the PDFs/DOCX were turned into this library.",
-        "category": "operations",
-        "tags": [
-          "meta",
-          "build"
-        ],
-        "group": "extraction",
-        "originalSource": "docs/EXTRACTION_COMPLETE.md"
-      },
-      {
-        "id": "extraction-report",
-        "source": "articles/docs/EXTRACTION_REPORT.md",
-        "title": "Extraction — Report",
-        "subtitle": "Conversion statistics and fidelity notes.",
-        "category": "operations",
-        "tags": [
-          "meta",
-          "build"
-        ],
-        "group": "extraction",
-        "originalSource": "docs/EXTRACTION_REPORT.md"
-      },
-      {
-        "id": "extraction-notes",
-        "source": "articles/docs/EXTRACTION_NOTES.md",
-        "title": "Extraction — Notes",
-        "subtitle": "Edge cases encountered and how they were handled.",
-        "category": "operations",
-        "tags": [
-          "meta",
-          "build"
-        ],
-        "group": "extraction",
-        "originalSource": "docs/EXTRACTION_NOTES.md"
-      },
-      {
-        "id": "adr-0001-storage",
-        "source": "articles/docs/decisions/0001-r2-over-bandwidth-alliance.md",
-        "title": "ADR-0001 — Hybrid GCS + R2 Storage",
-        "subtitle": "Why hybrid object storage, and why we deferred Cloudflare-fronted GCS.",
-        "category": "operations",
-        "tags": [
-          "adr",
-          "infrastructure",
-          "storage"
-        ],
-        "originalSource": "docs/decisions/0001-r2-over-bandwidth-alliance.md"
-      },
-      {
-        "id": "partnerships",
-        "source": "articles/docs/partnerships.md",
-        "title": "Partnerships",
-        "subtitle": "MIIT-67 pilot mapping and the Lupine thesis — public layer.",
-        "category": "operations",
-        "tags": [
-          "partnerships",
-          "miit-67",
-          "pilots"
-        ],
-        "originalSource": "docs/partnerships.md"
       },
       {
         "id": "what-is-an-interatomic-potential",
@@ -1389,7 +1086,7 @@
         "id": "projection-law-in-plain-language",
         "source": "articles/docs/projection-law-in-plain-language.md",
         "title": "The Projection Law in Plain Language",
-        "subtitle": "A 300-word explanation of what the Lupine correction operator does for a materials scientist.",
+        "subtitle": "A plain-language explainer of the correction hypothesis, with its 2026-11-11 correction: so far an oracle ceiling, not a working correction.",
         "category": "validation",
         "tags": [
           "primer",
@@ -1562,7 +1259,7 @@
         "id": "z1-union-anchor-economics",
         "source": "articles/docs/analysis/z1-union-anchor-economics.md",
         "title": "Z1 Sparse-DFT Pilot — Union-Anchor Economics",
-        "subtitle": "Cross-model cost analysis from recorded campaign artifacts: 558 naive vs 154 union anchors (72.4% fewer evaluations, 3.62×); union cost scales 139.5→154 from one to four models.",
+        "subtitle": "Projected accounting, no new DFT: 154 instead of 558 projected DFT evaluations on 29 analyzable paths (72.4% fewer). The baseline is four separate runs; paths have 5–7 images, so the union covers 154 of 167 images.",
         "category": "validation",
         "tags": [
           "savings-stack",
@@ -1593,7 +1290,7 @@
         "id": "z1-union-campaign-verdict",
         "source": "articles/docs/analysis/z1-union-campaign-verdict.md",
         "title": "Z1 Union Campaign — Verdict of Record (2026-07-24)",
-        "subtitle": "All four uMLIPs strong-win on the same-engine basis (≤15 meV) across 23 active paths; realized union economics 70.0% fewer evaluations (430 naive vs 129 executed), with the T1 wander map and law check.",
+        "subtitle": "Sparse-versus-dense GPAW self-consistency across 23 active paths: 0.0–6.8 meV mean error. VASP-referenced error is 693.0–705.7 meV; no external-reference accuracy win.",
         "category": "validation",
         "tags": [
           "z1",
@@ -1603,14 +1300,14 @@
           "verdict"
         ],
         "group": "mlip-flywheel",
-        "status": "supported",
+        "status": "open",
         "originalSource": "docs/analysis/z1-union-campaign-verdict.md"
       },
       {
         "id": "z1-union-cost-ledger",
         "source": "articles/docs/analysis/z1-union-cost-ledger.md",
         "title": "Z1 Union Campaign — Measured Cost Ledger (2026-07-24)",
-        "subtitle": "129 anchors in 61.0 wall-hours (mean 28.4 min/anchor), 244 vCPU-hours → $14.65 cloud-equivalent plus $0.60 local electricity, with per-path wall-hours.",
+        "subtitle": "Recorded ledger: 129 anchors, 61.0 wall-hours, 244 vCPU-hours. The campaign retains an unresolved cost-provenance conflict; estimates are not a verified bill.",
         "category": "validation",
         "tags": [
           "z1",
@@ -1620,7 +1317,7 @@
           "cost-ledger"
         ],
         "group": "mlip-flywheel",
-        "status": "supported",
+        "status": "open",
         "originalSource": "docs/analysis/z1-union-cost-ledger.md"
       },
       {
@@ -1686,64 +1383,52 @@
   },
   "files": [
     {
-      "source": "README.md",
-      "bundleSource": "articles/README.md",
-      "bytes": 3832,
-      "sha256": "99de890f8e784acea6367d832c82c65a7d0ce89d32c2daba024c2f8ca00aed33"
-    },
-    {
       "source": "GLOSSARY.md",
       "bundleSource": "articles/GLOSSARY.md",
-      "bytes": 6092,
-      "sha256": "83b1204309b111ed2fd7149cc1d17fb7c95168b2b777f45f9af6b2f3e560a068"
+      "bytes": 6039,
+      "sha256": "4f166be963cdaa32d87606c7d359c2e461583258f6f515771a8d28d63f3cfc56"
     },
     {
       "source": "docs/research-index.md",
       "bundleSource": "articles/docs/research-index.md",
-      "bytes": 8678,
-      "sha256": "bf70db1c726b048412d64b0d4ba051174ae39aa16390576c1115fafd2e2d49aa"
+      "bytes": 8565,
+      "sha256": "19a836c21d21cecca4c271659775bfdd1d42517f64554ee4d89626d7fff40011"
     },
     {
-      "source": "docs/navigation.md",
-      "bundleSource": "articles/docs/navigation.md",
-      "bytes": 9957,
-      "sha256": "a4326ee36f8cdd0e1af6ad9fb4b0215fe314e40f60a6c0a1a6a9d6e0a4c860ee"
+      "source": "docs/ai-and-data.md",
+      "bundleSource": "articles/docs/ai-and-data.md",
+      "bytes": 7722,
+      "sha256": "3f54b87d92bfecdf8c637c84e1a07a9468e8aa805a647c92e666565e62c80fb6"
     },
     {
       "source": "docs/data-provenance.md",
       "bundleSource": "articles/docs/data-provenance.md",
-      "bytes": 2765,
-      "sha256": "b9ceacddb7fbd6284c68cf26fe1bd520ffa1d31f31f1418820623f6b15c17ba7"
-    },
-    {
-      "source": "docs/internal-science-program.md",
-      "bundleSource": "articles/docs/internal-science-program.md",
-      "bytes": 5975,
-      "sha256": "f867cf143fc5abbb522515846f15d550b330bdf0acb3c7a3b8c813ffcc5da1bf"
+      "bytes": 2759,
+      "sha256": "29ee3f4da1afd5a6d61a0ea6ec498cd50cb8e0058228123899bd37a182333573"
     },
     {
       "source": "docs/PUBLIC.md",
       "bundleSource": "articles/docs/PUBLIC.md",
-      "bytes": 3810,
-      "sha256": "3427b6afc72baa54d87d24f0d56cbb4820eb7603c457e37d4462b234e3550f6d"
+      "bytes": 3605,
+      "sha256": "0b43cc529c6f0f1538a2412d55dfe725e2564515f27676664efc84e5556d6e41"
     },
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 4301,
-      "sha256": "e3811261328f79431ea4ebe6c93fe644118b225e72f9c9f192bb2830e5035df4"
+      "bytes": 12419,
+      "sha256": "dc4cd2ec0ba4dc606f0a3b406eea90fd4fddea796289bf9c608f64c500e83c53"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
       "bundleSource": "articles/docs/conjectures/hyper-ribbon-universality.md",
-      "bytes": 1610,
-      "sha256": "e1cfb795ec05098c1c46f5ab2747133f55bc19321789dc707d029eb395839359"
+      "bytes": 2641,
+      "sha256": "755ba5a39ba1d884aecc5082fd9b707782e3f4a74bef4c4ab4c21fd1b13cc5c9"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-mlip-transfer.md",
       "bundleSource": "articles/docs/conjectures/hyper-ribbon-mlip-transfer.md",
-      "bytes": 2563,
-      "sha256": "9a0bc2e01d38ad2bf21a6d75e671260a8be96ef743de55cc979f31fe25894968"
+      "bytes": 3267,
+      "sha256": "d842571c7287466e593e87531f045a33bf6ecfd21bb135daaf1d4175be788831"
     },
     {
       "source": "docs/conjectures/cross-mlip-orthogonal-errors.md",
@@ -1784,74 +1469,14 @@
     {
       "source": "docs/science/objects.md",
       "bundleSource": "articles/docs/science/objects.md",
-      "bytes": 6893,
-      "sha256": "393ff53b40c35a599febe934dea1f41cd568d4ba74693ca6a39b4fc9b66d4bf6"
-    },
-    {
-      "source": "docs/sloppy_models_report.md",
-      "bundleSource": "articles/docs/sloppy_models_report.md",
-      "bytes": 12467,
-      "sha256": "9ef3c681344edb4eb283b21b910f3bf4ccfaaba84d0c10f7cea7dba097760ed5"
-    },
-    {
-      "source": "docs/rg_coarsegraining_report.md",
-      "bundleSource": "articles/docs/rg_coarsegraining_report.md",
-      "bytes": 14712,
-      "sha256": "1520384ea32806b2467913cd79a08bdbd049894fe255ce1e6361d1a0655ca0d0"
-    },
-    {
-      "source": "docs/info_theoretic_report.md",
-      "bundleSource": "articles/docs/info_theoretic_report.md",
-      "bytes": 16099,
-      "sha256": "85f21523bcf42d31c5749f92c385622cdc163ed04384134c3a1e91984b0491cd"
+      "bytes": 11557,
+      "sha256": "1069801541b3b9321b00231611061e4713b09e89fa6d8dc1d31eae10d1f53d10"
     },
     {
       "source": "docs/methodology.md",
       "bundleSource": "articles/docs/methodology.md",
-      "bytes": 2351,
-      "sha256": "99f53d2314489626dfbaedeff9e96cebc33bbb5375285050af9c1bdd66862613"
-    },
-    {
-      "source": "docs/multi_fidelity_uq_glimMER_report.md",
-      "bundleSource": "articles/docs/multi_fidelity_uq_glimMER_report.md",
-      "bytes": 33446,
-      "sha256": "c174ee3ca98995576c22f1bc8b9dc7aeab9df3cb1ff96a567adf0c56e8adfbb9"
-    },
-    {
-      "source": "docs/bayesian_active_learning_report.md",
-      "bundleSource": "articles/docs/bayesian_active_learning_report.md",
-      "bytes": 8459,
-      "sha256": "cdedf3e63bcf874b6a22189198ee302731280af0a4c8da0353489af5310f6683"
-    },
-    {
-      "source": "docs/weather_climate_ensembles_report.md",
-      "bundleSource": "articles/docs/weather_climate_ensembles_report.md",
-      "bytes": 12354,
-      "sha256": "75897910f9cfa5e495f5999286e950d4a6b62eae4a1222c99f1e4aab1725e239"
-    },
-    {
-      "source": "docs/gnn_error_prediction_report.md",
-      "bundleSource": "articles/docs/gnn_error_prediction_report.md",
-      "bytes": 11495,
-      "sha256": "3744b8b0e59601c7b3810a3f9a47dede9b712b7a984e9a9f245952c92f8c1c94"
-    },
-    {
-      "source": "docs/tda_error_landscapes_report.md",
-      "bundleSource": "articles/docs/tda_error_landscapes_report.md",
-      "bytes": 50755,
-      "sha256": "dbddf48a4b8b4b5ee561156a02a9f8ced47048a0b24a1db5c844254de0dc47d8"
-    },
-    {
-      "source": "docs/phonon_benchmarking_report.md",
-      "bundleSource": "articles/docs/phonon_benchmarking_report.md",
-      "bytes": 19431,
-      "sha256": "3fa3d511140425704d548594c2198bc5656234bbfc01e6499da27441eda5986c"
-    },
-    {
-      "source": "docs/KEY_FINDINGS_SUMMARY.md",
-      "bundleSource": "articles/docs/KEY_FINDINGS_SUMMARY.md",
-      "bytes": 8700,
-      "sha256": "d0c603a181f70094496c865d24397a41a5d91024e9343e8871f4728b6de6410a"
+      "bytes": 3569,
+      "sha256": "455b2bd96d1937eec194d876c10f8f70ecdd2b652a4718129b3836fc42045147"
     },
     {
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
@@ -1874,8 +1499,8 @@
     {
       "source": "docs/plans/2026-07-19-round4-preregistration-amendment.md",
       "bundleSource": "articles/docs/plans/2026-07-19-round4-preregistration-amendment.md",
-      "bytes": 7082,
-      "sha256": "cf89b891d02b49a816c90ec1661020751f4578de34a583b490175181898cd4d7"
+      "bytes": 7070,
+      "sha256": "113915b81428357b8c5b5465df605656be1c93a569bad2d761fb119421f885d1"
     },
     {
       "source": "docs/mlip-cloud-baseline-distill-report.md",
@@ -1910,8 +1535,8 @@
     {
       "source": "docs/projection-law-round2-results.md",
       "bundleSource": "articles/docs/projection-law-round2-results.md",
-      "bytes": 30997,
-      "sha256": "80978efb5bfe30f470abba7aa6ba08e662e260239727a21fab40716b3b09c606"
+      "bytes": 32227,
+      "sha256": "95eb2ce358d7504915a48d0a759157dce9bbbfa7d8d9d19f85952aaa8c56d04a"
     },
     {
       "source": "paper/environment-error-field-2026-07-02.md",
@@ -1940,8 +1565,8 @@
     {
       "source": "docs/formalization-ladder.md",
       "bundleSource": "articles/docs/formalization-ladder.md",
-      "bytes": 3338,
-      "sha256": "98dbed278e0f5061d577fd45c9e90aaffe0edd0811378544ba7ac38fd066934d"
+      "bytes": 3332,
+      "sha256": "443f47a5d3bb70a61692afb5de5af9b248a0a08da911f5e6f6c4e826b56c8b86"
     },
     {
       "source": "docs/layer2_supercell_evaluation.md",
@@ -1958,8 +1583,8 @@
     {
       "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/mlip-elastic-benchmark-preprint-2026-06-27.md",
-      "bytes": 20550,
-      "sha256": "4570268b4e1d3453d3634e8f06f681a37540b9e7fcf894a20f2afcca82f485b7"
+      "bytes": 20562,
+      "sha256": "cf6e5358455fa8820240cdf0e3ffca3b65c346f158ac2c578668dbb0d477e12f"
     },
     {
       "source": "mlip-elastic-benchmark/mlip-elastic-benchmark-protocol-2026-06-27.md",
@@ -1970,20 +1595,14 @@
     {
       "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
-      "bytes": 18455,
-      "sha256": "f5ff07686b9f4f0e3a095578cbb8b16fbabefe533e5af7424004fc9942b9582f"
+      "bytes": 18511,
+      "sha256": "c26d247a1539ab102d2be19080a133b93ae5e4f1d530a26c7275b0f455e6c8f1"
     },
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
-      "bytes": 17930,
-      "sha256": "da726ff67514f8a6b562db228c8ee8c5a5e8a97064117b62567bfb13bed055b0"
-    },
-    {
-      "source": "docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
-      "bundleSource": "articles/docs/ANNOUNCEMENT-lupine-refinement-sprint-2026-06-27.md",
-      "bytes": 7166,
-      "sha256": "fc97056950d040b416c7f5c266cf2210f24989a3bba4e6e2872e8e752b219d56"
+      "bytes": 18869,
+      "sha256": "6675d563c637bd4b1438f1badf6bc9ccb676b40f66baceceb12aa87602330e7f"
     },
     {
       "source": "docs/formal-vision.md",
@@ -2000,26 +1619,26 @@
     {
       "source": "docs/formal-audit.md",
       "bundleSource": "articles/docs/formal-audit.md",
-      "bytes": 4348,
-      "sha256": "1fdd298bd31c5b8fe6614bdd03756414b45df2b2e00ab7a01f316d8d4067b0cf"
+      "bytes": 3676,
+      "sha256": "8ca31c2523630d0da93d723399cdb8b8532c98ab971286f062611aadebd3e2cf"
     },
     {
       "source": "docs/formal-hypotheses.md",
       "bundleSource": "articles/docs/formal-hypotheses.md",
-      "bytes": 6562,
-      "sha256": "9d8808ffebcdcadf2267cd2dcca52c1d235c04e601a56d5ce4b73dc80ed027f6"
+      "bytes": 6556,
+      "sha256": "fe169b164eacc299809bf8d1a05d8884dd2f4ae53338ae3c42809c8be39b69fc"
     },
     {
       "source": "docs/formal-proof-ledger.md",
       "bundleSource": "articles/docs/formal-proof-ledger.md",
-      "bytes": 2841,
-      "sha256": "e84263fe8706cc3cebd81bc7fd13b77a58e7028c2224653077907bb0a2ed3d2b"
+      "bytes": 3818,
+      "sha256": "24589d711eabe1f9f2d84209c9a6e0f926817b1396409590782a1b001b4dd8fc"
     },
     {
       "source": "CHANGELOG.md",
       "bundleSource": "articles/CHANGELOG.md",
-      "bytes": 81501,
-      "sha256": "1e754a094f915d1bebc387b4f5f3297f26422199dd47a491b536ce810358a5af"
+      "bytes": 90518,
+      "sha256": "eb36bfab59b31dcd8e35c4924e6a1096dd2b622b6c116e09c342ba5bcad40478"
     },
     {
       "source": "docs/papers-working.md",
@@ -2034,28 +1653,10 @@
       "sha256": "1a4004dc757822d31bc84bac05542d72707a655e5bc904adda514243574c921b"
     },
     {
-      "source": "docs/phoenix-observability.md",
-      "bundleSource": "articles/docs/phoenix-observability.md",
-      "bytes": 3936,
-      "sha256": "075881b3d123aa00f16e31fc0a672883994c31f0ba8c3f4e284c5959a2ec8891"
-    },
-    {
-      "source": "docs/mlip-flywheel-readiness.md",
-      "bundleSource": "articles/docs/mlip-flywheel-readiness.md",
-      "bytes": 5027,
-      "sha256": "bb0578b95fd07e5e0a580f04e819de6e8b29645fee8069262f15d31444f691c0"
-    },
-    {
       "source": "docs/born-screening-re-audit.md",
       "bundleSource": "articles/docs/born-screening-re-audit.md",
       "bytes": 5018,
       "sha256": "0b7e8a2239c11a1586c6c4af2bf1afa2e8115ba285cca5350d8086bc47d1dfa3"
-    },
-    {
-      "source": "docs/foundation-model-trust-layers.md",
-      "bundleSource": "articles/docs/foundation-model-trust-layers.md",
-      "bytes": 7938,
-      "sha256": "a0ea62a60f879799956f3708ef4e7d99a2c504a786a5864251efec786c05e815"
     },
     {
       "source": "docs/references.md",
@@ -2072,68 +1673,20 @@
     {
       "source": "docs/reviews/academic-review-projection-law-2026-06-16.md",
       "bundleSource": "articles/docs/reviews/academic-review-projection-law-2026-06-16.md",
-      "bytes": 15157,
-      "sha256": "5a6290cddfee8325f8c361b927105e5c572791bff0b12c005be830b866643cfa"
+      "bytes": 15215,
+      "sha256": "0bbcc87fd2662fd3137df173c79a3c306868c9cd86ed3b182be76da78b3408af"
     },
     {
       "source": "docs/reviews/adversarial-review-projection-law-2026-06-16.md",
       "bundleSource": "articles/docs/reviews/adversarial-review-projection-law-2026-06-16.md",
-      "bytes": 11459,
-      "sha256": "aa41609643483c83f8f5156ad21c31615f97b7b9960777f18fc1c517dcfcedf7"
-    },
-    {
-      "source": "docs/funding_landscape_report.md",
-      "bundleSource": "articles/docs/funding_landscape_report.md",
-      "bytes": 31737,
-      "sha256": "b19cafa0f4df3cc514f1c9fbd23f030d3fc31977598e6354babe3e81b0492168"
-    },
-    {
-      "source": "docs/operating-system.md",
-      "bundleSource": "articles/docs/operating-system.md",
-      "bytes": 1387,
-      "sha256": "554699b41ef9279f83d11c3079e813e61b9beb4a5cbbc53689aa545c8c74b665"
-    },
-    {
-      "source": "docs/resource-fabric.md",
-      "bundleSource": "articles/docs/resource-fabric.md",
-      "bytes": 3092,
-      "sha256": "fdca88fd312348b7e7667cdd80597d3b802f6c0d968dcc286d668fd11ec581a1"
+      "bytes": 11507,
+      "sha256": "6bff0e1d5ecbf720047bc83d22ee3f49afe7197af180507c1a55d3e794794506"
     },
     {
       "source": "docs/reproduce.md",
       "bundleSource": "articles/docs/reproduce.md",
-      "bytes": 2263,
-      "sha256": "38efe4f407131d0fe956784e0007bdcdd20e013c3f3c332222ba4b50d0ba7d14"
-    },
-    {
-      "source": "docs/EXTRACTION_COMPLETE.md",
-      "bundleSource": "articles/docs/EXTRACTION_COMPLETE.md",
-      "bytes": 3475,
-      "sha256": "9317ac0bf7d51cee9571b718a6e860317ec0c7ba31ae07768beb9e344215548e"
-    },
-    {
-      "source": "docs/EXTRACTION_REPORT.md",
-      "bundleSource": "articles/docs/EXTRACTION_REPORT.md",
-      "bytes": 7195,
-      "sha256": "235652d0a26d6245bf22cd6435edd48ab33511c893105886cdd149085d61a6ef"
-    },
-    {
-      "source": "docs/EXTRACTION_NOTES.md",
-      "bundleSource": "articles/docs/EXTRACTION_NOTES.md",
-      "bytes": 4245,
-      "sha256": "4611f11f4e5622238809fb07bafed7485882207a435423babb7d5d9a682e71a9"
-    },
-    {
-      "source": "docs/decisions/0001-r2-over-bandwidth-alliance.md",
-      "bundleSource": "articles/docs/decisions/0001-r2-over-bandwidth-alliance.md",
-      "bytes": 7474,
-      "sha256": "bb7ac3149da7d3bfe4ca94fcb00bb9eb5b2e73e592cb8c41059b1886a5c971b7"
-    },
-    {
-      "source": "docs/partnerships.md",
-      "bundleSource": "articles/docs/partnerships.md",
-      "bytes": 2127,
-      "sha256": "a457a53f372ced4f5638f8bfa7b1aeb290c369c2beeb782ad4924c29f6670595"
+      "bytes": 2252,
+      "sha256": "c5b206c7a47e820ab455b3a29c791c46a557a0b0b651b48bb09e90d213369d40"
     },
     {
       "source": "docs/what-is-an-interatomic-potential.md",
@@ -2144,8 +1697,8 @@
     {
       "source": "docs/projection-law-in-plain-language.md",
       "bundleSource": "articles/docs/projection-law-in-plain-language.md",
-      "bytes": 3736,
-      "sha256": "963b76fb0384decfbc4b1bef44716f62e72efda81aece84fde11f518d3e61cdb"
+      "bytes": 4326,
+      "sha256": "da772ba58bc1803a74c782adbef86049fb31fb02f26c9a67bd2966c824087b5f"
     },
     {
       "source": "lit-review/savings-surrogate-neb.md",

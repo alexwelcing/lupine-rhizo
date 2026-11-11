@@ -49,8 +49,6 @@ before treating the campaign as an accuracy or savings claim.
 
 ## Open work and working papers
 
-- [Internal Science Program](./internal-science-program.md): the questions the
-  program intends to investigate.
 - [Classical-to-MLIP Transfer](./conjectures/hyper-ribbon-mlip-transfer.md): a
   hypothesis page with its own status and scope.
 - [Fe Magnetic MLIP Failure Mode](./conjectures/fe-persistent-outlier.md) and
