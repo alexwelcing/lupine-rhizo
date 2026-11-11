@@ -32,14 +32,6 @@ SURFACES_STRICT = [
     "library-site/src/app.js",
     "library-site/src/llms.txt",
     "library-site/src/llms-full.txt",
-    "deck/public/index.html",
-    "deck/public/access.html",
-    "deck/public/one-pager.html",
-    "deck/public/methodology.html",
-    "deck/public/status.html",
-    "deck/public/partials/nav.html",
-    "deck/public/partials/footer.html",
-    "raise/command-center.html",
 ]
 
 # These developer-facing records can use IMMI as a dataset / working name, so
