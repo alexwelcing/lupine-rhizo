@@ -14,14 +14,19 @@ records what failed as well as what held. Nothing in it has been peer-reviewed y
 - **[Hypothesis ledger](docs/conjectures/ledger.md)**: every registered campaign and
   tested claim with its status (Supported, Open, Failed, Abstained, Refuted by us,
   Self-corrected, Withdrawn) and a link to the file that holds its numbers.
-- **[Negative-results preprint](paper/negative-results-preprint/)**: the Round-4
-  failures written up as a paper, with source data and hash-locked inputs.
+- **[Negative-results preprint](paper/negative-results-preprint/)**: three locked
+  negative results (the preregistered Round-4 Z1 barrier and Z3
+  adsorption-correction campaigns, and a separately locked global elastic
+  operator) written up as a paper, with source data and hash-locked inputs.
 - **[Replication kit](replication/error-geometry/)**: recompute the error-geometry
   statistics from committed raw data (Tier 1, seconds) or from public checkpoints
-  (Tier 2), including the preregistered follow-up that did not reproduce.
+  (Tier 2), with a status note on the preregistered follow-up that did not
+  reproduce.
 - **[Offline HPC lane](hpc/)** and its **[facility review](hpc/ADMIN_REVIEW.md)**:
-  run benchmark cells on your own cluster with local inputs, local outputs and no
-  outbound connections at runtime.
+  run benchmark cells on your own cluster with local inputs and local outputs;
+  after a one-time connected pre-fetch of potentials and model checkpoints it needs
+  no outbound connections. The container has not yet been built on a facility
+  cluster.
 - **[How we use AI agents and handle data](docs/ai-and-data.md)**: which rules live in
   code, what each one covers, and where data goes.
 - **[Formal proof ledger](docs/formal-proof-ledger.md)**: what each Lean statement
