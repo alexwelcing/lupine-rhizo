@@ -195,7 +195,7 @@ The LOO operator uses the held-out target to set the projection magnitude. A dep
 - **`scalar-bulk`** — use the scalar PBE-to-r2SCAN bulk-modulus shift as a proxy for the residual magnitude. On a 16-element TensorNet/PBE benchmark it achieved 14.13 GPa against the approximate r2SCAN target only; it did not beat the raw model on the PBE target.
 - **`feedback-projection`** — fit the projection coefficient on a calibration set and apply the direction to new cases. It improved over `scalar-bulk` in 1×1×1 tests.
 
-The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. The gap between 10.4 GPa and the 14.1 GPa of `scalar-bulk` is the cost of not knowing the exact residual magnitude. Closing that gap is the next engineering step.
+The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. These numbers are not directly comparable: 10.4 GPa is the four-model oracle ceiling on both targets, while `scalar-bulk`’s 14.13 GPa is one model (TensorNet/PBE, 1×1×1) against the approximate r2SCAN target only. The best no-target estimator tested on the full 128-case matrix (consensus) reached 14.41 GPa and harmed 50 of 128 cases. Closing the gap to the ceiling without seeing the reference is still open.
 
 ### 4.3 The remaining frontier
 
