@@ -6,8 +6,9 @@ assistants.
 
 ## Identity
 
-Lupine Science is a public research program for the error geometry of
-interatomic potentials.
+Lupine Science measures where machine-learned models of atoms go wrong,
+against published references and pass/fail gates set in advance, and publishes
+every verdict, failures included.
 
 Every atomistic simulation rests on an interatomic potential. Every potential is
 wrong in some structured way. Lupine Science treats that structured wrongness as
@@ -25,21 +26,21 @@ conditions where it looked accurate.
 | --- | --- | --- |
 | Lupine Science | https://lupine.science | Research program and public start page |
 | LUPI | https://lupi.live | Browser-native WebGPU viewer for atomistic evidence |
-| LUPI 1M copper lattice | https://lupi.live/scenes/1m-copper-lattice | Public scene route for the 953,312-atom FCC copper scale test |
 | LUPI functional groups | https://lupi.live/study/organic-functional-groups | College organic chemistry study route for functional-group examples, Study Lens prompts, and printable sheets |
 | LUPI functional group examples | https://lupi.live/study/functional-group-examples | Search-intent route for comparing real 3D molecule examples by organic functional group |
 | LUPI 3D ochem viewer | https://lupi.live/study/organic-chemistry-3d-molecule-viewer | Route explaining how LUPI supports organic chemistry study through 3D molecule inspection |
 | LUPI OMol25 | https://lupi.live/materials/omol25 | OMol25 geometry browser route for real DFT XYZ structures and source-aware labels |
 | LUPI OMol25 molecule geometry | https://lupi.live/materials/omol25-molecule-geometry | Geometry-intent route for OMol25 XYZ structures and data-boundary language |
-| LUPI million-atom viewer | https://lupi.live/materials/million-atom-viewer | Route for browser-controlled million-atom materials visualization |
 | Lupine Library | https://library.lupine.science | Public research corpus and human knowledge surface |
 | glim-think | https://glim-think-v1.aw-ab5.workers.dev | Agentic research control plane and ledger |
 
 ## Narrative Spine
 
 1. Interatomic potentials are necessary and wrong in structured ways.
-2. Those errors form geometry across models, elements, properties, and structure families.
-3. Lupine Science studies that geometry as evidence, not as a leaderboard.
+2. Pooled MLIP error can hide where a model fails; we stratify before trusting
+   a leaderboard number.
+3. Lupine Science measures that error against published references and
+   preregistered gates, and publishes every verdict, failures included.
 4. LUPI makes structures, trajectories, and evidence inspectable in the browser.
 5. Lupine Library turns the work into durable human knowledge.
 6. glim-think keeps hypotheses, evidence, broadcasts, and corrections attached
@@ -108,8 +109,8 @@ For materials labs and MLIP builders, emphasize:
 - which confounders were checked
 - what correction target or next experiment follows
 
-For investors and other observers, do not convert the front door into a direct
-pitch. Point them to public signals they can watch: Library updates, claim
+Do not convert the front door into a direct pitch. Point readers evaluating the
+program to the public evidence trail and the ledger: Library updates, claim
 status changes, refutations, LUPI evidence routes, agent-readable files, and
 glim-think broadcasts.
 
@@ -156,9 +157,6 @@ inspection of structures or trajectories.
 
 High-intent LUPI routes:
 
-- `/scenes/1m-copper-lattice`: first-impression scale route for a 953,312-atom
-  FCC copper lattice. Describe it as a generated scale-test geometry with atom
-  positions and element identity, not as a measured property dataset.
 - `/study/organic-functional-groups`: college organic chemistry route for
   functional-group recognition, mechanism prompts, Study Lens, AR study prompts,
   and print-to-PDF sheets. The teaching layer is source-aware and does not
@@ -178,9 +176,6 @@ High-intent LUPI routes:
   when a reader or agent cares specifically about real XYZ coordinates and the
   separation between coordinates, metadata, method-derived screens, and source
   topology claims.
-- `/materials/million-atom-viewer`: large-scene materials visualization route.
-  Describe the 953,312-atom copper lattice as generated FCC geometry used to
-  demonstrate browser-controlled scale, not as an experimental property record.
 
 ### https://library.lupine.science
 
