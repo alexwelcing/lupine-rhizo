@@ -290,7 +290,6 @@ export const CATALOG = {
         "zh": "评估认识论纪律和形式化支持。"
       },
       "path": [
-        "internal-science-program",
         "methodology",
         "conjecture-ledger",
         "hyp-dband-correlation",
@@ -358,18 +357,6 @@ export const CATALOG = {
         "provenance",
         "data",
         "trust"
-      ]
-    },
-    {
-      "id": "internal-science-program",
-      "source": "docs/internal-science-program.md",
-      "title": "Internal Science Program",
-      "subtitle": "The research agenda: what we are trying to learn and how the loop pursues it.",
-      "category": "foundations",
-      "tags": [
-        "program",
-        "agenda",
-        "vision"
       ]
     },
     {
@@ -1273,18 +1260,6 @@ export const CATALOG = {
         "adr",
         "infrastructure",
         "storage"
-      ]
-    },
-    {
-      "id": "partnerships",
-      "source": "docs/partnerships.md",
-      "title": "Partnerships",
-      "subtitle": "MIIT-67 pilot mapping and the Lupine thesis — public layer.",
-      "category": "operations",
-      "tags": [
-        "partnerships",
-        "miit-67",
-        "pilots"
       ]
     },
     {

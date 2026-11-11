@@ -43,4 +43,4 @@ Aggressive cleanup preserved active science work (Lean formalization, Layer-2 pa
 
 ## Reason
 
-These directories/files were stale experiments, duplicated scripts, old tests, or build artifacts not referenced by active CI or the current Lean/MLIP formalization spine. See RESEARCH_COMMAND_CENTER.md for the current active initiatives.
+These directories/files were stale experiments, duplicated scripts, old tests, or build artifacts not referenced by active CI or the current Lean/MLIP formalization spine. See the repository README for current work.
