@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-11-11T03:28:50.267Z",
+  "generatedAt": "2026-11-11T03:33:16.899Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "7806b63f1dd0da1a72494c642a517005cca64b0a",
+    "commit": "816debb693caf63c321cf4630d7664f904877299",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1595,8 +1595,8 @@
     {
       "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
-      "bytes": 18511,
-      "sha256": "c26d247a1539ab102d2be19080a133b93ae5e4f1d530a26c7275b0f455e6c8f1"
+      "bytes": 18455,
+      "sha256": "f5ff07686b9f4f0e3a095578cbb8b16fbabefe533e5af7424004fc9942b9582f"
     },
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
