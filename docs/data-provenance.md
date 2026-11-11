@@ -9,9 +9,9 @@ inputs, so this page is deliberately explicit.
 |--------|------|
 | **OpenKIM** | Primary prediction source — elastic constants from published interatomic potentials, queried via the OpenKIM API. |
 | **NIST Interatomic Potentials Repository (IPR)** | Cross-reference and ground-truth anchor for potential identity and reference properties. |
-| **MLIP provenance records** | Lattice constants ($a_0$) recovered from the originating MLIP runs — the basis for the de-myopization that proved the ribbon is not a $C_{ij}$ artifact. |
+| **MLIP provenance records** | Lattice constants ($a_0$) recovered from the originating MLIP runs — used to check that the low-dimensional pattern is not only a $C_{ij}$ artifact (claim status: Open). |
 | **Phase-D compute lane** | Real LAMMPS runs (not cache) that produce $E_\text{coh}$/$B_0$ and surface recipe bugs the cached pipeline masked. |
-| **Kimi 2026-06-07 MLIP evidence import** | Cloud Run MACE/CHGNet/SevenNet elastic constants, Vandermonde checks, real early-exit timing, and MLIP/MD refusal evidence curated under `data/mlip_benchmarks/kimi_2026_06_07/`. |
+| **MLIP evidence import (2026-06-07, AI-assisted)** | Cloud Run MACE/CHGNet/SevenNet elastic constants, Vandermonde checks, real early-exit timing, and MLIP/MD refusal evidence curated under `data/mlip_benchmarks/kimi_2026_06_07/`. |
 
 ## Scope of the corpus
 
@@ -33,7 +33,7 @@ These exist because we got burned — see
   re-run. The contamination event removed 19 corrupt records → **1231 clean records**.
 - **Matched-n discipline:** any cross-element correlation is reported alongside its
   sample-size-matched control (see [Methodology](methodology.md)).
-- **Kimi import contract:** the curated import is checked by
+- **MLIP import contract:** the curated import is checked by
   `python tools/mlip_kimi_evidence.py --check`, preserving low-correlation
   sentinels, physical-instability flags, the irrep threshold failure, and the
   real early-exit gap from the idealized speedup bound.
