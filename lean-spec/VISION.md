@@ -22,7 +22,7 @@ Every claim lives in one of two categories:
 
 | Category | Requirement | Example |
 |----------|------------|---------|
-| **Formal** | Theorem + proof in Lean 4 | `noSimpsonsInBccEam` |
+| **Formal** | Theorem + proof in Lean 4 | `simpsonsDetectedEmpirical` |
 | **Computational** | LAMMPS trace with NIST DOI, reproducible run ID | `nistScaffoldAlSample` with filled predictions |
 
 No synthetic data. No hand-typed constants. No unverifiable assertions.

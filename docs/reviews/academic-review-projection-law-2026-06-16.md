@@ -3,7 +3,7 @@
 **Date:** 2026-06-16  
 **Scope:** `paper2/projection-law.tex` (PRX master), `paper2/immi/projection-law-immi.tex` (IMMI companion), `paper/immi-paper.tex` (classical-potential discovery substrate), the `lean-spec` formalization, and the `library-site` public surface.  
 **Status:** Working papers, not yet submitted.  
-**Reviewer:** Kimi Code CLI (internal; adversarial review requested before further publication).
+**Reviewer:** Internal AI-assisted review (Kimi Code CLI); not an external or independent review. Adversarial review requested before further publication.
 
 ---
 
