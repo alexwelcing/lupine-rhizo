@@ -9,8 +9,10 @@ stage**.
 - It **never starts an experiment, sends a message, publishes a page, or schedules
   another run.** It accepts one explicit job, invokes the installed official CLI
   once, validates the completed response, and writes a receipt.
-- **Explicit tool lists.** Packet critiques and adjudications run with no tools
-  (`--tools ''` for Claude Code; `tool_mode: "none"`). **Literature jobs can search
+- **Explicit tool lists.** The cycle controller ([`tools/pi-cycle.py`](../pi-cycle.py))
+  runs packet critiques and adjudications with no tools (`--tools ''` for Claude
+  Code; `tool_mode: "none"`); the runner itself also accepts a critic job with web
+  retrieval when one is submitted directly. **Literature jobs can search
   the web and fetch web pages** (`WebSearch,WebFetch` for Claude Code; Codex keeps
   its web-retrieval wrapper). Nothing else is enabled.
 - **Read-only sandbox.** Codex runs in a read-only sandbox in a fresh temporary
