@@ -220,7 +220,7 @@ This benchmark was the Layer-2 test bed for the Projection Law hypothesis [1]. T
 
 ## 6. Conclusion
 
-We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIP labels (three architectures, since QET and TensorNet resolve to the same checkpoint), against PBE and approximate r2SCAN targets. One bias direction per functional transfers out of sample. When the held-out reference sets how far to correct, the benchmark mean MAE falls from 17.8 GPa to 10.4 GPa: an oracle ceiling, not a deployable correction. A correction that works without seeing the answer is still open; the best no-target estimator tested so far improved the mean but harmed 50 of 128 cases. The remaining error is concentrated in magnetic and refractory BCC metals. The useful product today is the cheap reference matrix and the error map, not a corrected calculator.
+We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIP labels (QET and TensorNet are closely related TensorNet-family models; see §2.1), against PBE and approximate r2SCAN targets. One bias direction per functional transfers out of sample. When the held-out reference sets how far to correct, the benchmark mean MAE falls from 17.8 GPa to 10.4 GPa: an oracle ceiling, not a deployable correction. A correction that works without seeing the answer is still open; the best no-target estimator tested so far improved the mean but harmed 50 of 128 cases. The remaining error is concentrated in magnetic and refractory BCC metals. The useful product today is the cheap reference matrix and the error map, not a corrected calculator.
 
 ---
 
