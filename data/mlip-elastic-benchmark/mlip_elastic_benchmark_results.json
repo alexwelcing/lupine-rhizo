@@ -6,7 +6,7 @@
     "git_sha": "f82385de7674367fcb5fc5ad8904eacdc7cf41f2",
     "lupine_git_sha": "3716feecc90ae0bd982e24d848c1ab33e3cf44c3",
     "matpes_release": "2025.2",
-    "host": "aledev",
+    "host": "operator-workstation (name redacted 2026-11-11)",
     "platform": "Linux-7.0.0-22-generic-x86_64-with-glibc2.43",
     "python": "3.11.15",
     "run_at": "2026-06-27T02:08:21.742116+00:00",

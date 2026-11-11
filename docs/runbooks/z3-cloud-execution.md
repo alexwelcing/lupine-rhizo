@@ -4,12 +4,11 @@ Status observed: 2026-07-18 (UTC)
 
 ## Authenticated execution plane
 
-The active `gcloud` principal is `alexwelcing@gmail.com`. It can describe and execute resources in project `shed-489901`. Always pass the project and region explicitly because the local gcloud default project is unrelated.
+The operator runs these commands with a `gcloud` principal that can describe and execute resources in the Lupine cloud project. Always pass the project and region explicitly because a local gcloud default project may differ.
 
-- Project: `shed-489901` (project number `350452481649`)
+- Project: `shed-489901`
 - Region: `us-central1`
-- Runtime service account: `atlas-distill-runner@shed-489901.iam.gserviceaccount.com`
-- Runtime IAM observed: `roles/storage.objectAdmin`, `roles/cloudsql.client`, `roles/cloudtasks.enqueuer`
+- Runtime identity: the campaign job's service account (configured in deployment, not recorded here)
 - Raw Z3 output root: `gs://shed-489901-atlas-outputs/z3-campaign/raw/`
 - Endpoint shape: Cloud Run Job resource `projects/shed-489901/locations/us-central1/jobs/<job>` (not an HTTP service URL)
 
