@@ -1,5 +1,10 @@
 # Information-Theoretic Bounds on Model Error Compression in Computational Physics: A Comprehensive Review
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 ## Executive Summary
 
 Physics admits a **nuanced answer** to whether theoretical lower bounds exist for prediction error compression:

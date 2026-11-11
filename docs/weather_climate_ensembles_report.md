@@ -1,5 +1,10 @@
 # Multi-Model Ensemble Methods from Climate Science: A Technical Review for Computational Materials Science
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 **Source:** Kimi Deep Research Report
 **Total Report Length:** 69,857 characters
 **Extraction Date:** 2026-03-28

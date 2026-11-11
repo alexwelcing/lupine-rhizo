@@ -1,5 +1,10 @@
 # Materials Informatics - Federal Funding Programs for Computational Infrastructure
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 **Report Title:** Federal Funding Programs for Materials Informatics, Uncertainty Quantification, and Computational Materials Science Infrastructure: A Comprehensive Review (2025–2026)
 
 **Federal Funding Analysis:** 2025–2026
