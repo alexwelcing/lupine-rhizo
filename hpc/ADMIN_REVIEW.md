@@ -64,11 +64,13 @@ ASE. No MPI; one process per cell, optionally one GPU.
 
 ## Licenses
 
-- Code: AGPL-3.0-or-later. Running unmodified code imposes no obligations on
-  the facility or lab; AGPL's network clause applies only to parties who
-  modify the code and offer it as a network service. Contributing results
-  data creates no code obligations.
-- First-party content: CC BY-SA 4.0; structured data: ODbL 1.0 (see NOTICE.md).
+- Code: MIT (relicensed 2026-11-11 from AGPL-3.0-or-later). Running or
+  modifying the code imposes no obligations on the facility or lab;
+  redistributing it requires keeping the copyright and licence notice. There
+  is no network-use or share-alike clause.
+  Contributing results data creates no code obligations.
+- First-party content and structured data: CC BY 4.0 (attribution, no
+  share-alike; see NOTICE.md).
 - Third-party potentials and datasets retain upstream licenses (NIST IPR,
   OpenKIM); `data/mlip_benchmarks/manifest_sources.json` records license and
   stewardship per source.

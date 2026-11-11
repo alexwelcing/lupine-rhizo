@@ -3,6 +3,7 @@ name = "tasks-consumer"
 version = "0.1.0"
 edition = "2021"
 description = "Cloud Tasks → distill Cloud Run Job dispatcher (Unit 8 of the Lupine handoff)"
+license = "MIT"
 
 [[bin]]
 name = "tasks-consumer"

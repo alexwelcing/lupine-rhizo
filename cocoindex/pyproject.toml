@@ -3,6 +3,7 @@ name = "glim-evidence-index"
 version = "0.1.0"
 description = "CocoIndex pipeline: incremental evidence index (coordination traces, hypotheses, claims) for glim-think."
 requires-python = ">=3.11"
+license = { text = "MIT" }
 dependencies = [
     "cocoindex>=1.0.0",
     "sentence-transformers>=2.0.0",

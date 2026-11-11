@@ -4,6 +4,7 @@ default-run = "distill"
 version = "0.1.0"
 edition = "2021"
 description = "Mathematical discovery engine for MD simulation data"
+license = "MIT"
 
 [workspace]
 members = ["."]
