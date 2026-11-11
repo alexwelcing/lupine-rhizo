@@ -1,8 +1,48 @@
 # Agent Operating Rules
 
-This repo is organized around `glim-think` as the durable intelligence control
-plane. Treat it as the primary system unless the task explicitly points
-elsewhere.
+## Data boundaries (read first)
+
+This repository is public. These rules restate contracts and checks that already
+exist in the tree (each names its source); they apply to every change, commit,
+export and public summary.
+
+- **Never commit credentials.** API keys, tokens, passwords and service-account
+  keys live in Cloudflare Worker secrets or local secret stores
+  (`glim-think/docs/secrets.md`), never in tracked files, logs or examples.
+- **No personal or infrastructure identifiers in docs, READMEs, runbooks or code
+  defaults:** host or machine names, tailnet URLs, personal email addresses,
+  cloud project numbers, IAM role grants tied to a person, credential paths, local
+  home-directory paths, private chat URLs or signed URLs. Use roles ("the
+  operator", "a local workstation") and placeholders (`glim-think/docs/secrets.md`
+  treats project ids, service-account emails and bucket paths as deployment
+  config). Recorded run artifacts keep their provenance fields; do not rewrite
+  hash-locked evidence.
+- **Public research activity goes only through the reviewed import**
+  (`docs/public-research-activity.md`). Its validator rejects local paths,
+  email and device identifiers, private or tailnet URLs, credential query
+  parameters and credential-shaped strings. Failed or stopped work stays failed or
+  stopped; never relabel it as completed or retry it under the same identity.
+- **Model output is not evidence.** A model or Clef score is a recommendation, not
+  scientific evidence, novelty validation, experiment authorization or
+  publication approval (see "Clef decision use" below).
+- **Status changes need new evidence.** Registry, snapshot and ontology status
+  changes must carry a new evidence-bundle hash (`tools/check_status_evidence.py`,
+  run by `.github/workflows/anti-laundering.yml`). Do not hand-edit statuses in
+  `registry/` without one.
+- **Keep private research packets out of Git and the Library.** Raw model-review
+  packets, transcripts, local credential stores and device state stay outside the
+  tree (`tools/scientific-pi/README.md`).
+- **Never type theorem counts.** Regenerate `lean-spec/theorem-count.json` with
+  `node lean-spec/scripts/generate-lean-count.mjs`.
+
+What these rules cover, and what they do not, is described in
+[docs/ai-and-data.md](docs/ai-and-data.md).
+
+## Working in this repo
+
+`glim-think` schedules and records research tasks; checks run in code, and a
+claim changes status only when new evidence is recorded. Treat it as the primary
+system unless the task explicitly points elsewhere.
 
 ## Autonomy
 
@@ -82,8 +122,10 @@ deps or config degrade to a logged no-op.
 ## Formal verification (`lean-spec` + ATLAS-Lean)
 
 `lean-spec/` (Lake package `OpenDistillationFactory`, Lean `v4.35.0` — pinned
-to ATLAS's toolchain) is the evidence layer: it holds the proven theorems behind
-the materials-science claims. Treat a green `lake build` with zero `sorry`
+to ATLAS's toolchain) holds Lean 4 statements over recorded values. Lean 4 checks
+the arithmetic and stated inequalities behind published numbers; it does not
+check the physics, the reference data or the pipeline, so never cite a Lean
+statement as support for an empirical claim on its own. Treat a green `lake build` with zero `sorry`
 proofs as the gate — a broken or `sorry`-bearing proof is a regression, not
 noise. The current inventory is machine-generated in
 `lean-spec/theorem-count.json`; regenerate it with
