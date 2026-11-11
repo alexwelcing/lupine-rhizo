@@ -56,7 +56,10 @@ Contracts live at:
 Records are limited to 16 KiB UTF-8. Strings, arrays, counts, links, identifiers
 and timestamps are separately bounded. Import rejects unknown fields, local
 paths, email/device identifiers, private/IP/tailnet URLs, userinfo, credential
-query parameters and credential-shaped strings. Repository/release links are
+query parameters and credential-shaped strings. An optional
+`PUBLIC_ACTIVITY_PRIVATE_TERMS` Worker secret (comma-separated) adds a
+deploy-time denylist, for example private host or device names, so those names
+are never committed. Repository/release links are
 restricted to the three public `alexwelcing/lupine`, `lupine-rhizo` and
 `lupine-ledger` GitHub repositories. Other source links must be public HTTPS.
 These checks prevent common accidental disclosure, but do not establish that a

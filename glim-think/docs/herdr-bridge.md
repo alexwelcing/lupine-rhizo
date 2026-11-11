@@ -20,15 +20,16 @@ The existing Orchestrator has three optional tools:
 
 - `dispatch_mac_discovery`: Codex on the explicitly configured Mac; literature
   discovery and a falsifiable hypothesis.
-- `dispatch_aledev_critique`: Claude on `aledev`; independent critique of a
-  completed discovery receipt. `parentJobId` and a matching question are required;
+- `dispatch_aledev_critique`: Claude on the critique workstation; a
+  separate-model critique of a completed discovery receipt. `parentJobId` and a matching question are required;
   agenda/campaign linkage is inherited. The handoff saves the SHA-256 of that
   exact discovery receipt; a critique must identify that same job and hash.
 - `get_scientific_job`: private, bounded result retrieval. Pending, claimed and
   uncertain outcomes are never represented as completed scientific work.
 
 These tools are absent unless `SCIENTIFIC_BRIDGE_ENABLED` is exactly `true` and
-`SCIENTIFIC_BRIDGE_MAC_MACHINE_ID` is a valid identifier distinct from `aledev`.
+`SCIENTIFIC_BRIDGE_MAC_MACHINE_ID` is a valid identifier distinct from the
+critique workstation's machine id.
 No enablement is committed. Handoffs persist in `herdr_bridge_jobs`, with optional
 `agenda_task_id`, `campaign_id`, and `parent_job_id`; they do not automatically
 complete an agenda task or resume a model conversation.
@@ -188,7 +189,7 @@ new databases still require migration 0019. Missing schema returns an explicit
 
 Remaining live-use gaps: machine-scoped credentials; compatible local runners
 with enforced execution limits and durable result delivery; verified Codex/Claude
-completion; artifact upload; automatic PI continuation. The updated `tools/herdr-bridge/` supports fenced general-job results and
+completion; artifact upload; automatic model-review continuation. The updated `tools/herdr-bridge/` supports fenced general-job results and
 rejects foreign, missing-token and expired claims. It deliberately reports
 scientific jobs as blocked without launching them; the bounded local CLI cycle
 is the scientific execution path. Local agent authentication is separate and must be checked without

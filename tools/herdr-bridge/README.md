@@ -15,7 +15,7 @@ Two loops, both outbound-only:
 ## Requirements
 
 - Node ≥ 22.18 (runs `.ts` directly via type stripping; no build step).
-  Node 26 on aledev.
+  Node 26 on the critique workstation.
 - A running herdr server (`herdr` 0.9.0, protocol 22) and its socket.
 - Zero runtime dependencies. `npm install` only pulls `typescript` +
   `@types/node` for `npm run typecheck`.
@@ -47,8 +47,8 @@ Two loops, both outbound-only:
 cd tools/herdr-bridge
 export GLIM_WORKER_URL=https://glim-think-v1.aw-ab5.workers.dev
 export GLIM_BRIDGE_TOKEN=...           # never commit; use an env file with 0600
-export MACHINE_ID=aledev
-export BRIDGE_WORKSPACE_CWD=/home/alex/Dev/lupine/lupine-rhizo
+export MACHINE_ID=my-workstation
+export BRIDGE_WORKSPACE_CWD=/path/to/lupine-rhizo
 node src/main.ts
 ```
 
@@ -61,7 +61,7 @@ Enqueue a job (operator side, any gated credential):
 ```bash
 curl -sS -X POST "$GLIM_WORKER_URL/bridge/jobs" \
   -H "Authorization: Bearer $GLIM_BRIDGE_TOKEN" -H 'Content-Type: application/json' \
-  -d '{"machine_id":"aledev","agent_kind":"hermes","prompt":"Reply with PONG.","campaign_id":null}'
+  -d '{"machine_id":"my-workstation","agent_kind":"hermes","prompt":"Reply with PONG.","campaign_id":null}'
 ```
 
 ### systemd (user unit, on demand — not enabled by default)
@@ -113,11 +113,11 @@ With the worker side pointed at `wrangler dev` (`DEV_MODE=true`, local D1
 with migrations applied) or production:
 
 ```bash
-GLIM_WORKER_URL=http://127.0.0.1:8787 GLIM_BRIDGE_TOKEN=dev MACHINE_ID=aledev \
+GLIM_WORKER_URL=http://127.0.0.1:8787 GLIM_BRIDGE_TOKEN=dev MACHINE_ID=my-workstation \
 BRIDGE_KEEP_WORKSPACES=always BRIDGE_LOG_LEVEL=debug node src/main.ts
 ```
 
-Then enqueue a job for `aledev`; watch for `job_claimed`, `agent_ready`,
+Then enqueue a job for `my-workstation`; watch for `job_claimed`, `agent_ready`,
 `job_reported` and a `bridge-…` workspace in `herdr workspace list`.
 
 ## Layout

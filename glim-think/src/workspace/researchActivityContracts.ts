@@ -9,7 +9,7 @@ export const PUBLIC_ACTIVITY_MAX_LIMIT = 50;
 // This is a reviewed publication boundary, not a sanitizer for private packets.
 // Unknown fields are rejected. These additional checks prevent common accidental
 // disclosures; an operator must still review every sentence before importing it.
-const PRIVATE_TEXT = /(?:[\x00-\x1f\x7f<>]|[A-Za-z][A-Za-z0-9+.-]*:\/\/|(?:^|\s|["'(])(?:\/(?:Users|home|private|tmp|var|mnt|workspace)\/|~\/|[A-Za-z]:[\\/]|\\\\)|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}|\b(?:awphone|aledev|hermitage)\b)/i;
+const PRIVATE_TEXT = /(?:[\x00-\x1f\x7f<>]|[A-Za-z][A-Za-z0-9+.-]*:\/\/|(?:^|\s|["'(])(?:\/(?:Users|home|private|tmp|var|mnt|workspace)\/|~\/|[A-Za-z]:[\\/]|\\\\)|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i;
 const CREDENTIAL = /(?:\bBearer\s+\S+|\b(?:sk-(?:proj-)?|ghp_|gho_|github_pat_|AIza)[A-Za-z0-9_-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})/i;
 const SENSITIVE_QUERY = /(?:token|key|secret|signature|credential|authorization|password|session|email|auth|jwt)/i;
 const REPOSITORIES = new Set(["lupine", "lupine-rhizo", "lupine-ledger"]);
@@ -35,7 +35,7 @@ export function isPublicSourceUrl(value: string): boolean {
     for (let i = 0; i < 2; i++) decoded = decodeURIComponent(decoded);
     let decodedPath = url.pathname;
     for (let i = 0; i < 2; i++) decodedPath = decodeURIComponent(decodedPath);
-    if (/[\\\x00-\x1f\x7f]/.test(decoded) || CREDENTIAL.test(decoded) || /(?:\/(?:Users|home|private|tmp|var|mnt|workspace)\/|[A-Za-z]:[\\/])/i.test(decodedPath) || /\b(?:awphone|aledev|hermitage)\b/i.test(decoded)) return false;
+    if (/[\\\x00-\x1f\x7f]/.test(decoded) || CREDENTIAL.test(decoded) || /(?:\/(?:Users|home|private|tmp|var|mnt|workspace)\/|[A-Za-z]:[\\/])/i.test(decodedPath)) return false;
     for (const [key, content] of url.searchParams) {
       if (SENSITIVE_QUERY.test(key) || CREDENTIAL.test(content) || /(?:[a-z][a-z0-9+.-]*:\/\/|@)/i.test(content)) return false;
     }
@@ -94,10 +94,31 @@ export interface PublicResearchActivityFeed {
   truncated: boolean;
 }
 
-export function decodePublicResearchActivity(value: unknown, now = Date.now()): PublicResearchActivity {
+/**
+ * Optional deploy-time denylist (for example private host or device names),
+ * read from the PUBLIC_ACTIVITY_PRIVATE_TERMS Worker secret as a comma-separated
+ * list so the names themselves are never committed.
+ */
+export function privateTermsFrom(value: string | undefined): string[] {
+  return String(value ?? "").split(",").map(term => term.trim().toLowerCase()).filter(Boolean);
+}
+
+function containsPrivateTerm(record: PublicResearchActivity, terms: readonly string[]): boolean {
+  if (terms.length === 0) return false;
+  const links = [...record.sources, ...record.repositoryLinks, ...record.releaseLinks].map(link => {
+    let decoded = link.url;
+    for (let i = 0; i < 2; i++) decoded = decodeURIComponent(decoded);
+    return decoded;
+  });
+  const haystack = [JSON.stringify(record), ...links].join("\n").toLowerCase();
+  return terms.some(term => haystack.includes(term));
+}
+
+export function decodePublicResearchActivity(value: unknown, now = Date.now(), privateTerms: readonly string[] = []): PublicResearchActivity {
   const record = publicResearchActivitySchema.parse(value);
   if (Date.parse(record.reviewedAt) > now + 60_000) throw new Error("Review time is in the future");
   if (new TextEncoder().encode(JSON.stringify(record)).length > PUBLIC_ACTIVITY_MAX_BYTES) throw new Error("Public activity is too large");
+  if (containsPrivateTerm(record, privateTerms)) throw new Error("Public activity contains a configured private term");
   return record;
 }
 
