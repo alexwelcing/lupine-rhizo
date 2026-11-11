@@ -1,5 +1,10 @@
 # Lupine Refinement Sprint: Five Theorems, One Benchmark, Zero `sorry`
 
+> **Archived 2026-11-11.** Superseded sprint note, kept for the record. Theorem
+> counts are not evidence; the no-harm result is conditional on a 1-D shared
+> error and is not a deployable guarantee. See
+> <https://lupine.science/corrections/>.
+
 **Date:** 2026-06-27  
 **Announcement type:** public / press / investor update  
 **Canonical links:**
