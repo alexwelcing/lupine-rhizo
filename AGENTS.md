@@ -40,9 +40,9 @@ What these rules cover, and what they do not, is described in
 
 ## Working in this repo
 
-`glim-think` schedules and records research tasks; checks run in code, and a
-claim changes status only when new evidence is recorded. Treat it as the primary
-system unless the task explicitly points elsewhere.
+`glim-think` schedules and records research tasks. Checks run in code, and a
+status change in the machine registry needs a new evidence hash (see above).
+Treat it as the primary system unless the task explicitly points elsewhere.
 
 ## Autonomy
 
