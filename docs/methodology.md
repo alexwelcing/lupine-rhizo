@@ -35,8 +35,9 @@ Correlations pooled across heterogeneous groups can invert when a confounder
 Correct analysis requires stratified evaluation and random-effects meta-analysis
 (DerSimonian–Laird), not naive pooling.
 
-- Withdrew a pooled "1.8× gate efficacy": within each material class the gate did not
-  help, and it refused the known-good control
+- Withdrew a pooled "1.8× gate efficacy": it was a class-composition artifact. Within
+  classes the gate refused the most accurate high-entropy alloy and the known-good
+  control, and the perovskite difference was small (10.08% issued vs 11.28% refused)
   ([errata #3](plans/2026-07-13-errata-and-red-team-dispositions.md)).
 - Withdrew our own Simpson's-paradox claim for BCC elastic constants: the reversal was
   shown only on a synthetic example, and on the recorded NIST data the pooled and
