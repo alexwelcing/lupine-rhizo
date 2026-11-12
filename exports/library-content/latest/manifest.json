@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-11-12T04:52:03.172Z",
+  "generatedAt": "2026-11-12T05:34:45.508Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "2e4532bc27b366e377cd372580e3625dec26209b",
+    "commit": "20324a9a2bc4832de67830666a90ab3976705c2a",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1415,8 +1415,8 @@
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 13167,
-      "sha256": "530cab31ba5d0d42d78f37076ecfefdb369a11b0c6f265bb715af48db04a3a0b"
+      "bytes": 13260,
+      "sha256": "633cfe87486cec93cc86aa579f93171e8112a04295066ff4f825510882f85f77"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
