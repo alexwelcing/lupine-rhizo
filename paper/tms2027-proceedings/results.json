@@ -20,11 +20,11 @@
     },
     "immi_paper": {
       "path": "lupine/paper/immi-paper.tex",
-      "sha256": "1e593a6a0232cf80c744461653e6ba4b52bc5c8a43ee86630030e9f50ed146d3"
+      "sha256": "5add58ad873311bc653809193ed7d5b9f70f6045b54d04376d9d74f374cb43d8"
     },
     "round2_manuscript": {
       "path": "lupine/paper2/ProjectionLaw_Round2.md",
-      "sha256": "d154b1fc62d5f33ae49f7d6d5e8fe0bcbc2efa18e5695f821f5498cc2283de40"
+      "sha256": "713ef8e6ac969251eb43863860efa285b847b307dc4e20714d1803e75c80d3b9"
     },
     "anchor_spec": {
       "path": "lupine/replication/error-geometry/prereg_r2b_dft_anchor_spec.md",
@@ -60,7 +60,7 @@
     },
     "round4_report": {
       "path": "data/candidates/round4/ROUND4_REPORT.md",
-      "sha256": "e3312a6e6c7d920774f8eb337f0b4c356e6fb9bddbae4da88d0f1a5e3c66c086"
+      "sha256": "78b0b3e1a0179c3323372e108abbbc1788251ae5acedb50c28c50896d6149c05"
     },
     "z1_verdict": {
       "path": "docs/analysis/z1-union-campaign-verdict.md",
@@ -84,7 +84,7 @@
     },
     "lean_count": {
       "path": "lean-spec/theorem-count.json",
-      "sha256": "5ddcfc759833cbe9d8bfdc6ddbd609ed3ca345f1eaad7f8241eed7b3ddbae3f1"
+      "sha256": "e3d733850b912dcf75e8cbbea8052a93d012a482d598dace9de72f6c9a827a0d"
     },
     "sprint_contract": {
       "path": "docs/plans/2026-09-09-tms-manuscript-sprint.md",
@@ -626,10 +626,10 @@
       ]
     },
     "lean": {
-      "count": 899,
-      "modules": 111,
+      "count": 927,
+      "modules": 112,
       "zero_sorry": true,
-      "counted_at": "2026-08-08"
+      "counted_at": "2026-11-05"
     }
   },
   "quoted": {
@@ -857,5 +857,5 @@
     "deferred_paths_matches_quoted": true,
     "funnel_559_423_233_1677": true
   },
-  "recovery_outputs_present": false
+  "recovery_outputs_present": true
 }

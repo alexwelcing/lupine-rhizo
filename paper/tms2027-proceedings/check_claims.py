@@ -82,7 +82,7 @@ def main() -> int:
         "135.0": q["z1_mae_range_mev"]["value"][0],
         "242.5": q["z1_mae_range_mev"]["value"][1],
         "0.906": q["env_field_r"]["value"],
-        "899": d["lean"]["count"],
+        "927": d["lean"]["count"],
     }
     for token, value in bound.items():
         if token not in TEX:

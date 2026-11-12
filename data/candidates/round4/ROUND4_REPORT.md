@@ -24,7 +24,7 @@ Analysis amended 2026-07-19 (`docs/plans/2026-07-19-round4-preregistration-amend
 - Ionics-rocksalt: **FAIL** (0/4 confirmatory property wins: a0, c11, c12, c44).
 - Perovskites: **FAIL** (0/1 confirmatory property wins: a0).
 - Theorem consistency: 0 licensed, oracle-in-hull worsened cells (required: zero).
-- Registered conclusion: both groups fail the >=2/3 property-win criterion; the public correction scope remains same-class lattice constants only and further cap tuning is frozen absent a new theorem.
+- Registered conclusion: both groups fail the >=2/3 property-win criterion; further cap tuning is frozen absent a new theorem. Corrected 2026-11-12: this line used to add that the public correction scope remains same-class lattice constants only. Under this round's rule a0 was not significant in either group (ionics 5 improved, 2 worsened, p = 0.453; perovskites 4/0, p = 0.125), so Round 4 does not replicate the Round-3 lattice-constant result and supports no public correction scope; part of the lattice-constant gain may also absorb thermal-convention offsets (errata 2026-07-13, item 9).
 - Excluded from the confirmatory denominator: b0 everywhere (descriptive-only, preregistration §5); perovskite c11/c12/c44 (exploratory-only, 2026-07-19 amendment — clamped-ion finite differences at the nearest sealed 2.5%-spaced volume vs relaxed/experimental references).
 
 The complete machine-readable decisions, the repaired measurement binding (isolated jobs + immutable image digests), artifact paths, and SHA-256 hashes are in `report.json`.

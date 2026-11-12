@@ -27,7 +27,7 @@ All 32 registered model×material cells are present. Each cell has an energy-vol
 | ionics-rocksalt | a0, C11, C12, C44 | 0/4 | FAIL |
 | perovskites | a0 | 0/1 | FAIL |
 
-The preregistered `>= 2/3` property-win criterion failed in both groups. The committed conclusion therefore stands: the public correction scope remains “same-class lattice constants only,” and further cap tuning is frozen absent a new proven theorem.
+The preregistered `>= 2/3` property-win criterion failed in both groups, and further cap tuning is frozen absent a new proven theorem. Corrected 2026-11-12: this audit used to repeat the report's line that the public correction scope remains “same-class lattice constants only.” Under the Round-4 rule a0 was not significant in either group (ionics 5 improved, 2 worsened, p = 0.453; perovskites 4/0, p = 0.125), so this round does not replicate the Round-3 lattice-constant result and supports no public correction scope.
 
 ## No-harm / licensed-failure score
 
