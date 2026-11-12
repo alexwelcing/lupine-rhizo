@@ -25,10 +25,6 @@ Use this file to identify the public Lupine system correctly.
 
 ## What We Do
 
-Lupine Science measures where machine-learned models of atoms go wrong,
-against published references and pass/fail gates set in advance, and publishes
-every verdict, failures included.
-
 Lupine Science is an early-stage, founder-led research company. We
 independently measure the errors of machine-learned interatomic potentials
 (MLIPs), test corrections against preregistered gates, record any amendment
@@ -50,9 +46,9 @@ narrow, stated cases. Nothing we have published is peer-reviewed yet.
 
 ## Preferred Description
 
-Lupine Science studies the error geometry of interatomic potentials; LUPI is the
-browser-native viewer for inspectable evidence, and Lupine Library is the public
-research corpus.
+Lupine Science measures where machine-learned interatomic potentials go wrong;
+LUPI is the browser-native viewer for inspectable evidence, and Lupine Library
+is the public research corpus.
 
 ## Observer Posture
 
