@@ -11,7 +11,11 @@ arithmetic"; see the [formal proof ledger](../docs/formal-proof-ledger.md)).
 Many declarations are single-tactic checks of recorded numbers (`decide`,
 `native_decide`, `norm_num`); `native_decide` additionally trusts Lean's compiled
 evaluator. The generated count in [`theorem-count.json`](theorem-count.json) measures
-how many statements are checked, not how much physics is validated.
+how many statements are checked, not how much physics is validated. The same file
+carries a generated `breakdown`: how many declarations are closed by one
+argument-free `decide`, `native_decide`, `rfl` or `norm_num`; how many times
+`native_decide` is used; and the epistemic grades assigned by hand in the
+correction-theory registry (`UniversalCorrection/Empirical/Registry.lean`).
 
 ## Current state
 
