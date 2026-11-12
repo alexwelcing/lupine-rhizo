@@ -168,9 +168,11 @@ retrieval-eval metrics + publication drift as artifacts each night.
 
 ## Measured retrieval quality
 
-`eval_retrieval.py` scores a fixed gold set of 15 paraphrased questions
+`eval_retrieval.py` scores a fixed gold set of paraphrased questions
 (documents, published articles, site guides, ledger records, and the
-publication-drift record) against the full ~2,880-chunk index, real model,
+publication-drift record; 15 questions when the table below was measured, 14
+since 2026-11-12, when the report one question targeted was removed from the
+repository) against the full ~2,880-chunk index, real model,
 warm. Ranking is twin-aware: retrieving either identity of the same content
 (internal doc or its published article) counts. Default model:
 **BAAI/bge-small-en-v1.5** (384-dim).
