@@ -82,7 +82,6 @@ def main() -> int:
         "135.0": q["z1_mae_range_mev"]["value"][0],
         "242.5": q["z1_mae_range_mev"]["value"][1],
         "0.906": q["env_field_r"]["value"],
-        "927": d["lean"]["count"],
     }
     for token, value in bound.items():
         if token not in TEX:
@@ -95,13 +94,39 @@ def main() -> int:
             except ValueError:
                 errors.append(f"token {token!r} disagrees with results.json value {value}")
 
+    # The Lean inventory is never typed: the manuscript uses macros that
+    # build_artifacts.py generates from lean-spec/theorem-count.json, and it carries
+    # the scope sentence beside them.
+    lean = d["lean"]
+    lean_tex_path = HERE / "lean-count.tex"
+    macros = dict(re.findall(r"\\newcommand\{\\(Lean\w+)\}\{([^}]*)\}", lean_tex_path.read_text(encoding="utf-8"))) if lean_tex_path.exists() else {}
+    expected_macros = {
+        "LeanDeclarationCount": str(lean["count"]),
+        "LeanModuleCount": str(lean["modules"]),
+        "LeanCountedAt": str(lean["counted_at"]),
+    }
+    if macros != expected_macros:
+        errors.append(f"lean-count.tex {macros} disagrees with results.json {expected_macros}; rebuild with build_artifacts.py")
+    if lean["zero_sorry"] is not True:
+        errors.append("results.json Lean inventory reports sorry, but the manuscript says zero")
+    if "\\input{lean-count}" not in TEX:
+        errors.append("manuscript does not \\input the generated lean-count.tex")
+    for name in expected_macros:
+        if f"\\{name}" not in TEX.split("\\input{lean-count}", 1)[-1]:
+            errors.append(f"manuscript body does not use \\{name}")
+    if re.search(r"\d[\d,]*\s+theorem(?:/lemma)?\s+declarations", re.sub(r"%.*", "", TEX)):
+        errors.append("hand-typed Lean declaration count in manuscript; use the generated macros")
+    c10 = "Lean 4 checks the arithmetic and stated inequalities behind published numbers; it does not check the physics, the reference data or the pipeline."
+    if c10 not in TEX:
+        errors.append("Lean scope sentence missing beside the generated count")
+
     if RES["recovery_outputs_present"] is False and "352" in TEX and "omitted" not in TEX:
         errors.append("352-row ledger referenced without omission statement")
 
     if errors:
         print("\n".join(errors))
         return 1
-    print(f"claim lock OK: {len(RETIRED)} retired phrases guarded, {len(bound)} headline tokens bound")
+    print(f"claim lock OK: {len(RETIRED)} retired phrases guarded, {len(bound)} headline tokens bound, Lean count generated ({lean['count']}, counted {lean['counted_at']})")
     return 0
 
 
