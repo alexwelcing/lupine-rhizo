@@ -770,6 +770,14 @@
       "value": "0/4 rocksalt, 0/1 perovskite",
       "source": "round4_report"
     },
+    "round4_a0_sign_tests": {
+      "value": {
+        "rocksalt": "5 improved, 2 worsened, p = 0.453",
+        "perovskite": "4 improved, 0 worsened, p = 0.125"
+      },
+      "source": "round4_report",
+      "note": "a0 not significant in either group; Round 4 does not replicate the Round-3 a0 result"
+    },
     "z1_gate_mev": {
       "value": 40,
       "source": "negative_results"

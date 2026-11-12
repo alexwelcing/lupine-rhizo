@@ -87,6 +87,7 @@ QUOTED = {
     "round3_a0_rocksalt_rel_err": {"value": [1.60, 0.33], "source": "round3_report", "note": "median |rel err| % raw -> corrected"},
     "round3_a0_perovskite_rel_err": {"value": [1.75, 0.74], "source": "round3_report"},
     "round4_confirmatory_wins": {"value": "0/4 rocksalt, 0/1 perovskite", "source": "round4_report"},
+    "round4_a0_sign_tests": {"value": {"rocksalt": "5 improved, 2 worsened, p = 0.453", "perovskite": "4 improved, 0 worsened, p = 0.125"}, "source": "round4_report", "note": "a0 not significant in either group; Round 4 does not replicate the Round-3 a0 result"},
     "z1_gate_mev": {"value": 40, "source": "negative_results"},
     "z1_mae_range_mev": {"value": [135.0, 242.5], "source": "negative_results"},
     "z1_completed_paths_range": {"value": [26, 29], "source": "negative_results"},
