@@ -113,14 +113,14 @@ export const CATALOG = {
       },
       "blurb": {
         "en": "Orientation, shared vocabulary, data provenance, and how we work with AI agents. Start here if you are new.",
-        "zh": "方向、共享词汇、数据来源与研究议程。如果你是新来的，从这里开始。"
+        "zh": "入门导览、共享词汇、数据来源，以及我们如何与 AI 智能体协作。如果你是新来的，从这里开始。"
       }
     },
     {
       "id": "conjectures",
       "label": {
-        "en": "Conjectures & Proofs",
-        "zh": "猜想与证明"
+        "en": "Hypotheses & Lean checks",
+        "zh": "假设与 Lean 检查"
       },
       "blurb": {
         "en": "Every claim we have tested, its lifecycle status, and the evidence behind it. The hypothesis ledger.",
@@ -135,7 +135,7 @@ export const CATALOG = {
       },
       "blurb": {
         "en": "How we measure, bound, and reason about potential error.",
-        "zh": "我们如何测量、界定和推理势函数误差 — 从 sloppy-model 几何到贝叶斯主动学习。"
+        "zh": "我们如何测量、界定和推理势函数误差。"
       }
     },
     {
@@ -146,7 +146,7 @@ export const CATALOG = {
       },
       "blurb": {
         "en": "Benchmarks and registered campaigns, failures included, with the evidence behind each verdict.",
-        "zh": "基准测试、实时实验室结果以及 MLIP 飞轮证据链。"
+        "zh": "基准测试与预先登记的实验活动（包括失败的结果），以及每项结论背后的证据。"
       }
     },
     {
@@ -157,7 +157,7 @@ export const CATALOG = {
       },
       "blurb": {
         "en": "Lean checks of the arithmetic and inequalities behind published numbers, and what each check covers.",
-        "zh": "Lean 支持的定理证明、构建锁定契约以及形式化证明台账。"
+        "zh": "用 Lean 检查已发表数字背后的算术与不等式，以及每项检查所涵盖的范围。"
       }
     },
     {
@@ -179,7 +179,7 @@ export const CATALOG = {
       },
       "blurb": {
         "en": "The literature we build on and the internal reviews of our claims.",
-        "zh": "我们所依据的文献、资金背景以及我们的声明在公开前通过的对抗性评议。"
+        "zh": "我们所依据的文献，以及对我们声明的内部评议。"
       }
     },
     {
@@ -190,7 +190,7 @@ export const CATALOG = {
       },
       "blurb": {
         "en": "How to reproduce results from this repository.",
-        "zh": "该图书馆是如何构建的，以及如何复现每个结果。提取日志、架构决策记录和运营结构。"
+        "zh": "如何从本仓库复现结果。"
       }
     }
   ],

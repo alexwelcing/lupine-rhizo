@@ -69,7 +69,7 @@ The workflow uses `matcalc` with a standardized stress/strain elasticity calcula
 4. Compute the elastic tensor with `ElasticityCalc` (fmax = 0.005 eV/Å, GPa units).
 5. Extract C<sub>11</sub>, C<sub>12</sub>, and C<sub>44</sub>.
 
-Wall-clock runtime is recorded. CPU-equivalent core-hours are `runtime_seconds / 3600`, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array in GCP project `witching-606c6`, region `us-central1`, container image `us-central1-docker.pkg.dev/witching-606c6/lupine-layer2/runner:v1`. Outputs were uploaded to `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/` and aggregated with `lupine/data/aggregate_layer2.py`.
+Wall-clock runtime is recorded. CPU-equivalent core-hours are `runtime_seconds / 3600`, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array (region `us-central1`) from a single runner container image (`lupine-layer2/runner:v1`). Outputs were uploaded to Cloud Storage (path under Data availability) and aggregated with `lupine/data/aggregate_layer2.py`.
 
 ### 2.3 The Lupine correction operator
 
@@ -226,7 +226,7 @@ We present a 3×3×3 elastic-constant reference for 16 cubic metals and four Mat
 
 ## Data availability
 
-- Raw outputs: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json` (128 files)
+- Raw outputs: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json` (128 files). The bucket path is kept because re-running `lupine/data/aggregate_layer2.py` needs these files as its `--inputs`.
 - Summary JSON: `lupine/data/benchmark_layer2_3x3x3_summary.json`
 - Source repository: `https://github.com/alexwelcing/lupine`
 - Pre-registration and companion results: `lupine-rhizo/docs/projection-law-round2-preregistration.md`, `lupine-rhizo/docs/projection-law-round2-results.md`

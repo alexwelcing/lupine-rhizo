@@ -87,7 +87,7 @@ r2SCAN targets here are approximate (scalar bulk-modulus shifts of PBE). Status:
 <li>Compute the elastic tensor with <code>ElasticityCalc</code> (fmax = 0.005 eV/Å, GPa units).</li>
 <li>Extract C<sub>11</sub>, C<sub>12</sub>, and C<sub>44</sub>.</li>
 </ol>
-<p>Wall-clock runtime is recorded. CPU-equivalent core-hours are <code>runtime_seconds / 3600</code>, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array in GCP project <code>witching-606c6</code>, region <code>us-central1</code>, container image <code>us-central1-docker.pkg.dev/witching-606c6/lupine-layer2/runner:v1</code>. Outputs were uploaded to <code>gs://lupine-benchmark-witching-606c6/layer2_3x3x3/</code> and aggregated with <code>lupine/data/aggregate_layer2.py</code>.</p>
+<p>Wall-clock runtime is recorded. CPU-equivalent core-hours are <code>runtime_seconds / 3600</code>, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array (region <code>us-central1</code>) from a single runner container image (<code>lupine-layer2/runner:v1</code>). Outputs were uploaded to Cloud Storage (path under Data availability) and aggregated with <code>lupine/data/aggregate_layer2.py</code>.</p>
 <h3>2.3 The Lupine correction operator</h3>
 <p>For a given functional, stack the raw predictions and reference targets as 3-vectors of (C<sub>11</sub>, C<sub>12</sub>, C<sub>44</sub>). The residual matrix is <code>R = target − pred</code>. The Lupine correction direction is the first principal component of <code>R</code>, normalized to a unit vector <strong>b</strong>. For any residual <strong>r</strong>, the best one-dimensional correction is the projection of <strong>r</strong> onto <strong>b</strong>:</p>
 <p>α = (<strong>r</strong> · <strong>b</strong>) / (<strong>b</strong> · <strong>b</strong>) = <strong>r</strong> · <strong>b</strong>,</p>
@@ -453,7 +453,7 @@ r2SCAN targets here are approximate (scalar bulk-modulus shifts of PBE). Status:
 <hr />
 <h2>Data availability</h2>
 <ul>
-<li>Raw outputs: <code>gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json</code> (128 files)</li>
+<li>Raw outputs: <code>gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json</code> (128 files). The bucket path is kept because re-running <code>lupine/data/aggregate_layer2.py</code> needs these files as its <code>--inputs</code>.</li>
 <li>Summary JSON: <code>lupine/data/benchmark_layer2_3x3x3_summary.json</code></li>
 <li>Source repository: <code>https://github.com/alexwelcing/lupine</code></li>
 <li>Pre-registration and companion results: <code>lupine-rhizo/docs/projection-law-round2-preregistration.md</code>, <code>lupine-rhizo/docs/projection-law-round2-results.md</code></li>
