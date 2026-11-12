@@ -125,6 +125,15 @@ self-consistency check, with the VASP-referenced error (693.0–705.7 meV MAE)
 shown beside it ([verdict](analysis/z1-union-campaign-verdict.md);
 [ledger](conjectures/ledger.md)).
 
+Human sign-off (rule from 2026-11-12): an amendment counts as approved only
+when the approval is in the repository's own record, either as a commit that
+carries the owner's `Signed-off-by:` line or as an approving review on the
+pull request that adds the amendment. A quoted conversation is not a sign-off.
+Sign-off does not replace the outcome-dependent label: an amendment written
+after an outcome keeps that label however it was approved. Amendment 01
+predates this rule; its approval is recorded only as a quoted conversation.
+This is a written rule, not a CI check.
+
 ## Automation that can change this repository
 
 [`glim-think-evolver.yml`](../.github/workflows/glim-think-evolver.yml) is a

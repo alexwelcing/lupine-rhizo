@@ -59,6 +59,12 @@ gate to a same-engine basis after path 7 failed the original gate; the
 [ledger](conjectures/ledger.md) reports the pilot as a same-engine self-consistency
 check with the VASP-referenced error beside it.
 
+Human sign-off on an amendment is a commit carrying the owner's `Signed-off-by:`
+line or an approving review on the pull request that adds it, not a quoted
+conversation (rule from 2026-11-12; amendment 01's approval predates it and is
+recorded only as a quoted conversation). The outcome-dependent label applies
+whatever the sign-off. See [How we use AI agents and handle data](ai-and-data.md#amendments).
+
 ## The stance
 
 Strong results in a noisy corpus deserve **suspicion before celebration**. Every
