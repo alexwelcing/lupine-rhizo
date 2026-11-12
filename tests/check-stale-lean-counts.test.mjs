@@ -60,3 +60,20 @@ test('exporter post-scan cannot inherit the pre-scan bypass', (t) => {
   assert.equal(result.status, 1, result.stdout || result.stderr);
   assert.match(result.stderr, /exports\/library-content\/latest\/articles\/registry\/ontology\/atlas\.v1\.json:1/);
 });
+
+test('skips a tracked file that was deleted from the working tree', (t) => {
+  const root = createFixtureRepo(t);
+  const removed = 'docs/removed-by-exporter.md';
+  fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
+  fs.writeFileSync(path.join(root, removed), 'An ordinary note.\n');
+  execFileSync('git', ['add', 'scripts/check-stale-lean-counts.mjs', removed], { cwd: root });
+  fs.rmSync(path.join(root, removed));
+
+  const result = spawnSync(process.execPath, ['scripts/check-stale-lean-counts.mjs'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stdout || result.stderr);
+  assert.doesNotMatch(result.stderr, /ENOENT/);
+});
