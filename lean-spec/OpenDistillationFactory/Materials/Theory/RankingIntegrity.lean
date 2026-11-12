@@ -16,8 +16,8 @@ correction layer can be trusted with an ordering:
    ordering of two candidates inverts the reference ordering, *no monotone
    recalibration of the model outputs* can reconcile them. The experimentalist
    receives a machine-checked "cannot be rescued within the method", not an
-   uncertainty estimate. (The proof pack's "monotonicity impossibility
-   lemma".)
+   uncertainty estimate. (The retired climate-series pack's
+   "monotonicity impossibility lemma".)
 2. `same_signature_corrected_iff` — **the transfer law**: candidates with the
    same coordination signature receive the same field correction, so the
    corrected comparison equals the raw comparison; chemically similar
