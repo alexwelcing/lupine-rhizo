@@ -136,11 +136,10 @@ pass, **without a human review**. Its writes are limited to that prompt-registry
 path, and deploying the Worker is a separate, manually triggered workflow. The
 human-review statements on this page do not cover this workflow.
 
-[`docs/runbooks/kimi_yolo.md`](runbooks/kimi_yolo.md) describes an autonomous
-Kimi CLI loop (`kimi --yolo`, every tool call auto-approved) run under the
-`lupine-ops` `kimi_supervisor`, with a remote kill switch and a cost cap. The loop
-has no human review step. Its current status is not recorded here, and the
-human-review statements on this page do not cover it either.
+Retired 2026-11-12: an autonomous Kimi CLI loop (`kimi --yolo`, every tool call
+auto-approved) that ran under a `lupine-ops` supervisor binary, with no human
+review step. We no longer run it, and the supervisor binary and its runbooks
+were removed from this repository (they remain in git history).
 
 ## What we do not publish
 
