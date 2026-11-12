@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-11-11T05:10:42.339Z",
+  "generatedAt": "2026-11-12T04:52:03.172Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "2c606854e394e6c3da61ad8029b74ac5353aecd9",
+    "commit": "2e4532bc27b366e377cd372580e3625dec26209b",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -107,14 +107,14 @@
         },
         "blurb": {
           "en": "Orientation, shared vocabulary, data provenance, and how we work with AI agents. Start here if you are new.",
-          "zh": "方向、共享词汇、数据来源与研究议程。如果你是新来的，从这里开始。"
+          "zh": "入门导览、共享词汇、数据来源，以及我们如何与 AI 智能体协作。如果你是新来的，从这里开始。"
         }
       },
       {
         "id": "conjectures",
         "label": {
-          "en": "Conjectures & Proofs",
-          "zh": "猜想与证明"
+          "en": "Hypotheses & Lean checks",
+          "zh": "假设与 Lean 检查"
         },
         "blurb": {
           "en": "Every claim we have tested, its lifecycle status, and the evidence behind it. The hypothesis ledger.",
@@ -129,7 +129,7 @@
         },
         "blurb": {
           "en": "How we measure, bound, and reason about potential error.",
-          "zh": "我们如何测量、界定和推理势函数误差 — 从 sloppy-model 几何到贝叶斯主动学习。"
+          "zh": "我们如何测量、界定和推理势函数误差。"
         }
       },
       {
@@ -140,7 +140,7 @@
         },
         "blurb": {
           "en": "Benchmarks and registered campaigns, failures included, with the evidence behind each verdict.",
-          "zh": "基准测试、实时实验室结果以及 MLIP 飞轮证据链。"
+          "zh": "基准测试与预先登记的实验活动（包括失败的结果），以及每项结论背后的证据。"
         }
       },
       {
@@ -151,7 +151,7 @@
         },
         "blurb": {
           "en": "Lean checks of the arithmetic and inequalities behind published numbers, and what each check covers.",
-          "zh": "Lean 支持的定理证明、构建锁定契约以及形式化证明台账。"
+          "zh": "用 Lean 检查已发表数字背后的算术与不等式，以及每项检查所涵盖的范围。"
         }
       },
       {
@@ -173,7 +173,7 @@
         },
         "blurb": {
           "en": "The literature we build on and the internal reviews of our claims.",
-          "zh": "我们所依据的文献、资金背景以及我们的声明在公开前通过的对抗性评议。"
+          "zh": "我们所依据的文献，以及对我们声明的内部评议。"
         }
       },
       {
@@ -184,7 +184,7 @@
         },
         "blurb": {
           "en": "How to reproduce results from this repository.",
-          "zh": "该图书馆是如何构建的，以及如何复现每个结果。提取日志、架构决策记录和运营结构。"
+          "zh": "如何从本仓库复现结果。"
         }
       }
     ],
@@ -879,7 +879,7 @@
         "id": "formal-vision",
         "source": "articles/docs/formal-vision.md",
         "title": "The Open Distillation Factory — Executable Vision",
-        "subtitle": "Lean 4 checks the arithmetic and stated inequalities behind published numbers; it does not check the physics, the reference data or the pipeline. Generated inventory: 927 declarations, zero active sorry (counted 2026-11-05).",
+        "subtitle": "Lean 4 checks the arithmetic and stated inequalities behind published numbers; it does not check the physics, the reference data or the pipeline. Generated inventory: 927 declarations, zero active sorry (counted 2026-11-12).",
         "category": "formalization",
         "tags": [
           "lean",
@@ -1397,26 +1397,26 @@
     {
       "source": "docs/ai-and-data.md",
       "bundleSource": "articles/docs/ai-and-data.md",
-      "bytes": 9092,
-      "sha256": "ffa588555b0c533143d2541818f8d25834bccfa25354106e9d2e49e545d129ce"
+      "bytes": 9712,
+      "sha256": "9ee2d89c82f97d8c1d5444a8af308be735546e5b0dd425428d6a2fd968507eee"
     },
     {
       "source": "docs/data-provenance.md",
       "bundleSource": "articles/docs/data-provenance.md",
-      "bytes": 2786,
-      "sha256": "217dbdc1aa43f9c6aff90a9b8f8d22cbac39a1d0588169a4375c8cdf4b1424d3"
+      "bytes": 2967,
+      "sha256": "5f513ac84c1655a87b68f16e7cb99a9d04d8bad076855b01ff695e98e21292ea"
     },
     {
       "source": "docs/PUBLIC.md",
       "bundleSource": "articles/docs/PUBLIC.md",
-      "bytes": 3605,
-      "sha256": "0b43cc529c6f0f1538a2412d55dfe725e2564515f27676664efc84e5556d6e41"
+      "bytes": 3624,
+      "sha256": "0a3d771f020beb55b28328c2a9a9886953ed90ee0c94bf5d5bc5465462bb7d19"
     },
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 13192,
-      "sha256": "1f1be14a334d4c85aa2708043ef8765333543e9b609f7fdbb7676cfbde42a847"
+      "bytes": 13167,
+      "sha256": "530cab31ba5d0d42d78f37076ecfefdb369a11b0c6f265bb715af48db04a3a0b"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
@@ -1475,8 +1475,8 @@
     {
       "source": "docs/methodology.md",
       "bundleSource": "articles/docs/methodology.md",
-      "bytes": 3691,
-      "sha256": "89a1f333b053c625cb35362e34b5b0f2e56a99ff810791137ea5f7ad0bca2162"
+      "bytes": 4098,
+      "sha256": "0992af6896a30050bb0ce52621b834bf6b84c91c5f35e3038876368c217ff141"
     },
     {
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
@@ -1493,8 +1493,8 @@
     {
       "source": "docs/campaigns/z2-abstention-audit.md",
       "bundleSource": "articles/docs/campaigns/z2-abstention-audit.md",
-      "bytes": 3017,
-      "sha256": "87e9631aeb5a3b675a6edbf782c89b93aeb4496c6f5c26ad65d0bc962d53127e"
+      "bytes": 3126,
+      "sha256": "59141a4f2118c2afab031071b75f76996a5d6dfdb81faaa0a7bf9ac41534ec46"
     },
     {
       "source": "docs/plans/2026-07-19-round4-preregistration-amendment.md",
@@ -1595,26 +1595,26 @@
     {
       "source": "mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
       "bundleSource": "articles/mlip-elastic-benchmark/operator-failure-diagnosis-2026-06-27.md",
-      "bytes": 18455,
-      "sha256": "f5ff07686b9f4f0e3a095578cbb8b16fbabefe533e5af7424004fc9942b9582f"
+      "bytes": 18507,
+      "sha256": "8da55e78675c8dae4bb2b8b51a2138aef676158be617eb0d85c6a8f30d94acf8"
     },
     {
       "source": "paper/lupine-layer2-3x3x3-final-paper.md",
       "bundleSource": "articles/paper/lupine-layer2-3x3x3-final-paper.md",
-      "bytes": 19118,
-      "sha256": "810d1fce933254e707cda0ed21ef81db6d43d0e5662783df0adcf5603ea04dcc"
+      "bytes": 19174,
+      "sha256": "799624b52e631ce2d4320d5abf70754451b1cc076c2e882d36e168ecaaaa68d4"
     },
     {
       "source": "docs/formal-vision.md",
       "bundleSource": "articles/docs/formal-vision.md",
-      "bytes": 6207,
-      "sha256": "69fe9f1abcb6834f01604b7b0f4dfa3da69fe60283c20d3a785e412f6a0e1d3e"
+      "bytes": 6393,
+      "sha256": "baf7427b4c66ac1c6192284c4e80137695e32e4b65353ccf4aa7ac536cc7c6bb"
     },
     {
       "source": "docs/formal-methodology.md",
       "bundleSource": "articles/docs/formal-methodology.md",
-      "bytes": 6171,
-      "sha256": "88f798581f9bbe36e52541d4a9365b663096522d44ebc3740727e423e629cc80"
+      "bytes": 6186,
+      "sha256": "e762c8aaacbbd50cc1399a8470b4ea89a12c8bc8cd1683a7bcc7f01681fbcb3e"
     },
     {
       "source": "docs/formal-audit.md",
@@ -1643,8 +1643,8 @@
     {
       "source": "docs/papers-working.md",
       "bundleSource": "articles/docs/papers-working.md",
-      "bytes": 951,
-      "sha256": "a74311f230bc5367a2c823e2ec7ba0a485f093bfb5c805fa2f9f5915817e340f"
+      "bytes": 1365,
+      "sha256": "541d629e248e0e560b885ae7525200cad39891bb98e2e71a23701e6e1fac9501"
     },
     {
       "source": "docs/research_evolution_2026_05_05.md",
@@ -1662,7 +1662,7 @@
       "source": "docs/references.md",
       "bundleSource": "articles/docs/references.md",
       "bytes": 8148,
-      "sha256": "dd9d3f6481c2b10585b2b5bd1b4189f8f0d850beecdb0f9ff392a316523fe1d6"
+      "sha256": "7e487082ccbe24755096789b9907bcbdeafd96dae8a143d261fe38839f086010"
     },
     {
       "source": "lit-review.md",

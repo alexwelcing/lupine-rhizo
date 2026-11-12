@@ -1,4 +1,4 @@
-# Conjectures & Proofs — The Hypothesis Ledger
+# The Hypothesis Ledger
 
 Every claim Lupine has seriously tested, where it stands, and *why it moved*. This is
 the structured counterpart to the narrative changelog: the changelog tells the story,

@@ -125,22 +125,32 @@ self-consistency check, with the VASP-referenced error (693.0–705.7 meV MAE)
 shown beside it ([verdict](analysis/z1-union-campaign-verdict.md);
 [ledger](conjectures/ledger.md)).
 
+Human sign-off (rule from 2026-11-12): an amendment counts as approved only
+when the approval is in the repository's own record, either as a commit that
+carries the owner's `Signed-off-by:` line or as an approving review on the
+pull request that adds the amendment. A quoted conversation is not a sign-off.
+Sign-off does not replace the outcome-dependent label: an amendment written
+after an outcome keeps that label however it was approved. Amendment 01
+predates this rule; its approval is recorded only as a quoted conversation.
+This is a written rule, not a CI check.
+
 ## Automation that can change this repository
 
 [`glim-think-evolver.yml`](../.github/workflows/glim-think-evolver.yml) is a
 prompt A/B workflow that runs weekly and on demand. By default it is disarmed and
-runs plan-only: it writes, commits and merges nothing. When a repository
-variable arms it, it can commit a prompt change under `glim-think/src/registry/`,
-open a pull request and turn on auto-merge, so the change merges once checks
-pass, **without a human review**. Its writes are limited to that prompt-registry
-path, and deploying the Worker is a separate, manually triggered workflow. The
-human-review statements on this page do not cover this workflow.
+runs plan-only: it writes, commits and opens nothing. When a repository
+variable arms it, it can commit a prompt change under `glim-think/src/registry/`
+on a new branch and open a pull request. It never merges: a human reviews and
+merges each Evolver pull request (the auto-merge step was removed on
+2026-11-12; `glim-think/evals/evolver.ts`). Its writes are limited to that
+prompt-registry path, and deploying the Worker is a separate, manually
+triggered workflow. Whether `main` itself requires a pull request review is a
+repository setting, not something this file can show.
 
-[`docs/runbooks/kimi_yolo.md`](runbooks/kimi_yolo.md) describes an autonomous
-Kimi CLI loop (`kimi --yolo`, every tool call auto-approved) run under the
-`lupine-ops` `kimi_supervisor`, with a remote kill switch and a cost cap. The loop
-has no human review step. Its current status is not recorded here, and the
-human-review statements on this page do not cover it either.
+Retired 2026-11-12: an autonomous Kimi CLI loop (`kimi --yolo`, every tool call
+auto-approved) that ran under a `lupine-ops` supervisor binary, with no human
+review step. We no longer run it, and the supervisor binary and its runbooks
+were removed from this repository (they remain in git history).
 
 ## What we do not publish
 

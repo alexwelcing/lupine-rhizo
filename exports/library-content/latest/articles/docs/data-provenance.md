@@ -15,11 +15,13 @@ inputs, so this page is deliberately explicit.
 
 ## Scope of the corpus
 
-- **559 interatomic potentials** spanning 13 `pair_style` families.
+- **559 Born-stable model–element elastic tensors** from 423 distinct OpenKIM
+  model IDs (not 559 independent potentials), spanning 13 `pair_style` families
+  (counts: `paper/tms2027-proceedings/results.json`).
 - **15 benchmark metals** — 8 FCC, 7 BCC (the IMMI element set).
 - Plus the foundation-MLIP trio added on top: **MACE-MP-0, CHGNet, Orb-v3**.
-- Plus the Kimi v7 Cloud Run trio: **MACE-MP-0, CHGNet, SevenNet** across the
-  same 15-metal IMMI set.
+- Plus the trio from the 2026-06-07 MLIP evidence import (Cloud Run): **MACE-MP-0,
+  CHGNet, SevenNet** across the same 15-metal IMMI set.
 - Properties: elastic constants $C_{11}, C_{12}, C_{44}$ (primary); lattice constant
   $a_0$ (de-myopization); $E_\text{coh}, B_0$ (Phase-D, in progress).
 

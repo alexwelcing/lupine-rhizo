@@ -41,8 +41,8 @@ narrative spine, why/what/results/next.
 
 Added in Phase 2:
 
-- **Conjectures & Proofs** — one entry per hypothesis, `status`-tagged, with evidence IDs and
-  links into `lean-spec/` formal proofs. Generated from the hypothesis records, not
+- **Hypotheses & Lean checks** — one entry per hypothesis, `status`-tagged, with evidence IDs and
+  links to the related Lean checks in `lean-spec/`. Generated from the hypothesis records, not
   hand-maintained.
 
 ## Roadmap
@@ -56,7 +56,7 @@ Added in Phase 2:
   `cloudbuild.yaml`) that replaces the frozen image on the existing `library-site` Cloud Run
   service. Restoring `library.lupine.science` is now a merge-to-`main`, not a hand-run deploy.
 - **Phase 2 (the ambition).** Add `status`/`group` to catalog + build manifest + reader
-  facets. Generate the Conjectures & Proofs shelf from the corpus and the
+  facets. Generate the Hypotheses & Lean checks shelf from the corpus and the
   hypothesis records so the Library updates as research lands. A `make publish` step keeps
   the site in lock-step with the corpus.
 - **Phase 3 (door left open).** Many-language support on the EN-fallback-safe i18n base.
