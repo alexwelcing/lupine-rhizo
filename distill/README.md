@@ -11,7 +11,7 @@
 
 - **Manifold Analysis** — PCA/SVD eigenvalue analysis of prediction errors with hyper-ribbon detection
 - **Bootstrap Uncertainty Quantification** — 95% confidence intervals for participation ratios and geometric fits
-- **Meta-Analysis** — Fixed/random-effects meta-analysis with Fisher z-transformation, DerSimonian-Laird τ², and I² heterogeneity
+- **Meta-Analysis** — Standard fixed- and random-effects meta-analysis of correlation coefficients across independent groups (Fisher z, DerSimonian–Laird τ², Cochran's Q and I², t-based prediction interval); see [Meta-analysis](#meta-analysis) for scope and the 2026-11-12 fix
 - **Simpson's Paradox Detection** — Pooled vs. within-group correlation comparison with reversal markers
 - **Multi-Potential Benchmarking** — FCC (8 metals) and BCC (7 metals) elastic constant validation
 - **Model Geometry Evidence** — Residual-SVD packets for MLIP/WBM/arena-scale model dumps, with accuracy gates and effective-rank guards
@@ -46,9 +46,6 @@ cargo run --bin distill -- manifold
 
 # Simpson's paradox demo
 cargo run --bin distill -- detect-paradox --bcc
-
-# Meta-analysis
-cargo run --bin distill -- meta-analyze
 
 # Model/reference residual geometry from a tidy benchmark dump
 cargo run --bin distill -- model-geometry \
@@ -161,7 +158,6 @@ distill/
 |---------|-------------|
 | `validate [--full] [--bcc]` | Run ensemble operator validation |
 | `manifold [--bcc]` | Analyze error manifold structure |
-| `meta-analyze [--groups]` | Run meta-analysis on correlations |
 | `detect-paradox [--bcc] [--example]` | Detect Simpson's paradox |
 | `benchmark <file> [--manifold] [--meta]` | Load external benchmark database |
 | `model-geometry --input <csv/json> [--pair A:B]` | Distill model-to-model and model-to-reference residual geometry evidence |
@@ -218,3 +214,46 @@ MIT License — see [LICENSE](LICENSE) for details.
 ## Acknowledgments
 
 This work builds on sloppy model theory (Brown & Sethna 2003, Transtrum et al. 2010–2013), causal inference methodology (Pearl 2014), and meta-analysis frameworks (DerSimonian & Laird 1986). Benchmark data sources include the OpenKIM consortium and NIST Interatomic Potential Database.
+
+## Meta-analysis
+
+`src/meta_analysis.rs` is a byte-identical copy of
+`alexwelcing/lupine` `atlas-distill/src/meta_analysis.rs`. It implements
+standard fixed- and random-effects meta-analysis of correlation coefficients
+across independent groups: each group's r is Fisher z-transformed, weighted by
+inverse variance, pooled and back-transformed; the random-effects model adds a
+DerSimonian–Laird estimate of between-group variance τ² and a t-based
+prediction interval. Both models report Cochran's Q (fixed-effect weights
+around the fixed-effect mean), its p-value and I². It pools correlations, not
+error magnitudes such as MAE, and it assumes the groups are independent. Rows
+that share materials or models (for example C11, C12 and C44 of the same
+metal) are not independent, and intervals built on such rows are
+anti-conservative; for this reason `paper/tms2027-proceedings/manuscript.tex`
+does not report such intervals as inference.
+
+This crate uses the module as a library and through its unit tests. It has no
+`meta-analyze` command; that command lives in `atlas-distill` in
+`alexwelcing/lupine`.
+
+**Fixed 2026-11-12.** The random-effects output used to recompute Q, its
+p-value and I² around the random-effects mean (which can only make them
+larger) and built the prediction interval with the normal quantile 1.96. It
+now reports the fixed-effect Q for both models, uses
+μ̂_RE ± t_{k−2, 0.975} · sqrt(τ² + SE²) for the prediction interval (undefined,
+written as JSON `null`, for fewer than three groups), takes the Q p-value from
+the regularized incomplete gamma function and uses z₀.₉₇₅ = 1.959963984540054
+for confidence intervals. τ² was already computed from the correct Q and does
+not change. Until this date `src/main.rs` did not declare `mod meta_analysis`,
+so the module and its tests were never compiled; it is now declared and
+`cargo test` runs its 15 tests. They compare every reported statistic, to
+1e-6, with an independent numpy/scipy implementation copied from
+`atlas-distill` into `tests/reference/` (`meta_reference.py` and its committed
+output `meta_reference.json`; the generator paths inside them name
+`atlas-distill`, where the values were produced, and the input
+`benchmarks/nist_populated_all.csv` is byte-identical in both crates).
+
+Published numbers that came from this engine, before and after the fix: the
+15-element panel's random-effects Q went from 984 to 945, I² from 98.6% to
+98.5%, and the 95% prediction interval from [−0.64, +0.99] to [−0.73, +0.99].
+The pooled r (0.69), its CI [0.41, 0.85] and τ (0.80) are unchanged. See
+`paper/README.md` for the corrected IMMI working paper.
