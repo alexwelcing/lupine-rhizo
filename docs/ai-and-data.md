@@ -129,12 +129,14 @@ shown beside it ([verdict](analysis/z1-union-campaign-verdict.md);
 
 [`glim-think-evolver.yml`](../.github/workflows/glim-think-evolver.yml) is a
 prompt A/B workflow that runs weekly and on demand. By default it is disarmed and
-runs plan-only: it writes, commits and merges nothing. When a repository
-variable arms it, it can commit a prompt change under `glim-think/src/registry/`,
-open a pull request and turn on auto-merge, so the change merges once checks
-pass, **without a human review**. Its writes are limited to that prompt-registry
-path, and deploying the Worker is a separate, manually triggered workflow. The
-human-review statements on this page do not cover this workflow.
+runs plan-only: it writes, commits and opens nothing. When a repository
+variable arms it, it can commit a prompt change under `glim-think/src/registry/`
+on a new branch and open a pull request. It never merges: a human reviews and
+merges each Evolver pull request (the auto-merge step was removed on
+2026-11-12; `glim-think/evals/evolver.ts`). Its writes are limited to that
+prompt-registry path, and deploying the Worker is a separate, manually
+triggered workflow. Whether `main` itself requires a pull request review is a
+repository setting, not something this file can show.
 
 Retired 2026-11-12: an autonomous Kimi CLI loop (`kimi --yolo`, every tool call
 auto-approved) that ran under a `lupine-ops` supervisor binary, with no human
