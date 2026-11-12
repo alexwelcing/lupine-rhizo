@@ -61,6 +61,22 @@ the overstatement), applied Born stability screening to the foundation-MLIP
 section, and corrected Table 2. Any copy of this paper that uses the
 Simpson's-paradox title is superseded.
 
+Corrected 2026-11-12: the meta-analysis engine (`distill/src/meta_analysis.rs`,
+a copy of `atlas-distill/src/meta_analysis.rs` in `alexwelcing/lupine`)
+computed the random-effects Q and I² around the random-effects mean and built
+the prediction interval with the normal quantile (see `distill/README.md`,
+"Meta-analysis"). With the fixed engine, the random-effects row of the
+meta-analysis table and the text report Q = 945 and I² = 98.5% (were 984 and
+98.6%) and a 95% prediction interval of [−0.73, +0.99] (was [−0.64, +0.99]),
+using a t quantile with k − 2 = 13 degrees of freedom. The pooled r (0.69),
+its CI [0.41, 0.85] and τ (0.80) are unchanged. `cover_letter.md` was updated
+to match. `figures/fig4_forest.{png,pdf}` was copied from `alexwelcing/lupine`,
+where it was regenerated from the fixed engine's `benchmark_meta.json` (this
+repository has no copy of that file, so `generate_all_figures.py` cannot
+regenerate it here). The compiled PDFs (`immi-paper-latest.pdf`,
+`immi-paper-local.pdf`) predate this correction and still show the old values
+until they are rebuilt.
+
 ## Citation
 
 ```bibtex
