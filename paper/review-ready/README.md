@@ -5,6 +5,10 @@ This directory holds advanced manuscript drafts imported from Kimi's
 the ideas are worth advancing, but the claims still need human scientific,
 formal-verification, and citation review before submission or public posting.
 
+## Status (2026-11-12)
+
+Neither draft is current. `paper3-lean-verification.tex` still presents the Simpson's-paradox audit verdict as "fabricated" and overstates what the Lean library checks; the current wording is "Refuted by formal check", and Lean 4 checks the arithmetic and stated inequalities behind published numbers, not the physics, the reference data or the pipeline (see `lean-spec/README.md`). Do not cite either draft.
+
 ## Drafts
 
 | Draft | Review status | Primary risk to resolve |

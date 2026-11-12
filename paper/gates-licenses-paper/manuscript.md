@@ -1,5 +1,8 @@
 # Softening Is Coordination Loss: Where Foundation Interatomic Potentials Fail, What Can Be Corrected, and What Must Be Refused
 
+> <!-- ClaimStatus: withdrawn -->
+> **Status (2026-11-12):** internal draft dated 2026-07-13, not submitted and not peer-reviewed. Its statement that same-class lattice constants are the correction layer's validated public scope is superseded: under the Round-4 rule that correction did not replicate (see docs/conjectures/ledger.md and https://lupine.science/corrections/). Kept as a record.
+
 > <!-- ClaimContract: correction.same_class.a0.v1 -->
 > **Date:** 2026-07-13
 > **Deck:** Referenced measurements of foundation-MLIP error across bulk, kinetic, and defect observables in five material classes; a correction with confirmatory out-of-sample validation and machine-checked safety conditions; and the license structure that says when cross-model agreement means anything.
