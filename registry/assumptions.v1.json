@@ -82,7 +82,7 @@
       "status": "withdrawn"
     },
     {
-      "claim_content_hash": "sha256:63dabd11bb2936a01b1607e4b62ce83f54880dc7e69c90703e1eff0959bdc498",
+      "claim_content_hash": "sha256:61c4aa3da7242783b04ab796114de39f8ef04d75a4d404d2a2c5391b7f0cc31c",
       "claim_id": "correction.same_class.a0.v1",
       "claim_version": 1,
       "disposition": "supported",
@@ -114,7 +114,7 @@
           }
         }
       ],
-      "statement": "Within the preregistered Round-3 same-class rocksalt and perovskite scope, the frozen multiplicative correction improves a0 median absolute relative error; this is the active public correction scope.",
+      "statement": "Within the preregistered Round-3 same-class rocksalt and perovskite scope, the frozen multiplicative correction improved a0 median absolute relative error on the Round-3 out-of-sample candidates. Round 4 did not replicate this under its theorem-capped rule: a0 was not significant in either group (rocksalt ionics 5 improved and 2 worsened, two-sided sign-test p = 0.45; perovskites 4 improved and 0 worsened, p = 0.125). Part of the lattice-constant gain may absorb thermal-convention offsets between room- or high-temperature references and athermal predictions (errata 2026-07-13, item 9). This is a Round-3 result, not a public correction scope.",
       "status": "active"
     },
     {
@@ -685,7 +685,7 @@
       "status": "withdrawn"
     },
     {
-      "claim_content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd",
+      "claim_content_hash": "sha256:7826f4994dc49a724763197e2ab68caa1b3df00ad96bb622bc4eb40e7a655ace",
       "claim_id": "discovery.z2.magnetic-anisotropy.v1",
       "claim_version": 1,
       "disposition": "unsupported",

@@ -17,7 +17,9 @@ def content_hash(document: dict) -> str:
     return "sha256:" + hashlib.sha256(rfc8785.dumps(payload)).hexdigest()
 
 
-def test_z2_claim_contract_is_pending_and_targets_measurement_premise() -> None:
+def test_z2_claim_contract_is_abstained_and_targets_measurement_premise() -> None:
+    # Round 4 abstained by its frozen rule (no spin-orbit-resolved model), so the
+    # contract records "inconclusive" while assurance and the premise stay unsupported.
     claim = json.loads(CLAIM.read_text(encoding="utf-8"))
     schema = json.loads(
         (ROOT / "schemas" / "research-claim-contract.v1.schema.json").read_text(
@@ -28,7 +30,7 @@ def test_z2_claim_contract_is_pending_and_targets_measurement_premise() -> None:
     assert claim["claim_id"] == "discovery.z2.magnetic-anisotropy.v1"
     assert claim["classification"] == {
         "intent": "confirmatory",
-        "outcome": "pending",
+        "outcome": "inconclusive",
         "assurance": "unsupported",
         "strength": "predictive",
     }
