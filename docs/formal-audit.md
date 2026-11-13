@@ -13,7 +13,7 @@ claims, not newly verified facts.
 ## Hyper-ribbon dimensionality
 
 The inspected
-[`HyperRibbonEmpirical.lean`](../lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbonEmpirical.lean)
+[`HyperRibbonEmpirical.lean`](https://github.com/alexwelcing/lupine-rhizo/blob/main/lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbonEmpirical.lean)
 contains:
 
 ```lean
@@ -41,7 +41,7 @@ and useful correction require additional evidence.
 
 ## Causal-graph and Simpson's-paradox claims
 
-[`MetaScience.lean`](../lean-spec/OpenDistillationFactory/Materials/Theory/MetaScience.lean)
+[`MetaScience.lean`](https://github.com/alexwelcing/lupine-rhizo/blob/main/lean-spec/OpenDistillationFactory/Materials/Theory/MetaScience.lean)
 proves with `rfl` that the explicitly defined `trueCausalGraph` lacks one edge and
 that the explicitly defined `syntheticCausalGraph` contains it. Those are facts
 about the definitions. The name “true” is not empirical identification of nature's

@@ -14,7 +14,7 @@ its name suggests, we say so.
 - AI assistance is disclosed. A human author is responsible for every public
   claim.
 - The operator (the founder) reviews every public research-activity summary
-  before it is imported ([public research activity](public-research-activity.md)).
+  before it is imported ([public research activity](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/public-research-activity.md)).
 - Key-person risk is real. We reduce it by publishing the data, the code and the
   failure ledger ([conjecture ledger](conjectures/ledger.md)), so the record can
   be checked without us.
@@ -22,8 +22,8 @@ its name suggests, we say so.
 ## The mechanisms and what they cover
 
 **(a) Status changes in the machine registry need new evidence.**
-[`anti-laundering.yml`](../.github/workflows/anti-laundering.yml) runs
-[`tools/check_status_evidence.py`](../tools/check_status_evidence.py) on pull
+[`anti-laundering.yml`](https://github.com/alexwelcing/lupine-rhizo/blob/main/.github/workflows/anti-laundering.yml) runs
+[`tools/check_status_evidence.py`](https://github.com/alexwelcing/lupine-rhizo/blob/main/tools/check_status_evidence.py) on pull
 requests that touch `registry/`, `snapshots/` or `evidence/`. It rejects a status
 change in the assumption registry (`registry/assumptions.v1.json`), the
 status-event snapshot (`snapshots/status-events.v1.json`) or the locked ontology
@@ -35,7 +35,7 @@ files under `registry/claims/`, the Markdown ledgers
 on lupine.science. Those are edited by hand and reviewed like any other change.
 
 **(b) Public research-activity records pass a reviewed import.**
-The contract in [public-research-activity.md](public-research-activity.md) and
+The contract in [public-research-activity.md](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/public-research-activity.md) and
 the validator in `glim-think/src/workspace/researchActivityContracts.ts` reject
 unknown fields, local paths, email and device identifiers, private, IP and
 tailnet URLs, credential query parameters and credential-shaped strings.
@@ -45,11 +45,11 @@ ingestion. The validator catches common accidental disclosure; it does not show
 that prose is true, which is why the operator reviews each record first.
 
 **(c) The model review stage is bounded.**
-[`tools/scientific-pi/`](../tools/scientific-pi/README.md) runs a three-step
+[`tools/scientific-pi/`](https://github.com/alexwelcing/lupine-rhizo/blob/main/tools/scientific-pi/README.md) runs a three-step
 cycle (proposal, critique, adjudication) through the providers' official
 command-line tools. It never starts an experiment, sends a message, publishes a
 page or schedules another run. Each call gets an explicit tool list. The cycle
-controller ([`tools/pi-cycle.py`](../tools/pi-cycle.py)) runs packet critiques and
+controller ([`tools/pi-cycle.py`](https://github.com/alexwelcing/lupine-rhizo/blob/main/tools/pi-cycle.py)) runs packet critiques and
 adjudications with no tools; the runner itself also accepts a critic job with web
 retrieval when one is submitted directly. **Literature jobs can search the web
 and fetch web pages.** Codex runs in a read-only sandbox in a fresh
@@ -61,28 +61,28 @@ These calls use the providers' signed-in command-line tools, not API keys; API
 key overrides are removed from the child process.
 
 **(d) A model score is a recommendation, not evidence.**
-[AGENTS.md](../AGENTS.md) (Clef decision use): a model score is not scientific
+[AGENTS.md](https://github.com/alexwelcing/lupine-rhizo/blob/main/AGENTS.md) (Clef decision use): a model score is not scientific
 evidence, novelty validation, experiment authorization or publication approval.
 A successful model call is not a successful experiment.
 
 **(e) Lean must build with no `sorry`; counts are generated.**
-[`lean-spec.yml`](../.github/workflows/lean-spec.yml) runs `lake build` and
-[`lean-spec/scripts/check_no_sorry.sh`](../lean-spec/scripts/check_no_sorry.sh) on
+[`lean-spec.yml`](https://github.com/alexwelcing/lupine-rhizo/blob/main/.github/workflows/lean-spec.yml) runs `lake build` and
+[`lean-spec/scripts/check_no_sorry.sh`](https://github.com/alexwelcing/lupine-rhizo/blob/main/lean-spec/scripts/check_no_sorry.sh) on
 changes under `lean-spec/`. The theorem inventory
-in [`lean-spec/theorem-count.json`](../lean-spec/theorem-count.json) is written
+in [`lean-spec/theorem-count.json`](https://github.com/alexwelcing/lupine-rhizo/blob/main/lean-spec/theorem-count.json) is written
 by `lean-spec/scripts/generate-lean-count.mjs`, never typed by hand, and
 `scripts/check-stale-lean-counts.mjs` flags known stale hand-typed totals.
 Lean 4 checks the arithmetic and stated inequalities behind published numbers;
 it does not check the physics, the reference data or the pipeline.
 
 **(f) The HPC lane is designed to run offline, on a facility's own hardware.**
-[hpc/ADMIN_REVIEW.md](../hpc/ADMIN_REVIEW.md): local manifests go in and local
+[hpc/ADMIN_REVIEW.md](https://github.com/alexwelcing/lupine-rhizo/blob/main/hpc/ADMIN_REVIEW.md): local manifests go in and local
 JSON comes out. With no beat URL and a pre-fetched model cache, the runner makes
 no outbound connections; the offline test
 (`gcp/mlip-cell-runner/test_runner_offline.py`) runs a mock calculator and makes
 the runner's HTTP calls fail. MLIP backends download checkpoints on first use,
 so an air-gapped cluster needs a one-time connected pre-fetch
-([hpc/slurm/README.md](../hpc/slurm/README.md)). Telemetry is off unless
+([hpc/slurm/README.md](https://github.com/alexwelcing/lupine-rhizo/blob/main/hpc/slurm/README.md)). Telemetry is off unless
 `LUPINE_OTEL_ENABLED` is set. The Apptainer container has not yet been built on
 a facility cluster.
 
@@ -118,7 +118,7 @@ a facility cluster.
 Our rule: an amendment written after any outcome has been seen is labelled
 outcome-dependent, and the original gate's verdict is reported next to the
 amended one. Example: amendment 01 to the Z1 sparse-DFT pilot
-([amendment](plans/2026-07-21-sparse-dft-pilot-amendment-01.md)) moved the
+([amendment](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/plans/2026-07-21-sparse-dft-pilot-amendment-01.md)) moved the
 primary gate to a same-engine comparison after path 7 had failed the original
 40 meV gate (118.8 meV). The result is reported as a same-engine
 self-consistency check, with the VASP-referenced error (693.0–705.7 meV MAE)
@@ -136,7 +136,7 @@ This is a written rule, not a CI check.
 
 ## Automation that can change this repository
 
-[`glim-think-evolver.yml`](../.github/workflows/glim-think-evolver.yml) is a
+[`glim-think-evolver.yml`](https://github.com/alexwelcing/lupine-rhizo/blob/main/.github/workflows/glim-think-evolver.yml) is a
 prompt A/B workflow that runs weekly and on demand. By default it is disarmed and
 runs plan-only: it writes, commits and opens nothing. When a repository
 variable arms it, it can commit a prompt change under `glim-think/src/registry/`

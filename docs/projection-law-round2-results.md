@@ -5,7 +5,7 @@
 > Its "Not yet evaluated" and "Now evaluable" rows below are out of date. The
 > evaluated outcomes, reported in
 > [ProjectionLaw_Round2.md §4.2](https://github.com/alexwelcing/lupine/blob/main/paper2/ProjectionLaw_Round2.md)
-> and the [TMS proceedings manuscript](../paper/tms2027-proceedings/manuscript.tex):
+> and the [TMS proceedings manuscript](https://github.com/alexwelcing/lupine-rhizo/blob/main/paper/tms2027-proceedings/manuscript.tex):
 > **H1 and H2a failed** (kill conditions triggered: 3d/4d functional-clustering
 > effect −0.14, permutation p = 0.13); **H2b** was not killed but its cosine was
 > 0.53 against the registered 0.8; **H4** passed on MAE/MSE but conformal coverage
