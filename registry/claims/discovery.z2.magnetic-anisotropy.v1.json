@@ -18,10 +18,10 @@
   "classification": {
     "assurance": "unsupported",
     "intent": "confirmatory",
-    "outcome": "inconclusive",
+    "outcome": "pending",
     "strength": "predictive"
   },
-  "content_hash": "sha256:7826f4994dc49a724763197e2ab68caa1b3df00ad96bb622bc4eb40e7a655ace",
+  "content_hash": "sha256:5363b28a62ac405e2b65378b6a891718aa4fe19504143e0ddc0b4d9f1f54cafd",
   "excluded_scope": [
     "Materials outside the locked seven-material Tiwari/C2DB reference panel",
     "Spin models other than the frozen nearest-neighbour J and B/J analytical fits",

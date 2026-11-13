@@ -16,8 +16,13 @@ This directory holds the machine-readable claim registry:
 A status change in `assumptions.v1.json` (or in the locked ontology) must arrive
 with an EvidenceBundle hash that did not exist before
 ([`tools/check_status_evidence.py`](../tools/check_status_evidence.py), run on
-pull requests). That check does not read `claims/*.json` directly; edits to a
-ClaimContract's statement or classification are reviewed like any other change.
+pull requests). That check does not read `claims/*.json` directly, but the rule in
+[`AGENTS.md`](../AGENTS.md) still applies to them: a ClaimContract's
+`classification.outcome` or `classification.assurance` changes only together with
+a new EvidenceBundle (bound through
+[`tools/ingest_campaign_results.py`](../tools/ingest_campaign_results.py)), never
+by hand. A statement or scope edit that narrows a contract without changing its
+classification is reviewed like any other change.
 
 The registry's words are machine states. They are not the words we use in public.
 Public result statuses are the ones in the
@@ -31,7 +36,7 @@ procedure above.
 
 | Registry value | Public status | Notes |
 |---|---|---|
-| `pending` | Open | Registered, not yet tested. |
+| `pending` | Open | Registered, not yet tested. Exception: the Round-4 Z2 record (`discovery.z2.magnetic-anisotropy.v1`) stays `pending` although the public status is Abstained, because no EvidenceBundle records the abstention; it stays `pending` until an evidence-bound transition is recorded. |
 | `supported` | Supported | Only within the contract's statement and `excluded_scope`; carry its qualifiers wherever the number appears. |
 | `partially_supported` | Open | Say which part held and which did not. |
 | `inconclusive` | Abstained, or Open | Abstained when the registered rule declined to issue a verdict (for example, no available model had the physics the test needed); Open otherwise. |
@@ -70,7 +75,7 @@ Abstained.
 | Contract | Registry state | Public status |
 |---|---|---|
 | `correction.same_class.a0.v1` | outcome `supported`, assurance `active` (Round-3 confirmatory bundle) | Round 3 a0 improvement held within its scope; Round 4 did not replicate it (a0 not significant in either group) and the correction rounds are recorded as Failed in the ledger. Not a public correction scope. The Round-4 measurement rows for this contract (`data/candidates/round4/measurements.jsonl`, `epistemic_status: negative`) have not been ingested into the registry. |
-| `discovery.z2.magnetic-anisotropy.v1` | outcome `inconclusive`, assurance `unsupported` | Abstained (Round 4 Z2). |
+| `discovery.z2.magnetic-anisotropy.v1` | outcome `pending`, assurance `unsupported` (no bundles) | Abstained (Round 4 Z2). The four abstention rows (`data/candidates/z2/measurements.jsonl`, `epistemic_status: unsupported`, `sample_count: 0`) carry no run, artifact or claim predicate, and the ingester admits Z2 evidence only as a complete 7/7 SOC/Tc aggregate, so there is no EvidenceBundle to bind. The registry outcome stays `pending` until an evidence-bound transition is recorded. |
 | `barrier.accuracy.z1.v1`, `discovery.z1.barrier-accuracy.v1` | `contradicted` / `withdrawn` | Failed. |
 | `discovery.z3.adsorption-accuracy.v1` | `contradicted` / `withdrawn` | Failed. |
 | `correction.b0.v1` | `withdrawn` / `withdrawn` | Withdrawn; B0 correction is denied for every class. |
