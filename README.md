@@ -7,7 +7,7 @@ verdict, failures included.
 ## What is here
 
 - **Scoring engines** in Rust and Python (`distill/`, `python/`).
-- **Benchmark runners** for the cloud and for your own cluster (`gcp/`, `hpc/`).
+- **Benchmark runners** for the cloud and an offline cluster lane (`gcp/`, `hpc/`); the container has not yet been built on a facility cluster.
 - **Evidence:** preregistered campaigns, the claim registry and run records
   (`campaigns/`, `registry/`, `evidence/`).
 - **Lean checks** of the arithmetic behind published numbers; they do not check the
