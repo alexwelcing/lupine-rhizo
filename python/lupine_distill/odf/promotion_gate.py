@@ -26,19 +26,21 @@ A missing/empty formal field downgrades an otherwise-promotable model to
 The decision is returned as an immutable, structured value with reasons.
 
 Design notes:
-  - Immutable: inputs are validated into frozen pydantic models; the decision
-    is a frozen dataclass. Nothing is mutated in place.
+  - Each evaluation validates a detached snapshot of the candidate: frozen
+    pydantic models can still contain mutable lists. The decision is a frozen
+    dataclass, and the caller's input is never mutated in place.
   - Boundary validation: untrusted candidate metadata is validated via
     :func:`evaluate_promotion` before any logic runs.
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from lupine_distill.odf.field_certificates import check_ranking_pair
 
@@ -64,7 +66,7 @@ class CandidateMetadata(BaseModel):
     composite); the two list fields carry the ATLAS formal contract.
     """
 
-    model_config = ConfigDict(frozen=True, extra="ignore")
+    model_config = ConfigDict(frozen=True, extra="ignore", allow_inf_nan=False)
 
     model_id: str = Field(..., min_length=1)
     distill_version: int = Field(..., ge=0)
@@ -97,6 +99,20 @@ class CandidateMetadata(BaseModel):
             "promotion decision."
         ),
     )
+
+    @model_validator(mode="after")
+    def validate_ranking_evidence(self) -> CandidateMetadata:
+        """Omitted rankings are optional; supplied rankings must be assessable."""
+        ref, mod = self.reference_ranking, self.model_ranking
+        if ref is None and mod is None:
+            return self
+        if ref is None or mod is None:
+            raise ValueError("reference_ranking and model_ranking must be supplied together")
+        if len(ref) != len(mod):
+            raise ValueError("reference_ranking and model_ranking must have equal length")
+        if len(ref) < 2:
+            raise ValueError("ranking evidence requires at least two ranked materials")
+        return self
 
 
 @dataclass(frozen=True)
@@ -142,7 +158,7 @@ def _uplift_band(uplift_pct: float | None) -> tuple[PromotionDecision, str]:
 
 
 def evaluate(candidate: CandidateMetadata) -> GateResult:
-    """Run the formal-verification promotion gate on validated metadata.
+    """Run the gate on a freshly validated value snapshot of the metadata.
 
     Logic:
       1. Classify the uplift score into promote / review / reject.
@@ -153,6 +169,14 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
            downgrade to ``reject`` (cannot promote unverified, marginal model).
          - A ``reject`` uplift band stays ``reject``.
     """
+    # Do not validate the model instance directly: Pydantic may reuse it,
+    # leaving list edits made after construction unchecked. model_dump copies
+    # the contained values so validation and evaluation use one detached view.
+    try:
+        candidate = CandidateMetadata.model_validate(candidate.model_dump(mode="python"))
+    except ValidationError as exc:
+        raise ValueError(f"Invalid promotion candidate metadata: {exc}") from exc
+
     reasons: list[str] = []
     uplift = candidate.overall_uplift_pct
     band_decision, band_label = _uplift_band(uplift)
@@ -262,11 +286,11 @@ def evaluate(candidate: CandidateMetadata) -> GateResult:
     )
 
 
-def evaluate_promotion(metadata: Mapping[str, Any]) -> GateResult:
+def evaluate_promotion(metadata: Mapping[str, Any] | CandidateMetadata) -> GateResult:
     """Boundary entry point: validate raw candidate metadata, then evaluate.
 
-    Accepts an untrusted mapping (e.g. parsed JSON from a benchmark run),
-    validates it into :class:`CandidateMetadata`, and runs the gate.
+    Accepts an untrusted mapping (e.g. parsed JSON from a benchmark run) or a
+    typed candidate, validates its current values, and runs the gate.
 
     Raises:
         ValueError: if the metadata fails validation (wraps pydantic's

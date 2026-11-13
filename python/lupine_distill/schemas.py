@@ -36,13 +36,13 @@ class BenchmarkMetrics(BaseModel):
     means "this benchmark does not produce this metric", not "zero".
     """
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
     # Accuracy vs DFT reference (lower is better).
-    mae_energy: float | None = Field(default=None, description="MAE energy, eV/atom")
-    mae_forces: float | None = Field(default=None, description="MAE forces, eV/Ang")
-    mae_stress: float | None = Field(default=None, description="MAE stress, GPa")
-    rmse_energy: float | None = Field(default=None, description="RMSE energy, eV/atom")
+    mae_energy: float | None = Field(default=None, ge=0.0, description="MAE energy, eV/atom")
+    mae_forces: float | None = Field(default=None, ge=0.0, description="MAE forces, eV/Ang")
+    mae_stress: float | None = Field(default=None, ge=0.0, description="MAE stress, GPa")
+    rmse_energy: float | None = Field(default=None, ge=0.0, description="RMSE energy, eV/atom")
 
     # Dynamics stability (lower drift is better; closer-to-target temp is better).
     energy_drift: float | None = Field(default=None, description="Energy drift, eV/atom/ps")
@@ -61,7 +61,7 @@ class BenchmarkMetrics(BaseModel):
 class BenchmarkResult(BaseModel):
     """A full benchmark-suite run for one (model, distill version, backend)."""
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
     model_id: str = Field(..., min_length=1)
     distill_version: int = Field(..., ge=0, description="0 == teacher baseline")

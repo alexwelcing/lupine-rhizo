@@ -1,0 +1,112 @@
+import {it,expect} from 'vitest';
+import {mkdtempSync,writeFileSync,readFileSync,existsSync,mkdirSync,symlinkSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
+import {CodingRunnerCore,READ_ARTIFACT,SHALLOW_CHECKOUT,type RunnerStore,type RunnerProcess,type RunnerDependencies} from '../runner-core';
+import {canonical,sha256,parseCodingTask,RUNNER_LIMITS,publicCodingState,type CodingTask,type CodingState} from '../runner-contract';
+import {codingFetch} from '../runner-http';import type {CodingRunnerEnv} from '../runner-worker';
+const enc=new TextEncoder(),bytes=(s:string)=>enc.encode(s);
+const stream=(b:Uint8Array|string)=>new ReadableStream<Uint8Array>({start(c){c.enqueue(typeof b==='string'?bytes(b):b);c.close();}});
+const process=(out='',err='',exit=0):RunnerProcess=>({stdout:stream(out),stderr:stream(err),exitCode:Promise.resolve(exit)});
+const deferred=<T>()=>{let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {promise,resolve};};
+class Store implements RunnerStore {
+ value:unknown;alarm:number|null=null;failIntent=false;private queue=Promise.resolve();
+ async get<T>(_k:string){return this.value===undefined?undefined:structuredClone(this.value) as T;}
+ async put<T>(_k:string,v:T){if(this.failIntent&&(v as CodingState).terminalIntent){this.failIntent=false;throw Error('storage fault');}this.value=structuredClone(v);}
+ async setAlarm(at:number){this.alarm=at;}async deleteAlarm(){this.alarm=null;}
+ transaction<T>(fn:(tx:RunnerStore)=>Promise<T>):Promise<T>{const result=this.queue.then(()=>fn(this));this.queue=result.then(()=>{},()=>{});return result;}
+}
+async function fixture(){
+ const store=new Store(),source=bytes('bundle fixture'),hash=await sha256(source);
+ const task:CodingTask={schema:'lupine.coding-task.v1',taskId:'coding-task-1',attemptId:'attempt-1',repository:{owner:'alexwelcing',name:'lupine-rhizo',commit:'a'.repeat(40)},source:{kind:'git-bundle',artifactKey:`sources/${hash}.bundle`,sha256:hash,bytes:source.length},mode:'code-execution',command:'printf done',timeoutSeconds:30,enableInternet:true,artifactPaths:['result.txt']};
+ const blobs=new Map<string,Uint8Array>([[task.source.artifactKey,source]]),events:string[]=[],receipts:string[]=[];
+ let clock=1000000,execs=0,starts=0,destroys=0,command:(()=>Promise<RunnerProcess>)|null=null,put:((k:string)=>Promise<void>)|null=null,corrupt=false,lost=false,deny=false,hang=false;
+ const deps:RunnerDependencies={store,now:()=>clock,cleanupTimeoutMs:10,
+ blobs:{async get(k){const b=blobs.get(k);return b?{body:stream(corrupt&&k.startsWith('runs/')?new Uint8Array(b.length):b),size:b.length}:null;},async put(k,b){events.push('put:'+k);if(put)await put(k);if(!blobs.has(k))blobs.set(k,b.slice());}},
+ container:{running:false,start(){starts++;events.push('start');this.running=true;},async setInactivityTimeout(){},async destroy(){destroys++;events.push('destroy');if(hang)return new Promise(()=>{});this.running=false;},async exec(args,opts){execs++;events.push('exec');expect(opts.env).not.toHaveProperty('RUNNER_OPERATOR_TOKEN');expect(opts.user).toBe('0:0');
+ if(args.includes('bootstrap'))return process(JSON.stringify({osRelease:'Debian fixture',versions:'git fixture'}));
+ if(args.includes(task.source.sha256)){const data=new Uint8Array(await new Response(opts.stdin!).arrayBuffer());expect(await sha256(data)).toBe(task.source.sha256);return process('source-verified\n');}
+ if(args.includes('checkout'))return process(task.repository.commit+'\n');
+ if(args[0]==='/usr/bin/timeout')return command?command():process('done\n');return process('exact artifact');}},
+ async admit(){events.push('admit');expect((await store.get<CodingState>('attempt'))?.status).toBe('preparing');if(deny)throw Error('ledger unavailable');return {admission:'created'};},
+ async terminal(input){events.push('terminal');expect(input.evidenceVerified).toBe(true);expect(await sha256(blobs.get(input.evidence!.artifactKey)!)).toBe(input.receiptSha256);receipts.push(input.receiptJson);if(lost){lost=false;throw Error('lost ack');}}};
+ return {store,task,deps,core:new CodingRunnerCore(deps),blobs,events,receipts,get execs(){return execs;},get starts(){return starts;},get destroys(){return destroys;},setCommand(fn:()=>Promise<RunnerProcess>){command=fn;},setPut(fn:(k:string)=>Promise<void>){put=fn;},corrupt(){corrupt=true;},loseLedger(){lost=true;},deny(){deny=true;},hang(){hang=true;},advance(){clock+=100000000;}};
+}
+const until=async(fn:()=>boolean)=>{for(let i=0;i<200&&!fn();i++)await new Promise(r=>setTimeout(r,1));expect(fn()).toBe(true);};
+it('persists claim before start and byte-verifies artifacts before cleaned terminal settlement',async()=>{const f=await fixture();expect((await f.core.submit(f.task,'runner')).created).toBe(true);expect(f.starts).toBe(0);await f.core.run();const s=await f.core.status();expect(s?.status).toBe('succeeded');expect(s?.ledgerRecorded).toBe(true);expect(s?.cleanupConfirmed).toBe(true);expect(s?.executionExitCode).toBe(0);expect(s?.evidence.map(x=>x.kind)).toEqual(['bootstrap','source-receive-stdout','source-receive-stderr','source-receive','checkout-stdout','checkout-stderr','checkout','stdout','stderr','artifact']);expect(f.events.indexOf('admit')).toBeLessThan(f.events.indexOf('start'));expect(f.events.lastIndexOf('destroy')).toBeLessThan(f.events.indexOf('terminal'));expect(f.receipts[0]).not.toContain(f.task.command);});
+it('concurrent admissions, reconstruction and duplicate run never replay code',async()=>{const f=await fixture(),other=new CodingRunnerCore(f.deps);const a=await Promise.all([f.core.submit(f.task,'runner'),other.submit(f.task,'runner')]);expect(a.filter(x=>x.created)).toHaveLength(1);await Promise.all([f.core.run(),other.run()]);expect(f.starts).toBe(1);expect((await other.submit(f.task,'runner')).created).toBe(false);await other.run();expect(f.starts).toBe(1);await expect(other.submit({...f.task,command:'different'},'runner')).rejects.toThrow('conflict');});
+it('metadata GET equivalent never starts or execs a guest',async()=>{const f=await fixture();expect(await f.core.status()).toBeNull();await f.core.submit(f.task,'runner');expect((await new CodingRunnerCore(f.deps).status())?.status).toBe('claimed');expect(f.starts).toBe(0);expect(f.execs).toBe(0);});
+it('uncertain ledger admission stops before guest start',async()=>{const f=await fixture();f.deny();await f.core.submit(f.task,'runner');await f.core.run();expect(f.starts).toBe(0);expect((await f.core.status())?.status).toBe('unknown');});
+it('unknown command dispatch never replays and does not claim cleanup',async()=>{const f=await fixture();f.setCommand(async()=>{throw Error('lost exec ack');});await f.core.submit(f.task,'runner');await f.core.run();expect((await f.core.status())?.status).toBe('unknown');expect((await f.core.status())?.cleanupConfirmed).toBe(false);const n=f.execs;const fresh=new CodingRunnerCore(f.deps);await fresh.submit(f.task,'runner');await fresh.run();expect(f.execs).toBe(n);});
+it('corrupt private archive readback prevents settled success',async()=>{const f=await fixture();f.corrupt();await f.core.submit(f.task,'runner');await f.core.run();expect((await f.core.status())?.status).toBe('unknown');expect(f.receipts).toHaveLength(0);});
+it('lost terminal ack reconciles the identical frozen receipt without exec',async()=>{const f=await fixture();f.loseLedger();await f.core.submit(f.task,'runner');await f.core.run();expect((await f.core.status())?.status).toBe('unknown');const n=f.execs,first=f.receipts[0];await new CodingRunnerCore(f.deps).reconcileTerminal();expect((await f.core.status())?.status).toBe('succeeded');expect(f.execs).toBe(n);expect(f.receipts).toEqual([first,first]);});
+it('late exec acknowledgement cannot claim clean terminal or mutate snapshot',async()=>{const f=await fixture(),late=deferred<RunnerProcess>();f.setCommand(()=>late.promise);await f.core.submit(f.task,'runner');const run=f.core.run();await until(()=>f.execs===4);f.advance();await f.core.alarm();const frozen=canonical(await f.core.status());expect((await f.core.status())?.cleanupConfirmed).toBe(false);late.resolve(process('late'));await run;await new Promise(r=>setTimeout(r,5));expect(canonical(await f.core.status())).toBe(frozen);expect(f.destroys).toBeGreaterThanOrEqual(2);});
+it('late blob write cannot append to frozen terminal evidence',async()=>{const f=await fixture(),late=deferred<void>();let held=false;f.setPut(async k=>{if(k.includes('/stdout/')){held=true;await late.promise;}});await f.core.submit(f.task,'runner');const run=f.core.run();await until(()=>held);f.advance();await f.core.alarm();const frozen=canonical(await f.core.status());late.resolve();await run;expect(canonical(await f.core.status())).toBe(frozen);expect((await f.core.status())?.status).toBe('unknown');});
+it('hanging destruction is bounded and never called confirmed',async()=>{const f=await fixture();f.hang();await f.core.submit(f.task,'runner');await f.core.run();expect((await f.core.status())?.cleanupConfirmed).toBe(false);expect((await f.core.status())?.status).toBe('unknown');});
+it('output limit stops guest and retains bounded raw output',async()=>{const f=await fixture();f.setCommand(async()=>process('x'.repeat(RUNNER_LIMITS.logBytes+1)));await f.core.submit(f.task,'runner');await f.core.run();const s=await f.core.status();expect(s?.status).toBe('unknown');expect(s?.evidence.find(x=>x.kind==='stdout')?.bytes).toBe(RUNNER_LIMITS.logBytes);expect(f.destroys).toBeGreaterThan(0);});
+it('transient pre-intent storage failure can finalize via alarm with no execution replay',async()=>{const f=await fixture();f.store.failIntent=true;await f.core.submit(f.task,'runner');await expect(f.core.run()).rejects.toThrow('storage fault');expect((await f.core.status())?.status).toBe('finalizing');const n=f.execs;f.advance();await f.core.alarm();expect((await f.core.status())?.status).toBe('unknown');expect((await f.core.status())?.terminalIntent).not.toBeNull();expect(f.execs).toBe(n);});
+it('rejects unqualified model mode, traversal, arbitrary source key and extra credentials',async()=>{const f=await fixture();for(const t of [{...f.task,mode:'dsh'},{...f.task,artifactPaths:['../secret']},{...f.task,source:{...f.task.source,artifactKey:'secret'}},{...f.task,apiKey:'x'}])expect(()=>parseCodingTask(t)).toThrow();});
+it('actual fixed Python reader rejects symlinks and oversize, preserves ordinary bytes',()=>{const root=mkdtempSync(join(tmpdir(),'coding-reader-'));try{mkdirSync(join(root,'repo'));writeFileSync(join(root,'repo','ok'),'exact');writeFileSync(join(root,'outside'),'private');symlinkSync(join(root,'outside'),join(root,'repo','escape'));const script=READ_ARTIFACT.replace("'/workspace/repo'",JSON.stringify(join(root,'repo')));expect(execFileSync('python3',['-I','-c',script,'ok','32']).toString()).toBe('exact');expect(()=>execFileSync('python3',['-I','-c',script,'escape','32'],{stdio:'pipe'})).toThrow();expect(()=>execFileSync('python3',['-I','-c',script,'ok','2'],{stdio:'pipe'})).toThrow();}finally{rmSync(root,{recursive:true,force:true});}});
+async function httpFixture(){const f=await fixture();let calls=0;const env={RUNNER_OPERATOR_TOKEN:'a'.repeat(48),CODING_RUNNER:{getByName(){calls++;return {submit:async()=>({created:true,attempt:{status:'claimed'}}),status:async()=>({status:'succeeded'}),reconcile:async()=>({status:'succeeded'}),evidence:async()=>new Response('private')};}}} as unknown as CodingRunnerEnv;return {f,env,get calls(){return calls;}};}
+it('auth denies anonymous/cross-origin before DO lookup',async()=>{const h=await httpFixture();expect((await codingFetch(new Request('https://runner.test/coding/tasks'),h.env)).status).toBe(403);expect((await codingFetch(new Request('https://runner.test/coding/tasks',{headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN,Origin:'https://other.test'}}),h.env)).status).toBe(403);expect(h.calls).toBe(0);});
+it('auth accepts fixed bounded operator task; metadata response is no-store',async()=>{const h=await httpFixture();const response=await codingFetch(new Request('https://runner.test/coding/tasks',{method:'POST',headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN,'Content-Type':'application/json'},body:JSON.stringify(h.f.task)}),h.env);expect(response.status).toBe(202);expect(response.headers.get('Cache-Control')).toBe('private, no-store');expect((await codingFetch(new Request('https://runner.test/coding/tasks/attempt-1',{headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN}}),h.env)).status).toBe(200);expect(h.calls).toBe(2);});
+it('oversize and unqualified HTTP requests never reach a durable object',async()=>{const h=await httpFixture();for(const body of [' '.repeat(25000),JSON.stringify({...h.f.task,mode:'dsh'})]){const r=await codingFetch(new Request('https://runner.test/coding/tasks',{method:'POST',headers:{Authorization:'Bearer '+h.env.RUNNER_OPERATOR_TOKEN,'Content-Type':'application/json'},body}),h.env);expect([400,413]).toContain(r.status);}expect(h.calls).toBe(0);});
+
+it('source-receive rejection archives exact binary streams and exit metadata before fixed failure',async()=>{
+ const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container),raw=new Uint8Array([255,0,10,128]);
+ f.deps.container.exec=async(args,options)=>{const result=await original(args,options);return args.includes(f.task.source.sha256)?{stdout:stream(raw),stderr:stream('fixture source rejection'),exitCode:Promise.resolve(7)}:result;};
+ await f.core.submit(f.task,'runner');await f.core.run();const state=(await f.core.status())!;
+ expect(state.status).toBe('failed');expect(state.reason).toBe('source-receive-failed');expect(state.setupStage).toBe('source-receive');expect(state.executionStarted).toBe(false);expect(state.executionExitCode).toBeNull();expect(state.cleanupConfirmed&&state.ledgerRecorded).toBe(true);expect(f.execs).toBe(2);
+ const stdout=state.evidence.find(r=>r.kind==='source-receive-stdout')!,stderr=state.evidence.find(r=>r.kind==='source-receive-stderr')!,detail=state.evidence.find(r=>r.kind==='source-receive')!;
+ expect(f.blobs.get(stdout.artifactKey)).toEqual(raw);expect(stdout.sha256).toBe(await sha256(raw));expect(f.blobs.get(stderr.artifactKey)).toEqual(bytes('fixture source rejection'));
+ expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey)))).toEqual({schema:'lupine.coding-setup-stage.v1',stage:'source-receive',exitCode:7,incomplete:false,stdout,stderr,streamByteLimit:RUNNER_LIMITS.logBytes});
+ expect(JSON.stringify(publicCodingState(state))).not.toContain('fixture source rejection');expect(JSON.parse(f.receipts[0]).evidence).toEqual(state.evidence);
+});
+it('checkout rejection retains stage diagnostics and never reopens immutable failed attempt',async()=>{
+ const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container);
+ f.deps.container.exec=async(args,options)=>{const result=await original(args,options);return args.includes('checkout')?process('','fixture missing parent',128):result;};
+ await f.core.submit(f.task,'runner');await f.core.run();const state=(await f.core.status())!;
+ expect(state.status).toBe('failed');expect(state.reason).toBe('checkout-failed');expect(state.executionStarted).toBe(false);expect(f.execs).toBe(3);
+ const detail=state.evidence.find(r=>r.kind==='checkout')!,stderr=state.evidence.find(r=>r.kind==='checkout-stderr')!;
+ expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey)))).toMatchObject({stage:'checkout',exitCode:128,incomplete:false});expect(stderr.sha256).toBe(await sha256('fixture missing parent'));
+ const frozen=canonical(state),other=new CodingRunnerCore(f.deps);expect((await other.submit(f.task,'runner')).created).toBe(false);await other.run();await other.alarm();expect(canonical(await other.status())).toBe(frozen);expect(f.execs).toBe(3);
+});
+it('setup diagnostic output is capped and its incomplete flag prevents command execution',async()=>{
+ const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container);
+ f.deps.container.exec=async(args,options)=>{const result=await original(args,options);return args.includes(f.task.source.sha256)?process('source-verified\n','x'.repeat(RUNNER_LIMITS.logBytes+1)):result;};
+ await f.core.submit(f.task,'runner');await f.core.run();const state=(await f.core.status())!;
+ expect(state.executionStarted).toBe(false);expect(f.execs).toBe(2);expect(state.reason).toBe('source-receive-failed');
+ const stderr=state.evidence.find(r=>r.kind==='source-receive-stderr')!,detail=state.evidence.find(r=>r.kind==='source-receive')!;
+ expect(stderr.bytes).toBe(RUNNER_LIMITS.logBytes);expect(f.blobs.get(stderr.artifactKey)?.length).toBe(RUNNER_LIMITS.logBytes);expect(JSON.parse(new TextDecoder().decode(f.blobs.get(detail.artifactKey))).incomplete).toBe(true);
+});
+
+it('shallow source is explicitly versioned and cannot alter ordinary bundle identity',async()=>{
+ const f=await fixture(),shallow={...f.task,source:{...f.task.source,kind:'git-shallow-bundle-v1',boundaryCommit:f.task.repository.commit}};
+ expect(parseCodingTask(shallow).source).toEqual(shallow.source);expect(await sha256(canonical(shallow))).not.toBe(await sha256(canonical(f.task)));
+ for(const source of [{...shallow.source,boundaryCommit:'b'.repeat(40)},{...shallow.source,boundaryCommit:undefined},{...shallow.source,kind:'git-bundle'},{...f.task.source,kind:'git-shallow-bundle-v1'},{...shallow.source,boundaries:[f.task.repository.commit]}])expect(()=>parseCodingTask({...f.task,source})).toThrow();
+ await f.core.submit(f.task,'runner');await expect(f.core.submit(shallow,'runner')).rejects.toThrow('conflict');expect(f.starts).toBe(0);
+});
+it('only an explicit shallow source selects the shallow import script',async()=>{
+ for(const shallow of [false,true]){const f=await fixture(),original=f.deps.container.exec.bind(f.deps.container);let checkout:string[]=[];
+ f.deps.container.exec=async(args,options)=>{if(args.includes('checkout'))checkout=args;return original(args,options);};
+ const task=shallow?{...f.task,source:{...f.task.source,kind:'git-shallow-bundle-v1' as const,boundaryCommit:f.task.repository.commit}}:f.task;
+ await f.core.submit(task,'runner');await f.core.run();expect((await f.core.status())?.status).toBe('succeeded');expect(checkout.includes(SHALLOW_CHECKOUT)).toBe(shallow);
+ if(shallow)expect(checkout.slice(4)).toEqual([task.repository.commit,task.repository.commit,'/run/lupine-coding/source.bundle','/workspace/repo']);else expect(checkout[2]).toContain('clone --quiet --no-checkout');
+ }
+});
+function tinyBundle(){
+ const root=mkdtempSync(join(tmpdir(),'coding-shallow-')),full=join(root,'full'),shallow=join(root,'shallow'),bundle=join(root,'source.bundle');mkdirSync(full);
+ const env={PATH:globalThis.process.env.PATH,HOME:root,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_AUTHOR_NAME:'Synthetic test',GIT_AUTHOR_EMAIL:'fixture@example.invalid',GIT_COMMITTER_NAME:'Synthetic test',GIT_COMMITTER_EMAIL:'fixture@example.invalid',GIT_AUTHOR_DATE:'2001-01-01T00:00:00Z',GIT_COMMITTER_DATE:'2001-01-01T00:00:00Z'};
+ const git=(cwd:string,args:string[],input?:string)=>execFileSync('git',['-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false',...args],{cwd,env,input,stdio:['pipe','pipe','pipe']});
+ try{git(full,['init','--quiet']);writeFileSync(join(full,'small.txt'),'first\n');git(full,['add','small.txt']);git(full,['commit','--quiet','-m','first']);const parent=git(full,['rev-parse','HEAD']).toString().trim();writeFileSync(join(full,'small.txt'),'second exact bytes\n');git(full,['add','small.txt']);git(full,['commit','--quiet','-m','second']);const head=git(full,['rev-parse','HEAD']).toString().trim(),tree=git(full,['rev-parse','HEAD^{tree}']).toString().trim();git(root,['clone','--quiet','--depth=1','file://'+full,shallow]);git(shallow,['bundle','create',bundle,'HEAD']);return {root,full,bundle,head,tree,parent,env,git};}catch(error){rmSync(root,{recursive:true,force:true});throw error;}
+}
+it('actual tiny Git shallow import preserves exact commit/tree/bytes and verifies the declared boundary',()=>{
+ const f=tinyBundle();try{const destination=join(f.root,'imported');const result=execFileSync('/bin/sh',['-c',SHALLOW_CHECKOUT,'checkout',f.head,f.head,f.bundle,destination],{env:f.env,stdio:['pipe','pipe','pipe']});
+ expect(result.toString()).toBe(f.head+'\n');expect(f.git(destination,['rev-parse','HEAD^{tree}']).toString().trim()).toBe(f.tree);expect(readFileSync(join(destination,'small.txt'),'utf8')).toBe('second exact bytes\n');expect(f.git(destination,['rev-parse','--is-shallow-repository']).toString().trim()).toBe('true');expect(f.git(destination,['rev-list','--count','HEAD']).toString().trim()).toBe('1');expect(f.git(destination,['cat-file','-p','HEAD']).toString()).toContain('parent '+f.parent);expect(()=>f.git(destination,['cat-file','-e',f.parent+'^{commit}'])).toThrow();expect(()=>f.git(destination,['fsck','--strict','--no-reflogs'])).not.toThrow();
+ const wrong=join(f.root,'wrong');expect(()=>execFileSync('/bin/sh',['-c',SHALLOW_CHECKOUT,'checkout',f.head,f.parent,f.bundle,wrong],{env:f.env,stdio:'pipe'})).toThrow();expect(existsSync(wrong)).toBe(false);
+ }finally{rmSync(f.root,{recursive:true,force:true});}
+});
+it('strict shallow import rejects a valid pack missing a current-tree blob',()=>{
+ const f=tinyBundle();try{const pack=f.git(f.full,['pack-objects','--stdout'],f.head+'\n'+f.tree+'\n'),broken=join(f.root,'missing-blob.bundle'),destination=join(f.root,'broken');writeFileSync(broken,Buffer.concat([Buffer.from('# v2 git bundle\n'+f.head+' HEAD\n\n'),pack]));
+ expect(()=>execFileSync('/bin/sh',['-c',SHALLOW_CHECKOUT,'checkout',f.head,f.head,broken,destination],{env:f.env,stdio:'pipe'})).toThrow();
+ }finally{rmSync(f.root,{recursive:true,force:true});}
+});

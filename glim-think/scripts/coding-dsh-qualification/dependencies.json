@@ -1,0 +1,15 @@
+{
+  "name": "lupine-dsh-scripted-qualification-dependencies",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.2.1-rc.3",
+    "esbuild": "0.28.2",
+    "proper-lockfile": "4.1.2",
+    "zod": "4.4.3",
+    "@deepseek-ai/dsh-scope": "0.2.1-rc.3",
+    "@deepseek-ai/dsh-sandbox": "0.2.1-rc.3",
+    "@deepseek-ai/dsh-session-persistence": "0.2.1-rc.3"
+  }
+}

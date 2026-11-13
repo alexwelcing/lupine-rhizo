@@ -3,7 +3,7 @@
  *
  * The Evolver (evals/evolver.ts) auto-merges prompt/criteria variants on
  * green. This is the safety net: it compares the two most recent
- * ModelScorecard claims and fails CI if any model's mean pass-rate dropped
+ * ModelScorecard claims and signals a regression if any model's mean pass-rate dropped
  * more than the threshold. With AUTO_REVERT=1, a detected regression also
  * reverts the most recent `evolver:auto` commit — but only if that commit
  * is confined to the Evolver's allowlist (glim-think/src/registry/), never
@@ -11,7 +11,18 @@
  *
  * Usage:
  *   npx tsx evals/regression-gate.ts [--threshold 0.10] [--dry-run]
- *                                    [--seed-regression]
+ *                                    [--seed-regression] [--min-samples 20]
+ *
+ * Exit 0 = comparable evidence passed; 1 = measured quality regression;
+ * 2 = insufficient/invalid/unavailable evidence (never auto-reverted). The
+ * caller keeps its advisory continue-on-error policy separately. A minimum
+ * sample count defaults to 1 (nonempty measured evidence), preserving the
+ * emitter's variable per-model sample sizes. Configure a higher policy floor
+ * with --min-samples or EVAL_REGRESSION_MIN_SAMPLES; this is not a statistical
+ * significance test. Unequal sample counts above the floor are allowed.
+ * The A/B oracle also emits ModelScorecard claims but supplies mean_score,
+ * not pass_rate. Those claims are INSUFFICIENT here: a mean judge score is
+ * not a measured pass rate, and incompatible recent claims are not skipped.
  *
  * Sources scorecards from the worker's public /feed/recent-claims (no new
  * endpoint, no secrets needed for the read).
@@ -20,11 +31,12 @@ import { execSync } from "node:child_process";
 
 const WORKER_URL =
   process.env.WORKER_URL ?? "https://glim-think-v1.aw-ab5.workers.dev";
-const THRESHOLD = (() => {
-  const i = process.argv.indexOf("--threshold");
-  if (i >= 0 && process.argv[i + 1]) return Number(process.argv[i + 1]);
-  return Number(process.env.EVAL_REGRESSION_THRESHOLD) || 0.1;
-})();
+function numericOption(flag: string, variable: string, fallback: number): number {
+  const index = process.argv.indexOf(flag);
+  return Number(index >= 0 ? process.argv[index + 1] : process.env[variable] ?? fallback);
+}
+const THRESHOLD = numericOption("--threshold", "EVAL_REGRESSION_THRESHOLD", 0.1);
+const MIN_SAMPLES = numericOption("--min-samples", "EVAL_REGRESSION_MIN_SAMPLES", 1);
 const DRY_RUN = process.argv.includes("--dry-run");
 const SEED_REGRESSION = process.argv.includes("--seed-regression");
 const AUTO_REVERT = process.env.AUTO_REVERT === "1";
@@ -32,24 +44,41 @@ const ALLOWLIST_PREFIX = "glim-think/src/registry/";
 
 type Cell = { n: number; pass_rate: number };
 type Scorecard = Record<string, Record<string, Cell>>;
-interface ClaimRow {
-  claim_type?: string;
-  claim_data?: string;
-  created_at?: string;
+
+function object(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
-/** Mean pass-rate per model bucket (skip model|agent, workers-ai, unknown). */
-function modelMeans(sc: Scorecard): Record<string, number> {
-  const out: Record<string, number> = {};
-  for (const [bucket, evs] of Object.entries(sc)) {
-    if (bucket.includes("|") || bucket === "workers-ai" || bucket === "unknown")
-      continue;
-    const cells = Object.values(evs);
-    if (cells.length === 0) continue;
-    out[bucket] =
-      cells.reduce((s, c) => s + (c.pass_rate ?? 0), 0) / cells.length;
+/** Preserve historical model-level scope: agent attributions, workers-ai and
+ * unknown are optional diagnostics, not independent comparison populations. */
+function optionalBucket(bucket: string): boolean {
+  return bucket.includes("|") || bucket === "workers-ai" || bucket === "unknown";
+}
+
+function modelMeans(value: unknown, label: string): {
+  means: Record<string, number>; evaluators: Record<string, string[]>; excluded: string[];
+} {
+  if (!object(value)) throw new Error(`${label}: malformed scorecard`);
+  const means: Record<string, number> = Object.create(null);
+  const evaluators: Record<string, string[]> = Object.create(null);
+  const excluded: string[] = [];
+  for (const [model, row] of Object.entries(value)) {
+    if (optionalBucket(model)) { excluded.push(model); continue; }
+    if (!model.trim() || !object(row) || Object.keys(row).length === 0)
+      throw new Error(`${label}: empty/malformed model row ${model}`);
+    const cells: Cell[] = [];
+    for (const [name, cell] of Object.entries(row)) {
+      if (!name.trim() || !object(cell) || typeof cell.n !== "number" || !Number.isSafeInteger(cell.n)
+          || cell.n < MIN_SAMPLES || typeof cell.pass_rate !== "number" || !Number.isFinite(cell.pass_rate)
+          || cell.pass_rate < 0 || cell.pass_rate > 1)
+        throw new Error(`${label}: invalid or insufficient samples for ${model}/${name} (minimum ${MIN_SAMPLES})`);
+      cells.push({ n: cell.n, pass_rate: cell.pass_rate });
+    }
+    means[model] = cells.reduce((sum, cell) => sum + cell.pass_rate, 0) / cells.length;
+    evaluators[model] = Object.keys(row).sort();
   }
-  return out;
+  if (Object.keys(means).length === 0) throw new Error(`${label}: no eligible model measurements`);
+  return { means, evaluators, excluded };
 }
 
 function summary(lines: string[]): void {
@@ -68,7 +97,7 @@ function summary(lines: string[]): void {
 }
 
 async function fetchScorecards(): Promise<
-  { scorecard: Scorecard; created_at: string }[]
+  { scorecard: unknown; created_at: string }[]
 > {
   if (DRY_RUN) {
     const base: Scorecard = {
@@ -89,26 +118,38 @@ async function fetchScorecards(): Promise<
       { scorecard: base, created_at: "2026-01-01T00:00:00Z" },
     ];
   }
-  const res = await fetch(`${WORKER_URL}/feed/recent-claims`);
+  const res = await fetch(`${WORKER_URL}/feed/recent-claims`, { signal: AbortSignal.timeout(15_000) });
   if (!res.ok) throw new Error(`/feed/recent-claims ${res.status}`);
-  const body = (await res.json()) as ClaimRow[] | { claims?: ClaimRow[] };
-  const rows: ClaimRow[] = Array.isArray(body) ? body : body.claims ?? [];
-  return rows
-    .filter((r) => r.claim_type === "ModelScorecard" && r.claim_data)
-    .map((r) => {
-      try {
-        const d = JSON.parse(r.claim_data as string) as {
-          scorecard?: Scorecard;
-        };
-        return d.scorecard
-          ? { scorecard: d.scorecard, created_at: r.created_at ?? "" }
-          : null;
-      } catch {
-        return null;
-      }
-    })
-    .filter((x): x is { scorecard: Scorecard; created_at: string } => !!x)
-    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  // Bound the read before JSON parsing, including chunked responses.
+  const limit = 1024 * 1024;
+  if (!res.body || Number(res.headers.get("content-length")) > limit) throw new Error("Scorecard response exceeds read limit");
+  const reader = res.body.getReader(); const chunks: Uint8Array[] = []; let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read(); if (done) break;
+      size += value.byteLength;
+      if (size > limit) { await reader.cancel(); throw new Error("Scorecard response exceeds read limit"); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const bytes = new Uint8Array(size); let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+  const body: unknown = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+  const rows = Array.isArray(body) ? body : object(body) && Array.isArray(body.claims) ? body.claims : null;
+  if (!rows || rows.length > 2000) throw new Error("Malformed or oversized claims response");
+  const cards = rows.filter((row): row is Record<string, unknown> => object(row) && row.claim_type === "ModelScorecard");
+  // Unknown dates cannot safely be ordered; do not silently select older evidence.
+  for (const card of cards) {
+    if (typeof card.created_at !== "string" || !Number.isFinite(Date.parse(card.created_at)))
+      throw new Error("ModelScorecard missing a valid recorded date");
+  }
+  cards.sort((a, b) => Date.parse(b.created_at as string) - Date.parse(a.created_at as string));
+  return cards.slice(0, 2).map((card) => {
+    if (typeof card.claim_data !== "string") throw new Error("ModelScorecard missing claim data");
+    const data: unknown = JSON.parse(card.claim_data);
+    if (!object(data) || !("scorecard" in data)) throw new Error("ModelScorecard missing scorecard");
+    return { scorecard: data.scorecard, created_at: card.created_at as string };
+  });
 }
 
 function revertLastEvolverCommit(): void {
@@ -143,17 +184,25 @@ function revertLastEvolverCommit(): void {
 }
 
 async function main(): Promise<void> {
+  if (!Number.isFinite(THRESHOLD) || THRESHOLD < 0 || THRESHOLD > 1
+      || !Number.isSafeInteger(MIN_SAMPLES) || MIN_SAMPLES < 1)
+    throw new Error("Threshold must be in [0,1] and minimum samples a positive integer");
   const cards = await fetchScorecards();
-  if (cards.length < 2) {
-    summary([
-      "## Eval regression gate",
-      "",
-      `Only ${cards.length} ModelScorecard(s) available — need 2 to compare. Pass.`,
-    ]);
-    return;
+  if (cards.length < 2) throw new Error(`Only ${cards.length} ModelScorecard(s); need two comparable measurements`);
+  if (Date.parse(cards[0].created_at) <= Date.parse(cards[1].created_at))
+    throw new Error("Scorecards need distinct ordered recorded dates");
+  const current = modelMeans(cards[0].scorecard, "current");
+  const previous = modelMeans(cards[1].scorecard, "previous");
+  const cur = current.means; const prev = previous.means;
+  const models = Object.keys(cur).sort(); const previousModels = Object.keys(prev).sort();
+  if (JSON.stringify(models) !== JSON.stringify(previousModels))
+    throw new Error("Model coverage changed (removed or new unbaselined models); comparison unavailable");
+  for (const model of models) {
+    if (JSON.stringify(current.evaluators[model]) !== JSON.stringify(previous.evaluators[model]))
+      throw new Error(`Evaluator coverage changed for ${model}; comparison unavailable`);
   }
-  const cur = modelMeans(cards[0].scorecard);
-  const prev = modelMeans(cards[1].scorecard);
+  const excluded = [...new Set([...current.excluded, ...previous.excluded])].sort();
+  if (excluded.length) summary([`Excluded optional buckets (not assessed): ${excluded.join(", ")}`]);
 
   const regressions: string[] = [];
   const rows: string[] = ["| model | prev | cur | Δ |", "|---|---|---|---|"];
@@ -176,7 +225,7 @@ async function main(): Promise<void> {
     summary([
       "## ✅ Eval regression gate — PASS",
       "",
-      `Threshold: ${THRESHOLD}`,
+      `Threshold: ${THRESHOLD}; minimum samples per model/evaluator: ${MIN_SAMPLES}`,
       ...rows,
     ]);
     return;
@@ -195,8 +244,8 @@ async function main(): Promise<void> {
 }
 
 main().catch((e) => {
-  // Infra failure (worker down, etc.) must not silently pass the gate, but
-  // also must not block deploys on a transient — warn and pass non-fatally.
-  summary([`## ⚠️ Eval regression gate — could not evaluate: ${String(e)}`]);
-  process.exit(0);
+  // Missing measurement is distinct from quality regression and never reaches
+  // AUTO_REVERT. Workflow continue-on-error remains the caller's advisory policy.
+  summary([`## ⚠️ Eval regression gate — INSUFFICIENT: ${String(e)}`]);
+  process.exit(2);
 });
