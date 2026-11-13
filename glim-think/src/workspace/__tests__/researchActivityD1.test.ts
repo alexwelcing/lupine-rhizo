@@ -2,9 +2,9 @@ import {expect,it} from "vitest";
 
 it("real D1 acknowledges trigger-backed exact inserts while preserving conflict and uncertain readback boundaries",async()=>{
  const load=(name:string)=>import(/* @vite-ignore */ name);
- const {readFile,mkdtemp,rm}=await load("node:fs/promises"),{join,resolve}=await load("node:path");
+ const {readFile,mkdtemp,rm}=await load("node:fs/promises"),{join,resolve}=await load("node:path"),{tmpdir}=await load("node:os");
  const {build}=await load("esbuild"),{Miniflare}=await load("miniflare"),{unstable_splitSqlQuery}=await load("wrangler");
- const directory=await mkdtemp("/private/tmp/research-activity-d1-");let mf:any;let externalRequests=0;
+ const directory=await mkdtemp(join(tmpdir(),"research-activity-d1-"));let mf:any;let externalRequests=0;
  try{
   const migrations=await Promise.all(["0021_public_research_activity.sql","0023_public_activity_archive.sql"].map(name=>readFile(resolve("migrations",name),"utf8")));
   const statements=migrations.flatMap((sql:string)=>unstable_splitSqlQuery(sql));
