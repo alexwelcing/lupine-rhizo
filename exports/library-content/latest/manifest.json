@@ -1,9 +1,9 @@
 {
   "schemaVersion": "library-content.v1",
-  "generatedAt": "2026-11-12T05:34:45.508Z",
+  "generatedAt": "2026-11-13T15:35:39.243Z",
   "source": {
     "repo": "lupine-rhizo",
-    "commit": "20324a9a2bc4832de67830666a90ab3976705c2a",
+    "commit": "468406c0ab1283543cdc0b986adb263f5c59af83",
     "dirty": false,
     "generator": "scripts/export_library_content.mjs"
   },
@@ -1397,8 +1397,8 @@
     {
       "source": "docs/ai-and-data.md",
       "bundleSource": "articles/docs/ai-and-data.md",
-      "bytes": 9712,
-      "sha256": "9ee2d89c82f97d8c1d5444a8af308be735546e5b0dd425428d6a2fd968507eee"
+      "bytes": 10450,
+      "sha256": "7d0ea384406e30bc9da27c8bbdf1784120e4c675a09e3a382250422ce1cfa997"
     },
     {
       "source": "docs/data-provenance.md",
@@ -1415,8 +1415,8 @@
     {
       "source": "docs/conjectures/ledger.md",
       "bundleSource": "articles/docs/conjectures/ledger.md",
-      "bytes": 13260,
-      "sha256": "633cfe87486cec93cc86aa579f93171e8112a04295066ff4f825510882f85f77"
+      "bytes": 13996,
+      "sha256": "7793e48c7ba29e2565917fa2f5f4f2ef281a50ec97ac19c710d495aac0f1470d"
     },
     {
       "source": "docs/conjectures/hyper-ribbon-universality.md",
@@ -1469,14 +1469,14 @@
     {
       "source": "docs/science/objects.md",
       "bundleSource": "articles/docs/science/objects.md",
-      "bytes": 11557,
-      "sha256": "1069801541b3b9321b00231611061e4713b09e89fa6d8dc1d31eae10d1f53d10"
+      "bytes": 11928,
+      "sha256": "9f209e5f4d413fe47d56f09c3cc9b252c705c3087fd74a9d58609e4d96bd8bd3"
     },
     {
       "source": "docs/methodology.md",
       "bundleSource": "articles/docs/methodology.md",
-      "bytes": 4098,
-      "sha256": "0992af6896a30050bb0ce52621b834bf6b84c91c5f35e3038876368c217ff141"
+      "bytes": 4267,
+      "sha256": "ed923369fdf4d415f9c58e88320c58284683b9a0263ba512398dd6dbc6a6f673"
     },
     {
       "source": "docs/validation/z1-barrier-campaign-round4-results.md",
@@ -1493,8 +1493,8 @@
     {
       "source": "docs/campaigns/z2-abstention-audit.md",
       "bundleSource": "articles/docs/campaigns/z2-abstention-audit.md",
-      "bytes": 3126,
-      "sha256": "59141a4f2118c2afab031071b75f76996a5d6dfdb81faaa0a7bf9ac41534ec46"
+      "bytes": 3180,
+      "sha256": "b5b73da0dad3217043e77d0faa2837f796a102cf69e6ad4cacbcd3a17642a9e4"
     },
     {
       "source": "docs/plans/2026-07-19-round4-preregistration-amendment.md",
@@ -1535,8 +1535,8 @@
     {
       "source": "docs/projection-law-round2-results.md",
       "bundleSource": "articles/docs/projection-law-round2-results.md",
-      "bytes": 32364,
-      "sha256": "8953e76270ae67d3499d92e2873dc79f2a9b0249174698a3279da341bb756bba"
+      "bytes": 32415,
+      "sha256": "cb3a2bbdf605086ae7cf6ba8a61edf26b45688a03a46e199b69564fb353c6f2d"
     },
     {
       "source": "paper/environment-error-field-2026-07-02.md",
@@ -1619,8 +1619,8 @@
     {
       "source": "docs/formal-audit.md",
       "bundleSource": "articles/docs/formal-audit.md",
-      "bytes": 3676,
-      "sha256": "8ca31c2523630d0da93d723399cdb8b8532c98ab971286f062611aadebd3e2cf"
+      "bytes": 3778,
+      "sha256": "43e6e3d14facaa84d006f6b5dd8f8b2bf4f126a72d4dd08001d435431a468d48"
     },
     {
       "source": "docs/formal-hypotheses.md",
@@ -1631,8 +1631,8 @@
     {
       "source": "docs/formal-proof-ledger.md",
       "bundleSource": "articles/docs/formal-proof-ledger.md",
-      "bytes": 3818,
-      "sha256": "24589d711eabe1f9f2d84209c9a6e0f926817b1396409590782a1b001b4dd8fc"
+      "bytes": 3877,
+      "sha256": "918fff672e57b6f7e04c93c1fb8f055ced26283128a5289e3bb546b56c1aa5d2"
     },
     {
       "source": "CHANGELOG.md",

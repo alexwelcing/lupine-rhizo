@@ -34,7 +34,7 @@ below.
   on synthetic data did not hold on the recorded data, and the claim is withdrawn.
   The general lesson that pooled numbers can hide or invert group-level behaviour is
   better illustrated by the withdrawn pooled "1.8× gate efficacy"
-  ([errata #3](plans/2026-07-13-errata-and-red-team-dispositions.md)).
+  ([errata #3](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/plans/2026-07-13-errata-and-red-team-dispositions.md)).
 - The empirical-only conjectures (d-band, MEAM-2D, Au escape, Fe outlier) are **not**
   formalized: they are statistical claims about a corpus, not theorems. We do not dress
   statistics in proof clothing.
