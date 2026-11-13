@@ -3,13 +3,13 @@
 ## Research system
 
 - Persistent private research conversations, guarded model routes and Clef-supported research planning.
-- Bounded Codex discovery, Claude critique and Codex PI adjudication with preserved receipts and stop states. These stages do not by themselves validate a scientific claim.
-- Reproducible archived-force attribution tooling and independently checked exploratory analysis.
+- Bounded Codex discovery, Claude critique and Codex model adjudication (the model review stage) with preserved receipts and stop states. These stages do not by themselves validate a scientific claim.
+- Reproducible archived-force attribution tooling and exploratory analysis checked by a separate exact-arithmetic implementation.
 - A separate immutable public research-activity ledger, strict reviewed import contract, read-only public feed and explicit correction history. Raw private packets never become public by default.
 
 ## Scientific progress
 
-The broader archived-panel analysis used 800 configurations across two panels. The equal-group mean capture-area increment over predicted force magnitude is +0.0203685681 for MatPES and +0.0134210015 for OMat24; only about half the individual configurations improve. Independent arithmetic verification passed 42,954 numeric and 8,962 structural checks.
+The broader archived-panel analysis used 800 configurations across two panels. The equal-group mean capture-area increment over predicted force magnitude is +0.0203685681 for MatPES and +0.0134210015 for OMat24; only about half the individual configurations improve. A separate exact-arithmetic implementation (internal, not a third party) passed 42,954 numeric and 8,962 structural checks.
 
 This is an exploratory ranking result, not a force-error reduction, calibrated alarm, novel uncertainty method or new held-out validation. Historical A6 remains INCONCLUSIVE. [Full method, limitations and next planned comparison](../research-progress/2026-10-06-disagreement-panels.md).
 

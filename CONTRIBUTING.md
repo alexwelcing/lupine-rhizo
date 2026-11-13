@@ -1,4 +1,4 @@
-# Contributing to Lupine Science
+# Contributing to Lupine Rhizo
 
 This repo is a public research program, not a product page. Contributions can be code, benchmarks, claims, refutations, proofs, or documentation. The only requirement is that the contribution is inspectable, reproducible, and connected to the evidence ledger.
 
@@ -11,12 +11,12 @@ This repo is a public research program, not a product page. Contributions can be
 | Distill policy / geometry | `distill/src/` | `cargo test`, no clippy warnings |
 | Formal proof | `lean-spec/OpenDistillationFactory/Materials/` | `lake build` green, zero `sorry` |
 | Agent workflow | `glim-think/src/` | `just think-lint`, tests pass |
-| Public docs / Library | `docs/` or `library-site/` | Accurate, no marketing copy, no duplicate surfaces |
+| Public docs / Library | `docs/`, then `scripts/library-content-catalog.js` and `node scripts/export_library_content.mjs` | Accurate, no marketing copy, no duplicate surfaces |
 
 ## Workflow
 
 1. **Open an issue or claim first** unless the change is trivial. Use `docs/templates/publication.md` for scientific claims.
-2. **Work in a feature branch**. The repo is local-only; do not force-push shared history.
+2. **Work in a feature branch**. This repository is public: read the data boundaries in [`AGENTS.md`](./AGENTS.md) before committing, and do not force-push shared history.
 3. **Run the focused gate** for every root you touch (see [`docs/ONBOARDING.md`](./docs/ONBOARDING.md)).
 4. **Update the ledger**:
    - `CHANGELOG.md` for user-visible changes and corrections.
@@ -29,7 +29,7 @@ This repo is a public research program, not a product page. Contributions can be
 ## Verification commands
 
 ```bash
-# Full future-spine gate (use Git Bash on Windows)
+# Routine pre-merge gate (use Git Bash on Windows)
 just verify
 
 # Focused gates

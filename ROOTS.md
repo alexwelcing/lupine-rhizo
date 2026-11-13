@@ -23,12 +23,17 @@ layer, the evidence pipeline, or a public export contract.
 | `hpc/` | Vendor-neutral Apptainer + SLURM execution lane for running benchmark cells offline on external clusters (see `docs/decisions/0005-hpc-execution-lane.md`). |
 | `lean-spec/` | Lean 4 specifications and proof obligations. |
 | `lupine-ops/` | Operational helpers used by active science code. |
-| `mlip_immi/` | Local real-data MLIP/IMMI analysis scripts and evidence payloads. |
 | `paper/` | Manuscript source, figures, and publication build inputs. |
 | `python/` | Active Python Distill packages and instrumented runtime code. |
 | `replication/` | Public replication kits and reproducibility harnesses. |
 | `scripts/` | Repo-level utility scripts, including public export generation. |
 | `tools/` | Local CLIs, telemetry checks, promotion loops, and research helpers. |
+
+## Archived
+
+| Root | Location |
+| --- | --- |
+| `mlip_immi/` (real-data MLIP/IMMI analysis scripts) | `archive/2026-07-01/mlip_immi/` |
 
 ## Moved Out
 

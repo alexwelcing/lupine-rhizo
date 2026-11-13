@@ -115,7 +115,7 @@ For cubic elastic constants, P_c = 3 (C11, C12, C44 are the 3 independent compon
     → P_c = symmetry-constrained degrees of freedom
 
 [RESOLVED] H6: Bootstrap Collapse
-    → N = 386 ground-truth data points obtained; CI narrowed and Hyper-Ribbon proven.
+    → N = 386 ground-truth data points obtained; the CI narrowed. The hyper-ribbon claim remains Open (descriptive); see the conjecture ledger.
 ```
 
 All six are formally stated. None are proven. All are falsifiable.

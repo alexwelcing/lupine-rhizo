@@ -1,5 +1,10 @@
 # Bayesian Active Learning for Interatomic Potential Selection
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 ## Kimi Deep Research Report — Comprehensive Literature Review & Practical Guide
 
 **Tags:** Bayesian Optimization | Active Learning | Materials Science | GLIM

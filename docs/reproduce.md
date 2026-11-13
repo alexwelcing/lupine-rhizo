@@ -26,7 +26,7 @@ cargo run --bin distill -- validate --full --bcc
 # Manifold analysis only (participation-ratio dimensionality)
 cargo run --bin distill -- manifold
 
-# Simpson's-paradox detection demo — reproduces the FABRICATED verdict
+# Simpson's-paradox detection demo — on the recorded BCC data it finds no reversal (claim withdrawn)
 cargo run --bin distill -- detect-paradox --bcc
 
 # Random-effects meta-analysis across elements
@@ -44,7 +44,7 @@ The Lean 4 specification is the adversary of the prose. The
 
 ```bash
 cd lean-spec
-lake build          # checks every theorem, including noSimpsonsInBccEam
+lake build          # checks every theorem, including simpsonsDetectedEmpirical
 ```
 
 A green `lake build` *is* the audit: if a verdict changed, the build would fail.

@@ -11,9 +11,9 @@ The working contract requires all of the following before exact Q1 numbers can b
 
 The timeboxed search covered:
 
-1. Current Lupine repositories under `/home/alex/Dev/lupine`, including filename and content searches for `352`, `352-row`, `Q1`, `live-ledger`, `snapshot`, `null`, and `seed`.
+1. Current local checkouts of the Lupine repositories, including filename and content searches for `352`, `352-row`, `Q1`, `live-ledger`, `snapshot`, `null`, and `seed`.
 2. Local git history and all fetched `lupine-rhizo` refs (`git log --all -S352`, path searches for Q1/ledger/null artifacts), plus GitHub code search in `alexwelcing/lupine-rhizo`.
-3. Retained Hermes kanban workspaces under `/home/alex/.hermes/kanban/boards/lupine/workspaces`, including prior `lupine-rhizo` checkouts and archived analysis-null code.
+3. Retained local agent-task workspaces on the operator's workstation, including prior `lupine-rhizo` checkouts and archived analysis-null code.
 4. The live GLIM Worker read surfaces on 2026-09-09:
    - `GET https://glim-think-v1.aw-ab5.workers.dev/health` reported 1,877 current D1 records, not a provenance-locked 352-row snapshot.
    - `GET /research/causal-geometry` exposed only aggregate status/counts.

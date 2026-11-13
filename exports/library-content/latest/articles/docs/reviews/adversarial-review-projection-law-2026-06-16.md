@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-16  
 **Scope:** `paper2/projection-law.tex` (PRX master), `paper2/immi/projection-law-immi.tex` (IMMI companion), the built PDFs, `paper2/FINAL_DRAFT_REPORT.md`, `paper2/TARGETING.md`, `library-site/src/reports/working-papers.html`, `library-site/scripts/catalog.js`, and `docs/PROGRAM.md`.  
-**Reviewer:** independent adversarial pass (requested before submission).
+**Reviewer:** Internal AI-assisted adversarial pass (requested before submission); not an external or independent review.
 
 ---
 

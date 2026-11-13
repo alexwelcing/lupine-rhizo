@@ -1,5 +1,23 @@
 # Results — Round 2: The Projection Law Correction Operator
 
+> **Status: Working draft (2026-06-26), superseded in part — read this first.**
+> This draft was written before the registered Round-2 hypotheses were evaluated.
+> Its "Not yet evaluated" and "Now evaluable" rows below are out of date. The
+> evaluated outcomes, reported in
+> [ProjectionLaw_Round2.md §4.2](https://github.com/alexwelcing/lupine/blob/main/paper2/ProjectionLaw_Round2.md)
+> and the [TMS proceedings manuscript](https://github.com/alexwelcing/lupine-rhizo/blob/main/paper/tms2027-proceedings/manuscript.tex):
+> **H1 and H2a failed** (kill conditions triggered: 3d/4d functional-clustering
+> effect −0.14, permutation p = 0.13); **H2b** was not killed but its cosine was
+> 0.53 against the registered 0.8; **H4** passed on MAE/MSE but conformal coverage
+> was 86.7% against the registered 90%; **H3** is pending. Separately, in the two
+> earlier June experiments (MatPES factorial and ACWF), four of seven registered
+> predictions failed. As the certification note in §3 says, the operator numbers
+> on this page are empirical/oracle aggregates, not a validated deployable
+> correction. QET and TensorNet resolved to the same checkpoint in this draft's
+> runs (§6.5); in the later 3×3×3 benchmark they returned different predictions.
+> Current status:
+> [conjecture ledger](conjectures/ledger.md).
+
 <details open>
 <summary><strong>In plain language</strong> — what this means for a materials scientist</summary>
 
@@ -188,6 +206,8 @@ where $R$ is the set of absolute residuals from the training fold and $q_{1-\alp
 ## 5. Kill-Condition Check Against Pre-Registration
 
 ### 5.1 Pre-registered hypotheses and kill conditions
+
+*Superseded: see the status banner at the top of this page for the evaluated H1–H4 outcomes.*
 
 | Hypothesis | Prediction | Kill condition | Status |
 |------------|------------|----------------|--------|

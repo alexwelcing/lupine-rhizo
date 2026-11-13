@@ -14,12 +14,13 @@ ASE. No MPI; one process per cell, optionally one GPU.
 
 ## Network posture
 
-- The HPC lane is fully offline: inputs are local JSON manifests (plain
+- The HPC lane is designed to run offline: inputs are local JSON manifests (plain
   paths or `file://` URLs), outputs are local JSON artifacts. With no
-  `--beat-emit-url` flag the runner emits no beats and makes no outbound
-  connections at runtime; this is exercised by integration tests that
-  monkeypatch all network entry points to hard-fail
-  (`gcp/mlip-cell-runner/test_runner_offline.py`).
+  `--beat-emit-url` flag the runner emits no beats, and with a pre-fetched
+  model cache (next bullet) it makes no outbound connections at runtime. The
+  integration tests run a mock calculator and monkeypatch the runner's HTTP
+  calls to hard-fail (`gcp/mlip-cell-runner/test_runner_offline.py`); they do
+  not load a real MLIP backend.
 - Interatomic potential files are fetched in a separate front-loaded step on
   a connected host (`tools/fetch_potentials.py`: URLs recorded in
   `data/mlip_benchmarks/manifest_sources.json`, SHA-256 verified,
@@ -64,11 +65,13 @@ ASE. No MPI; one process per cell, optionally one GPU.
 
 ## Licenses
 
-- Code: AGPL-3.0-or-later. Running unmodified code imposes no obligations on
-  the facility or lab; AGPL's network clause applies only to parties who
-  modify the code and offer it as a network service. Contributing results
-  data creates no code obligations.
-- First-party content: CC BY-SA 4.0; structured data: ODbL 1.0 (see NOTICE.md).
+- Code: MIT (relicensed 2026-11-11 from AGPL-3.0-or-later). Running or
+  modifying the code imposes no obligations on the facility or lab;
+  redistributing it requires keeping the copyright and licence notice. There
+  is no network-use or share-alike clause.
+  Contributing results data creates no code obligations.
+- First-party content and structured data: CC BY 4.0 (attribution, no
+  share-alike; see NOTICE.md).
 - Third-party potentials and datasets retain upstream licenses (NIST IPR,
   OpenKIM); `data/mlip_benchmarks/manifest_sources.json` records license and
   stewardship per source.

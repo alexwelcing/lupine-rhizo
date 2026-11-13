@@ -3,8 +3,8 @@
 The Cloud-Run sim matrix ([Part 4](../04-cloud-run-sim-tiers.md)) is grounded in
 the real `shed-489901` project, not just the repo's assertions. Every resource the
 driver/policy touches was confirmed live via `gcloud` (read-only) on 2026-06-02
-(account `alexwelcing@gmail.com`; active config project is `endlesse`, so all
-checks were run with explicit `--project=shed-489901`).
+(the local default project differed, so all checks were run with explicit
+`--project=shed-489901`).
 
 ## Confirmed present
 
@@ -34,9 +34,7 @@ checks were run with explicit `--project=shed-489901`).
 
 - Local **`gsutil` is broken** here (`python3.12: command not found`); use
   **`gcloud storage`** instead (bundled interpreter) — reflected in all commands above.
-- A `super-ag@shed-489901.iam.gserviceaccount.com` service account is credentialed
-  locally; the jobs were last deployed by `github-actions-deployer@…` /
-  `…-compute@developer` — CI owns deploys, so build/deploy go through
-  `gcloud builds submit` (see `gcp/mlip-cell-runner/README.md`), not local pushes.
-- Active gcloud project is `endlesse` (the Mix project) — **left unchanged**; all
+- CI owns deploys, so build/deploy go through `gcloud builds submit` (see
+  `gcp/mlip-cell-runner/README.md`), not local pushes.
+- The local default gcloud project is unrelated and was **left unchanged**; all
   MLIP work must pass `--project=shed-489901` explicitly.

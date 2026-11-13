@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Fill placeholder keys in mlip elastic benchmark preprint + funder brief from results JSON.
+"""Fill placeholder keys in the mlip elastic benchmark preprint from results JSON.
 
 Usage:
     python fill_benchmark_placeholders.py \
-        --results /home/alex/Dev/lupine/lupine-mlip-benchmark/results/mlip_elastic_benchmark_results.json \
-        --preprint mlip-elastic-benchmark-preprint-2026-06-27.md \
-        --brief mlip-elastic-benchmark-funder-brief-2026-06-27.md
+        --results path/to/mlip_elastic_benchmark_results.json \
+        --preprint mlip-elastic-benchmark-preprint-2026-06-27.md
 """
 from __future__ import annotations
 
@@ -119,13 +118,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", required=True, type=Path)
     parser.add_argument("--preprint", default="mlip-elastic-benchmark-preprint-2026-06-27.md", type=Path)
-    parser.add_argument("--brief", default="mlip-elastic-benchmark-funder-brief-2026-06-27.md", type=Path)
     args = parser.parse_args()
 
     results = load_results(args.results)
     repl = build_replacements(results)
     total_remaining = 0
-    for path in [args.preprint, args.brief]:
+    for path in [args.preprint]:
         if path.exists():
             total_remaining += fill_file(path, repl)
         else:

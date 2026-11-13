@@ -1,16 +1,27 @@
-# MLIP + Distill: A Post-Hoc Correction Layer for Cubic-Metal Elastic Constants
+# MLIP + Distill: A Shared Bias Direction in Cubic-Metal Elastic Constants
 
-## A 3×3×3 Reference Benchmark and LOO Validation of the Lupine Operator
+## A 3×3×3 Reference Benchmark and the Oracle Ceiling of a Post-Hoc Correction
 
 **Lupine Project**  
 *Correspondence: alex@lupinesci.com*  
-*Last revised: 2026-06-29*
+*Last revised: 2026-06-29 · correction 2026-11-11*
+
+> **Status: Working draft, not peer-reviewed. Correction 2026-11-11.** Earlier
+> wording in the abstract, discussion and conclusion said every model improves and
+> that a family-level correction "repairs every member". The leave-one-out result
+> below uses the held-out reference to set how far to correct, so 17.84 → 10.36 GPa
+> is an **oracle ceiling, not a deployable correction**. The best no-target
+> estimator later tested on this benchmark (consensus magnitude, 14.41 GPa) harmed
+> 50 of 128 cases ([ProjectionLaw_Round2.md](https://github.com/alexwelcing/lupine/blob/main/paper2/ProjectionLaw_Round2.md)).
+> The registered Round-2 functional-clustering predictions (H1, H2a) failed, and
+> r2SCAN targets here are approximate (scalar bulk-modulus shifts of PBE). Status:
+> [conjecture ledger](../docs/conjectures/ledger.md).
 
 ---
 
 ## Abstract
 
-We show that the elastic-constant errors of four MatPES foundation machine-learned interatomic potentials (MLIPs) on 16 cubic metals are dominated by a shared, transferable bulk-stiffness bias, and that this bias can be removed post hoc with a one-vector-per-functional correction operator. Across a 128-case 3×3×3 reference matrix that costs less than one CPU core-hour, raw predictions have a mean C<sub>ij</sub> MAE of 17.8 GPa. A leave-one-out Lupine correction operator, which extracts the first principal component of the residual cloud and projects each held-out residual onto it, lowers the mean MAE to **10.4 GPa** with **zero no-harm violations** (PBE 15.0 → 9.4 GPa; r2SCAN 20.7 → 11.3 GPa). Every model improves. Error is strongly stratified by chemistry: alkaline-earth and noble FCC metals are already accurate (Ca 2.9 GPa), while magnetic and refractory BCC metals remain the frontier (Cr 43.5 GPa). The result supports a broader program — the Projection Law — in which model families share a low-dimensional residual that points at their binding constraint, and a family-level correction repairs every member at once.
+We report a 128-case 3×3×3 elastic-constant reference matrix for four MatPES foundation machine-learned interatomic potential (MLIP) labels on 16 cubic metals, against PBE and approximate r2SCAN targets (scalar bulk-modulus shifts of PBE). The matrix costs less than one CPU core-hour; raw predictions have a mean C<sub>ij</sub> MAE of 17.8 GPa. One bias direction per functional, fitted leave-one-out, transfers out of sample. When the held-out reference sets how far to correct along that direction, the mean MAE falls to **10.4 GPa** (PBE 15.0 → 9.4 GPa; r2SCAN 20.7 → 11.3 GPa). Because the held-out target sets the coefficient, this is an **oracle ceiling, not a deployable correction**, and it cannot increase a held-out residual by construction. A correction that works without seeing the answer is still open. Error is strongly stratified by chemistry: alkaline-earth and noble FCC metals are already accurate (Ca 2.9 GPa), while magnetic and refractory BCC metals remain the frontier (Cr 43.5 GPa).
 
 **Certification status:** The corrected C<sub>ij</sub> MAEs below are empirical/oracle aggregates, not licensed correction guarantees. They are **uncertified** unless C11, C12, and C44 each independently satisfy a valid per-component license for the held-out target. Bulk/shear moduli, C′, Cauchy pressure, anisotropy, and other derived quantities are also **uncertified**: componentwise licenses do not compose through differences, mixed directions, or general products.
 
@@ -24,7 +35,7 @@ Materials discovery pipelines rely on elastic constants as an early filter. The 
 
 The Projection Law formalizes this observation [1]. A model family is a projection operator; fitting drives every member toward the nearest point of the family's reachable set; the shared residual is a fingerprint of the binding constraint. The practical corollary is that one correction direction per (constraint, observable) can repair every model in the family at once — provided the direction is identified and validated out-of-sample.
 
-Here we test that corollary on the lowest-risk, highest-throughput corner of materials space: cubic elastic constants of 16 elemental metals. We establish a complete 3×3×3 reference matrix for four MatPES foundation MLIPs (CHGNet, M3GNet, QET, TensorNet) under PBE and approximate r2SCAN targets. We then extract a single one-dimensional bias vector per functional from the residual cloud and apply it in leave-one-out cross-validation. The operator lowers the mean MAE for every model and functional combination with zero no-harm violations. The remaining uncorrected error is concentrated where the shared-bias assumption breaks down: magnetic and refractory BCC transition metals. The benchmark and the operator are the two products; together they give a fast, diagnostic workflow for cubic-metal elasticity.
+Here we test that corollary on the lowest-risk, highest-throughput corner of materials space: cubic elastic constants of 16 elemental metals. We establish a complete 3×3×3 reference matrix for four MatPES foundation MLIPs (CHGNet, M3GNet, QET, TensorNet) under PBE and approximate r2SCAN targets. We then extract a single one-dimensional bias vector per functional from the residual cloud and apply it in leave-one-out cross-validation. With the held-out target setting the projection coefficient, the operator lowers the mean MAE for every model and functional combination; that is an oracle ceiling, not a deployable result. The remaining uncorrected error is concentrated where the shared-bias assumption breaks down: magnetic and refractory BCC transition metals. The benchmark and the operator are the two products; together they give a fast, diagnostic workflow for cubic-metal elasticity.
 
 ---
 
@@ -58,7 +69,7 @@ The workflow uses `matcalc` with a standardized stress/strain elasticity calcula
 4. Compute the elastic tensor with `ElasticityCalc` (fmax = 0.005 eV/Å, GPa units).
 5. Extract C<sub>11</sub>, C<sub>12</sub>, and C<sub>44</sub>.
 
-Wall-clock runtime is recorded. CPU-equivalent core-hours are `runtime_seconds / 3600`, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array in GCP project `witching-606c6`, region `us-central1`, container image `us-central1-docker.pkg.dev/witching-606c6/lupine-layer2/runner:v1`. Outputs were uploaded to `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/` and aggregated with `lupine/data/aggregate_layer2.py`.
+Wall-clock runtime is recorded. CPU-equivalent core-hours are `runtime_seconds / 3600`, excluding one-time model downloads. The 128-case matrix was executed as a Cloud Run job array (region `us-central1`) from a single runner container image (`lupine-layer2/runner:v1`). Outputs were uploaded to Cloud Storage (path under Data availability) and aggregated with `lupine/data/aggregate_layer2.py`.
 
 ### 2.3 The Lupine correction operator
 
@@ -98,7 +109,7 @@ PBE-trained models outperform r2SCAN-trained models across all four labels, with
 
 ### 3.2 LOO-corrected benchmark
 
-Table 2 reports the LOO-corrected MAE. The correction improves every model on both functionals. The overall mean MAE falls from 17.84 GPa to 10.36 GPa; the 95% bootstrap CI for the corrected mean is [8.9, 12.0]. No held-out row has a larger Euclidean residual after correction.
+Table 2 reports the LOO-corrected MAE (oracle ceiling: the held-out target sets the projection coefficient; see §4.2). Under that oracle, the correction improves every model on both functionals. The overall mean MAE falls from 17.84 GPa to 10.36 GPa; the 95% bootstrap CI for the corrected mean is [8.9, 12.0]. No held-out row has a larger Euclidean residual after correction.
 
 **Table 2 — Raw versus LOO-corrected mean C<sub>ij</sub> MAE (GPa).**
 
@@ -110,7 +121,7 @@ Table 2 reports the LOO-corrected MAE. The correction improves every model on bo
 | TensorNet | 14.61 | 8.97 | 18.54 | 11.22 | 16.58 | 10.09 |
 | **All models** | **15.01** | **9.39** | **20.66** | **11.32** | **17.84** | **10.36** |
 
-The direction transferability is the central result: a single bias vector fitted on 63 cases and applied to the 64th removes roughly 40% of the held-out error across the benchmark.
+The direction transferability is the central result: a single bias vector fitted on 63 cases transfers to the 64th. The roughly 40% error reduction is an oracle ceiling, because the held-out target sets how far to move along that vector.
 
 ### 3.3 Per-element error landscape
 
@@ -175,16 +186,16 @@ These signatures are exactly what a family-level correction should remove: a sha
 
 ### 4.1 The operator works because the bias is shared
 
-The LOO result is the sharpest test presented here. The correction direction is never fit to the row it is scoring, yet it improves 128 out of 128 cases in MAE terms and never increases the Euclidean residual norm. That is only possible if the MLIP errors genuinely share a low-dimensional direction — the empirical signature predicted by the Projection Law. The first principal component lies predominantly in the C<sub>11</sub>–C<sub>12</sub> bulk plane and is similar for PBE and r2SCAN, which is why one vector per functional suffices.
+The LOO result tests the direction, not a deployable correction. The correction direction is never fit to the row it is scoring, and with the held-out target setting the coefficient it improves 128 of 128 cases in MAE terms; it cannot increase the Euclidean residual norm, by construction. The size of the improvement indicates that the MLIP errors share a low-dimensional direction on this benchmark. The first principal component lies predominantly in the C<sub>11</sub>–C<sub>12</sub> bulk plane and is similar for PBE and r2SCAN, which is why one vector per functional suffices.
 
 ### 4.2 From oracle to deployable operator
 
 The LOO operator uses the held-out target to set the projection magnitude. A deployable operator must set that magnitude without the target. The program's earlier operator-failure diagnosis identified two practical candidates [10]:
 
-- **`scalar-bulk`** — use the scalar PBE-to-r2SCAN bulk-modulus shift as a proxy for the residual magnitude. On a 16-element TensorNet/PBE benchmark it achieved 14.13 GPa vs Tr2SCAN, beating a three-model ensemble at lower cost.
+- **`scalar-bulk`** — use the scalar PBE-to-r2SCAN bulk-modulus shift as a proxy for the residual magnitude. On a 16-element TensorNet/PBE benchmark it achieved 14.13 GPa against the approximate r2SCAN target only; it did not beat the raw model on the PBE target.
 - **`feedback-projection`** — fit the projection coefficient on a calibration set and apply the direction to new cases. It improved over `scalar-bulk` in 1×1×1 tests.
 
-The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. The gap between 10.4 GPa and the 14.1 GPa of `scalar-bulk` is the cost of not knowing the exact residual magnitude. Closing that gap is the next engineering step.
+The 3×3×3 LOO ceiling (10.4 GPa) bounds how much these no-target operators can improve. These numbers are not directly comparable: 10.4 GPa is the four-model oracle ceiling on both targets, while `scalar-bulk`’s 14.13 GPa is one model (TensorNet/PBE, 1×1×1) against the approximate r2SCAN target only. The best no-target estimator tested on the full 128-case matrix (consensus) reached 14.41 GPa and harmed 50 of 128 cases. Closing the gap to the ceiling without seeing the reference is still open.
 
 ### 4.3 The remaining frontier
 
@@ -192,7 +203,7 @@ Even after the LOO correction, the mean error is ~10 GPa. The residual is not ra
 
 ### 4.4 Relation to the Projection Law
 
-This benchmark provides Layer-2 evidence for the Projection Law [1]. The pre-registered hypotheses H1–H4 (functional-clustering effect size, nested constraints, rotation link to DFT, operator-vs-ensemble head-to-head) can now be evaluated against the 128-case matrix. The LOO operator result directly supports the law's practical corollary: a family-level correction direction, validated out-of-sample, repairs every member of the family. The formal hypothesis tests are the immediate next step.
+This benchmark was the Layer-2 test bed for the Projection Law hypothesis [1]. The pre-registered hypotheses H1–H4 have since been evaluated on the 128-case matrix: H1 and H2a failed (functional-clustering effect −0.14, permutation p = 0.13), H2b's cosine was 0.53 against a registered 0.8, and H4's conformal coverage was 86.7% against a registered 90%; H3 is pending (see the correction note at the top). The LOO result shows that a bias direction transfers; it does not show that a family-level correction repairs every member.
 
 ---
 
@@ -209,13 +220,13 @@ This benchmark provides Layer-2 evidence for the Projection Law [1]. The pre-reg
 
 ## 6. Conclusion
 
-We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIPs, and we show that a one-vector-per-functional Lupine correction operator removes a large, transferable bulk-stiffness bias. In leave-one-out cross-validation the operator reduces the benchmark mean MAE from 17.8 GPa to 10.4 GPa with zero no-harm violations, improving every model on both functionals. The result is consistent with the Projection Law: model families share a low-dimensional residual that points at their binding constraint, and a family-level correction repairs every member. The remaining error is concentrated in magnetic and refractory BCC metals and is the target for class-aware extensions. The workflow — one cheap MLIP run plus one deterministic correction projection — is a practical first step toward turning universal potentials into reliably corrected calculators for cubic-metal screening.
+We present a 3×3×3 elastic-constant reference for 16 cubic metals and four MatPES foundation MLIP labels (QET and TensorNet are closely related TensorNet-family models; see §2.1), against PBE and approximate r2SCAN targets. One bias direction per functional transfers out of sample. When the held-out reference sets how far to correct, the benchmark mean MAE falls from 17.8 GPa to 10.4 GPa: an oracle ceiling, not a deployable correction. A correction that works without seeing the answer is still open; the best no-target estimator tested so far improved the mean but harmed 50 of 128 cases. The remaining error is concentrated in magnetic and refractory BCC metals. The useful product today is the cheap reference matrix and the error map, not a corrected calculator.
 
 ---
 
 ## Data availability
 
-- Raw outputs: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json` (128 files)
+- Raw outputs: `gs://lupine-benchmark-witching-606c6/layer2_3x3x3/*.json` (128 files). The bucket path is kept because re-running `lupine/data/aggregate_layer2.py` needs these files as its `--inputs`.
 - Summary JSON: `lupine/data/benchmark_layer2_3x3x3_summary.json`
 - Source repository: `https://github.com/alexwelcing/lupine`
 - Pre-registration and companion results: `lupine-rhizo/docs/projection-law-round2-preregistration.md`, `lupine-rhizo/docs/projection-law-round2-results.md`

@@ -1,6 +1,6 @@
 # Shared, aligned residuals carry most error on the archived panels
 
-Date: 2026-10-06. **Archived descriptive analysis; independently checked arithmetic.**
+Date: 2026-10-06. **Archived descriptive analysis; arithmetic checked by a separate exact-arithmetic implementation.**
 
 ## Question and result
 
@@ -32,9 +32,9 @@ The `y > v` condition already implies a positive *average* pairwise dot product;
 
 ## Verification
 
-An independent implementation parsed the saved decimal force values as exact rational numbers, reconstructed every residual and mask from raw inputs, and verified both algebraic identities for all **7,236 atoms**. It preserved all **800 configurations and 100 original groups**, compared all 7,236 masks exactly, and passed **292,766 numeric comparisons** against the separately calculated binary64 result, including configuration and group fractions, pooled totals and threshold counts. No mask or decision discrepancy and no zero-total-error configuration was found. Both exact panel means exceed one half.
+A separate implementation parsed the saved decimal force values as exact rational numbers, reconstructed every residual and mask from raw inputs, and verified both algebraic identities for all **7,236 atoms**. It preserved all **800 configurations and 100 original groups**, compared all 7,236 masks exactly, and passed **292,766 numeric comparisons** against the separately calculated binary64 result, including configuration and group fractions, pooled totals and threshold counts. No mask or decision discrepancy and no zero-total-error configuration was found. Both exact panel means exceed one half.
 
-The primary result was preserved in its original pending-verification state; a separate verification and PI adjudication record establish final acceptance. Source hashes matched the recovered archives. Exact arithmetic checks the saved values and implementation; it does not validate the physical references or historical model identities.
+The primary result was preserved in its original pending-verification state. A separate exact-arithmetic verification record checks the saved values; a model-adjudication record (the model review stage) recommended acceptance, which is a recommendation, not evidence. Source hashes matched the recovered archives. Exact arithmetic checks the saved values and implementation; it does not validate the physical references or historical model identities.
 
 ## Interpretation and limits
 
@@ -59,4 +59,4 @@ Raw predictions, detailed results and verification records stay private. Publish
 - Frozen protocol: `840f1f1010c8a0ab26abf83d4fa31f72c8717354713ab83a0e5b2a0275d0c632`.
 - Primary result: `2fd6c3a97d3685800cd6cde2b27a1fcfdc5628d66f7e344029068d0ac0a3abdf`.
 
-- Independent exact-arithmetic verification: `05e63759dd4da805522b08d56b76d01878b52d6f496f3b6a61dba5345e397934`.
+- Separate exact-arithmetic verification: `05e63759dd4da805522b08d56b76d01878b52d6f496f3b6a61dba5345e397934`.

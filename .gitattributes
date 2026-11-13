@@ -6,3 +6,9 @@ data/lammps_validation/**/work/* -whitespace
 # Frozen simulation receipts (GPAW logs etc.) inside visualization bundles keep
 # original bytes (digests are content identity); whitespace hygiene does not apply.
 data/visualization/bundles/**/assets/** -whitespace
+
+# Third-party interatomic-potential tables and LAMMPS run inputs are vendored
+# data, not source code; keep them out of GitHub's language statistics
+# (EAM *.fs tables are otherwise misdetected as Forth).
+distill/lammps_runs/** linguist-vendored
+*.fs linguist-detectable=false

@@ -16,7 +16,7 @@ The paper makes four distinct contributions that we believe are of high interest
 
 2. **Crystal-structure dichotomy.** We discover a striking BCC/FCC pattern: all 7 BCC metals show strong reference--prediction correlations (r > 0.70, mean r = 0.89), while 7 of 8 FCC metals show near-zero correlation (r < 0.40, mean r = 0.16). This is a novel form of structural confounding with immediate implications for benchmarking protocol design.
 
-3. **Methodological rigor.** We apply random-effects meta-analysis (I² = 98.6%), ecological fallacy detection, bootstrap uncertainty quantification, and permutation testing---methods rarely used in materials benchmarking but essential for valid cross-element comparison. We also identify and control for a sample-size confounder in cross-style PC1 alignment analysis, demonstrating that fitting depth must be reported alongside any per-element accuracy metric.
+3. **Methodological rigor.** We apply random-effects meta-analysis (I² = 98.5%), ecological fallacy detection, bootstrap uncertainty quantification, and permutation testing---methods rarely used in materials benchmarking but essential for valid cross-element comparison. We also identify and control for a sample-size confounder in cross-style PC1 alignment analysis, demonstrating that fitting depth must be reported alongside any per-element accuracy metric.
 
 4. **Cross-paradigm universality.** Our extension to foundation MLIPs confirms that the hyper-ribbon structure is invariant across modeling paradigms: 14 of 15 elements retain participation ratio < 2.0 when MACE-MP-0, CHGNet, and Orb-v3 are added to the ensembles. This suggests the hyper-ribbon is a property of the observable landscape, not the model architecture.
 

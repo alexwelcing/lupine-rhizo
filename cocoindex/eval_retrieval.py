@@ -49,8 +49,6 @@ GOLD: list[tuple[str, str, str]] = [
      "docs/bayesian_active_learning_report.md", "document"),
     ("what does EAM stand for and other force-field terminology",
      "GLOSSARY.md", "document"),
-    ("government grants available for computational materials research infrastructure",
-     "docs/funding_landscape_report.md", "document"),
     ("design for multi-model strategy selection with an embedded evidence store",
      "docs/rfc-omnigents-cocoindex.md", "document"),
     ("why did the aluminium potential come out four percent low on cohesive energy",

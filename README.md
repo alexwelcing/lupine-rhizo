@@ -1,144 +1,45 @@
 # Lupine Rhizo
 
-The Lupine science root system.
+Lupine Science measures where machine-learned models of atoms go wrong, against
+published references and pass/fail gates set in advance, and publishes every
+verdict, failures included.
 
-Rhizo is the deep workbench for the Lupine open-science program: Lean proofs,
-Rust and Python science engines, MLIP benchmarking loops, evidence generation,
-agents, telemetry, and the export contracts consumed by the public repos.
+## What is here
 
-If you want the polished molecular viewer, clone **Lupi**. If you want the
-public research record, read **Lupine Ledger**. If you want the math, LAMMPS
-bridges, MLIP loops, proof obligations, and control-plane machinery, this is
-the place.
+- **Scoring engines** in Rust and Python (`distill/`, `python/`).
+- **Benchmark runners** for the cloud and an offline cluster lane (`gcp/`, `hpc/`); the container has not yet been built on a facility cluster.
+- **Evidence:** preregistered campaigns, the claim registry and run records
+  (`campaigns/`, `registry/`, `evidence/`).
+- **Lean checks** of the arithmetic behind published numbers; they do not check the
+  physics, the reference data or the pipeline (`lean-spec/`).
+- **Exports** that feed the public Library (`exports/`).
 
-## Current release: Research in View
+## Status
 
-Rhizo connects an hourly PI's deliberate scientific checks with the automated Glim Think system. Clef supports bounded planning, evidence triage and routing; deterministic checks and scientific judgments remain explicit. Model execution, accepted discussion, completed analysis and independently checked arithmetic are different evidence states.
+Working drafts, not peer-reviewed. Failures and abstentions are published beside what held.
 
-The Library now has a dedicated reviewed-public-activity contract, separate from private conversations and execution records. The read-only `/research/activity` feed exposes explicit summaries and timestamps; protected imports append immutable records. It does not mirror private tables or infer success from a model receipt.
+## Start here
 
-- [Final archive control: uniform offsets ruled out; next evidence planned](docs/research-progress/2026-10-06-uniform-offset.md)
-- [Archived diagnostic: shared, aligned residuals](docs/research-progress/2026-10-06-common-error.md)
-- [Source audit: prospective validation stops at eligibility](docs/research-progress/2026-10-06-roster-readiness.md)
-- [Tested predictor and cache provenance repair](docs/research-progress/2026-10-06-predictor-provenance.md)
-- [Preserved proposed ranking study: stopped before execution](docs/research-progress/2026-10-06-prospective-ranking-protocol.md)
-- [Pinned-source overlap and historical model provenance](docs/research-progress/2026-10-06-pinned-source-overlap.md)
-- [Archived-panel method and provenance](docs/research-progress/2026-10-06-disagreement-panels.md)
-- [Public activity contract and publishing](docs/public-research-activity.md)
-- [Release notes](docs/releases/research-live-2026-10-06.md)
-- [Lupine program](https://github.com/alexwelcing/lupine) · [Library reader](https://github.com/alexwelcing/lupine-ledger)
+- [Results](https://lupine.science/results/): what held and what did not
+- [Corrections](https://lupine.science/corrections/): what we retracted, and why
+- [Hypothesis ledger](docs/conjectures/ledger.md): every tested claim and its status
+- [Negative-results preprint](paper/negative-results-preprint/): three locked negative results
+- [Replication kit](replication/error-geometry/): recompute the statistics yourself
 
-## Boundary
+## More
 
-Owns:
-
-- `glim-think`: durable agenda, ledger, routes, feed, evals, and agent loop
-- `cocoindex`: evidence indexing experiments for corpus export/query loops
-- `gcp/compute`: Cloud Run physics compute lane used by `glim-think`
-- `lean-spec`: Lean proof/specification layer
-- `distill`: Rust scoring, policy, benchmark, and fault-line engine
-- `python`: Python Distill packages and runtime helpers
-- `mlip_immi`: real-data MLIP/IMMI analysis lane
-- `gcp`: burst compute, MLIP cells, evidence indexing, and control-plane services
-- `cloudflare`: edge/control-plane infrastructure helpers
-- `tools`: local science CLIs, telemetry checks, promotion loops
-- `docs`, `paper`, `replication`: source research corpus and reproducibility
-- `exports`: public contracts consumed by Ledger, Lupi, and Science
-
-Does not own:
-
-- the `lupine.science` landing site
-- the `library.lupine.science` reader app
-- the `lupi.live` viewer app
-- investor or private access surfaces
-- generated caches, dependency folders, or large binary artifacts
-
-## Sibling Repos
-
-- **Lupine Science**: `https://github.com/alexwelcing/lupine-science`
-  - Public front door.
-  - Site: `https://lupine.science`
-- **Lupine Ledger**: `https://github.com/alexwelcing/lupine-ledger`
-  - Public evidence record and Library reader.
-  - Site: `https://library.lupine.science`
-- **Lupi**: `https://github.com/alexwelcing/Lupi`
-  - Browser-native molecular viewer.
-  - Site: `https://lupi.live`
-
-Historical development remains in `https://github.com/alexwelcing/lupine`
-during the transition.
-
-## Quick Checks
-
-Use Git Bash for Node and build tasks on Windows.
-
-```bash
-just think-lint
-just engine-test
-just live-build
-```
-
-Routine validation:
-
-```bash
-just verify-light
-just verify
-```
-
-Lean proof gate:
-
-```bash
-cd lean-spec
-lake build
-```
-
-Run Lean from inside `lean-spec/` so elan selects the pinned toolchain.
-
-## Export Contracts
-
-Rhizo publishes; public repos consume.
-
-Current public export:
-
-```text
-exports/library-content/latest/
-  manifest.json
-  articles/
-```
-
-Regenerate the Library content bundle from this repo with:
-
-```bash
-node scripts/export_library_content.mjs
-```
-
-The Ledger repo verifies `library-content.v1` before rendering the public
-Library.
-
-Planned contract families:
-
-- Library content bundles
-- claim/status manifests
-- molecule/evidence manifests
-- viewer search and MCP schemas
-- `glim-think` route/OpenAPI summaries
-- brand and agent-readable text
-
-## Orientation
-
-- [LUPINE.md](LUPINE.md): how Rhizo fits the Lupine constellation
-- [ROOTS.md](ROOTS.md): active root ownership ledger
-- [AGENTS.md](AGENTS.md): operating rules for agents in this repo
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): system map
-- [docs/working-path.md](docs/working-path.md): practical checkout and checks
-- [docs/repo-split-map.md](docs/repo-split-map.md): extraction map
-- [docs/splits/science-control-plane.md](docs/splits/science-control-plane.md): split packet
+- [Overview](docs/overview.md): ways to check the work, and what Lean does and does not check
+- [Results in detail](docs/results-detail.md): each result with its scope, failures included
+- [Repository map](docs/repository-map.md): folders, boundary and related repositories
+- [Development](docs/development.md): quick checks, toolchain notes and licence detail
+- [How we use AI agents and handle data](docs/ai-and-data.md)
 
 ## License
 
-Project-owned code is licensed under AGPL-3.0-or-later. First-party non-code
-content is licensed under CC BY-SA 4.0 unless noted. First-party structured
-data and exported databases are licensed under ODbL 1.0 unless noted.
+You can reuse our code (MIT) and our first-party text and data (CC BY 4.0) with
+attribution and no share-alike obligations. Third-party material keeps its own
+terms; see [NOTICE.md](NOTICE.md).
 
-Third-party datasets, dependencies, papers, and imported scientific sources
-retain their upstream licenses and notices.
+## Contact
+
+Research partners, model builders, press and investors: alex@lupinesci.com.

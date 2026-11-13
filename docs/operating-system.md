@@ -1,6 +1,6 @@
 # Research Loop Architecture
 
-`glim-think` is the mastermind. Everything else is substrate.
+`glim-think` schedules and records research tasks. Checks run in code, and a status change in the machine registry needs a new evidence hash ([how far that reaches](ai-and-data.md)).
 
 ## Loop
 

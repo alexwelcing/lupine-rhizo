@@ -5,7 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import type { Env } from "../../types";
 import {
-  decodePublicResearchActivity, isPublicSourceUrl, PUBLIC_ACTIVITY_MAX_BYTES,
+  decodePublicResearchActivity, isPublicSourceUrl, privateTermsFrom, PUBLIC_ACTIVITY_MAX_BYTES,
   publicActivitySha256, type PublicResearchActivity,
 } from "../researchActivityContracts";
 import { archivePublicResearchActivity, getPublicResearchActivity, importPublicResearchActivity, listPublicResearchActivity, researchActivityResponse } from "../researchActivity";
@@ -91,8 +91,19 @@ describe("reviewed public activity contract", () => {
     expect(feed.items[0].evidenceKind).toBe("workflow_repair");
     expect(feed.items[0].datasets).toEqual([]);
   });
-  it.each(["/Users/person/private.json", "work/private/result.json", "outputs/private.json", "gs://private-bucket/object", "user@example.org", "10.0.0.1", "device.tail000.ts.net", "awphone", "Bearer abcdefghijklmnop", "sk-proj-abcdefghijklmnop", "ghp_abcdefghijklmnop", "<script>unsafe</script>"])("rejects private text %s", text => {
+  it.each(["/Users/person/private.json", "work/private/result.json", "outputs/private.json", "gs://private-bucket/object", "user@example.org", "10.0.0.1", "device.tail000.ts.net", "Bearer abcdefghijklmnop", "sk-proj-abcdefghijklmnop", "ghp_abcdefghijklmnop", "<script>unsafe</script>"])("rejects private text %s", text => {
     expect(() => decodePublicResearchActivity({ ...record(), summary: text })).toThrow();
+  });
+  it("rejects configured deploy-time private terms without committing them", async () => {
+    const terms = privateTermsFrom(" other, Fictional-Workstation-7 ,");
+    expect(terms).toEqual(["other", "fictional-workstation-7"]);
+    const named = { ...record(), summary: "Critique ran on fictional-workstation-7 overnight." };
+    expect(decodePublicResearchActivity(named).summary).toBe(named.summary);
+    expect(() => decodePublicResearchActivity(named, Date.now(), terms)).toThrow(/private term/);
+    expect(() => decodePublicResearchActivity({ ...record(), sources: [{ label: "Encoded", url: "https://arxiv.org/abs/%46ictional-Workstation-7" }] }, Date.now(), terms)).toThrow(/private term/);
+    const h = harness();
+    await expect(importPublicResearchActivity({ ...h.env, PUBLIC_ACTIVITY_PRIVATE_TERMS: "Fictional-Workstation-7" }, named)).rejects.toThrow(/private term/);
+    expect(h.queries.some(sql => sql.includes("INSERT"))).toBe(false);
   });
   it.each(["http://arxiv.org/a", "https://user:pass@arxiv.org/a", "https://localhost/a", "https://127.0.0.1/a", "https://10.0.0.1/a", "https://[::1]/a", "https://0x7f000001/a", "https://device.tail123.ts.net/a", "https://127.0.0.1.nip.io/a", "https://host.internal/a", "https://arxiv.org:444/a", "https://arxiv.org/a?token=secret", "https://arxiv.org/a?X-Amz-Credential=secret", "https://arxiv.org/a#access_token=secret", "https://arxiv.org/%55sers/person/private", "https://arxiv.org/a?next=http%3A%2F%2Flocalhost"])("rejects a nonpublic or credential-bearing source %s", url => {
     expect(isPublicSourceUrl(url)).toBe(false);

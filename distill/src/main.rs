@@ -6,6 +6,7 @@ mod discovery;
 mod fitting;
 mod ingest;
 mod literature;
+mod meta_analysis;
 mod observables;
 mod policy;
 mod report;

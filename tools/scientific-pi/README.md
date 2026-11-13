@@ -1,20 +1,50 @@
-# Scientific PI: subscription CLI workers
+# Model review stage: bounded CLI runner
 
-This is the execution adapter for a bounded research cycle:
+The code lives under `tools/scientific-pi/` and `tools/pi-*.py`; those paths and
+identifiers are kept for compatibility. In prose we call this the **model review
+stage**.
 
-1. **Proposer**: Codex on the Mac reads current primary literature and formulates a falsifiable hypothesis.
-2. **Independent critic**: Claude Code on aledev challenges the supplied proposal, prior-art boundary, confounds, and proposed discriminating test.
+## Containment (what it can and cannot do)
+
+- It **never starts an experiment, sends a message, publishes a page, or schedules
+  another run.** It accepts one explicit job, invokes the installed official CLI
+  once, validates the completed response, and writes a receipt.
+- **Explicit tool lists.** The cycle controller ([`tools/pi-cycle.py`](../pi-cycle.py))
+  runs packet critiques and adjudications with no tools (`--tools ''` for Claude
+  Code; `tool_mode: "none"`); the runner itself also accepts a critic job with web
+  retrieval when one is submitted directly. **Literature jobs can search
+  the web and fetch web pages** (`WebSearch,WebFetch` for Claude Code; Codex keeps
+  its web-retrieval wrapper). Nothing else is enabled.
+- **Read-only sandbox.** Codex runs in a read-only sandbox in a fresh temporary
+  directory, with shell, editing, hooks, plugins, apps, memories, delegation and
+  browser control disabled. Claude Code runs with `--safe-mode --restricted`, an
+  empty MCP configuration, no slash commands and no session persistence.
+- **Fails closed.** Any forbidden or unrecognised tool call, protocol event or
+  schema violation stops the job. A stopped job keeps its identity; it is never
+  retried automatically and never relabelled as completed.
+- **Credentials stay with the providers' CLIs.** The runner checks sign-in status
+  through each CLI's public status command and never reads credential files; API-key
+  and alternative-provider overrides are removed from the child process, and so are
+  OpenTelemetry settings.
+- **A completed review is not evidence.** It records a discussion. The experiment
+  it proposes stays "not started", its novelty "unverified", and nothing is
+  published without the operator's review.
+
+## The three steps
+
+1. **Proposer**: Codex, on the proposer workstation, reads current primary literature and formulates a falsifiable hypothesis.
+2. **Independent critic**: Claude Code, on a separate critique host, challenges the supplied proposal, prior-art boundary, confounds, and proposed discriminating test.
 3. **Adjudicator**: Codex considers that critique and records a decision and revised test design.
 
-The adapter never starts an experiment, sends a message, publishes a page, or schedules another run. It accepts an explicit job, invokes the installed official CLI once, validates its completed response, and exports a receipt for glim-think's durable ledger. A completed CLI call is **not** scientific validation or approval to execute its proposed experiment.
+The runner exports a receipt for glim-think's durable ledger. A completed CLI call is **not** scientific validation or approval to execute its proposed experiment.
 
 ## Authentication and isolation
 
-Python 3.9+ and the official CLI must already be installed and signed in on the host that runs it. The intended setup is ChatGPT sign-in for Codex on the Mac and Claude.ai sign-in for Claude Code on aledev. The script reads each CLI's public `login status` / `auth status` interface, never credential files. Credentials remain in their local official stores. API-key and alternative-provider environment overrides are removed from the child process.
+Python 3.9+ and the official CLI must already be installed and signed in on the host that runs it. The current setup uses the providers' own account sign-in: ChatGPT sign-in for Codex on the proposer workstation and Claude.ai sign-in for Claude Code on the critique host. The script reads each CLI's public `login status` / `auth status` interface, never credential files. Credentials remain in their local official stores. API-key and alternative-provider environment overrides are removed from the child process.
 
 Codex is run with a read-only sandbox, a fresh temporary working directory, `--ignore-user-config`, and disabled shell, editing-related command runtime, hooks, plugins, apps, memories, delegation, computer/browser control, image generation, and optional local automation features. The Code Mode **host remains enabled** because this Codex build requires that wrapper for web retrieval. Underlying tool permissions remain restricted. The full JSONL stream is checked for forbidden/unrecognized item types before accepting a result.
 
-Claude is run with `--safe-mode --restricted`, an empty strict MCP configuration, disabled slash commands, no session persistence, no permission prompts, and an explicit tool list. Literature work can use only `WebSearch,WebFetch`; packet critique uses `--tools ''`. **Do not add `--bare`**: that mode changes the authentication path and is unsuitable for the intended subscription login. Required isolation flags are checked against installed help before inference; hidden `--max-turns` is checked by parsing it with `--help`. Managed organization policies still apply.
+Claude is run with `--safe-mode --restricted`, an empty strict MCP configuration, disabled slash commands, no session persistence, no permission prompts, and an explicit tool list. Literature work can use only `WebSearch,WebFetch`; packet critique uses `--tools ''`. **Do not add `--bare`**: that mode changes the authentication path and is unsuitable for the account sign-in this runner uses. Required isolation flags are checked against installed help before inference; hidden `--max-turns` is checked by parsing it with `--help`. Managed organization policies still apply.
 
 Claude jobs use `--output-format stream-json --verbose`, without `--include-partial-messages`. The runner checks startup tool/plugin/MCP metadata, full assistant messages and every observed tool call, terminates on a forbidden action or unknown protocol event, and accepts only one successful final result with matching session identity and valid structured output. `StructuredOutput` is allowed solely as the CLI's schema-formatting tool. No-tools criticism may not claim it independently verified the cited papers. Codex literature proposals require at least one completed web-search event. Claude literature proposals require a completed observed search or a positive server web-search counter. These checks establish retrieval activity, not the scientific correctness of retrieved material.
 
@@ -57,7 +87,7 @@ empty command notifications, valid progress counters and malformed variants.
 
 ## Interface
 
-The same file is usable on either host. Remote transport remains the original named-device Homebase controller; this directory contains no SSH, Tailscale, daemon, or credential-copy code.
+The same file is usable on either host. Remote transport uses a separate named-device controller outside this repository; this directory contains no SSH, Tailscale, daemon, or credential-copy code.
 
 The manual controller connects these adapters into one cycle:
 
@@ -66,7 +96,7 @@ python3 tools/pi-cycle.py --brief /absolute/brief.json \
   --state-dir /absolute/private-runs --cycle-id new-cycle-id
 ```
 
-Its brief contains exactly `question` and `context` strings. Optional `--adopt-discovery completed-job-id` reuses only a validated completed Codex proposal with matching brief, role, machine, and hashes; it does not retry failed work. The private SQLite ledger records validated completed packets and identity-checked failed receipts with a null result. A failure stops the cycle before the next stage. Existing stopped cycles and ledgers are not retrospectively changed. Controller CLI paths currently target this Homebase Mac and pinned aledev.
+Its brief contains exactly `question` and `context` strings. Optional `--adopt-discovery completed-job-id` reuses only a validated completed Codex proposal with matching brief, role, machine, and hashes; it does not retry failed work. The private SQLite ledger records validated completed packets and identity-checked failed receipts with a null result. A failure stops the cycle before the next stage. Existing stopped cycles and ledgers are not retrospectively changed. Controller CLI paths currently target the proposer workstation and a pinned critique host.
 
 Adoption shares the original immutable discovery job and packet across explicitly
 named cycles. It creates a new critique and decision identity, never a second
@@ -108,7 +138,7 @@ Example job (the question is illustrative, not an executed study):
 }
 ```
 
-`model: null` uses the CLI default; if the CLI does not report its actual model, the receipt records `null`, never a guessed model. `max_turns` bounds Claude's reasoning loop. Both providers have a hard wall-clock limit and aggregate stdout/stderr byte limit. Preflight has up to three additional five-second bounds. Future remote reviews use the one-shot asynchronous interface below with a 300-second inference deadline, independent of the short Homebase launch/status calls. The asynchronous hard ceiling is 600 seconds. The original synchronous 95-second critique timed out and has not been replayed; no completed Claude review has been established by the lifecycle tests.
+`model: null` uses the CLI default; if the CLI does not report its actual model, the receipt records `null`, never a guessed model. `max_turns` bounds Claude's reasoning loop. Both providers have a hard wall-clock limit and aggregate stdout/stderr byte limit. Preflight has up to three additional five-second bounds. Future remote reviews use the one-shot asynchronous interface below with a 300-second inference deadline, independent of the short remote-controller launch/status calls. The asynchronous hard ceiling is 600 seconds. The original synchronous 95-second critique timed out and has not been replayed; no completed Claude review has been established by the lifecycle tests.
 
 ### One-shot asynchronous remote work
 
@@ -127,7 +157,7 @@ Launch acknowledgment has `status: launched`, `launch_id`, `worker_pid`, `job_sh
 
 Each launched job's snapshot and stdio are private. The parent may reap its own finished OS children; this is process cleanup, not another job or a status claim. Tests use fake CLIs to prove detachment, exclusive identity, status validation, and deadline cleanup. They do not establish live Claude completion or authorize another research request.
 
-### Homebase transport bounds
+### Remote-controller transport bounds
 
 The controller pins the runner source bytes when it starts. Each launch carries
 the normalized job, reviewed source and SHA-256 identities as compressed JSON
@@ -136,13 +166,13 @@ source and set `sys.dont_write_bytecode`, so inspection does not install code or
 create Python cache files. Job content remains data inside a quoted fixed program.
 
 Before any remote transmission, the controller checks the complete quoted command
-against Homebase's **32,768-character** limit. Compression reduces transport size;
+against the remote controller's **32,768-character** limit. Compression reduces transport size;
 it does not raise that limit. An oversized handoff records `launch_failed` with
 `completion_unknown: false` and sends nothing. Its reserved identity is retained;
 the controller does not silently shorten the research brief or retry it.
 
 After a definite launch acknowledgment, status calls are spaced 15 seconds apart
-within a 360-second controller window. Each Homebase call has a 20-second remote
+within a 360-second controller window. Each remote-controller call has a 20-second remote
 timeout and a 25-second outer bound. A lost or invalid acknowledgment prevents
 polling; the first failed status transport stops observation without relaunching.
 Returned state is limited to 60,000 UTF-8 bytes and scientific packets to 48 KiB.
@@ -189,7 +219,7 @@ python3 tools/scientific-pi/pi_runner.py schema --role critic
 python3 tools/scientific-pi/pi_runner.py schema --role adjudicator
 ```
 
-Schemas require primary sources, closest prior art, possible novelty explicitly marked unverified, competing explanations, a falsifier, a cheap test with a baseline and decision rule, and explicit `not_started` execution. Adjudication must respond to independent critique. At least two distinct external HTTPS primary sources are required. An internal research-brief source may additionally use exactly `urn:lupine:JOB_ID:context`, with `publication_kind: primary_research_report`; no other URN is accepted. Validation checks structure, linkage, and claim boundaries; it does not establish that a citation or scientific argument is correct. Validated results are capped at 48 KiB for Homebase transport.
+Schemas require primary sources, closest prior art, possible novelty explicitly marked unverified, competing explanations, a falsifier, a cheap test with a baseline and decision rule, and explicit `not_started` execution. Adjudication must respond to independent critique. At least two distinct external HTTPS primary sources are required. An internal research-brief source may additionally use exactly `urn:lupine:JOB_ID:context`, with `publication_kind: primary_research_report`; no other URN is accepted. Validation checks structure, linkage, and claim boundaries; it does not establish that a citation or scientific argument is correct. Validated results are capped at 48 KiB for remote transport.
 
 ## Durable state and no replay
 
@@ -222,7 +252,7 @@ process completion. A pending manifest is only an identity reservation. The
 export preserves the original question and any refined scientific question,
 sanitizes receipt fields and stop descriptions, and rejects private host paths
 inside packet content instead of rewriting evidence. Raw logs, CLI paths,
-credentials and Homebase device state are excluded. Output is exclusive and
+credentials and remote-controller device state are excluded. Output is exclusive and
 mode 0600; the command neither uploads nor runs a model.
 
 In the Access-protected workspace, open **Research runs → Import a research
@@ -265,16 +295,16 @@ This never runs a subprocess or makes an inference call. It is restricted to `in
 
 ## Verified live acceptance — 2026-10-06
 
-Cycle `pi-20261006-risk-tradeoff-07` completed the actual Mac → aledev → Mac
-research handoff. All three processes exited with code 0; their accepted packets
+Cycle `pi-20261006-risk-tradeoff-07` completed the actual proposer → critique host →
+proposer research handoff. All three processes exited with code 0; their accepted packets
 passed schema validation and exact linked job/result-hash checks. Times below
 are UTC on 2026-10-06.
 
 | Stage | Host / CLI | Actual model reported | Started | Finished |
 | --- | --- | --- | --- | --- |
-| Adopted discovery 01 | Mac / Codex | Unreported (`null`) | 04:14:53.095Z | 04:15:49.108Z |
-| Independent critique 07 | aledev / Claude | `claude-opus-5-5` | 04:38:13.642Z | 04:40:01.317Z |
-| PI decision 07 | Mac / Codex | Unreported (`null`) | 04:40:03.759Z | 04:40:49.952Z |
+| Adopted discovery 01 | Proposer workstation / Codex | Unreported (`null`) | 04:14:53.095Z | 04:15:49.108Z |
+| Independent critique 07 | Critique host / Claude Code | `claude-opus-5-5` | 04:38:13.642Z | 04:40:01.317Z |
+| Adjudication 07 | Proposer workstation / Codex | Unreported (`null`) | 04:40:03.759Z | 04:40:49.952Z |
 
 The completed cycle 07 snapshot was imported through the signed-in private
 workspace UI at approximately 04:48 UTC. Discovery 01 was adopted as immutable
@@ -282,8 +312,8 @@ evidence; it was not executed again. Earlier failed receipts remain preserved,
 and no job was automatically retried. This verifies manual cycle launch,
 receipt handoff, and operator import; it does not establish unattended dispatch.
 
-Separate local CPU analyses are additional evidence, not execution of the PI's
-proposed experiment. That experiment remains **not started**, novelty remains
+Separate local CPU analyses are additional evidence, not execution of the
+adjudicated proposal's experiment. That experiment remains **not started**, novelty remains
 **unverified**, and public Library publication remains **held**. Accepted research
 packets establish the recorded discussion and provenance, not scientific truth.
 

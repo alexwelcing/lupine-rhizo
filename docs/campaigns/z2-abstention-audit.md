@@ -25,7 +25,9 @@ Those additions do not turn this B1 proof into a scientific result. This smoke
 is intentionally limited to replaying four frozen abstention rows so it can
 exercise unified-image packaging, GCS delivery, and authenticated beat delivery
 without loading a calculator. The SOC/Tc runner and locked panel are deliberately
-not evaluated, the ClaimContract remains `unsupported`/`pending`, and cloud
+not evaluated, the ClaimContract remains `unsupported`/`pending` in the machine
+registry (the public status of this round is Abstained; the registry record moves
+only with an evidence-bound transition, see `registry/README.md`), and cloud
 scientific executions for these rows remain **zero**.
 
 ## What was produced instead

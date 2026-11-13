@@ -233,6 +233,10 @@ export interface Env {
   /** Email allow-list for gated routes (single address; expand to comma-split
    * if multi-admin becomes a need). */
   ADMIN_EMAIL?: string;
+  /** Optional comma-separated denylist (for example private host or device
+   * names) that public research-activity imports must not contain. Set as a
+   * Worker secret so the names are never committed. */
+  PUBLIC_ACTIVITY_PRIVATE_TERMS?: string;
   /** When "true", bypasses both CF Access middleware AND /feed/beats OIDC JWT
    * verification. Local dev only. */
   DEV_MODE?: string;

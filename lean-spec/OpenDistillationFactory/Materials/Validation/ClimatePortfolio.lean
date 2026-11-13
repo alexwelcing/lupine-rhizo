@@ -6,10 +6,12 @@ import OpenDistillationFactory.Materials.Theory.SorptionStability
 
 /-! # Climate-critical material portfolio: mapping theory to screening classes
 
-The climate-series proof pack argues that five material classes could unlock
-5–12 GtCO₂/yr of abatement. This module makes that mapping explicit and
-machine-checkable: each class is paired with the formal theory that governs its
-screening failure mode, the correction path, and the current data status. The
+The July 2026 climate-series articles argued that five material classes could
+unlock 5–12 GtCO₂/yr of abatement; that range was a sum of literature
+estimates, not a measured or enabled outcome, and has since been retired.
+This module makes that mapping explicit and machine-checkable: each class is
+paired with the formal theory that governs its screening failure mode, the
+correction path, and the current data status. The
 goal is not new physics — the physics lives in `Theory.EnvironmentField`,
 `Theory.BarrierArrhenius`, `Theory.RankingIntegrity`, `Theory.ScalingVolcano`,
 `Theory.DefectStability`, and `Theory.SorptionStability` — but a structured,
@@ -62,7 +64,8 @@ end MaterialClass
 
 /-! ## Portfolio envelope (expanded from ClimateSeries)
 
-Per-class abatement potential, ×10 GtCO₂/yr, as claimed in the proof pack.
+Per-class abatement potential, ×10 GtCO₂/yr, as stated in the retired July 2026
+climate-series pack.
 The aggregate envelope is verified by two independent integer checks: the
 lower bound of the total range must fit inside the sum of lower bounds, and
 the upper bound must fit inside the sum of upper bounds. -/

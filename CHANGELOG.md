@@ -16,6 +16,22 @@ Newest first. Dates are absolute.
 
 ---
 
+## 2026-11-11 — Year-end reset of the public record
+
+- **Why.** Public files had drifted from the evidence: some headlines outran their own pages, the hypothesis ledger stopped in June and left out most failed campaigns, operations notes and raise material sat in the public tree, and three licence regimes applied at once.
+- **What.**
+  - Completed the [hypothesis ledger](docs/conjectures/ledger.md) with every registered campaign (Rounds 1, 3, 4 and 5, the Z1 sparse-DFT pilot, Projection Law Round 2, classical-to-MLIP transfer, the stopped 128-group study and two withdrawn claims), each linked to the file that holds its numbers. Corrected the [formal proof ledger](docs/formal-proof-ledger.md): the hyper-ribbon row is Open, and the Simpson's-paradox claim is Withdrawn and cites the Lean statement that actually exists.
+  - Rewrote overclaiming passages as oracle-ceiling wording in the layer-2 papers, and added the failed preregistered follow-ups to the error-geometry replication kit.
+  - Published [how we use AI agents and handle data](docs/ai-and-data.md), with each mechanism's real coverage.
+  - Removed raise, prospect-list and operations files from the tree (git history keeps them) and scrubbed personal identifiers from runbooks and records.
+  - Relicensed: code MIT; first-party prose and data CC BY 4.0 (see `NOTICE.md`).
+  - Pruned the Library catalog of operations logs, AI-drafted surveys and funding material, and regenerated `exports/library-content/latest/`.
+  - Catch-up: the Lean toolchain is pinned to v4.35.0 ([PR #159](https://github.com/alexwelcing/lupine-rhizo/pull/159)); the theorem inventory was regenerated on 2026-11-05 (`lean-spec/theorem-count.json`).
+- **Results.** No new scientific claim. Several earlier headlines are narrower or retired; the retired public headlines and the reasons are listed at [lupine.science/corrections](https://lupine.science/corrections/).
+- **Next.** Keep every new campaign's ledger row in the same change as its result.
+
+---
+
 ## 2026-10-08 — A reader-controlled Library, a broader corpus, and mathematical checks
 
 - **Why.** The Library needed to expose the growing research as something readers can work with. This log had stopped at July 17 even as reports and reviewed activity continued.

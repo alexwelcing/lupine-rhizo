@@ -2,7 +2,7 @@ import type { Env } from "../types";
 import { checkAccess } from "../middleware/access";
 import { WORKSPACE_PRIVATE_HEADERS } from "../middleware/workspaceAccess";
 import {
-  decodePublicResearchActivity, publicActivityIdSchema, publicActivitySha256,
+  decodePublicResearchActivity, privateTermsFrom, publicActivityIdSchema, publicActivitySha256,
   PUBLIC_ACTIVITY_DEFAULT_LIMIT, PUBLIC_ACTIVITY_FEED_SCHEMA, PUBLIC_ACTIVITY_MAX_BYTES,
   PUBLIC_ACTIVITY_MAX_LIMIT, PUBLIC_ACTIVITY_ARCHIVE_SCHEMA, type PublicResearchActivityArchive, type PublicResearchActivity, type PublicResearchActivityFeed,
 } from "./researchActivityContracts";
@@ -102,8 +102,8 @@ function assertSuccessor(previous: PublicResearchActivity, record: PublicResearc
 }
 
 /** Explicitly reviewed public projection only. Does not read any private table. */
-export async function importPublicResearchActivity(env: Pick<Env, "LEDGER">, value: unknown): Promise<{ record: PublicResearchActivity; duplicate: boolean }> {
-  const record = decodePublicResearchActivity(value);
+export async function importPublicResearchActivity(env: Pick<Env, "LEDGER" | "PUBLIC_ACTIVITY_PRIVATE_TERMS">, value: unknown): Promise<{ record: PublicResearchActivity; duplicate: boolean }> {
+  const record = decodePublicResearchActivity(value, Date.now(), privateTermsFrom(env.PUBLIC_ACTIVITY_PRIVATE_TERMS));
   const payload = JSON.stringify(record);
   const fingerprint = await publicActivitySha256(payload);
   const old = await env.LEDGER.prepare(`${SELECT} WHERE a.id = ?`).bind(record.id).first<Row>();
@@ -192,7 +192,7 @@ export async function researchActivityResponse(request: Request, env: Env): Prom
   if (denial) return privateJson({ error: "Verified operator Access is required" }, 403);
   if (url.search || request.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") return privateJson({ error: "Use application/json without query parameters" }, 415);
   let value: unknown;
-  try { value = JSON.parse(await readBounded(request)); decodePublicResearchActivity(value); }
+  try { value = JSON.parse(await readBounded(request)); decodePublicResearchActivity(value, Date.now(), privateTermsFrom(env.PUBLIC_ACTIVITY_PRIVATE_TERMS)); }
   catch (error) { return privateJson({ error: error instanceof RangeError ? "Public activity exceeds the size limit" : "Public activity failed reviewed-projection validation" }, error instanceof RangeError ? 413 : 400); }
   try {
     const { record, duplicate } = await importPublicResearchActivity(env, value);

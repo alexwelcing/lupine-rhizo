@@ -1,17 +1,21 @@
 /-!
-# Climate-series certificate pack
+# Climate-series arithmetic checks
 
-Decidable, kernel-checked certificates for the quantitative claims of the
-climate partnerships proof pack ("The 0.2 % Synthesis Problem", "A Field, Not
-a Neural Net", "Five Materials That Could Unlock 5–12 GtCO₂/Year",
-lupine.science, 2026-07-09). Every theorem is a `decide`-checked integer fact
-in the style of the evidence corpus: no floats, no `sorry`, no trust in an
-analysis script. Scaled units are stated per theorem.
+Decidable, kernel-checked integer checks for numbers quoted in the July 2026
+climate-series articles on lupine.science ("The 0.2 % Synthesis Problem",
+"A Field, Not a Neural Net" and the five-materials article, 2026-07-09).
+Every theorem is a `decide`-checked integer fact in the style of the evidence
+corpus: no floats, no `sorry`, no trust in an analysis script. Scaled units
+are stated per theorem.
 
-These certificates pin the *arithmetic* of the narrative; the *physics* is
-proven in `Theory.EnvironmentField`, `Theory.BarrierArrhenius`,
-`Theory.RankingIntegrity`, `Theory.ScalingVolcano`, `Theory.DefectStability`,
-and `Theory.SorptionStability`.
+These checks pin the *arithmetic* of those articles. Lean 4 checks the
+arithmetic and stated inequalities behind published numbers; it does not
+check the physics, the reference data or the pipeline. The 5–12 GtCO₂/yr
+envelope checked below was a sum of literature estimates, not a measured or
+enabled outcome, and the five-materials article has since retired it.
+Related formal statements are in `Theory.EnvironmentField`,
+`Theory.BarrierArrhenius`, `Theory.RankingIntegrity`, `Theory.ScalingVolcano`,
+`Theory.DefectStability`, and `Theory.SorptionStability`.
 -/
 
 namespace OpenDistillationFactory.Materials.Validation.ClimateSeries

@@ -238,9 +238,10 @@ This uses the three baseline result files in
 
 ## 12. References
 
-- Repo-root PDF: *A Conditional Universality Theorem for Error Geometry in
-  Machine-Learning Interatomic Potentials* — assumptions A0–A6, exact and
-  perturbative tubular theorems, diagnostics table p. 14–15.
+- [*A Conditional Universality Theorem for Error Geometry in
+  Machine-Learning Interatomic Potentials*](../reports/A%20Conditional%20Universality%20Theorem%20for%20Error%20Geometry%20in%20Machine-Learning%20Interatomic%20Potentials.pdf)
+  (`docs/reports/`; an AI-drafted background report) — assumptions A0–A6,
+  exact and perturbative tubular theorems, diagnostics table p. 14–15.
 - [`keystone-reconciliation.md`](./keystone-reconciliation.md)
 - [`objects.md`](./objects.md)
 - [`docs/glim-m3-upgrade/runs/a6-alignment-results.md`](../glim-m3-upgrade/runs/a6-alignment-results.md) — first pilot

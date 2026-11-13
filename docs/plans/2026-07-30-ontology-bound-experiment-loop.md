@@ -1,7 +1,7 @@
 # Architecture Plan: Ontology-Bound Experiment Loop (2 days)
 
 **Date:** 2026-07-30 · **Author:** Coordinator (owner request `rms7nt6j2`) · **Status:** preregistration-grade plan
-**Scope guardrail note:** the standing posture since 2026-07-20 is *local-first, cloud fleet cancelled* (`RESEARCH_COMMAND_CENTER.md`). This plan revisits that decision at the owner's explicit request (GCP scale, k8s or Cloud Run). It recommends **Cloud Run, not k8s**: per-job billing to zero, no cluster control plane to own, and every current dispatch seam (`glim-think/dispatch.ts` → Cloud Tasks → `tasks-consumer` → `jobs.run`) already terminates there. k8s becomes rational only at sustained >40% GPU utilization across ≥3 models; revisit then.
+**Scope guardrail note:** the standing posture since 2026-07-20 is *local-first, cloud fleet cancelled* (operator decision, 2026-07-20). This plan revisits that decision at the owner's explicit request (GCP scale, k8s or Cloud Run). It recommends **Cloud Run, not k8s**: per-job billing to zero, no cluster control plane to own, and every current dispatch seam (`glim-think/dispatch.ts` → Cloud Tasks → `tasks-consumer` → `jobs.run`) already terminates there. k8s becomes rational only at sustained >40% GPU utilization across ≥3 models; revisit then.
 
 ## North star
 

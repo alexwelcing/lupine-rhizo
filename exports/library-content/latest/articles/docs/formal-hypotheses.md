@@ -92,7 +92,7 @@ For cubic elastic constants, P_c = 3 (C11, C12, C44 are the 3 independent compon
 
 **Intuition:** With only 24 FCC data points, the sampling error in the covariance matrix is enormous. The PR point estimate of 1.3 has a bootstrap CI that likely spans [0.8, 2.5]. The claim "PR/3 < 0.5" (i.e., PR < 1.5) was barely supported even by the point estimate, and the CI made it unproven.
 
-**Resolution:** This hypothesis explained why the hyper-ribbon claim was initially **statistically fragile**. However, the `atlas-distill` LAMMPS campaign has now accumulated **N = 386** ground-truth empirical evaluations across 10 metals. With this massive increase in sample size, the bootstrap CI has collapsed to a tight, robust interval (e.g., [1.00 - 1.37] for Zhou-2004), officially upgrading the hyper-ribbon claim from conjecture to an empirically verified theorem.
+**Resolution:** This hypothesis explained why the hyper-ribbon claim was initially **statistically fragile**. However, the `distill` LAMMPS campaign has now accumulated **N = 386** ground-truth empirical evaluations across 10 metals. With this massive increase in sample size, the bootstrap CI has collapsed to a tight, robust interval (e.g., [1.00 - 1.37] for Zhou-2004), officially upgrading the hyper-ribbon claim from conjecture to an empirically verified theorem.
 
 ---
 
@@ -115,7 +115,7 @@ For cubic elastic constants, P_c = 3 (C11, C12, C44 are the 3 independent compon
     → P_c = symmetry-constrained degrees of freedom
 
 [RESOLVED] H6: Bootstrap Collapse
-    → N = 386 ground-truth data points obtained; CI narrowed and Hyper-Ribbon proven.
+    → N = 386 ground-truth data points obtained; the CI narrowed. The hyper-ribbon claim remains Open (descriptive); see the conjecture ledger.
 ```
 
 All six are formally stated. None are proven. All are falsifiable.

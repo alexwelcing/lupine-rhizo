@@ -33,9 +33,37 @@ believing any strong result in a noisy corpus, audit the records *driving* it.
 Correlations pooled across heterogeneous groups can invert when a confounder
 (element identity) is ignored — Simpson's paradox / Robinson's ecological fallacy.
 Correct analysis requires stratified evaluation and random-effects meta-analysis
-(DerSimonian–Laird), not naive pooling. The formal spec went further and proved that
-the *specific* Simpson's-paradox claim the original paper made
-[cannot arise](formal-proof-ledger.md) under the real causal graph.
+(DerSimonian–Laird), not naive pooling.
+
+- Withdrew a pooled "1.8× gate efficacy": it was a class-composition artifact. Within
+  classes the gate refused the most accurate high-entropy alloy and the known-good
+  control, and the perovskite difference was small (10.08% issued vs 11.28% refused)
+  ([errata #3](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/plans/2026-07-13-errata-and-red-team-dispositions.md)).
+- Withdrew our own Simpson's-paradox claim for BCC elastic constants: the reversal was
+  shown only on a synthetic example, and on the recorded NIST data the pooled and
+  within-element correlations do not reverse sign (Lean-checked computation). The
+  causal-graph argument is a stated conjecture, not a proof
+  ([formal proof ledger](formal-proof-ledger.md)).
+- Random-effects pooling of correlation coefficients assumes independent groups. The
+  Fisher-z random-effects intervals we once built on dependent C11/C12/C44 rows were
+  anti-conservative and are no longer reported as inference
+  ([TMS proceedings manuscript](https://github.com/alexwelcing/lupine-rhizo/blob/main/paper/tms2027-proceedings/manuscript.tex)).
+
+## 4. Amendments after results
+
+Our rule: an amendment written after any outcome has been seen is labelled
+outcome-dependent, and the original gate's verdict is reported next to the amended
+one. Example: the Z1 sparse-DFT pilot's
+[amendment 01](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/plans/2026-07-21-sparse-dft-pilot-amendment-01.md) moved the primary
+gate to a same-engine basis after path 7 failed the original gate; the
+[ledger](conjectures/ledger.md) reports the pilot as a same-engine self-consistency
+check with the VASP-referenced error beside it.
+
+Human sign-off on an amendment is a commit carrying the owner's `Signed-off-by:`
+line or an approving review on the pull request that adds it, not a quoted
+conversation (rule from 2026-11-12; amendment 01's approval predates it and is
+recorded only as a quoted conversation). The outcome-dependent label applies
+whatever the sign-off. See [How we use AI agents and handle data](ai-and-data.md#amendments).
 
 ## The stance
 

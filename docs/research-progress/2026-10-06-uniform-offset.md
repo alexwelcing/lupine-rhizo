@@ -1,6 +1,6 @@
 # Uniform force offsets do not explain the archived common error
 
-Date: 2026-10-06. **Archived descriptive control; independently checked arithmetic.**
+Date: 2026-10-06. **Archived descriptive control; arithmetic checked by a separate exact-arithmetic implementation.**
 
 ## Question and numerical result
 
@@ -31,7 +31,7 @@ The saved reference and each predictor's mean force vector are retained separate
 
 A separate implementation reconstructed the calculation from the raw saved decimal force arrays using exact rational arithmetic. It retained all **800 configurations, 7,236 atoms and 100 original groups**, proved the energy decomposition and zero sum of the internal component for every configuration, and passed **60,344 numeric comparisons** against the primary binary64 calculation. Vectors, energies, fractions, group means, distributions and pooled values agree within the documented numerical comparison tolerance; primary decisions agree exactly. No zero denominator or decision discrepancy was found.
 
-Both exact panel means are strictly below one half. The primary artifact retains its original pending-verification state; separate verification and PI adjudication record final acceptance. Exact arithmetic validates the saved numbers and calculation, not their physical provenance.
+Both exact panel means are strictly below one half. The primary artifact retains its original pending-verification state. A separate exact-arithmetic verification record checks the values; the model-adjudication record is a recommendation, not evidence. Exact arithmetic validates the saved numbers and calculation, not their physical provenance.
 
 ## What this closes and what remains open
 
@@ -52,4 +52,4 @@ Detailed vectors and raw artifacts remain private; published hashes identify the
 - Frozen protocol: `fe02dc3c083c10f846766d7acea5ecdb696c24ecf722d7e076feab2d37707409`.
 - Primary result: `7d2eb3ab2c12e50a5154ae41d313e65ba957782960b56cab920cb75342c4fd4b`.
 
-- Independent exact-arithmetic verification: `cb5a0fdfa21dc1c2a666e6df54f96089e396afd92b50e397cb4ba03d534ee591`.
+- Separate exact-arithmetic verification: `cb5a0fdfa21dc1c2a666e6df54f96089e396afd92b50e397cb4ba03d534ee591`.

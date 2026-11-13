@@ -2,8 +2,35 @@
   "count": 927,
   "modules": 112,
   "zero_sorry": true,
-  "counted_at": "2026-11-05",
+  "counted_at": "2026-11-12",
   "source": "lean-spec/OpenDistillationFactory{,.lean} (vendored packages excluded)",
-  "source_sha256": "635b2a543bfe8f5bd336e8b7896224a2952ad58d48303f04222acd8b8974e2f1",
-  "rule": "theorem/lemma declarations after stripping nested comments and strings; supports attributes, whitespace, and declaration modifiers; every active sorry token fails; regenerate with lean-spec/scripts/generate-lean-count.mjs — never hand-edit"
+  "source_sha256": "93d829157cda5be1bfb2d01216b6dbc9486996519483f1112c733453d4009ff7",
+  "rule": "theorem/lemma declarations after stripping nested comments and strings; supports attributes, whitespace, and declaration modifiers; every active sorry token fails; regenerate with lean-spec/scripts/generate-lean-count.mjs — never hand-edit",
+  "breakdown": {
+    "rule": "computed from the same stripped source as count. single_tactic_checks: counted declarations whose whole proof is one argument-free decide, native_decide, rfl or norm_num tactic, or the term rfl. native_decide: active native_decide tokens, and counted declarations whose proof uses one (it trusts the compiled evaluator). registry_grades: hand-assigned labels parsed from Registry.lean, null when it cannot be parsed. Lean checks arithmetic and stated inequalities; none of these numbers measures physics.",
+    "single_tactic_checks": {
+      "total": 274,
+      "by_tactic": {
+        "decide": 128,
+        "native_decide": 63,
+        "rfl": 79,
+        "norm_num": 4
+      }
+    },
+    "native_decide": {
+      "uses": 65,
+      "declarations": 63
+    },
+    "registry_grades": {
+      "source": "lean-spec/OpenDistillationFactory/UniversalCorrection/Empirical/Registry.lean",
+      "scope": "EpistemicGrade labels assigned by hand in theoremInventory; covers the correction-theory surface listed there, not every counted declaration",
+      "entries": 183,
+      "by_grade": {
+        "pureMathematical": 167,
+        "empiricallyConditional": 12,
+        "assuranceExported": 0,
+        "unsupportedOverScoped": 4
+      }
+    }
+  }
 }

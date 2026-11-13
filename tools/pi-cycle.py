@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""A manual discovery -> independent critique -> PI decision, with a private ledger.
+"""A manual discovery -> separate-model critique -> model adjudication, with a private ledger.
 
-Uses signed-in official CLIs on the named Mac and aledev. Does not launch any
+Uses signed-in official CLIs on the named Mac and the critique workstation. Does not launch any
 experiments, publish research, or start a polling daemon. Never replays a job.
 """
 from __future__ import annotations
@@ -86,7 +86,7 @@ if p['action']=='launch':
 else:
  value=mod.read_state(root/'runs',p['job_id'])
 envelope=json.dumps({'action':p['action'],'job_id':p['job_id'],'job_sha256':p['job_sha256'],'source_sha256':p['source_sha256'],'value':value},ensure_ascii=False)
-if len(envelope.encode())>60000:raise RuntimeError('research state exceeds transport bound; retained on aledev')
+if len(envelope.encode())>60000:raise RuntimeError('research state exceeds transport bound; retained on the critique workstation')
 print(envelope)
 """.replace("PAYLOAD", repr(payload))
     return "python3 -c " + shlex.quote(program)

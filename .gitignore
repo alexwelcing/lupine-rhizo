@@ -88,9 +88,6 @@ archive/distiller-kb/agents/profiles/.archive/
 distill/*.json
 .vscode/
 
-# Tools data
-tools/hermes-hive/data/
-
 # Large binary files & media
 *.lammpstrj
 *.mp4

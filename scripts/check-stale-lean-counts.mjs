@@ -45,7 +45,12 @@ for (const relative of new Set([...trackedFiles(), ...activeExportFiles()])) {
     : relative;
   if (relative === SELF || (activeLatestExport && SKIP_ACTIVE_EXPORT) || HISTORICAL_PATH.test(historicalCandidate) || CODE_OR_TEST_PATH.test(relative)) continue;
   if (!TEXT_EXTENSIONS.has(path.extname(relative).toLowerCase())) continue;
-  const lines = fs.readFileSync(path.join(ROOT, relative), 'utf8').split(/\r?\n/);
+  // A tracked file can be missing from the working tree (for example when the
+  // exporter has just dropped it and the deletion is not yet staged); there is
+  // nothing to scan, so skip it instead of crashing with ENOENT.
+  const absolute = path.join(ROOT, relative);
+  if (!fs.existsSync(absolute)) continue;
+  const lines = fs.readFileSync(absolute, 'utf8').split(/\r?\n/);
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     const localContext = lines.slice(Math.max(0, index - 1), index + 2).join('\n');

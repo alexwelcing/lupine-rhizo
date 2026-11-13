@@ -1,5 +1,10 @@
 # Sloppy Model Theory and Interatomic Potential Transferability: A Comprehensive Review
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 ## Summary
 
 This report synthesizes foundational and recent developments in sloppy model theory as applied to interatomic potential (IP) development and transferability. Sloppy models exhibit hierarchical eigenvalue spectra in their Fisher Information Matrix (FIM), indicating that many parameter combinations are nearly unobservable while others are finely constrained. This analysis reveals critical insights into why IPs often generalize unexpectedly well despite high dimensional parameter spaces, and establishes quantitative metrics for model manifold boundaries and transferability limits.

@@ -62,7 +62,7 @@ export class Orchestrator extends GlimThinkAgent {
         execute: async input => enqueueScientificJob(this.env, { ...input, role: "codex_mac_discovery" }),
       }),
       dispatch_aledev_critique: tool({
-        description: "Ask Claude on aledev to independently critique a completed Codex discovery receipt. The question must match that discovery. This is a reasoning handoff only; an experiment proposal is not execution approval.",
+        description: "Ask Claude on the critique workstation to independently critique a completed Codex discovery receipt. The question must match that discovery. This is a reasoning handoff only; an experiment proposal is not execution approval.",
         inputSchema: scientificJobInputSchema.omit({ role: true, parentReceiptSha256: true }).extend({ parentJobId: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/) }),
         execute: async input => enqueueScientificJob(this.env, { ...input, role: "claude_aledev_critique" }),
       }),

@@ -17,7 +17,7 @@ manifold through parameter-dependent predictions. An ensemble of different
 potential families or a cross-material error table is not automatically a sample
 from one such map. B can describe concentration in that table; identifying B with
 A needs an additional sampling and representation argument. The A/B-to-C bridge
-also remains conditional; see [keystone reconciliation](keystone-reconciliation.md).
+also remains conditional; see [keystone reconciliation](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/science/keystone-reconciliation.md).
 
 For nonzero positive-semidefinite covariance, PR lies between 1 and its rank.
 It equals the rank only when the nonzero eigenvalues are equal. Small PR is
@@ -62,7 +62,7 @@ generators must be inspected separately before assigning their results this cont
 
 ## Glim's distinct joint-property path
 
-The separate [Glim Manifold agent](../../glim-think/src/agents/manifold.ts) uses
+The separate [Glim Manifold agent](https://github.com/alexwelcing/lupine-rhizo/blob/main/glim-think/src/agents/manifold.ts) uses
 relative errors, not the raw-error Rust path above. Its inspected pre-fix revision
 `3c3f6bffab815481e084b67978f2df8e25e85784` inserted zero whenever an observable was
 missing or its reference was zero. This treated an unknown measurement as a
@@ -75,7 +75,7 @@ a claim write. This demonstrates a consumer defect, not an observed historical
 scientific result or evidence that any particular published PR used those records.
 
 The current
-[observed-matrix contract](../../glim-think/src/research/observedManifoldMatrix.ts)
+[observed-matrix contract](https://github.com/alexwelcing/lupine-rhizo/blob/main/glim-think/src/research/observedManifoldMatrix.ts)
 is shared by the tool and deterministic entry points. It keeps the input property
 set fixed, retains only complete finite rows with nonzero references, rejects
 conflicting repeated cells, and separates elements and supplied potential IDs.
@@ -101,11 +101,11 @@ The [MEAM matched-sample comparison](../conjectures/meam-intrinsic-2d.md) alread
 retired the strong intrinsic-dimensionality claim. Do not repeat that bootstrap
 just to produce another number. The [Born-screening review](../born-screening-re-audit.md)
 keeps the old MLIP transfer count frozen. The
-[A6 pilot](../glim-m3-upgrade/runs/a6-alignment-results.md) remains provisional;
+[A6 pilot](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/glim-m3-upgrade/runs/a6-alignment-results.md) remains provisional;
 its recorded signal does not establish a universal configuration-space core.
 These are retained reports, not newly checked raw-data reproductions.
 
-The [retained ribbon-sprint report](../ribbon-sprint/00-preregistration.md)
+The [retained ribbon-sprint report](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/ribbon-sprint/00-preregistration.md)
 already records a negative joint-property control: its four-property, 42-row panel
 has reported PR 2.16 versus null 2.24, p=0.30. The named raw result/input files were
 not located by the bounded workspace filename search in this review. Treat this
@@ -121,7 +121,7 @@ joint PR alone does not rule out scale, sample-size or selection effects.
 
 ## What the Lean statement proves
 
-[`HyperRibbonEmpirical.lean`](../../lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbonEmpirical.lean)
+[`HyperRibbonEmpirical.lean`](https://github.com/alexwelcing/lupine-rhizo/blob/main/lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbonEmpirical.lean)
 defines the Float constant `0.3981388474988096` and checks that it is below
 `0.5` using `native_decide`. The statement has no dataset input, source digest,
 PCA calculation, sampling model or physical universality quantifier. It checks
@@ -156,7 +156,7 @@ Its eigenvalues are (0.03,0,0), so the correct PR is 1. This is an
 implementation counterexample, not a new physical observation or proof that
 a particular historical result used this path.
 
-The route now calls [runManifold.ts](../../glim-think/src/research/runManifold.ts).
+The route now calls [runManifold.ts](https://github.com/alexwelcing/lupine-rhizo/blob/main/glim-think/src/research/runManifold.ts).
 It keeps the declared C11/C12/C44 basis and uses the shared observed-matrix
 selection by element and model identity. Repeated conflicts exclude a row;
 missing columns cannot shrink the basis; the route retains its three-complete-row

@@ -1,96 +1,179 @@
-# The three error-geometry objects (read this before writing "ribbon")
+# Three error-geometry objects and their evidence boundaries
 
-"Low-dimensional error" in this corpus refers to **three different objects**. They are
-related but not identical, and conflating them produces real mistakes (it produced
-several in a 2026-06-02 working session). This page is the canonical disambiguation;
-everything else should link here rather than re-define the terms.
+A low participation ratio is a description of a specified sample in specified
+coordinates. It does not by itself establish a model manifold, a physical cause,
+a shared configuration-space core, or a useful correction.
 
-The literature foundation is
-[`archive/swarm_preprint_review/research/immi_dim01_sloppy_theory.md`](../../archive/swarm_preprint_review/research/immi_dim01_sloppy_theory.md)
-(25+ primary sources). Read it for the full chain; this is the compressed map.
+## The three objects
 
-## At a glance
-
-| | **A. Model manifold** (the *hyper-ribbon*) | **B. Participation-ratio measure** | **C. Configuration-space error core** |
-|---|---|---|---|
-| Lives in | model **prediction / data** space | observable space (e.g. C11/C12/C44) | **configuration** space `Ω ⊂ ℝᵐ` |
-| Is | image `y(θ)` of the prediction map as parameters vary; a bounded manifold with a geometric **hierarchy of widths** `Wₙ ~ W₀·Δⁿ` | `PR = (Σλ)²/Σλ²` of the **error covariance** across potentials — a scalar effective-dimension *measurement* | a low-dim core `H` with the error boundary a **codim-1 tube** around it (`dim Γ = m−1`) |
-| Role | the *theory* object: why errors are low-dimensional | the *empirical handle*: how we measure A from data | a distinct, more demanding *rigor* object |
-| Source | Transtrum–Machta–Sethna, PRL 104 060201 (2010); PRE 83 036701 (2011) | participation-ratio defn (Cell Reports Methods 2022); `immi_dim01` §4 | repo-root PDF *"A Conditional Universality Theorem for Error Geometry in MLIPs"* |
-| In this repo | the framing; `docs/sloppy_models_report.md` | `lupine-distill/src/hypothesis/manifold.rs`; `HyperRibbonEmpirical.lean` | not yet built; `docs/science/keystone-reconciliation.md` |
-| Status | established theory | **standard, correct usage** (B measures A) | **conditional** theorem; assumptions untested |
-
-## A — the model manifold (this is what "hyper-ribbon" *means*)
-
-The model manifold is the surface `y(θ)` swept out in **prediction space** as the
-parameters `θ` vary over all allowed values; the parameters are coordinates on it and the
-metric is the Fisher information `gₐᵦ = JᵀJ`. For sloppy models the manifold has a
-**hierarchy of widths decreasing geometrically** — much longer than it is wide, much wider
-than it is thick — a *hyper-ribbon* (Transtrum–Machta–Sethna 2010/2011). The widths track
-the Fisher eigenvalue spectrum; the hierarchy follows from interpolation/approximation
-theory and model smoothness (Quinn et al. 2019/2023). Interatomic potentials are in this
-class (Frederiksen 2004; Wen 2017 [OpenKIM]; Kurniawan 2022). **When this corpus says
-"hyper-ribbon," it means object A.**
-
-## B — the participation-ratio measure (how we see A in the data)
-
-We do not observe `y(θ)` directly; we observe **prediction errors** of many potentials on a
-few properties. Stacking each potential's error vector (e.g. `[C11_err, C12_err, C44_err]`),
-forming the error covariance, and taking the **participation ratio**
-`PR = (Σλᵢ)²/Σλᵢ²` gives the *effective dimensionality* of that error cloud — a scalar
-between 1 and the nominal rank. The IMMI corpus measures `PR ≈ 1.05–1.86` of 3 (a near-1D
-ribbon with a thin secondary direction). This is the **standard, literature-sanctioned way
-to measure the effective dimensionality of A from data** (`immi_dim01` §4). It is computed
-in [`lupine-distill/src/hypothesis/manifold.rs`](../../lupine-distill/src/hypothesis/manifold.rs)
-and recorded in `lean-spec/.../Theory/HyperRibbonEmpirical.lean`.
-
-> **Caveat (do not skip).** B is a *linear* effective-dimension measure and the elastic
-> constants share structural components (the **Cauchy relation**, mechanical-stability
-> constraints). Jackson–Somers (1991) and Archie (1981) show such shared components produce
-> a **non-zero baseline correlation / PR** independent of any shared physics. Any PR or
-> cross-model-alignment claim must therefore be tested against a **coupling-aware null**,
-> not against `r = 0`. (This is exactly the control the 2026-06-02 A6 test still lacks.)
-
-## C — the configuration-space error core (a different, harder object)
-
-The repo-root keystone paper studies a different thing: the geometry of the high-error
-region in **configuration space** `Ω ⊂ ℝᵐ`. It proves a **conditional** universality —
-*if* there is a shared low-dim core manifold `H ⊂ Ω` (positive reach), a common monotone
-radial error profile, and small model-specific perturbations, *then* each model's high-error
-region is a tube around `H` and the boundaries are pairwise diffeomorphic. Two cautions the
-paper makes decisively:
-
-- the error **boundary** level set is dimension **`m−1`, not low**; the low-dim object is the
-  core `H`. A measure-theoretic *concentration* (like B) must **not** be called a manifold.
-- bridging "errors are sloppy / low-PR" (A/B, parameter & observable space) to "there is a
-  shared configuration-space core" (C) requires a **strongly nonstandard** assumption (the
-  paper's "A6": different models share spatial error modes) that **must be tested**.
-
-C is **not** the same as A. It is a separate, rigor-first reframing, and the open scientific
-question is whether the A→C bridge (A6) holds. See
-[`keystone-reconciliation.md`](./keystone-reconciliation.md).
-
-## How they relate (one sentence)
-
-**B is the empirical measure of A; C is a distinct configuration-space object whose link to
-A/B is the untested A6 bridge.** A and B are the established program (correct usage). C is the
-frontier.
-
-## Which repo claims attach to which object
-
-| Claim / artifact | Object | Note |
+| Object | Space and definition | What establishes it |
 |---|---|---|
-| Hyper-ribbon framing; `sloppy_models_report.md` | A | the theory |
-| `HyperRibbonEmpirical` PR ≈ 0.40 fractional; `manifold.rs` | B | the measurement of A; coupling caveat applies |
-| `hyper-ribbon-universality` / `mlip-transfer` conjectures | A via B | survival of the low-PR structure across potentials/MLIPs |
-| `RibbonProjection.lean` | **none cleanly** | a scalar toy; not A, B, or C — keep as a concentration lemma, not "the ribbon formalized" |
-| keystone paper + `keystone-reconciliation.md` | C | conditional; A6 untested |
-| A6 alignment test (`a6-alignment-results.md`) | A→C bridge | provisional; coupling-aware null still owed |
+| A. Model manifold | Predictions `y(theta)` as parameters of a specified model vary | A parameterized prediction map, its metric and the sampled parameter domain |
+| B. Error-cloud participation ratio | Eigenvalues of a specified centered error covariance; `PR = (sum lambda)^2 / sum lambda^2` | Pinned observations, row/column identities, normalization, selection and dependence rules |
+| C. Configuration-space error core | A proposed shared low-dimensional core in atomic configuration space | Spatial error data and the explicit assumptions of the conditional tube theorem |
 
-## Decision guide — when you write "ribbon," say which
+[Transtrum, Machta and Sethna](https://arxiv.org/abs/1010.1449) define a model
+manifold through parameter-dependent predictions. An ensemble of different
+potential families or a cross-material error table is not automatically a sample
+from one such map. B can describe concentration in that table; identifying B with
+A needs an additional sampling and representation argument. The A/B-to-C bridge
+also remains conditional; see [keystone reconciliation](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/science/keystone-reconciliation.md).
 
-- Means *the structure in prediction space / why errors are low-dim* → **A** (cite Transtrum).
-- Means *a measured effective dimensionality (a PR number)* → **B** (state the null you tested against).
-- Means *a configuration-space error manifold/core* → **C** (it is conditional; name the assumptions).
+For nonzero positive-semidefinite covariance, PR lies between 1 and its rank.
+It equals the rank only when the nonzero eigenvalues are equal. Small PR is
+variance concentration, not a proof of low topological dimension. A zero covariance
+has no variance spectrum to interpret; the implementation returns 0 as a convention.
 
-If you cannot say which one, the statement is not yet precise enough to publish.
+## Maintained calculation inspected on 4 November 2026
+
+This is source inspection at Rhizo revision
+`8965bc990803a0c87485e6682378a62dbd320c4d`, not a new execution or a reconstruction
+of every historical result.
+
+- [`build_error_vectors`](https://github.com/alexwelcing/lupine-rhizo/blob/8965bc990803a0c87485e6682378a62dbd320c4d/atlas-distill/src/manifold.rs) groups records by
+  material and potential label, takes `predicted - reference`, selects the first
+  matching record for each requested property, and excludes incomplete/nonfinite
+  vectors. It does not itself resolve duplicate model artifacts, repeated
+  references, incompatible units or provenance conflicts.
+- `analyze_manifold` then groups by potential label. Its rows are **materials** and
+  columns are properties, with at least three complete rows. This differs from
+  an analysis of many potentials at a fixed material. Do not interchange those
+  sampling units or assume a family label identifies one model artifact.
+- [`stats::pca`](https://github.com/alexwelcing/lupine-rhizo/blob/8965bc990803a0c87485e6682378a62dbd320c4d/atlas-distill/src/stats.rs) centers columns and uses squared
+  singular values divided by `n - 1`. This path does not standardize columns or
+  apply a dimensionless physical scale. A common scalar scale leaves PR unchanged;
+  separate column scales generally do not. Mixed property families require an
+  explicit coordinate/weight contract.
+- The centered sample rank is at most `min(p, n - 1)`. Comparisons must expose
+  both sample size and complete-case selection, not only PR divided by `p`.
+- The `is_hyper_ribbon` flag combines fractional PR and log-spectrum fit with
+  monotonicity of an already descending spectrum. Strictly descending eigenvalues
+  automatically have negative rank-trend statistic; that condition is not
+  independent evidence for a physical mechanism.
+- [`NullModelAgent`](https://github.com/alexwelcing/lupine-rhizo/blob/8965bc990803a0c87485e6682378a62dbd320c4d/atlas-distill/src/agents/null_model_agent.rs) matches
+  the number of rows and columns, but draws independent **uniform** values at one
+  common scale (despite a comment saying normal). It does not preserve the
+  observed column variances, model/reference dependence or physical constraints.
+  Passing this null would not exclude those explanations.
+
+These are properties of this code path. No affected historical row count or new
+scientific significance level was established by the inspection. Other archived
+generators must be inspected separately before assigning their results this contract.
+
+## Glim's distinct joint-property path
+
+The separate [Glim Manifold agent](https://github.com/alexwelcing/lupine-rhizo/blob/main/glim-think/src/agents/manifold.ts) uses
+relative errors, not the raw-error Rust path above. Its inspected pre-fix revision
+`3c3f6bffab815481e084b67978f2df8e25e85784` inserted zero whenever an observable was
+missing or its reference was zero. This treated an unknown measurement as a
+perfect prediction. It also merged matching labels without retaining element or
+supplied model identity in the row key.
+
+A synthetic reproduction executed the actual class with I/O doubles: three labels,
+two properties, but only one complete row yielded PR 1.6, `hyper_ribbon=true` and
+a claim write. This demonstrates a consumer defect, not an observed historical
+scientific result or evidence that any particular published PR used those records.
+
+The current
+[observed-matrix contract](https://github.com/alexwelcing/lupine-rhizo/blob/main/glim-think/src/research/observedManifoldMatrix.ts)
+is shared by the tool and deterministic entry points. It keeps the input property
+set fixed, retains only complete finite rows with nonzero references, rejects
+conflicting repeated cells, and separates elements and supplied potential IDs.
+Label fallback is disclosed; it does not verify model-artifact equivalence.
+True measured zero residuals remain zero. Missing values are never filled.
+
+Both paths expose sample selection, relative-error scaling and the centered-rank
+ceiling. Insufficient complete observations, no observed variation or more than
+five properties cause abstention; the existing eigenvalue routine must not report
+full-spectrum PR after computing only five components. Only included records
+become claim evidence. Legacy caches do not acquire the new contract by relabeling
+a scalar PR; explicit recomputation is required. Regression checks exercise the
+actual tool and deterministic paths with synthetic inputs and I/O doubles.
+
+This fixes fabricated observations and row-key collisions. It does not eliminate
+complete-case selection bias, establish compatible reference states, verify
+independent model artifacts, certify the approximate eigensolver, or calibrate
+the retained confidence heuristic. Results remain descriptive.
+
+## Existing controls and outstanding interpretation
+
+The [MEAM matched-sample comparison](../conjectures/meam-intrinsic-2d.md) already
+retired the strong intrinsic-dimensionality claim. Do not repeat that bootstrap
+just to produce another number. The [Born-screening review](../born-screening-re-audit.md)
+keeps the old MLIP transfer count frozen. The
+[A6 pilot](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/glim-m3-upgrade/runs/a6-alignment-results.md) remains provisional;
+its recorded signal does not establish a universal configuration-space core.
+These are retained reports, not newly checked raw-data reproductions.
+
+The [retained ribbon-sprint report](https://github.com/alexwelcing/lupine-rhizo/blob/main/docs/ribbon-sprint/00-preregistration.md)
+already records a negative joint-property control: its four-property, 42-row panel
+has reported PR 2.16 versus null 2.24, p=0.30. The named raw result/input files were
+not located by the bounded workspace filename search in this review. Treat this
+as a reported control, not a newly reproduced result, and do not equate its cohort
+with the older 45-record seed or rerun it merely because the summary was missed.
+
+Adding a derived coordinate also needs care: cubic `B = (C11 + 2*C12)/3`,
+when calculated from the same constants, adds no independent measurement.
+An independently fitted equation-of-state bulk modulus is a distinct observation
+whose protocol and relation to the elastic constants must be recorded.
+Adding lattice constant or cohesive energy can broaden observables, but a low
+joint PR alone does not rule out scale, sample-size or selection effects.
+
+## What the Lean statement proves
+
+[`HyperRibbonEmpirical.lean`](https://github.com/alexwelcing/lupine-rhizo/blob/main/lean-spec/OpenDistillationFactory/Materials/Theory/HyperRibbonEmpirical.lean)
+defines the Float constant `0.3981388474988096` and checks that it is below
+`0.5` using `native_decide`. The statement has no dataset input, source digest,
+PCA calculation, sampling model or physical universality quantifier. It checks
+that numerical assertion; it does not certify the observations or their interpretation.
+See the [corrected audit boundary](../formal-audit.md).
+
+## Next discriminating step
+
+Recover the pinned input and generator for the reported joint `Cij + a0` result
+before interpreting its normalization. Freeze the observational unit, complete
+common row set, independent model/reference identities and dimensionless scale
+contract before any comparison. Compare the same retained observations under
+that declared contract; do not manufacture extra independent evidence from
+derived observables. An explanation by scale, selection or the appropriate
+matched null retires the stronger extension and leaves only a descriptive result.
+
+No new inference, simulation, source retry or corpus admission follows from this
+plan. Demonstrated value still requires a separate task-specific decision or
+held-out correction result; low PR alone supplies neither.
+
+
+## The separate HTTP manifold calculation
+
+The `POST /run` calculation was a third implementation, separate from the
+Manifold agent's tool and deterministic paths. Source inspection at
+`708404a6d31675de88bac5da0bc9c612fed316be` found a diagonal-only denominator:
+`(tr C)^2 / sum_i C_ii^2`. For a symmetric covariance, participation ratio
+instead uses `(tr C)^2 / sum_ij C_ij^2`. On the actual former route block,
+three synthetic rows with errors (-0.1,-0.1,-0.1), (0,0,0), (0.1,0.1,0.1)
+produced covariance 0.01 times the all-ones matrix and reported PR=3.
+Its eigenvalues are (0.03,0,0), so the correct PR is 1. This is an
+implementation counterexample, not a new physical observation or proof that
+a particular historical result used this path.
+
+The route now calls [runManifold.ts](https://github.com/alexwelcing/lupine-rhizo/blob/main/glim-think/src/research/runManifold.ts).
+It keeps the declared C11/C12/C44 basis and uses the shared observed-matrix
+selection by element and model identity. Repeated conflicts exclude a row;
+missing columns cannot shrink the basis; the route retains its three-complete-row
+minimum. Selection counts describe rows after the explicit property, element and style
+filters, not the entire ledger. Finite signed observations remain present; this
+route does not add a stability filter. The PR calculation uses all covariance entries, with a
+common scale to avoid overflow or underflow when squaring finite entries.
+Known-spectrum, rotated-basis and scale controls test this formula.
+
+The article prompt carries complete-case counts and descriptive limits.
+The legacy power-iteration direction is only an estimate; an orthogonal seed
+returns unavailable, and no largest-eigenvalue certificate is claimed.
+No reference compatibility, artifact independence, held-out performance or
+historical-impact count follows from these corrections.
+
+The preceding `708404a` CI run passed all eight agent observation runtime cases
+but was cancelled before the worker typecheck completed. The cancelled run is
+preserved. A Linux CI diagnostic now runs that same worker test tsconfig with a
+180-second timeout and bounded trace files before the normal test suite;
+the complete typechecking requirement and 12-minute workflow limit remain.

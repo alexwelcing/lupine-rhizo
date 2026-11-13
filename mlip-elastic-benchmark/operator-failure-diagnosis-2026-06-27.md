@@ -179,7 +179,7 @@ A variance subset was run to check seed-to-seed stability: Ca, Cu, Fe, and Cr we
 - TensorNet/PBE 1×1×1 is **deterministic across seeds** for this benchmark.
 - Per-element MAE standard deviations are ~0 GPa.
 - The single-seed headline numbers are therefore seed-stable on the tested subset.
-- Raw data: `/home/alex/Dev/lupine/lupine/data/mlip_elastic_benchmark_variance_subset/`.
+- Raw data: kept on a local workstation and not committed to a public repository (a local file path that stood here was removed 2026-11-12).
 
 This removes a key uncertainty from the cost-accuracy ratios: the single-model cost is not being inflated by hidden seed variance on the elements most prone to numerical instability.
 

@@ -37,7 +37,11 @@ Ingested one foundation MLIP at a time on the 15 IMMI elements:
 Separately, the corpus was **de-myopized**: it had been ~99.5 % elastic-constant
 records. Recovering real lattice constants ($a_0$) from MLIP provenance (45 records)
 and forcing a joint $C_{ij}+a_0$ manifold, the ribbon **survives** (participation
-ratio 1.05–2.05). So it is not an artifact of one property family.
+ratio 1.05–2.05). This is a historical reported result, not a demonstrated exclusion
+of an observable-selection or scale artifact. Its exact generator, normalization,
+complete-case sample and model/reference dependence must be recovered before
+that interpretation is used. The maintained Distill raw-error PCA path
+must not be assumed to be the generator of this separate result.
 
 ## Why it matters
 
@@ -49,6 +53,12 @@ tensors.
 
 ## Next
 
-First recompute the classical-to-MLIP transfer count on Born-stable inputs. Then
-add $E_\text{coh}$ and $B_0$ from the Phase-D compute pipeline so the manifold
-spans four property families, and re-test ribbon stability across the wider basis.
+Before further calculation, recover the pinned input and normalization contract
+for the existing joint-property result. Use the same eligible observations for
+any matched comparison and retain the Born-screening exclusions. The old
+transfer count remains open; this is not an instruction to replay simulations.
+
+Adding $E_\text{coh}$ or $a_0$ requires a declared dimensionless scale and sample
+contract. A $B_0$ derived as $(C_{11}+2C_{12})/3$ from the same constants adds no
+independent measurement; a separately fitted equation-of-state value has its own
+protocol. See [the calculation and proof boundaries](../science/objects.md).

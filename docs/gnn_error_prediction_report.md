@@ -1,5 +1,10 @@
 # GNN Error Prediction from Crystal Graphs - Deep Research Report
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 **Report Source:** Kimi Deep Research
 **Total Content:** 88,097 characters
 **Extraction Status:** Partial extraction (successfully extracted 5 major sections and end-matter)

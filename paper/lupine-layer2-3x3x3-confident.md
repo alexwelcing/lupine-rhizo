@@ -4,6 +4,13 @@
 *Correspondence: alex@lupinesci.com*  
 *Last revised: 2026-06-29*
 
+> **Status: Archived (2026-11-11).** Superseded by
+> [lupine-layer2-3x3x3-final-paper.md](lupine-layer2-3x3x3-final-paper.md). The
+> 9.92 GPa corrected figure below is an in-sample recalibration (the bias is fitted
+> on the rows it scores) and is retired as a headline; the out-of-sample
+> leave-one-out figure (10.36 GPa) is itself an oracle ceiling, not a deployable
+> correction. Status: [conjecture ledger](../docs/conjectures/ledger.md).
+
 ---
 
 ## Abstract

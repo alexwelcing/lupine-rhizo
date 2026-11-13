@@ -20,6 +20,7 @@ Cloudflare Worker secrets are encrypted and are not overwritten by `wrangler dep
 - `CF_ACCESS_TEAM_DOMAIN` — team subdomain only, for example `example` for `example.cloudflareaccess.com`
 - `CF_ACCESS_AUD` — Access application audience tag
 - `ADMIN_EMAIL` — allowed administrator email for gated write/admin routes
+- `PUBLIC_ACTIVITY_PRIVATE_TERMS` — optional comma-separated denylist (for example private host or device names) that a public research-activity import must not contain; keep it in the deploy environment, never in the repository
 - `INTERNAL_TASK_TOKEN` — shared secret for internal queue-to-Worker subrequests
 - `HERDR_BRIDGE_TOKEN` — bearer for herdr-bridge daemons; scoped to `/bridge/*` and `POST /feed/beats` only (`docs/herdr-bridge.md`)
 

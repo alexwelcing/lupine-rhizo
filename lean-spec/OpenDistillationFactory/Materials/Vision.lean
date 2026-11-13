@@ -155,7 +155,7 @@ def nistCount := nistScaffoldAlSample.length
 #check syntheticBccFailsNistIntegrity
 
 /- T42–T47: Audit theorems -/
-#check simpsonVerdictContainsFabricated
+#check simpsonVerdictRefutedByFormalCheck
 #check hyperRibbonVerdictContainsConsistent
 #check auditReportNonEmpty
 
@@ -287,10 +287,11 @@ def nistCount := nistScaffoldAlSample.length
 #check uniform_node_admitted
 #check mixed_metal_node_refused
 
-/- T141–T150: Climate-series certificate pack — decidable integer locks on
-    the proof pack's quantitative claims (synthesis funnel, A-Lab novelty
-    collapse, the kernel-rejected 27→26 episode, blind-prediction residuals,
-    and the five-target portfolio envelope). -/
+/- T141–T150: Climate-series arithmetic checks — decidable integer locks on
+    the quantitative statements in the July 2026 climate-series articles
+    (synthesis funnel, A-Lab novelty collapse, the kernel-rejected 27→26
+    episode, blind-prediction residuals, and the five-target portfolio
+    envelope). -/
 #check gnome_validation_rate_at_most_0_2_percent
 #check alab_true_novelty_at_most_one_third
 #check kernel_refuses_zero_margin

@@ -13,8 +13,8 @@ this is not a multi-tenant workspace with per-user isolation.
 - Resume a saved conversation, rename it, and cancel a streamed response.
 - Ask for saved hypotheses, literature, and lab activity. The evidence tool
   runs bounded, fixed read queries and returns record IDs.
-- Open **Research runs** for imported local PI cycles: the original question,
-  discovery, independent critique, decision, source links and execution receipts.
+- Open **Research runs** for imported local model-review cycles: the original question,
+  discovery, separate-model critique, adjudication, source links and execution receipts.
   Pending, stopped and completed discussions remain distinct. Chat can read the
   same saved runs through `read_research_runs`, one scientific packet at a time.
 - Follow **See the research** to the public
@@ -127,7 +127,7 @@ Validate those on an authenticated staging deployment before production use.
 ## Private local research receipts
 
 The existing local `tools/pi-cycle.py` ledger remains the authority for the
-Mac discovery → aledev critique → Mac PI decision workflow. The workspace holds
+Mac discovery → workstation critique → model adjudication workflow. The workspace holds
 a private, read-only projection in the same D1 `LEDGER`, using migration
 `0020_workspace_research_runs.sql`. This is separate from the parked Progress
 feed, which contains report analyses rather than execution receipts.
@@ -138,7 +138,7 @@ ran again. Critique and decision jobs keep their own identities, and failed or
 stopped cycles remain visible. The CLI adapter now handles exact observed builtin
 and empty-command metadata without granting tools, compresses the reviewed
 handoff, and checks Homebase's command-size limit before transmission. See the
-[scientific PI guide](../../tools/scientific-pi/README.md) for protocol validation,
+[model review stage guide](../../tools/scientific-pi/README.md) for protocol validation,
 transport bounds and the backward-compatible stage-ledger migration.
 
 From the repository root, export one local cycle to a new private file:
@@ -193,7 +193,7 @@ validity in hosted preview.
 Cycle `pi-20261006-risk-tradeoff-07` completed all three research stages with
 zero process exit codes and validated exact job/result-hash links. It adopted
 the earlier completed Codex discovery 01 on the Mac (04:14:53.095Z–04:15:49.108Z),
-received critique 07 from `claude-opus-5-5` on aledev
+received critique 07 from `claude-opus-5-5` on the critique workstation
 (04:38:13.642Z–04:40:01.317Z), and completed Codex decision 07 on the Mac
 (04:40:03.759Z–04:40:49.952Z). All times are UTC. Codex did not report an actual
 model identifier; its recorded model remains `null`.
@@ -202,7 +202,7 @@ The complete snapshot was imported through the signed-in private UI at about
 04:48 UTC. This was manual launch and operator import, not unattended dispatch.
 Earlier failed receipts are preserved, discovery was shared without rerunning
 it, and automatic retry remains off. Separate local CPU analysis findings do
-not mean the PI's proposed experiment ran: it remains **not started**, novelty
+not mean the adjudication's proposed experiment ran: it remains **not started**, novelty
 is **unverified**, and public Library publication is **held**.
 
 ## Cloudflare's new CLI on the Mac

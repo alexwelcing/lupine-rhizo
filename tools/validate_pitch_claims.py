@@ -26,20 +26,10 @@ ROOT = Path(__file__).resolve().parents[1]
 # Investor-facing surfaces: the journal acronym must not appear at all. "IMMI" is
 # matched case-sensitively so the lowercase asset path /immi_paper.pdf is not flagged.
 SURFACES_STRICT = [
-    "gcp/lupine-site-router/public/index.html",
-    "gcp/lupine-site-router/public/llms.txt",
     "library-site/src/i18n.js",
     "library-site/src/app.js",
     "library-site/src/llms.txt",
     "library-site/src/llms-full.txt",
-    "deck/public/index.html",
-    "deck/public/access.html",
-    "deck/public/one-pager.html",
-    "deck/public/methodology.html",
-    "deck/public/status.html",
-    "deck/public/partials/nav.html",
-    "deck/public/partials/footer.html",
-    "raise/command-center.html",
 ]
 
 # These developer-facing records can use IMMI as a dataset / working name, so

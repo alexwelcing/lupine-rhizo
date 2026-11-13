@@ -8,29 +8,7 @@ This project is the first attempt to treat interatomic potential validation as a
 
 ## Build Status
 
-> **Current status:** the machine-generated Lean inventory reports
-> {{LEAN_DECLARATION_COUNT}} theorem/lemma declarations and zero active `sorry`.
-> This page began as the earlier executable-vision snapshot; the inventory below
-> is retained as lineage while current totals come only from the reviewed contract.
-
-<div class="stat-row">
-  <div class="stat-card">
-    <div class="stat-number">green</div>
-    <div class="stat-label">Build-locked proof target</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number">{{LEAN_DECLARATION_COUNT}}</div>
-    <div class="stat-label">Machine-inventoried declarations</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number">0</div>
-    <div class="stat-label">Active sorry</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number">hash-locked</div>
-    <div class="stat-label">Inventory provenance</div>
-  </div>
-</div>
+Lean 4 checks the arithmetic and stated inequalities behind published numbers; it does not check the physics, the reference data or the pipeline. Generated inventory: {{LEAN_DECLARATION_COUNT}} declarations, zero active `sorry` (counted {{LEAN_COUNTED_AT}}). This page began as the earlier executable-vision snapshot; the theorem inventory below is retained as lineage.
 
 ---
 
@@ -63,7 +41,7 @@ These are not tests. They are **epistemic minimums**. A future commit cannot sil
 - `nistScaffoldPredictionsMissing_bool` — structural check on missing data
 
 ### Analysis: Causal Inference (9 theorems)
-- `noSimpsonsDetected` — Simpson's paradox is **fabricated** in synthetic BCC
+- `simpsonsDetectedEmpirical` (`Materials/Analysis/Causal.lean`) — Simpson's paradox is **Refuted by formal check**: on the recorded NIST data, pooled and within-element correlations do not reverse sign. The paradox appeared only in synthetic data.
 - `pooledRBelowMinus08` — pooled correlation < −0.8
 - `pooledWithinRBelowMinus09` — within-group correlation < −0.9
 - `nGroupsEqualsSeven` — exactly 7 metal groups
@@ -105,7 +83,7 @@ These are not tests. They are **epistemic minimums**. A future commit cannot sil
 - `syntheticBccFailsNistIntegrity` — synthetic BCC fails NIST integrity check
 
 ### Validation: Audit (5 theorems)
-- `simpsonVerdictContainsFabricated` — audit string contains "FABRICATED"
+- `simpsonVerdictRefutedByFormalCheck` — audit string contains "Refuted by formal check"
 - `hyperRibbonVerdictContainsConsistent` — audit string contains "CONSISTENT"
 - `auditReportNonEmpty` — report renders
 - `simpsonPooledRNegative` — pooled correlation is negative

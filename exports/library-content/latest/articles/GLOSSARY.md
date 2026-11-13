@@ -119,7 +119,6 @@ Terminology index for glim research and development. Organized by domain.
 | Term | Definition |
 |------|-------------|
 | **glimPSE** | WebGPU-powered LAMMPS visualization web app (current focus). |
-| **glimPSE** | The monorepo in `atlas/glimPSE/`. |
 | **@glim/core** | Shared types package. |
 | **@glim/parsers** | File parsing package (dump, log, data). |
 | **@glim/scene** | R3F scene components package. |
@@ -145,4 +144,3 @@ Terminology index for glim research and development. Organized by domain.
 ---
 
 *See docs/navigation.md for codebase navigation. See docs/research-index.md for research document index.*
-a

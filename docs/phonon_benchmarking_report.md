@@ -1,5 +1,10 @@
 # Phonon Frequency Spectrum Benchmarking for Interatomic Potentials: A Technical Review for the GLIM Project
 
+> **Status: Background reading.** AI-drafted background survey, generated with a
+> commercial deep-research assistant (Kimi Deep Research, 2026). Not reviewed for
+> accuracy; not a Lupine result. Numbers and recommendations in it are the
+> assistant's, not ours.
+
 ## 1. Foundational Concepts and Scope
 
 ### 1.1 Phonon Frequency Spectrum as a Critical Validation Target

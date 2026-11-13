@@ -27,7 +27,7 @@ conditional field-model statements:
    (kB·300 K = 25.85 meV = 517/20 meV),
    * `barrier_error_100meV_amplifies_32x` and `…_at_most_64x` — a 100 meV
      barrier error changes the same-prefactor hopping rate by a factor bracketed in
-     (32, 64): the "roughly 50×" of the proof pack, now with proved bounds;
+     (32, 64): the "roughly 50×" of the climate-series articles, now with proved bounds;
    * `halide_barrier_error_three_orders` — the 60 % underestimation of a
      300 meV barrier (δ = 180 meV) gives an exponential factor above 1000.
      This numeric statement does not establish material-specific conductivity.
@@ -212,7 +212,7 @@ theorem exp_le_two_pow (n : ℕ) (x : ℝ) (h : x ≤ (n : ℝ) * Real.log 2) :
     _ = (2 : ℝ) ^ n := by rw [Real.exp_log (by norm_num : (0 : ℝ) < 2)]
 
 /-- **A 100 meV barrier error is at least a 32× rate error at room
-temperature.** Lower half of the proof pack's "roughly 50×" claim:
+temperature.** Lower half of the climate-series articles' "roughly 50×" claim:
 exp(100 / 25.85) > 2⁵ = 32, because 5·log 2 < 100/(517/20). -/
 theorem barrier_error_100meV_amplifies_32x :
     (32 : ℝ) ≤ Real.exp ((100 : ℝ) / (517 / 20)) := by
@@ -224,8 +224,8 @@ theorem barrier_error_100meV_amplifies_32x :
     _ ≤ Real.exp ((100 : ℝ) / (517 / 20)) := exp_ge_two_pow 5 _ h
 
 /-- **…and at most a 64× rate error.** Upper half of the bracket:
-exp(100 / 25.85) < 2⁶ = 64, because 100/(517/20) < 6·log 2. The proof pack's
-"≈50×" sits strictly inside the proved interval (32, 64). -/
+exp(100 / 25.85) < 2⁶ = 64, because 100/(517/20) < 6·log 2. The climate-series
+articles' "≈50×" sits strictly inside the proved interval (32, 64). -/
 theorem barrier_error_100meV_amplifies_at_most_64x :
     Real.exp ((100 : ℝ) / (517 / 20)) ≤ 64 := by
   have hlog := Real.log_two_gt_d9
