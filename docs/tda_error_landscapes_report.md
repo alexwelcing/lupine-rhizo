@@ -999,4 +999,3 @@ Topological Data Analysis of Interatomic Potential Error Landscapes: A Comprehen
 "present due to the **importance of defects—dislocations, grain boundaries, point defects"
 "Metallic systems"
 "particular challenges for topological analysis"
-
