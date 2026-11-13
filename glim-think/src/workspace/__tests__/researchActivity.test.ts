@@ -56,7 +56,11 @@ function harness() {
   function statement(sql: string, values: unknown[] = []): D1PreparedStatement {
     return { bind: (...bound: unknown[]) => statement(sql, [...values, ...bound]),
       first: async () => db.prepare(sql).get(...values) ?? null,
-      all: async () => ({ results: db.prepare(sql).all(...values), success: true, meta: {} }),
+      all: async () => {
+        if (/^INSERT INTO public_research_activity\b/.test(sql)) hooks.beforeRun?.();
+        const results = db.prepare(sql).all(...values);
+        return { results, success: true, meta: { changes: Number(db.prepare("SELECT changes() AS n").get().n) } };
+      },
       run: async () => { hooks.beforeRun?.(); return { results: [], success: true, meta: { changes: Number(db.prepare(sql).run(...values).changes) } }; },
     } as unknown as D1PreparedStatement;
   }
@@ -198,6 +202,28 @@ describe("public read and operator import boundaries", () => {
     expect((await researchActivityResponse(h.request(record(), { "Content-Type": "text/plain" }), h.env))!.status).toBe(415);
     expect((await researchActivityResponse(h.request({ summary: "é".repeat(PUBLIC_ACTIVITY_MAX_BYTES) }), h.env))!.status).toBe(413);
     expect(h.queries).toHaveLength(0);
+  });
+  it("imports an operator clarification append-only and rejects forks without changing the original", async () => {
+    const h = harness(); const original = record();
+    await importPublicResearchActivity(h.env, original);
+    const originalBytes = h.db.prepare("SELECT payload FROM public_research_activity WHERE id=?").get(original.id).payload;
+    const correction = { ...original, id: "operator-clarification", supersedes: original.id,
+      reviewedAt: "2026-10-02T11:00:00.000Z", summary: "The original finding applies only to the reviewed fixture.",
+      correctionReason: "Local operator review clarified scope; no new hosted agent review or experiment." };
+    const bypass = { ...h.env, DEV_MODE: "true", INTERNAL_TASK_TOKEN: "secret" } as Env;
+    expect((await researchActivityResponse(h.request(correction, { "Cf-Access-Jwt-Assertion": "", "X-Internal-Token": "secret" }), bypass))!.status).toBe(403);
+    expect((await researchActivityResponse(h.request(correction, { Origin: "https://other.example.org" }), h.env))!.status).toBe(403);
+    expect(await getPublicResearchActivity(h.env, correction.id)).toBeNull();
+    const response = await researchActivityResponse(h.request(correction), h.env);
+    expect(response!.status).toBe(200);
+    expect(await response!.json()).toEqual({ id: correction.id, activityId: original.activityId, state: original.state, duplicate: false });
+    expect(await getPublicResearchActivity(h.env, correction.id)).toEqual(correction);
+    expect(h.db.prepare("SELECT payload FROM public_research_activity WHERE id=?").get(original.id).payload).toBe(originalBytes);
+    const fork = { ...correction, id: "operator-fork", reviewedAt: "2026-10-03T11:00:00.000Z" };
+    expect((await researchActivityResponse(h.request(fork), h.env))!.status).toBe(409);
+    expect((await listPublicResearchActivity(h.env)).items.map(item => item.id)).toEqual([correction.id]);
+    expect(await getPublicResearchActivity(h.env, "operator-fork")).toBeNull();
+    expect(h.db.prepare("SELECT COUNT(*) AS n FROM public_research_activity").get().n).toBe(2);
   });
 });
 

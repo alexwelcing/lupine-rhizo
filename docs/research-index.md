@@ -25,11 +25,16 @@ and qualifications determine what that label supports.
 
 | Report date | Report | Catalog status | What to look for |
 | --- | --- | --- | --- |
+| 2026-10-26 | [Cloudflare research team study](./research-progress/2026-10-26-cloudflare-research-team.md) | Retrospective case study | Scientific results, per-agent report sizes and model participation; preserved failures and limits of independent validation. |
 | 2026-07-24 | [Z1 Union Campaign — Verdict](./analysis/z1-union-campaign-verdict.md) | Supported | Same-engine self-consistency, with external-reference accuracy and remaining gates explicitly separated. |
 | 2026-07-24 | [Z1 Union Campaign — Cost Ledger](./analysis/z1-union-cost-ledger.md) | Supported | Measured wall time, assumed price rates, and per-path costs. This is not a cloud invoice. |
 | 2026-07-19 | [Z1 Barrier Campaign — Round 4](./validation/z1-barrier-campaign-round4-results.md) | Refuted by us | The preregistered accuracy gate failed on both precision chains; incomplete paths remain visible. |
 | 2026-07-19 | [Z3 Adsorption Campaign — Round 4](./validation/z3-adsorption-delta-campaign-round4-results.md) | Refuted by us | All four validation-selected corrections worsened held-out accuracy relative to their raw baselines. |
 | 2026-06-20 | [Born-Screening Re-Audit](./born-screening-re-audit.md) | Self-corrected | Invalid tensors narrowed earlier claims; open recomputation gates remain open. |
+
+## Source studies
+
+- [LAMMPS as a research instrument: from source code to trustworthy experiments](./research-programs/lammps-code-to-experiment.md) — local source review dated 31 October 2026, connecting force calculations and stress conventions to a proposed static copper EAM check. The experiment has not run; source inspection and numerical consistency do not establish material accuracy.
 
 ## Follow a claim from question to evidence
 

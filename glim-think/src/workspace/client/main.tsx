@@ -7,6 +7,7 @@ import type { UIMessage } from "ai";
 import { conversationIdSchema, safeEvidenceHref, workspaceRoutingSummary, type ConversationSummary, type PublicModelProfile, type WorkspaceState } from "../contracts";
 import { ProgressFeed, nextStepDiscussion } from "./ProgressFeed";
 import { ResearchRuns } from "./ResearchRuns";
+import { LibraryCorrections } from "./LibraryCorrections";
 import { ProofJobs } from "./ProofJobs";
 import "./style.css";
 
@@ -220,6 +221,7 @@ function Chat({ room, onMetadata }: { room: Room; onMetadata: (entry: Conversati
 function App() {
   const [room, setRoom] = useState<Room | null>(startingRoom);
   const [proofOpen, setProofOpen] = useState(() => new URL(location.href).searchParams.get("view") === "proof-jobs");
+  const [correctionsOpen, setCorrectionsOpen] = useState(() => new URL(location.href).searchParams.get("view") === "library-corrections");
   const [researchOpen, setResearchOpen] = useState(() => new URL(location.href).searchParams.get("view") !== "progress");
   const lastRoom = useRef<Room>(room ?? { id: "research" });
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -236,29 +238,37 @@ function App() {
   }
   useEffect(() => { void refresh(); }, []);
   useEffect(() => {
-    const handler = () => { const next = startingRoom(); if (next) lastRoom.current = next; setRoom(next); setProofOpen(new URL(location.href).searchParams.get("view") === "proof-jobs"); setResearchOpen(new URL(location.href).searchParams.get("view") !== "progress"); };
+    const handler = () => { const next = startingRoom(); if (next) lastRoom.current = next; setRoom(next); setProofOpen(new URL(location.href).searchParams.get("view") === "proof-jobs"); setCorrectionsOpen(new URL(location.href).searchParams.get("view") === "library-corrections"); setResearchOpen(new URL(location.href).searchParams.get("view") !== "progress"); };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
   }, []);
 
   function openRoom(next: Room) {
+    setCorrectionsOpen(false);
     setProofOpen(false);
     const url = new URL(location.href); url.searchParams.set("conversation", next.id); url.searchParams.delete("view");
     history.pushState(null, "", url); lastRoom.current = next; setRoom(next); setResearchOpen(false);
   }
   function openProgress() {
+    setCorrectionsOpen(false);
     setProofOpen(false);
     const url = new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view", "progress");
     history.pushState(null, "", url); setRoom(null); setResearchOpen(false);
   }
   function openResearchRuns() {
+    setCorrectionsOpen(false);
     setProofOpen(false);
     const url = new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view", "research-runs");
     history.pushState(null, "", url); setRoom(null); setResearchOpen(true);
   }
   function openProofJobs() {
+    setCorrectionsOpen(false);
     const url=new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view","proof-jobs");
     history.pushState(null,"",url); setRoom(null); setProofOpen(true); setResearchOpen(false);
+  }
+  function openLibraryCorrections() {
+    const url = new URL(location.href); url.searchParams.delete("conversation"); url.searchParams.set("view", "library-corrections");
+    history.pushState(null, "", url); setRoom(null); setProofOpen(false); setResearchOpen(false); setCorrectionsOpen(true);
   }
   function navigate(event: React.MouseEvent<HTMLAnchorElement>, action: () => void) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -272,11 +282,12 @@ function App() {
       <a href="/workspace" className="brand"><span>✳</span><div>Lupine <em>Rhizo</em><small>RESEARCH, CONNECTED</small></div></a>
       <nav className="destinations" aria-label="Research navigation">
         <a className={!room && proofOpen ? "selected" : ""} aria-current={!room && proofOpen ? "page" : undefined} href="/workspace?view=proof-jobs" onClick={(event) => navigate(event, openProofJobs)}>Proof jobs <span>↗</span></a>
-        <a className={!room && !proofOpen && researchOpen ? "selected" : ""} aria-current={!room && !proofOpen && researchOpen ? "page" : undefined} href="/workspace?view=research-runs" onClick={(event) => navigate(event, openResearchRuns)}>Research runs <span>↗</span></a>
-        <a className={!room && !proofOpen && !researchOpen ? "selected" : ""} aria-current={!room && !proofOpen && !researchOpen ? "page" : undefined} href="/workspace?view=progress" onClick={(event) => navigate(event, openProgress)}>Progress <span>↗</span></a>
+        <a className={!room && !proofOpen && !correctionsOpen && researchOpen ? "selected" : ""} aria-current={!room && !proofOpen && !correctionsOpen && researchOpen ? "page" : undefined} href="/workspace?view=research-runs" onClick={(event) => navigate(event, openResearchRuns)}>Research runs <span>↗</span></a>
+        <a className={!room && correctionsOpen ? "selected" : ""} aria-current={!room && correctionsOpen ? "page" : undefined} href="/workspace?view=library-corrections" onClick={(event) => navigate(event, openLibraryCorrections)}>Library corrections <span>↗</span></a>
+        <a className={!room && !proofOpen && !correctionsOpen && !researchOpen ? "selected" : ""} aria-current={!room && !proofOpen && !correctionsOpen && !researchOpen ? "page" : undefined} href="/workspace?view=progress" onClick={(event) => navigate(event, openProgress)}>Progress <span>↗</span></a>
         <a className={room ? "selected" : ""} aria-current={room ? "page" : undefined} href={`/workspace?conversation=${lastRoom.current.id}`} onClick={(event) => navigate(event, () => openRoom(lastRoom.current))}>Conversations <span>↗</span></a>
       </nav>
-      <p className="private-workspace-note"><span aria-hidden="true">◈</span> Private workspace<br /><small>Library publication is on hold.</small></p>
+      <p className="private-workspace-note"><span aria-hidden="true">◈</span> Private workspace<br /><small>Private runs stay private. Library corrections require explicit publication.</small></p>
       <div className="sidebar-heading"><h2>Conversations</h2><button className="icon-button" title="Refresh saved conversations" aria-label="Refresh saved conversations" onClick={() => void refresh()}>↻</button></div>
       <form className="new-conversation" onSubmit={(e) => { e.preventDefault(); if (newName.trim()) { openRoom({ id: crypto.randomUUID(), title: newName.trim() }); setNewName(""); } }}>
         <input aria-label="New conversation name" placeholder="Name a new conversation" maxLength={80} value={newName} onChange={(e) => setNewName(e.target.value)} /><button disabled={!newName.trim()} aria-label="Create conversation">+</button>
@@ -285,7 +296,7 @@ function App() {
       <nav className="conversation-list" aria-label="Saved conversations">{conversations.map((item) => <button key={item.id} className={room?.id === item.id ? "active" : ""} onClick={() => openRoom({ id: item.id })}><span>{item.title}</span><small>{new Date(item.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</small></button>)}</nav>
       <div className="sidebar-footer"><i /><span>A shared, durable notebook.<br />Pick up on any signed-in device.</span></div>
     </aside>
-    {room ? <ConversationBoundary key={room.id}><React.Suspense fallback={<LoadingConversation />}><Chat room={room} onMetadata={remember} /></React.Suspense></ConversationBoundary> : proofOpen ? <ProofJobs /> : researchOpen ? <ResearchRuns /> : <ProgressFeed onDiscuss={(clip) => { const discussion = nextStepDiscussion(clip); openRoom({ id: crypto.randomUUID(), title: discussion.title, draft: discussion.prompt }); }} />}
+    {room ? <ConversationBoundary key={room.id}><React.Suspense fallback={<LoadingConversation />}><Chat room={room} onMetadata={remember} /></React.Suspense></ConversationBoundary> : proofOpen ? <ProofJobs /> : correctionsOpen ? <LibraryCorrections /> : researchOpen ? <ResearchRuns /> : <ProgressFeed onDiscuss={(clip) => { const discussion = nextStepDiscussion(clip); openRoom({ id: crypto.randomUUID(), title: discussion.title, draft: discussion.prompt }); }} />}
   </div>;
 }
 
